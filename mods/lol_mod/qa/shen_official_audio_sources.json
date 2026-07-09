@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "champion": "Shen",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Shen.wad.client (local League install)",
+    "size_bytes": 72174518,
+    "sha256": "57351c440ba5a831ee45ab736a2dbf935b9736892d624c409f64963bb18a21e3"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/shen/skins/base/shen_base_sfx_audio.bnk",
+    "wad_path_hash": "f92988de7021cabe",
+    "wad_offset": 60655435,
+    "size_bytes": 2066108,
+    "compression": "none",
+    "sha256": "2e6c999482ec16ea7dfe22706a6634555c8b4a45bd53b2104985545def754fdc"
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "version": "r2117-116-g4021c853",
+    "path": "external vgmstream-cli (not committed)",
+    "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+    "arguments": [
+      "-i",
+      "-W",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "event_key": "shen_attack_cast",
+      "riot_event": "Play_sfx_Shen_ShenBasicAttack_OnCast",
+      "media_id": 703618444,
+      "source_wem_size_bytes": 6739,
+      "source_wem_sha256": "31c995a417bb062fc8425e0ca6a483d04f8b925e7427aa42fb32928d544cf580",
+      "duration_seconds": 0.9234240362811791,
+      "sound_info": "sound/sfx/shen_attack_cast.sound_info",
+      "clip": "shen_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_attack_cast_clip.wav",
+        "size_bytes": 81490,
+        "sha256": "61386f179bf3420408709a1fe4cd46857c9b70f22a91aabbf00a579336e79585",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 40723
+      }
+    },
+    {
+      "event_key": "shen_attack_hit",
+      "riot_event": "Play_sfx_Shen_ShenBasicAttack_OnHit",
+      "media_id": 82842219,
+      "source_wem_size_bytes": 4427,
+      "source_wem_sha256": "55ae03d2a36fde25420077ee2c8a4d9b29455ffaf8bba8022cb923f27f8fcd71",
+      "duration_seconds": 0.6056235827664399,
+      "sound_info": "sound/sfx/shen_attack_hit.sound_info",
+      "clip": "shen_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_attack_hit_clip.wav",
+        "size_bytes": 53460,
+        "sha256": "aa8bfdab63d0b60cb50d86c17c8aa5bb3fe7bc498fca643e498bae78ad96b634",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 26708
+      }
+    },
+    {
+      "event_key": "shen_q_cast",
+      "riot_event": "Play_sfx_Shen_ShenQ_OnCast",
+      "media_id": 525347176,
+      "source_wem_size_bytes": 9902,
+      "source_wem_sha256": "743e298254bd21f40d1e4113811ad6f693be5686e261cc73c2945253202bd3d0",
+      "duration_seconds": 1.1989342403628118,
+      "sound_info": "sound/sfx/shen_q_cast.sound_info",
+      "clip": "shen_q_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_q_cast_clip.wav",
+        "size_bytes": 105790,
+        "sha256": "4bb9198046c245fada7d6420708a0b7fadd2f304544c1a1eb0ddbe5bc969479d",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 52873
+      }
+    },
+    {
+      "event_key": "shen_w_cast",
+      "riot_event": "Play_sfx_Shen_ShenW_OnCast",
+      "media_id": 770437314,
+      "source_wem_size_bytes": 16953,
+      "source_wem_sha256": "55a9c3f1b0e37b27982211e67ade9e1dc8ed98db74b5a167114868a8b0100a5e",
+      "duration_seconds": 2.209251700680272,
+      "sound_info": "sound/sfx/shen_w_cast.sound_info",
+      "clip": "shen_w_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_w_cast_clip.wav",
+        "size_bytes": 194900,
+        "sha256": "334d52f8d43f49031444b0968b6bc22d37da3cc8f47014c30f3771819ed9afd8",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 97428
+      }
+    },
+    {
+      "event_key": "shen_w_block",
+      "riot_event": "Play_sfx_Shen_ShenW_hit_block",
+      "media_id": 186296924,
+      "source_wem_size_bytes": 6840,
+      "source_wem_sha256": "ea23aee5eb76269fb5bb4e310b929b817517359df9237ae2e1dbecf339728399",
+      "duration_seconds": 0.8287755102040816,
+      "sound_info": "sound/sfx/shen_w_block.sound_info",
+      "clip": "shen_w_block_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_w_block_clip.wav",
+        "size_bytes": 73142,
+        "sha256": "f3d544baa638f49aa4ed305f8d956427f68fb143246a8f955c4bd8a479377afb",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 36549
+      }
+    },
+    {
+      "event_key": "shen_r_cast",
+      "riot_event": "Play_sfx_Shen_ShenR_OnCast",
+      "media_id": 180519866,
+      "source_wem_size_bytes": 5728,
+      "source_wem_sha256": "42d603de199592c6cc270c929465e8c73c307eaaa80863908fccd2a4ef141b0e",
+      "duration_seconds": 1.0,
+      "sound_info": "sound/sfx/shen_r_cast.sound_info",
+      "clip": "shen_r_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_r_cast_clip.wav",
+        "size_bytes": 88244,
+        "sha256": "4539fcc64b14dae02cc9a0220eb3f253b1ef7cfd2d88bad0b2f05da0261675e7",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 44100
+      }
+    },
+    {
+      "event_key": "shen_r_arrive",
+      "riot_event": "Play_sfx_Shen_ShenR_foley",
+      "media_id": 438315696,
+      "source_wem_size_bytes": 23268,
+      "source_wem_sha256": "0711fe38732b963b4a21658bf55b540afec224e81acfb09ce12936ea208aefd2",
+      "duration_seconds": 3.0816326530612246,
+      "sound_info": "sound/sfx/shen_r_arrive.sound_info",
+      "clip": "shen_r_arrive_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/shen_r_arrive_clip.wav",
+        "size_bytes": 271844,
+        "sha256": "412651e556e26b257766a4aa5fb468d1e78a16a60bab2b02b6a6b7b0fba88f48",
+        "channels": 1,
+        "sample_rate_hz": 44100,
+        "sample_width_bytes": 2,
+        "frame_count": 135900
+      }
+    }
+  ]
+}

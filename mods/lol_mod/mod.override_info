@@ -1,0 +1,66 @@
+{
+  "asset/base/text/champion": {
+    "remapping": "asset/lol_mod/text/champion",
+    "type": "merge"
+  },
+  "asset/base/style/champion_view": {
+    "remapping": "asset/lol_mod/style/champion_view",
+    "type": "merge"
+  },
+  "asset/base/sound/sfx/lol_shen_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_w_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_w_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_w_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_w_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_w_block": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_w_block",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_w_block_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_w_block_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_shen_r_arrive": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_r_arrive",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/shen_r_arrive_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/shen_r_arrive_clip",
+    "type": "override"
+  }
+}

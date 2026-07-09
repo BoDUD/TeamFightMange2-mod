@@ -1,0 +1,22 @@
+name: Shen mod CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python mods/lol_mod/tools/build_lol_mod.py
+      - run: python mods/lol_mod/tools/validate_lol_mod.py
+      - run: python -m pytest -q
+      - name: Generated files are committed
+        run: git diff --exit-code -- mods/lol_mod/aseprite_resources mods/lol_mod/icons mods/lol_mod/qa/shen_actor_contact_final.png mods/lol_mod/qa/shen_skill_icons_final.png mods/lol_mod/build_manifest.json
