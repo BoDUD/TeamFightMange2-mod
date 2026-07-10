@@ -43,6 +43,16 @@
       "sha256": "a51c564352f3f27ea44aadef254ea68946d1db09efc97d8950d5dc80813147e5"
     },
     {
+      "path": "aseprite_resources/champions/sivir#anim.fanim",
+      "size": 9858,
+      "sha256": "74875b39afa10b6c5143327b0c53a9aa05b72457cbe62e51d6ff049ad11c3540"
+    },
+    {
+      "path": "aseprite_resources/champions/sivir#sheet.png",
+      "size": 508071,
+      "sha256": "11655d9b4827defb72af495924804fca2e51651679efe19d70b4cbf6e8e4c7bf"
+    },
+    {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
       "size": 1373,
       "sha256": "eb7a1139a238afac01aac8e1b3982cd29bc73951f72d05c9b17c50fbf769d0d8"
@@ -213,6 +223,56 @@
       "sha256": "16f0d19ee28e2e87ddc4f91828679b54e668c3173b54909f900961f9f3f44c4a"
     },
     {
+      "path": "aseprite_resources/effects/sivir_attack#anim.fanim",
+      "size": 1425,
+      "sha256": "3dda3549398b816a694ca063745d3613b6f8e9b6bcf1ed89346121223f398017"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_attack#sheet.png",
+      "size": 49252,
+      "sha256": "605067b119a1d49bf9ae66e76cacd8b29ee8aaefe689bbfebcb247ccb683afa1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#anim.fanim",
+      "size": 1466,
+      "sha256": "d10c778f17589a046280a7d9173de87d1a249af46b357f89a8a7042c6743c3af"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#sheet.png",
+      "size": 131214,
+      "sha256": "e9b1903e389c874a9ae66771348f691fa4412e3b36209e1bf862536bdf4c97d1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#anim.fanim",
+      "size": 1466,
+      "sha256": "d3c9d6501f2a865908d153bbd623e7e2fd3a629a3928c44f0d032b48f34a6147"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#sheet.png",
+      "size": 65641,
+      "sha256": "69e8ccc06a4c0524f39669a0b06210589e0cfc4199d6e1e523951b9f3ce1c8eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#anim.fanim",
+      "size": 1426,
+      "sha256": "2a0e39f13344ed81ef02e2a68ee9ba7e6fd9d5a7831e3584dcab99307d1b8a69"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#sheet.png",
+      "size": 98425,
+      "sha256": "c3e860fbd987dcfede77fdd0d9c8f92fed00b56df4577f135ed0284f163c043a"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#anim.fanim",
+      "size": 1383,
+      "sha256": "dc19a64b6567319688d11a40b23984aabd4ba2d95661e375932ff3f2286871eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#sheet.png",
+      "size": 262296,
+      "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
+    },
+    {
       "path": "champion/archer.data_champion",
       "size": 21588,
       "sha256": "866afddedefc76de57d43b91c2f48043ea4e5a942392ac5f4c13b48ed7707412"
@@ -226,6 +286,11 @@
       "path": "champion/berserker.data_champion",
       "size": 18380,
       "sha256": "fab626129496b0797ff46fca9dd22da4854e9a18bc468d8a8cd79b0cbf28079d"
+    },
+    {
+      "path": "champion/boomerang_hunter.data_champion",
+      "size": 9854,
+      "sha256": "580e60f07c9a00aff0a9ea0918061ddc0a42d5d7e9eb114436e3e8e10b125012"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -293,14 +358,29 @@
       "sha256": "6bf9c0a4cd2111d79119ba27527a112aee0099971c626622499315d1ebb2babb"
     },
     {
+      "path": "icons/sivir_skill.png",
+      "size": 16516,
+      "sha256": "dab16f83b67ce9876d96cfc5b881f4f401494bf0d97e1486c1fc35c1015fc30d"
+    },
+    {
+      "path": "icons/sivir_skill2.png",
+      "size": 16516,
+      "sha256": "f54a55e43c0be7bc3f6af1d9292bdf684bd4990eb7056eac4a8a456e0bceb025"
+    },
+    {
+      "path": "icons/sivir_ult.png",
+      "size": 16516,
+      "sha256": "106b51aadae466c81370ee59ab640efd3d266cc7419f936458655d4c70e4cec7"
+    },
+    {
       "path": "mod.mod_info",
-      "size": 702,
-      "sha256": "b2f2745190e70a59048e3d71ff1dd0c29aeb5a8fbcc9e4ddf516ebfe4ed0b1d8"
+      "size": 746,
+      "sha256": "79ac62828e239c539896635ca130c6940cfc2a869dd00e88c5a7ab5feabe93f9"
     },
     {
       "path": "mod.override_info",
-      "size": 9187,
-      "sha256": "f1bae65335cef525f1dd2208cae43355a28bedc9603a9f88a4936e8c8a6731b5"
+      "size": 15069,
+      "sha256": "c44b25df46f2f6b8b5946a6ac98ed0e8652e7801778a8bd2ce1f07ae19e73217"
     },
     {
       "path": "sound/sfx/briar_attack_cast.sound_info",
@@ -628,14 +708,94 @@
       "sha256": "334d52f8d43f49031444b0968b6bc22d37da3cc8f47014c30f3771819ed9afd8"
     },
     {
+      "path": "sound/sfx/sivir_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "5dc2ed2b9c3ae9e1e44f0c2711858de17c7435b8b8c9dde99828b60affa69755"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_cast_clip.wav",
+      "size": 150168,
+      "sha256": "5501e747a461dc2f9407c2da2ddb0d20b286d1e6ef69357c2448b17a7690f6f5"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "0139225ffbd6c108279b43aa61c329515fb761dd51b9bfa9a5e420e9c8e68912"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_hit_clip.wav",
+      "size": 97664,
+      "sha256": "f6f93b62872842a797edf6b8c68e81dc5c1935f80511f5e9b672f3121766f153"
+    },
+    {
+      "path": "sound/sfx/sivir_e_cast.sound_info",
+      "size": 66,
+      "sha256": "c24d163f2c2e4e12e833123a3831df502917c17ddbc9af383ffaed545d5aac16"
+    },
+    {
+      "path": "sound/sfx/sivir_e_cast_clip.wav",
+      "size": 384430,
+      "sha256": "d3467e9725ac0a26596ac0afd8d82b8ec449d7543ef813d2ac259b0f8ef1dd7c"
+    },
+    {
+      "path": "sound/sfx/sivir_native_silence.sound_info",
+      "size": 116,
+      "sha256": "87101dbd4584768de437c411c3218ee9c5e40d22574c2fbe70c87e8661df1907"
+    },
+    {
+      "path": "sound/sfx/sivir_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "sound/sfx/sivir_q_hit.sound_info",
+      "size": 66,
+      "sha256": "0be471a92f3c4e7c4c17b45409263a0578b589b52c7069646e155a6c63cf6e74"
+    },
+    {
+      "path": "sound/sfx/sivir_q_hit_clip.wav",
+      "size": 57410,
+      "sha256": "61cd48f889957bee680e27efbc5f407334e8ae51c3329efbc32b1a5da1f0974c"
+    },
+    {
+      "path": "sound/sfx/sivir_q_out.sound_info",
+      "size": 65,
+      "sha256": "0c1978039a5dd700d4f84e167848b4315ee71f6bfe7b33941735dc32d8922ab0"
+    },
+    {
+      "path": "sound/sfx/sivir_q_out_clip.wav",
+      "size": 145700,
+      "sha256": "5134d38fc5323c0181407603c86553117d302e993dfc4107ecbec58478f754ca"
+    },
+    {
+      "path": "sound/sfx/sivir_q_return.sound_info",
+      "size": 68,
+      "sha256": "0f8aa3c2ec61e68726c99c7e8061e407eae6f6a47347c658dfee1d56ccd59b77"
+    },
+    {
+      "path": "sound/sfx/sivir_q_return_clip.wav",
+      "size": 181364,
+      "sha256": "90ad41739b900f039a96e44d90c2430298ad37376d3e75dbaed72739e39c9285"
+    },
+    {
+      "path": "sound/sfx/sivir_r_cast.sound_info",
+      "size": 66,
+      "sha256": "6ed9e3380739df0541ad71ef150bb51fcf35e9f68cf2feb8ed0ce7d7c83be119"
+    },
+    {
+      "path": "sound/sfx/sivir_r_cast_clip.wav",
+      "size": 297554,
+      "sha256": "50599bc5874670fcfb09e2687b58e7d053bc30f510e87255c3521b7da5f4ba62"
+    },
+    {
       "path": "style/champion_view.champion_view",
-      "size": 597,
-      "sha256": "90bce194289d7a4a4534caa9aed5b3f46a4da979e6f62b1f26c4b796aabe83fe"
+      "size": 747,
+      "sha256": "76900f1442e1917b1e0e0212944b0f717dc44d3a3e54219f92303d967f9fa513"
     },
     {
       "path": "text/champion.i18n",
-      "size": 20620,
-      "sha256": "bf7325094106a0a9efdd0c57123e3da8fde7c27b9b6eaa45a21713876e033b70"
+      "size": 26311,
+      "sha256": "ddc6999d3add82dc0e54774d09cfcaab0398a4c67e2dcd508de1f1163994ed01"
     }
   ]
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen, Lucian, Orianna, and Briar runtime assets from accepted sources."""
+"""Build Shen, Lucian, Orianna, Briar, and Sivir assets from accepted sources."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import struct
+import wave
 
 from PIL import Image, ImageDraw
 
@@ -90,6 +91,39 @@ BRIAR_VFX_SOURCES = {
     "briar_e_scream": SOURCE / "briar_e_vfx_contact_alpha.png",
     "briar_r": SOURCE / "briar_r_vfx_contact_alpha.png",
 }
+
+SIVIR_ACTOR_SOURCE = SOURCE / "sivir_actor_contact_alpha.png"
+SIVIR_RUN_SOURCE = SOURCE / "sivir_run_contact_alpha.png"
+SIVIR_ICON_SOURCES = {
+    "sivir_skill.png": MOD_ROOT / "source" / "imagegen" / "sivir_q_icon_source.png",
+    "sivir_skill2.png": MOD_ROOT / "source" / "imagegen" / "sivir_e_icon_source.png",
+    "sivir_ult.png": MOD_ROOT / "source" / "imagegen" / "sivir_r_icon_source.png",
+}
+SIVIR_VFX_SOURCES = {
+    "sivir_attack": SOURCE / "sivir_attack_vfx_contact_alpha.png",
+    "sivir_q": SOURCE / "sivir_q_vfx_contact_alpha.png",
+    "sivir_e_shield": SOURCE / "sivir_e_vfx_contact_alpha.png",
+    "sivir_r_cast": SOURCE / "sivir_r_cast_vfx_contact_alpha.png",
+    "sivir_hunt_buff": SOURCE / "sivir_hunt_buff_vfx_contact_alpha.png",
+}
+SIVIR_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int]] = [
+    (25, 25, 260, 285),
+    (325, 25, 560, 285),
+    (600, 45, 870, 285),
+    (895, 45, 1122, 285),
+    (20, 315, 290, 585),
+    (345, 330, 610, 585),
+    (620, 315, 890, 585),
+    (950, 285, 1175, 590),
+    (15, 625, 280, 880),
+    (340, 625, 550, 880),
+    (575, 645, 875, 875),
+    (885, 625, 1175, 880),
+    (15, 900, 285, 1165),
+    (300, 970, 625, 1170),
+    (640, 915, 875, 1160),
+    (885, 925, 1175, 1160),
+]
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
 ARCHER_SKILL_ICON_BOXES = {
@@ -236,6 +270,40 @@ def keep_largest_alpha_component(image: Image.Image) -> Image.Image:
     source_pixels = rgba.load()
     output_pixels = cleaned.load()
     for x, y in largest:
+        output_pixels[x, y] = source_pixels[x, y]
+    return cleaned
+
+
+def keep_alpha_components(image: Image.Image, min_pixels: int) -> Image.Image:
+    """Keep intentional actor/weapon components while dropping tiny particles."""
+
+    rgba = hard_alpha(image)
+    alpha = rgba.getchannel("A")
+    remaining = {
+        (x, y)
+        for y in range(rgba.height)
+        for x in range(rgba.width)
+        if alpha.getpixel((x, y)) >= 128
+    }
+    kept: set[tuple[int, int]] = set()
+    while remaining:
+        seed = remaining.pop()
+        component = {seed}
+        stack = [seed]
+        while stack:
+            x, y = stack.pop()
+            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    component.add(neighbor)
+                    stack.append(neighbor)
+        if len(component) >= min_pixels:
+            kept.update(component)
+
+    cleaned = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    source_pixels = rgba.load()
+    output_pixels = cleaned.load()
+    for x, y in kept:
         output_pixels[x, y] = source_pixels[x, y]
     return cleaned
 
@@ -650,6 +718,111 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
     return sheet_path, anim_path, frames
 
 
+def build_sivir_actor() -> tuple[Path, Path, list[Image.Image]]:
+    """Pack Sivir while preserving the complete native Boomerang Hunter contract."""
+
+    actor_source = hard_alpha(Image.open(SIVIR_ACTOR_SOURCE).convert("RGBA"))
+    # The accepted contact sheet is not evenly divisible by four and 12 poses
+    # touch nominal grid boundaries. Full-image keep boxes prevent neighboring
+    # poses from bleeding into one another. Components below 200 source pixels
+    # are generated motion dust; the larger intentional dropped weapons remain.
+    if actor_source.size != (1254, 1254):
+        raise ValueError(f"Unexpected Sivir actor source size: {actor_source.size}")
+    actor_cells = [
+        keep_alpha_components(actor_source.crop(box), 200)
+        for box in SIVIR_ACTOR_KEEP_BOXES
+    ]
+    actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
+    idle_height = max(subject.height for subject in actor_subjects[:2])
+    actor_scale = 36 / idle_height
+
+    def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
+        scale = actor_scale if fixed_height is None else fixed_height / subject.height
+        scale = min(scale, 58 / subject.width, 42 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 48)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        return frame
+
+    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    run_cells = [
+        hard_alpha(cell)
+        for cell in split_grid(Image.open(SIVIR_RUN_SOURCE).convert("RGBA"), 3, 3)
+    ]
+    run_frames = [
+        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=36) for cell in run_cells
+    ]
+
+    def faded(frame: Image.Image, opacity: float) -> Image.Image:
+        result = frame.copy()
+        result.putalpha(result.getchannel("A").point(lambda value: round(value * opacity)))
+        return result
+
+    transparent = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    weapon_cell = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_attack"]).convert("RGBA"), 4, 2
+    )[2]
+    weapon_cell = keep_largest_alpha_component(weapon_cell)
+    weapon_small = fit_cell(weapon_cell, (64, 64), (22, 22))
+    weapon_big = fit_cell(weapon_cell, (64, 64), (38, 38))
+    weapon_ult = fit_cell(weapon_cell, (64, 64), (34, 34))
+
+    # 0..15 actor poses, 16..24 generated run poses, 25..27 death fade,
+    # 28..30 weapon-only frames required by the native special tags.
+    frames = [
+        *base_frames,
+        *run_frames,
+        faded(base_frames[13], 0.58),
+        faded(base_frames[13], 0.28),
+        transparent,
+        weapon_small,
+        weapon_big,
+        weapon_ult,
+    ]
+    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
+
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "sivir#sheet.png"
+    anim_path = ACTOR_DIR / "sivir#anim.fanim"
+    save_png(sheet_path, atlas)
+
+    native_sequences: dict[str, tuple[list[int], list[float]]] = {
+        "idle": ([0, 1, 0, 1], [0.18, 0.14, 0.14, 0.14]),
+        "big_boomerang": ([29], [0.1]),
+        "boomerang": ([28], [0.1]),
+        "run": (list(range(16, 24)), [0.080000006] * 8),
+        "attack": ([2, 2, 3, 3, 5, 0], [0.060000002] * 6),
+        # Pose 5 is the accepted empty-hand follow-through. Reusing it avoids
+        # the native double-weapon failure while the custom Q is in flight.
+        "idle_no_boomerang": ([5, 5, 5, 5], [0.18, 0.14, 0.14, 0.14]),
+        "skill": ([4, 4, 5, 5, 10, 1, 0], [0.060000002] * 7),
+        "skill2": ([6, 6, 6, 11, 1, 0, 0], [0.060000002] * 7),
+        "ult": ([7, 7, 7, 7, 1, 0], [0.060000002] * 6),
+        "hit": ([8], [0.1]),
+        "ult_boomerang": ([30], [0.060000002]),
+        "dead": ([12, 12, 13, 13, 13, 13, 25, 26, 27], [0.1] * 9),
+    }
+    anims: dict[str, object] = {}
+    for tag, (indexes, durations) in native_sequences.items():
+        anims[tag] = {
+            "frames": [
+                {
+                    "duration": duration,
+                    "data": {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                }
+                for index, duration in zip(indexes, durations, strict=True)
+            ]
+        }
+    write_json(anim_path, {"anims": anims})
+    return sheet_path, anim_path, frames
+
+
 def build_icons() -> list[Path]:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
@@ -691,6 +864,18 @@ def build_briar_icons() -> list[Path]:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for output_name, source_path in BRIAR_ICON_SOURCES.items():
+        source = Image.open(source_path).convert("RGBA")
+        icon = palette_finish(source.resize((64, 64), Image.Resampling.LANCZOS), 64)
+        output = ICON_DIR / output_name
+        save_png(output, icon)
+        outputs.append(output)
+    return outputs
+
+
+def build_sivir_icons() -> list[Path]:
+    ICON_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for output_name, source_path in SIVIR_ICON_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
         icon = palette_finish(source.resize((64, 64), Image.Resampling.LANCZOS), 64)
         output = ICON_DIR / output_name
@@ -1139,6 +1324,172 @@ def build_briar_vfx() -> list[Path]:
         {"arrival": effect_anim(96, 96, list(range(4)), [0.08, 0.10, 0.12, 0.18])},
     )
     return outputs
+
+
+def build_sivir_vfx() -> list[Path]:
+    """Build separate Sivir attack, Q, E, R-cast, and R-buff effects."""
+
+    EFFECT_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+
+    def write_effect(
+        name: str,
+        frames: list[Image.Image],
+        frame_size: tuple[int, int],
+        anims: dict[str, object],
+    ) -> None:
+        atlas = Image.new(
+            "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
+        )
+        for index, frame in enumerate(frames):
+            atlas.alpha_composite(frame, (index * frame_size[0], 0))
+        sheet = EFFECT_DIR / f"{name}#sheet.png"
+        anim = EFFECT_DIR / f"{name}#anim.fanim"
+        save_png(sheet, atlas)
+        write_json(anim, {"anims": anims})
+        outputs.extend([sheet, anim])
+
+    def preserve_cell(
+        cell: Image.Image,
+        frame_size: tuple[int, int],
+        resized_cell: tuple[int, int],
+    ) -> Image.Image:
+        cell = hard_alpha(cell)
+        resized = cell.resize(resized_cell, Image.Resampling.LANCZOS)
+        resized = palette_finish(resized, 64)
+        frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+        frame.alpha_composite(
+            resized,
+            ((frame_size[0] - resized.width) // 2, (frame_size[1] - resized.height) // 2),
+        )
+        return frame
+
+    attack_cells = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_attack"]).convert("RGBA"), 4, 2
+    )
+    attack_frames = [
+        fit_cell(cell, (48, 32), (42, 22)) for cell in attack_cells[:7]
+    ] + [fit_cell(attack_cells[7], (48, 32), (18, 18))]
+    write_effect(
+        "sivir_attack",
+        attack_frames,
+        (48, 32),
+        {
+            "projectile": effect_anim(48, 32, list(range(7)), [0.04] * 7),
+            "hit": effect_anim(48, 32, [7], [0.12]),
+        },
+    )
+
+    q_cells = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_q"]).convert("RGBA"), 4, 2
+    )
+    q_frames = [fit_cell(cell, (64, 48), (58, 40)) for cell in q_cells]
+    write_effect(
+        "sivir_q",
+        q_frames,
+        (64, 48),
+        {
+            # The generated lower row trails to the left (screen-right travel),
+            # while the upper row trails to the right for the return trip.
+            "out": effect_anim(64, 48, [4, 5, 6, 7], [0.045] * 4),
+            "return": effect_anim(64, 48, [0, 1, 2, 3], [0.04] * 4),
+        },
+    )
+
+    shield_cells = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_e_shield"]).convert("RGBA"), 4, 2
+    )
+    # Crop each generated phase before fitting it. Preserving the large empty
+    # source-cell margin made the old ring too small to surround the actor.
+    shield_frames = [fit_cell(cell, (64, 64), (58, 58)) for cell in shield_cells]
+    write_effect(
+        "sivir_e_shield",
+        shield_frames,
+        (64, 64),
+        {
+            "pre": effect_anim(64, 64, [0, 1], [0.08, 0.10]),
+            "loop": effect_anim(64, 64, [2, 3, 4, 5], [0.16] * 4),
+            "remove": effect_anim(64, 64, [6, 7], [0.10, 0.14]),
+        },
+    )
+
+    r_cast_cells = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_r_cast"]).convert("RGBA"), 4, 2
+    )
+    r_cast_frames = [
+        preserve_cell(cell, (128, 64), (120, 60)) for cell in r_cast_cells
+    ]
+    write_effect(
+        "sivir_r_cast",
+        r_cast_frames,
+        (128, 64),
+        {
+            "pulse": effect_anim(
+                128,
+                64,
+                list(range(8)),
+                [0.06, 0.07, 0.08, 0.09, 0.10, 0.10, 0.12, 0.16],
+            )
+        },
+    )
+
+    hunt_cells = split_grid(
+        Image.open(SIVIR_VFX_SOURCES["sivir_hunt_buff"]).convert("RGBA"), 4, 2
+    )
+
+    def foot_trail_frame(cell: Image.Image) -> Image.Image:
+        subject = hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
+        scale = min(58 / subject.width, 10 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 48)
+        frame = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 32 - resized.height))
+        return frame
+
+    # Keep On The Hunt strictly at the unit's feet. A 64x32 effect frame is
+    # center-aligned with the 64x64 actor, so its bottom edge maps to y=48.
+    hunt_frames = [foot_trail_frame(cell) for cell in hunt_cells]
+    write_effect(
+        "sivir_hunt_buff",
+        hunt_frames,
+        (64, 32),
+        {
+            "pre": effect_anim(64, 32, [0, 1], [0.08, 0.10]),
+            "loop": effect_anim(64, 32, [2, 3, 4, 5], [0.14] * 4),
+            "remove": effect_anim(64, 32, [6, 7], [0.10, 0.14]),
+        },
+    )
+    return outputs
+
+
+def build_sivir_native_silence() -> list[Path]:
+    """Create a deterministic silent target for native 005 auto-SFX remaps."""
+
+    sound_dir = MOD_ROOT / "sound" / "sfx"
+    sound_dir.mkdir(parents=True, exist_ok=True)
+    clip_path = sound_dir / "sivir_native_silence_clip.wav"
+    with wave.open(str(clip_path), "wb") as output:
+        output.setnchannels(1)
+        output.setsampwidth(2)
+        output.setframerate(44100)
+        output.writeframes(b"\x00\x00" * 2205)
+    info_path = sound_dir / "sivir_native_silence.sound_info"
+    write_json(
+        info_path,
+        {
+            "plays": [
+                {
+                    "delay": 0.0,
+                    "clip": "sivir_native_silence_clip",
+                    "volume": 1.0,
+                }
+            ]
+        },
+    )
+    return [info_path, clip_path]
 
 
 def lucian_lightslinger_buff() -> dict[str, object]:
@@ -2290,6 +2641,320 @@ def build_briar_data() -> Path:
     return path
 
 
+def build_sivir_data() -> Path:
+    """Replace native Boomerang Hunter (project champion 005) with Q/E/R Sivir."""
+
+    def q_hit_effect() -> dict[str, object]:
+        return {
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Attack", "damage": 30, "attack_ratio": 55},
+                    {"type": "ViewEffect", "name": "lol_sivir_q_hit_visual"},
+                    {"type": "TargetSfx", "name": "lol_sivir_q_hit"},
+                ],
+            },
+            "casting_type": "Targeting",
+        }
+
+    champion = {
+        "id": "boomerang_hunter",
+        "category": "Range",
+        "tags": ["AD", "Range", "Heal"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/sivir",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/sivir_skill",
+            "asset/lol_mod/icons/sivir_skill2",
+            "asset/lol_mod/icons/sivir_ult",
+        ],
+        "stat": {
+            "attack": 100,
+            "magic_power": 0,
+            "hp": 900,
+            "defence": 20,
+            "magic_resistance": 20,
+            "move_speed": 900,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 18,
+            "magic_power": 0,
+            "hp": 90,
+            "defence": 7,
+            "magic_resistance": 3,
+            "move_speed": 9,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": {
+            "action_name": "attack",
+            "description": "#asset/base/text/champion?description.boomerang_hunter.attack",
+            "duration": 26,
+            "cooltime": 60,
+            "start_timing": 20,
+            "cancelable": True,
+            "range": 60000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "Enemy",
+            "attack_type": "BaseAttack",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_sivir_attack_cast"},
+                    {
+                        "type": "TargetProjectile",
+                        "speed": 6000,
+                        "name": "lol_sivir_attack_blade",
+                        "y_offset": 0,
+                        "applied_target": "Enemy",
+                        "applied_effects": [
+                            {
+                                "effect": {
+                                    "type": "Combine",
+                                    "effects": [
+                                        {
+                                            "type": "Attack",
+                                            "damage": 0,
+                                            "attack_ratio": 100,
+                                        },
+                                        {
+                                            "type": "AddCasterBuff",
+                                            "buff_state": {
+                                                "name": "lol_sivir_fleet_of_foot",
+                                                "duration": {"Time": {"tick": 90}},
+                                                "move_speed_mult": 12,
+                                            },
+                                        },
+                                        {
+                                            "type": "ViewEffect",
+                                            "name": "lol_sivir_attack_hit_visual",
+                                        },
+                                        {
+                                            "type": "TargetSfx",
+                                            "name": "lol_sivir_attack_hit",
+                                        },
+                                    ],
+                                },
+                                "casting_type": "Targeting",
+                            }
+                        ],
+                    },
+                ],
+            },
+        },
+        "skill": {
+            "action_name": "skill",
+            "description": "#asset/base/text/champion?description.boomerang_hunter.skill",
+            "duration": 26,
+            "cooltime": 360,
+            "start_timing": 18,
+            "cancelable": False,
+            "range": 75000,
+            "growth_range": 0,
+            "casting_type": "Direction",
+            "casting_target": "EnemyWithoutTower",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_sivir_q_out"},
+                    {
+                        "type": "CasterAnimation",
+                        "name": "idle_no_boomerang",
+                        "tick": 42,
+                    },
+                    {
+                        "type": "LinearProjectile",
+                        "penetrate": True,
+                        "speed": 4200,
+                        "range": 75000,
+                        "name": "lol_sivir_q_outgoing",
+                        "shape": {"Circle": {"radius": 7000}},
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [q_hit_effect()],
+                        "end_effects": [
+                            {"type": "Sfx", "name": "lol_sivir_q_return"},
+                            {
+                                "type": "BackToCasterLinearProjectile",
+                                "penetrate": True,
+                                "speed": 5200,
+                                "range": 120000,
+                                "name": "lol_sivir_q_return",
+                                "shape": {"Circle": {"radius": 7000}},
+                                "applied_target": "EnemyWithoutTower",
+                                "applied_effects": [q_hit_effect()],
+                                "end_effects": [],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        "skill2": {
+            "action_name": "skill2",
+            "description": "#asset/base/text/champion?description.boomerang_hunter.skill2",
+            "duration": 25,
+            "cooltime": 720,
+            "start_timing": 20,
+            "cancelable": False,
+            "range": 0,
+            "growth_range": 0,
+            "casting_type": "None",
+            "casting_target": "AllyOnlySelf",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_sivir_e_cast"},
+                    {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                            "name": "lol_sivir_spell_shield_window",
+                            "duration": {"Time": {"tick": 90}},
+                            "skill_damaged_reduce": 100,
+                        },
+                    },
+                    {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                            "name": "lol_sivir_spell_shield_speed",
+                            "duration": {"Time": {"tick": 120}},
+                            "move_speed_mult": 20,
+                        },
+                    },
+                    {
+                        "type": "Heal",
+                        "amount": 60,
+                        "attack_ratio": 15,
+                        "ap_ratio": 0,
+                        "heal_type": "Caster",
+                    },
+                ],
+            },
+        },
+        "ult": {
+            "action_name": "ult",
+            "description": "#asset/base/text/champion?description.boomerang_hunter.ult",
+            "duration": 28,
+            "cooltime": 3000,
+            "start_timing": 20,
+            "cancelable": False,
+            "range": 85000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_sivir_r_cast"},
+                    {"type": "CasterViewEffect", "name": "lol_sivir_r_cast_visual"},
+                    {
+                        "type": "RangeEffect",
+                        "shape": {"Circle": {"radius": 100000}},
+                        "target": "AllyChampion",
+                        "apply_type": "AroundCaster",
+                        "effects": [
+                            {
+                                "type": "AddBuff",
+                                "buff_state": {
+                                    "name": "lol_sivir_on_the_hunt_speed",
+                                    "duration": {"Time": {"tick": 300}},
+                                    "move_speed_mult": 25,
+                                },
+                            }
+                        ],
+                    },
+                ],
+            },
+        },
+        "view_projectiles": [
+            {
+                "type": "Animated",
+                "name": "lol_sivir_attack_blade",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_sivir_q_outgoing",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_q",
+                "tag": "out",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_sivir_q_return",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_q",
+                "tag": "return",
+                "z": 2,
+                "repeat": True,
+            },
+        ],
+        "view_effects": [
+            {
+                "type": "Animation",
+                "name": "lol_sivir_attack_hit_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+                "tag": "hit",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_sivir_q_hit_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+                "tag": "hit",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_sivir_r_cast_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_r_cast",
+                "tag": "pulse",
+                "z": 0,
+                "is_follow": True,
+            },
+        ],
+        "view_buffs": [
+            {
+                "type": "ThreePhase",
+                "name": "lol_sivir_spell_shield_window",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_e_shield",
+                "pre_tag": "pre",
+                "loop_tag": "loop",
+                "remove_tag": "remove",
+                "z": 1,
+            },
+            {
+                "type": "ThreePhase",
+                "name": "lol_sivir_on_the_hunt_speed",
+                "anim": "asset/lol_mod/aseprite_resources/effects/sivir_hunt_buff",
+                "pre_tag": "pre",
+                "loop_tag": "loop",
+                "remove_tag": "remove",
+                "z": 0,
+            },
+        ],
+    }
+    path = MOD_ROOT / "champion" / "boomerang_hunter.data_champion"
+    write_json(path, champion)
+    return path
+
+
 def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> list[Path]:
     QA_DIR.mkdir(parents=True, exist_ok=True)
     actor_contact = Image.new("RGBA", (6 * 128, 3 * 144), (20, 18, 28, 255))
@@ -2513,12 +3178,167 @@ def build_briar_qa_contacts(
     return [actor_path, icon_path, vfx_path]
 
 
+def build_sivir_qa_contacts(
+    actor_frames: list[Image.Image], icons: list[Path]
+) -> list[Path]:
+    QA_DIR.mkdir(parents=True, exist_ok=True)
+    labels = [
+        "idle A",
+        "idle B",
+        "attack windup",
+        "attack release",
+        "Q windup",
+        "Q follow-through",
+        "E shield cast",
+        "R command",
+        "hit A",
+        "hit B",
+        "crouch recover",
+        "ready",
+        "fall",
+        "defeated",
+        "kneel",
+        "seated",
+        *[f"run {index}" for index in range(1, 10)],
+        "fade 58%",
+        "fade 28%",
+        "transparent",
+        "boomerang",
+        "big boomerang",
+        "ult boomerang",
+    ]
+    actor_contact = Image.new("RGBA", (8 * 128, 4 * 144), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(actor_contact)
+    for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
+        x = (index % 8) * 128
+        y = (index // 8) * 144
+        actor_contact.alpha_composite(
+            frame.resize((128, 128), Image.Resampling.NEAREST), (x, y)
+        )
+        draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
+    actor_path = QA_DIR / "sivir_actor_contact_final.png"
+    save_png(actor_path, actor_contact)
+
+    icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(icon_contact)
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
+        icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
+        icon_contact.alpha_composite(icon, (index * 192, 0))
+        draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
+    icon_path = QA_DIR / "sivir_skill_icons_final.png"
+    save_png(icon_path, icon_contact)
+
+    panels = [
+        ("sivir_attack", (48, 32), 8, "basic attack blade + hit"),
+        ("sivir_q", (64, 48), 8, "Q outbound + return"),
+        ("sivir_e_shield", (64, 64), 8, "E shield pre/loop/remove"),
+        ("sivir_r_cast", (128, 64), 8, "R command pulse"),
+        ("sivir_hunt_buff", (64, 32), 8, "R ally speed buff"),
+    ]
+    vfx_contact = Image.new("RGBA", (8 * 128, 5 * 120), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(vfx_contact)
+    for row, (name, frame_size, count, label) in enumerate(panels):
+        sheet = Image.open(EFFECT_DIR / f"{name}#sheet.png").convert("RGBA")
+        for index in range(count):
+            frame = sheet.crop(
+                (index * frame_size[0], 0, (index + 1) * frame_size[0], frame_size[1])
+            )
+            frame.thumbnail((124, 96), Image.Resampling.NEAREST)
+            x = index * 128 + (128 - frame.width) // 2
+            y = row * 120 + (96 - frame.height) // 2
+            vfx_contact.alpha_composite(frame, (x, y))
+        draw.text((4, row * 120 + 100), label, fill=(255, 255, 255, 255))
+    vfx_path = QA_DIR / "sivir_vfx_contact_final.png"
+    save_png(vfx_path, vfx_contact)
+    return [actor_path, icon_path, vfx_path]
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def build_sivir_imagegen_audit() -> Path:
+    def image_record(role: str, path: Path) -> dict[str, object]:
+        with Image.open(path) as opened:
+            image = opened.convert("RGBA")
+            alpha = image.getchannel("A")
+            histogram = alpha.histogram()
+            record: dict[str, object] = {
+                "role": role,
+                "path": path.relative_to(MOD_ROOT).as_posix(),
+                "sha256": sha256(path),
+                "size_bytes": path.stat().st_size,
+                "dimensions": list(opened.size),
+                "mode": opened.mode,
+                "alpha": {
+                    "present": "A" in opened.getbands(),
+                    "min": alpha.getextrema()[0],
+                    "max": alpha.getextrema()[1],
+                    "transparent_pixels": histogram[0],
+                    "partial_pixels": sum(histogram[1:255]),
+                    "opaque_pixels": histogram[255],
+                    "nonzero_bbox": list(alpha.getbbox()) if alpha.getbbox() else None,
+                },
+            }
+        return record
+
+    source_specs = [
+        ("actor_model", MOD_ROOT / "source/imagegen/sivir_actor_contact.png"),
+        ("run_cycle_nine_phase_source", MOD_ROOT / "source/imagegen/sivir_run_contact.png"),
+        ("q_icon", MOD_ROOT / "source/imagegen/sivir_q_icon_source.png"),
+        ("e_icon", MOD_ROOT / "source/imagegen/sivir_e_icon_source.png"),
+        ("r_icon", MOD_ROOT / "source/imagegen/sivir_r_icon_source.png"),
+        ("basic_attack_vfx", MOD_ROOT / "source/imagegen/sivir_attack_vfx_contact.png"),
+        ("q_out_return_vfx", MOD_ROOT / "source/imagegen/sivir_q_vfx_contact.png"),
+        ("e_spell_shield_vfx", MOD_ROOT / "source/imagegen/sivir_e_vfx_contact.png"),
+        ("r_cast_vfx", MOD_ROOT / "source/imagegen/sivir_r_cast_vfx_contact.png"),
+        ("r_ally_buff_vfx", MOD_ROOT / "source/imagegen/sivir_hunt_buff_vfx_contact.png"),
+    ]
+    processed_specs = [
+        ("actor_model_alpha", SIVIR_ACTOR_SOURCE),
+        ("run_cycle_alpha", SIVIR_RUN_SOURCE),
+        ("basic_attack_vfx_alpha", SIVIR_VFX_SOURCES["sivir_attack"]),
+        ("q_out_return_vfx_alpha", SIVIR_VFX_SOURCES["sivir_q"]),
+        ("e_spell_shield_vfx_alpha", SIVIR_VFX_SOURCES["sivir_e_shield"]),
+        ("r_cast_vfx_alpha", SIVIR_VFX_SOURCES["sivir_r_cast"]),
+        ("r_ally_buff_vfx_alpha", SIVIR_VFX_SOURCES["sivir_hunt_buff"]),
+    ]
+    runtime_paths = [
+        ACTOR_DIR / "sivir#sheet.png",
+        ACTOR_DIR / "sivir#anim.fanim",
+        *(ICON_DIR / name for name in SIVIR_ICON_SOURCES),
+        *(EFFECT_DIR / f"{name}#{suffix}" for name in SIVIR_VFX_SOURCES for suffix in ("sheet.png", "anim.fanim")),
+        MOD_ROOT / "champion/boomerang_hunter.data_champion",
+        QA_DIR / "sivir_actor_contact_final.png",
+        QA_DIR / "sivir_skill_icons_final.png",
+        QA_DIR / "sivir_vfx_contact_final.png",
+    ]
+    payload = {
+        "schema_version": 1,
+        "generator": "built-in image_gen",
+        "generated_on": "2026-07-11",
+        "audited_on": "2026-07-11",
+        "prompt_record": "source/imagegen/PROMPTS.md",
+        "generated_images_batch": "019f4bd8-30d3-7b60-98fa-58403cf263c7",
+        "background_removal": "remove_chroma_key.py with border auto-key, soft matte, thresholds 12/220 and despill; icons are packed directly from opaque generated sources",
+        "sources": [image_record(role, path) for role, path in source_specs],
+        "processed": [image_record(role, path) for role, path in processed_specs],
+        "runtime_files": [
+            {
+                "path": path.relative_to(MOD_ROOT).as_posix(),
+                "size_bytes": path.stat().st_size,
+                "sha256": sha256(path),
+            }
+            for path in runtime_paths
+        ],
+    }
+    path = QA_DIR / "sivir_imagegen_sources.json"
+    write_json(path, payload)
+    return path
 
 
 def build_manifest() -> Path:
@@ -2576,6 +3396,10 @@ def main() -> int:
         BRIAR_RUN_SOURCE,
         *BRIAR_ICON_SOURCES.values(),
         *BRIAR_VFX_SOURCES.values(),
+        SIVIR_ACTOR_SOURCE,
+        SIVIR_RUN_SOURCE,
+        *SIVIR_ICON_SOURCES.values(),
+        *SIVIR_VFX_SOURCES.values(),
     ]
     missing = [path for path in required_sources if not path.exists()]
     if missing:
@@ -2599,6 +3423,13 @@ def main() -> int:
     briar_vfx = build_briar_vfx()
     briar_champion = build_briar_data()
     briar_qa = build_briar_qa_contacts(briar_frames, briar_icons)
+    sivir_sheet, sivir_anim, sivir_frames = build_sivir_actor()
+    sivir_icons = build_sivir_icons()
+    sivir_vfx = build_sivir_vfx()
+    sivir_champion = build_sivir_data()
+    sivir_silence = build_sivir_native_silence()
+    sivir_qa = build_sivir_qa_contacts(sivir_frames, sivir_icons)
+    sivir_imagegen_audit = build_sivir_imagegen_audit()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -2624,6 +3455,14 @@ def main() -> int:
         *briar_vfx,
         briar_champion,
         *briar_qa,
+        sivir_sheet,
+        sivir_anim,
+        *sivir_icons,
+        *sivir_vfx,
+        sivir_champion,
+        *sivir_silence,
+        *sivir_qa,
+        sivir_imagegen_audit,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

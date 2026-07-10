@@ -2,6 +2,16 @@
 
 《团战经理 2》的 League 风格英雄模组，当前模组目录为 `mods/lol_mod`。
 
+## v0.6.0：希维尔同 ID 重做官方 005
+
+- 通过 `champion/boomerang_hunter.data_champion` 同 ID 覆盖官方 Boomerang Hunter；项目编号 005 不会误作引擎编号，实机强制测试使用 native index 26。
+- 仅提供 Q/E/R 三个主动槽：Q 是真正嵌套的飞出与返回投射物；E 是 1.5 秒技能伤害防护窗口、即时回复与短暂加速；R 只给范围内友方英雄提供 5 秒团队加速且不造成伤害。
+- E 的公开数据接口无法识别并消耗“下一次敌方技能”，因此没有虚假宣称完整 LoL 法术护盾；百科文案明确说明它不能阻挡控制或无伤害效果。
+- 角色母版、九帧跑动、Q/E/R 图标、普攻/Q/E/R 独立特效均由内置 imagegen 生成；角色图集完整保留原生 12 个动作标签、帧数与时长，包括三个武器标签、`idle_no_boomerang` 和死亡透明末帧。
+- 普攻发射/命中、Q 飞出/返回/命中、E 启动和 R 号令音效按固定 Sivir Base Wwise 事件、媒体 ID 与 SHA-256 提取。
+- 原生 Boomerang Hunter 自动动作事件与 18 个旧音频 clip 全部隔离到物理静音资产，避免原英雄声音和 Sivir 音效叠播。
+- 角色动作改用全图 keep-box 裁切，清除左右普攻的跨格像素/双武器；E 护盾完整包裹模型，R 加速轨迹只显示在脚下。
+
 ## v0.5.0：贝蕾亚同 ID 重做官方 004
 
 - 通过 `champion/berserker.data_champion` 同 ID 覆盖官方 Berserker；不注册重复的 `lol_briar`，官方排序、引用和存档身份保持稳定。
@@ -51,4 +61,4 @@ python -m pytest -q
 powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\install_lol_mod.ps1
 ```
 
-本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
+本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
