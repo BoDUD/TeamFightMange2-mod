@@ -13,4 +13,4 @@ Static/build checks are automated. These live checks are release gates:
 - [ ] Multiple unequal-health ally scenarios record which ally the built-in `AllyNotSelf` AI selects; do not upgrade the lowest-health claim without repeated proof.
 - [ ] Official attack/Q/W/R audio is audible and correctly timed in battle.
 
-Latest automated startup smoke: 2026-07-10 09:09 JST. The game reached `asset loading done!` with zero Shen/`lol_mod` errors and zero panic/fatal lines. The remaining `network asset load error: UnexpectedEof` default-banpick fallback and Workshop item 3736031680 warning are unrelated to this mod.
+Latest automated startup smoke: 2026-07-10 09:18 JST, after the canonical cross-platform asset encoding pass. The game reached `asset loading done!` with zero Shen/`lol_mod` errors and zero panic/fatal lines. The remaining `network asset load error: UnexpectedEof` default-banpick fallback and Workshop item 3736031680 warning are unrelated to this mod.

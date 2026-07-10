@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import binascii
 import hashlib
 import json
 from pathlib import Path
+import struct
 
 from PIL import Image, ImageDraw
 
@@ -51,7 +53,54 @@ ACTOR_KEEP_BOXES = [
 
 def write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_bytes((json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+
+
+def _png_chunk(chunk_type: bytes, data: bytes) -> bytes:
+    checksum = binascii.crc32(chunk_type + data) & 0xFFFFFFFF
+    return struct.pack(">I", len(data)) + chunk_type + data + struct.pack(">I", checksum)
+
+
+def _stored_zlib(data: bytes) -> bytes:
+    """Encode a deterministic RFC 1950 stream using uncompressed DEFLATE blocks."""
+    stream = bytearray(b"\x78\x01")
+    offset = 0
+    while offset < len(data):
+        block = data[offset : offset + 65535]
+        offset += len(block)
+        stream.append(1 if offset == len(data) else 0)
+        stream.extend(struct.pack("<HH", len(block), len(block) ^ 0xFFFF))
+        stream.extend(block)
+
+    adler_a = 1
+    adler_b = 0
+    for start in range(0, len(data), 5552):
+        for value in data[start : start + 5552]:
+            adler_a += value
+            adler_b += adler_a
+        adler_a %= 65521
+        adler_b %= 65521
+    stream.extend(struct.pack(">I", (adler_b << 16) | adler_a))
+    return bytes(stream)
+
+
+def save_png(path: Path, image: Image.Image) -> None:
+    """Write canonical RGBA PNG bytes independent of Pillow/zlib platform builds."""
+    rgba = image.convert("RGBA")
+    raw = bytearray()
+    pixels = rgba.tobytes()
+    stride = rgba.width * 4
+    for y in range(rgba.height):
+        raw.append(0)  # PNG filter type None.
+        raw.extend(pixels[y * stride : (y + 1) * stride])
+    ihdr = struct.pack(">IIBBBBB", rgba.width, rgba.height, 8, 6, 0, 0, 0)
+    encoded = (
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(b"IHDR", ihdr)
+        + _png_chunk(b"IDAT", _stored_zlib(bytes(raw)))
+        + _png_chunk(b"IEND", b"")
+    )
+    path.write_bytes(encoded)
 
 
 def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]:
@@ -170,7 +219,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     ACTOR_DIR.mkdir(parents=True, exist_ok=True)
     sheet_path = ACTOR_DIR / "shen#sheet.png"
     anim_path = ACTOR_DIR / "shen#anim.fanim"
-    atlas.save(sheet_path, optimize=True)
+    save_png(sheet_path, atlas)
 
     sequences: dict[str, tuple[list[int], list[float]]] = {
         "idle": ([0, 1, 0, 1, 0, 1, 0], [0.12] * 7),
@@ -204,7 +253,7 @@ def build_icons() -> list[Path]:
         source = Image.open(source_path).convert("RGBA")
         icon = fit_cell(source, (64, 64), (58, 58))
         output = ICON_DIR / output_name
-        icon.save(output, optimize=True)
+        save_png(output, icon)
         outputs.append(output)
     return outputs
 
@@ -244,7 +293,7 @@ def build_vfx() -> list[Path]:
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
         sheet = EFFECT_DIR / f"{name}#sheet.png"
         anim = EFFECT_DIR / f"{name}#anim.fanim"
-        atlas.save(sheet, optimize=True)
+        save_png(sheet, atlas)
         if name == "shen_q":
             anims = {"projectile": effect_anim(64, 64, list(range(8)), [0.06] * 8)}
         elif name == "shen_w":
@@ -274,7 +323,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
         actor_contact.alpha_composite(zoom, (x, y))
         draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
     actor_path = QA_DIR / "shen_actor_contact_final.png"
-    actor_contact.save(actor_path, optimize=True)
+    save_png(actor_path, actor_contact)
 
     icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
     draw = ImageDraw.Draw(icon_contact)
@@ -283,7 +332,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
         icon_contact.alpha_composite(icon, (index * 192, 0))
         draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
     icon_path = QA_DIR / "shen_skill_icons_final.png"
-    icon_contact.save(icon_path, optimize=True)
+    save_png(icon_path, icon_contact)
     return [actor_path, icon_path]
 
 

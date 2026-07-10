@@ -1,0 +1,18 @@
+* text=auto
+
+*.png binary
+*.wav binary
+
+*.data_champion text eol=lf
+*.fanim text eol=lf
+*.i18n text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mod_info text eol=lf
+*.override_info text eol=lf
+*.py text eol=lf
+*.sound_info text eol=lf
+*.champion_view text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ps1 text eol=crlf
