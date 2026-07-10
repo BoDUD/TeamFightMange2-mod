@@ -1,10 +1,10 @@
 {
   "id": "lol_mod",
   "mod_id": "lol_mod",
-  "name": "League Shen / 暮光之眼·慎",
+  "name": "League Champions: Shen & Lucian / 慎与卢锡安",
   "author": "BoDUD",
-  "version": "0.1.0",
-  "description": "Adds Shen as an additive protection-tank data champion with original image-generated pixel art and locally extracted League base SFX.",
+  "version": "0.3.0",
+  "description": "Adds Shen and reworks native champion 002 as a full same-id Lucian data champion with Lightslinger, Q/E/R, original image-generated pixel art/VFX, and locally extracted League base SFX.",
   "last_updated": "2026-07-10",
   "dependencies": [
     {

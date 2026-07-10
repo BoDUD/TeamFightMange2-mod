@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-10",
+  "background_removal": "imagegen remove_chroma_key.py, border auto-key, soft matte, despill",
+  "prompt_record": "source/imagegen/PROMPTS.md",
+  "sources": [
+    {
+      "role": "actor_model",
+      "path": "source/imagegen/lucian_actor_contact_v10.png",
+      "sha256": "edfb9d2213c36d71412f5ff20196a218cd2ab561cc50207c3a6fdca00c244e37"
+    },
+    {
+      "role": "attack_vfx",
+      "path": "source/imagegen/lucian_attack_vfx_contact.png",
+      "sha256": "a305f4e33f383536ae79691fca73155a8d4a398c666561ee9d9313a05217e756"
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/lucian_q_icon_source.png",
+      "sha256": "ed9ae13ace595fcfa9c85ed59ae52bf31c388e0f95ffddebe5258f8eed23e865"
+    },
+    {
+      "role": "e_icon",
+      "path": "source/imagegen/lucian_e_icon_source.png",
+      "sha256": "3e46b89765aefeab2c377dfae64ed2f2594ff349a06918e22068580639cbc331"
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/lucian_r_icon_source.png",
+      "sha256": "2947241c74de2715baa7e81587ef61ec7e50058f250c1d050413e7850823ea89"
+    },
+    {
+      "role": "q_vfx",
+      "path": "source/imagegen/lucian_q_vfx_contact_v3.png",
+      "sha256": "7401f3a0ddbdb88d348fe54729150a00e720611450d44acab065d8b0804049c2"
+    },
+    {
+      "role": "r_vfx",
+      "path": "source/imagegen/lucian_r_vfx_contact.png",
+      "sha256": "046c7f34e05dcdd97405c9a629e21dc1a74c7ad538935669dc6ba8c5dbd0d559"
+    }
+  ]
+}

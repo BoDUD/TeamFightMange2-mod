@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen's runtime pixel assets from the accepted image-gen sources."""
+"""Build Shen and Lucian runtime assets from accepted image-gen sources."""
 
 from __future__ import annotations
 
@@ -18,7 +18,10 @@ SOURCE = MOD_ROOT / "source" / "processed"
 ACTOR_DIR = MOD_ROOT / "aseprite_resources" / "champions"
 EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
+UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
+SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
+BASE_SOURCE = MOD_ROOT / "source" / "base"
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
@@ -31,6 +34,27 @@ VFX_SOURCES = {
     "shen_q": (SOURCE / "shen_q_vfx_contact_alpha.png", 4, 2, (64, 64), (58, 48)),
     "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 30)),
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
+}
+
+LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_v10_alpha.png"
+LUCIAN_ICON_SOURCES = {
+    "lucian_skill.png": SOURCE / "lucian_q_icon_source_alpha.png",
+    "lucian_skill2.png": SOURCE / "lucian_e_icon_source_alpha.png",
+    "lucian_ult.png": SOURCE / "lucian_r_icon_source_alpha.png",
+}
+LUCIAN_VFX_SOURCES = {
+    "lucian_attack": (SOURCE / "lucian_attack_vfx_contact_alpha.png", 4, 2, (64, 32), (52, 16)),
+    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v3_alpha.png", 4, 2, (192, 64), (82, 18)),
+    "lucian_r": (SOURCE / "lucian_r_vfx_contact_alpha.png", 4, 2, (64, 32), (48, 18)),
+}
+BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
+BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
+ARCHER_SKILL_ICON_BOXES = {
+    "archer_0": (25, 0, 49, 24),
+    "archer_1": (1625, 0, 1649, 24),
+    "archer_2": (3225, 0, 3249, 24),
+    "archer_3": (750, 24, 774, 48),
+    "archer_4": (2350, 24, 2374, 48),
 }
 
 # These masks remove the large VFX already separated into dedicated sheets while
@@ -246,6 +270,103 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     return sheet_path, anim_path, frames
 
 
+def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
+    """Pack one coherent 21-pose Lucian sheet plus muzzle-anchored Q wide frames."""
+    source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
+    source_cells = [hard_alpha(cell) for cell in split_grid(source, 7, 3)]
+    source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
+
+    # Derive one scale from the two idle frames and apply it to every pose. This
+    # preserves a single head/body/gun size across idle, run, attacks and skills.
+    idle_height = max(subject.height for subject in source_subjects[:2])
+    actor_scale = 35 / idle_height
+    base_frames: list[Image.Image] = []
+    for subject in source_subjects:
+        scale = min(actor_scale, 58 / subject.width, 43 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.NEAREST,
+        )
+        resized = palette_finish(resized, 40)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
+        base_frames.append(frame)
+
+    # Q visibility no longer depends on a moving projectile. Composite the
+    # image-gen beam into 192px actor frames with Lucian centered at x=96; the
+    # engine mirrors the whole frame around that center for left-facing casts.
+    q_source = Image.open(LUCIAN_VFX_SOURCES["lucian_q"][0]).convert("RGBA")
+    q_subjects = [
+        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
+        for cell in split_grid(q_source, 4, 2)
+    ]
+    q_reference_width = max(subject.width for subject in q_subjects)
+    q_reference_height = max(subject.height for subject in q_subjects)
+    q_scale = min(76 / q_reference_width, 18 / q_reference_height)
+    q_pose = base_frames[14]
+    q_frames: list[Image.Image] = []
+    for subject in q_subjects:
+        beam = subject.resize(
+            (max(1, round(subject.width * q_scale)), max(1, round(subject.height * q_scale))),
+            Image.Resampling.LANCZOS,
+        )
+        beam = palette_finish(beam, 48)
+        wide = Image.new("RGBA", (192, 64), (0, 0, 0, 0))
+        wide.alpha_composite(q_pose, (64, 0))
+        # The generated Q pose's right-hand pistol muzzle is x=112/y=27 in
+        # this centered wide frame. Every beam phase shares that exact origin.
+        wide.alpha_composite(beam, (112, 27 - beam.height // 2))
+        q_frames.append(wide)
+
+    frames = base_frames
+    packed_frames = [*base_frames, *q_frames]
+    frame_x: list[int] = []
+    cursor = 0
+    for frame in packed_frames:
+        frame_x.append(cursor)
+        cursor += frame.width
+    atlas = Image.new("RGBA", (cursor, 64), (0, 0, 0, 0))
+    for x, frame in zip(frame_x, packed_frames, strict=True):
+        atlas.alpha_composite(frame, (x, 0))
+
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "lucian#sheet.png"
+    anim_path = ACTOR_DIR / "lucian#anim.fanim"
+    save_png(sheet_path, atlas)
+
+    sequences: dict[str, tuple[list[int], list[float]]] = {
+        "idle": ([0, 1, 0, 1, 0, 1, 0], [0.12] * 7),
+        "run": (list(range(2, 11)), [0.075] * 9),
+        "attack": ([11, 11, 0], [0.10, 0.10, 0.20]),
+        "attack_right": ([0, 11, 11, 0], [0.06, 0.08, 0.08, 0.18]),
+        "attack_left": ([0, 12, 12, 0], [0.06, 0.08, 0.08, 0.18]),
+        "attack_double": ([0, 13, 13, 11, 12, 0], [0.04, 0.06, 0.06, 0.08, 0.08, 0.16]),
+        "skill": ([0, 21, 22, 23, 24, 25, 26, 27, 28, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
+        "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
+        "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
+        "hit": ([19], [0.12]),
+        "dead": ([20], [0.60]),
+    }
+    anims: dict[str, object] = {}
+    for name, (indexes, durations) in sequences.items():
+        anims[name] = {
+            "frames": [
+                {
+                    "duration": duration,
+                    "data": {
+                        "x": frame_x[index],
+                        "y": 0,
+                        "w": packed_frames[index].width,
+                        "h": 64,
+                    },
+                }
+                for index, duration in zip(indexes, durations, strict=True)
+            ]
+        }
+    write_json(anim_path, {"anims": anims})
+    return sheet_path, anim_path, frames
+
+
 def build_icons() -> list[Path]:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
@@ -256,6 +377,132 @@ def build_icons() -> list[Path]:
         save_png(output, icon)
         outputs.append(output)
     return outputs
+
+
+def build_lucian_icons() -> list[Path]:
+    ICON_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for output_name, source_path in LUCIAN_ICON_SOURCES.items():
+        source = Image.open(source_path).convert("RGBA")
+        # Lucian icons were generated as full-bleed opaque squares.
+        icon = palette_finish(source.resize((64, 64), Image.Resampling.LANCZOS), 64)
+        output = ICON_DIR / output_name
+        save_png(output, icon)
+        outputs.append(output)
+    return outputs
+
+
+def build_archer_skill_icon_atlas(lucian_icons: list[Path]) -> Path:
+    """Patch only Archer's five native icon cells in the original 24px atlas."""
+    atlas = Image.open(BASE_SKILL_ICON_SOURCE).convert("RGBA")
+    q_icon, e_icon, r_icon = [Image.open(path).convert("RGBA") for path in lucian_icons]
+    replacements = {
+        "archer_0": e_icon,
+        "archer_1": q_icon,
+        "archer_2": r_icon,
+        "archer_3": q_icon,
+        "archer_4": r_icon,
+    }
+    for key, icon in replacements.items():
+        box = ARCHER_SKILL_ICON_BOXES[key]
+        resized = icon.resize((box[2] - box[0], box[3] - box[1]), Image.Resampling.LANCZOS)
+        atlas.alpha_composite(resized, (box[0], box[1]))
+    UI_ASEPRITE_DIR.mkdir(parents=True, exist_ok=True)
+    output = UI_ASEPRITE_DIR / "skill_icon#sheet.png"
+    save_png(output, atlas)
+    return output
+
+
+def build_archer_override() -> Path:
+    """Replace native champion 002 while preserving the complete required base sheet."""
+    payload = json.loads(BASE_CHAMPION_INFO_SOURCE.read_text(encoding="utf-8"))
+    payload["archer"] = {
+            "stat": {
+                "attack": 100,
+                "magic_power": 0,
+                "hp": 900,
+                "defence": 20,
+                "magic_resistance": 15,
+                "move_speed": 900,
+                "hp_regen": 2,
+                "stack": 0,
+                "crit_chance": 0,
+            },
+            "growth": {
+                "attack": 13,
+                "magic_power": 0,
+                "hp": 90,
+                "defence": 6,
+                "magic_resistance": 3,
+                "move_speed": 9,
+                "hp_regen": 1,
+                "stack": 0,
+                "crit_chance": 0,
+            },
+            "attack": {
+                "name": "archer_attack",
+                "action_name": "attack",
+                "attack": 0,
+                "attack_ratio": 100,
+                "range": 62000,
+                "speed": 6500,
+                "cooltime": 60,
+                "duration": 24,
+                "start_timing": 10,
+                "cancelable": True,
+                "y_offset": 0,
+                "can_use_with_move": False,
+                "attack_type": "BaseAttack",
+            },
+            # Native Archer skill is the 002 direction dash followed by a shot.
+            # It is the replacement-compatible E + Lightslinger approximation.
+            "skill": {
+                "attack": 0,
+                "attack_ratio": 45,
+                "range": 62000,
+                "projectile_speed": 6500,
+                "move_range": 30000,
+                "speed": 3000,
+                "cooltime": 420,
+                "duration": 18,
+                "start_timing": 4,
+                "cancelable": False,
+            },
+            # Native Archer skill2 is a targeted shot. Zero move_range removes
+            # its old backstep; the hard-coded brief interrupt is documented.
+            "skill2": {
+                "attack": 55,
+                "attack_ratio": 85,
+                "range": 65000,
+                "projectile_speed": 15000,
+                "move_range": 0,
+                "move_tick": 10,
+                "cooltime": 300,
+                "duration": 24,
+                "start_timing": 10,
+                "cancelable": True,
+            },
+            "ult": {
+                "name": "archer_ult",
+                "attack": 8,
+                "attack_ratio": 18,
+                "range": 120000,
+                "attack_range": 4500,
+                "interval": 8,
+                "total_shots": 15,
+                "speed": 9000,
+                "cooltime": 3600,
+                "duration": 150,
+                "start_timing": 12,
+                "cancelable": True,
+                "y_offset": 0,
+            },
+            "category": "Range",
+            "tags": ["AD", "Range"],
+    }
+    path = SETTING_DIR / "champion_info.champion_info_sheet"
+    write_json(path, payload)
+    return path
 
 
 def effect_anim(frame_width: int, frame_height: int, indexes: list[int], durations: list[float]) -> dict:
@@ -308,6 +555,348 @@ def build_vfx() -> list[Path]:
     return outputs
 
 
+def build_lucian_vfx() -> list[Path]:
+    EFFECT_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for name, (source_path, columns, rows, frame_size, max_visible) in LUCIAN_VFX_SOURCES.items():
+        source = Image.open(source_path).convert("RGBA")
+        frames: list[Image.Image] = []
+        for cell in split_grid(source, columns, rows):
+            cell = hard_alpha(cell)
+            subject = cell.crop(alpha_bbox(cell))
+            scale = min(max_visible[0] / subject.width, max_visible[1] / subject.height)
+            resized = subject.resize(
+                (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+                Image.Resampling.LANCZOS,
+            )
+            resized = palette_finish(resized, 48)
+            frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+            if name == "lucian_q":
+                # The line area rotates this canvas around its x=96 pivot.
+                # Start the visible gold lance 20px forward of that pivot so
+                # either facing begins at Lucian's pistol muzzle.
+                x = min(frame_size[0] - resized.width - 2, frame_size[0] // 2 + 20)
+                y = 24 - resized.height // 2
+            else:
+                x = (frame_size[0] - resized.width) // 2
+            if name != "lucian_q":
+                y = (frame_size[1] - resized.height) // 2
+            frame.alpha_composite(resized, (x, y))
+            frames.append(frame)
+
+        if name == "lucian_q":
+            # An instantaneous one-tick line needs its brightest complete
+            # beam first; the remaining phases are retained for renderers that
+            # let the triggered animation finish independently.
+            frames = [frames[index] for index in [4, 3, 2, 5, 6, 7, 1, 0]]
+
+        atlas = Image.new(
+            "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
+        )
+        for index, frame in enumerate(frames):
+            atlas.alpha_composite(frame, (index * frame_size[0], 0))
+        sheet = EFFECT_DIR / f"{name}#sheet.png"
+        anim = EFFECT_DIR / f"{name}#anim.fanim"
+        save_png(sheet, atlas)
+        tag = {
+            "lucian_attack": "projectile",
+            "lucian_q": "projectile",
+            "lucian_r": "projectile",
+        }[name]
+        duration = {
+            "lucian_attack": 0.04,
+            "lucian_q": 0.012,
+            "lucian_r": 0.035,
+        }[name]
+        write_json(
+            anim,
+            {"anims": {tag: effect_anim(frame_size[0], frame_size[1], list(range(8)), [duration] * 8)}},
+        )
+        outputs.extend([sheet, anim])
+    return outputs
+
+
+def lucian_lightslinger_buff() -> dict[str, object]:
+    return {
+        "type": "AddCasterBuff",
+        "buff_state": {
+            "name": "lol_lucian_lightslinger_ready",
+            "duration": {"Time": {"tick": 240}},
+        },
+    }
+
+
+def lucian_target_projectile(attack_ratio: int, hit_sfx: str) -> dict[str, object]:
+    return {
+        "type": "TargetProjectile",
+        "speed": 6500,
+        "name": "lol_lucian_light_bolt",
+        "y_offset": 0,
+        "applied_target": "Enemy",
+        "applied_effects": [
+            {
+                "effect": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Attack", "damage": 0, "attack_ratio": attack_ratio},
+                        {"type": "TargetSfx", "name": hit_sfx},
+                    ],
+                },
+                "casting_type": "Targeting",
+            }
+        ],
+    }
+
+
+def lucian_culling_projectile() -> dict[str, object]:
+    return {
+        "type": "LinearProjectile",
+        "penetrate": False,
+        "speed": 9000,
+        "range": 120000,
+        "name": "lol_lucian_culling_shot",
+        "shape": {"Circle": {"radius": 4500}},
+        "applied_target": "EnemyWithoutTower",
+        "applied_effects": [
+            {
+                "effect": {"type": "Attack", "damage": 8, "attack_ratio": 18},
+                "casting_type": "Targeting",
+            }
+        ],
+        "end_effects": [],
+    }
+
+
+def build_lucian_data() -> Path:
+    culling_shots = [
+        {
+            "type": "Delayed",
+            "tick": 12 + index * 8,
+            "effects": [lucian_culling_projectile()],
+        }
+        for index in range(15)
+    ]
+    champion = {
+        "id": "archer",
+        "category": "Range",
+        "tags": ["AD", "Range"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/lucian",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/lucian_skill",
+            "asset/lol_mod/icons/lucian_skill2",
+            "asset/lol_mod/icons/lucian_ult",
+        ],
+        "stat": {
+            "attack": 100,
+            "magic_power": 0,
+            "hp": 900,
+            "defence": 20,
+            "magic_resistance": 15,
+            "move_speed": 900,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 13,
+            "magic_power": 0,
+            "hp": 90,
+            "defence": 6,
+            "magic_resistance": 3,
+            "move_speed": 9,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": {
+            "action_name": "attack",
+            "description": "#asset/base/text/champion?description.archer.attack",
+            "duration": 24,
+            "cooltime": 60,
+            "start_timing": 10,
+            "cancelable": True,
+            "range": 62000,
+            "casting_type": "Targeting",
+            "casting_target": "Enemy",
+            "attack_type": "BaseAttack",
+            "effect": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_lucian_lightslinger_ready",
+                "effect_none": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Sfx", "name": "lol_lucian_attack_cast"},
+                        {"type": "CasterAnimation", "name": "attack_right", "tick": 18},
+                        {
+                            "type": "Delayed",
+                            "tick": 5,
+                            "effects": [
+                                lucian_target_projectile(100, "lol_lucian_attack_hit")
+                            ],
+                        },
+                    ],
+                },
+                "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Sfx", "name": "lol_lucian_passive_cast"},
+                        {"type": "CasterAnimation", "name": "attack_double", "tick": 22},
+                        {
+                            "type": "Delayed",
+                            "tick": 4,
+                            "effects": [
+                                lucian_target_projectile(100, "lol_lucian_attack_hit")
+                            ],
+                        },
+                        {
+                            "type": "Delayed",
+                            "tick": 10,
+                            "effects": [
+                                lucian_target_projectile(45, "lol_lucian_passive_hit")
+                            ],
+                        },
+                        {
+                            "type": "RemoveCasterBuff",
+                            "name": "lol_lucian_lightslinger_ready",
+                        },
+                    ],
+                },
+            },
+        },
+        "skill": {
+            "action_name": "skill",
+            "description": "#asset/base/text/champion?description.archer.skill",
+            "duration": 24,
+            "cooltime": 300,
+            "start_timing": 10,
+            "cancelable": True,
+            "range": 65000,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_lucian_q_cast"},
+                    {"type": "CasterAnimation", "name": "skill", "tick": 20},
+                    {
+                        "type": "Delayed",
+                        "tick": 10,
+                        "effects": [
+                            {
+                                "type": "LineRangeProjectile",
+                                "width": 12000,
+                                "length": 76000,
+                                "delay": 0,
+                                "apply": 1,
+                                "name": "lol_lucian_q_damage_line",
+                                "applied_target": "EnemyWithoutTower",
+                                "applied_effects": [
+                                    {
+                                        "effect": {
+                                            "type": "Attack",
+                                            "damage": 55,
+                                            "attack_ratio": 85,
+                                        },
+                                        "casting_type": "Targeting",
+                                    }
+                                ],
+                            }
+                        ],
+                    },
+                    lucian_lightslinger_buff(),
+                ],
+            },
+            "can_use_with_move": False,
+        },
+        "skill2": {
+            "action_name": "skill2",
+            "description": "#asset/base/text/champion?description.archer.skill2",
+            "duration": 18,
+            "cooltime": 420,
+            "start_timing": 4,
+            "cancelable": False,
+            "range": 30000,
+            "casting_type": "Direction",
+            "casting_target": "AllyOnlySelf",
+            "attack_type": "Skill",
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_lucian_e_cast"},
+                    {"type": "CasterAnimation", "name": "skill2", "tick": 18},
+                    {
+                        "type": "RushTime",
+                        "speed": 3000,
+                        "tick": 10,
+                        "range": 0,
+                        "casting_target": "Enemy",
+                        "penetrate": True,
+                        "applied_effects": [],
+                    },
+                    lucian_lightslinger_buff(),
+                ],
+            },
+            "can_use_with_move": False,
+        },
+        "ult": {
+            "action_name": "ult",
+            "description": "#asset/base/text/champion?description.archer.ult",
+            "duration": 150,
+            "cooltime": 3600,
+            "start_timing": 12,
+            "cancelable": True,
+            "range": 120000,
+            "casting_type": "Direction",
+            "casting_target": "EnemyWithoutTower",
+            "attack_type": "Skill",
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_lucian_r_cast"},
+                    {"type": "CasterAnimation", "name": "ult", "tick": 148},
+                    {
+                        "type": "Delayed",
+                        "tick": 8,
+                        "effects": [{"type": "Sfx", "name": "lol_lucian_r_channel"}],
+                    },
+                    *culling_shots,
+                    {
+                        "type": "Delayed",
+                        "tick": 132,
+                        "effects": [lucian_lightslinger_buff()],
+                    },
+                ],
+            },
+            "can_use_with_move": False,
+        },
+        "view_projectiles": [
+            {
+                "type": "Animated",
+                "name": "lol_lucian_light_bolt",
+                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_attack",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_lucian_culling_shot",
+                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_r",
+                "tag": "projectile",
+                "z": 3,
+                "repeat": True,
+            },
+        ],
+        "view_effects": [],
+        "view_buffs": [],
+    }
+    path = MOD_ROOT / "champion" / "archer.data_champion"
+    write_json(path, champion)
+    return path
+
+
 def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> list[Path]:
     QA_DIR.mkdir(parents=True, exist_ok=True)
     actor_contact = Image.new("RGBA", (6 * 128, 3 * 144), (20, 18, 28, 255))
@@ -334,6 +923,63 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
     icon_path = QA_DIR / "shen_skill_icons_final.png"
     save_png(icon_path, icon_contact)
     return [actor_path, icon_path]
+
+
+def build_lucian_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> list[Path]:
+    QA_DIR.mkdir(parents=True, exist_ok=True)
+    actor_contact = Image.new("RGBA", (7 * 128, 3 * 144), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(actor_contact)
+    labels = [
+        "idle A",
+        "idle B",
+        *[f"run {index}" for index in range(1, 10)],
+        "attack right",
+        "attack left",
+        "passive double",
+        "Q cast",
+        "E start",
+        "E travel",
+        "R start",
+        "R fire",
+        "hit",
+        "dead",
+    ]
+    for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
+        x = (index % 7) * 128
+        y = (index // 7) * 144
+        actor_contact.alpha_composite(frame.resize((128, 128), Image.Resampling.NEAREST), (x, y))
+        draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
+    actor_path = QA_DIR / "lucian_actor_contact_final.png"
+    save_png(actor_path, actor_contact)
+
+    icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(icon_contact)
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
+        icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
+        icon_contact.alpha_composite(icon, (index * 192, 0))
+        draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
+    icon_path = QA_DIR / "lucian_skill_icons_final.png"
+    save_png(icon_path, icon_contact)
+
+    panels = [
+        ("lucian_attack", (64, 32), "attack / passive bolt"),
+        ("lucian_q", (192, 64), "Q gold muzzle beam"),
+        ("lucian_r", (64, 32), "R bullet"),
+    ]
+    vfx_contact = Image.new("RGBA", (8 * 128, 3 * 96), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(vfx_contact)
+    for row, (name, frame_size, label) in enumerate(panels):
+        sheet = Image.open(EFFECT_DIR / f"{name}#sheet.png").convert("RGBA")
+        for index in range(8):
+            frame = sheet.crop(
+                (index * frame_size[0], 0, (index + 1) * frame_size[0], frame_size[1])
+            )
+            zoom = frame.resize((128, 80), Image.Resampling.NEAREST)
+            vfx_contact.alpha_composite(zoom, (index * 128, row * 96))
+        draw.text((4, row * 96 + 80), label, fill=(255, 255, 255, 255))
+    vfx_path = QA_DIR / "lucian_vfx_contact_final.png"
+    save_png(vfx_path, vfx_contact)
+    return [actor_path, icon_path, vfx_path]
 
 
 def sha256(path: Path) -> str:
@@ -382,15 +1028,42 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skip-manifest", action="store_true", help="Build art only")
     args = parser.parse_args()
-    missing = [path for path in [ACTOR_SOURCE, RUN_SOURCE, *ICON_SOURCES.values(), *(entry[0] for entry in VFX_SOURCES.values())] if not path.exists()]
+    required_sources = [
+        ACTOR_SOURCE,
+        RUN_SOURCE,
+        *ICON_SOURCES.values(),
+        *(entry[0] for entry in VFX_SOURCES.values()),
+        LUCIAN_ACTOR_SOURCE,
+        *LUCIAN_ICON_SOURCES.values(),
+        *(entry[0] for entry in LUCIAN_VFX_SOURCES.values()),
+    ]
+    missing = [path for path in required_sources if not path.exists()]
     if missing:
         raise SystemExit("Missing processed image-gen sources:\n" + "\n".join(str(path) for path in missing))
     actor_sheet, actor_anim, actor_frames = build_actor()
     icons = build_icons()
     vfx = build_vfx()
     qa = build_qa_contacts(actor_frames, icons)
+    lucian_sheet, lucian_anim, lucian_frames = build_lucian_actor()
+    lucian_icons = build_lucian_icons()
+    lucian_vfx = build_lucian_vfx()
+    lucian_champion = build_lucian_data()
+    lucian_qa = build_lucian_qa_contacts(lucian_frames, lucian_icons)
     manifest = None if args.skip_manifest else build_manifest()
-    for path in [actor_sheet, actor_anim, *icons, *vfx, *qa, *([manifest] if manifest else [])]:
+    for path in [
+        actor_sheet,
+        actor_anim,
+        *icons,
+        *vfx,
+        *qa,
+        lucian_sheet,
+        lucian_anim,
+        *lucian_icons,
+        *lucian_vfx,
+        lucian_champion,
+        *lucian_qa,
+        *([manifest] if manifest else []),
+    ]:
         print(path.relative_to(MOD_ROOT))
     return 0
 

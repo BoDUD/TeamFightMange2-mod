@@ -33,3 +33,107 @@ Use case: stylized-concept. Exact 3x2 source sheet of six sequential final-scale
 ## R VFX
 
 Use case: stylized-concept. Exact 4x2 source sheet of eight sequential final-scale pixel-art phases for Stand United: small eye rune, circular shield outline, protective lotus silhouette, forming teleport columns, intense columns, masked-eye flash, expanding arrival ring, and dissolving afterglow. Teal/cyan/violet/white, crisp hard pixels, stable 112x112-cell footprint, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, fire, generic explosion, angel wings, floor plane, or soft transparency.
+
+## Lucian actor model
+
+Create a production-ready 4x3 pixel-art contact sheet for base-skin Lucian: consistent dark-skinned adult man, short black hair, navy long coat with silver trim, armor and two cyan relic pistols, always facing screen-right. Pose order: two idles, right-pistol shot, left-pistol shot; passive double shot, Q brace, E anticipation, E travel; R start, R fire, hit, defeated. Identical identity, proportions, palette, ground baseline and compact scale in all cells; standing height about 48% of each cell with generous padding. Flat `#ff00ff` only; no grid, labels, UI, extra limbs, cropping, shadows or transparency.
+
+## Lucian run-cycle refinement
+
+Using the accepted Lucian actor as exact identity reference, create a 3x3 nine-frame screen-right run loop with obvious alternating cross-step gait: left contact, passing/cross, right contact, airborne recoil, opposite strong contact, opposite passing/cross, recovery and distinct loop return. Preserve both pistols, coat, scale, baseline and pixel clusters. Flat `#ff00ff`; no labels, grid, muzzle flash, model drift, missing feet or transparency.
+
+## Lucian Q icon
+
+Square full-bleed pixel-art icon for Piercing Light: paired silver relic pistols aligned into one concentrated cyan-white piercing beam, dark navy background, bold high-contrast motif readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian E icon
+
+Square full-bleed pixel-art icon for Relentless Pursuit: centered Lucian silhouette lunging screen-right with two cyan afterimages trailing left and a sharp speed streak, dark navy background, readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian R icon
+
+Square full-bleed pixel-art icon for The Culling: two relic pistols driving a symmetric storm of discrete cyan-white bullets toward screen-right, dark navy background, readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian Q VFX
+
+Exact 4x2 contact sheet of eight sequential Piercing Light phases: a thin horizontal cyan-white lance ignites, sharpens, reaches a fixed bright core, sparks and cleanly dissipates. Effect only, fixed origin and footprint, about 55% cell width. Flat `#ff00ff`; no character, weapon, labels, grid, blur or transparency.
+
+The cyan Q route was rejected after live-read review because it was too close to the cyan basic-attack bolt.
+
+## Lucian Q v2 gold muzzle beam
+
+Preserve the exact 4x2 eight-phase Piercing Light layout and long fixed lance, but replace the cyan identity with a white-hot ivory center, saturated golden-yellow body/edges, amber sparks and a restrained pale-violet shadow outline. Cyan/blue must not be dominant. The packed 192x64 direction-aware line canvas uses x=96 as its rotation pivot and starts visible pixels at x=116, so either facing direction flashes the forward beam from the Q pose's pistol muzzle instead of placing it behind the actor. Runtime damage is a one-tick frozen `LineRangeProjectile`; visibility uses a separate damage-free `LinearProjectile` carrier with speed 1 and range 12, so it stays at the launch direction for 12 ticks without following the target. Flat `#ff00ff`; effect only, no projectile-shaped blue bolt, character, labels, grid or extra beams.
+
+This v2 moving-carrier route was rejected after live review because the renderer could move, reverse or remove the visual independently of the fixed damage line. It is superseded by the v3 actor-embedded beam below.
+
+## Lucian R VFX
+
+Exact 4x2 contact sheet of eight looping single-projectile phases for The Culling: one compact horizontal cyan-white diamond bullet with a short tail and controlled side sparks, fixed center and footprint. Flat `#ff00ff`; no beam, projectile cluster, labels, grid, blur or transparency.
+
+## Lucian v2 readable actor model
+
+Edit the supplied Lucian actor into an exact 4x3 production sprite sheet with the same dark-skinned dual-pistol identity, navy coat, silver shoulders and cyan relic pistols. Use simplified final-scale chibi pixel art: head about one quarter of standing height, larger warm-brown face, separated black hairline and bright eye pixels that remain readable at a 36-37px full-body height. Pose order: idle A/B, right/left shots; wide/forward double shots, dash start/travel; R start/fire, hit, dead. Flat `#ff00ff`; no labels, grid, shadows, extra characters, cropping or oversized skill VFX.
+
+## Lucian v3 complete-leg actor correction
+
+Edit the accepted v2 4x3 actor while preserving identity, face, hair, navy-and-silver coat, two cyan pistols, pose order, scale and chroma background. Correct every lower body so hips, distinct knees, calves and complete boots are readable; separate both trouser legs with negative space or highlights, open/shorten coat tails so they do not merge with the thighs, and keep every boot inside its cell. Standing poses use slightly longer chibi legs while preserving overall height by compacting the torso rather than enlarging the model. No crop, ground, shadow, extra limb, grid, label or model drift.
+
+The v3 source contained complete geometry, but its dark long coat still merged with the thighs after packing to 24x33px and was rejected by live draft review.
+
+## Lucian v4 final-scale leg-silhouette correction
+
+Edit v3 while preserving Lucian's face, identity, pistols, pose order and overall height. Shorten and open the coat decisively so it ends at mid-thigh, make the legs roughly 40% of standing height, put both knees below the hem, separate trousers with a 2-3 source-pixel negative-space channel, and add restrained silver knee-guard and boot-rim highlights. Compact the torso rather than enlarging the model. Every thigh, knee, calf and boot must survive a 24x33px reduction; no crop, ground, shadow, grid, extra limb or model drift.
+
+This route was rejected in live draft review because its high-detail face still collapsed when the whole body was reduced to 24x33px.
+
+## Lucian v5 final-pixel idle face layer
+
+Edit only the head/face rendering over v4 while locking the body, short coat, long legs, pistols, pose order and scale. Design the standing face specifically for a 7-9px-tall game head: solid swept-black hair with 2-3 highlight clusters, three warm-brown skin tones, two separated high-contrast eye pixels, a single-pixel nose/cheek highlight and one-pixel mouth shadow. Each logical face pixel is a large crisp source cluster; no realistic gradients, micro-detail, mask, skull, cyclops or featureless brown block. Only the first two uncropped idle heads are used as the 12x12 runtime face overlay; all body geometry remains v4.
+
+The generated standing heads read as right-facing 3/4 profiles. The final palette restoration therefore keeps one right-side eye, brow, projecting nose and jaw shadow; applying the requested two-eye front layout to this profile was rejected as mask-like.
+
+This overlay route was also rejected: mixing a separately packed face with the v4 body still looked pasted-on and inconsistent at card scale. Neither v4 nor v5 remains in the active source set.
+
+## Lucian v6 native 24x33 model redraw
+
+Create a completely new 4x3 Lucian sheet rather than editing v4/v5. Author each standing sprite as only 24 logical pixels wide by 33 logical pixels tall, displayed enlarged with hard square blocks; use roughly 160-230 visible logical pixels and a 16-20 color palette with no antialiasing or micro-detail. The right-facing 3/4 head is about 9x9 logical pixels and the face about 6x5, with one ivory eye, brow, nose-tip pixel and jaw shadow. Keep a short navy/silver coat, distinct long legs, silver knees, complete boots and compact cyan pistols. Pose order remains idle A/B, right/left shot; double shot, Q, E start/travel; R start/fire, hit, defeated. Flat `#ff00ff`; no grid, labels, crop, shadow, extra limbs, huge VFX or high-resolution illustration route. Runtime packing uses nearest-neighbor plus a 32-color cap, and stable UI idle uses frame 0 only.
+
+## Lucian v2 distinct run cycle
+
+Edit the supplied Lucian run source into an exact 3x3 nine-frame screen-right gunslinger sprint, visibly unlike Shen's upright ninja walk. Use a low forward torso, pistols held low and back, trailing coat, alternating contacts, two obvious cross/passing phases, airborne stride, heel kick and small vertical bounce. Preserve the v2 face, costume, scale and foot baseline in all cells. Flat `#ff00ff`; no duplicate pose, muzzle flash, labels, grid, cropping or model drift.
+
+This first v2 sprint route was rejected after measuring the official Archer frames: its long airborne splits packed to as much as 58px wide, versus the official run's 23-24px visible width.
+
+## Lucian v3 official-footprint run correction
+
+Edit the v2 run sheet while locking the v2 actor identity. Keep nine screen-right gunslinger phases with modest forward lean, low pistols, alternating contacts and two passing/cross steps, but keep both legs mostly under the torso, coat tails close, no full split or long airborne jump, and a silhouette width no more than 90% of its height. Flat `#ff00ff`; preserve the face, costume, scale and foot baseline; no labels, grid, projectiles, cropping or model drift. This compact route is packed to the official 002 run envelope of at most 31px tall and 30px wide.
+
+## Lucian basic attack / passive projectile VFX
+
+Create an exact 4x2 eight-frame pixel-art contact sheet for one relic-pistol light bolt traveling screen-right: narrow diamond/needle white-hot core, cyan-blue shell, tiny electric particles and a short tapered tail, progressing from ignition through stable bolt and flare to dissipation. It must remain readable at about 32x16px and look like magical gunfire, not an arrow, casing, beam, rocket or projectile cluster. Flat `#ff00ff`; no character, gun, hand, labels, grid, scenery or watermark.
+
+## Lucian v7 unified 21-frame replacement
+
+Create a completely new exact 7x3 contact sheet containing all 21 Lucian poses in one generation: two idles; nine sequential right-facing run phases with alternating contacts and two passing/cross steps; right shot, left shot and passive double shot; Q cast, E start, E travel, R start, R fire, hit and dead. Use one consistent dark-skinned adult male gunslinger with short black hair, exactly two separated ivory eyes in front/three-quarter faces, white/navy long coat with cyan trim, black trousers, full boots and two matching silver relic pistols. Lock one head size, body scale, baseline, costume and palette across the complete sheet. Flat `#ff00ff`; no labels, grid, crop, shadows, extra limbs or body parts crossing cell boundaries.
+
+The first v7 result established the accepted unified body and face, but its double-shot pistols fused into a forked weapon. It was not packed.
+
+## Lucian v8 weapon and arm correction
+
+Edit the unified sheet while preserving the 7x3 layout, identity, body, face, costume and poses. Across all cells, make each relic pistol one consistent independent object with one straight barrel, one grip and one trigger guard. In double-shot and R-fire cells, separate the two pistols vertically and connect each to exactly one continuous shoulder-elbow-wrist-hand chain. No forked barrel, fused forearm, floating wrist, third hand or gun emerging from the torso.
+
+The first weapon correction fixed the guns but left the passive-double forearms visually fused. The accepted arm correction gives the near shoulder one horizontal firing arm and the far shoulder one lower, clearly separated firing arm, with one hand on each grip.
+
+## Lucian v9 no-effect E cleanup (superseded body base)
+
+Edit only E start and E travel while preserving the other 19 unified poses, especially the corrected passive-double arms. Remove every detached gold/cyan spark, speed line, glow trail and particle from the two E cells; retain only Lucian's physical body, coat tails, two arms, two hands, two separate pistols, legs and boots in the leaning dash poses. The resulting single v9 sheet supplies idle, the complete nine-frame run, attacks and every Q/E/R body pose; no separately generated Lucian run model remains active.
+
+The v9 body/animation layout was accepted, but its small high-resolution eyes disappeared during 33px nearest-neighbor packing and the runtime face became a blank brown block.
+
+## Lucian v10 final-scale two-eye face (active actor source)
+
+Edit the head and face in all 21 v9 cells while locking the unified body, corrected passive-double arms, separate pistols, E-without-VFX poses, legs, boots, grid and baseline. Redesign the head for final-scale packing: near-front/mild three-quarter face, two large separated ivory source clusters on one row, separate brows, centered nose and short mouth; no profile, visor, cyclops, blank face or collar pixels in the eye row. The accepted runtime pack uses nearest-neighbor at 35px standing height. Both idle frames are mechanically checked for exactly two same-row bright eye pixels at x=30 and x=34; 33px lost the eyes, while 36px was unnecessary. A later attempt to shrink the source eye blocks again was rejected because image-gen reduced them below the stable sampling width.
+
+## Lucian Q v3 fixed gold beam (active Q source)
+
+Create an exact 4x2 eight-phase contact sheet for Piercing Light on flat `#ff00ff`: compact gold-white muzzle ignition, rapid extension, three full-width stable phases, right-to-left breakup, thin fade and residual muzzle spark. Every phase shares one left-side muzzle origin and one perfectly horizontal baseline. Use an ivory-white core, saturated golden body, amber sparks and restrained pale-violet edge accents; no cyan identity, curve, homing arc, projectile ball, character, gun, labels or grid. Runtime packs these image-gen phases directly into 192x64 Q actor frames centered on Lucian, while damage uses a separate one-tick `LineRangeProjectile`. There is no moving Q visual projectile.

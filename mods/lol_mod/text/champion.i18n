@@ -7,6 +7,13 @@
         "skill": "Twilight Assault: Sends the spirit blade through enemies, dealing 40 + 60% Ability Power magic damage and slowing them by 25% for 1.5 seconds. Hitting an enemy grants Shen a 120 shield for 2 seconds.",
         "skill2": "Spirit's Refuge: Creates a defensive field around Shen. Allied champions in the field gain a 150 + 40% Ability Power shield for 2.5 seconds, while enemy champions lose 30% Attack Speed for 2 seconds.",
         "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After 0.8 seconds Shen teleports to the ally and taunts nearby enemy champions for 0.75 seconds. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
+      },
+      "archer": {
+        "name": "Lucian",
+        "attack": "Relic Pistols / Lightslinger: Fires a generated light bolt for 100% Attack physical damage. After Q, E, or R, the next attack within 4 seconds fires a second bolt 0.1 seconds later for 45% Attack physical damage.",
+        "skill": "Q — Piercing Light: Targets an enemy champion and fires a penetrating 760-range light beam through them, dealing 55 + 85% Attack physical damage to every non-tower enemy on the line. Activates Lightslinger.",
+        "skill2": "E — Relentless Pursuit: Dashes 300 range in the chosen direction without dealing damage or spawning a release effect. Activates Lightslinger.",
+        "ult": "R — The Culling: Stands still and fires 15 shots in the chosen direction, one every 0.13 seconds. Shots do not pierce; each deals 8 + 18% Attack physical damage to the first non-tower enemy hit. The channel can be interrupted and activates Lightslinger when it finishes."
       }
     }
   },
@@ -14,10 +21,17 @@
     "description": {
       "lol_shen": {
         "name": "慎",
-        "attack": "忍刀斩：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
+        "attack": "忍刃：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
         "skill": "暮光斩：灵刃穿过敌人，造成40 + 60%法术强度的魔法伤害，并使其减速25%，持续1.5秒。命中敌人后，慎获得120点护盾，持续2秒。",
         "skill2": "灵佑领域：慎在身边展开防御领域。范围内友方英雄获得150 + 40%法术强度的护盾，持续2.5秒；敌方英雄的攻击速度降低30%，持续2秒。",
-        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。0.8秒后慎传送到其身边，并嘲讽附近敌方英雄0.75秒。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。0.8秒后慎传送至其身边，并嘲讽附近敌方英雄0.75秒。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+      },
+      "archer": {
+        "name": "卢锡安",
+        "attack": "遗迹圣枪／圣光银弹：发射生成的圣光弹，造成100%攻击力的物理伤害。施放Q、E或R后，4秒内的下一次普攻会在0.1秒后追加第二发子弹，造成45%攻击力的物理伤害。",
+        "skill": "Q—透体圣光：锁定一名敌方英雄，向其方向发射一道760距离的贯穿光束，对沿线所有非防御塔敌人造成55 + 85%攻击力的物理伤害，并激活圣光银弹。",
+        "skill2": "E—冷酷追击：向指定方向冲刺300距离，不造成伤害，也不会生成释放特效；激活圣光银弹。",
+        "ult": "R—圣枪洗礼：原地朝指定方向连续发射15发不可穿透的子弹，每0.13秒一发。每发对首个命中的非防御塔敌人造成8 + 18%攻击力的物理伤害。引导可被打断，结束后激活圣光银弹。"
       }
     }
   },
@@ -25,10 +39,17 @@
     "description": {
       "lol_shen": {
         "name": "慎",
-        "attack": "忍刀斬：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
+        "attack": "忍刃：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
         "skill": "暮光斬：靈刃穿過敵人，造成40 + 60%法術強度的魔法傷害，並使其減速25%，持續1.5秒。命中敵人後，慎獲得120點護盾，持續2秒。",
         "skill2": "靈佑領域：慎在身邊展開防禦領域。範圍內友方英雄獲得150 + 40%法術強度的護盾，持續2.5秒；敵方英雄的攻擊速度降低30%，持續2秒。",
-        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。0.8秒後慎傳送到其身邊，並嘲諷附近敵方英雄0.75秒。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。0.8秒後慎傳送至其身邊，並嘲諷附近敵方英雄0.75秒。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+      },
+      "archer": {
+        "name": "路西恩",
+        "attack": "遺跡聖槍／聖光銀彈：發射生成的聖光彈，造成100%攻擊力的物理傷害。施放Q、E或R後，4秒內的下一次普攻會在0.1秒後追加第二發子彈，造成45%攻擊力的物理傷害。",
+        "skill": "Q—透體聖光：鎖定一名敵方英雄，向其方向發射一道760距離的貫穿光束，對沿線所有非防禦塔敵人造成55 + 85%攻擊力的物理傷害，並啟動聖光銀彈。",
+        "skill2": "E—冷酷追擊：向指定方向衝刺300距離，不造成傷害，也不會產生施放特效；啟動聖光銀彈。",
+        "ult": "R—聖槍洗禮：原地朝指定方向連續發射15發不可穿透的子彈，每0.13秒一發。每發對首個命中的非防禦塔敵人造成8 + 18%攻擊力的物理傷害。引導可被打斷，結束後啟動聖光銀彈。"
       }
     }
   }
