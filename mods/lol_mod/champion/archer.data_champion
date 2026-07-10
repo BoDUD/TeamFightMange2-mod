@@ -187,7 +187,7 @@
     "cancelable": true,
     "range": 65000,
     "casting_type": "Targeting",
-    "casting_target": "EnemyChampion",
+    "casting_target": "EnemyWithoutTower",
     "attack_type": "Skill",
     "effect": {
       "type": "Combine",
@@ -197,34 +197,28 @@
           "name": "lol_lucian_q_cast"
         },
         {
-          "type": "CasterAnimation",
-          "name": "skill",
-          "tick": 20
-        },
-        {
-          "type": "Delayed",
-          "tick": 10,
-          "effects": [
-            {
-              "type": "LineRangeProjectile",
-              "width": 12000,
-              "length": 76000,
-              "delay": 0,
-              "apply": 1,
-              "name": "lol_lucian_q_damage_line",
-              "applied_target": "EnemyWithoutTower",
-              "applied_effects": [
-                {
-                  "effect": {
-                    "type": "Attack",
-                    "damage": 55,
-                    "attack_ratio": 85
-                  },
-                  "casting_type": "Targeting"
-                }
-              ]
+          "type": "LinearProjectile",
+          "penetrate": true,
+          "speed": 16000,
+          "range": 76000,
+          "name": "lol_lucian_q_piercing_light",
+          "shape": {
+            "Circle": {
+              "radius": 10000
             }
-          ]
+          },
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Attack",
+                "damage": 55,
+                "attack_ratio": 85
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": []
         },
         {
           "type": "AddCasterBuff",
@@ -800,6 +794,14 @@
       "tag": "projectile",
       "z": 2,
       "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_lucian_q_piercing_light",
+      "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
+      "tag": "projectile",
+      "z": 3,
+      "repeat": false
     },
     {
       "type": "Animated",

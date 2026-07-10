@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-10",
+  "background_removal": "imagegen remove_chroma_key.py, border auto-key, soft matte, despill; attack VFX uses a green key so its violet trail is preserved",
+  "prompt_record": "source/imagegen/PROMPTS.md",
+  "sources": [
+    {
+      "role": "actor_model",
+      "path": "source/imagegen/orianna_actor_contact.png",
+      "sha256": "7663c1ed46fbb668a9e62cecdc203af393c4b513e498aca6455df4f7bb9d2ca4"
+    },
+    {
+      "role": "run_cycle",
+      "path": "source/imagegen/orianna_run_contact.png",
+      "sha256": "61a5b94492e6cea28a410734d56d31e27ab83791cbe4ce1ed3e113861c0c6614"
+    },
+    {
+      "role": "attack_vfx",
+      "path": "source/imagegen/orianna_attack_vfx_contact.png",
+      "sha256": "7d9bad13efd9cc1f8c11d18604a45493a2d04df0f8b9b319c58717d2cf859d73",
+      "processed_path": "source/processed/orianna_attack_vfx_contact_alpha.png",
+      "processed_sha256": "c9c6efa25a3f770a21d163e2662ad977bce704fa89b315f10cd0e09dcaf91d87",
+      "chroma_key": "#00ff00"
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/orianna_q_icon_source.png",
+      "sha256": "6bbfb09cf04da10c4b73a6c012db47d6cd09ae506f4b9ebb609d9875f5d5a7c1"
+    },
+    {
+      "role": "e_icon",
+      "path": "source/imagegen/orianna_e_icon_source.png",
+      "sha256": "d04b0e811b64076b0aada1af7c7df1c6c5bf3b8f5d129197c82c69712ac6ab9b"
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/orianna_r_icon_source.png",
+      "sha256": "30b3caff95a859b116fa6a977c343986fa55ae3872611e1ae3ee4ee100d7c1ab"
+    },
+    {
+      "role": "q_vfx",
+      "path": "source/imagegen/orianna_q_vfx_contact.png",
+      "sha256": "a8a75654a2265d4c9d9bf7d2e25e50112340cea7581ef534f00f5c17ae0dc7c8"
+    },
+    {
+      "role": "e_vfx",
+      "path": "source/imagegen/orianna_e_vfx_contact.png",
+      "sha256": "a829a7a9781191c57adeb11569b1de3f16acf635e2add7cc2cd2cbe77da84471"
+    },
+    {
+      "role": "r_vfx",
+      "path": "source/imagegen/orianna_r_vfx_contact.png",
+      "sha256": "b28a8715d1ded5f0d2ce3691c1458162434894b0709990915cf3cb8647b578e4"
+    }
+  ]
+}

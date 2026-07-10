@@ -34,13 +34,15 @@ Use case: stylized-concept. Exact 3x2 source sheet of six sequential final-scale
 
 Use case: stylized-concept. Exact 4x2 source sheet of eight sequential final-scale pixel-art phases for Stand United: small eye rune, circular shield outline, protective lotus silhouette, forming teleport columns, intense columns, masked-eye flash, expanding arrival ring, and dissolving afterglow. Teal/cyan/violet/white, crisp hard pixels, stable 112x112-cell footprint, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, fire, generic explosion, angel wings, floor plane, or soft transparency.
 
-## Lucian actor model
+## Lucian master actor model v3 (active)
 
-Create a production-ready 4x3 pixel-art contact sheet for base-skin Lucian: consistent dark-skinned adult man, short black hair, navy long coat with silver trim, armor and two cyan relic pistols, always facing screen-right. Pose order: two idles, right-pistol shot, left-pistol shot; passive double shot, Q brace, E anticipation, E travel; R start, R fire, hit, defeated. Identical identity, proportions, palette, ground baseline and compact scale in all cells; standing height about 48% of each cell with generous padding. Flat `#ff00ff` only; no grid, labels, UI, extra limbs, cropping, shadows or transparency.
+Use the accepted Shen actor sheet only as the scale, compact silhouette, pixel density, chibi head/body ratio, upright posture, cell occupancy and foot-baseline reference; do not copy Shen's costume, mask, sword, spirit blade, colors or identity. Create a completely new exact 4x3 production pixel-art sprite sheet for base-skin Lucian, consistently facing screen-right. Keep one athletic dark-skinned adult male gunslinger with short braided black hair, readable eyes, a compact white/navy coat ending above the knees, restrained cyan trim, strong compact legs, silver knees, complete boots and two matching compact silver/cyan relic pistols. Pose order: idle A/B, right/left shots; balanced passive double shot, upright Q brace, compact E anticipation/travel; R start/fire, upright hit, defeated. Preserve the exact face, anatomy, costume, pistol design, palette, body scale and foot baseline across all cells. Refined hard-edged hand-painted pixel art, dark outlines, controlled palette, crisp clusters and generous padding on a perfectly flat `#ff00ff` background. No horizontal flying, extreme lean, giant split, missing/fused limbs, extra arms/guns, cyclops/blank face, model drift, oversized head, large VFX, shadow, gradient, floor, labels, grid, watermark or transparency.
 
-## Lucian run-cycle refinement
+V3 precise edit: preserve the v2 sheet exactly except row 3 columns 3 and 4. Redraw only those hit/dead cells so the fall sequence has no duplicated, floating, detached or visually competing second pistol. The hit pose keeps one pistol securely gripped close to the lowered hand/body while the second is holstered or occluded; the defeated pose shows at most one compact pistol next to or in the front hand while the second is hidden. Preserve the exact 4x3 canvas, first ten cells, identity, anatomy, costume, palette, scale, direction, padding and flat `#ff00ff` background. No raised extra pistol, loose gun, purple hit sparks, extra arm/hand, disconnected wrist, gun through torso, muzzle flash, blood, crop, shadow, floor, labels, grid, text, watermark, transparency or blur.
 
-Using the accepted Lucian actor as exact identity reference, create a 3x3 nine-frame screen-right run loop with obvious alternating cross-step gait: left contact, passing/cross, right contact, airborne recoil, opposite strong contact, opposite passing/cross, recovery and distinct loop return. Preserve both pistols, coat, scale, baseline and pixel clusters. Flat `#ff00ff`; no labels, grid, muzzle flash, model drift, missing feet or transparency.
+## Lucian master nine-frame run cycle v2 (active)
+
+Use actor master v2 as the exact Lucian face, anatomy, costume, weapon, palette and rendering reference; use Shen's run sheet only as a compact scale, upright gait, modest-stride, pixel-density and body-occupancy reference. Create an exact 3x3 screen-right loop: left contact/loading/passing; right contact/loading/opposite passing; low transition/recovery/loop return. Show clear alternating legs, modest counter-motion, tiny vertical bounce and at most 15 degrees of torso lean. Keep both pistols controlled near the body, coat motion restrained, all nine bodies the same height/head size, and every grounded frame on one baseline. Each silhouette stays within 1.30x idle width. Refined hard-edged pixel art on perfectly flat `#ff00ff`; no horizontal flying, crouch crawl, giant split, duplicated pose, missing/merged boots, extra limbs/guns, muzzle flash, model drift, shadow, floor, labels, grid, watermark or transparency.
 
 ## Lucian Q icon
 
@@ -64,7 +66,7 @@ The cyan Q route was rejected after live-read review because it was too close to
 
 Preserve the exact 4x2 eight-phase Piercing Light layout and long fixed lance, but replace the cyan identity with a white-hot ivory center, saturated golden-yellow body/edges, amber sparks and a restrained pale-violet shadow outline. Cyan/blue must not be dominant. The packed 192x64 direction-aware line canvas uses x=96 as its rotation pivot and starts visible pixels at x=116, so either facing direction flashes the forward beam from the Q pose's pistol muzzle instead of placing it behind the actor. Runtime damage is a one-tick frozen `LineRangeProjectile`; visibility uses a separate damage-free `LinearProjectile` carrier with speed 1 and range 12, so it stays at the launch direction for 12 ticks without following the target. Flat `#ff00ff`; effect only, no projectile-shaped blue bolt, character, labels, grid or extra beams.
 
-This v2 moving-carrier route was rejected after live review because the renderer could move, reverse or remove the visual independently of the fixed damage line. It is superseded by the v3 actor-embedded beam below.
+This v2 moving-carrier route was rejected after live review because the renderer could move, reverse or remove the visual independently of the fixed damage line. The v3 artwork remains useful, but its actor-embedded runtime route was later rejected too.
 
 ## Lucian R VFX
 
@@ -130,10 +132,44 @@ Edit only E start and E travel while preserving the other 19 unified poses, espe
 
 The v9 body/animation layout was accepted, but its small high-resolution eyes disappeared during 33px nearest-neighbor packing and the runtime face became a blank brown block.
 
-## Lucian v10 final-scale two-eye face (active actor source)
+## Lucian v10 final-scale two-eye face (rejected actor source)
 
 Edit the head and face in all 21 v9 cells while locking the unified body, corrected passive-double arms, separate pistols, E-without-VFX poses, legs, boots, grid and baseline. Redesign the head for final-scale packing: near-front/mild three-quarter face, two large separated ivory source clusters on one row, separate brows, centered nose and short mouth; no profile, visor, cyclops, blank face or collar pixels in the eye row. The accepted runtime pack uses nearest-neighbor at 35px standing height. Both idle frames are mechanically checked for exactly two same-row bright eye pixels at x=30 and x=34; 33px lost the eyes, while 36px was unnecessary. A later attempt to shrink the source eye blocks again was rejected because image-gen reduced them below the stable sampling width.
 
-## Lucian Q v3 fixed gold beam (active Q source)
+The user rejected v10 for low overall model quality and poor movement. Its source, processed source and live card were deleted. Exact eye-pixel checks and code-injected face pixels are not valid substitutes for a readable final-scale actor.
 
-Create an exact 4x2 eight-phase contact sheet for Piercing Light on flat `#ff00ff`: compact gold-white muzzle ignition, rapid extension, three full-width stable phases, right-to-left breakup, thin fade and residual muzzle spark. Every phase shares one left-side muzzle origin and one perfectly horizontal baseline. Use an ivory-white core, saturated golden body, amber sparks and restrained pale-violet edge accents; no cyan identity, curve, homing arc, projectile ball, character, gun, labels or grid. Runtime packs these image-gen phases directly into 192x64 Q actor frames centered on Lucian, while damage uses a separate one-tick `LineRangeProjectile`. There is no moving Q visual projectile.
+## Lucian Q v3 gold beam (active art, rebuilt runtime)
+
+Create an exact 4x2 eight-phase contact sheet for Piercing Light on flat `#ff00ff`: compact gold-white muzzle ignition, rapid extension, three full-width stable phases, right-to-left breakup, thin fade and residual muzzle spark. Every phase shares one left-side muzzle origin and one perfectly horizontal baseline. Use an ivory-white core, saturated golden body, amber sparks and restrained pale-violet edge accents; no cyan identity, curve, homing arc, projectile ball, character, gun, labels or grid. Runtime deliberately excludes the isolated ignition/residual-spark endpoints and packs eight 60-80px beam phases on a 192x32 projectile canvas. The canvas rotation pivot is x=96 and every beam begins at x=104, so the same `lol_lucian_q_piercing_light` `LinearProjectile` starts at the forward pistol muzzle instead of Lucian's body. The actor remains body-only 64x64, and the retired actor-embedded beam plus one-tick `LineRangeProjectile` route must not return.
+
+# Orianna image-gen prompts
+
+All nine Orianna sources were generated with the built-in `image_gen` path on 2026-07-10. Eight use a removable magenta background; the v3 basic-attack source uses a removable green background so its violet trail survives chroma despill. Each source was converted into the matching `source/processed/orianna_*_alpha.png` before packing. The source set is original and does not reuse the official Barrier Mage, Workshop Reimu, or League client artwork.
+
+## Orianna actor model contact sheet v2 (active)
+
+Use case: stylized-concept. Create an exact 4x4 contact sheet of one consistent final-scale chibi clockwork automaton woman for Teamfight Manager 2: an enlarged, clean porcelain face plane, separated bright-cyan eye clusters, short dark-blue bob, compact brass-and-steel joints, navy/ivory gear dress and a small connected brass crown. Include readable idle, attack-command, defensive-command, shockwave-cast, hit, kneeling and defeated poses while locking the same face, proportions, palette and body scale. Every upright pose must show both complete boots with generous space below the soles; the runtime pack targets a 38px standing silhouette and an exclusive y=42 foot baseline (visible pixels end at y=41) so cards and compact rows cannot crop the feet. Simplify tiny facial ornament instead of blurring the porcelain/eye/hair contrast at final size. The Ball remains a separate gameplay/effect asset and is not baked into clean body frames. Flat `#ff00ff`; no text, labels, grid lines, scenery, floor, shadows, crop, extra limbs, muddy face, model drift, soft transparency, logo or watermark.
+
+## Orianna nine-frame run cycle v2 (active)
+
+Use case: stylized-concept. Create an exact 3x3 sequence of nine unique screen-right run frames using the v2 actor's exact face, crown, dress, joints and boot design. Show alternating mechanical leg contacts, two clear passing poses, modest forward energy and a small vertical bounce while preserving the enlarged readable face, separated cyan eyes and complete boots in every cell. Keep all frames in the same 38px runtime height class with their soles aligned to the exclusive y=42 baseline; vary the leg contact without shrinking the head/body or cutting either foot. Flat `#ff00ff`; no Ball, spell effects, labels, grid, duplicate frames, whole-character mirroring, crop, shadow, model redesign, fused/missing boots or soft transparency.
+
+## Orianna basic-attack energy-dart VFX v3 (active)
+
+Use case: precise-object-edit. Create an exact 4x2 pixel-art effect sheet: four unique screen-right travel phases of a large, high-contrast cyan/ivory mechanical energy dart with asymmetric brass clamps and a short violet trail, followed by four compact directional cyan/brass contact-spark and gear-shard fade phases. The travel silhouette must stay visibly elongated rather than circular and remain readable when packed at roughly 25-28px wide by 10-14px high inside a 32x32 game cell. This is normal attack energy fired independently of the mechanical Ball: no Ball, orb, circular gear sphere, shield, laser beam or miniature command orb. Preserve the exact 4x2 layout on a removable flat green chroma background so violet pixels are not lost during despill; effect only, no actor, text, labels, grid, scenery, oversized explosion or soft transparency.
+
+## Orianna Q/E/R icons
+
+Create three independent square pixel-art UI icons with full-bleed dark navy backgrounds and bold cyan/ivory/brass silhouettes readable at 24x24: Q shows the Ball driving toward a target point and releasing a control field; E shows the Ball wrapping an allied silhouette in a clockwork shield; R shows a circular ring contracting inward around the Ball. No text, UI frame, portrait, logo, watermark, magenta or copied League icon composition.
+
+## Orianna Q VFX
+
+Use case: stylized-concept. Create an exact 4x3 contact sheet for Command: Attack: four screen-right Ball travel phases, four arrival/activation phases and four fixed elliptical control-field phases. Preserve the same navy/ivory/brass Ball and cyan-violet energy language throughout. The field must read as a ground-area control effect rather than a persistent second actor. Flat `#ff00ff`; no character, labels, grid, scenery, opaque floor or soft transparency.
+
+## Orianna E VFX
+
+Use case: stylized-concept. Create an exact 4x3 contact sheet for Command: Protect: four fast Ball travel phases, four clockwork shield-ring phases and four shield brighten/fade phases. Keep a hollow center so an allied actor remains readable beneath the effect, with restrained cyan light and brass nodes. Flat `#ff00ff`; no character, text, labels, grid, solid dome, permanent Ball attachment or soft transparency.
+
+## Orianna R VFX
+
+Use case: stylized-concept. Create an exact 4x3 contact sheet for Command: Shockwave: a wide clockwork ring contracts through eight clear phases toward the Ball, then four cyan-violet inward-impact and dissolution phases. Directional arrows and ring motion must visibly pull toward the selected target point, never toward Orianna's body. Flat `#ff00ff`; no character, text, labels, grid, outward explosion, scenery or soft transparency.
