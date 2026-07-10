@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-11",
+  "audited_on": "2026-07-11",
+  "prompt_record": "source/imagegen/PROMPTS.md",
+  "background_removal": "imagegen remove_chroma_key.py with border auto-key, soft matte and despill; icons are cropped and pixel-finished directly from their opaque generated sources",
+  "sources": [
+    {
+      "role": "actor_model",
+      "path": "source/imagegen/briar_actor_contact.png",
+      "sha256": "64bf5c17be3840c7bb28bd6a7375c511e3e94d166438de92423db7f8812fccbd",
+      "size_bytes": 1769594,
+      "dimensions": [1254, 1254],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "run_cycle_nine_phase_source",
+      "path": "source/imagegen/briar_run_contact.png",
+      "sha256": "4b1265a24814f551de5a471515bb86a860b5302ca1bbe2a361a0b1d3e6c81fc0",
+      "size_bytes": 1515502,
+      "dimensions": [1254, 1254],
+      "mode": "RGB",
+      "alpha": {"present": false},
+      "source_grid": [3, 3]
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/briar_q_icon_source.png",
+      "sha256": "7fe40fae063e1f0adfd7c7d95b8a0e31bba03e0fb34ba39b4ac942280f7239b9",
+      "size_bytes": 1810376,
+      "dimensions": [1254, 1254],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "e_icon",
+      "path": "source/imagegen/briar_e_icon_source.png",
+      "sha256": "879c6b03434f68ef9c9f832e068377f5a55f62e3693ad9ee0ebd677833602df1",
+      "size_bytes": 1418241,
+      "dimensions": [1254, 1254],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/briar_r_icon_source.png",
+      "sha256": "962a524a27c5be4031fce5a4e710fbf73592edffcd1fb333c3584aedbddb6ea3",
+      "size_bytes": 1477592,
+      "dimensions": [1254, 1254],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "passive_bleed_vfx",
+      "path": "source/imagegen/briar_bleed_vfx_contact.png",
+      "sha256": "dffbaed4bc7e57f258514fd6250fb45be54366299613b18214a2ff52aaa6aaa4",
+      "size_bytes": 1132834,
+      "dimensions": [1774, 887],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "q_frenzy_vfx",
+      "path": "source/imagegen/briar_frenzy_vfx_contact.png",
+      "sha256": "0dd873d5bf8113c4d56f2512dd6db6564506057f9f4a2fd16307c2eacb005d9e",
+      "size_bytes": 1449095,
+      "dimensions": [1774, 887],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "e_vfx",
+      "path": "source/imagegen/briar_e_vfx_contact.png",
+      "sha256": "77402f681d013c587558068444b016001dd3ec284028f360edfaa5f5d1b81137",
+      "size_bytes": 1106308,
+      "dimensions": [1659, 948],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    },
+    {
+      "role": "r_vfx",
+      "path": "source/imagegen/briar_r_vfx_contact.png",
+      "sha256": "2316dddaccc4fc9a831d181767207434f504c6d64b2c7d2153f82edff98e2e21",
+      "size_bytes": 1306113,
+      "dimensions": [1448, 1086],
+      "mode": "RGB",
+      "alpha": {"present": false}
+    }
+  ],
+  "processed": [
+    {
+      "role": "actor_model_alpha",
+      "path": "source/processed/briar_actor_contact_alpha.png",
+      "sha256": "603cd8f5a153a400cbef6056699646b9a465120b457f3f6ca86975699a7973f0",
+      "size_bytes": 1083674,
+      "dimensions": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1206871, "partial_pixels": 32234, "opaque_pixels": 333411, "nonzero_bbox": [41, 27, 1222, 1162]}
+    },
+    {
+      "role": "run_cycle_alpha",
+      "path": "source/processed/briar_run_contact_alpha.png",
+      "sha256": "3490391fcfbbd2ac23a6ea3a02f43035c9522c4e159d2b39442e1faa8c9f81db",
+      "size_bytes": 778264,
+      "dimensions": [1254, 1254],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1291173, "partial_pixels": 17275, "opaque_pixels": 264068, "nonzero_bbox": [98, 87, 1134, 1147]}
+    },
+    {
+      "role": "passive_bleed_vfx_alpha",
+      "path": "source/processed/briar_bleed_vfx_contact_alpha.png",
+      "sha256": "e3183e25beff1fc9644f4ac54502938c6a0e1ee188234bd14629fff9ee7d41e2",
+      "size_bytes": 295791,
+      "dimensions": [1774, 887],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1461875, "partial_pixels": 14940, "opaque_pixels": 96723, "nonzero_bbox": [89, 95, 1656, 780]}
+    },
+    {
+      "role": "q_frenzy_vfx_alpha",
+      "path": "source/processed/briar_frenzy_vfx_contact_alpha.png",
+      "sha256": "a53b10ed7aff481c87c2b36afa90d8bb1b1013b4cd58c61c710a855ad3a85de9",
+      "size_bytes": 676718,
+      "dimensions": [1774, 887],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1352541, "partial_pixels": 52422, "opaque_pixels": 168575, "nonzero_bbox": [46, 42, 1703, 833]}
+    },
+    {
+      "role": "e_vfx_alpha",
+      "path": "source/processed/briar_e_vfx_contact_alpha.png",
+      "sha256": "be26bf7b4c56da598e15e935cbad0c5e742541e2c3f540a692cd475c59404972",
+      "size_bytes": 245525,
+      "dimensions": [1659, 948],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1486597, "partial_pixels": 9958, "opaque_pixels": 76177, "nonzero_bbox": [48, 200, 1605, 730]}
+    },
+    {
+      "role": "r_vfx_alpha",
+      "path": "source/processed/briar_r_vfx_contact_alpha.png",
+      "sha256": "9075eaa4a686a209a390f61394fa375e6b3a711b2a30df042c56d71b4da742bb",
+      "size_bytes": 494223,
+      "dimensions": [1448, 1086],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1397753, "partial_pixels": 20179, "opaque_pixels": 154596, "nonzero_bbox": [43, 93, 1399, 973]}
+    }
+  ],
+  "runtime": {
+    "actor": {
+      "sheet": {
+        "path": "aseprite_resources/champions/briar#sheet.png",
+        "sha256": "0fe184628d0ce3b380c127f3b09b3507608ec94705c68b285366a0ab45a31fbc",
+        "size_bytes": 458919,
+        "dimensions": [1792, 64],
+        "mode": "RGBA",
+        "cell_size": [64, 64],
+        "cell_count": 28,
+        "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 98376, "partial_pixels": 928, "opaque_pixels": 15384, "nonzero_bbox": [21, 2, 1718, 46]},
+        "core_frame_alpha": "hard 0/255; the only partial-alpha cells are the intentional 58% and 28% death fades",
+        "foot_baseline_exclusive_y": 46
+      },
+      "animation": {
+        "path": "aseprite_resources/champions/briar#anim.fanim",
+        "sha256": "ebf73e93841103c66b32faa811a5009c654c89067948e1db65fd20796df898b3",
+        "size_bytes": 18653,
+        "tag_frame_counts": {"idle": 4, "berserk_idle": 4, "run": 8, "berserk_run": 8, "attack": 5, "attack2": 5, "berserk_attack": 5, "skill1": 3, "skill2": 4, "skill2_berserk": 4, "skill2_effect": 4, "skill1_effect_old": 7, "ult": 5, "berserk_ult": 5, "ult_pre": 1, "berserk_ult_pre": 1, "ult_dash": 1, "berserk_ult_dash": 1, "ult_attack": 3, "berserk_ult_attack": 3, "hit": 1, "berserk_hit": 1, "dead": 10, "berserk_dead": 10},
+        "run_phase_adaptation": {"source_unique_phases": 9, "source_atlas_indexes": [16, 17, 18, 19, 20, 21, 22, 23, 24], "run_indexes": [16, 17, 18, 19, 20, 21, 22, 23], "berserk_run_indexes": [17, 18, 19, 20, 21, 22, 23, 24], "frames_per_native_tag": 8, "duration_per_native_tag_seconds": 0.640000048}
+      }
+    },
+    "icons": [
+      {"role": "q", "path": "icons/briar_skill.png", "sha256": "e242c877a5a92bbcdd42dafc2eb53e6cd128f0d6431809790b896ca44c6b09c5", "size_bytes": 16516, "dimensions": [64, 64], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255, "transparent_pixels": 0, "partial_pixels": 0, "opaque_pixels": 4096, "nonzero_bbox": [0, 0, 64, 64]}},
+      {"role": "e", "path": "icons/briar_skill2.png", "sha256": "eb09834b5683ae64b9ea3eabbc47f39494d3d139832b5997f3ea7870c0cfc993", "size_bytes": 16516, "dimensions": [64, 64], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255, "transparent_pixels": 0, "partial_pixels": 0, "opaque_pixels": 4096, "nonzero_bbox": [0, 0, 64, 64]}},
+      {"role": "r", "path": "icons/briar_ult.png", "sha256": "6f5145a79063beeae0a0ddfa47ac503fc3c6e280334e96c719c78923a34d5a1e", "size_bytes": 16516, "dimensions": [64, 64], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255, "transparent_pixels": 0, "partial_pixels": 0, "opaque_pixels": 4096, "nonzero_bbox": [0, 0, 64, 64]}}
+    ],
+    "vfx": [
+      {
+        "role": "passive_bleed",
+        "sheet": {"path": "aseprite_resources/effects/briar_bleed#sheet.png", "sha256": "f995d65ba50ed3e78811d8a2954f03fbe859bc0c5b4182939ccc85828166178f", "size_bytes": 73849, "dimensions": [384, 48], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 15521, "partial_pixels": 0, "opaque_pixels": 2911, "nonzero_bbox": [7, 7, 374, 41]}},
+        "animation": {"path": "aseprite_resources/effects/briar_bleed#anim.fanim", "sha256": "eb7a1139a238afac01aac8e1b3982cd29bc73951f72d05c9b17c50fbf769d0d8", "size_bytes": 1373, "tags": {"tick": {"frames": 8, "duration_seconds": 0.52}}}
+      },
+      {
+        "role": "q_frenzy",
+        "sheet": {"path": "aseprite_resources/effects/briar_frenzy#sheet.png", "sha256": "f585cdaf30781c81a475fb8c3ba6ba91ab4f51b38e4b96b902d5e819702f796c", "size_bytes": 295096, "dimensions": [768, 96], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 59845, "partial_pixels": 0, "opaque_pixels": 13883, "nonzero_bbox": [4, 12, 764, 96]}},
+        "animation": {"path": "aseprite_resources/effects/briar_frenzy#anim.fanim", "sha256": "f81e40bb947f5bf824c5430e2b00f524297062744e3f686613cbb257191db1bc", "size_bytes": 1466, "cell_size": [96, 96], "tags": {"pre": {"frames": 4, "duration_seconds": 0.31, "frame_indexes": [0, 1, 2, 3]}, "loop": {"frames": 2, "duration_seconds": 0.44, "frame_indexes": [4, 5]}, "remove": {"frames": 2, "duration_seconds": 0.24, "frame_indexes": [6, 7]}}}
+      },
+      {
+        "role": "e_scream",
+        "sheet": {"path": "aseprite_resources/effects/briar_e_scream#sheet.png", "sha256": "4224f5e6b7c0a6981739a4c86d63d0b6ac809fec2143a826d7f60b6c7ccda25c", "size_bytes": 229523, "dimensions": [896, 64], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 49878, "partial_pixels": 0, "opaque_pixels": 7466, "nonzero_bbox": [4, 12, 892, 52]}},
+        "animation": {"path": "aseprite_resources/effects/briar_e_scream#anim.fanim", "sha256": "e19230e4ebbfa17888d490995bd086a109be47bc437fb0346e8cf1d35cd2d54e", "size_bytes": 1390, "tags": {"projectile": {"frames": 8, "duration_seconds": 0.32}}}
+      },
+      {
+        "role": "r_target_mark",
+        "sheet": {"path": "aseprite_resources/effects/briar_r_mark#sheet.png", "sha256": "b99520bdcbad0b257aa13192d1cd8af925302bcc2647476f7e3e9b1eab1c03f0", "size_bytes": 65673, "dimensions": [256, 64], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 14015, "partial_pixels": 0, "opaque_pixels": 2369, "nonzero_bbox": [20, 8, 246, 56]}},
+        "animation": {"path": "aseprite_resources/effects/briar_r_mark#anim.fanim", "sha256": "e7132c78601299294fcfb26d68d5f4859a35346d13f2eaab53a90c1b8ab0a90c", "size_bytes": 715, "tags": {"mark": {"frames": 4, "duration_seconds": 0.4}}}
+      },
+      {
+        "role": "r_chase_trail",
+        "sheet": {"path": "aseprite_resources/effects/briar_r_trail#sheet.png", "sha256": "d8e84c14e55f35543809bd05f35630acd32f159c7b15b0db6a59cd746c8c1c82", "size_bytes": 73849, "dimensions": [384, 48], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 15226, "partial_pixels": 0, "opaque_pixels": 3206, "nonzero_bbox": [4, 9, 378, 39]}},
+        "animation": {"path": "aseprite_resources/effects/briar_r_trail#anim.fanim", "sha256": "a645745cfaf0cb71843f2068fa5c4dbc9c051e17c922ebf9551aa088f85d1262", "size_bytes": 724, "tags": {"trail": {"frames": 4, "duration_seconds": 0.18}}}
+      },
+      {
+        "role": "r_arrival",
+        "sheet": {"path": "aseprite_resources/effects/briar_r_arrival#sheet.png", "sha256": "0144d2381199cd752c01e8d55328e9c34ba8db248cb2f810fc75133381617bea", "size_bytes": 147630, "dimensions": [384, 96], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 30057, "partial_pixels": 0, "opaque_pixels": 6807, "nonzero_bbox": [4, 14, 380, 82]}},
+        "animation": {"path": "aseprite_resources/effects/briar_r_arrival#anim.fanim", "sha256": "f8d43893fdb8a2d81fe4f37fc5b32ea54208e0a1afbef960dbc24c70a3972c2e", "size_bytes": 721, "tags": {"arrival": {"frames": 4, "duration_seconds": 0.48}}}
+      }
+    ]
+  },
+  "contact_sheets": [
+    {"path": "qa/briar_actor_contact_final.png", "sha256": "681ddf59c7878419cc4afe10d07c6beb0552c6480e9e60377ba131dee92bf5b5", "size_bytes": 2065183, "dimensions": [896, 576], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
+    {"path": "qa/briar_skill_icons_final.png", "sha256": "521522c0c3e3f1c71449082b533a3a6b237f75c0f633ca81c08df41c4ff8c055", "size_bytes": 479543, "dimensions": [576, 208], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
+    {"path": "qa/briar_vfx_contact_final.png", "sha256": "9e823dfbeb3fcafa887236505659270593cc4a2114eb61ba5ebc2f9a2f1305fc", "size_bytes": 3638479, "dimensions": [1024, 888], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}}
+  ]
+}

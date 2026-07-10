@@ -194,5 +194,77 @@
   "asset/base/sound/sfx/orianna_r_hit_clip": {
     "remapping": "asset/lol_mod/sound/sfx/orianna_r_hit_clip",
     "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_frenzy_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_frenzy_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_frenzy_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_frenzy_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_frenzy_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_frenzy_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_frenzy_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_frenzy_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_e_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_e_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_e_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_e_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_briar_r_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_r_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/briar_r_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/briar_r_hit_clip",
+    "type": "override"
   }
 }

@@ -21,6 +21,13 @@
         "skill": "Q — Command: Attack + Dissonance: Sends the Ball to a targeted enemy champion and lands after 0.25 seconds, dealing 50 + 55% Ability Power magic damage in a 260-radius area. The non-persistent Ball leaves a fixed 300-radius field for 3 seconds: allies gain 18% Move Speed and enemies lose 22% Move Speed. From skill level 3, allies also gain 15% Attack Speed while enemies lose 15% Attack Speed.",
         "skill2": "E — Command: Protect: Sends the Ball to an allied champion, including Orianna, and grants a 180 + 55% Ability Power shield for 3 seconds. While that shield remains, the target gains 12 Defence and Magic Resistance, takes 15% less skill damage, and takes 10% less basic-attack damage. The Ball does not remain attached after the shield ends.",
         "ult": "R — Command: Shockwave: Places a shrinking ring at an enemy champion's current position. The ring stays fixed there while it contracts from 600 to 180 radius over 1 second and briefly binds enemies touching its edge. It then detonates at that fixed point, dealing 130 + 100% Ability Power magic damage, pulling enemies toward the point, and knocking them airborne for 0.4 seconds."
+      },
+      "berserker": {
+        "name": "Briar",
+        "attack": "Crimson Curse: Deals 100% Attack physical damage and applies a 2-second Bleed. Each Bleed ticks twice for 4 + 3% Attack physical damage and heals Briar for 2 + 1% Attack. Blood Frenzy empowers the next attack with 25 + 40% Attack plus 2% target maximum-health physical damage and heals 40 + 15% Attack, then consumes the empowerment.",
+        "skill": "Q — Blood Frenzy: While an enemy champion is within 450 range, breaks the restraint for 3 seconds, gaining 60% Attack Speed, 18% Move Speed and 25 Vamp, and prepares one empowered bite. Cooldown: 6 seconds. This data-only version does not force a target or provide a manual second cast.",
+        "skill2": "E — Chilling Scream: Performs a fixed 0.5-second charge, taking 35% less damage during the charge and healing 50 + 15% Attack once. The forward 500-range scream then deals 75 + 100% Attack physical damage, applies Crimson Curse, knocks enemies back and briefly knocks them airborne. Cooldown: 8 seconds; charge duration and wall impact cannot be varied.",
+        "ult": "R — Certain Death: Selects an enemy champion within 800 range, warns them for 0.3 seconds, then rapidly chases them. On arrival Briar deals 100 + 120% Attack physical damage, applies Crimson Curse, fears nearby enemy champions for 0.5 seconds, and gains 4 seconds of enhanced frenzy with 50% Attack Speed, 25% Move Speed, 30 Vamp, 20 Defence, 20 Magic Resistance and 20 Toughness. Cooldown: 60 seconds. This first version is a targeted chase rather than a missable global projectile."
       }
     }
   },
@@ -46,6 +53,13 @@
         "skill": "Q—指令：进攻·杂音：将魔偶送向目标敌方英雄，0.25秒后落地，对260半径内的敌人造成50 + 55%法术强度的魔法伤害。魔偶不会持续存在，但会在落点留下固定的300半径力场，持续3秒：友军移动速度提高18%，敌军移动速度降低22%。技能达到3级后，友军攻击速度再提高15%，敌军攻击速度降低15%。",
         "skill2": "E—指令：防卫：将魔偶送向一名友方英雄（可以选择奥利安娜），提供180 + 55%法术强度的护盾，持续3秒。护盾存在期间，目标获得12点护甲和魔法抗性，受到的技能伤害降低15%，受到的普通攻击伤害降低10%。护盾结束后魔偶不会继续附着。",
         "ult": "R—指令：冲击波：在一名敌方英雄当前所在位置放置圆环。圆环固定在该落点，1秒内从600半径缩至180半径，触碰边缘的敌人会被短暂禁锢；随后在该固定点引爆，造成130 + 100%法术强度的魔法伤害，将敌人拉向中心并击飞0.4秒。"
+      },
+      "berserker": {
+        "name": "贝蕾亚",
+        "attack": "血色诅咒：造成100%攻击力的物理伤害，并施加持续2秒的流血。每层流血结算2次，每次造成4 + 3%攻击力的物理伤害，并为贝蕾亚回复2 + 1%攻击力的生命。血莽会强化下一次普攻：额外造成25 + 40%攻击力 + 目标2%最大生命值的物理伤害，回复40 + 15%攻击力的生命，随后消耗强化。",
+        "skill": "Q—血莽：450距离内存在敌方英雄时挣脱拘束，持续3秒；获得60%攻击速度、18%移动速度和25点全能吸血，并准备一次强化噬击。冷却6秒。数据版本不会强制锁定目标，也没有可手动施放的二段技能。",
+        "skill2": "E—惊吼：固定蓄力0.5秒，蓄力期间受到的伤害降低35%，并且每次施放只回复一次50 + 15%攻击力的生命。随后向前方500距离释放冲击，造成75 + 100%攻击力的物理伤害、施加血色诅咒、击退并短暂击飞敌人。冷却8秒；无法改变蓄力时长，也没有撞墙奖励。",
+        "ult": "R—必死无疑：选择800距离内一名敌方英雄，预警0.3秒后高速追击。到达时造成100 + 120%攻击力的物理伤害并施加血色诅咒，使附近敌方英雄恐惧0.5秒；随后获得4秒强化狂暴：50%攻击速度、25%移动速度、30点全能吸血、20点护甲、20点魔抗和20点韧性。冷却60秒。首版是锁定追击，不是可以放空的全图直线弹体。"
       }
     }
   },
@@ -71,6 +85,13 @@
         "skill": "Q—指令：攻擊・雜音：將魔偶送向目標敵方英雄，0.25秒後落地，對260半徑內的敵人造成50 + 55%魔法攻擊的魔法傷害。魔偶不會持續存在，但會在落點留下固定的300半徑力場，持續3秒：隊友移動速度提高18%，敵人移動速度降低22%。技能達到3級後，隊友攻擊速度再提高15%，敵人攻擊速度降低15%。",
         "skill2": "E—指令：防衛：將魔偶送向一名友方英雄（可選擇奧利安娜），提供180 + 55%魔法攻擊的護盾，持續3秒。護盾存在期間，目標獲得12點護甲和魔法抗性，受到的技能傷害降低15%，受到的普通攻擊傷害降低10%。護盾結束後魔偶不會繼續附著。",
         "ult": "R—指令：衝擊波：在一名敵方英雄目前所在位置放置圓環。圓環固定在該落點，1秒內從600半徑縮至180半徑，觸碰邊緣的敵人會被短暫禁錮；隨後在該固定點引爆，造成130 + 100%魔法攻擊的魔法傷害，將敵人拉向中心並擊飛0.4秒。"
+      },
+      "berserker": {
+        "name": "貝蕾亞",
+        "attack": "血色詛咒：造成100%攻擊力的物理傷害，並施加持續2秒的流血。每層流血結算2次，每次造成4 + 3%攻擊力的物理傷害，並為貝蕾亞回復2 + 1%攻擊力的生命。血莽會強化下一次普攻：額外造成25 + 40%攻擊力 + 目標2%最大生命的物理傷害，回復40 + 15%攻擊力的生命，隨後消耗強化。",
+        "skill": "Q—血莽：450距離內存在敵方英雄時掙脫拘束，持續3秒；獲得60%攻擊速度、18%移動速度和25點全能吸血，並準備一次強化噬擊。冷卻6秒。資料版本不會強制鎖定目標，也沒有可手動施放的二段技能。",
+        "skill2": "E—驚吼：固定蓄力0.5秒，蓄力期間受到的傷害降低35%，並且每次施放只回復一次50 + 15%攻擊力的生命。隨後向前方500距離釋放衝擊，造成75 + 100%攻擊力的物理傷害、施加血色詛咒、擊退並短暫擊飛敵人。冷卻8秒；無法改變蓄力時間，也沒有撞牆獎勵。",
+        "ult": "R—必死無疑：選擇800距離內一名敵方英雄，預警0.3秒後高速追擊。到達時造成100 + 120%攻擊力的物理傷害並施加血色詛咒，使附近敵方英雄恐懼0.5秒；隨後獲得4秒強化狂暴：50%攻擊速度、25%移動速度、30點全能吸血、20點護甲、20點魔抗和20點韌性。冷卻60秒。首版是鎖定追擊，不是可以放空的全圖直線彈體。"
       }
     }
   },
@@ -82,6 +103,13 @@
         "skill": "Q—オーダー：攻撃＋不協和音：対象の敵チャンピオンへボールを送り、0.25秒後に着弾して半径260以内の敵に50 + 魔力55%の魔法ダメージを与える。ボールは残らないが、着弾地点に半径300の固定フィールドを3秒間残し、味方の移動速度を18%上げ、敵の移動速度を22%下げる。スキルレベル3以降は味方の攻撃速度も15%上げ、敵の攻撃速度を15%下げる。",
         "skill2": "E—オーダー：防御：オリアナ自身を含む味方チャンピオンへボールを送り、180 + 魔力55%のシールドを3秒間付与する。シールドがある間、対象は防御力と魔法耐性を12得て、スキルダメージを15%、通常攻撃ダメージを10%軽減する。シールド終了後、ボールは付着したままにならない。",
         "ult": "R—オーダー：ショックウェーブ：敵チャンピオンの現在位置にリングを置く。リングはその着地点に固定されたまま1秒かけて半径600から180まで縮み、縁に触れた敵を短時間拘束する。その後、固定地点で爆発し、130 + 魔力100%の魔法ダメージを与え、敵を中心へ引き寄せて0.4秒間ノックアップする。"
+      },
+      "berserker": {
+        "name": "ブライアー",
+        "attack": "真紅の呪い：攻撃力100%の物理ダメージを与え、2秒間の出血を付与する。出血は2回発動し、1回ごとに4 + 攻撃力3%の物理ダメージを与え、ブライアーの体力を2 + 攻撃力1%回復する。血の狂乱後の次の通常攻撃は追加で25 + 攻撃力40% + 対象の最大体力2%の物理ダメージを与え、40 + 攻撃力15%回復して強化を消費する。",
+        "skill": "Q—血の狂乱：450以内に敵チャンピオンがいる場合、3秒間拘束を解き、攻撃速度60%、移動速度18%、ヴァンプ25を得て、強化された噛みつきを1回準備する。クールダウン6秒。データ版では対象を強制せず、手動の再発動もない。",
+        "skill2": "E—身震いする叫び：0.5秒固定で溜め、その間受けるダメージを35%軽減し、1回だけ50 + 攻撃力15%回復する。前方500へ75 + 攻撃力100%の物理ダメージを与え、真紅の呪い、ノックバック、短いノックアップを付与する。クールダウン8秒。溜め時間変更と壁衝突ボーナスはない。",
+        "ult": "R—死の確定：800以内の敵チャンピオンを選び、0.3秒の警告後に高速追跡する。到達時に100 + 攻撃力120%の物理ダメージと真紅の呪いを与え、周囲の敵チャンピオンを0.5秒恐怖させ、4秒間の強化狂乱を得る。クールダウン60秒。初版は外れる直線弾ではなく対象指定の追跡である。"
       }
     }
   },
@@ -93,6 +121,13 @@
         "skill": "Q—명령: 공격 + 불협화음: 대상 적 챔피언에게 구체를 보내 0.25초 후 착지시키고 반경 260 안의 적에게 50 + 주문력의 55%만큼 마법 피해를 입힙니다. 구체는 지속되지 않지만 착지 지점에 반경 300의 고정 역장을 3초 동안 남겨 아군 이동 속도를 18% 높이고 적 이동 속도를 22% 낮춥니다. 스킬 레벨 3부터 아군 공격 속도도 15% 높이고 적 공격 속도를 15% 낮춥니다.",
         "skill2": "E—명령: 보호: 오리아나 자신을 포함한 아군 챔피언에게 구체를 보내 180 + 주문력의 55%만큼 보호막을 3초 동안 부여합니다. 보호막이 유지되는 동안 대상은 방어력과 마법 저항력 12를 얻고 스킬 피해를 15%, 기본 공격 피해를 10% 덜 받습니다. 보호막이 끝나면 구체는 계속 부착되어 있지 않습니다.",
         "ult": "R—명령: 충격파: 적 챔피언의 현재 위치에 고리를 놓습니다. 고리는 그 착지점에 고정된 채 1초 동안 반경 600에서 180으로 줄어들며 가장자리에 닿은 적을 잠시 속박합니다. 이후 고정된 지점에서 폭발해 130 + 주문력의 100%만큼 마법 피해를 입히고 적을 중심으로 끌어당긴 뒤 0.4초 동안 공중에 띄웁니다."
+      },
+      "berserker": {
+        "name": "브라이어",
+        "attack": "핏빛 저주: 공격력의 100%만큼 물리 피해를 입히고 2초 출혈을 부여합니다. 출혈은 두 번 발동해 매번 4 + 공격력의 3%만큼 피해를 입히고 브라이어가 2 + 공격력의 1%만큼 회복합니다. 핏빛 광분 후 다음 기본 공격은 25 + 공격력의 40% + 대상 최대 체력의 2%만큼 추가 피해를 입히고 40 + 공격력의 15%만큼 회복한 뒤 강화를 소모합니다.",
+        "skill": "Q—핏빛 광분: 450 안에 적 챔피언이 있으면 3초 동안 구속을 깨고 공격 속도 60%, 이동 속도 18%, 모든 피해 흡혈 25를 얻으며 강화된 물어뜯기 1회를 준비합니다. 재사용 대기시간 6초. 데이터 버전은 대상을 강제하지 않고 수동 재사용도 없습니다.",
+        "skill2": "E—오싹한 비명: 0.5초 고정 충전 중 받는 피해가 35% 감소하고 한 번만 50 + 공격력의 15%만큼 회복합니다. 전방 500에 75 + 공격력의 100%만큼 물리 피해를 입히고 핏빛 저주, 밀쳐내기, 짧은 공중 띄우기를 적용합니다. 재사용 대기시간 8초. 충전 시간 변경과 벽 충돌 보너스는 없습니다.",
+        "ult": "R—불가항력적 죽음: 800 안의 적 챔피언을 선택해 0.3초 경고 후 빠르게 추격합니다. 도착 시 100 + 공격력의 120%만큼 물리 피해와 핏빛 저주를 적용하고 주변 적 챔피언을 0.5초 공포에 빠뜨린 뒤 4초 강화 광분을 얻습니다. 재사용 대기시간 60초. 첫 버전은 빗나갈 수 있는 전역 투사체가 아니라 대상 지정 추격입니다."
       }
     }
   }

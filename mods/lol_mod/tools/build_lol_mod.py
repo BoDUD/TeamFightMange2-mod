@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen, Lucian, and Orianna runtime assets from accepted sources."""
+"""Build Shen, Lucian, Orianna, and Briar runtime assets from accepted sources."""
 
 from __future__ import annotations
 
@@ -75,6 +75,20 @@ ORIANNA_VFX_SOURCES = {
     "orianna_q": SOURCE / "orianna_q_vfx_contact_alpha.png",
     "orianna_e_shield": SOURCE / "orianna_e_vfx_contact_alpha.png",
     "orianna_r_ring": SOURCE / "orianna_r_vfx_contact_alpha.png",
+}
+
+BRIAR_ACTOR_SOURCE = SOURCE / "briar_actor_contact_alpha.png"
+BRIAR_RUN_SOURCE = SOURCE / "briar_run_contact_alpha.png"
+BRIAR_ICON_SOURCES = {
+    "briar_skill.png": MOD_ROOT / "source" / "imagegen" / "briar_q_icon_source.png",
+    "briar_skill2.png": MOD_ROOT / "source" / "imagegen" / "briar_e_icon_source.png",
+    "briar_ult.png": MOD_ROOT / "source" / "imagegen" / "briar_r_icon_source.png",
+}
+BRIAR_VFX_SOURCES = {
+    "briar_bleed": SOURCE / "briar_bleed_vfx_contact_alpha.png",
+    "briar_frenzy": SOURCE / "briar_frenzy_vfx_contact_alpha.png",
+    "briar_e_scream": SOURCE / "briar_e_vfx_contact_alpha.png",
+    "briar_r": SOURCE / "briar_r_vfx_contact_alpha.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -538,6 +552,104 @@ def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
     return sheet_path, anim_path, packed_frames
 
 
+def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
+    """Pack Briar while retaining every native Berserker animation tag."""
+
+    actor_cells = [
+        hard_alpha(cell)
+        for cell in split_grid(Image.open(BRIAR_ACTOR_SOURCE).convert("RGBA"), 4, 4)
+    ]
+    actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
+    idle_height = max(subject.height for subject in actor_subjects[:2])
+    actor_scale = 38 / idle_height
+
+    def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
+        scale = actor_scale if fixed_height is None else fixed_height / subject.height
+        scale = min(scale, 58 / subject.width, 44 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 48)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        return frame
+
+    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    run_cells = [
+        hard_alpha(cell)
+        for cell in split_grid(Image.open(BRIAR_RUN_SOURCE).convert("RGBA"), 3, 3)
+    ]
+    run_frames = [
+        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=38) for cell in run_cells
+    ]
+
+    def faded(frame: Image.Image, opacity: float) -> Image.Image:
+        result = frame.copy()
+        result.putalpha(result.getchannel("A").point(lambda value: round(value * opacity)))
+        return result
+
+    transparent = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    frames = [
+        *base_frames,
+        *run_frames,
+        faded(base_frames[14], 0.58),
+        faded(base_frames[14], 0.28),
+        transparent,
+    ]
+    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
+
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "briar#sheet.png"
+    anim_path = ACTOR_DIR / "briar#anim.fanim"
+    save_png(sheet_path, atlas)
+
+    native_sequences: dict[str, tuple[list[int], list[float]]] = {
+        "idle": ([0, 1, 0, 1], [0.18, 0.14, 0.14, 0.14]),
+        "berserk_idle": ([7, 7, 6, 7], [0.18, 0.14, 0.14, 0.14]),
+        "run": (list(range(16, 24)), [0.080000006] * 8),
+        "berserk_run": (list(range(17, 25)), [0.080000006] * 8),
+        "attack": ([2, 2, 3, 3, 0], [0.080000006] * 5),
+        "attack2": ([4, 4, 5, 5, 0], [0.080000006] * 5),
+        "berserk_attack": ([2, 3, 4, 5, 7], [0.060000002] * 5),
+        "skill1": ([6, 6, 7], [0.080000006] * 3),
+        "skill2": ([8, 8, 9, 0], [0.080000006] * 4),
+        "skill2_berserk": ([8, 9, 9, 7], [0.080000006] * 4),
+        "skill2_effect": ([8, 9, 9, 7], [0.080000006] * 4),
+        "skill1_effect_old": ([6, 6, 7, 7, 6, 7, 27], [0.080000006] * 7),
+        "ult": ([10, 10, 11, 11, 7], [0.080000006] * 5),
+        "berserk_ult": ([10, 10, 11, 11, 7], [0.080000006] * 5),
+        "ult_pre": ([10], [0.080000006]),
+        "berserk_ult_pre": ([10], [0.080000006]),
+        "ult_dash": ([11], [0.080000006]),
+        "berserk_ult_dash": ([11], [0.080000006]),
+        "ult_attack": ([11, 4, 5], [0.080000006] * 3),
+        "berserk_ult_attack": ([11, 4, 5], [0.080000006] * 3),
+        "hit": ([12], [0.1]),
+        "berserk_hit": ([12], [0.1]),
+        "dead": ([12, 13, 13, 14, 14, 14, 25, 26, 26, 27], [0.1] * 10),
+        "berserk_dead": (
+            [12, 13, 13, 14, 14, 14, 25, 26, 26, 27],
+            [0.1] * 10,
+        ),
+    }
+    anims: dict[str, object] = {}
+    for tag, (indexes, durations) in native_sequences.items():
+        anims[tag] = {
+            "frames": [
+                {
+                    "duration": duration,
+                    "data": {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                }
+                for index, duration in zip(indexes, durations, strict=True)
+            ]
+        }
+    write_json(anim_path, {"anims": anims})
+    return sheet_path, anim_path, frames
+
+
 def build_icons() -> list[Path]:
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
@@ -569,6 +681,18 @@ def build_orianna_icons() -> list[Path]:
     for output_name, source_path in ORIANNA_ICON_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
         icon = fit_cell(source, (64, 64), (58, 58))
+        output = ICON_DIR / output_name
+        save_png(output, icon)
+        outputs.append(output)
+    return outputs
+
+
+def build_briar_icons() -> list[Path]:
+    ICON_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for output_name, source_path in BRIAR_ICON_SOURCES.items():
+        source = Image.open(source_path).convert("RGBA")
+        icon = palette_finish(source.resize((64, 64), Image.Resampling.LANCZOS), 64)
         output = ICON_DIR / output_name
         save_png(output, icon)
         outputs.append(output)
@@ -902,6 +1026,117 @@ def build_orianna_vfx() -> list[Path]:
             "ring": effect_anim(160, 160, list(range(8)), [0.125] * 8),
             "burst": effect_anim(160, 160, list(range(8, 12)), [0.08, 0.08, 0.12, 0.12]),
         },
+    )
+    return outputs
+
+
+def build_briar_vfx() -> list[Path]:
+    """Build Briar's curse, frenzy, scream, mark, trail, and arrival VFX."""
+
+    EFFECT_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+
+    def write_effect(
+        name: str,
+        frames: list[Image.Image],
+        frame_size: tuple[int, int],
+        anims: dict[str, object],
+    ) -> None:
+        atlas = Image.new(
+            "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
+        )
+        for index, frame in enumerate(frames):
+            atlas.alpha_composite(frame, (index * frame_size[0], 0))
+        sheet = EFFECT_DIR / f"{name}#sheet.png"
+        anim = EFFECT_DIR / f"{name}#anim.fanim"
+        save_png(sheet, atlas)
+        write_json(anim, {"anims": anims})
+        outputs.extend([sheet, anim])
+
+    bleed_cells = split_grid(
+        Image.open(BRIAR_VFX_SOURCES["briar_bleed"]).convert("RGBA"), 4, 2
+    )
+    bleed_frames = [fit_cell(cell, (48, 48), (34, 34)) for cell in bleed_cells]
+    write_effect(
+        "briar_bleed",
+        bleed_frames,
+        (48, 48),
+        {
+            "tick": effect_anim(
+                48,
+                48,
+                list(range(8)),
+                [0.04, 0.05, 0.06, 0.07, 0.06, 0.06, 0.08, 0.10],
+            )
+        },
+    )
+
+    frenzy_cells = split_grid(
+        Image.open(BRIAR_VFX_SOURCES["briar_frenzy"]).convert("RGBA"), 4, 2
+    )
+    frenzy_frames: list[Image.Image] = []
+    for cell in frenzy_cells:
+        cell = hard_alpha(cell)
+        subject = cell.crop(alpha_bbox(cell))
+        scale = min(88 / subject.width, 84 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 48)
+        frame = Image.new("RGBA", (96, 96), (0, 0, 0, 0))
+        # The first live pass put the ring around Briar's hair and health bar.
+        # Grow it mostly downward: the top edge stays stable while the hollow
+        # center moves six pixels toward her chest/feet.
+        x = (96 - resized.width) // 2
+        y = min(96 - resized.height, (96 - resized.height) // 2 + 6)
+        frame.alpha_composite(resized, (x, y))
+        frenzy_frames.append(frame)
+    write_effect(
+        "briar_frenzy",
+        frenzy_frames,
+        (96, 96),
+        {
+            "pre": effect_anim(96, 96, [0, 1, 2, 3], [0.06, 0.07, 0.08, 0.10]),
+            "loop": effect_anim(96, 96, [4, 5], [0.22, 0.22]),
+            "remove": effect_anim(96, 96, [6, 7], [0.10, 0.14]),
+        },
+    )
+
+    scream_cells = split_grid(
+        Image.open(BRIAR_VFX_SOURCES["briar_e_scream"]).convert("RGBA"), 4, 2
+    )
+    scream_frames = [fit_cell(cell, (112, 64), (104, 42)) for cell in scream_cells]
+    write_effect(
+        "briar_e_scream",
+        scream_frames,
+        (112, 64),
+        {"projectile": effect_anim(112, 64, list(range(8)), [0.04] * 8)},
+    )
+
+    r_cells = split_grid(
+        Image.open(BRIAR_VFX_SOURCES["briar_r"]).convert("RGBA"), 4, 3
+    )
+    mark_frames = [fit_cell(cell, (64, 64), (48, 48)) for cell in r_cells[:4]]
+    write_effect(
+        "briar_r_mark",
+        mark_frames,
+        (64, 64),
+        {"mark": effect_anim(64, 64, list(range(4)), [0.10] * 4)},
+    )
+    trail_frames = [fit_cell(cell, (96, 48), (88, 30)) for cell in r_cells[4:8]]
+    write_effect(
+        "briar_r_trail",
+        trail_frames,
+        (96, 48),
+        {"trail": effect_anim(96, 48, list(range(4)), [0.045] * 4)},
+    )
+    arrival_frames = [fit_cell(cell, (96, 96), (88, 72)) for cell in r_cells[8:12]]
+    write_effect(
+        "briar_r_arrival",
+        arrival_frames,
+        (96, 96),
+        {"arrival": effect_anim(96, 96, list(range(4)), [0.08, 0.10, 0.12, 0.18])},
     )
     return outputs
 
@@ -1631,6 +1866,430 @@ def build_orianna_data() -> Path:
     return path
 
 
+def build_briar_data() -> Path:
+    """Replace native Berserker (project champion 004) with Q/E/R Briar."""
+
+    def crimson_curse() -> dict[str, object]:
+        return {
+            "type": "Combine",
+            "effects": [
+                {
+                    "type": "AddCasted",
+                    "duration": 120,
+                    "period": 60,
+                    "casted_type": "Bleed",
+                    "effects": [
+                        {"type": "Attack", "damage": 4, "attack_ratio": 3},
+                        {
+                            "type": "Heal",
+                            "amount": 2,
+                            "attack_ratio": 1,
+                            "ap_ratio": 0,
+                            "heal_type": "Caster",
+                        },
+                        {"type": "ViewEffect", "name": "lol_briar_bleed_tick_visual"},
+                    ],
+                },
+                {
+                    "type": "AddBuff",
+                    "buff_state": {
+                        "name": "lol_briar_crimson_curse",
+                        "duration": {"Time": {"tick": 120}},
+                    },
+                },
+            ],
+        }
+
+    def caster_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
+        return {
+            "type": "AddCasterBuff",
+            "buff_state": {
+                "name": name,
+                "duration": {"Time": {"tick": tick}},
+                **stats,
+            },
+        }
+
+    snack_buff_180 = caster_buff("lol_briar_snack_ready", 180)
+    snack_buff_240 = caster_buff("lol_briar_snack_ready", 240)
+    base_frenzy = caster_buff(
+        "lol_briar_blood_frenzy",
+        180,
+        attack_speed_mult=60,
+        move_speed_mult=18,
+        vamp=25,
+    )
+    certain_death_frenzy = caster_buff(
+        "lol_briar_certain_death_frenzy",
+        240,
+        attack_speed_mult=50,
+        move_speed_mult=25,
+        vamp=30,
+        defence=20,
+        magic_resistance=20,
+        toughness=20,
+    )
+
+    champion = {
+        "id": "berserker",
+        "category": "Melee",
+        "tags": ["AD", "Melee", "Heal", "Dot", "CC"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/briar",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/briar_skill",
+            "asset/lol_mod/icons/briar_skill2",
+            "asset/lol_mod/icons/briar_ult",
+        ],
+        "stat": {
+            "attack": 115,
+            "magic_power": 0,
+            "hp": 950,
+            "defence": 25,
+            "magic_resistance": 18,
+            "move_speed": 1100,
+            "hp_regen": 0,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 20,
+            "magic_power": 0,
+            "hp": 100,
+            "defence": 7,
+            "magic_resistance": 4,
+            "move_speed": 10,
+            "hp_regen": 0,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": {
+            "action_name": "attack",
+            "description": "#asset/base/text/champion?description.berserker.attack",
+            "duration": 24,
+            "cooltime": 50,
+            "start_timing": 12,
+            "cancelable": True,
+            "range": 25000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "Enemy",
+            "attack_type": "BaseAttack",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_briar_snack_ready",
+                "effect_none": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Sfx", "name": "lol_briar_attack_cast"},
+                        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                        crimson_curse(),
+                        {"type": "TargetSfx", "name": "lol_briar_attack_hit"},
+                    ],
+                },
+                "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Sfx", "name": "lol_briar_frenzy_cast"},
+                        {"type": "CasterAnimation", "name": "attack2", "tick": 24},
+                        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                        {
+                            "type": "Attack",
+                            "damage": 25,
+                            "attack_ratio": 40,
+                            "target_hp_ratio": 2,
+                        },
+                        {
+                            "type": "Heal",
+                            "amount": 40,
+                            "attack_ratio": 15,
+                            "ap_ratio": 0,
+                            "heal_type": "Caster",
+                        },
+                        crimson_curse(),
+                        {"type": "TargetSfx", "name": "lol_briar_frenzy_hit"},
+                        {"type": "RemoveCasterBuff", "name": "lol_briar_snack_ready"},
+                    ],
+                },
+            },
+        },
+        "skill": {
+            "action_name": "skill1",
+            "description": "#asset/base/text/champion?description.berserker.skill",
+            "duration": 20,
+            "cooltime": 360,
+            "start_timing": 8,
+            "cancelable": False,
+            "range": 45000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_briar_q_cast"},
+                    {"type": "CasterAnimation", "name": "skill1", "tick": 20},
+                    {
+                        "type": "SwitchByBuff",
+                        "buff_name": "lol_briar_certain_death_frenzy",
+                        "effect_none": {
+                            "type": "Combine",
+                            "effects": [
+                                {
+                                    "type": "RemoveCasterBuff",
+                                    "name": "lol_briar_blood_frenzy",
+                                },
+                                {
+                                    "type": "RemoveCasterBuff",
+                                    "name": "lol_briar_snack_ready",
+                                },
+                                base_frenzy,
+                                snack_buff_180,
+                            ],
+                        },
+                        "effect_buff": {
+                            "type": "Combine",
+                            "effects": [
+                                {
+                                    "type": "RemoveCasterBuff",
+                                    "name": "lol_briar_snack_ready",
+                                },
+                                snack_buff_180,
+                            ],
+                        },
+                    },
+                ],
+            },
+        },
+        "skill2": {
+            "action_name": "skill2",
+            "description": "#asset/base/text/champion?description.berserker.skill2",
+            "duration": 54,
+            "cooltime": 480,
+            "start_timing": 1,
+            "cancelable": False,
+            "range": 50000,
+            "growth_range": 0,
+            "casting_type": "Direction",
+            "casting_target": "EnemyWithoutTower",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "CasterAnimation", "name": "skill2", "tick": 54},
+                    caster_buff(
+                        "lol_briar_chilling_scream_guard", 30, damaged_reduce=35
+                    ),
+                    {
+                        "type": "Heal",
+                        "amount": 50,
+                        "attack_ratio": 15,
+                        "ap_ratio": 0,
+                        "heal_type": "Caster",
+                    },
+                    {
+                        "type": "Delayed",
+                        "tick": 30,
+                        "effects": [
+                            {"type": "Sfx", "name": "lol_briar_e_cast"},
+                            {
+                                "type": "LinearProjectile",
+                                "penetrate": True,
+                                "speed": 12000,
+                                "range": 50000,
+                                "name": "lol_briar_e_scream_projectile",
+                                "shape": {"Circle": {"radius": 12000}},
+                                "applied_target": "EnemyWithoutTower",
+                                "applied_effects": [],
+                                "end_effects": [],
+                            },
+                            {
+                                "type": "LineRangeProjectile",
+                                "width": 24000,
+                                "length": 50000,
+                                "delay": 0,
+                                "apply": 1,
+                                "name": "lol_briar_e_hitbox",
+                                "applied_target": "EnemyWithoutTower",
+                                "applied_effects": [
+                                    {
+                                        "effect": {
+                                            "type": "Combine",
+                                            "effects": [
+                                                {
+                                                    "type": "Attack",
+                                                    "damage": 75,
+                                                    "attack_ratio": 100,
+                                                },
+                                                crimson_curse(),
+                                                {
+                                                    "type": "Knockback",
+                                                    "speed": 3000,
+                                                    "tick": 12,
+                                                },
+                                                {"type": "Airborne", "duration": 18},
+                                                {
+                                                    "type": "TargetSfx",
+                                                    "name": "lol_briar_e_hit",
+                                                },
+                                            ],
+                                        },
+                                        "casting_type": "Targeting",
+                                    }
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        "ult": {
+            "action_name": "ult",
+            "description": "#asset/base/text/champion?description.berserker.ult",
+            "duration": 48,
+            "cooltime": 3600,
+            "start_timing": 1,
+            "cancelable": False,
+            "range": 80000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_briar_r_cast"},
+                    {"type": "ViewEffect", "name": "lol_briar_r_mark_visual"},
+                    {"type": "CasterAnimation", "name": "ult_pre", "tick": 18},
+                    {
+                        "type": "Delayed",
+                        "tick": 18,
+                        "effects": [
+                            {"type": "CasterAnimation", "name": "ult_dash", "tick": 30},
+                            {
+                                "type": "CasterViewEffect",
+                                "name": "lol_briar_r_trail_visual",
+                            },
+                            {
+                                "type": "MoveToTarget",
+                                "speed": 6000,
+                                "range": 80000,
+                                "end_effects": [
+                                    {
+                                        "type": "CasterAnimation",
+                                        "name": "ult_attack",
+                                        "tick": 24,
+                                    },
+                                    {"type": "Sfx", "name": "lol_briar_r_hit"},
+                                    {
+                                        "type": "ViewEffect",
+                                        "name": "lol_briar_r_arrival_visual",
+                                    },
+                                    {"type": "Attack", "damage": 100, "attack_ratio": 120},
+                                    crimson_curse(),
+                                    {
+                                        "type": "RangeEffect",
+                                        "shape": {"Circle": {"radius": 30000}},
+                                        "target": "EnemyChampion",
+                                        "apply_type": "AroundCaster",
+                                        "effects": [{"type": "Fear", "tick": 30}],
+                                    },
+                                    {
+                                        "type": "RemoveCasterBuff",
+                                        "name": "lol_briar_blood_frenzy",
+                                    },
+                                    {
+                                        "type": "RemoveCasterBuff",
+                                        "name": "lol_briar_certain_death_frenzy",
+                                    },
+                                    {
+                                        "type": "RemoveCasterBuff",
+                                        "name": "lol_briar_snack_ready",
+                                    },
+                                    certain_death_frenzy,
+                                    snack_buff_240,
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        "view_projectiles": [
+            {
+                "type": "Animated",
+                "name": "lol_briar_e_scream_projectile",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_e_scream",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": False,
+            }
+        ],
+        "view_effects": [
+            {
+                "type": "Animation",
+                "name": "lol_briar_bleed_tick_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_bleed",
+                "tag": "tick",
+                "z": 1,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_briar_r_mark_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
+                "tag": "mark",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_briar_r_trail_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_trail",
+                "tag": "trail",
+                "z": 1,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_briar_r_arrival_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_arrival",
+                "tag": "arrival",
+                "z": 0,
+                "is_follow": False,
+            },
+        ],
+        "view_buffs": [
+            {
+                "type": "ThreePhase",
+                "name": "lol_briar_blood_frenzy",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+                "pre_tag": "pre",
+                "loop_tag": "loop",
+                "remove_tag": "remove",
+                "z": 1,
+            },
+            {
+                "type": "ThreePhase",
+                "name": "lol_briar_certain_death_frenzy",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+                "pre_tag": "pre",
+                "loop_tag": "loop",
+                "remove_tag": "remove",
+                "z": 1,
+            },
+        ],
+    }
+    path = MOD_ROOT / "champion" / "berserker.data_champion"
+    write_json(path, champion)
+    return path
+
+
 def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> list[Path]:
     QA_DIR.mkdir(parents=True, exist_ok=True)
     actor_contact = Image.new("RGBA", (6 * 128, 3 * 144), (20, 18, 28, 255))
@@ -1781,6 +2440,79 @@ def build_orianna_qa_contacts(
     return [actor_path, icon_path, vfx_path]
 
 
+def build_briar_qa_contacts(
+    actor_frames: list[Image.Image], icons: list[Path]
+) -> list[Path]:
+    QA_DIR.mkdir(parents=True, exist_ok=True)
+    labels = [
+        "idle A",
+        "idle B",
+        "attack windup",
+        "attack strike",
+        "snack lunge",
+        "snack bite",
+        "Q crack",
+        "Q frenzy",
+        "E charge",
+        "E release",
+        "R throw",
+        "R chase",
+        "hit",
+        "fall",
+        "grounded",
+        "defeated",
+        *[f"run {index}" for index in range(1, 10)],
+        "fade 58%",
+        "fade 28%",
+        "transparent",
+    ]
+    actor_contact = Image.new("RGBA", (7 * 128, 4 * 144), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(actor_contact)
+    for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
+        x = (index % 7) * 128
+        y = (index // 7) * 144
+        actor_contact.alpha_composite(
+            frame.resize((128, 128), Image.Resampling.NEAREST), (x, y)
+        )
+        draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
+    actor_path = QA_DIR / "briar_actor_contact_final.png"
+    save_png(actor_path, actor_contact)
+
+    icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(icon_contact)
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
+        icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
+        icon_contact.alpha_composite(icon, (index * 192, 0))
+        draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
+    icon_path = QA_DIR / "briar_skill_icons_final.png"
+    save_png(icon_path, icon_contact)
+
+    panels = [
+        ("briar_bleed", (48, 48), 8, "passive bleed tick"),
+        ("briar_frenzy", (96, 96), 8, "Q/R frenzy aura"),
+        ("briar_e_scream", (112, 64), 8, "E forward scream"),
+        ("briar_r_mark", (64, 64), 4, "R target mark"),
+        ("briar_r_trail", (96, 48), 4, "R chase trail"),
+        ("briar_r_arrival", (96, 96), 4, "R arrival/fear"),
+    ]
+    vfx_contact = Image.new("RGBA", (8 * 128, 6 * 148), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(vfx_contact)
+    for row, (name, frame_size, count, label) in enumerate(panels):
+        sheet = Image.open(EFFECT_DIR / f"{name}#sheet.png").convert("RGBA")
+        for index in range(count):
+            frame = sheet.crop(
+                (index * frame_size[0], 0, (index + 1) * frame_size[0], frame_size[1])
+            )
+            frame.thumbnail((124, 124), Image.Resampling.NEAREST)
+            x = index * 128 + (128 - frame.width) // 2
+            y = row * 148 + (124 - frame.height) // 2
+            vfx_contact.alpha_composite(frame, (x, y))
+        draw.text((4, row * 148 + 128), label, fill=(255, 255, 255, 255))
+    vfx_path = QA_DIR / "briar_vfx_contact_final.png"
+    save_png(vfx_path, vfx_contact)
+    return [actor_path, icon_path, vfx_path]
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -1840,6 +2572,10 @@ def main() -> int:
         ORIANNA_RUN_SOURCE,
         *ORIANNA_ICON_SOURCES.values(),
         *ORIANNA_VFX_SOURCES.values(),
+        BRIAR_ACTOR_SOURCE,
+        BRIAR_RUN_SOURCE,
+        *BRIAR_ICON_SOURCES.values(),
+        *BRIAR_VFX_SOURCES.values(),
     ]
     missing = [path for path in required_sources if not path.exists()]
     if missing:
@@ -1858,6 +2594,11 @@ def main() -> int:
     orianna_vfx = build_orianna_vfx()
     orianna_champion = build_orianna_data()
     orianna_qa = build_orianna_qa_contacts(orianna_frames, orianna_icons)
+    briar_sheet, briar_anim, briar_frames = build_briar_actor()
+    briar_icons = build_briar_icons()
+    briar_vfx = build_briar_vfx()
+    briar_champion = build_briar_data()
+    briar_qa = build_briar_qa_contacts(briar_frames, briar_icons)
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -1877,6 +2618,12 @@ def main() -> int:
         *orianna_vfx,
         orianna_champion,
         *orianna_qa,
+        briar_sheet,
+        briar_anim,
+        *briar_icons,
+        *briar_vfx,
+        briar_champion,
+        *briar_qa,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))
