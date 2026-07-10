@@ -1,0 +1,663 @@
+{
+  "id": "berserker",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee",
+    "Heal",
+    "Dot",
+    "CC"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/briar",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/briar_skill",
+    "asset/lol_mod/icons/briar_skill2",
+    "asset/lol_mod/icons/briar_ult"
+  ],
+  "stat": {
+    "attack": 115,
+    "magic_power": 0,
+    "hp": 950,
+    "defence": 25,
+    "magic_resistance": 18,
+    "move_speed": 1100,
+    "hp_regen": 0,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 20,
+    "magic_power": 0,
+    "hp": 100,
+    "defence": 7,
+    "magic_resistance": 4,
+    "move_speed": 10,
+    "hp_regen": 0,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.berserker.attack",
+    "duration": 24,
+    "cooltime": 50,
+    "start_timing": 12,
+    "cancelable": true,
+    "range": 25000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "lol_briar_snack_ready",
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_briar_attack_cast"
+          },
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 100
+          },
+          {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "AddCasted",
+                "duration": 120,
+                "period": 60,
+                "casted_type": "Bleed",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 4,
+                    "attack_ratio": 3
+                  },
+                  {
+                    "type": "Heal",
+                    "amount": 2,
+                    "attack_ratio": 1,
+                    "ap_ratio": 0,
+                    "heal_type": "Caster"
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_briar_bleed_tick_visual"
+                  }
+                ]
+              },
+              {
+                "type": "AddBuff",
+                "buff_state": {
+                  "name": "lol_briar_crimson_curse",
+                  "duration": {
+                    "Time": {
+                      "tick": 120
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TargetSfx",
+            "name": "lol_briar_attack_hit"
+          }
+        ]
+      },
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_briar_frenzy_cast"
+          },
+          {
+            "type": "CasterAnimation",
+            "name": "attack2",
+            "tick": 24
+          },
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 100
+          },
+          {
+            "type": "Attack",
+            "damage": 25,
+            "attack_ratio": 40,
+            "target_hp_ratio": 2
+          },
+          {
+            "type": "Heal",
+            "amount": 40,
+            "attack_ratio": 15,
+            "ap_ratio": 0,
+            "heal_type": "Caster"
+          },
+          {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "AddCasted",
+                "duration": 120,
+                "period": 60,
+                "casted_type": "Bleed",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 4,
+                    "attack_ratio": 3
+                  },
+                  {
+                    "type": "Heal",
+                    "amount": 2,
+                    "attack_ratio": 1,
+                    "ap_ratio": 0,
+                    "heal_type": "Caster"
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_briar_bleed_tick_visual"
+                  }
+                ]
+              },
+              {
+                "type": "AddBuff",
+                "buff_state": {
+                  "name": "lol_briar_crimson_curse",
+                  "duration": {
+                    "Time": {
+                      "tick": 120
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "TargetSfx",
+            "name": "lol_briar_frenzy_hit"
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "lol_briar_snack_ready"
+          }
+        ]
+      }
+    }
+  },
+  "skill": {
+    "action_name": "skill1",
+    "description": "#asset/base/text/champion?description.berserker.skill",
+    "duration": 20,
+    "cooltime": 360,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 45000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_briar_q_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill1",
+          "tick": 20
+        },
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "lol_briar_certain_death_frenzy",
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_briar_blood_frenzy"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_briar_snack_ready"
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "lol_briar_blood_frenzy",
+                  "duration": {
+                    "Time": {
+                      "tick": 180
+                    }
+                  },
+                  "attack_speed_mult": 60,
+                  "move_speed_mult": 18,
+                  "vamp": 25
+                }
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "lol_briar_snack_ready",
+                  "duration": {
+                    "Time": {
+                      "tick": 180
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_briar_snack_ready"
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "lol_briar_snack_ready",
+                  "duration": {
+                    "Time": {
+                      "tick": 180
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.berserker.skill2",
+    "duration": 54,
+    "cooltime": 480,
+    "start_timing": 1,
+    "cancelable": false,
+    "range": 50000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterAnimation",
+          "name": "skill2",
+          "tick": 54
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_briar_chilling_scream_guard",
+            "duration": {
+              "Time": {
+                "tick": 30
+              }
+            },
+            "damaged_reduce": 35
+          }
+        },
+        {
+          "type": "Heal",
+          "amount": 50,
+          "attack_ratio": 15,
+          "ap_ratio": 0,
+          "heal_type": "Caster"
+        },
+        {
+          "type": "Delayed",
+          "tick": 30,
+          "effects": [
+            {
+              "type": "Sfx",
+              "name": "lol_briar_e_cast"
+            },
+            {
+              "type": "LinearProjectile",
+              "penetrate": true,
+              "speed": 12000,
+              "range": 50000,
+              "name": "lol_briar_e_scream_projectile",
+              "shape": {
+                "Circle": {
+                  "radius": 12000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [],
+              "end_effects": []
+            },
+            {
+              "type": "LineRangeProjectile",
+              "width": 24000,
+              "length": 50000,
+              "delay": 0,
+              "apply": 1,
+              "name": "lol_briar_e_hitbox",
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 75,
+                        "attack_ratio": 100
+                      },
+                      {
+                        "type": "Combine",
+                        "effects": [
+                          {
+                            "type": "AddCasted",
+                            "duration": 120,
+                            "period": 60,
+                            "casted_type": "Bleed",
+                            "effects": [
+                              {
+                                "type": "Attack",
+                                "damage": 4,
+                                "attack_ratio": 3
+                              },
+                              {
+                                "type": "Heal",
+                                "amount": 2,
+                                "attack_ratio": 1,
+                                "ap_ratio": 0,
+                                "heal_type": "Caster"
+                              },
+                              {
+                                "type": "ViewEffect",
+                                "name": "lol_briar_bleed_tick_visual"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "AddBuff",
+                            "buff_state": {
+                              "name": "lol_briar_crimson_curse",
+                              "duration": {
+                                "Time": {
+                                  "tick": 120
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Knockback",
+                        "speed": 3000,
+                        "tick": 12
+                      },
+                      {
+                        "type": "Airborne",
+                        "duration": 18
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_briar_e_hit"
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.berserker.ult",
+    "duration": 48,
+    "cooltime": 3600,
+    "start_timing": 1,
+    "cancelable": false,
+    "range": 80000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_briar_r_cast"
+        },
+        {
+          "type": "ViewEffect",
+          "name": "lol_briar_r_mark_visual"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "ult_pre",
+          "tick": 18
+        },
+        {
+          "type": "Delayed",
+          "tick": 18,
+          "effects": [
+            {
+              "type": "CasterAnimation",
+              "name": "ult_dash",
+              "tick": 30
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_briar_r_trail_visual"
+            },
+            {
+              "type": "MoveToTarget",
+              "speed": 6000,
+              "range": 80000,
+              "end_effects": [
+                {
+                  "type": "CasterAnimation",
+                  "name": "ult_attack",
+                  "tick": 24
+                },
+                {
+                  "type": "Sfx",
+                  "name": "lol_briar_r_hit"
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_briar_r_arrival_visual"
+                },
+                {
+                  "type": "Attack",
+                  "damage": 100,
+                  "attack_ratio": 120
+                },
+                {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "AddCasted",
+                      "duration": 120,
+                      "period": 60,
+                      "casted_type": "Bleed",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 4,
+                          "attack_ratio": 3
+                        },
+                        {
+                          "type": "Heal",
+                          "amount": 2,
+                          "attack_ratio": 1,
+                          "ap_ratio": 0,
+                          "heal_type": "Caster"
+                        },
+                        {
+                          "type": "ViewEffect",
+                          "name": "lol_briar_bleed_tick_visual"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "AddBuff",
+                      "buff_state": {
+                        "name": "lol_briar_crimson_curse",
+                        "duration": {
+                          "Time": {
+                            "tick": 120
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "RangeEffect",
+                  "shape": {
+                    "Circle": {
+                      "radius": 30000
+                    }
+                  },
+                  "target": "EnemyChampion",
+                  "apply_type": "AroundCaster",
+                  "effects": [
+                    {
+                      "type": "Fear",
+                      "tick": 30
+                    }
+                  ]
+                },
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "lol_briar_blood_frenzy"
+                },
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "lol_briar_certain_death_frenzy"
+                },
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "lol_briar_snack_ready"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_briar_certain_death_frenzy",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    },
+                    "attack_speed_mult": 50,
+                    "move_speed_mult": 25,
+                    "vamp": 30,
+                    "defence": 20,
+                    "magic_resistance": 20,
+                    "toughness": 20
+                  }
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_briar_snack_ready",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_briar_e_scream_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_e_scream",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": false
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_briar_bleed_tick_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_bleed",
+      "tag": "tick",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_briar_r_mark_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
+      "tag": "mark",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_briar_r_trail_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_trail",
+      "tag": "trail",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_briar_r_arrival_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_arrival",
+      "tag": "arrival",
+      "z": 0,
+      "is_follow": false
+    }
+  ],
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "lol_briar_blood_frenzy",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": 1
+    },
+    {
+      "type": "ThreePhase",
+      "name": "lol_briar_certain_death_frenzy",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": 1
+    }
+  ]
+}

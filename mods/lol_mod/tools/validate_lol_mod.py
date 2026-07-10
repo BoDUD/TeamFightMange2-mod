@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for Shen, Lucian/002, and Orianna/003."""
+"""Static validation for Shen, Lucian/002, Orianna/003, and Briar/004."""
 
 from __future__ import annotations
 
@@ -55,6 +55,114 @@ ORIANNA_VIEW_BUFFS: dict[str, tuple[str, str, str, str]] = {
         "loop",
         "break",
     ),
+}
+
+BRIAR_NATIVE_ANIMATION: dict[str, list[float]] = {
+    "idle": [0.18, 0.14, 0.14, 0.14],
+    "berserk_idle": [0.18, 0.14, 0.14, 0.14],
+    "run": [0.080000006] * 8,
+    "berserk_run": [0.080000006] * 8,
+    "attack": [0.080000006] * 5,
+    "attack2": [0.080000006] * 5,
+    "berserk_attack": [0.060000002] * 5,
+    "skill1": [0.080000006] * 3,
+    "skill2": [0.080000006] * 4,
+    "skill2_berserk": [0.080000006] * 4,
+    "skill2_effect": [0.080000006] * 4,
+    "skill1_effect_old": [0.080000006] * 7,
+    "ult": [0.080000006] * 5,
+    "berserk_ult": [0.080000006] * 5,
+    "ult_pre": [0.080000006],
+    "berserk_ult_pre": [0.080000006],
+    "ult_dash": [0.080000006],
+    "berserk_ult_dash": [0.080000006],
+    "ult_attack": [0.080000006] * 3,
+    "berserk_ult_attack": [0.080000006] * 3,
+    "hit": [0.1],
+    "berserk_hit": [0.1],
+    "dead": [0.1] * 10,
+    "berserk_dead": [0.1] * 10,
+}
+
+BRIAR_VIEW_PROJECTILES: dict[str, tuple[str, str, int, bool]] = {
+    "lol_briar_e_scream_projectile": (
+        "asset/lol_mod/aseprite_resources/effects/briar_e_scream",
+        "projectile",
+        2,
+        False,
+    ),
+}
+
+BRIAR_VIEW_EFFECTS: dict[str, tuple[str, str, int, bool]] = {
+    "lol_briar_bleed_tick_visual": (
+        "asset/lol_mod/aseprite_resources/effects/briar_bleed",
+        "tick",
+        1,
+        True,
+    ),
+    "lol_briar_r_mark_visual": (
+        "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
+        "mark",
+        2,
+        True,
+    ),
+    "lol_briar_r_trail_visual": (
+        "asset/lol_mod/aseprite_resources/effects/briar_r_trail",
+        "trail",
+        1,
+        True,
+    ),
+    "lol_briar_r_arrival_visual": (
+        "asset/lol_mod/aseprite_resources/effects/briar_r_arrival",
+        "arrival",
+        0,
+        False,
+    ),
+}
+
+BRIAR_VIEW_BUFFS: dict[str, tuple[str, str, str, str, int]] = {
+    "lol_briar_blood_frenzy": (
+        "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+        "pre",
+        "loop",
+        "remove",
+        1,
+    ),
+    "lol_briar_certain_death_frenzy": (
+        "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
+        "pre",
+        "loop",
+        "remove",
+        1,
+    ),
+}
+
+BRIAR_EFFECT_ANIMATION: dict[str, tuple[tuple[int, int], dict[str, list[float]]]] = {
+    "briar_bleed": ((384, 48), {"tick": [0.04, 0.05, 0.06, 0.07, 0.06, 0.06, 0.08, 0.10]}),
+    "briar_frenzy": (
+        (768, 96),
+        {
+            "pre": [0.06, 0.07, 0.08, 0.10],
+            "loop": [0.22, 0.22],
+            "remove": [0.10, 0.14],
+        },
+    ),
+    "briar_e_scream": ((896, 64), {"projectile": [0.04] * 8}),
+    "briar_r_mark": ((256, 64), {"mark": [0.10] * 4}),
+    "briar_r_trail": ((384, 48), {"trail": [0.045] * 4}),
+    "briar_r_arrival": ((384, 96), {"arrival": [0.08, 0.10, 0.12, 0.18]}),
+}
+
+BRIAR_AUDIO_EVENTS: dict[str, tuple[str, int]] = {
+    "lol_briar_attack_cast": ("Play_sfx_Briar_BriarBasicAttack_OnCast", 1625124708),
+    "lol_briar_attack_hit": ("Play_sfx_Briar_BriarBasicAttack_OnHit", 1567502092),
+    "lol_briar_frenzy_cast": ("Play_sfx_Briar_BriarBasicAttackFrenzy_OnCast", 2869900170),
+    "lol_briar_frenzy_hit": ("Play_sfx_Briar_BriarBasicAttackFrenzy_OnHit", 4041037182),
+    "lol_briar_q_cast": ("Play_sfx_Briar_BriarW_cast_foley_jump", 2077188739),
+    "lol_briar_e_cast": ("Play_sfx_Briar_BriarEMisStrong_missilelaunch_charged", 1505478577),
+    "lol_briar_e_hit": ("Play_sfx_Briar_BriarEMisStrong_OnHit", 1269301111),
+    "lol_briar_r_cast": ("Play_sfx_Briar_BriarR_OnCast", 1265575348),
+    "lol_briar_r_hit": ("Play_sfx_Briar_BriarR_OnHit", 460152284),
 }
 
 
@@ -225,6 +333,520 @@ def validate_orianna_replacement_uniqueness() -> None:
         not (MOD_ROOT / "champion/lol_orianna.data_champion").exists(),
         "champion/lol_orianna.data_champion must be absent in same-ID replacement mode",
     )
+
+
+def validate_briar_replacement_uniqueness() -> None:
+    ids: list[tuple[str, str]] = []
+    for path in sorted((MOD_ROOT / "champion").glob("*.data_champion")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as error:  # pragma: no cover - diagnostic path
+            ERRORS.append(f"{path.relative_to(MOD_ROOT).as_posix()}: cannot parse JSON: {error}")
+            continue
+        champion_id = payload.get("id")
+        if isinstance(champion_id, str):
+            ids.append((champion_id, path.name))
+
+    berserker_files = [filename for champion_id, filename in ids if champion_id == "berserker"]
+    check(
+        berserker_files == ["berserker.data_champion"],
+        "Briar must replace official 004 exactly once through champion/berserker.data_champion",
+    )
+    check(
+        all(champion_id != "lol_briar" for champion_id, _ in ids),
+        "lol_briar must not be registered as an additive duplicate champion",
+    )
+    check(
+        not (MOD_ROOT / "champion/lol_briar.data_champion").exists(),
+        "champion/lol_briar.data_champion must be absent in same-ID replacement mode",
+    )
+
+
+def validate_briar_data_contract(champion: dict[str, Any]) -> None:
+    check(champion.get("id") == "berserker", "Briar must rework official 004 with id berserker")
+    check(
+        champion.get("sprite") == "asset/lol_mod/aseprite_resources/champions/briar",
+        "same-ID Briar must bind the custom Briar actor",
+    )
+    check(champion.get("anim_prefix") == "", "Briar must preserve native Berserker animation tags")
+    check(champion.get("category") == "Melee", "Briar category must be Melee")
+    check(
+        set(champion.get("tags", [])) == {"AD", "Melee", "Heal", "Dot", "CC"},
+        "Briar role tags must be AD/Melee/Heal/Dot/CC",
+    )
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/briar_skill",
+            "asset/lol_mod/icons/briar_skill2",
+            "asset/lol_mod/icons/briar_ult",
+        ],
+        "Briar active icon order must be Q/E/R",
+    )
+    check(len(champion.get("skill_icons", [])) == 3, "Briar must expose exactly three active icons")
+    for unsupported_slot in ("w", "skill3", "skill4"):
+        check(unsupported_slot not in champion, f"Briar must not add unsupported active slot {unsupported_slot}")
+
+    check(
+        champion.get("stat")
+        == {
+            "attack": 115,
+            "magic_power": 0,
+            "hp": 950,
+            "defence": 25,
+            "magic_resistance": 18,
+            "move_speed": 1100,
+            "hp_regen": 0,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Briar base stats do not match the approved design",
+    )
+    check(
+        champion.get("growth")
+        == {
+            "attack": 20,
+            "magic_power": 0,
+            "hp": 100,
+            "defence": 7,
+            "magic_resistance": 4,
+            "move_speed": 10,
+            "hp_regen": 0,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Briar growth stats do not match the approved design",
+    )
+
+    attack = champion.get("attack", {})
+    check(
+        (
+            attack.get("action_name"),
+            attack.get("range"),
+            attack.get("cooltime"),
+            attack.get("duration"),
+            attack.get("start_timing"),
+            attack.get("cancelable"),
+            attack.get("casting_type"),
+            attack.get("casting_target"),
+            attack.get("attack_type"),
+            attack.get("can_use_with_move"),
+        )
+        == ("attack", 25000, 50, 24, 12, True, "Targeting", "Enemy", "BaseAttack", False),
+        "Briar basic-attack slot/timing/targeting mismatch",
+    )
+    attack_switch = attack.get("effect", {})
+    check(attack_switch.get("type") == "SwitchByBuff", "Briar attack must branch through SwitchByBuff")
+    check(
+        attack_switch.get("buff_name") == "lol_briar_snack_ready",
+        "Briar attack must branch on the one-use Snack marker",
+    )
+    normal_attack = attack_switch.get("effect_none", {})
+    snack_attack = attack_switch.get("effect_buff", {})
+    normal_damage = sorted(
+        (effect.get("damage"), effect.get("attack_ratio"), effect.get("target_hp_ratio"))
+        for effect in find_effect(normal_attack, "Attack")
+    )
+    check(
+        normal_damage == [(0, 100, None), (4, 3, None)],
+        "Briar normal attack must deal 100% Attack once plus one Crimson Curse tick payload",
+    )
+    snack_damage = sorted(
+        (effect.get("damage"), effect.get("attack_ratio"), effect.get("target_hp_ratio"))
+        for effect in find_effect(snack_attack, "Attack")
+    )
+    check(
+        snack_damage == [(0, 100, None), (4, 3, None), (25, 40, 2)],
+        "Briar empowered bite must add 25 + 40% Attack + 2% target max-HP damage exactly once",
+    )
+    snack_heals = find_effect(snack_attack, "Heal", amount=40, attack_ratio=15, ap_ratio=0, heal_type="Caster")
+    check(len(snack_heals) == 1, "Briar empowered bite must heal 40 + 15% Attack exactly once")
+    check(
+        len(find_effect(snack_attack, "CasterAnimation", name="attack2", tick=24)) == 1,
+        "Briar empowered bite must use the native attack2 action for 24 ticks",
+    )
+    check(
+        len(find_effect(snack_attack, "RemoveCasterBuff", name="lol_briar_snack_ready")) == 1,
+        "Briar empowered bite must consume the Snack marker exactly once",
+    )
+
+    # Crimson Curse is data-driven rather than a ModPassive.  It must be
+    # attached exactly to normal attack, Snack, E and R, with identical ticks.
+    bleeds = find_effect(champion, "AddCasted", casted_type="Bleed")
+    check(len(bleeds) == 4, "Crimson Curse must be attached exactly to attack, Snack, E and R")
+    for index, bleed in enumerate(bleeds):
+        check(
+            (bleed.get("duration"), bleed.get("period")) == (120, 60),
+            f"Crimson Curse payload {index} must tick twice over 120 ticks",
+        )
+        bleed_damage = find_effect(bleed, "Attack")
+        check(
+            len(bleed_damage) == 1
+            and (bleed_damage[0].get("damage"), bleed_damage[0].get("attack_ratio")) == (4, 3),
+            f"Crimson Curse payload {index} damage must be 4 + 3% Attack",
+        )
+        bleed_heal = find_effect(bleed, "Heal")
+        check(
+            len(bleed_heal) == 1
+            and (
+                bleed_heal[0].get("amount"),
+                bleed_heal[0].get("attack_ratio"),
+                bleed_heal[0].get("ap_ratio"),
+                bleed_heal[0].get("heal_type"),
+            )
+            == (2, 1, 0, "Caster"),
+            f"Crimson Curse payload {index} sustain must be 2 + 1% Attack to the caster",
+        )
+        check(
+            len(find_effect(bleed, "ViewEffect", name="lol_briar_bleed_tick_visual")) == 1,
+            f"Crimson Curse payload {index} must trigger the bleed-tick visual",
+        )
+    curse_markers = [
+        effect
+        for effect in find_effect(champion, "AddBuff")
+        if effect.get("buff_state", {}).get("name") == "lol_briar_crimson_curse"
+    ]
+    check(len(curse_markers) == 4, "Crimson Curse named marker must accompany all four bleed applications")
+    for marker in curse_markers:
+        check(
+            marker.get("buff_state", {}).get("duration", {}).get("Time", {}).get("tick") == 120,
+            "Crimson Curse marker must last 120 ticks",
+        )
+
+    q = champion.get("skill", {})
+    check(
+        (
+            q.get("action_name"),
+            q.get("range"),
+            q.get("cooltime"),
+            q.get("duration"),
+            q.get("start_timing"),
+            q.get("cancelable"),
+            q.get("casting_type"),
+            q.get("casting_target"),
+            q.get("attack_type"),
+            q.get("can_use_with_move"),
+        )
+        == ("skill1", 45000, 360, 20, 8, False, "Targeting", "EnemyChampion", "Skill", False),
+        "Briar Q Blood Frenzy slot/timing/targeting mismatch",
+    )
+    check(len(find_effect(q, "Sfx", name="lol_briar_q_cast")) == 1, "Briar Q cast SFX is missing")
+    check(
+        len(find_effect(q, "CasterAnimation", name="skill1", tick=20)) == 1,
+        "Briar Q must preserve the native skill1 action for 20 ticks",
+    )
+    q_switches = find_effect(q, "SwitchByBuff", buff_name="lol_briar_certain_death_frenzy")
+    check(len(q_switches) == 1, "Briar Q must branch once around the enhanced R frenzy")
+    if q_switches:
+        normal_branch = q_switches[0].get("effect_none", {})
+        enhanced_branch = q_switches[0].get("effect_buff", {})
+        normal_adds = {
+            effect.get("buff_state", {}).get("name"): effect.get("buff_state", {})
+            for effect in find_effect(normal_branch, "AddCasterBuff")
+        }
+        check(
+            set(normal_adds) == {"lol_briar_blood_frenzy", "lol_briar_snack_ready"},
+            "Briar Q normal branch must add only Blood Frenzy and one Snack marker",
+        )
+        frenzy = normal_adds.get("lol_briar_blood_frenzy", {})
+        check(
+            (
+                frenzy.get("duration", {}).get("Time", {}).get("tick"),
+                frenzy.get("attack_speed_mult"),
+                frenzy.get("move_speed_mult"),
+                frenzy.get("vamp"),
+            )
+            == (180, 60, 18, 25),
+            "Briar Q Blood Frenzy must last 180 ticks with 60 AS/18 MS/25 Vamp",
+        )
+        check(
+            normal_adds.get("lol_briar_snack_ready", {}).get("duration", {}).get("Time", {}).get("tick") == 180,
+            "Briar Q Snack marker must last 180 ticks",
+        )
+        normal_removes = {effect.get("name") for effect in find_effect(normal_branch, "RemoveCasterBuff")}
+        check(
+            normal_removes == {"lol_briar_blood_frenzy", "lol_briar_snack_ready"},
+            "Briar Q must clear stale normal frenzy/Snack state before applying a fresh window",
+        )
+        enhanced_adds = find_effect(enhanced_branch, "AddCasterBuff")
+        check(
+            len(enhanced_adds) == 1
+            and enhanced_adds[0].get("buff_state", {}).get("name") == "lol_briar_snack_ready"
+            and enhanced_adds[0].get("buff_state", {}).get("duration", {}).get("Time", {}).get("tick") == 180,
+            "Briar Q during Certain Death must refresh only the 180-tick Snack marker",
+        )
+        check(
+            not [
+                effect
+                for effect in find_effect(enhanced_branch, "AddCasterBuff")
+                if effect.get("buff_state", {}).get("name") == "lol_briar_blood_frenzy"
+            ],
+            "Briar Q must not downgrade or replace the enhanced R frenzy",
+        )
+
+    e = champion.get("skill2", {})
+    check(
+        (
+            e.get("action_name"),
+            e.get("range"),
+            e.get("cooltime"),
+            e.get("duration"),
+            e.get("start_timing"),
+            e.get("cancelable"),
+            e.get("casting_type"),
+            e.get("casting_target"),
+            e.get("attack_type"),
+            e.get("can_use_with_move"),
+        )
+        == ("skill2", 50000, 480, 54, 1, False, "Direction", "EnemyWithoutTower", "Skill", False),
+        "Briar E Chilling Scream slot/timing/direction mismatch",
+    )
+    check(
+        len(find_effect(e, "CasterAnimation", name="skill2", tick=54)) == 1,
+        "Briar E must hold the native skill2 actor action for the full 54 ticks",
+    )
+    guard = [
+        effect
+        for effect in find_effect(e, "AddCasterBuff")
+        if effect.get("buff_state", {}).get("name") == "lol_briar_chilling_scream_guard"
+    ]
+    check(len(guard) == 1, "Briar E charge damage-reduction marker is missing")
+    if guard:
+        guard_state = guard[0].get("buff_state", {})
+        check(
+            (
+                guard_state.get("duration", {}).get("Time", {}).get("tick"),
+                guard_state.get("damaged_reduce"),
+            )
+            == (30, 35),
+            "Briar E charge guard must last 30 ticks and reduce damage by 35%",
+        )
+    check(
+        len(find_effect(e, "Heal", amount=50, attack_ratio=15, ap_ratio=0, heal_type="Caster")) == 1,
+        "Briar E must heal 50 + 15% Attack exactly once per cast",
+    )
+    e_delays = find_effect(e, "Delayed", tick=30)
+    check(len(e_delays) == 1, "Briar E must release after one fixed 30-tick charge")
+    if e_delays:
+        release = e_delays[0]
+        check(len(find_effect(release, "Sfx", name="lol_briar_e_cast")) == 1, "Briar E release SFX must occur after the charge")
+        visual_projectiles = find_effect(release, "LinearProjectile", name="lol_briar_e_scream_projectile")
+        check(len(visual_projectiles) == 1, "Briar E must launch one forward scream visual")
+        if visual_projectiles:
+            visual = visual_projectiles[0]
+            check(
+                (
+                    visual.get("penetrate"),
+                    visual.get("speed"),
+                    visual.get("range"),
+                    visual.get("shape", {}).get("Circle", {}).get("radius"),
+                    visual.get("applied_target"),
+                    visual.get("applied_effects"),
+                )
+                == (True, 12000, 50000, 12000, "EnemyWithoutTower", []),
+                "Briar E scream visual flight contract mismatch",
+            )
+        hitboxes = find_effect(release, "LineRangeProjectile", name="lol_briar_e_hitbox")
+        check(len(hitboxes) == 1, "Briar E must create one narrow line hitbox")
+        if hitboxes:
+            hitbox = hitboxes[0]
+            check(
+                (
+                    hitbox.get("width"),
+                    hitbox.get("length"),
+                    hitbox.get("delay"),
+                    hitbox.get("apply"),
+                    hitbox.get("applied_target"),
+                )
+                == (24000, 50000, 0, 1, "EnemyWithoutTower"),
+                "Briar E hitbox width/length/timing/target mismatch",
+            )
+            e_damage = find_effect(hitbox, "Attack", damage=75, attack_ratio=100)
+            check(len(e_damage) == 1, "Briar E must deal 75 + 100% Attack exactly once")
+            check(
+                len(find_effect(hitbox, "Knockback", speed=3000, tick=12)) == 1,
+                "Briar E must knock enemies back at speed 3000 for 12 ticks",
+            )
+            check(len(find_effect(hitbox, "Airborne", duration=18)) == 1, "Briar E must knock enemies airborne for 18 ticks")
+            check(len(find_effect(hitbox, "TargetSfx", name="lol_briar_e_hit")) == 1, "Briar E hit SFX is missing")
+
+    ult = champion.get("ult", {})
+    check(
+        (
+            ult.get("action_name"),
+            ult.get("range"),
+            ult.get("cooltime"),
+            ult.get("duration"),
+            ult.get("start_timing"),
+            ult.get("cancelable"),
+            ult.get("casting_type"),
+            ult.get("casting_target"),
+            ult.get("attack_type"),
+            ult.get("can_use_with_move"),
+        )
+        == ("ult", 80000, 3600, 48, 1, False, "Targeting", "EnemyChampion", "Skill", False),
+        "Briar R Certain Death slot/timing/targeting mismatch",
+    )
+    check(len(find_effect(ult, "Sfx", name="lol_briar_r_cast")) == 1, "Briar R cast SFX is missing")
+    check(len(find_effect(ult, "ViewEffect", name="lol_briar_r_mark_visual")) == 1, "Briar R warning mark is missing")
+    check(
+        len(find_effect(ult, "CasterAnimation", name="ult_pre", tick=18)) == 1,
+        "Briar R must warn/channel in ult_pre for 18 ticks",
+    )
+    r_delays = find_effect(ult, "Delayed", tick=18)
+    check(len(r_delays) == 1, "Briar R must begin its chase after one 18-tick warning")
+    if r_delays:
+        chase = r_delays[0]
+        check(
+            len(find_effect(chase, "CasterAnimation", name="ult_dash", tick=30)) == 1,
+            "Briar R chase must switch to the native ult_dash action",
+        )
+        check(
+            len(find_effect(chase, "CasterViewEffect", name="lol_briar_r_trail_visual")) == 1,
+            "Briar R chase trail must follow the caster",
+        )
+        moves = find_effect(chase, "MoveToTarget")
+        check(len(moves) == 1, "Briar R must contain exactly one target-locked chase")
+        if moves:
+            move = moves[0]
+            check(
+                (move.get("speed"), move.get("range")) == (6000, 80000),
+                "Briar R MoveToTarget speed/range mismatch",
+            )
+            arrival = move.get("end_effects", [])
+            check(isinstance(arrival, list), "Briar R arrival effects must be a list")
+            if not isinstance(arrival, list):
+                arrival = []
+            check(
+                len(find_effect(arrival, "CasterAnimation", name="ult_attack", tick=24)) == 1,
+                "Briar R arrival must use the native ult_attack action for 24 ticks",
+            )
+            check(len(find_effect(arrival, "Sfx", name="lol_briar_r_hit")) == 1, "Briar R arrival SFX is missing")
+            check(
+                len(find_effect(arrival, "ViewEffect", name="lol_briar_r_arrival_visual")) == 1,
+                "Briar R arrival/fear visual is missing",
+            )
+            arrival_damage = find_effect(arrival, "Attack", damage=100, attack_ratio=120)
+            check(len(arrival_damage) == 1, "Briar R arrival must deal 100 + 120% Attack exactly once")
+            fear_zones = find_effect(arrival, "RangeEffect")
+            check(len(fear_zones) == 1, "Briar R arrival must create exactly one fear zone")
+            if fear_zones:
+                fear_zone = fear_zones[0]
+                check(
+                    (
+                        fear_zone.get("shape", {}).get("Circle", {}).get("radius"),
+                        fear_zone.get("target"),
+                        fear_zone.get("apply_type"),
+                    )
+                    == (30000, "EnemyChampion", "AroundCaster"),
+                    "Briar R fear radius/target/origin mismatch",
+                )
+                check(len(find_effect(fear_zone, "Fear", tick=30)) == 1, "Briar R fear must last 30 ticks")
+            removes = {effect.get("name") for effect in find_effect(arrival, "RemoveCasterBuff")}
+            check(
+                removes == {
+                    "lol_briar_blood_frenzy",
+                    "lol_briar_certain_death_frenzy",
+                    "lol_briar_snack_ready",
+                },
+                "Briar R arrival must clear stale frenzy and Snack state",
+            )
+            arrival_buffs = {
+                effect.get("buff_state", {}).get("name"): effect.get("buff_state", {})
+                for effect in find_effect(arrival, "AddCasterBuff")
+            }
+            check(
+                set(arrival_buffs) == {"lol_briar_certain_death_frenzy", "lol_briar_snack_ready"},
+                "Briar R arrival must add only enhanced frenzy and one Snack marker",
+            )
+            enhanced = arrival_buffs.get("lol_briar_certain_death_frenzy", {})
+            check(
+                (
+                    enhanced.get("duration", {}).get("Time", {}).get("tick"),
+                    enhanced.get("attack_speed_mult"),
+                    enhanced.get("move_speed_mult"),
+                    enhanced.get("vamp"),
+                    enhanced.get("defence"),
+                    enhanced.get("magic_resistance"),
+                    enhanced.get("toughness"),
+                )
+                == (240, 50, 25, 30, 20, 20, 20),
+                "Briar R enhanced frenzy stats/duration mismatch",
+            )
+            check(
+                arrival_buffs.get("lol_briar_snack_ready", {}).get("duration", {}).get("Time", {}).get("tick") == 240,
+                "Briar R Snack marker must last 240 ticks",
+            )
+    check(not find_effect(ult, "LinearProjectile"), "Briar R v0.5 must remain a documented targeted chase, not a fake projectile")
+
+    projectile_views = champion.get("view_projectiles", [])
+    projectile_map = {view.get("name"): view for view in projectile_views}
+    check(len(projectile_map) == len(projectile_views), "Briar projectile view names must be unique")
+    check(set(projectile_map) == set(BRIAR_VIEW_PROJECTILES), "Briar projectile view binding set is incomplete")
+    for name, (asset, tag, z, repeat) in BRIAR_VIEW_PROJECTILES.items():
+        binding = projectile_map.get(name, {})
+        check(
+            (
+                binding.get("type"),
+                binding.get("anim"),
+                binding.get("tag"),
+                binding.get("z"),
+                binding.get("repeat"),
+            )
+            == ("Animated", asset, tag, z, repeat),
+            f"Briar projectile view binding mismatch: {name}",
+        )
+
+    effect_views = champion.get("view_effects", [])
+    effect_map = {view.get("name"): view for view in effect_views}
+    check(len(effect_map) == len(effect_views), "Briar effect view names must be unique")
+    check(set(effect_map) == set(BRIAR_VIEW_EFFECTS), "Briar effect view binding set is incomplete")
+    for name, (asset, tag, z, is_follow) in BRIAR_VIEW_EFFECTS.items():
+        binding = effect_map.get(name, {})
+        check(
+            (
+                binding.get("type"),
+                binding.get("anim"),
+                binding.get("tag"),
+                binding.get("z"),
+                binding.get("is_follow"),
+            )
+            == ("Animation", asset, tag, z, is_follow),
+            f"Briar effect view binding mismatch: {name}",
+        )
+    triggered_visuals = {
+        effect.get("name")
+        for effect in walk_effects(champion)
+        if effect.get("type") in {"ViewEffect", "CasterViewEffect"}
+    }
+    check(triggered_visuals == set(BRIAR_VIEW_EFFECTS), "Briar passive/Q/E/R visual trigger set is incomplete")
+    check("lol_briar_e_hitbox" not in effect_map, "Briar E logic hitbox must not spawn a duplicate visual")
+
+    buff_views = champion.get("view_buffs", [])
+    buff_map = {view.get("name"): view for view in buff_views}
+    check(len(buff_map) == len(buff_views), "Briar buff view names must be unique")
+    check(set(buff_map) == set(BRIAR_VIEW_BUFFS), "Briar frenzy buff view binding set is incomplete")
+    for name, (asset, pre_tag, loop_tag, remove_tag, z) in BRIAR_VIEW_BUFFS.items():
+        binding = buff_map.get(name, {})
+        check(
+            (
+                binding.get("type"),
+                binding.get("anim"),
+                binding.get("pre_tag"),
+                binding.get("loop_tag"),
+                binding.get("remove_tag"),
+                binding.get("z"),
+            )
+            == ("ThreePhase", asset, pre_tag, loop_tag, remove_tag, z),
+            f"Briar frenzy buff view binding mismatch: {name}",
+        )
+
+    actual_sfx = {
+        effect.get("name")
+        for effect in walk_effects(champion)
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+    }
+    check(actual_sfx == set(BRIAR_AUDIO_EVENTS), "Briar must wire exactly nine attack/Q/E/R audio events")
 
 
 def validate_orianna_data_contract(champion: dict[str, Any]) -> None:
@@ -1359,6 +1981,214 @@ def validate_orianna_resources_and_manifest(champion: dict[str, Any]) -> None:
     )
 
 
+def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
+    sprite = champion.get("sprite", "")
+    check(
+        sprite == "asset/lol_mod/aseprite_resources/champions/briar",
+        "Briar actor must use the local Briar animated asset",
+    )
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/briar#sheet.png"
+    anim_path = MOD_ROOT / "aseprite_resources/champions/briar#anim.fanim"
+    check(sheet_path.is_file(), "missing Briar actor sheet")
+    check(anim_path.is_file(), "missing Briar actor animation")
+    if not sheet_path.is_file() or not anim_path.is_file():
+        return
+
+    sheet = Image.open(sheet_path).convert("RGBA")
+    anims = load_json("aseprite_resources/champions/briar#anim.fanim").get("anims", {})
+    check(sheet.size == (1792, 64), f"Briar actor atlas must be 28 64x64 cells (1792x64), got {sheet.size}")
+    check(
+        set(anims) == set(BRIAR_NATIVE_ANIMATION),
+        "Briar actor must preserve all 24 native Berserker animation tags exactly",
+    )
+
+    for tag, expected_durations in BRIAR_NATIVE_ANIMATION.items():
+        frames = anims.get(tag, {}).get("frames", [])
+        check(len(frames) == len(expected_durations), f"Briar native tag {tag} frame count changed")
+        for index, (frame, expected_duration) in enumerate(zip(frames, expected_durations)):
+            try:
+                duration = float(frame.get("duration", -1))
+            except (TypeError, ValueError):
+                duration = -1.0
+            check(
+                math.isclose(duration, expected_duration, rel_tol=0.0, abs_tol=1e-9),
+                f"Briar native tag {tag} frame {index} duration changed from {expected_duration!r}",
+            )
+            data = frame.get("data", {})
+            x = int(data.get("x", -1))
+            y = int(data.get("y", -1))
+            width = int(data.get("w", 0))
+            height = int(data.get("h", 0))
+            check(
+                y == 0 and width == 64 and height == 64 and x >= 0 and x % 64 == 0,
+                f"Briar native tag {tag} frame {index} must use one aligned 64x64 actor cell",
+            )
+            check(x + 64 <= sheet.width, f"Briar native tag {tag} frame {index} is out of bounds")
+
+    cells = [sheet.crop((index * 64, 0, (index + 1) * 64, 64)) for index in range(28)]
+    empty_cells = [index for index, cell in enumerate(cells) if cell.getchannel("A").getbbox() is None]
+    check(empty_cells == [27], f"Briar actor atlas must contain only the native terminal transparent cell, got {empty_cells}")
+    for tag in ("skill1_effect_old", "dead", "berserk_dead"):
+        frames = anims.get(tag, {}).get("frames", [])
+        check(bool(frames), f"Briar {tag} must retain its terminal transparent frame")
+        if frames:
+            data = frames[-1].get("data", {})
+            x = int(data.get("x", -1))
+            frame = sheet.crop((x, 0, x + 64, 64)) if 0 <= x <= sheet.width - 64 else Image.new("RGBA", (64, 64))
+            check(x == 27 * 64 and frame.getchannel("A").getbbox() is None, f"Briar {tag} terminal frame must be fully transparent")
+
+    def frame_images(tag: str) -> list[Image.Image]:
+        result: list[Image.Image] = []
+        for frame in anims.get(tag, {}).get("frames", []):
+            data = frame.get("data", {})
+            x = int(data.get("x", -1))
+            if 0 <= x <= sheet.width - 64:
+                result.append(sheet.crop((x, 0, x + 64, 64)))
+        return result
+
+    primary_idle = frame_images("idle")[:2]
+    check(len(primary_idle) == 2, "Briar visual QA requires two primary idle identity frames")
+    for index, frame in enumerate(primary_idle):
+        alpha = frame.getchannel("A")
+        bbox = alpha.getbbox()
+        check(bbox is not None, f"Briar primary idle {index} is empty")
+        if bbox is None:
+            continue
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        check(height == 38, f"Briar primary idle {index} must retain the reviewed 38px actor height")
+        check(bbox[3] == 46, f"Briar primary idle {index} must end on the exclusive y=46 foot baseline")
+        check(20 <= width <= 26, f"Briar primary idle {index} left the compact 20-26px footprint")
+        check(bbox[0] >= 2 and bbox[2] <= 62, f"Briar primary idle {index} touches a side edge")
+        foot_x = [x for x in range(64) if alpha.getpixel((x, 45)) >= 128]
+        foot_segments: list[list[int]] = []
+        for x in foot_x:
+            if not foot_segments or x > foot_segments[-1][-1] + 1:
+                foot_segments.append([x])
+            else:
+                foot_segments[-1].append(x)
+        check(
+            len(foot_segments) == 2
+            and min(len(segment) for segment in foot_segments) >= 5
+            and foot_segments[1][0] - foot_segments[0][-1] >= 3,
+            f"Briar primary idle {index} must show two complete separated feet",
+        )
+
+    run_frames = frame_images("run")
+    check(len(run_frames) == 8, "Briar must keep eight native run phases")
+    run_hashes: list[str] = []
+    run_areas: list[int] = []
+    lower_sets: list[set[tuple[int, int]]] = []
+    for index, frame in enumerate(run_frames):
+        alpha = frame.getchannel("A")
+        bbox = alpha.getbbox()
+        check(bbox is not None, f"Briar run frame {index} is empty")
+        if bbox is None:
+            continue
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        check(height == 38, f"Briar run frame {index} must retain the 38px actor height")
+        check(bbox[3] == 46, f"Briar run frame {index} must retain the y=45 foot pixels")
+        check(27 <= width <= 38, f"Briar run frame {index} left the compact 27-38px footprint")
+        area = sum(alpha.getpixel((x, y)) >= 128 for y in range(64) for x in range(64))
+        check(area >= 520, f"Briar run frame {index} loses too much body/lower-leg detail")
+        run_areas.append(area)
+        run_hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
+        lower_sets.append({(x, y) for y in range(30, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128})
+    check(len(set(run_hashes)) == 8, "Briar run cycle must contain eight distinct image-generated gait phases")
+    if run_areas:
+        mean_area = sum(run_areas) / len(run_areas)
+        area_cv = (sum((area - mean_area) ** 2 for area in run_areas) / len(run_areas)) ** 0.5 / mean_area
+        check(area_cv <= 0.10, f"Briar run body area jumps too much between frames: CV={area_cv:.1%}")
+    differences: list[float] = []
+    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
+        union = current | following
+        differences.append(len(current ^ following) / len(union) if union else 0.0)
+    if differences:
+        check(min(differences) >= 0.20, "Briar adjacent run frames are too similar to show a gait phase")
+        check(max(differences) <= 0.75, "Briar adjacent run frames change too abruptly")
+
+    for tag in ("idle", "berserk_idle", "attack", "attack2", "berserk_attack", "skill1", "skill2", "skill2_berserk", "hit"):
+        for index, frame in enumerate(frame_images(tag)):
+            bbox = frame.getchannel("A").getbbox()
+            check(bbox is not None, f"Briar core actor {tag} frame {index} is empty")
+            if bbox is not None:
+                check(bbox[3] == 46, f"Briar core actor {tag} frame {index} changed the y=45 foot baseline")
+                check(bbox[0] >= 2 and bbox[2] <= 62, f"Briar core actor {tag} frame {index} touches a side edge")
+
+
+def validate_briar_resources_and_manifest(champion: dict[str, Any]) -> None:
+    prefix = "asset/lol_mod/"
+    required_manifest_paths = {
+        "champion/berserker.data_champion",
+        "aseprite_resources/champions/briar#sheet.png",
+        "aseprite_resources/champions/briar#anim.fanim",
+        "style/champion_view.champion_view",
+        "text/champion.i18n",
+    }
+
+    for icon_asset in champion.get("skill_icons", []):
+        check(isinstance(icon_asset, str) and icon_asset.startswith(prefix), "Briar icon must use a local lol_mod asset")
+        if not isinstance(icon_asset, str) or not icon_asset.startswith(prefix):
+            continue
+        relative = f"{icon_asset.removeprefix(prefix)}.png"
+        required_manifest_paths.add(relative)
+        path = MOD_ROOT / relative
+        check(path.is_file(), f"missing Briar icon: {relative}")
+        if path.is_file():
+            icon = Image.open(path).convert("RGBA")
+            check(icon.size == (64, 64), f"{relative} must be 64x64")
+            check(icon.getchannel("A").getbbox() == (0, 0, 64, 64), f"{relative} must be full-bleed")
+    icon_files = [MOD_ROOT / f"icons/briar_{suffix}.png" for suffix in ("skill", "skill2", "ult")]
+    if all(path.is_file() for path in icon_files):
+        check(len({sha256(path) for path in icon_files}) == 3, "Briar Q/E/R icons must be visually distinct files")
+
+    for effect_name, (expected_size, expected_tags) in BRIAR_EFFECT_ANIMATION.items():
+        sheet_relative = f"aseprite_resources/effects/{effect_name}#sheet.png"
+        anim_relative = f"aseprite_resources/effects/{effect_name}#anim.fanim"
+        required_manifest_paths.update({sheet_relative, anim_relative})
+        sheet_path = MOD_ROOT / sheet_relative
+        anim_path = MOD_ROOT / anim_relative
+        check(sheet_path.is_file(), f"missing Briar VFX sheet: {sheet_relative}")
+        check(anim_path.is_file(), f"missing Briar VFX animation: {anim_relative}")
+        if not sheet_path.is_file() or not anim_path.is_file():
+            continue
+        sheet = Image.open(sheet_path).convert("RGBA")
+        anims = load_json(anim_relative).get("anims", {})
+        check(sheet.size == expected_size, f"{sheet_relative} must be {expected_size}, got {sheet.size}")
+        check(set(anims) == set(expected_tags), f"{anim_relative} has the wrong Briar VFX tag set")
+        all_hashes: list[str] = []
+        for tag, expected_durations in expected_tags.items():
+            frames = anims.get(tag, {}).get("frames", [])
+            check(len(frames) == len(expected_durations), f"{anim_relative}: tag {tag} frame count changed")
+            for index, (frame, expected_duration) in enumerate(zip(frames, expected_durations)):
+                duration = float(frame.get("duration", -1))
+                check(
+                    math.isclose(duration, expected_duration, rel_tol=0.0, abs_tol=1e-9),
+                    f"{anim_relative}: tag {tag} frame {index} duration changed",
+                )
+                data = frame.get("data", {})
+                x = int(data.get("x", -1))
+                y = int(data.get("y", -1))
+                width = int(data.get("w", 0))
+                height = int(data.get("h", 0))
+                check(x >= 0 and y >= 0 and width > 0 and height > 0, f"{anim_relative}: invalid frame in {tag}")
+                check(x + width <= sheet.width and y + height <= sheet.height, f"{anim_relative}: out-of-bounds frame in {tag}")
+                if x >= 0 and y >= 0 and width > 0 and height > 0 and x + width <= sheet.width and y + height <= sheet.height:
+                    image = sheet.crop((x, y, x + width, y + height))
+                    check(image.getchannel("A").getbbox() is not None, f"{anim_relative}: empty {tag} frame {index}")
+                    all_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
+        check(len(all_hashes) == len(set(all_hashes)), f"{effect_name} VFX must keep distinct generated phases")
+
+    manifest = load_json("build_manifest.json")
+    manifest_paths = {row.get("path") for row in manifest.get("files", [])}
+    missing_manifest_paths = sorted(required_manifest_paths - manifest_paths)
+    check(
+        not missing_manifest_paths,
+        "Briar runtime resources are missing from build_manifest.json: " + ", ".join(missing_manifest_paths),
+    )
+
+
 def validate_archer_skill_icon_atlas() -> None:
     atlas = Image.open(MOD_ROOT / "aseprite_resources/UI_aseprite/skill_icon#sheet.png").convert("RGBA")
     check(atlas.size == (4096, 49), f"patched native skill icon atlas must remain 4096x49, got {atlas.size}")
@@ -1782,6 +2612,50 @@ def validate_orianna_localization() -> None:
     )
 
 
+def validate_briar_localization_and_style() -> None:
+    style = load_json("style/champion_view.champion_view")
+    briar_view = style.get("entries", {}).get("berserker", {})
+    check(
+        briar_view.get("face") == {"x": 5, "y": -32},
+        "Briar compact portrait offset must remain face x=5/y=-32",
+    )
+    check(
+        briar_view.get("center") == {"x": 0, "y": -12},
+        "Briar card/battle center offset must remain center x=0/y=-12",
+    )
+
+    text = load_json("text/champion.i18n")
+    expected_names = {
+        "en": "Briar",
+        "zh-hans": "贝蕾亚",
+        "zh-hant": "貝蕾亞",
+        "ja": "ブライアー",
+        "ko": "브라이어",
+    }
+    for locale, expected_name in expected_names.items():
+        descriptions = text.get(locale, {}).get("description", {})
+        description = descriptions.get("berserker", {})
+        check(
+            set(description) == {"name", "attack", "skill", "skill2", "ult"},
+            f"{locale} berserker/Briar localization is incomplete",
+        )
+        check(description.get("name") == expected_name, f"{locale} Briar encyclopedia name must be {expected_name}")
+        check(description.get("skill", "").startswith("Q"), f"{locale} Briar first active must be labeled Q")
+        check(description.get("skill2", "").startswith("E"), f"{locale} Briar second active must be labeled E")
+        check(description.get("ult", "").startswith("R"), f"{locale} Briar ultimate must be labeled R")
+        check("lol_briar" not in descriptions, f"{locale} must not register an additive lol_briar encyclopedia entry")
+
+    english = text.get("en", {}).get("description", {}).get("berserker", {})
+    check("Crimson Curse" in english.get("attack", ""), "English Briar passive text must name Crimson Curse")
+    check("2% target maximum-health" in english.get("attack", ""), "English Briar Snack text must disclose its max-HP damage")
+    check("Blood Frenzy" in english.get("skill", ""), "English Briar Q text must name Blood Frenzy")
+    check("one empowered bite" in english.get("skill", ""), "English Briar Q text must disclose the one-use bite")
+    check("Chilling Scream" in english.get("skill2", ""), "English Briar E text must name Chilling Scream")
+    check("fixed 0.5-second charge" in english.get("skill2", ""), "English Briar E text must disclose the fixed charge")
+    check("Certain Death" in english.get("ult", ""), "English Briar R text must name Certain Death")
+    check("targeted chase" in english.get("ult", ""), "English Briar R text must disclose the data-only targeted chase")
+
+
 def validate_orianna_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
     expected = {
         "lol_orianna_attack_cast",
@@ -1872,6 +2746,124 @@ def validate_orianna_audio(champion: dict[str, Any], override: dict[str, Any]) -
             check(sha256(path) == wav.get("sha256"), f"Orianna audio QA hash mismatch: {wav.get('path')}")
 
 
+def validate_briar_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    actual_events = {
+        effect.get("name")
+        for effect in walk_effects(champion)
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+    }
+    check(
+        actual_events == set(BRIAR_AUDIO_EVENTS),
+        f"Briar must wire exactly nine official attack/Q/E/R sound events, got {sorted(actual_events)}",
+    )
+
+    audio_manifest = load_json("qa/briar_official_audio_sources.json")
+    check(audio_manifest.get("schema_version") == 1, "Briar official audio manifest schema must be 1")
+    check(audio_manifest.get("champion") == "Briar", "Briar official audio manifest champion is incorrect")
+    outputs = audio_manifest.get("outputs", [])
+    check(len(outputs) == 9, "Briar official audio QA manifest must cover 9 clips")
+    outputs_by_key = {output.get("event_key"): output for output in outputs}
+    expected_output_keys = {name.removeprefix("lol_") for name in BRIAR_AUDIO_EVENTS}
+    check(set(outputs_by_key) == expected_output_keys, "Briar official audio manifest event set is incomplete")
+    check(len(outputs_by_key) == len(outputs), "Briar official audio manifest event keys must be unique")
+
+    for event_name, (riot_event, riot_event_id) in BRIAR_AUDIO_EVENTS.items():
+        local_name = event_name.removeprefix("lol_")
+        expected_clip = f"{local_name}_clip"
+        source_key = f"asset/base/sound/sfx/{event_name}"
+        event_override = override.get(source_key, {})
+        check(event_override.get("type") == "override", f"missing Briar sound event remap: {source_key}")
+        check(
+            event_override.get("remapping") == f"asset/lol_mod/sound/sfx/{local_name}",
+            f"wrong Briar sound event target: {source_key}",
+        )
+
+        sound_relative = f"sound/sfx/{local_name}.sound_info"
+        sound_path = MOD_ROOT / sound_relative
+        check(sound_path.is_file(), f"missing Briar sound_info: {sound_relative}")
+        if sound_path.is_file():
+            plays = load_json(sound_relative).get("plays", [])
+            check(
+                plays == [{"delay": 0.0, "clip": expected_clip, "volume": 1.0}],
+                f"{sound_relative} must play its single verified official clip at delay 0/volume 1",
+            )
+
+        clip_source = f"asset/base/sound/sfx/{expected_clip}"
+        clip_override = override.get(clip_source, {})
+        check(clip_override.get("type") == "override", f"missing Briar clip remap: {clip_source}")
+        check(
+            clip_override.get("remapping") == f"asset/lol_mod/sound/sfx/{expected_clip}",
+            f"wrong Briar clip target: {clip_source}",
+        )
+        clip_relative = f"sound/sfx/{expected_clip}.wav"
+        clip_path = MOD_ROOT / clip_relative
+        check(clip_path.is_file() and clip_path.stat().st_size > 1000, f"missing/empty Briar clip: {clip_relative}")
+
+        output = outputs_by_key.get(local_name, {})
+        check(
+            output.get("riot_event") == riot_event and output.get("riot_event_id") == riot_event_id,
+            f"Briar official Riot event mapping drifted: {local_name}",
+        )
+        check(
+            output.get("sound_info") == sound_relative
+            and output.get("clip") == expected_clip
+            and output.get("volume") == 1.0,
+            f"Briar audio manifest runtime mapping mismatch: {local_name}",
+        )
+        check(
+            isinstance(output.get("media_id"), int)
+            and output.get("media_id") in output.get("event_media_pool", []),
+            f"Briar audio manifest selected media is not in its event pool: {local_name}",
+        )
+        check(
+            isinstance(output.get("source_wem_sha256"), str)
+            and len(output.get("source_wem_sha256", "")) == 64,
+            f"Briar audio manifest must pin the source WEM hash: {local_name}",
+        )
+
+        wav = output.get("wav", {})
+        check(wav.get("path") == clip_relative, f"Briar audio manifest WAV path mismatch: {local_name}")
+        if not clip_path.is_file():
+            continue
+        check(clip_path.stat().st_size == wav.get("size_bytes"), f"Briar audio WAV size mismatch: {clip_relative}")
+        check(sha256(clip_path) == wav.get("sha256"), f"Briar audio WAV hash mismatch: {clip_relative}")
+        try:
+            with wave.open(str(clip_path), "rb") as decoded:
+                channels = decoded.getnchannels()
+                sample_width = decoded.getsampwidth()
+                sample_rate = decoded.getframerate()
+                frame_count = decoded.getnframes()
+        except (wave.Error, EOFError) as error:
+            ERRORS.append(f"{clip_relative}: cannot decode PCM WAV: {error}")
+            continue
+        check(channels == 1, f"{clip_relative} must be mono")
+        check(sample_width == 2, f"{clip_relative} must be 16-bit PCM")
+        check(sample_rate == 44100, f"{clip_relative} must be 44.1 kHz")
+        check(
+            (
+                wav.get("channels"),
+                wav.get("sample_width_bytes"),
+                wav.get("sample_rate_hz"),
+                wav.get("frame_count"),
+            )
+            == (channels, sample_width, sample_rate, frame_count),
+            f"Briar audio manifest WAV format metadata mismatch: {clip_relative}",
+        )
+        duration = frame_count / sample_rate if sample_rate else 0.0
+        check(
+            math.isclose(float(output.get("duration_seconds", -1)), duration, rel_tol=0.0, abs_tol=1e-9),
+            f"Briar audio manifest duration mismatch: {clip_relative}",
+        )
+
+    slot_adaptation = audio_manifest.get("event_mapping_audit", {}).get("slot_adaptation", {})
+    check(
+        slot_adaptation.get("q_slot_gameplay") == "Blood Frenzy / Snack"
+        and slot_adaptation.get("q_cast_source_event") == "Play_sfx_Briar_BriarW_cast_foley_jump"
+        and slot_adaptation.get("snack_runtime_proxy") == "Play_sfx_Briar_BriarBasicAttackFrenzy_OnHit",
+        "Briar audio QA must document the Q-slot/W-event and Snack proxy adaptation",
+    )
+
+
 def validate_native_lucian_audio(override: dict[str, Any]) -> None:
     native_events = {
         "archer_attack": "lucian_attack_cast",
@@ -1911,6 +2903,119 @@ def validate_native_lucian_audio(override: dict[str, Any]) -> None:
             check(sha256(path) == wav.get("sha256"), f"Lucian audio QA hash mismatch: {wav.get('path')}")
 
 
+def validate_briar_imagegen_and_qa_files() -> None:
+    required_qa_files = {
+        "qa/briar_actor_contact_final.png",
+        "qa/briar_skill_icons_final.png",
+        "qa/briar_vfx_contact_final.png",
+        "qa/briar_imagegen_sources.json",
+        "qa/briar_skill_contract_qa.md",
+        "qa/briar_visual_qa.md",
+        "qa/briar_live_qa.md",
+        "qa/briar_audio_source_qa.md",
+        "qa/briar_official_audio_sources.json",
+    }
+    for relative in sorted(required_qa_files):
+        path = MOD_ROOT / relative
+        check(path.is_file() and path.stat().st_size > 100, f"missing/empty Briar QA artifact: {relative}")
+
+    contact_specs = {
+        "qa/briar_actor_contact_final.png": (896, 576),
+        "qa/briar_skill_icons_final.png": (576, 208),
+        "qa/briar_vfx_contact_final.png": (1024, 888),
+    }
+    for relative, expected_size in contact_specs.items():
+        path = MOD_ROOT / relative
+        if not path.is_file():
+            continue
+        image = Image.open(path).convert("RGBA")
+        check(image.size == expected_size, f"{relative} must be {expected_size}, got {image.size}")
+        check(image.getchannel("A").getbbox() is not None, f"{relative} must not be empty")
+
+    for relative in ("qa/briar_skill_contract_qa.md", "qa/briar_visual_qa.md", "qa/briar_live_qa.md"):
+        path = MOD_ROOT / relative
+        if not path.is_file():
+            continue
+        body = path.read_text(encoding="utf-8")
+        check("Briar" in body or "贝蕾亚" in body, f"{relative} must explicitly identify Briar")
+    audio_qa = MOD_ROOT / "qa/briar_audio_source_qa.md"
+    if audio_qa.is_file():
+        body = audio_qa.read_text(encoding="utf-8")
+        check("nine" in body.lower(), "Briar audio source QA must disclose all nine runtime clips")
+        check("Snack" in body and "proxy" in body.lower(), "Briar audio source QA must disclose the Snack proxy")
+
+    expected_sources = {
+        "actor_model": "source/imagegen/briar_actor_contact.png",
+        "run_cycle_nine_phase_source": "source/imagegen/briar_run_contact.png",
+        "q_icon": "source/imagegen/briar_q_icon_source.png",
+        "e_icon": "source/imagegen/briar_e_icon_source.png",
+        "r_icon": "source/imagegen/briar_r_icon_source.png",
+        "passive_bleed_vfx": "source/imagegen/briar_bleed_vfx_contact.png",
+        "q_frenzy_vfx": "source/imagegen/briar_frenzy_vfx_contact.png",
+        "e_vfx": "source/imagegen/briar_e_vfx_contact.png",
+        "r_vfx": "source/imagegen/briar_r_vfx_contact.png",
+    }
+    expected_processed = {
+        "actor_model_alpha": "source/processed/briar_actor_contact_alpha.png",
+        "run_cycle_alpha": "source/processed/briar_run_contact_alpha.png",
+        "passive_bleed_vfx_alpha": "source/processed/briar_bleed_vfx_contact_alpha.png",
+        "q_frenzy_vfx_alpha": "source/processed/briar_frenzy_vfx_contact_alpha.png",
+        "e_vfx_alpha": "source/processed/briar_e_vfx_contact_alpha.png",
+        "r_vfx_alpha": "source/processed/briar_r_vfx_contact_alpha.png",
+    }
+    manifest_path = MOD_ROOT / "qa/briar_imagegen_sources.json"
+    if manifest_path.is_file():
+        manifest = load_json("qa/briar_imagegen_sources.json")
+        check(manifest.get("schema_version") == 1, "Briar image-gen source manifest schema must be 1")
+        check(manifest.get("generator") == "built-in image_gen", "Briar art must record built-in image_gen as its generator")
+        check(manifest.get("prompt_record") == "source/imagegen/PROMPTS.md", "Briar image-gen manifest prompt record is incorrect")
+        sources = manifest.get("sources", [])
+        source_map = {source.get("role"): source for source in sources}
+        check(len(source_map) == len(sources), "Briar image-gen source roles must be unique")
+        check(set(source_map) == set(expected_sources), "Briar image-gen source roles are incomplete")
+        for role, expected_path in expected_sources.items():
+            source = source_map.get(role, {})
+            check(source.get("path") == expected_path, f"Briar image-gen source path mismatch for {role}")
+            raw_path = MOD_ROOT / expected_path
+            check(raw_path.is_file(), f"missing Briar image-gen source: {expected_path}")
+            if raw_path.is_file():
+                check(sha256(raw_path) == source.get("sha256"), f"Briar image-gen source hash mismatch: {expected_path}")
+                image = Image.open(raw_path)
+                check(list(image.size) == source.get("dimensions"), f"Briar image-gen source dimensions mismatch: {expected_path}")
+                check(image.mode == source.get("mode"), f"Briar image-gen source mode mismatch: {expected_path}")
+                check(raw_path.stat().st_size == source.get("size_bytes"), f"Briar image-gen source size mismatch: {expected_path}")
+
+        processed = manifest.get("processed", [])
+        processed_map = {source.get("role"): source for source in processed}
+        check(len(processed_map) == len(processed), "Briar processed image-gen source roles must be unique")
+        check(set(processed_map) == set(expected_processed), "Briar processed image-gen source roles are incomplete")
+        for role, expected_path in expected_processed.items():
+            source = processed_map.get(role, {})
+            check(source.get("path") == expected_path, f"Briar processed source path mismatch for {role}")
+            processed_path = MOD_ROOT / expected_path
+            check(processed_path.is_file(), f"missing Briar processed source: {expected_path}")
+            if processed_path.is_file():
+                check(sha256(processed_path) == source.get("sha256"), f"Briar processed source hash mismatch: {expected_path}")
+                check(processed_path.stat().st_size == source.get("size_bytes"), f"Briar processed source size mismatch: {expected_path}")
+                processed_image = Image.open(processed_path).convert("RGBA")
+                check(list(processed_image.size) == source.get("dimensions"), f"Briar processed source dimensions mismatch: {expected_path}")
+                corners = [
+                    processed_image.getpixel((0, 0)),
+                    processed_image.getpixel((processed_image.width - 1, 0)),
+                    processed_image.getpixel((0, processed_image.height - 1)),
+                    processed_image.getpixel((processed_image.width - 1, processed_image.height - 1)),
+                ]
+                check(all(pixel[3] == 0 for pixel in corners), f"Briar processed source has a non-transparent corner: {expected_path}")
+
+    prompt_path = MOD_ROOT / "source/imagegen/PROMPTS.md"
+    check(prompt_path.is_file(), "final image-gen prompt record is missing")
+    if prompt_path.is_file():
+        prompt_record = prompt_path.read_text(encoding="utf-8")
+        check("Briar" in prompt_record or "贝蕾亚" in prompt_record, "image-gen prompt record must include the final Briar prompt set")
+        for expected_path in expected_sources.values():
+            check(Path(expected_path).name in prompt_record, f"image-gen prompt record omits Briar source {Path(expected_path).name}")
+
+
 def validate_imagegen_sources() -> None:
     expected = {
         "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
@@ -1923,6 +3028,17 @@ def validate_imagegen_sources() -> None:
             "e_icon",
             "r_icon",
             "q_vfx",
+            "e_vfx",
+            "r_vfx",
+        },
+        "qa/briar_imagegen_sources.json": {
+            "actor_model",
+            "run_cycle_nine_phase_source",
+            "q_icon",
+            "e_icon",
+            "r_icon",
+            "passive_bleed_vfx",
+            "q_frenzy_vfx",
             "e_vfx",
             "r_vfx",
         },
@@ -1946,7 +3062,10 @@ def validate_imagegen_sources() -> None:
                         f"processed image-gen source hash mismatch: {processed_path}",
                     )
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    expected_processed = sum(len(roles) for roles in expected.values())
+    # Shen/Lucian/Orianna contribute 25 active alpha sources.  Briar's actor,
+    # run and four VFX contacts add six; its three icons are generated as
+    # intentional full-bleed squares and therefore have no alpha derivative.
+    expected_processed = 31
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -1990,9 +3109,10 @@ def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     lucian = load_json("champion/archer.data_champion")
     orianna = load_json("champion/barrier_magician.data_champion")
+    briar = load_json("champion/berserker.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.4.1", "lol_mod version must be 0.4.1")
+    check(mod_info.get("version") == "0.5.0", "lol_mod version must be 0.5.0")
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()
@@ -2000,6 +3120,10 @@ def main() -> int:
     validate_orianna_native_animation(orianna)
     validate_orianna_v2_visual_contract()
     validate_orianna_resources_and_manifest(orianna)
+    validate_briar_replacement_uniqueness()
+    validate_briar_data_contract(briar)
+    validate_briar_native_animation_and_actor(briar)
+    validate_briar_resources_and_manifest(briar)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",
@@ -2051,9 +3175,12 @@ def main() -> int:
     validate_compact_view_and_w_layout()
     validate_native_lucian_localization()
     validate_orianna_localization()
+    validate_briar_localization_and_style()
     validate_audio(champion, override)
     validate_lucian_audio(lucian, override)
     validate_orianna_audio(orianna, override)
+    validate_briar_audio(briar, override)
+    validate_briar_imagegen_and_qa_files()
     validate_imagegen_sources()
     validate_manifest()
     if ERRORS:

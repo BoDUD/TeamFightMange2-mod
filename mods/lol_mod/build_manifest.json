@@ -3,6 +3,16 @@
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
   "files": [
     {
+      "path": "aseprite_resources/champions/briar#anim.fanim",
+      "size": 18653,
+      "sha256": "ebf73e93841103c66b32faa811a5009c654c89067948e1db65fd20796df898b3"
+    },
+    {
+      "path": "aseprite_resources/champions/briar#sheet.png",
+      "size": 458919,
+      "sha256": "0fe184628d0ce3b380c127f3b09b3507608ec94705c68b285366a0ab45a31fbc"
+    },
+    {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
       "size": 11534,
       "sha256": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c"
@@ -31,6 +41,66 @@
       "path": "aseprite_resources/champions/shen#sheet.png",
       "size": 295064,
       "sha256": "a51c564352f3f27ea44aadef254ea68946d1db09efc97d8950d5dc80813147e5"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
+      "size": 1373,
+      "sha256": "eb7a1139a238afac01aac8e1b3982cd29bc73951f72d05c9b17c50fbf769d0d8"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_bleed#sheet.png",
+      "size": 73849,
+      "sha256": "f995d65ba50ed3e78811d8a2954f03fbe859bc0c5b4182939ccc85828166178f"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_e_scream#anim.fanim",
+      "size": 1390,
+      "sha256": "e19230e4ebbfa17888d490995bd086a109be47bc437fb0346e8cf1d35cd2d54e"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_e_scream#sheet.png",
+      "size": 229523,
+      "sha256": "4224f5e6b7c0a6981739a4c86d63d0b6ac809fec2143a826d7f60b6c7ccda25c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_frenzy#anim.fanim",
+      "size": 1466,
+      "sha256": "f81e40bb947f5bf824c5430e2b00f524297062744e3f686613cbb257191db1bc"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_frenzy#sheet.png",
+      "size": 295096,
+      "sha256": "f585cdaf30781c81a475fb8c3ba6ba91ab4f51b38e4b96b902d5e819702f796c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_arrival#anim.fanim",
+      "size": 721,
+      "sha256": "f8d43893fdb8a2d81fe4f37fc5b32ea54208e0a1afbef960dbc24c70a3972c2e"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_arrival#sheet.png",
+      "size": 147630,
+      "sha256": "0144d2381199cd752c01e8d55328e9c34ba8db248cb2f810fc75133381617bea"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_mark#anim.fanim",
+      "size": 715,
+      "sha256": "e7132c78601299294fcfb26d68d5f4859a35346d13f2eaab53a90c1b8ab0a90c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_mark#sheet.png",
+      "size": 65673,
+      "sha256": "b99520bdcbad0b257aa13192d1cd8af925302bcc2647476f7e3e9b1eab1c03f0"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_trail#anim.fanim",
+      "size": 724,
+      "sha256": "a645745cfaf0cb71843f2068fa5c4dbc9c051e17c922ebf9551aa088f85d1262"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_trail#sheet.png",
+      "size": 73849,
+      "sha256": "d8e84c14e55f35543809bd05f35630acd32f159c7b15b0db6a59cd746c8c1c82"
     },
     {
       "path": "aseprite_resources/effects/lucian_attack#anim.fanim",
@@ -153,9 +223,29 @@
       "sha256": "a35e06531bd26db8ccaa19eefc5c1ab396c7a7254aab15f5e11d1abeac26e4af"
     },
     {
+      "path": "champion/berserker.data_champion",
+      "size": 18380,
+      "sha256": "fab626129496b0797ff46fca9dd22da4854e9a18bc468d8a8cd79b0cbf28079d"
+    },
+    {
       "path": "champion/lol_shen.data_champion",
       "size": 10227,
       "sha256": "7936836e40768beefb300826ecdd8c9b0ddfa20114886a3b518ce3f88a2195d8"
+    },
+    {
+      "path": "icons/briar_skill.png",
+      "size": 16516,
+      "sha256": "e242c877a5a92bbcdd42dafc2eb53e6cd128f0d6431809790b896ca44c6b09c5"
+    },
+    {
+      "path": "icons/briar_skill2.png",
+      "size": 16516,
+      "sha256": "eb09834b5683ae64b9ea3eabbc47f39494d3d139832b5997f3ea7870c0cfc993"
+    },
+    {
+      "path": "icons/briar_ult.png",
+      "size": 16516,
+      "sha256": "6f5145a79063beeae0a0ddfa47ac503fc3c6e280334e96c719c78923a34d5a1e"
     },
     {
       "path": "icons/lucian_skill.png",
@@ -204,13 +294,103 @@
     },
     {
       "path": "mod.mod_info",
-      "size": 612,
-      "sha256": "bf58abe48def1b74926bb45e5824db07a29cc9075b51a71b3174c2358c91c289"
+      "size": 702,
+      "sha256": "b2f2745190e70a59048e3d71ff1dd0c29aeb5a8fbcc9e4ddf516ebfe4ed0b1d8"
     },
     {
       "path": "mod.override_info",
-      "size": 6729,
-      "sha256": "f24eb938174225849023b4ece35ffabd1f46d0ab14db7997b4521e8ce7f043d3"
+      "size": 9187,
+      "sha256": "f1bae65335cef525f1dd2208cae43355a28bedc9603a9f88a4936e8c8a6731b5"
+    },
+    {
+      "path": "sound/sfx/briar_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "f93107e603b6b4f723d08d5e5f840edde7d2cac0e128cf58fcd8f1c8aff03617"
+    },
+    {
+      "path": "sound/sfx/briar_attack_cast_clip.wav",
+      "size": 23106,
+      "sha256": "e27bb0277e32881a20d34f7508c7f6e08ae3b3c38f489abfb3ec15f687128af5"
+    },
+    {
+      "path": "sound/sfx/briar_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "e5df281c490f91d02896f4454b8cb3f58d59df515ff685cde11014cfcefc9259"
+    },
+    {
+      "path": "sound/sfx/briar_attack_hit_clip.wav",
+      "size": 21298,
+      "sha256": "68245f2d6dd5014bd0dc8b0f9acf65e4f1cadd7f05c58b92103643192e753008"
+    },
+    {
+      "path": "sound/sfx/briar_e_cast.sound_info",
+      "size": 66,
+      "sha256": "65d7c0662c159fd864ae390022c7a7e9f531fbdd23076041476a5a1bbe9abf1a"
+    },
+    {
+      "path": "sound/sfx/briar_e_cast_clip.wav",
+      "size": 155652,
+      "sha256": "a1ee0a817fa95b3d704b259166fc68a14179036382be199ddd9bf1487413c43f"
+    },
+    {
+      "path": "sound/sfx/briar_e_hit.sound_info",
+      "size": 65,
+      "sha256": "479af707d263a562ecf1e6cda773ddcb79b6fb3ac49f2c55f22a73fcabbda483"
+    },
+    {
+      "path": "sound/sfx/briar_e_hit_clip.wav",
+      "size": 157934,
+      "sha256": "0c32c74a5283ef67b506349dbecf5fb4ed59d5d4eff407200240eb1c7ece7765"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_cast.sound_info",
+      "size": 71,
+      "sha256": "860de2d7a5d984d88810efba914406744b4dcbe7a675129772fe6679ca3cbc4c"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_cast_clip.wav",
+      "size": 75956,
+      "sha256": "db4cffd041a75599489a43ad1b5ca0567e9151f234f0b91fd743c45ab6f2bcc4"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_hit.sound_info",
+      "size": 70,
+      "sha256": "c4898c61e52ce640adda739128e29dfaa79cc4055140be2bdb84be25127002b0"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_hit_clip.wav",
+      "size": 64156,
+      "sha256": "7fa27203c0b13c871f18d8a76384f06a15368909d71a0f291f5f032876fcc4b6"
+    },
+    {
+      "path": "sound/sfx/briar_q_cast.sound_info",
+      "size": 66,
+      "sha256": "1ccfb41f6a6231ceb715b0595ac09162a161d78d04e59e46b59c5720d61e7ce0"
+    },
+    {
+      "path": "sound/sfx/briar_q_cast_clip.wav",
+      "size": 44598,
+      "sha256": "cd57601286e6a757f1da421217e45d4db211fe793c860bdde769dc25aa6f6a58"
+    },
+    {
+      "path": "sound/sfx/briar_r_cast.sound_info",
+      "size": 66,
+      "sha256": "8615197b0e393d1215b5d028e6de281a1d5b71a75564846f0105a8046ccb7ed2"
+    },
+    {
+      "path": "sound/sfx/briar_r_cast_clip.wav",
+      "size": 123192,
+      "sha256": "2d46df195ec8a4e3bc33475ee16249d031e3ce00ab27437bd132b07d1741e54d"
+    },
+    {
+      "path": "sound/sfx/briar_r_hit.sound_info",
+      "size": 65,
+      "sha256": "d3977e25f7228a653f891b32878c54c8210bdeeaa02b0ecca0295a76c130e3b1"
+    },
+    {
+      "path": "sound/sfx/briar_r_hit_clip.wav",
+      "size": 206696,
+      "sha256": "7ca8d4fca59221e2e0b8b717d26c764b893cfc9cb52c4d9f71349a5ce83d4189"
     },
     {
       "path": "sound/sfx/lucian_attack_cast.sound_info",
@@ -449,13 +629,13 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 454,
-      "sha256": "52fff8ae98148cfa7ec5d92854acd94f1a2e6739a78882c7a812a8b9dac4c545"
+      "size": 597,
+      "sha256": "90bce194289d7a4a4534caa9aed5b3f46a4da979e6f62b1f26c4b796aabe83fe"
     },
     {
       "path": "text/champion.i18n",
-      "size": 12729,
-      "sha256": "1f0231838b7e1f80a814acadfe62c93463591d1d8d260aceeb52fe9bae2c61bc"
+      "size": 20620,
+      "sha256": "bf7325094106a0a9efdd0c57123e3da8fde7c27b9b6eaa45a21713876e033b70"
     }
   ]
 }

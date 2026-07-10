@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "champion": "Briar",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Briar.wad.client (local League install)",
+    "size_bytes": 56105210,
+    "sha256": "e4a6ebd191872fe47bd62b173bc6e99938684b98d2ac8b5fe1ef138b06676eeb"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/briar/skins/base/briar_base_sfx_audio.bnk",
+    "wad_path_hash": "6194934d6152b833",
+    "wad_offset": 54249685,
+    "size_bytes": 1855525,
+    "compression": "none",
+    "sha256": "f5dafd23a430dfefb8be9b3d948f95e23641b0e7833ffec10bd8a2e8728984a4"
+  },
+  "event_mapping_audit": {
+    "base_skin_registry": {
+      "virtual_path": "data/characters/briar/skins/skin0.bin",
+      "wad_path_hash": "f279b76afd0f0a62",
+      "compressed_size_bytes": 41865,
+      "size_bytes": 544117,
+      "sha256": "3c2cb343c020af5fd9a02312cfdcd96fe8bc7bb2b99bb3567bc321279b871546"
+    },
+    "internal_event_bank": {
+      "virtual_path": "assets/sounds/wwise2016/sfx/characters/briar/skins/base/briar_base_sfx_events.bnk",
+      "wad_path_hash": "418c1554e40dc12e",
+      "compressed_size_bytes": 5870,
+      "size_bytes": 23567,
+      "sha256": "cfdabb0b53de0facc0a915cab553ed88b87535ad058598a3e922618f5eea861e"
+    },
+    "wad_reader": {
+      "name": "LeagueToolkit wadtools",
+      "version": "0.5.6",
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866"
+    },
+    "path_hashtable": {
+      "name": "CommunityDragon hashes.game.txt",
+      "size_bytes": 207968174,
+      "sha256": "f7d5e73ff1c4b7b4630cef6d4bafe3d1b7a80a2f51e3bf9d4db4e018954d041b"
+    },
+    "event_resolver": {
+      "name": "wwiser",
+      "version": "20250928",
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53",
+      "event_id_algorithm": "lowercase FNV-1 32-bit",
+      "selection_policy": "One verified official media variant per Riot event. Basic attack hit selects the first character-impact layer and deliberately omits the separate material layer to prevent full-volume clipping. The mod's Q slot implements Blood Frenzy / Snack, so q_cast uses Briar's official W jump foley. The exact Snack self event is stereo and too long for the mod's mono spatial-SFX contract; frenzy_hit uses the first official Briar frenzy-hit variant as the bite contact proxy."
+    },
+    "slot_adaptation": {
+      "q_slot_gameplay": "Blood Frenzy / Snack",
+      "q_cast_source_event": "Play_sfx_Briar_BriarW_cast_foley_jump",
+      "snack_exact_event": "Play_sfx_Briar_BriarWAttackSpell_buffactivate_self",
+      "snack_exact_event_id": 3856742472,
+      "snack_exact_media_id": 509331730,
+      "snack_exact_media_rejection": "Decoded source is stereo, 3.015124717 seconds, and would require a remix that violates the current mono no-remix extraction contract.",
+      "snack_runtime_proxy": "Play_sfx_Briar_BriarBasicAttackFrenzy_OnHit"
+    }
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "version": "r2117-116-g4021c853",
+    "path": "external vgmstream-cli (not committed)",
+    "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+    "arguments": ["-i", "-W", "1"]
+  },
+  "outputs": [
+    {
+      "event_key": "briar_attack_cast",
+      "riot_event": "Play_sfx_Briar_BriarBasicAttack_OnCast",
+      "riot_event_id": 1625124708,
+      "event_media_pool": [337039456, 414523161, 275742538, 320610712],
+      "media_id": 337039456,
+      "source_wem_size_bytes": 2736,
+      "source_wem_sha256": "4af208c81e9b5f680fdba755116105a67581972e29093eb0fe39cd7f5533adae",
+      "duration_seconds": 0.2614739229024943,
+      "sound_info": "sound/sfx/briar_attack_cast.sound_info",
+      "clip": "briar_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_attack_cast_clip.wav", "size_bytes": 23106, "sha256": "e27bb0277e32881a20d34f7508c7f6e08ae3b3c38f489abfb3ec15f687128af5", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 11531}
+    },
+    {
+      "event_key": "briar_attack_hit",
+      "riot_event": "Play_sfx_Briar_BriarBasicAttack_OnHit",
+      "riot_event_id": 1567502092,
+      "event_layer": "character impact",
+      "event_media_pool": [977937509, 346967776],
+      "omitted_flesh_material_pool": [130160735, 310498734, 408675584, 76517695],
+      "media_id": 977937509,
+      "source_wem_size_bytes": 3672,
+      "source_wem_sha256": "d341b671d0fa40422f60974809464d9ebb79e0d802cfeeb054a2d863896c218f",
+      "duration_seconds": 0.2409750566893424,
+      "sound_info": "sound/sfx/briar_attack_hit.sound_info",
+      "clip": "briar_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_attack_hit_clip.wav", "size_bytes": 21298, "sha256": "68245f2d6dd5014bd0dc8b0f9acf65e4f1cadd7f05c58b92103643192e753008", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 10627}
+    },
+    {
+      "event_key": "briar_frenzy_cast",
+      "riot_event": "Play_sfx_Briar_BriarBasicAttackFrenzy_OnCast",
+      "riot_event_id": 2869900170,
+      "event_media_pool": [637934841, 549156362, 625915167, 111684265],
+      "media_id": 637934841,
+      "source_wem_size_bytes": 7415,
+      "source_wem_sha256": "2e51ffe00ad7790430a9e60d649414b1c5898d686e7e2658ca93577f2a4b8360",
+      "duration_seconds": 0.8606802721088436,
+      "sound_info": "sound/sfx/briar_frenzy_cast.sound_info",
+      "clip": "briar_frenzy_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_frenzy_cast_clip.wav", "size_bytes": 75956, "sha256": "db4cffd041a75599489a43ad1b5ca0567e9151f234f0b91fd743c45ab6f2bcc4", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 37956}
+    },
+    {
+      "event_key": "briar_frenzy_hit",
+      "riot_event": "Play_sfx_Briar_BriarBasicAttackFrenzy_OnHit",
+      "riot_event_id": 4041037182,
+      "event_media_pool": [530919773, 19611527, 932071851, 989498368],
+      "media_id": 530919773,
+      "source_wem_size_bytes": 6363,
+      "source_wem_sha256": "39dc57fcd5fa3cf1ff727eea825a7f5103d7dd1829fd95050d258bde4fc34065",
+      "duration_seconds": 0.7268934240362812,
+      "sound_info": "sound/sfx/briar_frenzy_hit.sound_info",
+      "clip": "briar_frenzy_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_frenzy_hit_clip.wav", "size_bytes": 64156, "sha256": "7fa27203c0b13c871f18d8a76384f06a15368909d71a0f291f5f032876fcc4b6", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 32056}
+    },
+    {
+      "event_key": "briar_q_cast",
+      "riot_event": "Play_sfx_Briar_BriarW_cast_foley_jump",
+      "riot_event_id": 2077188739,
+      "event_media_pool": [278118987],
+      "media_id": 278118987,
+      "source_wem_size_bytes": 5522,
+      "source_wem_sha256": "dd9a78140d228ba3d721ba3414ad9f5f57fa2b7fc329e3952d588719769ebd92",
+      "duration_seconds": 0.5051473922902494,
+      "sound_info": "sound/sfx/briar_q_cast.sound_info",
+      "clip": "briar_q_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_q_cast_clip.wav", "size_bytes": 44598, "sha256": "cd57601286e6a757f1da421217e45d4db211fe793c860bdde769dc25aa6f6a58", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 22277}
+    },
+    {
+      "event_key": "briar_e_cast",
+      "riot_event": "Play_sfx_Briar_BriarEMisStrong_missilelaunch_charged",
+      "riot_event_id": 1505478577,
+      "event_media_pool": [397557461],
+      "media_id": 397557461,
+      "source_wem_size_bytes": 18709,
+      "source_wem_sha256": "e298570b4022c9f2033c15a1ea7d9db7f919a3090d9e7317e46e4ef78d5be7e4",
+      "duration_seconds": 1.7642630385487528,
+      "sound_info": "sound/sfx/briar_e_cast.sound_info",
+      "clip": "briar_e_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_e_cast_clip.wav", "size_bytes": 155652, "sha256": "a1ee0a817fa95b3d704b259166fc68a14179036382be199ddd9bf1487413c43f", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 77804}
+    },
+    {
+      "event_key": "briar_e_hit",
+      "riot_event": "Play_sfx_Briar_BriarEMisStrong_OnHit",
+      "riot_event_id": 1269301111,
+      "event_media_pool": [980012549],
+      "media_id": 980012549,
+      "source_wem_size_bytes": 15580,
+      "source_wem_sha256": "3f506a46a0f4014d2706a926057ddcf2670acd3510aa7a1c47dad2d705dd105b",
+      "duration_seconds": 1.7901360544217686,
+      "sound_info": "sound/sfx/briar_e_hit.sound_info",
+      "clip": "briar_e_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_e_hit_clip.wav", "size_bytes": 157934, "sha256": "0c32c74a5283ef67b506349dbecf5fb4ed59d5d4eff407200240eb1c7ece7765", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 78945}
+    },
+    {
+      "event_key": "briar_r_cast",
+      "riot_event": "Play_sfx_Briar_BriarR_OnCast",
+      "riot_event_id": 1265575348,
+      "event_media_pool": [342737364],
+      "media_id": 342737364,
+      "source_wem_size_bytes": 14351,
+      "source_wem_sha256": "cf9bea6f75ce6ed3efec19b4b122f27f3403852404c720a0571d83daae748f33",
+      "duration_seconds": 1.3962358276643991,
+      "sound_info": "sound/sfx/briar_r_cast.sound_info",
+      "clip": "briar_r_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_r_cast_clip.wav", "size_bytes": 123192, "sha256": "2d46df195ec8a4e3bc33475ee16249d031e3ce00ab27437bd132b07d1741e54d", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 61574}
+    },
+    {
+      "event_key": "briar_r_hit",
+      "riot_event": "Play_sfx_Briar_BriarR_OnHit",
+      "riot_event_id": 460152284,
+      "event_media_pool": [699304794],
+      "media_id": 699304794,
+      "source_wem_size_bytes": 20503,
+      "source_wem_sha256": "9e5c796f503350b78cacd0b573da2cacaf8bda123d5ebf34ecc56f7098a1be12",
+      "duration_seconds": 2.3429931972789118,
+      "sound_info": "sound/sfx/briar_r_hit.sound_info",
+      "clip": "briar_r_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/briar_r_hit_clip.wav", "size_bytes": 206696, "sha256": "7ca8d4fca59221e2e0b8b717d26c764b893cfc9cb52c4d9f71349a5ce83d4189", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 103326}
+    }
+  ]
+}
