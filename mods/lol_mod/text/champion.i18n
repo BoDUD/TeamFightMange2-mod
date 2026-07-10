@@ -1,0 +1,35 @@
+{
+  "en": {
+    "description": {
+      "lol_shen": {
+        "name": "Shen",
+        "attack": "Ninja Blade: Shen makes a steady melee strike for 100% Attack physical damage.",
+        "skill": "Twilight Assault: Sends the spirit blade through enemies, dealing 40 + 60% Ability Power magic damage and slowing them by 25% for 1.5 seconds. Hitting an enemy grants Shen a 120 shield for 2 seconds.",
+        "skill2": "Spirit's Refuge: Creates a defensive field around Shen. Allied champions in the field gain a 150 + 40% Ability Power shield for 2.5 seconds, while enemy champions lose 30% Attack Speed for 2 seconds.",
+        "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After 0.8 seconds Shen teleports to the ally and taunts nearby enemy champions for 0.75 seconds. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
+      }
+    }
+  },
+  "zh-hans": {
+    "description": {
+      "lol_shen": {
+        "name": "慎",
+        "attack": "忍刀斩：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
+        "skill": "暮光斩：灵刃穿过敌人，造成40 + 60%法术强度的魔法伤害，并使其减速25%，持续1.5秒。命中敌人后，慎获得120点护盾，持续2秒。",
+        "skill2": "灵佑领域：慎在身边展开防御领域。范围内友方英雄获得150 + 40%法术强度的护盾，持续2.5秒；敌方英雄的攻击速度降低30%，持续2秒。",
+        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。0.8秒后慎传送到其身边，并嘲讽附近敌方英雄0.75秒。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+      }
+    }
+  },
+  "zh-hant": {
+    "description": {
+      "lol_shen": {
+        "name": "慎",
+        "attack": "忍刀斬：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
+        "skill": "暮光斬：靈刃穿過敵人，造成40 + 60%法術強度的魔法傷害，並使其減速25%，持續1.5秒。命中敵人後，慎獲得120點護盾，持續2秒。",
+        "skill2": "靈佑領域：慎在身邊展開防禦領域。範圍內友方英雄獲得150 + 40%法術強度的護盾，持續2.5秒；敵方英雄的攻擊速度降低30%，持續2秒。",
+        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。0.8秒後慎傳送到其身邊，並嘲諷附近敵方英雄0.75秒。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+      }
+    }
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "id": "lol_shen",
+  "category": "Melee",
+  "tags": [
+    "Melee",
+    "Tank",
+    "Shield",
+    "CC",
+    "Magic"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/shen",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/shen_skill",
+    "asset/lol_mod/icons/shen_skill2",
+    "asset/lol_mod/icons/shen_ult"
+  ],
+  "stat": {
+    "attack": 75,
+    "magic_power": 20,
+    "hp": 1100,
+    "defence": 40,
+    "magic_resistance": 35,
+    "move_speed": 1000,
+    "hp_regen": 3,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 4,
+    "magic_power": 8,
+    "hp": 120,
+    "defence": 7,
+    "magic_resistance": 6,
+    "move_speed": 5,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.lol_shen.attack",
+    "duration": 24,
+    "cooltime": 70,
+    "start_timing": 10,
+    "cancelable": true,
+    "range": 25000,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_shen_attack_cast"
+        },
+        {
+          "type": "Delayed",
+          "tick": 10,
+          "effects": [
+            {
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 100
+            },
+            {
+              "type": "TargetSfx",
+              "name": "lol_shen_attack_hit"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.lol_shen.skill",
+    "duration": 36,
+    "cooltime": 360,
+    "start_timing": 14,
+    "cancelable": true,
+    "range": 60000,
+    "casting_type": "Direction",
+    "casting_target": "Enemy",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_shen_q_cast"
+        },
+        {
+          "type": "LinearProjectile",
+          "penetrate": true,
+          "speed": 4200,
+          "range": 60000,
+          "name": "lol_shen_twilight_assault_projectile",
+          "shape": {
+            "Circle": {
+              "radius": 8000
+            }
+          },
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "ApAttack",
+                    "damage": 40,
+                    "attack_ratio": 60
+                  },
+                  {
+                    "type": "AddBuff",
+                    "buff_state": {
+                      "name": "lol_shen_twilight_assault_slow",
+                      "duration": {
+                        "Time": {
+                          "tick": 90
+                        }
+                      },
+                      "move_speed_mult": -25
+                    }
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_shen_twilight_assault_guard",
+                      "duration": {
+                        "Time": {
+                          "tick": 120
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 120,
+                        "attack_ratio": 0,
+                        "ap_ratio": 0,
+                        "tick": 120
+                      }
+                    ]
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": []
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.lol_shen.skill2",
+    "duration": 30,
+    "cooltime": 480,
+    "start_timing": 10,
+    "cancelable": false,
+    "range": 0,
+    "casting_type": "None",
+    "casting_target": "AllyOnlySelf",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_shen_w_cast"
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_shen_spirit_refuge_visual"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "AllyChampion",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Shield",
+              "amount": 150,
+              "attack_ratio": 0,
+              "ap_ratio": 40,
+              "tick": 150
+            },
+            {
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "lol_shen_spirit_refuge_shield_window",
+                "duration": {
+                  "Time": {
+                    "tick": 150
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "EnemyChampion",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "lol_shen_spirit_refuge_as_slow",
+                "duration": {
+                  "Time": {
+                    "tick": 120
+                  }
+                },
+                "attack_speed_mult": -30
+              }
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 12,
+          "effects": [
+            {
+              "type": "Sfx",
+              "name": "lol_shen_w_block"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.lol_shen.ult",
+    "duration": 72,
+    "cooltime": 3000,
+    "start_timing": 1,
+    "range": 960000,
+    "casting_type": "Position",
+    "casting_target": "AllyNotSelf",
+    "attack_type": "Skill",
+    "cancelable": false,
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_shen_r_cast"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_shen_stand_united_channel",
+            "duration": {
+              "Time": {
+                "tick": 48
+              }
+            }
+          }
+        },
+        {
+          "type": "RangeProjectile",
+          "name": "lol_shen_stand_united_guard",
+          "delay": 1,
+          "apply": 1,
+          "shape": {
+            "Circle": {
+              "radius": 6000
+            }
+          },
+          "applied_target": "AllyNotSelf",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Shield",
+                "amount": 900,
+                "attack_ratio": 0,
+                "ap_ratio": 80,
+                "tick": 180
+              },
+              "casting_type": "Targeting"
+            },
+            {
+              "effect": {
+                "type": "AddBuff",
+                "buff_state": {
+                  "name": "lol_shen_stand_united_shield_window",
+                  "duration": {
+                    "Time": {
+                      "tick": 180
+                    }
+                  }
+                }
+              },
+              "casting_type": "Targeting"
+            },
+            {
+              "effect": {
+                "type": "ViewEffect",
+                "name": "lol_shen_stand_united_guard_visual"
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": []
+        },
+        {
+          "type": "Delayed",
+          "tick": 48,
+          "effects": [
+            {
+              "type": "Teleport"
+            },
+            {
+              "type": "Sfx",
+              "name": "lol_shen_r_arrive"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_shen_stand_united_arrival_visual"
+            },
+            {
+              "type": "RangeEffect",
+              "shape": {
+                "Circle": {
+                  "radius": 35000
+                }
+              },
+              "target": "EnemyChampion",
+              "apply_type": "AroundCaster",
+              "effects": [
+                {
+                  "type": "Taunt",
+                  "duration": 45
+                },
+                {
+                  "type": "AddBuff",
+                  "buff_state": {
+                    "name": "lol_shen_stand_united_arrival_cc",
+                    "duration": {
+                      "Time": {
+                        "tick": 45
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_shen_twilight_assault_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_shen_spirit_refuge_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_w",
+      "tag": "field",
+      "z": -1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_shen_stand_united_guard_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+      "tag": "guard",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_shen_stand_united_arrival_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+      "tag": "arrival",
+      "z": 1,
+      "is_follow": false
+    }
+  ],
+  "view_buffs": []
+}

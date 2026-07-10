@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-10",
+  "background_removal": "imagegen remove_chroma_key.py, border auto-key, soft matte, despill",
+  "prompt_record": "source/imagegen/PROMPTS.md",
+  "sources": [
+    {
+      "role": "actor_model",
+      "path": "source/imagegen/shen_actor_contact.png",
+      "sha256": "f4e0f167c792223710eee589256deee4ba6d1aa76318733846d426c35f3e3bad"
+    },
+    {
+      "role": "run_cycle",
+      "path": "source/imagegen/shen_run_contact.png",
+      "sha256": "648d0510b3a10da3ceee2ce272109e1731a18c2eb10bfa31fe47b4db4a831014"
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/shen_q_icon_source.png",
+      "sha256": "e2c6e55839bab2c3e018a19f349b56e1b7a879b830af0f89402a84fb16ccf520"
+    },
+    {
+      "role": "w_icon",
+      "path": "source/imagegen/shen_w_icon_source.png",
+      "sha256": "8fa275f7a73287be450bcf2f71e9fef72e62303fc54100b83ee26da88685df02"
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/shen_r_icon_source.png",
+      "sha256": "25dba852eae35bb4c536f9a7606b38b933263760baf22f4d957dc0fcf067ad10"
+    },
+    {
+      "role": "q_vfx",
+      "path": "source/imagegen/shen_q_vfx_contact.png",
+      "sha256": "c0bdca5360bd16247f73179bddbe2fc4476746681a8f3a932ea35d7642a0a369"
+    },
+    {
+      "role": "w_vfx",
+      "path": "source/imagegen/shen_w_vfx_contact.png",
+      "sha256": "7c4a9567740228a95c5876792c295836ac5cf50a90bd628e8c1c6a16ee3232a5"
+    },
+    {
+      "role": "r_vfx",
+      "path": "source/imagegen/shen_r_vfx_contact.png",
+      "sha256": "c02337e3dde8152247e1d6606baeb655943b0f127ae5bf1c7260f8d8547a4fd2"
+    }
+  ]
+}
