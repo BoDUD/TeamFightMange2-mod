@@ -1,9 +1,10 @@
-# Lucian skill contract QA
+# Lucian native-002 skill contract
 
-- Passive marker: `lol_lucian_lightslinger_ready`, 240 ticks after Q/E and after R completes.
-- Empowered attack: first projectile at tick 4 for 100% Attack, second at tick 10 for 45% Attack, then consumes the marker.
-- Q: enemy-champion targeting, 65000 cast range, 76000 penetrating line, `55 + 85% Attack`, `EnemyWithoutTower` application.
-- E: direction cast, `RushTime` at 3000 units/tick for 10 ticks (30000 total), no damage effect, fixed-follow afterimage layer.
-- R: direction channel, stationary and cancelable, 15 delayed projectiles at ticks 12 through 124 in eight-tick increments. Every shot is non-piercing, 9000 speed, 120000 range, 4500 radius, and `8 + 18% Attack`.
+Lucian intentionally occupies the original `archer`/002 action contract:
 
-The builder generates the repeated R entries deterministically so bullet count and cadence cannot drift in hand-edited JSON.
+- Basic attack: 620 range, 100% Attack, native `archer_attack` event remapped to Lucian audio.
+- E / native `skill`: 300-range directional dash followed by a 45% Attack shot at the most recently attacked enemy.
+- Q / native `skill2`: nearby targeted shot for `55 + 85% Attack`; native brief interruption remains and the old Archer backstep is disabled with zero move range.
+- R / native `archer_ult`: stationary, interruptible 15-shot channel; each shot deals `8 + 18% Attack`, with 1200 range and 45 hit radius.
+
+This native replacement is deliberately different from the removed additive `lol_lucian` data-champion implementation: visibility and registration use the same official 002 path as the base game.

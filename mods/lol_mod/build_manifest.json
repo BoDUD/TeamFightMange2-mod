@@ -3,14 +3,14 @@
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
   "files": [
     {
-      "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 10713,
-      "sha256": "bba5ec8cacd7ea7e836f61857966daf201f69e6bdfa6e4586e38927eadf03366"
+      "path": "aseprite_resources/champions/archer#anim.fanim",
+      "size": 14392,
+      "sha256": "becc4044c51fd141e1be17fd0275d769f7b84c667b6bcadf24f6ebcc09b20582"
     },
     {
-      "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 344221,
-      "sha256": "dbff4ba04c332a61edb70fb77b727d4e8e798347a49e6746d846cbbba4babe9c"
+      "path": "aseprite_resources/champions/archer#sheet.png",
+      "size": 1310952,
+      "sha256": "40bd4bf85893a37f17a7074d303e5ca53e4928a56b1b891f7574e2f572c02e49"
     },
     {
       "path": "aseprite_resources/champions/shen#anim.fanim",
@@ -83,9 +83,9 @@
       "sha256": "16f0d19ee28e2e87ddc4f91828679b54e668c3173b54909f900961f9f3f44c4a"
     },
     {
-      "path": "champion/lol_lucian.data_champion",
-      "size": 22244,
-      "sha256": "4b036075e789d5e0220f61e3b0b45d7085ea143634f6f380dd5ab1b1a93b6474"
+      "path": "aseprite_resources/UI_aseprite/skill_icon#sheet.png",
+      "size": 802993,
+      "sha256": "1f77acff26864767bb5bfbb24b49789244157402d99c6a9a205e306ec3124dd0"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -124,13 +124,18 @@
     },
     {
       "path": "mod.mod_info",
-      "size": 418,
-      "sha256": "273de480578dcb8b1e09cb955d12a4fc7810aadcdfdeecca55b37521ff405754"
+      "size": 436,
+      "sha256": "85eee728c078971b81ae4651bf89ba356073e023e8bdee2c68b4dd5cd4b8875d"
     },
     {
       "path": "mod.override_info",
-      "size": 4359,
-      "sha256": "d2a389d27b69002dd47a98a7c381cd8262bee8f2bca37ba4bb1b4a2d8b6dacc8"
+      "size": 4670,
+      "sha256": "cb7c2b14b7b11f3b638017b64e61091c54f500c5e95eb7098108b49160885d0f"
+    },
+    {
+      "path": "setting/champion_info.champion_info_sheet",
+      "size": 124081,
+      "sha256": "a1c8e5cacc19b99df827502884ca7b1b1045996f65f28eba265c6d575de16784"
     },
     {
       "path": "sound/sfx/lucian_attack_cast.sound_info",
@@ -284,13 +289,13 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 308,
-      "sha256": "ca6063d4a0f3280090523aa41903a224086b293040ef803d1a01cf85f5c58b99"
+      "size": 304,
+      "sha256": "7a919d9c22be22ccca2c9df2288fbfc02e2d61da8638d25d74ed0105c82f2c9b"
     },
     {
       "path": "text/champion.i18n",
-      "size": 5518,
-      "sha256": "cc62c58c6d15f7816425171afc1c396b968bd6fc1a882c31ca1f7166e6bf9181"
+      "size": 4743,
+      "sha256": "fee95d5bca9cd1ce40e46249405c05000f6bad9befe7801916b1c5970b0bb319"
     }
   ]
 }

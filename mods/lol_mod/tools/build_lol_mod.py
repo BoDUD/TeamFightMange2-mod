@@ -18,7 +18,10 @@ SOURCE = MOD_ROOT / "source" / "processed"
 ACTOR_DIR = MOD_ROOT / "aseprite_resources" / "champions"
 EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
+UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
+SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
+BASE_SOURCE = MOD_ROOT / "source" / "base"
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
@@ -44,6 +47,15 @@ LUCIAN_VFX_SOURCES = {
     "lucian_q": (SOURCE / "lucian_q_vfx_contact_alpha.png", 4, 2, (96, 48), (84, 24)),
     "lucian_e": (SOURCE / "lucian_e_vfx_contact_alpha.png", 4, 2, (112, 64), (100, 42)),
     "lucian_r": (SOURCE / "lucian_r_vfx_contact_alpha.png", 4, 2, (64, 32), (48, 18)),
+}
+BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
+BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
+ARCHER_SKILL_ICON_BOXES = {
+    "archer_0": (25, 0, 49, 24),
+    "archer_1": (1625, 0, 1649, 24),
+    "archer_2": (3225, 0, 3249, 24),
+    "archer_3": (750, 24, 774, 48),
+    "archer_4": (2350, 24, 2374, 48),
 }
 
 # These masks remove the large VFX already separated into dedicated sheets while
@@ -260,7 +272,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack a fixed-scale Lucian actor with a visible nine-phase cross-step run."""
+    """Pack Lucian into the exact native Archer animation-key/frame contract."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
     base_frames: list[Image.Image] = []
     for cell in split_grid(source, 4, 3):
@@ -291,43 +303,73 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         run_frames.append(frame)
 
-    # Atlas order: two idles, nine run phases, then ten combat/action poses.
-    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
-    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
-    for index, frame in enumerate(frames):
-        atlas.alpha_composite(frame, (index * 64, 0))
+    transparent = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    r_source = Image.open(LUCIAN_VFX_SOURCES["lucian_r"][0]).convert("RGBA")
+    r_projectile = fit_cell(split_grid(r_source, 4, 2)[0], (64, 64), (48, 18))
 
-    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
-    sheet_path = ACTOR_DIR / "lucian#sheet.png"
-    anim_path = ACTOR_DIR / "lucian#anim.fanim"
-    save_png(sheet_path, atlas)
-
-    sequences: dict[str, tuple[list[int], list[float]]] = {
-        "idle": ([0, 1, 0, 1, 0, 1, 0], [0.12] * 7),
-        "run": (list(range(2, 11)), [0.075] * 9),
-        "attack": ([11, 11, 0], [0.10, 0.10, 0.20]),
-        "attack_right": ([0, 11, 11, 0], [0.06, 0.08, 0.08, 0.18]),
-        "attack_left": ([0, 12, 12, 0], [0.06, 0.08, 0.08, 0.18]),
-        "attack_double": ([0, 13, 13, 11, 12, 0], [0.04, 0.06, 0.06, 0.08, 0.08, 0.16]),
-        "skill": ([0, 14, 14, 14, 0], [0.05, 0.08, 0.10, 0.08, 0.09]),
-        "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
-        "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
-        "hit": ([19], [0.12]),
-        "dead": ([20], [0.60]),
+    # Source pose aliases: 0/1 idle, 2/3 right/left shot, 4 double shot,
+    # 5 Q, 6/7 E, 8/9 R, 10 hit, 11 dead.
+    sequences: dict[str, tuple[list[Image.Image], list[float]]] = {
+        "ult_old": (
+            [base_frames[index] for index in [0, 8, 8, 9, 9, 9, 9, 9, 9, 8, 0]],
+            [0.080000006] * 7 + [0.1] * 4,
+        ),
+        "skill": (
+            [base_frames[index] for index in [6, 7, 7, 4, 2, 0]],
+            [0.080000006] * 6,
+        ),
+        "ult_end": ([base_frames[index] for index in [9, 8, 0]], [0.080000006] * 3),
+        "ult_projectile": ([r_projectile], [0.080000006]),
+        "hit": ([base_frames[10]], [0.1]),
+        "run": (run_frames[:8], [0.080000006] * 8),
+        "ult_loop": ([base_frames[9]] * 4, [0.030000001] * 4),
+        "skill2": (
+            [base_frames[index] for index in [0, 5, 5, 5, 5, 1, 0]],
+            [0.080000006] * 7,
+        ),
+        "ult_pre": ([base_frames[index] for index in [0, 8, 8]], [0.080000006] * 3),
+        "dead": (
+            [base_frames[10], *([base_frames[11]] * 7), transparent],
+            [0.1] * 4 + [0.15] * 5,
+        ),
+        "old_ult_buff_effect": ([base_frames[9], base_frames[9], base_frames[8], base_frames[0]], [0.1] * 4),
+        "skill_attack": ([base_frames[index] for index in [4, 2, 0]], [0.080000006] * 3),
+        "idle": ([base_frames[index] for index in [0, 1, 0, 1]], [0.18, 0.14, 0.14, 0.14]),
+        "skill_dash": ([base_frames[index] for index in [6, 7, 7]], [0.080000006] * 3),
+        "attack": ([base_frames[index] for index in [0, 2, 2, 3, 3, 0]], [0.060000002] * 6),
+        "old_ult_pre": (
+            [base_frames[index] for index in [0, 8, 8, 9, 9, 9, 9]],
+            [0.080000006] * 7,
+        ),
     }
+
+    packed_frames: list[Image.Image] = []
     anims: dict[str, object] = {}
-    for name, (indexes, durations) in sequences.items():
+    for name, (sequence_frames, durations) in sequences.items():
+        start = len(packed_frames)
+        packed_frames.extend(sequence_frames)
         anims[name] = {
             "frames": [
                 {
                     "duration": duration,
-                    "data": {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                    "data": {"x": (start + index) * 64, "y": 0, "w": 64, "h": 64},
                 }
-                for index, duration in zip(indexes, durations, strict=True)
+                for index, duration in enumerate(durations)
             ]
         }
+
+    atlas = Image.new("RGBA", (64 * len(packed_frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(packed_frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
+
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "archer#sheet.png"
+    anim_path = ACTOR_DIR / "archer#anim.fanim"
+    save_png(sheet_path, atlas)
     write_json(anim_path, {"anims": anims})
-    return sheet_path, anim_path, frames
+
+    preview_frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
+    return sheet_path, anim_path, preview_frames
 
 
 def build_icons() -> list[Path]:
@@ -353,6 +395,119 @@ def build_lucian_icons() -> list[Path]:
         save_png(output, icon)
         outputs.append(output)
     return outputs
+
+
+def build_archer_skill_icon_atlas(lucian_icons: list[Path]) -> Path:
+    """Patch only Archer's five native icon cells in the original 24px atlas."""
+    atlas = Image.open(BASE_SKILL_ICON_SOURCE).convert("RGBA")
+    q_icon, e_icon, r_icon = [Image.open(path).convert("RGBA") for path in lucian_icons]
+    replacements = {
+        "archer_0": e_icon,
+        "archer_1": q_icon,
+        "archer_2": r_icon,
+        "archer_3": q_icon,
+        "archer_4": r_icon,
+    }
+    for key, icon in replacements.items():
+        box = ARCHER_SKILL_ICON_BOXES[key]
+        resized = icon.resize((box[2] - box[0], box[3] - box[1]), Image.Resampling.LANCZOS)
+        atlas.alpha_composite(resized, (box[0], box[1]))
+    UI_ASEPRITE_DIR.mkdir(parents=True, exist_ok=True)
+    output = UI_ASEPRITE_DIR / "skill_icon#sheet.png"
+    save_png(output, atlas)
+    return output
+
+
+def build_archer_override() -> Path:
+    """Replace native champion 002 while preserving the complete required base sheet."""
+    payload = json.loads(BASE_CHAMPION_INFO_SOURCE.read_text(encoding="utf-8"))
+    payload["archer"] = {
+            "stat": {
+                "attack": 100,
+                "magic_power": 0,
+                "hp": 900,
+                "defence": 20,
+                "magic_resistance": 15,
+                "move_speed": 900,
+                "hp_regen": 2,
+                "stack": 0,
+                "crit_chance": 0,
+            },
+            "growth": {
+                "attack": 13,
+                "magic_power": 0,
+                "hp": 90,
+                "defence": 6,
+                "magic_resistance": 3,
+                "move_speed": 9,
+                "hp_regen": 1,
+                "stack": 0,
+                "crit_chance": 0,
+            },
+            "attack": {
+                "name": "archer_attack",
+                "action_name": "attack",
+                "attack": 0,
+                "attack_ratio": 100,
+                "range": 62000,
+                "speed": 6500,
+                "cooltime": 60,
+                "duration": 24,
+                "start_timing": 10,
+                "cancelable": True,
+                "y_offset": 0,
+                "can_use_with_move": False,
+                "attack_type": "BaseAttack",
+            },
+            # Native Archer skill is the 002 direction dash followed by a shot.
+            # It is the replacement-compatible E + Lightslinger approximation.
+            "skill": {
+                "attack": 0,
+                "attack_ratio": 45,
+                "range": 62000,
+                "projectile_speed": 6500,
+                "move_range": 30000,
+                "speed": 3000,
+                "cooltime": 420,
+                "duration": 18,
+                "start_timing": 4,
+                "cancelable": False,
+            },
+            # Native Archer skill2 is a targeted shot. Zero move_range removes
+            # its old backstep; the hard-coded brief interrupt is documented.
+            "skill2": {
+                "attack": 55,
+                "attack_ratio": 85,
+                "range": 65000,
+                "projectile_speed": 15000,
+                "move_range": 0,
+                "move_tick": 10,
+                "cooltime": 300,
+                "duration": 24,
+                "start_timing": 10,
+                "cancelable": True,
+            },
+            "ult": {
+                "name": "archer_ult",
+                "attack": 8,
+                "attack_ratio": 18,
+                "range": 120000,
+                "attack_range": 4500,
+                "interval": 8,
+                "total_shots": 15,
+                "speed": 9000,
+                "cooltime": 3600,
+                "duration": 150,
+                "start_timing": 12,
+                "cancelable": True,
+                "y_offset": 0,
+            },
+            "category": "Range",
+            "tags": ["AD", "Range"],
+    }
+    path = SETTING_DIR / "champion_info.champion_info_sheet"
+    write_json(path, payload)
+    return path
 
 
 def effect_anim(frame_width: int, frame_height: int, indexes: list[int], durations: list[float]) -> dict:
@@ -849,6 +1004,7 @@ def build_manifest() -> Path:
         MOD_ROOT / "champion",
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
+        MOD_ROOT / "setting",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
@@ -889,6 +1045,8 @@ def main() -> int:
         LUCIAN_RUN_SOURCE,
         *LUCIAN_ICON_SOURCES.values(),
         *(entry[0] for entry in LUCIAN_VFX_SOURCES.values()),
+        BASE_SKILL_ICON_SOURCE,
+        BASE_CHAMPION_INFO_SOURCE,
     ]
     missing = [path for path in required_sources if not path.exists()]
     if missing:
@@ -897,9 +1055,10 @@ def main() -> int:
     icons = build_icons()
     vfx = build_vfx()
     qa = build_qa_contacts(actor_frames, icons)
-    lucian_data = build_lucian_data()
+    archer_setting = build_archer_override()
     lucian_sheet, lucian_anim, lucian_frames = build_lucian_actor()
     lucian_icons = build_lucian_icons()
+    archer_icon_atlas = build_archer_skill_icon_atlas(lucian_icons)
     lucian_vfx = build_lucian_vfx()
     lucian_qa = build_lucian_qa_contacts(lucian_frames, lucian_icons)
     manifest = None if args.skip_manifest else build_manifest()
@@ -909,10 +1068,11 @@ def main() -> int:
         *icons,
         *vfx,
         *qa,
-        lucian_data,
+        archer_setting,
         lucian_sheet,
         lucian_anim,
         *lucian_icons,
+        archer_icon_atlas,
         *lucian_vfx,
         *lucian_qa,
         *([manifest] if manifest else []),

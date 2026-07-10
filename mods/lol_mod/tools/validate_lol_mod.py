@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for the additive Shen and Lucian champion pack."""
+"""Static validation for additive Shen and the native Archer-to-Lucian replacement."""
 
 from __future__ import annotations
 
@@ -311,6 +311,184 @@ def validate_lucian_data_contract(champion: dict[str, Any]) -> None:
         )
 
 
+def validate_archer_replacement(setting: dict[str, Any]) -> None:
+    archer = setting.get("archer", {})
+    base = load_json("source/base/champion_info_base.champion_info_sheet")
+    check(set(setting) == set(base), "native replacement sheet must preserve every required base champion key")
+    check(
+        all(setting.get(key) == value for key, value in base.items() if key != "archer"),
+        "native replacement sheet changed a base champion other than Archer/002",
+    )
+    check(not (MOD_ROOT / "champion/lol_lucian.data_champion").exists(), "unregistered lol_lucian data file must be removed")
+    check(archer.get("category") == "Range", "Archer replacement category must remain Range")
+    check(set(archer.get("tags", [])) == {"AD", "Range"}, "Archer replacement tags must be AD/Range")
+    check(
+        archer.get("stat")
+        == {
+            "attack": 100,
+            "magic_power": 0,
+            "hp": 900,
+            "defence": 20,
+            "magic_resistance": 15,
+            "move_speed": 900,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Archer replacement base stats do not match Lucian v0.2",
+    )
+    check(
+        archer.get("growth")
+        == {
+            "attack": 13,
+            "magic_power": 0,
+            "hp": 90,
+            "defence": 6,
+            "magic_resistance": 3,
+            "move_speed": 9,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Archer replacement growth stats do not match Lucian v0.2",
+    )
+    attack = archer.get("attack", {})
+    check(
+        (attack.get("range"), attack.get("speed"), attack.get("cooltime"), attack.get("duration"), attack.get("start_timing"))
+        == (62000, 6500, 60, 24, 10),
+        "native Lucian attack values mismatch",
+    )
+    e = archer.get("skill", {})
+    check(
+        (
+            e.get("attack"),
+            e.get("attack_ratio"),
+            e.get("move_range"),
+            e.get("speed"),
+            e.get("cooltime"),
+            e.get("duration"),
+            e.get("start_timing"),
+        )
+        == (0, 45, 30000, 3000, 420, 18, 4),
+        "native Lucian E/Lightslinger approximation mismatch",
+    )
+    q = archer.get("skill2", {})
+    check(
+        (
+            q.get("attack"),
+            q.get("attack_ratio"),
+            q.get("range"),
+            q.get("projectile_speed"),
+            q.get("move_range"),
+            q.get("cooltime"),
+            q.get("duration"),
+            q.get("start_timing"),
+        )
+        == (55, 85, 65000, 15000, 0, 300, 24, 10),
+        "native Lucian Q approximation mismatch",
+    )
+    ult = archer.get("ult", {})
+    check(
+        (
+            ult.get("attack"),
+            ult.get("attack_ratio"),
+            ult.get("range"),
+            ult.get("attack_range"),
+            ult.get("interval"),
+            ult.get("total_shots"),
+            ult.get("speed"),
+            ult.get("cooltime"),
+            ult.get("duration"),
+            ult.get("start_timing"),
+            ult.get("cancelable"),
+        )
+        == (8, 18, 120000, 4500, 8, 15, 9000, 3600, 150, 12, True),
+        "native Lucian R must be an interruptible 15-shot Archer channel",
+    )
+
+
+def validate_native_archer_animation() -> None:
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/archer#sheet.png"
+    anim = load_json("aseprite_resources/champions/archer#anim.fanim")
+    sheet = Image.open(sheet_path).convert("RGBA")
+    expected = {
+        "ult_old": [0.080000006] * 7 + [0.1] * 4,
+        "skill": [0.080000006] * 6,
+        "ult_end": [0.080000006] * 3,
+        "ult_projectile": [0.080000006],
+        "hit": [0.1],
+        "run": [0.080000006] * 8,
+        "ult_loop": [0.030000001] * 4,
+        "skill2": [0.080000006] * 7,
+        "ult_pre": [0.080000006] * 3,
+        "dead": [0.1] * 4 + [0.15] * 5,
+        "old_ult_buff_effect": [0.1] * 4,
+        "skill_attack": [0.080000006] * 3,
+        "idle": [0.18, 0.14, 0.14, 0.14],
+        "skill_dash": [0.080000006] * 3,
+        "attack": [0.060000002] * 6,
+        "old_ult_pre": [0.080000006] * 7,
+    }
+    check(set(anim.get("anims", {})) == set(expected), "Lucian must preserve every native Archer animation key")
+    total_frames = sum(len(durations) for durations in expected.values())
+    check(sheet.size == (total_frames * 64, 64), f"native Archer sheet must be {total_frames * 64}x64, got {sheet.size}")
+    for tag, durations in expected.items():
+        frames = anim.get("anims", {}).get(tag, {}).get("frames", [])
+        check(len(frames) == len(durations), f"native Archer tag {tag} frame count changed")
+        for frame, duration in zip(frames, durations):
+            check(abs(float(frame.get("duration", -1)) - duration) < 1e-8, f"native Archer tag {tag} duration changed")
+            data = frame.get("data", {})
+            check(data.get("w") == 64 and data.get("h") == 64, f"native Archer tag {tag} must use 64x64 safe frames")
+            check(data.get("x", -1) + 64 <= sheet.width, f"native Archer tag {tag} frame is out of bounds")
+
+    run_frames = []
+    for frame in anim.get("anims", {}).get("run", {}).get("frames", []):
+        data = frame["data"]
+        run_frames.append(sheet.crop((data["x"], 0, data["x"] + 64, 64)))
+    hashes = [hashlib.sha256(frame.tobytes()).hexdigest() for frame in run_frames]
+    check(len(set(hashes)) == 8, "native Archer run contract must contain eight unique Lucian phases")
+    lower_sets = []
+    for frame in run_frames:
+        alpha = frame.getchannel("A")
+        lower_sets.append({(x, y) for y in range(31, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128})
+    differences = []
+    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
+        union = current | following
+        differences.append(len(current ^ following) / len(union) if union else 0.0)
+    if differences:
+        check(min(differences) >= 0.06, "native Archer run phases are too similar to show crossing steps")
+
+    idle = anim.get("anims", {}).get("idle", {}).get("frames", [])[0]["data"]
+    idle_frame = sheet.crop((idle["x"], 0, idle["x"] + 64, 64))
+    bbox = idle_frame.getchannel("A").getbbox()
+    check(bbox is not None and 34 <= bbox[3] - bbox[1] <= 37, "native Archer idle is outside the 34-37px Lucian scale")
+    if bbox:
+        check(bbox[3] <= 46 and bbox[0] >= 2 and bbox[2] <= 62, "native Archer idle violates the safe frame/baseline")
+
+
+def validate_archer_skill_icon_atlas() -> None:
+    atlas = Image.open(MOD_ROOT / "aseprite_resources/UI_aseprite/skill_icon#sheet.png").convert("RGBA")
+    check(atlas.size == (4096, 49), f"patched native skill icon atlas must remain 4096x49, got {atlas.size}")
+    icon_paths = {
+        "archer_0": "icons/lucian_skill2.png",
+        "archer_1": "icons/lucian_skill.png",
+        "archer_2": "icons/lucian_ult.png",
+        "archer_3": "icons/lucian_skill.png",
+        "archer_4": "icons/lucian_ult.png",
+    }
+    boxes = {
+        "archer_0": (25, 0, 49, 24),
+        "archer_1": (1625, 0, 1649, 24),
+        "archer_2": (3225, 0, 3249, 24),
+        "archer_3": (750, 24, 774, 48),
+        "archer_4": (2350, 24, 2374, 48),
+    }
+    for key, relative in icon_paths.items():
+        expected = Image.open(MOD_ROOT / relative).convert("RGBA").resize((24, 24), Image.Resampling.LANCZOS)
+        actual = atlas.crop(boxes[key])
+        check(actual.tobytes() == expected.tobytes(), f"native skill icon cell {key} does not contain generated Lucian art")
+
+
 def validate_animation(sheet_relative: str, anim_relative: str, required: dict[str, int]) -> None:
     sheet_path = MOD_ROOT / sheet_relative
     anim = load_json(anim_relative)
@@ -456,7 +634,7 @@ def validate_compact_view_and_w_layout() -> None:
         check(42 <= center_y <= 45, f"W frame {index} is not centered on Shen's y=44 foot point")
         check(bbox[0] >= 2 and bbox[2] <= 110 and bbox[1] >= 2 and bbox[3] <= 62, f"W frame {index} touches an atlas edge")
 
-    lucian = style.get("entries", {}).get("lol_lucian", {})
+    lucian = style.get("entries", {}).get("archer", {})
     check(lucian.get("face") == {"x": 0, "y": -34}, "Lucian compact portrait offset must be x=0/y=-34")
     check(lucian.get("center") == {"x": 0, "y": -12}, "Lucian battle/card center offset must be x=0/y=-12")
 
@@ -577,6 +755,68 @@ def validate_lucian_audio(champion: dict[str, Any], override: dict[str, Any]) ->
         path = MOD_ROOT / wav.get("path", "missing")
         check(path.is_file(), f"Lucian audio QA manifest references missing WAV: {wav.get('path')}")
         if path.is_file():
+                check(sha256(path) == wav.get("sha256"), f"Lucian audio QA hash mismatch: {wav.get('path')}")
+
+
+def validate_native_lucian_localization() -> None:
+    text = load_json("text/champion.i18n")
+    for locale in ("en", "zh-hans", "zh-hant"):
+        descriptions = text.get(locale, {}).get("description", {})
+        for champion_id in ("lol_shen", "archer"):
+            description = descriptions.get(champion_id, {})
+            check(
+                set(description) == {"name", "attack", "skill", "skill2", "ult"},
+                f"{locale} {champion_id} localization is incomplete",
+            )
+    check(
+        text.get("zh-hans", {}).get("description", {}).get("archer", {}).get("name") == "卢锡安",
+        "zh-hans native Archer name must be 卢锡安",
+    )
+    check(
+        text.get("zh-hant", {}).get("description", {}).get("archer", {}).get("name") == "路西恩",
+        "zh-hant native Archer name must be 路西恩",
+    )
+    lucian_en = text.get("en", {}).get("description", {}).get("archer", {})
+    check("15 shots" in lucian_en.get("ult", ""), "English Lucian R text must disclose 15 shots")
+    check("45%" in lucian_en.get("skill", ""), "English Lucian E text must disclose the 45% follow-up shot")
+
+
+def validate_native_lucian_audio(override: dict[str, Any]) -> None:
+    native_events = {
+        "archer_attack": "lucian_attack_cast",
+        "archer_skill_attack": "lucian_passive_cast",
+        "archer_skill": "lucian_e_cast",
+        "archer_skill2": "lucian_q_cast",
+        "archer_ult_pre": "lucian_r_cast",
+        "archer_ult_loop": "lucian_r_channel",
+    }
+    for native_name, lucian_name in native_events.items():
+        source_key = f"asset/base/sound/sfx/{native_name}"
+        event_override = override.get(source_key, {})
+        check(event_override.get("type") == "override", f"missing native Lucian event remap: {source_key}")
+        expected = f"asset/lol_mod/sound/sfx/{lucian_name}"
+        check(event_override.get("remapping") == expected, f"wrong native Lucian event target: {source_key}")
+        event_path = MOD_ROOT / f"sound/sfx/{lucian_name}.sound_info"
+        check(event_path.is_file(), f"missing native Lucian sound_info: {event_path.name}")
+        if not event_path.is_file():
+            continue
+        plays = load_json(f"sound/sfx/{lucian_name}.sound_info").get("plays", [])
+        check(bool(plays), f"{lucian_name}.sound_info must contain plays")
+        for play in plays:
+            clip = play.get("clip", "")
+            clip_override = override.get(f"asset/base/sound/sfx/{clip}", {})
+            check(clip_override.get("type") == "override", f"missing native Lucian clip remap: {clip}")
+            clip_relative = clip_override.get("remapping", "").removeprefix("asset/lol_mod/") + ".wav"
+            clip_path = MOD_ROOT / clip_relative
+            check(clip_path.is_file() and clip_path.stat().st_size > 1000, f"missing/empty clip: {clip_relative}")
+
+    audio_manifest = load_json("qa/lucian_official_audio_sources.json")
+    check(len(audio_manifest.get("outputs", [])) == 8, "Lucian official audio QA manifest must cover 8 clips")
+    for output in audio_manifest.get("outputs", []):
+        wav = output.get("wav", {})
+        path = MOD_ROOT / wav.get("path", "missing")
+        check(path.is_file(), f"Lucian audio QA manifest references missing WAV: {wav.get('path')}")
+        if path.is_file():
             check(sha256(path) == wav.get("sha256"), f"Lucian audio QA hash mismatch: {wav.get('path')}")
 
 
@@ -620,12 +860,12 @@ def validate_manifest() -> None:
 
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
-    lucian = load_json("champion/lol_lucian.data_champion")
+    archer_setting = load_json("setting/champion_info.champion_info_sheet")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.2.0", "lol_mod version must be 0.2.0")
+    check(mod_info.get("version") == "0.2.1", "lol_mod version must be 0.2.1")
     validate_data_contract(champion)
-    validate_lucian_data_contract(lucian)
+    validate_archer_replacement(archer_setting)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",
@@ -634,32 +874,16 @@ def main() -> int:
     validate_animation("aseprite_resources/effects/shen_q#sheet.png", "aseprite_resources/effects/shen_q#anim.fanim", {"projectile": 8})
     validate_animation("aseprite_resources/effects/shen_w#sheet.png", "aseprite_resources/effects/shen_w#anim.fanim", {"field": 6})
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
-    validate_animation(
-        "aseprite_resources/champions/lucian#sheet.png",
-        "aseprite_resources/champions/lucian#anim.fanim",
-        {
-            "idle": 7,
-            "run": 9,
-            "attack": 3,
-            "attack_right": 4,
-            "attack_left": 4,
-            "attack_double": 6,
-            "skill": 5,
-            "skill2": 5,
-            "ult": 17,
-            "hit": 1,
-            "dead": 1,
-        },
-    )
+    validate_native_archer_animation()
+    validate_archer_skill_icon_atlas()
     validate_animation("aseprite_resources/effects/lucian_q#sheet.png", "aseprite_resources/effects/lucian_q#anim.fanim", {"projectile": 8})
     validate_animation("aseprite_resources/effects/lucian_e#sheet.png", "aseprite_resources/effects/lucian_e#anim.fanim", {"dash": 8})
     validate_animation("aseprite_resources/effects/lucian_r#sheet.png", "aseprite_resources/effects/lucian_r#anim.fanim", {"projectile": 8})
     validate_actor_and_icons(champion)
-    validate_lucian_actor_and_icons(lucian)
     validate_compact_view_and_w_layout()
-    validate_localization()
+    validate_native_lucian_localization()
     validate_audio(champion, override)
-    validate_lucian_audio(lucian, override)
+    validate_native_lucian_audio(override)
     validate_imagegen_sources()
     validate_manifest()
     if ERRORS:

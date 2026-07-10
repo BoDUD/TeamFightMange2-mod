@@ -24,19 +24,22 @@ def test_static_validator_passes() -> None:
     assert validator.main() == 0
 
 
-def test_data_champion_is_additive_and_localized() -> None:
+def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     shen = json.loads((MOD / "champion" / "lol_shen.data_champion").read_text(encoding="utf-8"))
-    lucian = json.loads((MOD / "champion" / "lol_lucian.data_champion").read_text(encoding="utf-8"))
+    setting = json.loads((MOD / "setting" / "champion_info.champion_info_sheet").read_text(encoding="utf-8"))
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
     text = json.loads((MOD / "text" / "champion.i18n").read_text(encoding="utf-8"))
     assert shen["id"] == "lol_shen"
-    assert lucian["id"] == "lol_lucian"
+    base_setting = json.loads((MOD / "source" / "base" / "champion_info_base.champion_info_sheet").read_text(encoding="utf-8"))
+    assert set(setting) == set(base_setting)
+    assert all(setting[key] == value for key, value in base_setting.items() if key != "archer")
+    assert setting["archer"]["attack"]["name"] == "archer_attack"
+    assert setting["archer"]["ult"]["name"] == "archer_ult"
+    assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.2.0"
-    assert text["zh-hans"]["description"]["lol_shen"]["name"] == "慎"
-    assert text["zh-hant"]["description"]["lol_shen"]["name"] == "慎"
-    assert text["zh-hans"]["description"]["lol_lucian"]["name"] == "卢锡安"
-    assert text["zh-hant"]["description"]["lol_lucian"]["name"] == "路西恩"
+    assert mod_info["version"] == "0.2.1"
+    assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
+    assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
 
 def test_generated_sources_and_official_audio_are_auditable() -> None:

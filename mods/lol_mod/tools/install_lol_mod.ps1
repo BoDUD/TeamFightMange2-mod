@@ -27,6 +27,7 @@ $runtimeEntries = @(
     "champion",
     "icons",
     "aseprite_resources",
+    "setting",
     "style",
     "text",
     "sound"
