@@ -1,0 +1,535 @@
+{
+  "schema_version": 1,
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-11",
+  "audited_on": "2026-07-11",
+  "prompt_record": "source/imagegen/PROMPTS.md",
+  "generated_images_batch": "019f4bd8-30d3-7b60-98fa-58403cf263c7",
+  "background_removal": "remove_chroma_key.py with border auto-key, soft matte, thresholds 12/220 and despill; icons are packed directly from opaque generated sources",
+  "sources": [
+    {
+      "role": "actor_model",
+      "path": "source/imagegen/sivir_actor_contact.png",
+      "sha256": "0a8cc8e7ed7111da509d057dcd53f59e0a7c8dcd9990667ee01fa54afcee30c7",
+      "size_bytes": 1653301,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "run_cycle_nine_phase_source",
+      "path": "source/imagegen/sivir_run_contact.png",
+      "sha256": "0bc930203a4a5cd34a3a942eb64da37897c0f48825b7d2cac8be70113d6a6e25",
+      "size_bytes": 1466390,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/sivir_q_icon_source.png",
+      "sha256": "88ba63ae55c444c8e144e481facbb313cf2df9d55327d72406f7e4aa9a9de776",
+      "size_bytes": 1560392,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "e_icon",
+      "path": "source/imagegen/sivir_e_icon_source.png",
+      "sha256": "5f83e679f7f28bfd14d0f283cf88f367bf9ecb7602be0a9f92bf1f025eed0bdc",
+      "size_bytes": 1803335,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/sivir_r_icon_source.png",
+      "sha256": "dca2af9b82da33869ee66e5c3c7e5e7a2fea6e56f716d8531df041862478b748",
+      "size_bytes": 1917050,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "basic_attack_vfx",
+      "path": "source/imagegen/sivir_attack_vfx_contact.png",
+      "sha256": "7359c1e43e9f92ae2e0c153c2e8a27fc8d6ecbad5dd7615872d009ad0ac96835",
+      "size_bytes": 1119083,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "q_out_return_vfx",
+      "path": "source/imagegen/sivir_q_vfx_contact.png",
+      "sha256": "9cd1f8acc28aaa467c084bf6612f014fd133d72fac5a0b04c13d398415c9cc6e",
+      "size_bytes": 1522614,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "e_spell_shield_vfx",
+      "path": "source/imagegen/sivir_e_vfx_contact.png",
+      "sha256": "86f6803cff8740face59205555cfc571699dedc442173e5d04eea0eb84f7634a",
+      "size_bytes": 1367733,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "r_cast_vfx",
+      "path": "source/imagegen/sivir_r_cast_vfx_contact.png",
+      "sha256": "17d4a2d37d86672324b9e4e3ed2e91924ed2b7a494b783092e4dc5525999a967",
+      "size_bytes": 1335259,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "r_ally_buff_vfx",
+      "path": "source/imagegen/sivir_hunt_buff_vfx_contact.png",
+      "sha256": "1e86fc3eb50cb0958f184a618a8b2381a10c40cbf5eeb2e4b3c275ea8b99b466",
+      "size_bytes": 1053041,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "present": false,
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    }
+  ],
+  "processed": [
+    {
+      "role": "actor_model_alpha",
+      "path": "source/processed/sivir_actor_contact_alpha.png",
+      "sha256": "6df77fe7cd9922cd15438d467b4a43c5624980d4464736e43b8b0eb4a7b30103",
+      "size_bytes": 957646,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1247445,
+        "partial_pixels": 36715,
+        "opaque_pixels": 288356,
+        "nonzero_bbox": [
+          41,
+          48,
+          1239,
+          1150
+        ]
+      }
+    },
+    {
+      "role": "run_cycle_alpha",
+      "path": "source/processed/sivir_run_contact_alpha.png",
+      "sha256": "faebc9ea9e56a260429d3a68ddae77071dd1dabef6cfad6737f9fa8b342eb29f",
+      "size_bytes": 724663,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1317671,
+        "partial_pixels": 22239,
+        "opaque_pixels": 232606,
+        "nonzero_bbox": [
+          90,
+          112,
+          1137,
+          1101
+        ]
+      }
+    },
+    {
+      "role": "basic_attack_vfx_alpha",
+      "path": "source/processed/sivir_attack_vfx_contact_alpha.png",
+      "sha256": "7391b1540a6ef865943547ddeeedc447b0e1394591c9ada49eb9b883eb6bd254",
+      "size_bytes": 259712,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1484054,
+        "partial_pixels": 8871,
+        "opaque_pixels": 80613,
+        "nonzero_bbox": [
+          86,
+          168,
+          1626,
+          737
+        ]
+      }
+    },
+    {
+      "role": "q_out_return_vfx_alpha",
+      "path": "source/processed/sivir_q_vfx_contact_alpha.png",
+      "sha256": "5e4c1382e78d41a2158fea7da0e5ede720c0f6a66f726bbd1691780cf332ea44",
+      "size_bytes": 918928,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1235292,
+        "partial_pixels": 81595,
+        "opaque_pixels": 256651,
+        "nonzero_bbox": [
+          24,
+          127,
+          1749,
+          763
+        ]
+      }
+    },
+    {
+      "role": "e_spell_shield_vfx_alpha",
+      "path": "source/processed/sivir_e_vfx_contact_alpha.png",
+      "sha256": "3f34e0cf582cc6532f9d4b09137a6bbba6ce0923fd0a45771b2ff02e5e291f04",
+      "size_bytes": 526597,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1442078,
+        "partial_pixels": 69372,
+        "opaque_pixels": 62088,
+        "nonzero_bbox": [
+          69,
+          93,
+          1687,
+          800
+        ]
+      }
+    },
+    {
+      "role": "r_cast_vfx_alpha",
+      "path": "source/processed/sivir_r_cast_vfx_contact_alpha.png",
+      "sha256": "cc83f916e28d9d5124b26f6526f789f299d1ae647535d1bf2b516479a7f08ef1",
+      "size_bytes": 634766,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1369630,
+        "partial_pixels": 138944,
+        "opaque_pixels": 64964,
+        "nonzero_bbox": [
+          0,
+          187,
+          1774,
+          866
+        ]
+      }
+    },
+    {
+      "role": "r_ally_buff_vfx_alpha",
+      "path": "source/processed/sivir_hunt_buff_vfx_contact_alpha.png",
+      "sha256": "5a7a9ef12a7b494fe3875dec87be578f7b04db1c1e467c736e95ba196d630245",
+      "size_bytes": 227757,
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "present": true,
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1513037,
+        "partial_pixels": 43363,
+        "opaque_pixels": 17138,
+        "nonzero_bbox": [
+          51,
+          278,
+          1692,
+          669
+        ]
+      }
+    }
+  ],
+  "runtime_files": [
+    {
+      "path": "aseprite_resources/champions/sivir#sheet.png",
+      "size_bytes": 508071,
+      "sha256": "11655d9b4827defb72af495924804fca2e51651679efe19d70b4cbf6e8e4c7bf"
+    },
+    {
+      "path": "aseprite_resources/champions/sivir#anim.fanim",
+      "size_bytes": 9858,
+      "sha256": "74875b39afa10b6c5143327b0c53a9aa05b72457cbe62e51d6ff049ad11c3540"
+    },
+    {
+      "path": "icons/sivir_skill.png",
+      "size_bytes": 16516,
+      "sha256": "dab16f83b67ce9876d96cfc5b881f4f401494bf0d97e1486c1fc35c1015fc30d"
+    },
+    {
+      "path": "icons/sivir_skill2.png",
+      "size_bytes": 16516,
+      "sha256": "f54a55e43c0be7bc3f6af1d9292bdf684bd4990eb7056eac4a8a456e0bceb025"
+    },
+    {
+      "path": "icons/sivir_ult.png",
+      "size_bytes": 16516,
+      "sha256": "106b51aadae466c81370ee59ab640efd3d266cc7419f936458655d4c70e4cec7"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_attack#sheet.png",
+      "size_bytes": 49252,
+      "sha256": "605067b119a1d49bf9ae66e76cacd8b29ee8aaefe689bbfebcb247ccb683afa1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_attack#anim.fanim",
+      "size_bytes": 1425,
+      "sha256": "3dda3549398b816a694ca063745d3613b6f8e9b6bcf1ed89346121223f398017"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#sheet.png",
+      "size_bytes": 98425,
+      "sha256": "c3e860fbd987dcfede77fdd0d9c8f92fed00b56df4577f135ed0284f163c043a"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#anim.fanim",
+      "size_bytes": 1426,
+      "sha256": "2a0e39f13344ed81ef02e2a68ee9ba7e6fd9d5a7831e3584dcab99307d1b8a69"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#sheet.png",
+      "size_bytes": 131214,
+      "sha256": "e9b1903e389c874a9ae66771348f691fa4412e3b36209e1bf862536bdf4c97d1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#anim.fanim",
+      "size_bytes": 1466,
+      "sha256": "d10c778f17589a046280a7d9173de87d1a249af46b357f89a8a7042c6743c3af"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#sheet.png",
+      "size_bytes": 262296,
+      "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#anim.fanim",
+      "size_bytes": 1383,
+      "sha256": "dc19a64b6567319688d11a40b23984aabd4ba2d95661e375932ff3f2286871eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#sheet.png",
+      "size_bytes": 65641,
+      "sha256": "69e8ccc06a4c0524f39669a0b06210589e0cfc4199d6e1e523951b9f3ce1c8eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#anim.fanim",
+      "size_bytes": 1466,
+      "sha256": "d3c9d6501f2a865908d153bbd623e7e2fd3a629a3928c44f0d032b48f34a6147"
+    },
+    {
+      "path": "champion/boomerang_hunter.data_champion",
+      "size_bytes": 9854,
+      "sha256": "580e60f07c9a00aff0a9ea0918061ddc0a42d5d7e9eb114436e3e8e10b125012"
+    },
+    {
+      "path": "qa/sivir_actor_contact_final.png",
+      "size_bytes": 2360120,
+      "sha256": "a0affab805021a02cbb773e5ee7913ff3a7ff0973a744ea1dd17198608828df0"
+    },
+    {
+      "path": "qa/sivir_skill_icons_final.png",
+      "size_bytes": 479543,
+      "sha256": "feebec0475f1bd01c0ac502b4877ebce31146e1dccbf6d9940a4c6870b704803"
+    },
+    {
+      "path": "qa/sivir_vfx_contact_final.png",
+      "size_bytes": 2458453,
+      "sha256": "e0963c44c5d552997a96a9d36608f3dcbe6e28afee39a2cdc23cbe1bd9306a0b"
+    }
+  ]
+}

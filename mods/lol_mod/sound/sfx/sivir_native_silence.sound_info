@@ -1,0 +1,9 @@
+{
+  "plays": [
+    {
+      "delay": 0.0,
+      "clip": "sivir_native_silence_clip",
+      "volume": 1.0
+    }
+  ]
+}

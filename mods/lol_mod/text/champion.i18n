@@ -28,6 +28,13 @@
         "skill": "Q — Blood Frenzy: While an enemy champion is within 450 range, breaks the restraint for 3 seconds, gaining 60% Attack Speed, 18% Move Speed and 25 Vamp, and prepares one empowered bite. Cooldown: 6 seconds. This data-only version does not force a target or provide a manual second cast.",
         "skill2": "E — Chilling Scream: Performs a fixed 0.5-second charge, taking 35% less damage during the charge and healing 50 + 15% Attack once. The forward 500-range scream then deals 75 + 100% Attack physical damage, applies Crimson Curse, knocks enemies back and briefly knocks them airborne. Cooldown: 8 seconds; charge duration and wall impact cannot be varied.",
         "ult": "R — Certain Death: Selects an enemy champion within 800 range, warns them for 0.3 seconds, then rapidly chases them. On arrival Briar deals 100 + 120% Attack physical damage, applies Crimson Curse, fears nearby enemy champions for 0.5 seconds, and gains 4 seconds of enhanced frenzy with 50% Attack Speed, 25% Move Speed, 30 Vamp, 20 Defence, 20 Magic Resistance and 20 Toughness. Cooldown: 60 seconds. This first version is a targeted chase rather than a missable global projectile."
+      },
+      "boomerang_hunter": {
+        "name": "Sivir",
+        "attack": "Fleet of Foot: Throws a small crossblade for 100% Attack physical damage. Hitting any enemy grants 12% Move Speed for 1.5 seconds; repeated hits refresh this non-stacking buff.",
+        "skill": "Q — Boomerang Blade: Throws a piercing crossblade 750 range. The outbound and returning passes each deal 30 + 55% Attack physical damage to non-tower enemies, so one target can be hit at most once per pass. Cooldown: 6 seconds; there is no pass-through damage falloff.",
+        "skill2": "E — Spell Shield: Creates a 1.5-second window that reduces incoming skill damage by 100%, immediately heals Sivir for 60 + 15% Attack, and grants 20% Move Speed for 2 seconds. Cooldown: 12 seconds. This data version is a timed damage guard: it is not consumed by the first spell and cannot block crowd control or non-damage spell effects.",
+        "ult": "R — On The Hunt: When an enemy champion is within 850 range, grants allied champions within 1000 range 25% Move Speed for 5 seconds. Cooldown: 50 seconds. It deals no damage and applies only one speed buff to Sivir."
       }
     }
   },
@@ -60,6 +67,13 @@
         "skill": "Q—血莽：450距离内存在敌方英雄时挣脱拘束，持续3秒；获得60%攻击速度、18%移动速度和25点全能吸血，并准备一次强化噬击。冷却6秒。数据版本不会强制锁定目标，也没有可手动施放的二段技能。",
         "skill2": "E—惊吼：固定蓄力0.5秒，蓄力期间受到的伤害降低35%，并且每次施放只回复一次50 + 15%攻击力的生命。随后向前方500距离释放冲击，造成75 + 100%攻击力的物理伤害、施加血色诅咒、击退并短暂击飞敌人。冷却8秒；无法改变蓄力时长，也没有撞墙奖励。",
         "ult": "R—必死无疑：选择800距离内一名敌方英雄，预警0.3秒后高速追击。到达时造成100 + 120%攻击力的物理伤害并施加血色诅咒，使附近敌方英雄恐惧0.5秒；随后获得4秒强化狂暴：50%攻击速度、25%移动速度、30点全能吸血、20点护甲、20点魔抗和20点韧性。冷却60秒。首版是锁定追击，不是可以放空的全图直线弹体。"
+      },
+      "boomerang_hunter": {
+        "name": "希维尔",
+        "attack": "敏锐疾行：投出小型十字刃，造成100%攻击力的物理伤害。命中任意敌人后获得12%移动速度，持续1.5秒；重复命中只刷新持续时间，不叠加。",
+        "skill": "Q—回旋之刃：向前投出可穿透敌人的十字刃，射程750。飞出和返回各对非防御塔敌人造成30 + 55%攻击力的物理伤害，同一目标每段最多命中一次。冷却6秒；穿透伤害不衰减。",
+        "skill2": "E—法术护盾：展开1.5秒防护窗口，受到的技能伤害降低100%；施放时立即回复60 + 15%攻击力的生命，并获得20%移动速度，持续2秒。冷却12秒。数据版本是限时技能伤害防护，不会在挡住第一次技能后消耗，也不能阻挡控制或无伤害技能效果。",
+        "ult": "R—狩猎：850距离内存在敌方英雄时，使1000范围内友方英雄获得25%移动速度，持续5秒。冷却50秒；不造成伤害，希维尔本人只获得一份加速。"
       }
     }
   },
@@ -92,6 +106,13 @@
         "skill": "Q—血莽：450距離內存在敵方英雄時掙脫拘束，持續3秒；獲得60%攻擊速度、18%移動速度和25點全能吸血，並準備一次強化噬擊。冷卻6秒。資料版本不會強制鎖定目標，也沒有可手動施放的二段技能。",
         "skill2": "E—驚吼：固定蓄力0.5秒，蓄力期間受到的傷害降低35%，並且每次施放只回復一次50 + 15%攻擊力的生命。隨後向前方500距離釋放衝擊，造成75 + 100%攻擊力的物理傷害、施加血色詛咒、擊退並短暫擊飛敵人。冷卻8秒；無法改變蓄力時間，也沒有撞牆獎勵。",
         "ult": "R—必死無疑：選擇800距離內一名敵方英雄，預警0.3秒後高速追擊。到達時造成100 + 120%攻擊力的物理傷害並施加血色詛咒，使附近敵方英雄恐懼0.5秒；隨後獲得4秒強化狂暴：50%攻擊速度、25%移動速度、30點全能吸血、20點護甲、20點魔抗和20點韌性。冷卻60秒。首版是鎖定追擊，不是可以放空的全圖直線彈體。"
+      },
+      "boomerang_hunter": {
+        "name": "希維爾",
+        "attack": "敏銳疾行：投出小型十字刃，造成100%攻擊力的物理傷害。命中任意敵人後獲得12%移動速度，持續1.5秒；重複命中只刷新持續時間，不疊加。",
+        "skill": "Q—迴旋之刃：向前投出可穿透敵人的十字刃，射程750。飛出和返回各對非防禦塔敵人造成30 + 55%攻擊力的物理傷害，同一目標每段最多命中一次。冷卻6秒；穿透傷害不衰減。",
+        "skill2": "E—法術護盾：展開1.5秒防護窗口，受到的技能傷害降低100%；施放時立即回復60 + 15%攻擊力的生命，並獲得20%移動速度，持續2秒。冷卻12秒。資料版本是限時技能傷害防護，不會在擋住第一次技能後消耗，也不能阻擋控制或無傷害技能效果。",
+        "ult": "R—狩獵：850距離內存在敵方英雄時，使1000範圍內友方英雄獲得25%移動速度，持續5秒。冷卻50秒；不造成傷害，希維爾本人只獲得一份加速。"
       }
     }
   },
@@ -110,6 +131,13 @@
         "skill": "Q—血の狂乱：450以内に敵チャンピオンがいる場合、3秒間拘束を解き、攻撃速度60%、移動速度18%、ヴァンプ25を得て、強化された噛みつきを1回準備する。クールダウン6秒。データ版では対象を強制せず、手動の再発動もない。",
         "skill2": "E—身震いする叫び：0.5秒固定で溜め、その間受けるダメージを35%軽減し、1回だけ50 + 攻撃力15%回復する。前方500へ75 + 攻撃力100%の物理ダメージを与え、真紅の呪い、ノックバック、短いノックアップを付与する。クールダウン8秒。溜め時間変更と壁衝突ボーナスはない。",
         "ult": "R—死の確定：800以内の敵チャンピオンを選び、0.3秒の警告後に高速追跡する。到達時に100 + 攻撃力120%の物理ダメージと真紅の呪いを与え、周囲の敵チャンピオンを0.5秒恐怖させ、4秒間の強化狂乱を得る。クールダウン60秒。初版は外れる直線弾ではなく対象指定の追跡である。"
+      },
+      "boomerang_hunter": {
+        "name": "シヴィア",
+        "attack": "フリート・オブ・フット：小型クロスブレードで攻撃力100%の物理ダメージを与える。敵に命中すると1.5秒間移動速度が12%上がり、再命中は重複せず時間だけ更新する。",
+        "skill": "Q—ブーメランブレード：射程750の貫通する刃を投げる。往路と復路はそれぞれ30 + 攻撃力55%の物理ダメージを与え、同じ対象には各区間1回まで命中する。クールダウン6秒。",
+        "skill2": "E—スペルシールド：1.5秒間スキルダメージを100%軽減し、発動時に60 + 攻撃力15%回復して2秒間移動速度が20%上がる。クールダウン12秒。データ版は時間制の軽減で、最初のスキルで消費されず、妨害や非ダメージ効果は防げない。",
+        "ult": "R—戦姫の号令：敵チャンピオンが850以内にいる時、1000以内の味方チャンピオンの移動速度を5秒間25%上げる。クールダウン50秒。ダメージはなく、シヴィア自身への強化は1つだけ。"
       }
     }
   },
@@ -128,6 +156,13 @@
         "skill": "Q—핏빛 광분: 450 안에 적 챔피언이 있으면 3초 동안 구속을 깨고 공격 속도 60%, 이동 속도 18%, 모든 피해 흡혈 25를 얻으며 강화된 물어뜯기 1회를 준비합니다. 재사용 대기시간 6초. 데이터 버전은 대상을 강제하지 않고 수동 재사용도 없습니다.",
         "skill2": "E—오싹한 비명: 0.5초 고정 충전 중 받는 피해가 35% 감소하고 한 번만 50 + 공격력의 15%만큼 회복합니다. 전방 500에 75 + 공격력의 100%만큼 물리 피해를 입히고 핏빛 저주, 밀쳐내기, 짧은 공중 띄우기를 적용합니다. 재사용 대기시간 8초. 충전 시간 변경과 벽 충돌 보너스는 없습니다.",
         "ult": "R—불가항력적 죽음: 800 안의 적 챔피언을 선택해 0.3초 경고 후 빠르게 추격합니다. 도착 시 100 + 공격력의 120%만큼 물리 피해와 핏빛 저주를 적용하고 주변 적 챔피언을 0.5초 공포에 빠뜨린 뒤 4초 강화 광분을 얻습니다. 재사용 대기시간 60초. 첫 버전은 빗나갈 수 있는 전역 투사체가 아니라 대상 지정 추격입니다."
+      },
+      "boomerang_hunter": {
+        "name": "시비르",
+        "attack": "재빠른 발놀림: 작은 십자날로 공격력의 100%만큼 물리 피해를 입힙니다. 적에게 적중하면 1.5초 동안 이동 속도가 12% 증가하며, 반복 적중은 중첩되지 않고 지속시간만 갱신합니다.",
+        "skill": "Q—부메랑 검: 사거리 750의 관통 십자날을 던집니다. 나갈 때와 돌아올 때 각각 30 + 공격력의 55%만큼 물리 피해를 입히며, 같은 대상은 각 구간에서 한 번만 맞습니다. 재사용 대기시간 6초입니다.",
+        "skill2": "E—주문 방패: 1.5초 동안 받는 스킬 피해를 100% 감소시키고, 시전 즉시 60 + 공격력의 15%만큼 회복하며 2초 동안 이동 속도가 20% 증가합니다. 재사용 대기시간 12초입니다. 데이터 버전은 시간제 피해 방어로 첫 주문에 소모되지 않고 군중 제어나 비피해 효과를 막지 못합니다.",
+        "ult": "R—사냥 개시: 적 챔피언이 850 안에 있을 때 1000 안의 아군 챔피언 이동 속도를 5초 동안 25% 증가시킵니다. 재사용 대기시간 50초이며 피해를 주지 않고 시비르 자신에게는 한 번만 적용됩니다."
       }
     }
   }

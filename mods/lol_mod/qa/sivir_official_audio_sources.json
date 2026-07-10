@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "champion": "Sivir",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Sivir.wad.client (local League install)",
+    "size_bytes": 121371448,
+    "sha256": "f028e616c97a7a90fbf2036aed21cdb09746680e2087962d4702ebdf9b6e57c9"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/sivir/skins/base/sivir_base_sfx_audio.bnk",
+    "wad_offset": 64981320,
+    "size_bytes": 1323705,
+    "sha256": "9e0b69783e479cf977f3a7b2ed14341ea4f2904134c3e6a32e20ec59ce3e253d"
+  },
+  "event_mapping_audit": {
+    "event_bank_sha256": "b79803332df820dd30c34d5c55c7bf6411c1211e47cbcbe9b3ac66108a5da4e5",
+    "selection_policy": "One verified official mono media variant per Riot event. Basic attack uses MissileLaunch without a second OnCast layer to avoid clipping. Q outbound and return are separate runtime events. E deactivate and R per-ally buff events are deliberately omitted because the data runtime cannot guarantee one correct dispatch."
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "arguments": ["-i", "-W", "1"],
+    "output_contract": "mono 16-bit PCM 44100 Hz"
+  },
+  "native_audio_isolation": {
+    "reason": "The same-ID Boomerang Hunter action layer auto-dispatches native events in addition to the explicit League Sivir SFX in the replacement data tree.",
+    "strategy": "Remap every known native event and source clip to one deterministic physical-silence asset; keep the seven explicit lol_sivir events unchanged.",
+    "native_events": [
+      "boomerang_hunter_attack",
+      "boomerang_hunter_attacks",
+      "boomerang_hunter_skill",
+      "boomerang_hunter_skill2",
+      "boomerang_hunter_ult",
+      "boomerang_hunter_ult1",
+      "boomerang_hunter_ult2",
+      "boomerang_ult"
+    ],
+    "native_clips": [
+      "boomerang_attack0",
+      "boomerang_skill0",
+      "boomerang_ult0",
+      "boomerang_ult1",
+      "boomerang_ult2",
+      "boomerang_ult3",
+      "boomerang_ult4",
+      "boomerang_ult5",
+      "boomerang_ult6",
+      "boomerang_ult7",
+      "boomerang_hunter_skill_resource1",
+      "boomerang_hunter_skill_remix",
+      "boomerang_hunter_skill_resource_original",
+      "boomerang_hunter_skill2_resource",
+      "boomerang_hunter_skill2_resource1",
+      "boomerang_hunter_skill2_resource2",
+      "boomerang_hunter_ult_resource1",
+      "boomerang_hunter_ult_resource2"
+    ],
+    "silence_sound_info": "sound/sfx/sivir_native_silence.sound_info",
+    "silence_wav": {
+      "path": "sound/sfx/sivir_native_silence_clip.wav",
+      "size_bytes": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2",
+      "channels": 1,
+      "sample_rate_hz": 44100,
+      "sample_width_bytes": 2,
+      "frame_count": 2205,
+      "pcm_contract": "all-zero samples"
+    }
+  },
+  "outputs": [
+    {
+      "event_key": "sivir_attack_cast",
+      "riot_event": "Play_sfx_Sivir_SivirBasicAttack_OnMissileLaunch",
+      "riot_event_id": 1876638910,
+      "event_media_pool": [313782301, 127817854, 241769197, 126834791, 123447395, 21412024, 37501807, 29991347],
+      "media_id": 313782301,
+      "source_wem_size_bytes": 14215,
+      "source_wem_sha256": "6d9c0b0b10057da1014b60311aa1415474340d7e570015cb19886df13105f33f",
+      "duration_seconds": 1.7020861678004535,
+      "sound_info": "sound/sfx/sivir_attack_cast.sound_info",
+      "clip": "sivir_attack_cast_clip",
+      "volume": 0.9,
+      "wav": {"path": "sound/sfx/sivir_attack_cast_clip.wav", "size_bytes": 150168, "sha256": "5501e747a461dc2f9407c2da2ddb0d20b286d1e6ef69357c2448b17a7690f6f5", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 75062}
+    },
+    {
+      "event_key": "sivir_attack_hit",
+      "riot_event": "Play_sfx_Sivir_SivirBasicAttack_OnHit",
+      "riot_event_id": 4265286992,
+      "event_media_pool": [127195855, 63357982, 66488402, 208765832, 250296633, 221898617, 225601963],
+      "media_id": 127195855,
+      "source_wem_size_bytes": 10155,
+      "source_wem_sha256": "c4f39d11af887d6022487e90ad10d654457bc168b49bb57f13b18be6360497f7",
+      "duration_seconds": 1.1068027210884355,
+      "sound_info": "sound/sfx/sivir_attack_hit.sound_info",
+      "clip": "sivir_attack_hit_clip",
+      "volume": 0.9,
+      "wav": {"path": "sound/sfx/sivir_attack_hit_clip.wav", "size_bytes": 97664, "sha256": "f6f93b62872842a797edf6b8c68e81dc5c1935f80511f5e9b672f3121766f153", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 48810}
+    },
+    {
+      "event_key": "sivir_q_out",
+      "riot_event": "Play_sfx_Sivir_SivirQMissile_OnMissileLaunch",
+      "riot_event_id": 3385220941,
+      "event_media_pool": [388184696, 636809438, 45977684],
+      "media_id": 388184696,
+      "source_wem_size_bytes": 13846,
+      "source_wem_sha256": "6baa312d6459d7886d20a10ca2880c40eba44b23b90584ff02915e0032762c42",
+      "duration_seconds": 1.6514285714285715,
+      "sound_info": "sound/sfx/sivir_q_out.sound_info",
+      "clip": "sivir_q_out_clip",
+      "volume": 0.9,
+      "wav": {"path": "sound/sfx/sivir_q_out_clip.wav", "size_bytes": 145700, "sha256": "5134d38fc5323c0181407603c86553117d302e993dfc4107ecbec58478f754ca", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 72828}
+    },
+    {
+      "event_key": "sivir_q_return",
+      "riot_event": "Play_sfx_Sivir_SivirQMissileReturn_OnMissileLaunch",
+      "riot_event_id": 1646723331,
+      "event_media_pool": [758922626, 790270116, 555029523],
+      "media_id": 758922626,
+      "source_wem_size_bytes": 15764,
+      "source_wem_sha256": "6f76f766bfc67644e39cdf71f511e1d35bf369a4b191b5055623ebf3fb1d7f41",
+      "duration_seconds": 2.05578231292517,
+      "sound_info": "sound/sfx/sivir_q_return.sound_info",
+      "clip": "sivir_q_return_clip",
+      "volume": 0.9,
+      "wav": {"path": "sound/sfx/sivir_q_return_clip.wav", "size_bytes": 181364, "sha256": "90ad41739b900f039a96e44d90c2430298ad37376d3e75dbaed72739e39c9285", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 90660}
+    },
+    {
+      "event_key": "sivir_q_hit",
+      "riot_event": "Play_sfx_Sivir_SivirQ_hit",
+      "riot_event_id": 1419197874,
+      "event_media_pool": [941838837, 423248603, 700051508, 526778842, 676240343, 30310186],
+      "media_id": 941838837,
+      "source_wem_size_bytes": 5751,
+      "source_wem_sha256": "4b6f5d4fa40b8b1cbeaa9b64c613b9a85296ddeb770665abcea6cb05d480925a",
+      "duration_seconds": 0.6504081632653061,
+      "sound_info": "sound/sfx/sivir_q_hit.sound_info",
+      "clip": "sivir_q_hit_clip",
+      "volume": 0.75,
+      "wav": {"path": "sound/sfx/sivir_q_hit_clip.wav", "size_bytes": 57410, "sha256": "61cd48f889957bee680e27efbc5f407334e8ae51c3329efbc32b1a5da1f0974c", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 28683}
+    },
+    {
+      "event_key": "sivir_e_cast",
+      "riot_event": "Play_sfx_Sivir_SivirE_OnBuffActivate",
+      "riot_event_id": 4008136820,
+      "event_media_pool": [530898384, 1059050639],
+      "media_id": 530898384,
+      "source_wem_size_bytes": 35669,
+      "source_wem_sha256": "6497defa527da2ba40068571b7e2ce25f6e67cb1aa4454b2b1b7bd60d2d86d35",
+      "duration_seconds": 4.358117913832199,
+      "sound_info": "sound/sfx/sivir_e_cast.sound_info",
+      "clip": "sivir_e_cast_clip",
+      "volume": 0.9,
+      "wav": {"path": "sound/sfx/sivir_e_cast_clip.wav", "size_bytes": 384430, "sha256": "d3467e9725ac0a26596ac0afd8d82b8ec449d7543ef813d2ac259b0f8ef1dd7c", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 192193}
+    },
+    {
+      "event_key": "sivir_r_cast",
+      "riot_event": "Play_sfx_Sivir_SivirR_OnCast",
+      "riot_event_id": 546561056,
+      "event_media_pool": [790477901, 1015579061, 366106789],
+      "media_id": 790477901,
+      "source_wem_size_bytes": 26746,
+      "source_wem_sha256": "75d4e91980a603fc3fb374908f577a17020658899c43f55f3ed6e7741d464ef7",
+      "duration_seconds": 3.3731292517006803,
+      "sound_info": "sound/sfx/sivir_r_cast.sound_info",
+      "clip": "sivir_r_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/sivir_r_cast_clip.wav", "size_bytes": 297554, "sha256": "50599bc5874670fcfb09e2687b58e7d053bc30f510e87255c3521b7da5f4ba62", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 148755}
+    }
+  ]
+}

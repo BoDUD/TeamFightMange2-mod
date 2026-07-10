@@ -266,5 +266,169 @@
   "asset/base/sound/sfx/briar_r_hit_clip": {
     "remapping": "asset/lol_mod/sound/sfx/briar_r_hit_clip",
     "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_q_out": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_out",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_q_out_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_out_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_q_return": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_return",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_q_return_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_return_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_q_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_q_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_q_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_sivir_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_attack": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_attacks": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill2": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_ult": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_ult1": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_ult2": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_attack0": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_skill0": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult0": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult1": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult2": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult3": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult4": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult5": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult6": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_ult7": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill_resource1": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill_remix": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill_resource_original": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill2_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill2_resource1": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_skill2_resource2": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_ult_resource1": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/boomerang_hunter_ult_resource2": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sivir_native_silence_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
   }
 }

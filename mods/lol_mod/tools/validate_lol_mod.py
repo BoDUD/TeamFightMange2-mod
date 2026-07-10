@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for Shen, Lucian/002, Orianna/003, and Briar/004."""
+"""Static validation for Shen and same-id Lucian/002 through Sivir/005."""
 
 from __future__ import annotations
 
@@ -165,6 +165,131 @@ BRIAR_AUDIO_EVENTS: dict[str, tuple[str, int]] = {
     "lol_briar_r_hit": ("Play_sfx_Briar_BriarR_OnHit", 460152284),
 }
 
+SIVIR_NATIVE_ANIMATION: dict[str, list[float]] = {
+    "idle": [0.18, 0.14, 0.14, 0.14],
+    "big_boomerang": [0.1],
+    "boomerang": [0.1],
+    "run": [0.080000006] * 8,
+    "attack": [0.060000002] * 6,
+    "idle_no_boomerang": [0.18, 0.14, 0.14, 0.14],
+    "skill": [0.060000002] * 7,
+    "skill2": [0.060000002] * 7,
+    "ult": [0.060000002] * 6,
+    "hit": [0.1],
+    "ult_boomerang": [0.060000002],
+    "dead": [0.1] * 9,
+}
+
+SIVIR_VIEW_PROJECTILES: dict[str, tuple[str, str, int, bool]] = {
+    "lol_sivir_attack_blade": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+        "projectile",
+        2,
+        True,
+    ),
+    "lol_sivir_q_outgoing": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_q",
+        "out",
+        2,
+        True,
+    ),
+    "lol_sivir_q_return": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_q",
+        "return",
+        2,
+        True,
+    ),
+}
+
+SIVIR_VIEW_EFFECTS: dict[str, tuple[str, str, int, bool]] = {
+    "lol_sivir_attack_hit_visual": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+        "hit",
+        2,
+        True,
+    ),
+    "lol_sivir_q_hit_visual": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+        "hit",
+        2,
+        True,
+    ),
+    "lol_sivir_r_cast_visual": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_r_cast",
+        "pulse",
+        0,
+        True,
+    ),
+}
+
+SIVIR_VIEW_BUFFS: dict[str, tuple[str, str, str, str, int]] = {
+    "lol_sivir_spell_shield_window": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_e_shield",
+        "pre",
+        "loop",
+        "remove",
+        1,
+    ),
+    "lol_sivir_on_the_hunt_speed": (
+        "asset/lol_mod/aseprite_resources/effects/sivir_hunt_buff",
+        "pre",
+        "loop",
+        "remove",
+        0,
+    ),
+}
+
+SIVIR_EFFECT_ANIMATION: dict[str, tuple[tuple[int, int], dict[str, list[float]]]] = {
+    "sivir_attack": ((384, 32), {"projectile": [0.04] * 7, "hit": [0.12]}),
+    "sivir_q": ((512, 48), {"out": [0.045] * 4, "return": [0.04] * 4}),
+    "sivir_e_shield": (
+        (512, 64),
+        {"pre": [0.08, 0.10], "loop": [0.16] * 4, "remove": [0.10, 0.14]},
+    ),
+    "sivir_r_cast": (
+        (1024, 64),
+        {"pulse": [0.06, 0.07, 0.08, 0.09, 0.10, 0.10, 0.12, 0.16]},
+    ),
+    "sivir_hunt_buff": (
+        (512, 32),
+        {"pre": [0.08, 0.10], "loop": [0.14] * 4, "remove": [0.10, 0.14]},
+    ),
+}
+
+SIVIR_AUDIO_EVENTS: dict[str, tuple[str, int]] = {
+    "lol_sivir_attack_cast": ("Play_sfx_Sivir_SivirBasicAttack_OnMissileLaunch", 1876638910),
+    "lol_sivir_attack_hit": ("Play_sfx_Sivir_SivirBasicAttack_OnHit", 4265286992),
+    "lol_sivir_q_out": ("Play_sfx_Sivir_SivirQMissile_OnMissileLaunch", 3385220941),
+    "lol_sivir_q_return": ("Play_sfx_Sivir_SivirQMissileReturn_OnMissileLaunch", 1646723331),
+    "lol_sivir_q_hit": ("Play_sfx_Sivir_SivirQ_hit", 1419197874),
+    "lol_sivir_e_cast": ("Play_sfx_Sivir_SivirE_OnBuffActivate", 4008136820),
+    "lol_sivir_r_cast": ("Play_sfx_Sivir_SivirR_OnCast", 546561056),
+}
+SIVIR_NATIVE_AUDIO_EVENTS = {
+    "boomerang_hunter_attack",
+    "boomerang_hunter_attacks",
+    "boomerang_hunter_skill",
+    "boomerang_hunter_skill2",
+    "boomerang_hunter_ult",
+    "boomerang_hunter_ult1",
+    "boomerang_hunter_ult2",
+    "boomerang_ult",
+}
+SIVIR_NATIVE_AUDIO_CLIPS = {
+    "boomerang_attack0",
+    "boomerang_skill0",
+    *(f"boomerang_ult{index}" for index in range(8)),
+    "boomerang_hunter_skill_resource1",
+    "boomerang_hunter_skill_remix",
+    "boomerang_hunter_skill_resource_original",
+    "boomerang_hunter_skill2_resource",
+    "boomerang_hunter_skill2_resource1",
+    "boomerang_hunter_skill2_resource2",
+    "boomerang_hunter_ult_resource1",
+    "boomerang_hunter_ult_resource2",
+}
+SIVIR_NATIVE_SILENCE_SHA256 = "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+
 
 def check(condition: bool, message: str) -> None:
     if not condition:
@@ -193,6 +318,30 @@ def opaque_rgb(image: Image.Image) -> list[tuple[int, int, int]]:
         for red, green, blue, alpha in [rgba.getpixel((x, y))]
         if alpha >= 128
     ]
+
+
+def alpha_component_sizes(image: Image.Image) -> list[int]:
+    alpha = image.convert("RGBA").getchannel("A")
+    remaining = {
+        (x, y)
+        for y in range(image.height)
+        for x in range(image.width)
+        if alpha.getpixel((x, y)) >= 128
+    }
+    sizes: list[int] = []
+    while remaining:
+        seed = remaining.pop()
+        component = {seed}
+        stack = [seed]
+        while stack:
+            x, y = stack.pop()
+            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    component.add(neighbor)
+                    stack.append(neighbor)
+        sizes.append(len(component))
+    return sorted(sizes, reverse=True)
 
 
 def walk_effects(value: Any) -> Iterable[dict[str, Any]]:
@@ -2189,6 +2338,333 @@ def validate_briar_resources_and_manifest(champion: dict[str, Any]) -> None:
     )
 
 
+def validate_sivir_replacement_uniqueness() -> None:
+    ids: list[tuple[str, str]] = []
+    for path in sorted((MOD_ROOT / "champion").glob("*.data_champion")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as error:  # pragma: no cover - diagnostic path
+            ERRORS.append(f"{path.relative_to(MOD_ROOT).as_posix()}: cannot parse JSON: {error}")
+            continue
+        champion_id = payload.get("id")
+        if isinstance(champion_id, str):
+            ids.append((champion_id, path.name))
+    files = [filename for champion_id, filename in ids if champion_id == "boomerang_hunter"]
+    check(
+        files == ["boomerang_hunter.data_champion"],
+        "Sivir must replace official 005 exactly once through champion/boomerang_hunter.data_champion",
+    )
+    check(
+        all(champion_id != "lol_sivir" for champion_id, _ in ids),
+        "lol_sivir must not be registered as an additive duplicate champion",
+    )
+    check(
+        not (MOD_ROOT / "champion/lol_sivir.data_champion").exists(),
+        "champion/lol_sivir.data_champion must be absent in same-ID replacement mode",
+    )
+
+
+def validate_sivir_data_contract(champion: dict[str, Any]) -> None:
+    check(champion.get("id") == "boomerang_hunter", "Sivir must retain native id boomerang_hunter")
+    check(
+        champion.get("sprite") == "asset/lol_mod/aseprite_resources/champions/sivir",
+        "same-ID Sivir must bind the custom Sivir actor",
+    )
+    check(champion.get("anim_prefix") == "", "Sivir must preserve native animation tags")
+    check(champion.get("category") == "Range", "Sivir category must be Range")
+    check(set(champion.get("tags", [])) == {"AD", "Range", "Heal"}, "Sivir tags must be AD/Range/Heal")
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/sivir_skill",
+            "asset/lol_mod/icons/sivir_skill2",
+            "asset/lol_mod/icons/sivir_ult",
+        ],
+        "Sivir active icon order must be Q/E/R",
+    )
+    check(len(champion.get("skill_icons", [])) == 3, "Sivir must expose exactly three active icons")
+    for unsupported_slot in ("w", "skill3", "skill4"):
+        check(unsupported_slot not in champion, f"Sivir must not add unsupported active slot {unsupported_slot}")
+
+    check(
+        champion.get("stat")
+        == {
+            "attack": 100,
+            "magic_power": 0,
+            "hp": 900,
+            "defence": 20,
+            "magic_resistance": 20,
+            "move_speed": 900,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Sivir base stats do not match the approved design",
+    )
+    check(
+        champion.get("growth")
+        == {
+            "attack": 18,
+            "magic_power": 0,
+            "hp": 90,
+            "defence": 7,
+            "magic_resistance": 3,
+            "move_speed": 9,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Sivir growth stats do not match the approved design",
+    )
+
+    attack = champion.get("attack", {})
+    check(
+        (
+            attack.get("action_name"), attack.get("range"), attack.get("cooltime"),
+            attack.get("duration"), attack.get("start_timing"), attack.get("casting_type"),
+            attack.get("casting_target"), attack.get("attack_type"),
+        )
+        == ("attack", 60000, 60, 26, 20, "Targeting", "Enemy", "BaseAttack"),
+        "Sivir basic-attack slot/timing/targeting mismatch",
+    )
+    attack_projectiles = find_effect(attack, "TargetProjectile", name="lol_sivir_attack_blade")
+    check(len(attack_projectiles) == 1, "Sivir attack must create exactly one crossblade projectile")
+    if attack_projectiles:
+        projectile = attack_projectiles[0]
+        check((projectile.get("speed"), projectile.get("applied_target")) == (6000, "Enemy"), "Sivir attack projectile contract mismatch")
+        check(len(find_effect(projectile, "Attack", damage=0, attack_ratio=100)) == 1, "Sivir attack must deal 100% Attack once")
+        fleet = [effect for effect in find_effect(projectile, "AddCasterBuff") if effect.get("buff_state", {}).get("name") == "lol_sivir_fleet_of_foot"]
+        check(len(fleet) == 1, "Sivir attack must add one Fleet of Foot buff")
+        if fleet:
+            state = fleet[0].get("buff_state", {})
+            check((state.get("duration", {}).get("Time", {}).get("tick"), state.get("move_speed_mult")) == (90, 12), "Fleet of Foot must grant 12% Move Speed for 90 ticks")
+    check(len(find_effect(attack, "Sfx", name="lol_sivir_attack_cast")) == 1, "Sivir attack cast SFX is missing")
+    check(len(find_effect(attack, "TargetSfx", name="lol_sivir_attack_hit")) == 1, "Sivir attack hit SFX is missing")
+
+    q = champion.get("skill", {})
+    check(
+        (
+            q.get("action_name"), q.get("range"), q.get("cooltime"), q.get("duration"),
+            q.get("start_timing"), q.get("casting_type"), q.get("casting_target"), q.get("attack_type"),
+        )
+        == ("skill", 75000, 360, 26, 18, "Direction", "EnemyWithoutTower", "Skill"),
+        "Sivir Q slot/timing/direction mismatch",
+    )
+    outgoing = find_effect(q, "LinearProjectile", name="lol_sivir_q_outgoing")
+    check(len(outgoing) == 1, "Sivir Q must contain one outbound LinearProjectile")
+    returns = find_effect(q, "BackToCasterLinearProjectile", name="lol_sivir_q_return")
+    check(len(returns) == 1, "Sivir Q must contain one nested return projectile")
+    if outgoing:
+        out = outgoing[0]
+        check(
+            (out.get("penetrate"), out.get("speed"), out.get("range"), out.get("shape", {}).get("Circle", {}).get("radius"), out.get("applied_target"))
+            == (True, 4200, 75000, 7000, "EnemyWithoutTower"),
+            "Sivir Q outbound projectile contract mismatch",
+        )
+        nested_returns = [effect for effect in out.get("end_effects", []) if effect.get("type") == "BackToCasterLinearProjectile"]
+        check(len(nested_returns) == 1 and nested_returns[0] is returns[0], "Sivir Q return must be nested inside outbound end_effects")
+        out_damage = find_effect(out.get("applied_effects", []), "Attack")
+        check(len(out_damage) == 1 and (out_damage[0].get("damage"), out_damage[0].get("attack_ratio")) == (30, 55), "Sivir Q outbound damage must be 30 + 55% Attack")
+    if returns:
+        returning = returns[0]
+        check(
+            (returning.get("penetrate"), returning.get("speed"), returning.get("range"), returning.get("shape", {}).get("Circle", {}).get("radius"), returning.get("applied_target"))
+            == (True, 5200, 120000, 7000, "EnemyWithoutTower"),
+            "Sivir Q return projectile contract mismatch",
+        )
+        return_damage = find_effect(returning.get("applied_effects", []), "Attack")
+        check(len(return_damage) == 1 and (return_damage[0].get("damage"), return_damage[0].get("attack_ratio")) == (30, 55), "Sivir Q return damage must be 30 + 55% Attack")
+    check(len(find_effect(q, "CasterAnimation", name="idle_no_boomerang", tick=42)) == 1, "Sivir Q must hide the held weapon while the boomerang is in flight")
+    check(len(find_effect(q, "Sfx", name="lol_sivir_q_out")) == 1, "Sivir Q outbound SFX must play once")
+    check(len(find_effect(q, "Sfx", name="lol_sivir_q_return")) == 1, "Sivir Q return SFX must play once")
+    check(len(find_effect(q, "TargetSfx", name="lol_sivir_q_hit")) == 2, "Sivir Q hit SFX must exist once per pass")
+
+    e = champion.get("skill2", {})
+    check(
+        (
+            e.get("action_name"), e.get("range"), e.get("cooltime"), e.get("duration"),
+            e.get("start_timing"), e.get("casting_type"), e.get("casting_target"), e.get("attack_type"),
+        )
+        == ("skill2", 0, 720, 25, 20, "None", "AllyOnlySelf", "Skill"),
+        "Sivir E slot/timing/self-target mismatch",
+    )
+    window = [effect for effect in find_effect(e, "AddCasterBuff") if effect.get("buff_state", {}).get("name") == "lol_sivir_spell_shield_window"]
+    speed = [effect for effect in find_effect(e, "AddCasterBuff") if effect.get("buff_state", {}).get("name") == "lol_sivir_spell_shield_speed"]
+    check(len(window) == 1, "Sivir E must add one named spell-shield window")
+    if window:
+        state = window[0].get("buff_state", {})
+        check((state.get("duration", {}).get("Time", {}).get("tick"), state.get("skill_damaged_reduce")) == (90, 100), "Sivir E must reduce skill damage by 100% for 90 ticks")
+    check(len(speed) == 1, "Sivir E must add one speed buff")
+    if speed:
+        state = speed[0].get("buff_state", {})
+        check((state.get("duration", {}).get("Time", {}).get("tick"), state.get("move_speed_mult")) == (120, 20), "Sivir E speed must be 20% for 120 ticks")
+    check(len(find_effect(e, "Heal", amount=60, attack_ratio=15, ap_ratio=0, heal_type="Caster")) == 1, "Sivir E must heal 60 + 15% Attack once")
+    check(not find_effect(e, "Attack") and not find_effect(e, "ApAttack") and not find_effect(e, "FixedAttack"), "Sivir E must not deal damage")
+    check(not find_effect(e, "Shield"), "Sivir E must not fake a normal absorb shield")
+    check(len(find_effect(e, "Sfx", name="lol_sivir_e_cast")) == 1, "Sivir E cast SFX must play once")
+
+    ult = champion.get("ult", {})
+    check(
+        (
+            ult.get("action_name"), ult.get("range"), ult.get("cooltime"), ult.get("duration"),
+            ult.get("start_timing"), ult.get("casting_type"), ult.get("casting_target"), ult.get("attack_type"),
+        )
+        == ("ult", 85000, 3000, 28, 20, "Targeting", "EnemyChampion", "Skill"),
+        "Sivir R slot/timing/combat trigger mismatch",
+    )
+    ranges = find_effect(ult, "RangeEffect")
+    check(len(ranges) == 1, "Sivir R must contain exactly one ally RangeEffect")
+    if ranges:
+        zone = ranges[0]
+        check((zone.get("shape", {}).get("Circle", {}).get("radius"), zone.get("target"), zone.get("apply_type")) == (100000, "AllyChampion", "AroundCaster"), "Sivir R radius/target/origin mismatch")
+        buffs = find_effect(zone, "AddBuff")
+        check(len(buffs) == 1, "Sivir R ally zone must apply exactly one buff")
+        if buffs:
+            state = buffs[0].get("buff_state", {})
+            check((state.get("name"), state.get("duration", {}).get("Time", {}).get("tick"), state.get("move_speed_mult")) == ("lol_sivir_on_the_hunt_speed", 300, 25), "Sivir R speed buff must be 25% for 300 ticks")
+        check(not find_effect(zone, "Sfx"), "Sivir R cast SFX must not repeat per ally")
+    check(not find_effect(ult, "AddCasterBuff"), "Sivir R must not add a second self-only speed buff")
+    check(not find_effect(ult, "Attack") and not find_effect(ult, "ApAttack") and not find_effect(ult, "FixedAttack"), "Sivir R must deal no damage")
+    check(not find_effect(ult, "Shield"), "Sivir R must provide no shield")
+    check(len(find_effect(ult, "Sfx", name="lol_sivir_r_cast")) == 1, "Sivir R command SFX must play once")
+    check(len(find_effect(ult, "CasterViewEffect", name="lol_sivir_r_cast_visual")) == 1, "Sivir R cast pulse is missing")
+
+    projectile_map = {view.get("name"): view for view in champion.get("view_projectiles", [])}
+    check(set(projectile_map) == set(SIVIR_VIEW_PROJECTILES), "Sivir projectile view binding set is incomplete")
+    for name, (asset, tag, z, repeat) in SIVIR_VIEW_PROJECTILES.items():
+        view = projectile_map.get(name, {})
+        check((view.get("type"), view.get("anim"), view.get("tag"), view.get("z"), view.get("repeat")) == ("Animated", asset, tag, z, repeat), f"Sivir projectile view mismatch: {name}")
+    effect_map = {view.get("name"): view for view in champion.get("view_effects", [])}
+    check(set(effect_map) == set(SIVIR_VIEW_EFFECTS), "Sivir effect view binding set is incomplete")
+    for name, (asset, tag, z, is_follow) in SIVIR_VIEW_EFFECTS.items():
+        view = effect_map.get(name, {})
+        check((view.get("type"), view.get("anim"), view.get("tag"), view.get("z"), view.get("is_follow")) == ("Animation", asset, tag, z, is_follow), f"Sivir effect view mismatch: {name}")
+    buff_map = {view.get("name"): view for view in champion.get("view_buffs", [])}
+    check(set(buff_map) == set(SIVIR_VIEW_BUFFS), "Sivir buff view binding set is incomplete")
+    for name, (asset, pre, loop, remove, z) in SIVIR_VIEW_BUFFS.items():
+        view = buff_map.get(name, {})
+        check((view.get("type"), view.get("anim"), view.get("pre_tag"), view.get("loop_tag"), view.get("remove_tag"), view.get("z")) == ("ThreePhase", asset, pre, loop, remove, z), f"Sivir buff view mismatch: {name}")
+
+
+def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> None:
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/sivir#sheet.png"
+    anim = load_json("aseprite_resources/champions/sivir#anim.fanim").get("anims", {})
+    check(sheet_path.is_file(), "Sivir actor sheet is missing")
+    if not sheet_path.is_file():
+        return
+    sheet = Image.open(sheet_path).convert("RGBA")
+    check(sheet.size == (1984, 64), f"Sivir actor sheet must be 1984x64, got {sheet.size}")
+    check(set(anim) == set(SIVIR_NATIVE_ANIMATION), "Sivir must preserve all 12 native Boomerang Hunter tags")
+    core_tags = {"idle", "run", "attack", "idle_no_boomerang", "skill", "skill2", "ult", "hit"}
+    run_hashes: list[str] = []
+    attack_hashes: list[str] = []
+    for tag, expected_durations in SIVIR_NATIVE_ANIMATION.items():
+        frames = anim.get(tag, {}).get("frames", [])
+        check(len(frames) == len(expected_durations), f"Sivir native tag {tag} frame count changed")
+        for index, (frame, expected_duration) in enumerate(zip(frames, expected_durations)):
+            check(math.isclose(float(frame.get("duration", -1)), expected_duration, rel_tol=0.0, abs_tol=1e-9), f"Sivir native tag {tag} frame {index} duration changed")
+            data = frame.get("data", {})
+            x, y, width, height = (int(data.get("x", -1)), int(data.get("y", -1)), int(data.get("w", 0)), int(data.get("h", 0)))
+            check(x >= 0 and y >= 0 and width > 0 and height > 0 and x + width <= sheet.width and y + height <= sheet.height, f"Sivir native tag {tag} frame {index} is out of bounds")
+            if not (x >= 0 and y >= 0 and width > 0 and height > 0 and x + width <= sheet.width and y + height <= sheet.height):
+                continue
+            image = sheet.crop((x, y, x + width, y + height))
+            bbox = image.getchannel("A").getbbox()
+            if tag == "dead" and index == len(frames) - 1:
+                check(bbox is None, "Sivir dead final frame must remain transparent")
+                continue
+            check(bbox is not None, f"Sivir native tag {tag} frame {index} is empty")
+            if bbox is None:
+                continue
+            if tag in core_tags:
+                visible_width = bbox[2] - bbox[0]
+                visible_height = bbox[3] - bbox[1]
+                check(bbox[3] == 46, f"Sivir core {tag} frame {index} must retain the exclusive y=46 foot baseline")
+                check(23 <= visible_height <= 43, f"Sivir core {tag} frame {index} changed actor scale")
+                check(18 <= visible_width <= 58 and bbox[0] >= 2 and bbox[2] <= 62, f"Sivir core {tag} frame {index} left the battle-safe width")
+            if tag == "run":
+                run_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
+                check(bbox[3] - bbox[1] == 36, f"Sivir run frame {index} must remain 36px tall")
+            if tag == "attack":
+                attack_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
+                check(len(alpha_component_sizes(image)) == 1, f"Sivir attack frame {index} contains detached pixels or a duplicate weapon")
+                mirrored = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                check(len(alpha_component_sizes(mirrored)) == 1, f"Sivir mirrored attack frame {index} contains detached pixels")
+                mirrored_bbox = mirrored.getchannel("A").getbbox()
+                check(mirrored_bbox is not None and mirrored_bbox[0] >= 2 and mirrored_bbox[2] <= 62, f"Sivir mirrored attack frame {index} leaves the battle-safe width")
+                check(
+                    all(
+                        image.getpixel((pixel_x, pixel_y)) == (0, 0, 0, 0)
+                        for pixel_y in range(image.height)
+                        for pixel_x in range(image.width)
+                        if image.getpixel((pixel_x, pixel_y))[3] == 0
+                    ),
+                    f"Sivir attack frame {index} has hidden RGB in transparent pixels",
+                )
+            if tag == "idle_no_boomerang":
+                check(bbox[2] - bbox[0] <= 38, "Sivir idle_no_boomerang must use the compact empty-hand pose")
+    check(len(set(run_hashes)) == 8, "Sivir must keep eight distinct generated run phases")
+    check(len(set(attack_hashes)) >= 4, "Sivir attack must retain at least four distinct clean poses")
+
+    required_manifest_paths = {
+        "champion/boomerang_hunter.data_champion",
+        "aseprite_resources/champions/sivir#sheet.png",
+        "aseprite_resources/champions/sivir#anim.fanim",
+        "style/champion_view.champion_view",
+        "text/champion.i18n",
+    }
+    icon_paths: list[Path] = []
+    for asset in champion.get("skill_icons", []):
+        relative = asset.removeprefix("asset/lol_mod/") + ".png"
+        required_manifest_paths.add(relative)
+        path = MOD_ROOT / relative
+        icon_paths.append(path)
+        check(path.is_file(), f"missing Sivir icon: {relative}")
+        if path.is_file():
+            icon = Image.open(path).convert("RGBA")
+            check(icon.size == (64, 64) and icon.getchannel("A").getbbox() == (0, 0, 64, 64), f"{relative} must be a full-bleed 64x64 icon")
+    if all(path.is_file() for path in icon_paths):
+        check(len({sha256(path) for path in icon_paths}) == 3, "Sivir Q/E/R icons must be distinct")
+
+    for effect_name, (expected_size, expected_tags) in SIVIR_EFFECT_ANIMATION.items():
+        sheet_relative = f"aseprite_resources/effects/{effect_name}#sheet.png"
+        anim_relative = f"aseprite_resources/effects/{effect_name}#anim.fanim"
+        required_manifest_paths.update({sheet_relative, anim_relative})
+        effect_sheet_path = MOD_ROOT / sheet_relative
+        effect_anim = load_json(anim_relative).get("anims", {})
+        check(effect_sheet_path.is_file(), f"missing Sivir VFX sheet: {sheet_relative}")
+        if not effect_sheet_path.is_file():
+            continue
+        effect_sheet = Image.open(effect_sheet_path).convert("RGBA")
+        check(effect_sheet.size == expected_size, f"{sheet_relative} must be {expected_size}, got {effect_sheet.size}")
+        check(set(effect_anim) == set(expected_tags), f"{anim_relative} has the wrong tag set")
+        hashes: list[str] = []
+        for tag, expected_durations in expected_tags.items():
+            frames = effect_anim.get(tag, {}).get("frames", [])
+            check(len(frames) == len(expected_durations), f"{anim_relative}: {tag} frame count changed")
+            for index, (frame, duration) in enumerate(zip(frames, expected_durations)):
+                check(math.isclose(float(frame.get("duration", -1)), duration, rel_tol=0.0, abs_tol=1e-9), f"{anim_relative}: {tag} duration changed")
+                data = frame.get("data", {})
+                x, y, width, height = (int(data.get("x", -1)), int(data.get("y", -1)), int(data.get("w", 0)), int(data.get("h", 0)))
+                image = effect_sheet.crop((x, y, x + width, y + height))
+                bbox = image.getchannel("A").getbbox()
+                check(bbox is not None, f"{anim_relative}: empty {tag} frame {index}")
+                if bbox is not None and effect_name == "sivir_e_shield" and tag == "loop":
+                    check(bbox[2] - bbox[0] >= 52 and bbox[3] - bbox[1] >= 52, f"Sivir E loop frame {index} must fully surround the actor")
+                if bbox is not None and effect_name == "sivir_hunt_buff":
+                    check(bbox[1] >= 22 and bbox[3] == 32 and bbox[3] - bbox[1] <= 10, f"Sivir R speed frame {index} must remain a foot-only trail")
+                hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
+        check(len(hashes) == len(set(hashes)), f"{effect_name} must retain distinct generated phases")
+
+    for event_name in SIVIR_AUDIO_EVENTS:
+        local = event_name.removeprefix("lol_")
+        required_manifest_paths.update({f"sound/sfx/{local}.sound_info", f"sound/sfx/{local}_clip.wav"})
+    required_manifest_paths.update({"sound/sfx/sivir_native_silence.sound_info", "sound/sfx/sivir_native_silence_clip.wav"})
+    manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
+    missing = sorted(required_manifest_paths - manifest_paths)
+    check(not missing, "Sivir runtime resources are missing from build_manifest.json: " + ", ".join(missing))
+
+
 def validate_archer_skill_icon_atlas() -> None:
     atlas = Image.open(MOD_ROOT / "aseprite_resources/UI_aseprite/skill_icon#sheet.png").convert("RGBA")
     check(atlas.size == (4096, 49), f"patched native skill icon atlas must remain 4096x49, got {atlas.size}")
@@ -2656,6 +3132,36 @@ def validate_briar_localization_and_style() -> None:
     check("targeted chase" in english.get("ult", ""), "English Briar R text must disclose the data-only targeted chase")
 
 
+def validate_sivir_localization_and_style() -> None:
+    style = load_json("style/champion_view.champion_view")
+    view = style.get("entries", {}).get("boomerang_hunter", {})
+    check(view.get("face") == {"x": 5, "y": -34}, "Sivir compact portrait offset must remain face x=5/y=-34")
+    check(view.get("center") == {"x": 0, "y": -12}, "Sivir center offset must remain x=0/y=-12")
+
+    text = load_json("text/champion.i18n")
+    expected_names = {
+        "en": "Sivir",
+        "zh-hans": "希维尔",
+        "zh-hant": "希維爾",
+        "ja": "シヴィア",
+        "ko": "시비르",
+    }
+    for locale, expected_name in expected_names.items():
+        descriptions = text.get(locale, {}).get("description", {})
+        description = descriptions.get("boomerang_hunter", {})
+        check(set(description) == {"name", "attack", "skill", "skill2", "ult"}, f"{locale} Sivir localization is incomplete")
+        check(description.get("name") == expected_name, f"{locale} Sivir encyclopedia name must be {expected_name}")
+        check(description.get("skill", "").startswith("Q"), f"{locale} Sivir first active must be labeled Q")
+        check(description.get("skill2", "").startswith("E"), f"{locale} Sivir second active must be labeled E")
+        check(description.get("ult", "").startswith("R"), f"{locale} Sivir ultimate must be labeled R")
+        check("lol_sivir" not in descriptions, f"{locale} must not register an additive lol_sivir entry")
+    english = text.get("en", {}).get("description", {}).get("boomerang_hunter", {})
+    check("outbound and returning" in english.get("skill", ""), "English Sivir Q must disclose both passes")
+    check("timed damage guard" in english.get("skill2", ""), "English Sivir E must disclose its data-only approximation")
+    check("not consumed by the first spell" in english.get("skill2", ""), "English Sivir E must not claim exact one-spell consumption")
+    check("deals no damage" in english.get("ult", ""), "English Sivir R must disclose that it deals no damage")
+
+
 def validate_orianna_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
     expected = {
         "lol_orianna_attack_cast",
@@ -2864,6 +3370,115 @@ def validate_briar_audio(champion: dict[str, Any], override: dict[str, Any]) -> 
     )
 
 
+def validate_sivir_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    actual_events = {
+        effect.get("name")
+        for effect in walk_effects(champion)
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+    }
+    check(actual_events == set(SIVIR_AUDIO_EVENTS), f"Sivir must wire exactly seven official sound events, got {sorted(actual_events)}")
+    audio_manifest = load_json("qa/sivir_official_audio_sources.json")
+    check(audio_manifest.get("schema_version") == 1 and audio_manifest.get("champion") == "Sivir", "Sivir official audio manifest identity is invalid")
+    outputs = audio_manifest.get("outputs", [])
+    outputs_by_key = {output.get("event_key"): output for output in outputs}
+    expected_keys = {name.removeprefix("lol_") for name in SIVIR_AUDIO_EVENTS}
+    check(set(outputs_by_key) == expected_keys and len(outputs_by_key) == len(outputs), "Sivir official audio event set is incomplete")
+    for event_name, (riot_event, riot_event_id) in SIVIR_AUDIO_EVENTS.items():
+        local_name = event_name.removeprefix("lol_")
+        expected_clip = f"{local_name}_clip"
+        event_source = f"asset/base/sound/sfx/{event_name}"
+        event_override = override.get(event_source, {})
+        check(event_override.get("type") == "override", f"missing Sivir sound event remap: {event_source}")
+        check(event_override.get("remapping") == f"asset/lol_mod/sound/sfx/{local_name}", f"wrong Sivir sound event target: {event_source}")
+        sound_relative = f"sound/sfx/{local_name}.sound_info"
+        plays = load_json(sound_relative).get("plays", [])
+        check(len(plays) == 1, f"{sound_relative} must play one verified official clip")
+        if plays:
+            check(plays[0].get("delay") == 0.0 and plays[0].get("clip") == expected_clip, f"{sound_relative} clip/delay mismatch")
+            check(float(plays[0].get("volume", 0)) >= 0.70, f"{sound_relative} volume is too quiet")
+        clip_source = f"asset/base/sound/sfx/{expected_clip}"
+        clip_override = override.get(clip_source, {})
+        check(clip_override.get("type") == "override", f"missing Sivir clip remap: {clip_source}")
+        check(clip_override.get("remapping") == f"asset/lol_mod/sound/sfx/{expected_clip}", f"wrong Sivir clip target: {clip_source}")
+        clip_relative = f"sound/sfx/{expected_clip}.wav"
+        clip_path = MOD_ROOT / clip_relative
+        check(clip_path.is_file() and clip_path.stat().st_size > 1000, f"missing/empty Sivir clip: {clip_relative}")
+
+        output = outputs_by_key.get(local_name, {})
+        check(output.get("riot_event") == riot_event and output.get("riot_event_id") == riot_event_id, f"Sivir Riot event mapping drifted: {local_name}")
+        check(output.get("sound_info") == sound_relative and output.get("clip") == expected_clip, f"Sivir runtime audio mapping mismatch: {local_name}")
+        check(isinstance(output.get("media_id"), int) and output.get("media_id") in output.get("event_media_pool", []), f"Sivir selected media is outside its event pool: {local_name}")
+        check(isinstance(output.get("source_wem_sha256"), str) and len(output.get("source_wem_sha256", "")) == 64, f"Sivir source WEM hash is not pinned: {local_name}")
+        wav = output.get("wav", {})
+        check(wav.get("path") == clip_relative, f"Sivir WAV path mismatch: {local_name}")
+        if not clip_path.is_file():
+            continue
+        check(clip_path.stat().st_size == wav.get("size_bytes"), f"Sivir WAV size mismatch: {clip_relative}")
+        check(sha256(clip_path) == wav.get("sha256"), f"Sivir WAV hash mismatch: {clip_relative}")
+        try:
+            with wave.open(str(clip_path), "rb") as decoded:
+                channels = decoded.getnchannels()
+                sample_width = decoded.getsampwidth()
+                sample_rate = decoded.getframerate()
+                frame_count = decoded.getnframes()
+        except (wave.Error, EOFError) as error:
+            ERRORS.append(f"{clip_relative}: cannot decode PCM WAV: {error}")
+            continue
+        check((channels, sample_width, sample_rate) == (1, 2, 44100), f"{clip_relative} must be mono 16-bit PCM 44.1 kHz")
+        check((wav.get("channels"), wav.get("sample_width_bytes"), wav.get("sample_rate_hz"), wav.get("frame_count")) == (channels, sample_width, sample_rate, frame_count), f"Sivir WAV metadata mismatch: {clip_relative}")
+        duration = frame_count / sample_rate if sample_rate else 0.0
+        check(math.isclose(float(output.get("duration_seconds", -1)), duration, rel_tol=0.0, abs_tol=1e-9), f"Sivir WAV duration mismatch: {clip_relative}")
+        check(float(output.get("volume", -1)) == float(plays[0].get("volume", -2)) if plays else False, f"Sivir manifest volume mismatch: {local_name}")
+
+    isolation = audio_manifest.get("native_audio_isolation", {})
+    check(set(isolation.get("native_events", [])) == SIVIR_NATIVE_AUDIO_EVENTS, "Sivir native event isolation audit is incomplete")
+    check(set(isolation.get("native_clips", [])) == SIVIR_NATIVE_AUDIO_CLIPS, "Sivir native clip isolation audit is incomplete")
+    silence_event = "asset/lol_mod/sound/sfx/sivir_native_silence"
+    silence_clip = "asset/lol_mod/sound/sfx/sivir_native_silence_clip"
+    for native_event in SIVIR_NATIVE_AUDIO_EVENTS:
+        source = f"asset/base/sound/sfx/{native_event}"
+        mapping = override.get(source, {})
+        check(mapping == {"remapping": silence_event, "type": "override"}, f"Sivir native event is not isolated: {source}")
+    for native_clip in SIVIR_NATIVE_AUDIO_CLIPS:
+        source = f"asset/base/sound/sfx/{native_clip}"
+        mapping = override.get(source, {})
+        check(mapping == {"remapping": silence_clip, "type": "override"}, f"Sivir native clip is not isolated: {source}")
+    check(
+        override.get("asset/base/sound/sfx/sivir_native_silence_clip")
+        == {"remapping": silence_clip, "type": "override"},
+        "Sivir silence clip self-remap is missing",
+    )
+    silence_info = load_json("sound/sfx/sivir_native_silence.sound_info")
+    check(
+        silence_info.get("plays")
+        == [{"delay": 0.0, "clip": "sivir_native_silence_clip", "volume": 1.0}],
+        "Sivir native silence sound_info contract changed",
+    )
+    silence_path = MOD_ROOT / "sound/sfx/sivir_native_silence_clip.wav"
+    check(silence_path.is_file(), "Sivir native silence WAV is missing")
+    if silence_path.is_file():
+        check(silence_path.stat().st_size == 4454, "Sivir native silence WAV size changed")
+        check(sha256(silence_path) == SIVIR_NATIVE_SILENCE_SHA256, "Sivir native silence WAV hash changed")
+        try:
+            with wave.open(str(silence_path), "rb") as decoded:
+                silence_format = (
+                    decoded.getnchannels(),
+                    decoded.getsampwidth(),
+                    decoded.getframerate(),
+                    decoded.getnframes(),
+                )
+                silence_pcm = decoded.readframes(decoded.getnframes())
+        except (wave.Error, EOFError) as error:
+            ERRORS.append(f"Sivir native silence WAV cannot be decoded: {error}")
+        else:
+            check(silence_format == (1, 2, 44100, 2205), "Sivir native silence WAV format changed")
+            check(silence_pcm == b"\x00" * 4410, "Sivir native silence WAV must contain only zero PCM")
+    check(len(find_effect(champion.get("ult", {}), "Sfx", name="lol_sivir_r_cast")) == 1, "Sivir R command audio must be top-level and play once")
+    r_ranges = find_effect(champion.get("ult", {}), "RangeEffect")
+    if r_ranges:
+        check(not find_effect(r_ranges[0], "Sfx"), "Sivir R command audio must not repeat once per ally")
+
+
 def validate_native_lucian_audio(override: dict[str, Any]) -> None:
     native_events = {
         "archer_attack": "lucian_attack_cast",
@@ -3016,6 +3631,60 @@ def validate_briar_imagegen_and_qa_files() -> None:
             check(Path(expected_path).name in prompt_record, f"image-gen prompt record omits Briar source {Path(expected_path).name}")
 
 
+def validate_sivir_imagegen_and_qa_files() -> None:
+    manifest = load_json("qa/sivir_imagegen_sources.json")
+    check(manifest.get("schema_version") == 1, "Sivir image-gen audit schema must be 1")
+    check(manifest.get("generator") == "built-in image_gen", "Sivir art must record built-in image_gen mode")
+    expected_source_roles = {
+        "actor_model",
+        "run_cycle_nine_phase_source",
+        "q_icon",
+        "e_icon",
+        "r_icon",
+        "basic_attack_vfx",
+        "q_out_return_vfx",
+        "e_spell_shield_vfx",
+        "r_cast_vfx",
+        "r_ally_buff_vfx",
+    }
+    sources = manifest.get("sources", [])
+    check({row.get("role") for row in sources} == expected_source_roles, "Sivir image-gen source roles are incomplete")
+    for row in [*sources, *manifest.get("processed", [])]:
+        path = MOD_ROOT / row.get("path", "missing")
+        check(path.is_file(), f"missing Sivir image-gen source: {row.get('path')}")
+        if path.is_file():
+            check(path.stat().st_size == row.get("size_bytes"), f"Sivir image-gen size mismatch: {row.get('path')}")
+            check(sha256(path) == row.get("sha256"), f"Sivir image-gen hash mismatch: {row.get('path')}")
+            if row in manifest.get("processed", []):
+                image = Image.open(path).convert("RGBA")
+                corners = [image.getpixel((0, 0)), image.getpixel((image.width - 1, 0)), image.getpixel((0, image.height - 1)), image.getpixel((image.width - 1, image.height - 1))]
+                check(all(pixel[3] == 0 for pixel in corners), f"Sivir processed source has an opaque corner: {row.get('path')}")
+    for row in manifest.get("runtime_files", []):
+        path = MOD_ROOT / row.get("path", "missing")
+        check(path.is_file(), f"missing Sivir runtime audit file: {row.get('path')}")
+        if path.is_file():
+            check(path.stat().st_size == row.get("size_bytes") and sha256(path) == row.get("sha256"), f"Sivir runtime audit hash mismatch: {row.get('path')}")
+    prompt_path = MOD_ROOT / manifest.get("prompt_record", "missing")
+    check(prompt_path.is_file(), "Sivir final image-gen prompt record is missing")
+    if prompt_path.is_file():
+        prompts = prompt_path.read_text(encoding="utf-8")
+        for marker in ("# Sivir image-gen prompts", "Sivir actor contact sheet", "Sivir nine-frame run cycle", "Sivir Q VFX", "Sivir E VFX", "Sivir R ally-buff VFX"):
+            check(marker in prompts, f"Sivir prompt record is missing: {marker}")
+    required_qa = [
+        "qa/sivir_actor_contact_final.png",
+        "qa/sivir_skill_icons_final.png",
+        "qa/sivir_vfx_contact_final.png",
+        "qa/sivir_skill_contract_qa.md",
+        "qa/sivir_visual_qa.md",
+        "qa/sivir_live_qa.md",
+        "qa/sivir_audio_source_qa.md",
+        "qa/sivir_official_audio_sources.json",
+    ]
+    for relative in required_qa:
+        path = MOD_ROOT / relative
+        check(path.is_file() and path.stat().st_size > 0, f"missing Sivir QA artifact: {relative}")
+
+
 def validate_imagegen_sources() -> None:
     expected = {
         "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
@@ -3042,6 +3711,18 @@ def validate_imagegen_sources() -> None:
             "e_vfx",
             "r_vfx",
         },
+        "qa/sivir_imagegen_sources.json": {
+            "actor_model",
+            "run_cycle_nine_phase_source",
+            "q_icon",
+            "e_icon",
+            "r_icon",
+            "basic_attack_vfx",
+            "q_out_return_vfx",
+            "e_spell_shield_vfx",
+            "r_cast_vfx",
+            "r_ally_buff_vfx",
+        },
     }
     for manifest_path, expected_roles in expected.items():
         manifest = load_json(manifest_path)
@@ -3062,10 +3743,10 @@ def validate_imagegen_sources() -> None:
                         f"processed image-gen source hash mismatch: {processed_path}",
                     )
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    # Shen/Lucian/Orianna contribute 25 active alpha sources.  Briar's actor,
-    # run and four VFX contacts add six; its three icons are generated as
-    # intentional full-bleed squares and therefore have no alpha derivative.
-    expected_processed = 31
+    # Shen/Lucian/Orianna contribute 25 active alpha sources. Briar adds six;
+    # Sivir adds actor, run, and five distinct VFX contacts. Opaque icons do
+    # not need alpha derivatives.
+    expected_processed = 38
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -3110,9 +3791,10 @@ def main() -> int:
     lucian = load_json("champion/archer.data_champion")
     orianna = load_json("champion/barrier_magician.data_champion")
     briar = load_json("champion/berserker.data_champion")
+    sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.5.0", "lol_mod version must be 0.5.0")
+    check(mod_info.get("version") == "0.6.0", "lol_mod version must be 0.6.0")
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()
@@ -3124,6 +3806,9 @@ def main() -> int:
     validate_briar_data_contract(briar)
     validate_briar_native_animation_and_actor(briar)
     validate_briar_resources_and_manifest(briar)
+    validate_sivir_replacement_uniqueness()
+    validate_sivir_data_contract(sivir)
+    validate_sivir_native_animation_and_resources(sivir)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",
@@ -3176,11 +3861,14 @@ def main() -> int:
     validate_native_lucian_localization()
     validate_orianna_localization()
     validate_briar_localization_and_style()
+    validate_sivir_localization_and_style()
     validate_audio(champion, override)
     validate_lucian_audio(lucian, override)
     validate_orianna_audio(orianna, override)
     validate_briar_audio(briar, override)
+    validate_sivir_audio(sivir, override)
     validate_briar_imagegen_and_qa_files()
+    validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()
     validate_manifest()
     if ERRORS:

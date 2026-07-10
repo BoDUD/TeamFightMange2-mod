@@ -1,10 +1,10 @@
 {
   "id": "lol_mod",
   "mod_id": "lol_mod",
-  "name": "League Champions: Shen, Lucian, Orianna & Briar / 慎、卢锡安、奥利安娜与贝蕾亚",
+  "name": "League Champions: Shen, Lucian, Orianna, Briar & Sivir / 慎、卢锡安、奥利安娜、贝蕾亚与希维尔",
   "author": "BoDUD",
-  "version": "0.5.0",
-  "description": "Adds Shen; reworks native champion 002 as same-id Lucian, official 003 Barrier Mage as same-id Orianna, and official 004 Berserker (berserker) as same-id Briar. Briar uses exactly Q/E/R: Blood Frenzy with one empowered bite, fixed-charge Chilling Scream, and a warned targeted Certain Death chase. All champion art, icons, and VFX are original image-generated assets.",
+  "version": "0.6.0",
+  "description": "Adds Shen and reworks official champions 002-005 as same-id Lucian, Orianna, Briar, and Sivir. Sivir replaces Boomerang Hunter and exposes exactly Q/E/R: a true outbound-and-return Boomerang Blade, an honest timed skill-damage Spell Shield approximation with heal and speed, and a non-damaging team On The Hunt speed buff. All champion art, icons, and VFX are original image-generated assets.",
   "last_updated": "2026-07-11",
   "dependencies": [
     {

@@ -1,0 +1,387 @@
+{
+  "id": "boomerang_hunter",
+  "category": "Range",
+  "tags": [
+    "AD",
+    "Range",
+    "Heal"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/sivir",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/sivir_skill",
+    "asset/lol_mod/icons/sivir_skill2",
+    "asset/lol_mod/icons/sivir_ult"
+  ],
+  "stat": {
+    "attack": 100,
+    "magic_power": 0,
+    "hp": 900,
+    "defence": 20,
+    "magic_resistance": 20,
+    "move_speed": 900,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 90,
+    "defence": 7,
+    "magic_resistance": 3,
+    "move_speed": 9,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.boomerang_hunter.attack",
+    "duration": 26,
+    "cooltime": 60,
+    "start_timing": 20,
+    "cancelable": true,
+    "range": 60000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_sivir_attack_cast"
+        },
+        {
+          "type": "TargetProjectile",
+          "speed": 6000,
+          "name": "lol_sivir_attack_blade",
+          "y_offset": 0,
+          "applied_target": "Enemy",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 100
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_sivir_fleet_of_foot",
+                      "duration": {
+                        "Time": {
+                          "tick": 90
+                        }
+                      },
+                      "move_speed_mult": 12
+                    }
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_sivir_attack_hit_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_sivir_attack_hit"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.boomerang_hunter.skill",
+    "duration": 26,
+    "cooltime": 360,
+    "start_timing": 18,
+    "cancelable": false,
+    "range": 75000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_sivir_q_out"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "idle_no_boomerang",
+          "tick": 42
+        },
+        {
+          "type": "LinearProjectile",
+          "penetrate": true,
+          "speed": 4200,
+          "range": 75000,
+          "name": "lol_sivir_q_outgoing",
+          "shape": {
+            "Circle": {
+              "radius": 7000
+            }
+          },
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 30,
+                    "attack_ratio": 55
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_sivir_q_hit_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_sivir_q_hit"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": [
+            {
+              "type": "Sfx",
+              "name": "lol_sivir_q_return"
+            },
+            {
+              "type": "BackToCasterLinearProjectile",
+              "penetrate": true,
+              "speed": 5200,
+              "range": 120000,
+              "name": "lol_sivir_q_return",
+              "shape": {
+                "Circle": {
+                  "radius": 7000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 30,
+                        "attack_ratio": 55
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_sivir_q_hit_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_sivir_q_hit"
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.boomerang_hunter.skill2",
+    "duration": 25,
+    "cooltime": 720,
+    "start_timing": 20,
+    "cancelable": false,
+    "range": 0,
+    "growth_range": 0,
+    "casting_type": "None",
+    "casting_target": "AllyOnlySelf",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_sivir_e_cast"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_sivir_spell_shield_window",
+            "duration": {
+              "Time": {
+                "tick": 90
+              }
+            },
+            "skill_damaged_reduce": 100
+          }
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_sivir_spell_shield_speed",
+            "duration": {
+              "Time": {
+                "tick": 120
+              }
+            },
+            "move_speed_mult": 20
+          }
+        },
+        {
+          "type": "Heal",
+          "amount": 60,
+          "attack_ratio": 15,
+          "ap_ratio": 0,
+          "heal_type": "Caster"
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.boomerang_hunter.ult",
+    "duration": 28,
+    "cooltime": 3000,
+    "start_timing": 20,
+    "cancelable": false,
+    "range": 85000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_sivir_r_cast"
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_sivir_r_cast_visual"
+        },
+        {
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 100000
+            }
+          },
+          "target": "AllyChampion",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "lol_sivir_on_the_hunt_speed",
+                "duration": {
+                  "Time": {
+                    "tick": 300
+                  }
+                },
+                "move_speed_mult": 25
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_sivir_attack_blade",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_sivir_q_outgoing",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_q",
+      "tag": "out",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_sivir_q_return",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_q",
+      "tag": "return",
+      "z": 2,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_sivir_attack_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_sivir_q_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_attack",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_sivir_r_cast_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_r_cast",
+      "tag": "pulse",
+      "z": 0,
+      "is_follow": true
+    }
+  ],
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "lol_sivir_spell_shield_window",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_e_shield",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": 1
+    },
+    {
+      "type": "ThreePhase",
+      "name": "lol_sivir_on_the_hunt_speed",
+      "anim": "asset/lol_mod/aseprite_resources/effects/sivir_hunt_buff",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": 0
+    }
+  ]
+}
