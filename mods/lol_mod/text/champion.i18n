@@ -10,10 +10,10 @@
       },
       "archer": {
         "name": "Lucian",
-        "attack": "Relic Pistols: Fires a light bolt for 100% Attack physical damage.",
-        "skill": "Relentless Pursuit / Lightslinger: Dashes 300 range in the chosen direction, then quickly fires at the most recently attacked enemy for 45% Attack physical damage.",
-        "skill2": "Piercing Light (002 native contract): Fires at a nearby enemy for 55 + 85% Attack physical damage and briefly interrupts them. The old Archer backstep is disabled.",
-        "ult": "The Culling: Stands still and fires 15 shots at enemies within 1200 range, one shot every 0.13 seconds. Each shot deals 8 + 18% Attack physical damage. The channel can be interrupted."
+        "attack": "Relic Pistols / Lightslinger: Fires a generated light bolt for 100% Attack physical damage. After Q, E, or R, the next attack within 4 seconds fires a second bolt 0.1 seconds later for 45% Attack physical damage.",
+        "skill": "Q — Piercing Light: Targets an enemy champion and fires a penetrating 760-range light beam through them, dealing 55 + 85% Attack physical damage to every non-tower enemy on the line. Activates Lightslinger.",
+        "skill2": "E — Relentless Pursuit: Dashes 300 range in the chosen direction without dealing damage or spawning a release effect. Activates Lightslinger.",
+        "ult": "R — The Culling: Stands still and fires 15 shots in the chosen direction, one every 0.13 seconds. Shots do not pierce; each deals 8 + 18% Attack physical damage to the first non-tower enemy hit. The channel can be interrupted and activates Lightslinger when it finishes."
       }
     }
   },
@@ -28,10 +28,10 @@
       },
       "archer": {
         "name": "卢锡安",
-        "attack": "遗迹圣枪：发射圣光弹，造成100%攻击力的物理伤害。",
-        "skill": "冷酷追击／圣光银弹：向指定方向冲刺300距离，随后快速射击最近一次普攻的目标，造成45%攻击力的物理伤害。",
-        "skill2": "透体圣光（002原生合同）：向附近敌人射击，造成55 + 85%攻击力的物理伤害并短暂打断目标；原弓箭手的后跳已关闭。",
-        "ult": "圣枪洗礼：原地对1200范围内的敌人连续发射15发子弹，每0.13秒一发。每发造成8 + 18%攻击力的物理伤害，引导可被打断。"
+        "attack": "遗迹圣枪／圣光银弹：发射生成的圣光弹，造成100%攻击力的物理伤害。施放Q、E或R后，4秒内的下一次普攻会在0.1秒后追加第二发子弹，造成45%攻击力的物理伤害。",
+        "skill": "Q—透体圣光：锁定一名敌方英雄，向其方向发射一道760距离的贯穿光束，对沿线所有非防御塔敌人造成55 + 85%攻击力的物理伤害，并激活圣光银弹。",
+        "skill2": "E—冷酷追击：向指定方向冲刺300距离，不造成伤害，也不会生成释放特效；激活圣光银弹。",
+        "ult": "R—圣枪洗礼：原地朝指定方向连续发射15发不可穿透的子弹，每0.13秒一发。每发对首个命中的非防御塔敌人造成8 + 18%攻击力的物理伤害。引导可被打断，结束后激活圣光银弹。"
       }
     }
   },
@@ -46,10 +46,10 @@
       },
       "archer": {
         "name": "路西恩",
-        "attack": "遺跡聖槍：發射聖光彈，造成100%攻擊力的物理傷害。",
-        "skill": "冷酷追擊／聖光銀彈：向指定方向衝刺300距離，隨後快速射擊最近一次普攻的目標，造成45%攻擊力的物理傷害。",
-        "skill2": "透體聖光（002原生合約）：向附近敵人射擊，造成55 + 85%攻擊力的物理傷害並短暫打斷目標；原弓箭手的後跳已關閉。",
-        "ult": "聖槍洗禮：原地對1200範圍內的敵人連續發射15發子彈，每0.13秒一發。每發造成8 + 18%攻擊力的物理傷害，引導可被打斷。"
+        "attack": "遺跡聖槍／聖光銀彈：發射生成的聖光彈，造成100%攻擊力的物理傷害。施放Q、E或R後，4秒內的下一次普攻會在0.1秒後追加第二發子彈，造成45%攻擊力的物理傷害。",
+        "skill": "Q—透體聖光：鎖定一名敵方英雄，向其方向發射一道760距離的貫穿光束，對沿線所有非防禦塔敵人造成55 + 85%攻擊力的物理傷害，並啟動聖光銀彈。",
+        "skill2": "E—冷酷追擊：向指定方向衝刺300距離，不造成傷害，也不會產生施放特效；啟動聖光銀彈。",
+        "ult": "R—聖槍洗禮：原地朝指定方向連續發射15發不可穿透的子彈，每0.13秒一發。每發對首個命中的非防禦塔敵人造成8 + 18%攻擊力的物理傷害。引導可被打斷，結束後啟動聖光銀彈。"
       }
     }
   }

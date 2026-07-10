@@ -26,18 +26,20 @@ def test_static_validator_passes() -> None:
 
 def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     shen = json.loads((MOD / "champion" / "lol_shen.data_champion").read_text(encoding="utf-8"))
-    setting = json.loads((MOD / "setting" / "champion_info.champion_info_sheet").read_text(encoding="utf-8"))
+    lucian = json.loads((MOD / "champion" / "archer.data_champion").read_text(encoding="utf-8"))
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
     text = json.loads((MOD / "text" / "champion.i18n").read_text(encoding="utf-8"))
     assert shen["id"] == "lol_shen"
-    base_setting = json.loads((MOD / "source" / "base" / "champion_info_base.champion_info_sheet").read_text(encoding="utf-8"))
-    assert set(setting) == set(base_setting)
-    assert all(setting[key] == value for key, value in base_setting.items() if key != "archer")
-    assert setting["archer"]["attack"]["name"] == "archer_attack"
-    assert setting["archer"]["ult"]["name"] == "archer_ult"
+    assert lucian["id"] == "archer"
+    assert lucian["sprite"] == "asset/lol_mod/aseprite_resources/champions/lucian"
+    assert lucian["skill_icons"] == [
+        "asset/lol_mod/icons/lucian_skill",
+        "asset/lol_mod/icons/lucian_skill2",
+        "asset/lol_mod/icons/lucian_ult",
+    ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.2.2"
+    assert mod_info["version"] == "0.3.0"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -62,11 +64,11 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
     assert {entry["role"] for entry in lucian_imagegen["sources"]} == {
         "actor_model",
         "run_cycle",
+        "attack_vfx",
         "q_icon",
         "e_icon",
         "r_icon",
         "q_vfx",
-        "e_vfx",
         "r_vfx",
     }
     assert len(shen_audio["outputs"]) == 7

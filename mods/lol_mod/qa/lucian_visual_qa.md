@@ -1,12 +1,14 @@
-# Lucian native-002 visual QA
+# Lucian same-id 002 visual QA
 
-| Surface / ability | Route | Acceptance |
+| Surface / action | Source route | Acceptance |
 | --- | --- | --- |
-| Actor model | native `archer#sheet` replacement | 64x64 safe frames, y=45 foot baseline, 34-37 px standing height |
-| Run | native `run` tag | eight unique phases with alternating contacts and visible cross-steps |
-| Attacks | native `attack`, `skill_attack`, `skill`, `skill2` tags | centered actor; readable pistol poses without edge crop |
-| R | native `ult_pre`, `ult_loop`, `ult_end`, `ult_projectile` tags | all native frame counts and timings preserved |
-| Skill icons | five patched `archer_0` through `archer_4` cells in the base 4096x49 atlas | generated E/Q/R art appears in every 002 UI slot |
-| Portrait | `archer` style offsets `face {x:0,y:-34}` and `center {x:0,y:-12}` | centered in compact HUD, scoreboard, cards and battle list |
+| Face / actor | image-gen v2 4x3 chibi actor source | warm high-contrast face at the official 002 idle envelope: 31-33px high, about 25px wide, y=45 foot baseline |
+| Run | image-gen v3 compact 3x3 sprint source | nine unique crouched gunslinger phases, cross/passing steps, at most 31px high/30px wide, distinct from Shen |
+| Basic/passive attack | v2 actor muzzle poses plus dedicated image-gen `lucian_attack` projectile | one bolt normally; two separate bolts under Lightslinger |
+| Q | independent image-gen gold-white beam | direction-aware projectile rotates around x=96 and starts at x=116, so both facings begin at the forward pistol muzzle; distinct from cyan attack/R bullets |
+| E | actor dash animation only | 300-range movement with no release VFX, trail or afterimage |
+| R | independent image-gen compact bullet | 15 discrete non-piercing projectiles, no baked multi-hit cluster |
+| Skill icons | direct `skill_icons` paths | exact order Q, E, R; no W or native Archer atlas cells |
+| Compact portrait | `archer` style offsets `face {x:0,y:-34}` and `center {x:0,y:-12}` | centered in compact HUD, scoreboard, cards and battle list |
 
-Generated contact sheets remain `lucian_actor_contact_final.png`, `lucian_skill_icons_final.png`, and `lucian_vfx_contact_final.png`.
+Generated review sheets are `lucian_actor_contact_final.png`, `lucian_skill_icons_final.png`, and `lucian_vfx_contact_final.png`.

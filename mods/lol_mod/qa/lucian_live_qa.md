@@ -1,25 +1,23 @@
-# Lucian native-002 live QA
+# Lucian same-id 002 live QA
 
 Automated/build gates:
 
-- [x] The replacement sheet preserves every required official champion entry and changes only native `archer`.
-- [x] No `champion/lol_lucian.data_champion` registration file exists.
-- [x] Native Archer text, actor animation, icon-atlas cells, stats and sound events are remapped to Lucian assets.
-- [x] Builder, static validator and tests pass.
-- [x] Installed runtime files match `build_manifest.json`.
+- [x] `champion/archer.data_champion` has id `archer`; no duplicate `lol_lucian` registration exists.
+- [x] The three active icons and descriptions are ordered Q, E, R with no W.
+- [x] Lightslinger contains exactly two generated projectiles six ticks apart and consumes its marker.
+- [x] Q is penetrating, E is a damage-free directional dash with no release VFX, and R emits exactly 15 non-piercing shots.
+- [x] Actor, run, attack-bolt and Q/R visual sources plus Q/E/R icons are image-gen assets with recorded hashes.
+- [x] Builder, static validator and tests pass; all 58 installed runtime files match `build_manifest.json`.
 
 Reviewer gates:
 
-- [ ] Search the encyclopedia for “卢锡安”; native champion 002 appears under that name and no extra Archer/Lucian duplicate exists.
-- [ ] Encyclopedia, draft card, scoreboard, side list, battle HUD and minimap show a centered, correctly scaled portrait/model.
-- [ ] The eight-frame native run loop visibly alternates the legs and includes passing/cross-step poses.
-- [ ] E dashes in the chosen direction and follows with the native 45% shot from the centered actor.
-- [ ] Q fires from the centered actor, deals the documented damage and does not perform the old Archer backstep.
-- [ ] R is interruptible and produces exactly 15 shots.
-- [ ] Official Lucian attack/E/Q/R audio is audible and correctly timed.
+- [ ] Search the encyclopedia for “卢锡安”; the official 002 position appears once and has Q/E/R icons.
+- [ ] The enlarged warm-tone face reads clearly in encyclopedia, draft, scoreboard and battle HUD.
+- [ ] The nine-frame low forward dual-pistol sprint is visibly different from Shen's upright ninja gait.
+- [ ] A normal basic attack shows one cyan generated light bolt.
+- [ ] After Q or E, the next basic attack visibly produces a second bolt shortly after the first.
+- [ ] Q reads as a gold-white penetrating beam starting at the forward pistol muzzle in both facing directions; E moves 300 range without spawning a trail or afterimage.
+- [ ] R keeps Lucian stationary, can be interrupted, and emits 15 discrete shots.
+- [ ] Official Lucian attack/passive/Q/E/R audio is audible and correctly timed.
 
-The game must be fully closed before installing v0.2.2 so cached older assets cannot remain in memory.
-
-Latest startup smoke: 2026-07-10 13:27 JST. The installed v0.2.1 build reached `asset loading done!` in under one second with no missing champion fields and no Lucian/`lol_mod` asset errors. All 59 installed runtime files matched the build manifest. The existing Workshop item 3736031680 warning and network default-banpick fallback are unrelated to this mod.
-
-Override warning regression: v0.2.2 changes the complete `champion_info` remap from `merge` to `override`. The 2026-07-10 13:34 JST startup reached `asset loading done!` with no `Cannot read target ... champion_info` message and no unapplied mod override warning. Static validation now rejects `merge` for this complete native sheet.
+Latest startup smoke: 2026-07-10 14:49 JST. Installed v0.3.0 reached the title screen with no diagnostics popup; all 58 runtime hashes matched. The installed Q uses the direction-aware projectile binding with no caster-only visual, and E contains no release-VFX binding or asset. The existing Workshop item 3736031680 warning and network default-banpick fallback are unrelated to this mod.

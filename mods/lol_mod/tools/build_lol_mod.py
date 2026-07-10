@@ -36,16 +36,16 @@ VFX_SOURCES = {
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
-LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_alpha.png"
-LUCIAN_RUN_SOURCE = SOURCE / "lucian_run_contact_alpha.png"
+LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_v2_alpha.png"
+LUCIAN_RUN_SOURCE = SOURCE / "lucian_run_contact_v3_alpha.png"
 LUCIAN_ICON_SOURCES = {
     "lucian_skill.png": SOURCE / "lucian_q_icon_source_alpha.png",
     "lucian_skill2.png": SOURCE / "lucian_e_icon_source_alpha.png",
     "lucian_ult.png": SOURCE / "lucian_r_icon_source_alpha.png",
 }
 LUCIAN_VFX_SOURCES = {
-    "lucian_q": (SOURCE / "lucian_q_vfx_contact_alpha.png", 4, 2, (96, 48), (84, 24)),
-    "lucian_e": (SOURCE / "lucian_e_vfx_contact_alpha.png", 4, 2, (112, 64), (100, 42)),
+    "lucian_attack": (SOURCE / "lucian_attack_vfx_contact_alpha.png", 4, 2, (64, 32), (52, 16)),
+    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v2_alpha.png", 4, 2, (192, 64), (72, 24)),
     "lucian_r": (SOURCE / "lucian_r_vfx_contact_alpha.png", 4, 2, (64, 32), (48, 18)),
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
@@ -272,13 +272,13 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack Lucian into the exact native Archer animation-key/frame contract."""
+    """Pack a readable chibi Lucian with a distinct nine-phase gunslinger sprint."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
     base_frames: list[Image.Image] = []
     for cell in split_grid(source, 4, 3):
         cell = hard_alpha(cell)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(0.124, 58 / subject.width)
+        scale = min(33 / subject.height, 58 / subject.width)
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
@@ -293,7 +293,7 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(36 / subject.height, 58 / subject.width)
+        scale = min(31 / subject.height, 30 / subject.width)
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
@@ -303,73 +303,43 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         run_frames.append(frame)
 
-    transparent = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    r_source = Image.open(LUCIAN_VFX_SOURCES["lucian_r"][0]).convert("RGBA")
-    r_projectile = fit_cell(split_grid(r_source, 4, 2)[0], (64, 64), (48, 18))
+    # Atlas order: two idles, nine unique run phases, then ten combat poses.
+    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
+    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
 
-    # Source pose aliases: 0/1 idle, 2/3 right/left shot, 4 double shot,
-    # 5 Q, 6/7 E, 8/9 R, 10 hit, 11 dead.
-    sequences: dict[str, tuple[list[Image.Image], list[float]]] = {
-        "ult_old": (
-            [base_frames[index] for index in [0, 8, 8, 9, 9, 9, 9, 9, 9, 8, 0]],
-            [0.080000006] * 7 + [0.1] * 4,
-        ),
-        "skill": (
-            [base_frames[index] for index in [6, 7, 7, 4, 2, 0]],
-            [0.080000006] * 6,
-        ),
-        "ult_end": ([base_frames[index] for index in [9, 8, 0]], [0.080000006] * 3),
-        "ult_projectile": ([r_projectile], [0.080000006]),
-        "hit": ([base_frames[10]], [0.1]),
-        "run": (run_frames[:8], [0.080000006] * 8),
-        "ult_loop": ([base_frames[9]] * 4, [0.030000001] * 4),
-        "skill2": (
-            [base_frames[index] for index in [0, 5, 5, 5, 5, 1, 0]],
-            [0.080000006] * 7,
-        ),
-        "ult_pre": ([base_frames[index] for index in [0, 8, 8]], [0.080000006] * 3),
-        "dead": (
-            [base_frames[10], *([base_frames[11]] * 7), transparent],
-            [0.1] * 4 + [0.15] * 5,
-        ),
-        "old_ult_buff_effect": ([base_frames[9], base_frames[9], base_frames[8], base_frames[0]], [0.1] * 4),
-        "skill_attack": ([base_frames[index] for index in [4, 2, 0]], [0.080000006] * 3),
-        "idle": ([base_frames[index] for index in [0, 1, 0, 1]], [0.18, 0.14, 0.14, 0.14]),
-        "skill_dash": ([base_frames[index] for index in [6, 7, 7]], [0.080000006] * 3),
-        "attack": ([base_frames[index] for index in [0, 2, 2, 3, 3, 0]], [0.060000002] * 6),
-        "old_ult_pre": (
-            [base_frames[index] for index in [0, 8, 8, 9, 9, 9, 9]],
-            [0.080000006] * 7,
-        ),
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "lucian#sheet.png"
+    anim_path = ACTOR_DIR / "lucian#anim.fanim"
+    save_png(sheet_path, atlas)
+
+    sequences: dict[str, tuple[list[int], list[float]]] = {
+        "idle": ([0, 1, 0, 1, 0, 1, 0], [0.12] * 7),
+        "run": (list(range(2, 11)), [0.075] * 9),
+        "attack": ([11, 11, 0], [0.10, 0.10, 0.20]),
+        "attack_right": ([0, 11, 11, 0], [0.06, 0.08, 0.08, 0.18]),
+        "attack_left": ([0, 12, 12, 0], [0.06, 0.08, 0.08, 0.18]),
+        "attack_double": ([0, 13, 13, 11, 12, 0], [0.04, 0.06, 0.06, 0.08, 0.08, 0.16]),
+        "skill": ([0, 14, 14, 14, 0], [0.05, 0.08, 0.10, 0.08, 0.09]),
+        "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
+        "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
+        "hit": ([19], [0.12]),
+        "dead": ([20], [0.60]),
     }
-
-    packed_frames: list[Image.Image] = []
     anims: dict[str, object] = {}
-    for name, (sequence_frames, durations) in sequences.items():
-        start = len(packed_frames)
-        packed_frames.extend(sequence_frames)
+    for name, (indexes, durations) in sequences.items():
         anims[name] = {
             "frames": [
                 {
                     "duration": duration,
-                    "data": {"x": (start + index) * 64, "y": 0, "w": 64, "h": 64},
+                    "data": {"x": index * 64, "y": 0, "w": 64, "h": 64},
                 }
-                for index, duration in enumerate(durations)
+                for index, duration in zip(indexes, durations, strict=True)
             ]
         }
-
-    atlas = Image.new("RGBA", (64 * len(packed_frames), 64), (0, 0, 0, 0))
-    for index, frame in enumerate(packed_frames):
-        atlas.alpha_composite(frame, (index * 64, 0))
-
-    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
-    sheet_path = ACTOR_DIR / "archer#sheet.png"
-    anim_path = ACTOR_DIR / "archer#anim.fanim"
-    save_png(sheet_path, atlas)
     write_json(anim_path, {"anims": anims})
-
-    preview_frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
-    return sheet_path, anim_path, preview_frames
+    return sheet_path, anim_path, frames
 
 
 def build_icons() -> list[Path]:
@@ -576,12 +546,15 @@ def build_lucian_vfx() -> list[Path]:
             )
             resized = palette_finish(resized, 48)
             frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
-            x = (frame_size[0] - resized.width) // 2
-            if name == "lucian_e":
-                # Fixed y=45 actor baseline keeps the dash echo behind Lucian's
-                # centered runtime model instead of pulling the composite down.
-                y = 45 - resized.height
+            if name == "lucian_q":
+                # Caster-follow Q beam: the 192x64 canvas is centered on the
+                # actor. Start the visible gold lance 20px to the right of
+                # center, matching Lucian's Q pistol muzzle at the cast pose.
+                x = min(frame_size[0] - resized.width - 2, frame_size[0] // 2 + 20)
+                y = 24 - resized.height // 2
             else:
+                x = (frame_size[0] - resized.width) // 2
+            if name != "lucian_q":
                 y = (frame_size[1] - resized.height) // 2
             frame.alpha_composite(resized, (x, y))
             frames.append(frame)
@@ -594,8 +567,16 @@ def build_lucian_vfx() -> list[Path]:
         sheet = EFFECT_DIR / f"{name}#sheet.png"
         anim = EFFECT_DIR / f"{name}#anim.fanim"
         save_png(sheet, atlas)
-        tag = {"lucian_q": "projectile", "lucian_e": "dash", "lucian_r": "projectile"}[name]
-        duration = {"lucian_q": 0.05, "lucian_e": 0.045, "lucian_r": 0.035}[name]
+        tag = {
+            "lucian_attack": "projectile",
+            "lucian_q": "projectile",
+            "lucian_r": "projectile",
+        }[name]
+        duration = {
+            "lucian_attack": 0.04,
+            "lucian_q": 0.012,
+            "lucian_r": 0.035,
+        }[name]
         write_json(
             anim,
             {"anims": {tag: effect_anim(frame_size[0], frame_size[1], list(range(8)), [duration] * 8)}},
@@ -665,7 +646,7 @@ def build_lucian_data() -> Path:
         for index in range(15)
     ]
     champion = {
-        "id": "lol_lucian",
+        "id": "archer",
         "category": "Range",
         "tags": ["AD", "Range"],
         "sprite": "asset/lol_mod/aseprite_resources/champions/lucian",
@@ -699,7 +680,7 @@ def build_lucian_data() -> Path:
         },
         "attack": {
             "action_name": "attack",
-            "description": "#asset/base/text/champion?description.lol_lucian.attack",
+            "description": "#asset/base/text/champion?description.archer.attack",
             "duration": 24,
             "cooltime": 60,
             "start_timing": 10,
@@ -754,7 +735,7 @@ def build_lucian_data() -> Path:
         },
         "skill": {
             "action_name": "skill",
-            "description": "#asset/base/text/champion?description.lol_lucian.skill",
+            "description": "#asset/base/text/champion?description.archer.skill",
             "duration": 24,
             "cooltime": 300,
             "start_timing": 10,
@@ -777,7 +758,7 @@ def build_lucian_data() -> Path:
                                 "penetrate": True,
                                 "speed": 15000,
                                 "range": 76000,
-                                "name": "lol_lucian_piercing_light",
+                                "name": "lol_lucian_q_beam_visual",
                                 "shape": {"Rect": {"width": 12000, "height": 76000}},
                                 "applied_target": "EnemyWithoutTower",
                                 "applied_effects": [
@@ -801,7 +782,7 @@ def build_lucian_data() -> Path:
         },
         "skill2": {
             "action_name": "skill2",
-            "description": "#asset/base/text/champion?description.lol_lucian.skill2",
+            "description": "#asset/base/text/champion?description.archer.skill2",
             "duration": 18,
             "cooltime": 420,
             "start_timing": 4,
@@ -815,7 +796,6 @@ def build_lucian_data() -> Path:
                 "effects": [
                     {"type": "Sfx", "name": "lol_lucian_e_cast"},
                     {"type": "CasterAnimation", "name": "skill2", "tick": 18},
-                    {"type": "CasterViewEffect", "name": "lol_lucian_dash_visual"},
                     {
                         "type": "RushTime",
                         "speed": 3000,
@@ -832,7 +812,7 @@ def build_lucian_data() -> Path:
         },
         "ult": {
             "action_name": "ult",
-            "description": "#asset/base/text/champion?description.lol_lucian.ult",
+            "description": "#asset/base/text/champion?description.archer.ult",
             "duration": 150,
             "cooltime": 3600,
             "start_timing": 12,
@@ -865,14 +845,14 @@ def build_lucian_data() -> Path:
             {
                 "type": "Animated",
                 "name": "lol_lucian_light_bolt",
-                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_r",
+                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_attack",
                 "tag": "projectile",
                 "z": 2,
                 "repeat": True,
             },
             {
                 "type": "Animated",
-                "name": "lol_lucian_piercing_light",
+                "name": "lol_lucian_q_beam_visual",
                 "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
                 "tag": "projectile",
                 "z": 3,
@@ -887,19 +867,10 @@ def build_lucian_data() -> Path:
                 "repeat": True,
             },
         ],
-        "view_effects": [
-            {
-                "type": "Animation",
-                "name": "lol_lucian_dash_visual",
-                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_e",
-                "tag": "dash",
-                "z": 1,
-                "is_follow": True,
-            }
-        ],
+        "view_effects": [],
         "view_buffs": [],
     }
-    path = MOD_ROOT / "champion" / "lol_lucian.data_champion"
+    path = MOD_ROOT / "champion" / "archer.data_champion"
     write_json(path, champion)
     return path
 
@@ -969,9 +940,9 @@ def build_lucian_qa_contacts(actor_frames: list[Image.Image], icons: list[Path])
     save_png(icon_path, icon_contact)
 
     panels = [
-        ("lucian_q", (96, 48), "Q beam"),
-        ("lucian_e", (112, 64), "E afterimage"),
-        ("lucian_r", (64, 32), "R / attack bullet"),
+        ("lucian_attack", (64, 32), "attack / passive bolt"),
+        ("lucian_q", (192, 64), "Q gold muzzle beam"),
+        ("lucian_r", (64, 32), "R bullet"),
     ]
     vfx_contact = Image.new("RGBA", (8 * 128, 3 * 96), (20, 18, 28, 255))
     draw = ImageDraw.Draw(vfx_contact)
@@ -1004,7 +975,6 @@ def build_manifest() -> Path:
         MOD_ROOT / "champion",
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
-        MOD_ROOT / "setting",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
@@ -1045,8 +1015,6 @@ def main() -> int:
         LUCIAN_RUN_SOURCE,
         *LUCIAN_ICON_SOURCES.values(),
         *(entry[0] for entry in LUCIAN_VFX_SOURCES.values()),
-        BASE_SKILL_ICON_SOURCE,
-        BASE_CHAMPION_INFO_SOURCE,
     ]
     missing = [path for path in required_sources if not path.exists()]
     if missing:
@@ -1055,11 +1023,10 @@ def main() -> int:
     icons = build_icons()
     vfx = build_vfx()
     qa = build_qa_contacts(actor_frames, icons)
-    archer_setting = build_archer_override()
     lucian_sheet, lucian_anim, lucian_frames = build_lucian_actor()
     lucian_icons = build_lucian_icons()
-    archer_icon_atlas = build_archer_skill_icon_atlas(lucian_icons)
     lucian_vfx = build_lucian_vfx()
+    lucian_champion = build_lucian_data()
     lucian_qa = build_lucian_qa_contacts(lucian_frames, lucian_icons)
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
@@ -1068,12 +1035,11 @@ def main() -> int:
         *icons,
         *vfx,
         *qa,
-        archer_setting,
         lucian_sheet,
         lucian_anim,
         *lucian_icons,
-        archer_icon_atlas,
         *lucian_vfx,
+        lucian_champion,
         *lucian_qa,
         *([manifest] if manifest else []),
     ]:

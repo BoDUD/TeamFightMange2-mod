@@ -7,13 +7,18 @@
   "sources": [
     {
       "role": "actor_model",
-      "path": "source/imagegen/lucian_actor_contact.png",
-      "sha256": "12a4fbebb8e1862b92a0818a708fd702081170f2b17611d500d0e67fa013a4df"
+      "path": "source/imagegen/lucian_actor_contact_v2.png",
+      "sha256": "f7dbbbcce19e58e25675e8fcdde028199cb40d6aff5ff4b0144b2c7d67deda5d"
     },
     {
       "role": "run_cycle",
-      "path": "source/imagegen/lucian_run_contact.png",
-      "sha256": "427d266d063fdb10d008592d3730aa1b84a5f0fc30cfbd8fbc049130c97af836"
+      "path": "source/imagegen/lucian_run_contact_v3.png",
+      "sha256": "5fb10c1d4ce375510799b98b4b338a43d5f5bc7e24cf1afd5b8b3adb776ac867"
+    },
+    {
+      "role": "attack_vfx",
+      "path": "source/imagegen/lucian_attack_vfx_contact.png",
+      "sha256": "a305f4e33f383536ae79691fca73155a8d4a398c666561ee9d9313a05217e756"
     },
     {
       "role": "q_icon",
@@ -32,13 +37,8 @@
     },
     {
       "role": "q_vfx",
-      "path": "source/imagegen/lucian_q_vfx_contact.png",
-      "sha256": "c84f78330ef36cde724429cf5181bfa4b4250a4ba03cd626aaeb6dcfa4cc89d0"
-    },
-    {
-      "role": "e_vfx",
-      "path": "source/imagegen/lucian_e_vfx_contact.png",
-      "sha256": "1e4052f24890da1953b79d31d2ea1357efb193c6847fbaa85d781e9a7561cbdf"
+      "path": "source/imagegen/lucian_q_vfx_contact_v2.png",
+      "sha256": "3906fc35eb6684697f013ec8004104e71b488fa02d8950fc2f4ae1840a157db9"
     },
     {
       "role": "r_vfx",

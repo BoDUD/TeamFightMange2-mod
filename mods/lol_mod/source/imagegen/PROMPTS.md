@@ -58,10 +58,30 @@ Square full-bleed pixel-art icon for The Culling: two relic pistols driving a sy
 
 Exact 4x2 contact sheet of eight sequential Piercing Light phases: a thin horizontal cyan-white lance ignites, sharpens, reaches a fixed bright core, sparks and cleanly dissipates. Effect only, fixed origin and footprint, about 55% cell width. Flat `#ff00ff`; no character, weapon, labels, grid, blur or transparency.
 
-## Lucian E VFX
+The cyan Q route was rejected after live-read review because it was too close to the cyan basic-attack bolt.
 
-Exact 4x2 contact sheet of eight sequential Relentless Pursuit afterimage phases derived from the accepted Lucian silhouette. Translucent cyan ghost echoes and speed streaks remain mainly left of a fixed center so the separately rendered active actor stays centered; fixed y origin and footprint. Flat `#ff00ff`; no labels, grid, smoke, UI or transparency.
+## Lucian Q v2 gold muzzle beam
+
+Preserve the exact 4x2 eight-phase Piercing Light layout and long fixed lance, but replace the cyan identity with a white-hot ivory center, saturated golden-yellow body/edges, amber sparks and a restrained pale-violet shadow outline. Cyan/blue must not be dominant. The packed 192x64 direction-aware projectile canvas uses x=96 as its rotation pivot and starts visible pixels at x=116, so either facing direction rotates the forward beam from the Q pose's pistol muzzle instead of placing it behind the actor. Flat `#ff00ff`; effect only, no projectile-shaped blue bolt, character, labels, grid or extra beams.
 
 ## Lucian R VFX
 
 Exact 4x2 contact sheet of eight looping single-projectile phases for The Culling: one compact horizontal cyan-white diamond bullet with a short tail and controlled side sparks, fixed center and footprint. Flat `#ff00ff`; no beam, projectile cluster, labels, grid, blur or transparency.
+
+## Lucian v2 readable actor model
+
+Edit the supplied Lucian actor into an exact 4x3 production sprite sheet with the same dark-skinned dual-pistol identity, navy coat, silver shoulders and cyan relic pistols. Use simplified final-scale chibi pixel art: head about one quarter of standing height, larger warm-brown face, separated black hairline and bright eye pixels that remain readable at a 36-37px full-body height. Pose order: idle A/B, right/left shots; wide/forward double shots, dash start/travel; R start/fire, hit, dead. Flat `#ff00ff`; no labels, grid, shadows, extra characters, cropping or oversized skill VFX.
+
+## Lucian v2 distinct run cycle
+
+Edit the supplied Lucian run source into an exact 3x3 nine-frame screen-right gunslinger sprint, visibly unlike Shen's upright ninja walk. Use a low forward torso, pistols held low and back, trailing coat, alternating contacts, two obvious cross/passing phases, airborne stride, heel kick and small vertical bounce. Preserve the v2 face, costume, scale and foot baseline in all cells. Flat `#ff00ff`; no duplicate pose, muzzle flash, labels, grid, cropping or model drift.
+
+This first v2 sprint route was rejected after measuring the official Archer frames: its long airborne splits packed to as much as 58px wide, versus the official run's 23-24px visible width.
+
+## Lucian v3 official-footprint run correction
+
+Edit the v2 run sheet while locking the v2 actor identity. Keep nine screen-right gunslinger phases with modest forward lean, low pistols, alternating contacts and two passing/cross steps, but keep both legs mostly under the torso, coat tails close, no full split or long airborne jump, and a silhouette width no more than 90% of its height. Flat `#ff00ff`; preserve the face, costume, scale and foot baseline; no labels, grid, projectiles, cropping or model drift. This compact route is packed to the official 002 run envelope of at most 31px tall and 30px wide.
+
+## Lucian basic attack / passive projectile VFX
+
+Create an exact 4x2 eight-frame pixel-art contact sheet for one relic-pistol light bolt traveling screen-right: narrow diamond/needle white-hot core, cyan-blue shell, tiny electric particles and a short tapered tail, progressing from ignition through stable bolt and flare to dissipation. It must remain readable at about 32x16px and look like magical gunfire, not an arrow, casing, beam, rocket or projectile cluster. Flat `#ff00ff`; no character, gun, hand, labels, grid, scenery or watermark.

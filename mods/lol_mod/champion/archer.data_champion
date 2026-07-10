@@ -1,0 +1,829 @@
+{
+  "id": "archer",
+  "category": "Range",
+  "tags": [
+    "AD",
+    "Range"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/lucian",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/lucian_skill",
+    "asset/lol_mod/icons/lucian_skill2",
+    "asset/lol_mod/icons/lucian_ult"
+  ],
+  "stat": {
+    "attack": 100,
+    "magic_power": 0,
+    "hp": 900,
+    "defence": 20,
+    "magic_resistance": 15,
+    "move_speed": 900,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 13,
+    "magic_power": 0,
+    "hp": 90,
+    "defence": 6,
+    "magic_resistance": 3,
+    "move_speed": 9,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.archer.attack",
+    "duration": 24,
+    "cooltime": 60,
+    "start_timing": 10,
+    "cancelable": true,
+    "range": 62000,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "lol_lucian_lightslinger_ready",
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_lucian_attack_cast"
+          },
+          {
+            "type": "CasterAnimation",
+            "name": "attack_right",
+            "tick": 18
+          },
+          {
+            "type": "Delayed",
+            "tick": 5,
+            "effects": [
+              {
+                "type": "TargetProjectile",
+                "speed": 6500,
+                "name": "lol_lucian_light_bolt",
+                "y_offset": 0,
+                "applied_target": "Enemy",
+                "applied_effects": [
+                  {
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 0,
+                          "attack_ratio": 100
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_lucian_attack_hit"
+                        }
+                      ]
+                    },
+                    "casting_type": "Targeting"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_lucian_passive_cast"
+          },
+          {
+            "type": "CasterAnimation",
+            "name": "attack_double",
+            "tick": 22
+          },
+          {
+            "type": "Delayed",
+            "tick": 4,
+            "effects": [
+              {
+                "type": "TargetProjectile",
+                "speed": 6500,
+                "name": "lol_lucian_light_bolt",
+                "y_offset": 0,
+                "applied_target": "Enemy",
+                "applied_effects": [
+                  {
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 0,
+                          "attack_ratio": 100
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_lucian_attack_hit"
+                        }
+                      ]
+                    },
+                    "casting_type": "Targeting"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Delayed",
+            "tick": 10,
+            "effects": [
+              {
+                "type": "TargetProjectile",
+                "speed": 6500,
+                "name": "lol_lucian_light_bolt",
+                "y_offset": 0,
+                "applied_target": "Enemy",
+                "applied_effects": [
+                  {
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 0,
+                          "attack_ratio": 45
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_lucian_passive_hit"
+                        }
+                      ]
+                    },
+                    "casting_type": "Targeting"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "lol_lucian_lightslinger_ready"
+          }
+        ]
+      }
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.archer.skill",
+    "duration": 24,
+    "cooltime": 300,
+    "start_timing": 10,
+    "cancelable": true,
+    "range": 65000,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_lucian_q_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill",
+          "tick": 20
+        },
+        {
+          "type": "Delayed",
+          "tick": 10,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": true,
+              "speed": 15000,
+              "range": 76000,
+              "name": "lol_lucian_q_beam_visual",
+              "shape": {
+                "Rect": {
+                  "width": 12000,
+                  "height": 76000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 55,
+                    "attack_ratio": 85
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_lucian_lightslinger_ready",
+            "duration": {
+              "Time": {
+                "tick": 240
+              }
+            }
+          }
+        }
+      ]
+    },
+    "can_use_with_move": false
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.archer.skill2",
+    "duration": 18,
+    "cooltime": 420,
+    "start_timing": 4,
+    "cancelable": false,
+    "range": 30000,
+    "casting_type": "Direction",
+    "casting_target": "AllyOnlySelf",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_lucian_e_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill2",
+          "tick": 18
+        },
+        {
+          "type": "RushTime",
+          "speed": 3000,
+          "tick": 10,
+          "range": 0,
+          "casting_target": "Enemy",
+          "penetrate": true,
+          "applied_effects": []
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_lucian_lightslinger_ready",
+            "duration": {
+              "Time": {
+                "tick": 240
+              }
+            }
+          }
+        }
+      ]
+    },
+    "can_use_with_move": false
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.archer.ult",
+    "duration": 150,
+    "cooltime": 3600,
+    "start_timing": 12,
+    "cancelable": true,
+    "range": 120000,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_lucian_r_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "ult",
+          "tick": 148
+        },
+        {
+          "type": "Delayed",
+          "tick": 8,
+          "effects": [
+            {
+              "type": "Sfx",
+              "name": "lol_lucian_r_channel"
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 12,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 20,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 28,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 36,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 44,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 52,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 60,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 68,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 76,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 84,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 92,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 100,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 108,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 116,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 124,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": false,
+              "speed": 9000,
+              "range": 120000,
+              "name": "lol_lucian_culling_shot",
+              "shape": {
+                "Circle": {
+                  "radius": 4500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 8,
+                    "attack_ratio": 18
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 132,
+          "effects": [
+            {
+              "type": "AddCasterBuff",
+              "buff_state": {
+                "name": "lol_lucian_lightslinger_ready",
+                "duration": {
+                  "Time": {
+                    "tick": 240
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "can_use_with_move": false
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_lucian_light_bolt",
+      "anim": "asset/lol_mod/aseprite_resources/effects/lucian_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_lucian_q_beam_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
+      "tag": "projectile",
+      "z": 3,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_lucian_culling_shot",
+      "anim": "asset/lol_mod/aseprite_resources/effects/lucian_r",
+      "tag": "projectile",
+      "z": 3,
+      "repeat": true
+    }
+  ],
+  "view_effects": [],
+  "view_buffs": []
+}

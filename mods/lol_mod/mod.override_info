@@ -7,22 +7,6 @@
     "remapping": "asset/lol_mod/style/champion_view",
     "type": "merge"
   },
-  "asset/base/setting/champion_info": {
-    "remapping": "asset/lol_mod/setting/champion_info",
-    "type": "override"
-  },
-  "asset/base/aseprite_resources/champions/archer#sheet": {
-    "remapping": "asset/lol_mod/aseprite_resources/champions/archer#sheet",
-    "type": "override"
-  },
-  "asset/base/aseprite_resources/champions/archer#anim": {
-    "remapping": "asset/lol_mod/aseprite_resources/champions/archer#anim",
-    "type": "override"
-  },
-  "asset/base/aseprite_resources/UI_aseprite/skill_icon#sheet": {
-    "remapping": "asset/lol_mod/aseprite_resources/UI_aseprite/skill_icon#sheet",
-    "type": "override"
-  },
   "asset/base/sound/sfx/lol_shen_attack_cast": {
     "remapping": "asset/lol_mod/sound/sfx/shen_attack_cast",
     "type": "override"
@@ -79,7 +63,7 @@
     "remapping": "asset/lol_mod/sound/sfx/shen_r_arrive_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_attack": {
+  "asset/base/sound/sfx/lol_lucian_attack_cast": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_attack_cast",
     "type": "override"
   },
@@ -87,48 +71,56 @@
     "remapping": "asset/lol_mod/sound/sfx/lucian_attack_cast_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_skill_attack": {
-    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_cast",
+  "asset/base/sound/sfx/lol_lucian_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_attack_hit",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_attack_hit_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_attack_hit_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_skill": {
-    "remapping": "asset/lol_mod/sound/sfx/lucian_e_cast",
+  "asset/base/sound/sfx/lol_lucian_passive_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_cast",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_passive_cast_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_passive_cast_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_skill2": {
-    "remapping": "asset/lol_mod/sound/sfx/lucian_q_cast",
+  "asset/base/sound/sfx/lol_lucian_passive_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_hit",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_passive_hit_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_passive_hit_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_ult_pre": {
-    "remapping": "asset/lol_mod/sound/sfx/lucian_r_cast",
+  "asset/base/sound/sfx/lol_lucian_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_q_cast",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_q_cast_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_q_cast_clip",
     "type": "override"
   },
-  "asset/base/sound/sfx/archer_ult_loop": {
-    "remapping": "asset/lol_mod/sound/sfx/lucian_r_channel",
+  "asset/base/sound/sfx/lol_lucian_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_e_cast",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_e_cast_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_e_cast_clip",
     "type": "override"
   },
+  "asset/base/sound/sfx/lol_lucian_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_cast",
+    "type": "override"
+  },
   "asset/base/sound/sfx/lucian_r_cast_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_r_channel": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_channel",
     "type": "override"
   },
   "asset/base/sound/sfx/lucian_r_channel_clip": {
