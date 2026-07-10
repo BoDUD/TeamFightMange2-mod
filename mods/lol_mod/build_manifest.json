@@ -125,12 +125,12 @@
     {
       "path": "mod.mod_info",
       "size": 436,
-      "sha256": "85eee728c078971b81ae4651bf89ba356073e023e8bdee2c68b4dd5cd4b8875d"
+      "sha256": "580a8ac84e341c60276c810dd9ad33929041332411027b4660c12746911fc518"
     },
     {
       "path": "mod.override_info",
-      "size": 4670,
-      "sha256": "cb7c2b14b7b11f3b638017b64e61091c54f500c5e95eb7098108b49160885d0f"
+      "size": 4673,
+      "sha256": "c3c4b9ddd25b73e8b94b151524da8878ee0fc819b012792513a2e1bf0881087c"
     },
     {
       "path": "setting/champion_info.champion_info_sheet",

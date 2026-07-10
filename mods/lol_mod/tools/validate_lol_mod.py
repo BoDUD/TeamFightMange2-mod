@@ -407,6 +407,15 @@ def validate_archer_replacement(setting: dict[str, Any]) -> None:
     )
 
 
+def validate_native_setting_override(override: dict[str, Any]) -> None:
+    entry = override.get("asset/base/setting/champion_info", {})
+    check(entry.get("type") == "override", "complete champion_info sheet must use override, not merge")
+    check(
+        entry.get("remapping") == "asset/lol_mod/setting/champion_info",
+        "native champion_info override remapping is incorrect",
+    )
+
+
 def validate_native_archer_animation() -> None:
     sheet_path = MOD_ROOT / "aseprite_resources/champions/archer#sheet.png"
     anim = load_json("aseprite_resources/champions/archer#anim.fanim")
@@ -863,9 +872,10 @@ def main() -> int:
     archer_setting = load_json("setting/champion_info.champion_info_sheet")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.2.1", "lol_mod version must be 0.2.1")
+    check(mod_info.get("version") == "0.2.2", "lol_mod version must be 0.2.2")
     validate_data_contract(champion)
     validate_archer_replacement(archer_setting)
+    validate_native_setting_override(override)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",

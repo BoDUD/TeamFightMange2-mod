@@ -9,7 +9,7 @@
   },
   "asset/base/setting/champion_info": {
     "remapping": "asset/lol_mod/setting/champion_info",
-    "type": "merge"
+    "type": "override"
   },
   "asset/base/aseprite_resources/champions/archer#sheet": {
     "remapping": "asset/lol_mod/aseprite_resources/champions/archer#sheet",
