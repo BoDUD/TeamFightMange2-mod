@@ -11,6 +11,11 @@
       "sha256": "f4e0f167c792223710eee589256deee4ba6d1aa76318733846d426c35f3e3bad"
     },
     {
+      "role": "run_cycle",
+      "path": "source/imagegen/shen_run_contact.png",
+      "sha256": "648d0510b3a10da3ceee2ce272109e1731a18c2eb10bfa31fe47b4db4a831014"
+    },
+    {
       "role": "q_icon",
       "path": "source/imagegen/shen_q_icon_source.png",
       "sha256": "e2c6e55839bab2c3e018a19f349b56e1b7a879b830af0f89402a84fb16ccf520"

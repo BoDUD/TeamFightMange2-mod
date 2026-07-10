@@ -19,6 +19,7 @@ ICON_DIR = MOD_ROOT / "icons"
 QA_DIR = MOD_ROOT / "qa"
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
+RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
 ICON_SOURCES = {
     "shen_skill.png": SOURCE / "shen_q_icon_source_alpha.png",
     "shen_skill2.png": SOURCE / "shen_w_icon_source_alpha.png",
@@ -26,7 +27,7 @@ ICON_SOURCES = {
 }
 VFX_SOURCES = {
     "shen_q": (SOURCE / "shen_q_vfx_contact_alpha.png", 4, 2, (64, 64), (58, 48)),
-    "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 56)),
+    "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 30)),
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
@@ -115,7 +116,7 @@ def fit_cell(
 def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     source = Image.open(ACTOR_SOURCE).convert("RGBA")
     cells = split_grid(source, 4, 3)
-    frames: list[Image.Image] = []
+    base_frames: list[Image.Image] = []
     # A proven 64x64 additive actor (Galio) occupies about 35 pixels in idle.
     # Keep Shen in that same battle/UI scale class instead of letting the large
     # image-gen source fill the full frame and get cropped in compact cards.
@@ -138,7 +139,29 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         # encyclopedia cards, compact portraits, and the battle map.
         y = 45 - resized.height
         frame.alpha_composite(resized, (x, y))
-        frames.append(frame)
+        base_frames.append(frame)
+
+    # The original contact sheet only supplied three broad run poses. A second
+    # image-gen pass supplies nine unique gait phases so the reduced sprite keeps
+    # readable left/right contacts and two real passing (cross-step) silhouettes.
+    run_source = Image.open(RUN_SOURCE).convert("RGBA")
+    run_frames: list[Image.Image] = []
+    for cell in split_grid(run_source, 3, 3):
+        cell = hard_alpha(cell)
+        subject = cell.crop(alpha_bbox(cell))
+        scale = min(36 / subject.height, 58 / subject.width)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 40)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
+        run_frames.append(frame)
+
+    # Runtime atlas order: two idles, nine generated run phases, then the seven
+    # non-run actions from the accepted 4x3 actor source.
+    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[5:12]]
 
     atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
     for index, frame in enumerate(frames):
@@ -151,13 +174,13 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
     sequences: dict[str, tuple[list[int], list[float]]] = {
         "idle": ([0, 1, 0, 1, 0, 1, 0], [0.12] * 7),
-        "run": ([2, 3, 4, 3, 2, 3, 4, 3, 2], [0.08] * 9),
-        "attack": ([5, 6, 6, 7, 0, 0], [0.05, 0.05, 0.05, 0.08, 0.08, 0.09]),
-        "skill": ([5, 8, 8, 8, 7, 1, 0], [0.06, 0.07, 0.08, 0.09, 0.10, 0.10, 0.10]),
-        "skill2": ([0, 9, 9, 1, 0], [0.08, 0.12, 0.12, 0.09, 0.09]),
-        "ult": ([0, 10, 10, 10, 0], [0.12, 0.18, 0.48, 0.22, 0.20]),
-        "hit": ([11], [0.12]),
-        "dead": ([11], [0.60]),
+        "run": (list(range(2, 11)), [0.08] * 9),
+        "attack": ([11, 12, 12, 13, 0, 0], [0.05, 0.05, 0.05, 0.08, 0.08, 0.09]),
+        "skill": ([11, 14, 14, 14, 13, 1, 0], [0.06, 0.07, 0.08, 0.09, 0.10, 0.10, 0.10]),
+        "skill2": ([0, 15, 15, 1, 0], [0.08, 0.12, 0.12, 0.09, 0.09]),
+        "ult": ([0, 16, 16, 16, 0], [0.12, 0.18, 0.48, 0.22, 0.20]),
+        "hit": ([17], [0.12]),
+        "dead": ([17], [0.60]),
     }
     anims: dict[str, object] = {}
     for name, (indexes, durations) in sequences.items():
@@ -203,7 +226,19 @@ def build_vfx() -> list[Path]:
     outputs: list[Path] = []
     for name, (source_path, columns, rows, frame_size, max_visible) in VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
-        frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
+        if name == "shen_w":
+            frames = []
+            for cell in split_grid(source, columns, rows):
+                cell = hard_alpha(cell)
+                subject = cell.crop(alpha_bbox(cell)).resize(max_visible, Image.Resampling.LANCZOS)
+                subject = palette_finish(subject)
+                centered = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+                x = (frame_size[0] - subject.width) // 2
+                y = round(44 - subject.height / 2)
+                centered.alpha_composite(subject, (x, y))
+                frames.append(centered)
+        else:
+            frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -226,12 +261,15 @@ def build_vfx() -> list[Path]:
 
 def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> list[Path]:
     QA_DIR.mkdir(parents=True, exist_ok=True)
-    actor_contact = Image.new("RGBA", (4 * 128, 3 * 144), (20, 18, 28, 255))
+    actor_contact = Image.new("RGBA", (6 * 128, 3 * 144), (20, 18, 28, 255))
     draw = ImageDraw.Draw(actor_contact)
-    labels = ["idle A", "idle B", "run A", "run B", "run C", "attack A", "attack B", "attack C", "Q cast", "W cast", "R cast", "hit/dead"]
+    labels = [
+        "idle A", "idle B", *[f"run {index}" for index in range(1, 10)],
+        "attack A", "attack B", "attack C", "Q cast", "W cast", "R cast", "hit/dead",
+    ]
     for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
-        x = (index % 4) * 128
-        y = (index // 4) * 144
+        x = (index % 6) * 128
+        y = (index // 6) * 144
         zoom = frame.resize((128, 128), Image.Resampling.NEAREST)
         actor_contact.alpha_composite(zoom, (x, y))
         draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
@@ -295,7 +333,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skip-manifest", action="store_true", help="Build art only")
     args = parser.parse_args()
-    missing = [path for path in [ACTOR_SOURCE, *ICON_SOURCES.values(), *(entry[0] for entry in VFX_SOURCES.values())] if not path.exists()]
+    missing = [path for path in [ACTOR_SOURCE, RUN_SOURCE, *ICON_SOURCES.values(), *(entry[0] for entry in VFX_SOURCES.values())] if not path.exists()]
     if missing:
         raise SystemExit("Missing processed image-gen sources:\n" + "\n".join(str(path) for path in missing))
     actor_sheet, actor_anim, actor_frames = build_actor()

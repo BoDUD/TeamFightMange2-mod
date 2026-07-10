@@ -2,7 +2,7 @@
 
 Static/build checks are automated. These live checks are release gates:
 
-- [ ] Game log reaches `asset loading done!` with no data champion, asset, or sound errors.
+- [x] Game log reaches `asset loading done!` with no data champion, asset, or sound errors.
 - [ ] Shen is visible in encyclopedia/draft with the correct localized name and Q/W/R icons.
 - [ ] Card, weekly report, scoreboard, side list, and battle HUD show a readable full-body/compact portrait.
 - [ ] A current battle screenshot visibly contains Shen; draft telemetry alone is not accepted.
@@ -12,3 +12,5 @@ Static/build checks are automated. These live checks are release gates:
 - [ ] R applies the shield before the 0.8-second teleport and taunts enemies on arrival.
 - [ ] Multiple unequal-health ally scenarios record which ally the built-in `AllyNotSelf` AI selects; do not upgrade the lowest-health claim without repeated proof.
 - [ ] Official attack/Q/W/R audio is audible and correctly timed in battle.
+
+Latest automated startup smoke: 2026-07-10 09:09 JST. The game reached `asset loading done!` with zero Shen/`lol_mod` errors and zero panic/fatal lines. The remaining `network asset load error: UnexpectedEof` default-banpick fallback and Workshop item 3736031680 warning are unrelated to this mod.

@@ -168,10 +168,10 @@ def validate_animation(sheet_relative: str, anim_relative: str, required: dict[s
 def validate_actor_and_icons(champion: dict[str, Any]) -> None:
     actor_path = MOD_ROOT / "aseprite_resources/champions/shen#sheet.png"
     actor = Image.open(actor_path).convert("RGBA")
-    check(actor.size == (768, 64), f"actor sheet must be 768x64, got {actor.size}")
+    check(actor.size == (1152, 64), f"actor sheet must be 1152x64, got {actor.size}")
     bboxes = []
     hashes = []
-    for index in range(12):
+    for index in range(18):
         frame = actor.crop((index * 64, 0, (index + 1) * 64, 64))
         bbox = frame.getchannel("A").getbbox()
         check(bbox is not None, f"actor frame {index} is empty")
@@ -181,12 +181,31 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
             check(bbox[0] >= 2 and bbox[2] <= 62, f"actor frame {index} touches a side edge")
         hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
     if bboxes:
-        core_heights = [bbox[3] - bbox[1] for bbox in bboxes[:11]]
+        core_heights = [bbox[3] - bbox[1] for bbox in bboxes[:17]]
         check(max(core_heights) / min(core_heights) <= 1.22, "core actor body scale varies by more than 22%")
         first = bboxes[0]
         check(first[1] <= 12 and 44 <= first[3] <= 46 and first[3] - first[1] >= 34, "first idle frame does not match the official full-body baseline")
-    check(len(set(hashes[2:5])) == 3, "run source poses must be visually distinct")
-    check(len(set(hashes[5:8])) == 3, "attack source poses must be visually distinct")
+    check(len(set(hashes[2:11])) == 9, "run cycle must contain nine unique image-gen poses")
+    check(hashes[2] != hashes[10], "run cycle first and last poses must not be identical")
+    check(len(set(hashes[11:14])) == 3, "attack source poses must be visually distinct")
+
+    run_frames = [actor.crop((index * 64, 0, (index + 1) * 64, 64)) for index in range(2, 11)]
+    lower_sets: list[set[tuple[int, int]]] = []
+    lower_counts: list[int] = []
+    for frame in run_frames:
+        alpha = frame.getchannel("A")
+        pixels = {(x, y) for y in range(32, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128}
+        lower_sets.append(pixels)
+        lower_counts.append(len(pixels))
+    if lower_counts:
+        check(min(lower_counts) >= max(lower_counts) * 0.45, "a run frame loses too much lower-body/leg detail")
+    differences = []
+    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
+        union = current | following
+        differences.append(len(current ^ following) / len(union) if union else 0.0)
+    if differences:
+        check(min(differences) >= 0.08, "adjacent run frames are too similar to show a gait phase")
+        check(max(differences) <= 0.85, "adjacent run frames change too abruptly")
 
     for icon_path in champion.get("skill_icons", []):
         relative = icon_path.removeprefix("asset/lol_mod/") + ".png"
@@ -196,6 +215,32 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
             icon = Image.open(path)
             check(icon.size == (64, 64), f"{relative} must be 64x64")
             check(icon.convert("RGBA").getchannel("A").getbbox() is not None, f"{relative} is empty")
+
+
+def validate_compact_view_and_w_layout() -> None:
+    style = load_json("style/champion_view.champion_view")
+    shen = style.get("entries", {}).get("lol_shen", {})
+    check(shen.get("face") == {"x": 6, "y": -34}, "compact portrait must center Shen's head at face x=6/y=-34")
+    check(shen.get("center") == {"x": 0, "y": -12}, "battle/card center offset must remain x=0/y=-12")
+
+    w_path = MOD_ROOT / "aseprite_resources/effects/shen_w#sheet.png"
+    w_sheet = Image.open(w_path).convert("RGBA")
+    check(w_sheet.size == (672, 64), f"W sheet must be 672x64, got {w_sheet.size}")
+    for index in range(6):
+        frame = w_sheet.crop((index * 112, 0, (index + 1) * 112, 64))
+        bbox = frame.getchannel("A").getbbox()
+        check(bbox is not None, f"W frame {index} is empty")
+        if not bbox:
+            continue
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        center_x = (bbox[0] + bbox[2] - 1) / 2
+        center_y = (bbox[1] + bbox[3] - 1) / 2
+        check(96 <= width <= 106, f"W frame {index} must span a readable 96-106px field width")
+        check(24 <= height <= 34, f"W frame {index} must be a flat 24-34px ground ellipse")
+        check(54 <= center_x <= 57, f"W frame {index} is not horizontally centered")
+        check(42 <= center_y <= 45, f"W frame {index} is not centered on Shen's y=44 foot point")
+        check(bbox[0] >= 2 and bbox[2] <= 110 and bbox[1] >= 2 and bbox[3] <= 62, f"W frame {index} touches an atlas edge")
 
 
 def validate_localization() -> None:
@@ -252,14 +297,14 @@ def validate_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
 def validate_imagegen_sources() -> None:
     manifest = load_json("qa/shen_imagegen_sources.json")
     roles = {source.get("role") for source in manifest.get("sources", [])}
-    check(roles == {"actor_model", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"}, "image-gen source roles are incomplete")
+    check(roles == {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"}, "image-gen source roles are incomplete")
     for source in manifest.get("sources", []):
         path = MOD_ROOT / source.get("path", "missing")
         check(path.is_file(), f"missing image-gen source: {source.get('path')}")
         if path.is_file():
             check(sha256(path) == source.get("sha256"), f"image-gen source hash mismatch: {source.get('path')}")
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    check(len(processed) == 7, "processed image-gen source set must contain 7 alpha PNGs")
+    check(len(processed) == 8, "processed image-gen source set must contain 8 alpha PNGs")
     for path in processed:
         image = Image.open(path).convert("RGBA")
         corners = [image.getpixel((0, 0)), image.getpixel((image.width - 1, 0)), image.getpixel((0, image.height - 1)), image.getpixel((image.width - 1, image.height - 1))]
@@ -285,7 +330,6 @@ def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     override = load_json("mod.override_info")
     load_json("mod.mod_info")
-    load_json("style/champion_view.champion_view")
     validate_data_contract(champion)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
@@ -296,6 +340,7 @@ def main() -> int:
     validate_animation("aseprite_resources/effects/shen_w#sheet.png", "aseprite_resources/effects/shen_w#anim.fanim", {"field": 6})
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
     validate_actor_and_icons(champion)
+    validate_compact_view_and_w_layout()
     validate_localization()
     validate_audio(champion, override)
     validate_imagegen_sources()

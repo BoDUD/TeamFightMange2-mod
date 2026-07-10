@@ -4,13 +4,13 @@
   "files": [
     {
       "path": "aseprite_resources/champions/shen#anim.fanim",
-      "size": 7487,
-      "sha256": "d985be9221203c842ab9c1aa7e3e27de352d495e4f1b166c66e388c4a8fa10f1"
+      "size": 7492,
+      "sha256": "d71f7a8ebc169912796662bba4f1aacdac03bf98f5f935a60a9dcccd4a7f8733"
     },
     {
       "path": "aseprite_resources/champions/shen#sheet.png",
-      "size": 22242,
-      "sha256": "0fd7d394c0d37632937fe24c842db76c8d93d8ae6864c85a012cb16fbfd3a5b8"
+      "size": 34283,
+      "sha256": "1abe739d597e6ba98d282f4abbb36496661998dd7349246000f25bc8a3b75a2a"
     },
     {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
@@ -39,8 +39,8 @@
     },
     {
       "path": "aseprite_resources/effects/shen_w#sheet.png",
-      "size": 28942,
-      "sha256": "f29830c03f5f2bcc3a6172c32e6666d8b01911110e6306401fd131c83e386f96"
+      "size": 18507,
+      "sha256": "c86d4cb0ce524f1678a2c5dbd1d8f18733527775619721fad0155705764ff1b9"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -145,7 +145,7 @@
     {
       "path": "style/champion_view.champion_view",
       "size": 164,
-      "sha256": "e2730a35cd0ce93c9f5718f0a38fe6302fa3bfd2a7a7c2c953201f3bbc41f6fe"
+      "sha256": "6989e3b9f43d6863bf8d842df3d0324f0b9102ec88716832ee72cc3e8ee45b32"
     },
     {
       "path": "text/champion.i18n",

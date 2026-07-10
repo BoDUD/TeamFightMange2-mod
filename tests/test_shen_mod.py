@@ -37,9 +37,10 @@ def test_data_champion_is_additive_and_localized() -> None:
 def test_generated_sources_and_official_audio_are_auditable() -> None:
     imagegen = json.loads((MOD / "qa" / "shen_imagegen_sources.json").read_text(encoding="utf-8"))
     audio = json.loads((MOD / "qa" / "shen_official_audio_sources.json").read_text(encoding="utf-8"))
-    assert len(imagegen["sources"]) == 7
+    assert len(imagegen["sources"]) == 8
     assert {entry["role"] for entry in imagegen["sources"]} == {
         "actor_model",
+        "run_cycle",
         "q_icon",
         "w_icon",
         "r_icon",

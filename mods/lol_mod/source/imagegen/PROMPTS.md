@@ -1,10 +1,14 @@
 # Shen image-gen prompts
 
-All seven accepted sources were generated with the built-in `image_gen` path on 2026-07-10. The solid `#ff00ff` background was removed with the installed imagegen chroma-key helper before packing.
+All eight accepted sources were generated with the built-in `image_gen` path on 2026-07-10. The requested `#ff00ff` background was removed with the installed imagegen chroma-key helper before packing.
 
 ## Actor model contact sheet
 
 Use case: stylized-concept. Asset type: final-scale 2D pixel-art game character sprite source sheet for Teamfight Manager 2. Create one consistent 4x3 sheet of Shen, the masked twilight ninja protector, with exactly twelve full-body poses: two idle poses, three run poses, three basic sword attack poses, Q/W/R cast poses, and one hit/death pose. Keep the same compact chibi masked ninja in every cell, facing screen-right in 3/4 side view, with indigo/charcoal armor, violet sash, steel mask, blue eye slit, small sword, and a teal-violet spectral spirit blade. Refined hand-painted pixel art; hard pixel clusters; restrained palette; crisp opaque edges; full head, body, legs and feet; stable scale; generous padding. Perfectly flat `#ff00ff` chroma background. No labels, grid lines, text, logos, watermark, shadows, floor, gradients, cropping, oversized weapon, different model, soft transparency, or UI frame.
+
+## Nine-frame run-cycle refinement
+
+Create a NEW exact 3 columns x 3 rows contact sheet containing NINE UNIQUE sequential run-cycle frames for the exact same Shen character shown in the attached actor references. No drawn grid and no labels. This must be one coherent loop, read left-to-right then top-to-bottom: 1 near/left heel contact forward, 2 near-leg loading, 3 near-leg midstance with far leg swinging, 4 clear passing pose with lower legs/ankles visibly crossing beneath the pelvis, 5 far/right heel contact forward, 6 far-leg loading, 7 far-leg midstance with near leg swinging, 8 opposite clear passing/cross step, 9 toe-off/recovery that flows into frame 1 but is visibly different from frame 1. Keep all nine poses screen-right in identical 3/4 side view. Preserve the exact approved compact chibi masked twilight ninja model in every cell: same indigo/charcoal armor, violet sash, steel mask and cyan eye slit, small waist sword, teal-violet floating spirit blade, exact head/body proportions and palette. Make the alternating legs, bent knees, planted feet, and two cross-step silhouettes very obvious at 36-pixel final actor height. Keep pelvis centered, one stable body scale, one stable foot baseline, full body and feet, generous equal cell padding. Crisp hand-painted pixel clusters and hard opaque edges. Perfectly flat `#ff00ff` chroma background. No text, numbers, labels, arrows, borders, grid lines, duplicate frames, mirrored whole character, left-facing pose, model redesign, inconsistent sword or spirit blade, motion blur, speed streaks, shadows, floor, cropping, soft transparency, logo, or watermark.
 
 ## Q icon
 
