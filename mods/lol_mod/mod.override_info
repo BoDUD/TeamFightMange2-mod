@@ -126,5 +126,73 @@
   "asset/base/sound/sfx/lucian_r_channel_clip": {
     "remapping": "asset/lol_mod/sound/sfx/lucian_r_channel_clip",
     "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_attack_oncast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_attack_oncast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_q_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_q_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_q_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_q_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_e_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_e_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_e_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_e_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_orianna_r_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_r_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/orianna_r_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/orianna_r_hit_clip",
+    "type": "override"
   }
 }

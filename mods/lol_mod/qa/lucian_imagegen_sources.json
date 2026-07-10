@@ -7,8 +7,13 @@
   "sources": [
     {
       "role": "actor_model",
-      "path": "source/imagegen/lucian_actor_contact_v10.png",
-      "sha256": "edfb9d2213c36d71412f5ff20196a218cd2ab561cc50207c3a6fdca00c244e37"
+      "path": "source/imagegen/lucian_actor_master_v3.png",
+      "sha256": "23a862634ddacd9a3a12a2e79954ead0ad6b6c778a5ca4e85be4590194b4bfde"
+    },
+    {
+      "role": "run_cycle",
+      "path": "source/imagegen/lucian_run_master_v2.png",
+      "sha256": "b273791912c96f54ec0e1bb5aa2fdb7eaeaeb12551fd63016acbf4a95d78d7dc"
     },
     {
       "role": "attack_vfx",

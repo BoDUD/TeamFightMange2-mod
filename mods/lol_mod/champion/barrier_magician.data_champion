@@ -1,0 +1,524 @@
+{
+  "id": "barrier_magician",
+  "category": "Magician",
+  "tags": [
+    "AP",
+    "Range",
+    "Shield",
+    "CC",
+    "Magic"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/orianna",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/orianna_skill",
+    "asset/lol_mod/icons/orianna_skill2",
+    "asset/lol_mod/icons/orianna_ult"
+  ],
+  "stat": {
+    "attack": 80,
+    "magic_power": 30,
+    "hp": 900,
+    "defence": 20,
+    "magic_resistance": 20,
+    "move_speed": 1000,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 6,
+    "magic_power": 15,
+    "hp": 100,
+    "defence": 8,
+    "magic_resistance": 4,
+    "move_speed": 5,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.barrier_magician.attack",
+    "duration": 30,
+    "cooltime": 90,
+    "start_timing": 24,
+    "cancelable": true,
+    "range": 60000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_orianna_attack_cast"
+        },
+        {
+          "type": "TargetProjectile",
+          "speed": 4800,
+          "name": "lol_orianna_attack_dart",
+          "y_offset": 0,
+          "applied_target": "Enemy",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 100
+                  },
+                  {
+                    "type": "ApAttack",
+                    "damage": 10,
+                    "attack_ratio": 15
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_orianna_attack_hit_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_orianna_attack_hit"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill1",
+    "description": "#asset/base/text/champion?description.barrier_magician.skill",
+    "duration": 30,
+    "cooltime": 360,
+    "start_timing": 24,
+    "cancelable": false,
+    "range": 70000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_orianna_q_cast"
+        },
+        {
+          "type": "ParabolicProjectile",
+          "name": "lol_orianna_q_ball",
+          "travel_time": 15,
+          "range": 70000,
+          "shape": {
+            "Circle": {
+              "radius": 26000
+            }
+          },
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "ApAttack",
+                "damage": 50,
+                "attack_ratio": 55
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": [
+            {
+              "type": "ViewEffect",
+              "name": "lol_orianna_q_impact"
+            },
+            {
+              "type": "TargetSfx",
+              "name": "lol_orianna_q_hit"
+            },
+            {
+              "type": "RangePeriodProjectile",
+              "name": "lol_orianna_q_field_visual",
+              "tick": 180,
+              "period": 30,
+              "first_delay": 0,
+              "shape": {
+                "Circle": {
+                  "radius": 30000
+                }
+              },
+              "applied_target": "AllyChampion",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "AddBuff",
+                        "buff_state": {
+                          "name": "lol_orianna_q_ally_move",
+                          "duration": {
+                            "Time": {
+                              "tick": 40
+                            }
+                          },
+                          "move_speed_mult": 18
+                        }
+                      },
+                      {
+                        "type": "SwitchByLevel3",
+                        "effect_start": {
+                          "type": "Combine",
+                          "effects": []
+                        },
+                        "effect_level3": {
+                          "type": "AddBuff",
+                          "buff_state": {
+                            "name": "lol_orianna_q_ally_attack_speed",
+                            "duration": {
+                              "Time": {
+                                "tick": 40
+                              }
+                            },
+                            "attack_speed_mult": 15
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            },
+            {
+              "type": "RangePeriodProjectile",
+              "name": "lol_orianna_q_field_enemy_logic",
+              "tick": 180,
+              "period": 30,
+              "first_delay": 0,
+              "shape": {
+                "Circle": {
+                  "radius": 30000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "AddBuff",
+                        "buff_state": {
+                          "name": "lol_orianna_q_enemy_move",
+                          "duration": {
+                            "Time": {
+                              "tick": 40
+                            }
+                          },
+                          "move_speed_mult": -22
+                        }
+                      },
+                      {
+                        "type": "SwitchByLevel3",
+                        "effect_start": {
+                          "type": "Combine",
+                          "effects": []
+                        },
+                        "effect_level3": {
+                          "type": "AddBuff",
+                          "buff_state": {
+                            "name": "lol_orianna_q_enemy_attack_speed",
+                            "duration": {
+                              "Time": {
+                                "tick": 40
+                              }
+                            },
+                            "attack_speed_mult": -15
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ],
+              "end_effects": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.barrier_magician.skill2",
+    "duration": 30,
+    "cooltime": 480,
+    "start_timing": 24,
+    "cancelable": false,
+    "range": 70000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "AllyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_orianna_e_cast"
+        },
+        {
+          "type": "TargetProjectile",
+          "speed": 6000,
+          "name": "lol_orianna_e_ball",
+          "y_offset": 0,
+          "applied_target": "AllyChampion",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Shield",
+                    "amount": 180,
+                    "attack_ratio": 0,
+                    "ap_ratio": 55,
+                    "tick": 180
+                  },
+                  {
+                    "type": "AddBuff",
+                    "buff_state": {
+                      "name": "lol_orianna_protect",
+                      "duration": "WithShield",
+                      "defence": 12,
+                      "magic_resistance": 12,
+                      "skill_damaged_reduce": 15,
+                      "base_attack_damaged_reduce": 10
+                    }
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_orianna_e_hit"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.barrier_magician.ult",
+    "duration": 30,
+    "cooltime": 3000,
+    "start_timing": 24,
+    "cancelable": false,
+    "range": 75000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_orianna_r_cast"
+        },
+        {
+          "type": "ParabolicProjectile",
+          "name": "lol_orianna_r_core",
+          "travel_time": 1,
+          "range": 75000,
+          "shape": {
+            "Circle": {
+              "radius": 1
+            }
+          },
+          "applied_target": "EnemyChampion",
+          "applied_effects": [],
+          "end_effects": [
+            {
+              "type": "ViewEffect",
+              "name": "lol_orianna_r_ring_visual"
+            },
+            {
+              "type": "ShrinkingBarrier",
+              "name": "lol_orianna_r_ring_logic",
+              "start_radius": 60000,
+              "end_radius": 18000,
+              "shrink_per_tick": 700,
+              "tick": 60,
+              "edge_thickness": 6000,
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Bind",
+                    "duration": 8
+                  },
+                  "casting_type": "Targeting"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 60,
+              "effects": [
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_orianna_r_burst_visual"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_orianna_r_hit"
+                },
+                {
+                  "type": "RangeProjectile",
+                  "name": "lol_orianna_r_burst_hitbox",
+                  "delay": 0,
+                  "apply": 1,
+                  "shape": {
+                    "Circle": {
+                      "radius": 42000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [
+                    {
+                      "effect": {
+                        "type": "ApAttack",
+                        "damage": 130,
+                        "attack_ratio": 100
+                      },
+                      "casting_type": "Targeting"
+                    },
+                    {
+                      "effect": {
+                        "type": "Pull",
+                        "speed": 3200,
+                        "tick": 12
+                      },
+                      "casting_type": "Targeting"
+                    },
+                    {
+                      "effect": {
+                        "type": "Airborne",
+                        "duration": 24
+                      },
+                      "casting_type": "Targeting"
+                    }
+                  ],
+                  "end_effects": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_orianna_attack_dart",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_orianna_q_ball",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_ball",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_orianna_q_field_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_field",
+      "tag": "field",
+      "z": -1,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_orianna_e_ball",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_e_shield",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_orianna_r_core",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_ball",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_orianna_attack_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_attack",
+      "tag": "impact",
+      "z": 1,
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "lol_orianna_q_impact",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_field",
+      "tag": "impact",
+      "z": 0,
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "lol_orianna_r_ring_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_r_ring",
+      "tag": "ring",
+      "z": -1,
+      "is_follow": false
+    },
+    {
+      "type": "Animation",
+      "name": "lol_orianna_r_burst_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_r_ring",
+      "tag": "burst",
+      "z": 1,
+      "is_follow": false
+    }
+  ],
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "lol_orianna_protect",
+      "anim": "asset/lol_mod/aseprite_resources/effects/orianna_e_shield",
+      "pre_tag": "impact",
+      "loop_tag": "loop",
+      "remove_tag": "break",
+      "z": 1
+    }
+  ]
+}

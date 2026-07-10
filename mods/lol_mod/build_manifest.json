@@ -4,13 +4,23 @@
   "files": [
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 11550,
-      "sha256": "861c347cbc4a420456000758b243ea5d25b2c4ded38c7a6797ad447653ed7315"
+      "size": 11534,
+      "sha256": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c"
     },
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 737467,
-      "sha256": "d771f329e1b10e40bfc5cab041935e48ede508fdd6b5b1db053cf4cddb6aa967"
+      "size": 344221,
+      "sha256": "566826c77590bb7310bf49ae7443492d505389f6dc2e5ba2431344ba8921498c"
+    },
+    {
+      "path": "aseprite_resources/champions/orianna#anim.fanim",
+      "size": 7316,
+      "sha256": "bf82a05db4934e9985761ca2bff06d88488465df21f41e34b10bb3af5926f9fe"
+    },
+    {
+      "path": "aseprite_resources/champions/orianna#sheet.png",
+      "size": 671926,
+      "sha256": "f1cef4ed3bfaf6ff76c9aac224ace8a6edf7755a1b76bac16344d09a11b88a01"
     },
     {
       "path": "aseprite_resources/champions/shen#anim.fanim",
@@ -35,12 +45,12 @@
     {
       "path": "aseprite_resources/effects/lucian_q#anim.fanim",
       "size": 1400,
-      "sha256": "eb90395a8e1428f006dd8a8ebc85b2855b03ebaa0a094c88bd3a44d24da57619"
+      "sha256": "3604634b20370704e0715df902d05b2491894758946278a1b9d5fa497eb93075"
     },
     {
       "path": "aseprite_resources/effects/lucian_q#sheet.png",
-      "size": 393378,
-      "sha256": "b47e6d8c3e97c8332edfd27fa0d364fdb8d7bad1e1b0df17a61a0c5f509208f6"
+      "size": 196723,
+      "sha256": "c338a7deda388f4f20eb553fc82fccb0d4ef804b3179bc57cd9630b0ec9f987b"
     },
     {
       "path": "aseprite_resources/effects/lucian_r#anim.fanim",
@@ -51,6 +61,56 @@
       "path": "aseprite_resources/effects/lucian_r#sheet.png",
       "size": 65641,
       "sha256": "e4b411d5c357b12f8209baa5c2de2e1ff4119b9cde973ef4a54c8b1e719cfa86"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_attack#anim.fanim",
+      "size": 1426,
+      "sha256": "c4f28c8553c1224f6e6bd4b4a4241d460939253296b577e473f929b0bd7fc750"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_attack#sheet.png",
+      "size": 32868,
+      "sha256": "492a550678a69f943918ef02d7aef44628e01753761a9961af80cc778ade99db"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_e_shield#anim.fanim",
+      "size": 2177,
+      "sha256": "037df2f9e92127948b8401f03d8b59cd5f41da0ad292e8cc5c708ad6c05200b4"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_e_shield#sheet.png",
+      "size": 307368,
+      "sha256": "330b9f25154c136bd941cac24fe893cde197577194a12097421c0361d0bf6512"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_ball#anim.fanim",
+      "size": 724,
+      "sha256": "03cb210b79872a142f3c85c2b95a8a927dcbb34bc322ed7a0734b73881799339"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_ball#sheet.png",
+      "size": 25708,
+      "sha256": "cd6e55b0fc11e72ae67f1ed08e5e92830bedab88af71f86db66060fdf7fbb643"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_field#anim.fanim",
+      "size": 1433,
+      "sha256": "705fce69163d96d80c13c6f4bfbc515942bb7b656b16bc8933f9cf2dd75447ae"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_field#sheet.png",
+      "size": 229523,
+      "sha256": "5ec0c7112f402397a16745728218d627458719867f9f507a61170ae4bf23fb1d"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_r_ring#anim.fanim",
+      "size": 2116,
+      "sha256": "f4fffb441c09654589515f3a54378e955fec0c1c895fc94a2d68f3b8b8a59f24"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_r_ring#sheet.png",
+      "size": 1229118,
+      "sha256": "518b2a8226ddafac8407fbdf56cd069bcfd3d70627bdf2e95c997fd268360b95"
     },
     {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
@@ -84,8 +144,13 @@
     },
     {
       "path": "champion/archer.data_champion",
-      "size": 21543,
-      "sha256": "786154b1daca11ed571a1f330f76e6ae72476382dd6cf05b125d2d8f966074b1"
+      "size": 21588,
+      "sha256": "866afddedefc76de57d43b91c2f48043ea4e5a942392ac5f4c13b48ed7707412"
+    },
+    {
+      "path": "champion/barrier_magician.data_champion",
+      "size": 14751,
+      "sha256": "a35e06531bd26db8ccaa19eefc5c1ab396c7a7254aab15f5e11d1abeac26e4af"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -108,6 +173,21 @@
       "sha256": "75657c9c9d5a52c5915daa784902baef5b68cce626c18a02c55842c4f1df59fc"
     },
     {
+      "path": "icons/orianna_skill.png",
+      "size": 16516,
+      "sha256": "1a12e8f5d5f11a2295747bb9ab9fa153176c5f09bf6692154c533abd3ab9c2d0"
+    },
+    {
+      "path": "icons/orianna_skill2.png",
+      "size": 16516,
+      "sha256": "51451672e45074ce279a3aa24b520494dee7766162e8b5a5c30912030db06cd6"
+    },
+    {
+      "path": "icons/orianna_ult.png",
+      "size": 16516,
+      "sha256": "21d230a132e2974ccc479047c9787cb2c10f44252b293bcc72d80a652014cbf5"
+    },
+    {
       "path": "icons/shen_skill.png",
       "size": 16516,
       "sha256": "5f63141301b7e0d4e2a7ccd830179aba20f597ad2f54c1bb8257ead1a8396da1"
@@ -124,13 +204,13 @@
     },
     {
       "path": "mod.mod_info",
-      "size": 477,
-      "sha256": "2dcebea324fe29829ddcc2b7f957f0cfb156b0752d144ad2aae51b9c667c4074"
+      "size": 612,
+      "sha256": "bf58abe48def1b74926bb45e5824db07a29cc9075b51a71b3174c2358c91c289"
     },
     {
       "path": "mod.override_info",
-      "size": 4359,
-      "sha256": "d2a389d27b69002dd47a98a7c381cd8262bee8f2bca37ba4bb1b4a2d8b6dacc8"
+      "size": 6729,
+      "sha256": "f24eb938174225849023b4ece35ffabd1f46d0ab14db7997b4521e8ce7f043d3"
     },
     {
       "path": "sound/sfx/lucian_attack_cast.sound_info",
@@ -213,6 +293,91 @@
       "sha256": "880a4bcadbeb3bfac8e3e43c94dce9c61098cece402e7049c967e59610bf30ac"
     },
     {
+      "path": "sound/sfx/orianna_attack_cast.sound_info",
+      "size": 137,
+      "sha256": "915414c46245116f0fad3ab28b695922ae29c76742d093b74eb7bf0c4c531b2d"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_cast_clip.wav",
+      "size": 52040,
+      "sha256": "e7afba6278066ed33e9818e8f2b3c0b5a2e1d448dd75f65cd4205de317542ec1"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_hit.sound_info",
+      "size": 72,
+      "sha256": "ac38fd7b773a3c1291cca7df7eac0f62fff8abfdc1bc8bd064d62845eb8deffe"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_hit_clip.wav",
+      "size": 67332,
+      "sha256": "5e68059f1493b2f40dd5eb44f596c2fdff8b6d3891a5ce80a8fda8ce91cc5f85"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_oncast_clip.wav",
+      "size": 40224,
+      "sha256": "aeef2849dc932c134adb6216f6a11b1bcfcd8f3c7b86809069d96d2c5cd8591f"
+    },
+    {
+      "path": "sound/sfx/orianna_e_cast.sound_info",
+      "size": 68,
+      "sha256": "bc3d7ff5730dafdc5d7019585caa6893bbee13f7248730a5e2eea683e9f78657"
+    },
+    {
+      "path": "sound/sfx/orianna_e_cast_clip.wav",
+      "size": 53706,
+      "sha256": "b70f082d01e428779b5884e5f1bafd27ced8a796812b21792f00547c3942e379"
+    },
+    {
+      "path": "sound/sfx/orianna_e_hit.sound_info",
+      "size": 67,
+      "sha256": "fe5c9f078e8407ddf8d62e940692d0787e5bd534f48defcd2bfb5b51554d9b8b"
+    },
+    {
+      "path": "sound/sfx/orianna_e_hit_clip.wav",
+      "size": 80544,
+      "sha256": "de2f05c3c46599f58684ed9f563437e42e65f6461e0f47b59835f5e11cd6676f"
+    },
+    {
+      "path": "sound/sfx/orianna_q_cast.sound_info",
+      "size": 68,
+      "sha256": "9cb4a10878e002a9652522b3a8f8a401000f52d051b5b1f72a19274b406ef9e9"
+    },
+    {
+      "path": "sound/sfx/orianna_q_cast_clip.wav",
+      "size": 56314,
+      "sha256": "666fc77ba6443241fd89e307a2fa1ac86678a4b5f85a440c405e5d5d7da97f5c"
+    },
+    {
+      "path": "sound/sfx/orianna_q_hit.sound_info",
+      "size": 67,
+      "sha256": "b6331edc40cb4c944744c00716f4c402da26b54ac3fb436d8c8a147c4bc225ba"
+    },
+    {
+      "path": "sound/sfx/orianna_q_hit_clip.wav",
+      "size": 54884,
+      "sha256": "4671deecc38aebc32253bc97cf97b1e5f73b7f20d430d049e6caa50c007d3c42"
+    },
+    {
+      "path": "sound/sfx/orianna_r_cast.sound_info",
+      "size": 68,
+      "sha256": "633c5bd16d9429f1c6500103d528c2891cdfb5dd16237b04d0a0565037638fda"
+    },
+    {
+      "path": "sound/sfx/orianna_r_cast_clip.wav",
+      "size": 69690,
+      "sha256": "60df9d50813099d69c95d3284d2dcf748f694f0d79d25546b989ce855f09b365"
+    },
+    {
+      "path": "sound/sfx/orianna_r_hit.sound_info",
+      "size": 67,
+      "sha256": "909b96812020aa230aa554989a80cae2715c871604e332e0726a938d5bf6b33b"
+    },
+    {
+      "path": "sound/sfx/orianna_r_hit_clip.wav",
+      "size": 194264,
+      "sha256": "362d79bedce6545e0d954317199d910cf53d3dc3bb456bbcfc2e18904cd2c3ff"
+    },
+    {
       "path": "sound/sfx/shen_attack_cast.sound_info",
       "size": 70,
       "sha256": "6e2bbe70086896b65561e57be731389a15b77a18a79ad6754559d660ab5f1d7b"
@@ -284,13 +449,13 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 304,
-      "sha256": "7a919d9c22be22ccca2c9df2288fbfc02e2d61da8638d25d74ed0105c82f2c9b"
+      "size": 454,
+      "sha256": "52fff8ae98148cfa7ec5d92854acd94f1a2e6739a78882c7a812a8b9dac4c545"
     },
     {
       "path": "text/champion.i18n",
-      "size": 5471,
-      "sha256": "e0a4ba0991dea62c39301f37f04521fd3a3634a429333a872778e2732ba5c4fa"
+      "size": 12729,
+      "sha256": "1f0231838b7e1f80a814acadfe62c93463591d1d8d260aceeb52fe9bae2c61bc"
     }
   ]
 }

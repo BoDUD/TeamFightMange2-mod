@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen and Lucian runtime assets from accepted image-gen sources."""
+"""Build Shen, Lucian, and Orianna runtime assets from accepted sources."""
 
 from __future__ import annotations
 
@@ -36,7 +36,8 @@ VFX_SOURCES = {
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
-LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_v10_alpha.png"
+LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_master_v3_alpha.png"
+LUCIAN_RUN_SOURCE = SOURCE / "lucian_run_master_v2_alpha.png"
 LUCIAN_ICON_SOURCES = {
     "lucian_skill.png": SOURCE / "lucian_q_icon_source_alpha.png",
     "lucian_skill2.png": SOURCE / "lucian_e_icon_source_alpha.png",
@@ -44,8 +45,36 @@ LUCIAN_ICON_SOURCES = {
 }
 LUCIAN_VFX_SOURCES = {
     "lucian_attack": (SOURCE / "lucian_attack_vfx_contact_alpha.png", 4, 2, (64, 32), (52, 16)),
-    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v3_alpha.png", 4, 2, (192, 64), (82, 18)),
+    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v3_alpha.png", 4, 2, (192, 32), (80, 18)),
     "lucian_r": (SOURCE / "lucian_r_vfx_contact_alpha.png", 4, 2, (64, 32), (48, 18)),
+}
+LUCIAN_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int] | None] = [
+    None,
+    None,
+    (40, 85, 272, 340),
+    (20, 90, 250, 340),
+    (100, 50, 328, 300),
+    (80, 45, 312, 300),
+    None,
+    None,
+    None,
+    (75, 40, 297, 290),
+    None,
+    None,
+]
+
+ORIANNA_ACTOR_SOURCE = SOURCE / "orianna_actor_contact_alpha.png"
+ORIANNA_RUN_SOURCE = SOURCE / "orianna_run_contact_alpha.png"
+ORIANNA_ICON_SOURCES = {
+    "orianna_skill.png": SOURCE / "orianna_q_icon_source_alpha.png",
+    "orianna_skill2.png": SOURCE / "orianna_e_icon_source_alpha.png",
+    "orianna_ult.png": SOURCE / "orianna_r_icon_source_alpha.png",
+}
+ORIANNA_VFX_SOURCES = {
+    "orianna_attack": SOURCE / "orianna_attack_vfx_contact_alpha.png",
+    "orianna_q": SOURCE / "orianna_q_vfx_contact_alpha.png",
+    "orianna_e_shield": SOURCE / "orianna_e_vfx_contact_alpha.png",
+    "orianna_r_ring": SOURCE / "orianna_r_vfx_contact_alpha.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -164,6 +193,39 @@ def alpha_bbox(image: Image.Image) -> tuple[int, int, int, int]:
     return bbox
 
 
+def keep_largest_alpha_component(image: Image.Image) -> Image.Image:
+    """Remove detached image-gen particles without repainting actor pixels."""
+    rgba = hard_alpha(image)
+    alpha = rgba.getchannel("A")
+    remaining = {
+        (x, y)
+        for y in range(rgba.height)
+        for x in range(rgba.width)
+        if alpha.getpixel((x, y)) >= 128
+    }
+    largest: set[tuple[int, int]] = set()
+    while remaining:
+        seed = remaining.pop()
+        component = {seed}
+        stack = [seed]
+        while stack:
+            x, y = stack.pop()
+            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    component.add(neighbor)
+                    stack.append(neighbor)
+        if len(component) > len(largest):
+            largest = component
+
+    cleaned = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    source_pixels = rgba.load()
+    output_pixels = cleaned.load()
+    for x, y in largest:
+        output_pixels[x, y] = source_pixels[x, y]
+    return cleaned
+
+
 def fit_cell(
     cell: Image.Image,
     frame_size: tuple[int, int],
@@ -271,63 +333,65 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack one coherent 21-pose Lucian sheet plus muzzle-anchored Q wide frames."""
+    """Pack Lucian at Shen's 64x64 scale from separate actor and run masters."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
-    source_cells = [hard_alpha(cell) for cell in split_grid(source, 7, 3)]
+    source_cells: list[Image.Image] = []
+    for index, (cell, keep_box) in enumerate(
+        zip(split_grid(source, 4, 3), LUCIAN_ACTOR_KEEP_BOXES, strict=True)
+    ):
+        cell = hard_alpha(cell)
+        if keep_box is not None:
+            masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
+            kept = cell.crop(keep_box)
+            masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
+            cell = masked
+        if index == 10:
+            cell = keep_largest_alpha_component(cell)
+        source_cells.append(cell)
     source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
 
-    # Derive one scale from the two idle frames and apply it to every pose. This
-    # preserves a single head/body/gun size across idle, run, attacks and skills.
+    # Shen's accepted actor is 36px tall on a y=45 foot baseline. Derive one
+    # scale from Lucian's two idles and reuse it for every combat pose so cards,
+    # the HUD and the battle map all keep the same native-size silhouette.
     idle_height = max(subject.height for subject in source_subjects[:2])
-    actor_scale = 35 / idle_height
+    actor_scale = 36 / idle_height
     base_frames: list[Image.Image] = []
     for subject in source_subjects:
         scale = min(actor_scale, 58 / subject.width, 43 / subject.height)
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-            Image.Resampling.NEAREST,
+            Image.Resampling.LANCZOS,
         )
         resized = palette_finish(resized, 40)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         base_frames.append(frame)
 
-    # Q visibility no longer depends on a moving projectile. Composite the
-    # image-gen beam into 192px actor frames with Lucian centered at x=96; the
-    # engine mirrors the whole frame around that center for left-facing casts.
-    q_source = Image.open(LUCIAN_VFX_SOURCES["lucian_q"][0]).convert("RGBA")
-    q_subjects = [
-        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
-        for cell in split_grid(q_source, 4, 2)
-    ]
-    q_reference_width = max(subject.width for subject in q_subjects)
-    q_reference_height = max(subject.height for subject in q_subjects)
-    q_scale = min(76 / q_reference_width, 18 / q_reference_height)
-    q_pose = base_frames[14]
-    q_frames: list[Image.Image] = []
-    for subject in q_subjects:
-        beam = subject.resize(
-            (max(1, round(subject.width * q_scale)), max(1, round(subject.height * q_scale))),
+    # A dedicated image-gen 3x3 run loop supplies nine distinct alternating
+    # contact/passing phases. It uses Shen's height, compact width and foot
+    # baseline instead of the rejected horizontal flying/split-stride route.
+    run_source = Image.open(LUCIAN_RUN_SOURCE).convert("RGBA")
+    run_frames: list[Image.Image] = []
+    for cell in split_grid(run_source, 3, 3):
+        cell = hard_alpha(cell)
+        subject = cell.crop(alpha_bbox(cell))
+        scale = min(36 / subject.height, 58 / subject.width)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        beam = palette_finish(beam, 48)
-        wide = Image.new("RGBA", (192, 64), (0, 0, 0, 0))
-        wide.alpha_composite(q_pose, (64, 0))
-        # The generated Q pose's right-hand pistol muzzle is x=112/y=27 in
-        # this centered wide frame. Every beam phase shares that exact origin.
-        wide.alpha_composite(beam, (112, 27 - beam.height // 2))
-        q_frames.append(wide)
+        resized = palette_finish(resized, 40)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
+        run_frames.append(frame)
 
-    frames = base_frames
-    packed_frames = [*base_frames, *q_frames]
-    frame_x: list[int] = []
-    cursor = 0
-    for frame in packed_frames:
-        frame_x.append(cursor)
-        cursor += frame.width
-    atlas = Image.new("RGBA", (cursor, 64), (0, 0, 0, 0))
-    for x, frame in zip(frame_x, packed_frames, strict=True):
-        atlas.alpha_composite(frame, (x, 0))
+    # Runtime contract: two idles, nine run phases, then ten actor actions.
+    # Q stays a normal 64x64 pose; its direction-aware beam is a projectile
+    # binding, so mirroring the actor can no longer put the beam behind him.
+    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
+    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
 
     ACTOR_DIR.mkdir(parents=True, exist_ok=True)
     sheet_path = ACTOR_DIR / "lucian#sheet.png"
@@ -341,7 +405,7 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         "attack_right": ([0, 11, 11, 0], [0.06, 0.08, 0.08, 0.18]),
         "attack_left": ([0, 12, 12, 0], [0.06, 0.08, 0.08, 0.18]),
         "attack_double": ([0, 13, 13, 11, 12, 0], [0.04, 0.06, 0.06, 0.08, 0.08, 0.16]),
-        "skill": ([0, 21, 22, 23, 24, 25, 26, 27, 28, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
+        "skill": ([0, 14, 14, 14, 14, 14, 14, 14, 14, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
         "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
         "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
         "hit": ([19], [0.12]),
@@ -354,9 +418,9 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
                 {
                     "duration": duration,
                     "data": {
-                        "x": frame_x[index],
+                        "x": index * 64,
                         "y": 0,
-                        "w": packed_frames[index].width,
+                        "w": 64,
                         "h": 64,
                     },
                 }
@@ -365,6 +429,113 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         }
     write_json(anim_path, {"anims": anims})
     return sheet_path, anim_path, frames
+
+
+def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
+    """Pack Orianna with the exact native Barrier Magician action contract."""
+    source = Image.open(ORIANNA_ACTOR_SOURCE).convert("RGBA")
+    cells = [hard_alpha(cell) for cell in split_grid(source, 4, 4)]
+    subjects = [cell.crop(alpha_bbox(cell)) for cell in cells]
+
+    # Live card review showed the first pass was too small in the face and sat
+    # low enough to clip its boots.  The corrected model is purpose-authored
+    # for a 38px silhouette and uses y=42 as its exclusive foot baseline.
+    # One scale is derived from all idle poses and preserved for every action.
+    idle_height = max(subject.height for subject in subjects[:4])
+    actor_scale = 38 / idle_height
+
+    def actor_frame(subject: Image.Image, *, target_height: int | None = None) -> Image.Image:
+        scale = actor_scale if target_height is None else target_height / subject.height
+        scale = min(scale, 58 / subject.width, 43 / subject.height)
+        resized = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 48)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        frame.alpha_composite(resized, ((64 - resized.width) // 2, 42 - resized.height))
+        return frame
+
+    base_frames = [actor_frame(subject) for subject in subjects]
+    run_source = Image.open(ORIANNA_RUN_SOURCE).convert("RGBA")
+    run_subjects = [
+        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
+        for cell in split_grid(run_source, 3, 3)
+    ]
+    run_frames = [actor_frame(subject, target_height=38) for subject in run_subjects]
+
+    def shifted(frame: Image.Image, dx: int, dy: int) -> Image.Image:
+        result = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+        result.alpha_composite(frame, (dx, dy))
+        return result
+
+    def faded(frame: Image.Image, opacity: float) -> Image.Image:
+        result = frame.copy()
+        result.putalpha(result.getchannel("A").point(lambda value: round(value * opacity)))
+        return result
+
+    transparent = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    sequences: dict[str, tuple[list[Image.Image], list[float]]] = {
+        "idle": (base_frames[0:4], [0.18, 0.14, 0.14, 0.14]),
+        "run": (run_frames[:8], [0.080000006] * 8),
+        "attack": (
+            [base_frames[4], shifted(base_frames[4], 1, 0), base_frames[5], shifted(base_frames[5], -1, 0), base_frames[0]],
+            [0.080000006] * 5,
+        ),
+        "hit": ([base_frames[6]], [0.1]),
+        "dead": (
+            [
+                base_frames[6],
+                base_frames[7],
+                base_frames[14],
+                shifted(base_frames[14], 0, 1),
+                base_frames[15],
+                shifted(base_frames[15], 0, 1),
+                faded(base_frames[15], 0.72),
+                faded(base_frames[15], 0.40),
+                transparent,
+            ],
+            [0.1] * 9,
+        ),
+        "skill1": (
+            [base_frames[8], shifted(base_frames[8], 1, 0), base_frames[9], shifted(base_frames[9], -1, 0), base_frames[0]],
+            [0.080000006] * 5,
+        ),
+        "skill2": (
+            [base_frames[10], shifted(base_frames[10], 1, 0), base_frames[11], shifted(base_frames[11], -1, 0), base_frames[0]],
+            [0.080000006] * 5,
+        ),
+        "ult": (
+            [base_frames[12], shifted(base_frames[12], 0, -1), base_frames[13], shifted(base_frames[13], 0, -1)],
+            [0.080000006] * 4,
+        ),
+    }
+
+    packed_frames: list[Image.Image] = []
+    anims: dict[str, object] = {}
+    for tag, (frames, durations) in sequences.items():
+        start = len(packed_frames)
+        packed_frames.extend(frames)
+        anims[tag] = {
+            "frames": [
+                {
+                    "duration": duration,
+                    "data": {"x": (start + index) * 64, "y": 0, "w": 64, "h": 64},
+                }
+                for index, duration in enumerate(durations)
+            ]
+        }
+
+    atlas = Image.new("RGBA", (64 * len(packed_frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(packed_frames):
+        atlas.alpha_composite(frame, (index * 64, 0))
+
+    ACTOR_DIR.mkdir(parents=True, exist_ok=True)
+    sheet_path = ACTOR_DIR / "orianna#sheet.png"
+    anim_path = ACTOR_DIR / "orianna#anim.fanim"
+    save_png(sheet_path, atlas)
+    write_json(anim_path, {"anims": anims})
+    return sheet_path, anim_path, packed_frames
 
 
 def build_icons() -> list[Path]:
@@ -386,6 +557,18 @@ def build_lucian_icons() -> list[Path]:
         source = Image.open(source_path).convert("RGBA")
         # Lucian icons were generated as full-bleed opaque squares.
         icon = palette_finish(source.resize((64, 64), Image.Resampling.LANCZOS), 64)
+        output = ICON_DIR / output_name
+        save_png(output, icon)
+        outputs.append(output)
+    return outputs
+
+
+def build_orianna_icons() -> list[Path]:
+    ICON_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for output_name, source_path in ORIANNA_ICON_SOURCES.items():
+        source = Image.open(source_path).convert("RGBA")
+        icon = fit_cell(source, (64, 64), (58, 58))
         output = ICON_DIR / output_name
         save_png(output, icon)
         outputs.append(output)
@@ -561,7 +744,15 @@ def build_lucian_vfx() -> list[Path]:
     for name, (source_path, columns, rows, frame_size, max_visible) in LUCIAN_VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
         frames: list[Image.Image] = []
-        for cell in split_grid(source, columns, rows):
+        cells = split_grid(source, columns, rows)
+        if name == "lucian_q":
+            # Keep the full beam from the first visible tick and never finish
+            # on the tiny residual spark that previously looked like a second
+            # tracking skill. The 192px projectile canvas uses x=96 as its
+            # rotation pivot; placing the beam wholly on the forward half makes
+            # its first pixels line up with the pistol muzzle, not Lucian's body.
+            cells = [cells[index] for index in (2, 3, 4, 5, 4, 3, 2, 1)]
+        for cell in cells:
             cell = hard_alpha(cell)
             subject = cell.crop(alpha_bbox(cell))
             scale = min(max_visible[0] / subject.width, max_visible[1] / subject.height)
@@ -572,23 +763,12 @@ def build_lucian_vfx() -> list[Path]:
             resized = palette_finish(resized, 48)
             frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
             if name == "lucian_q":
-                # The line area rotates this canvas around its x=96 pivot.
-                # Start the visible gold lance 20px forward of that pivot so
-                # either facing begins at Lucian's pistol muzzle.
-                x = min(frame_size[0] - resized.width - 2, frame_size[0] // 2 + 20)
-                y = 24 - resized.height // 2
+                x = frame_size[0] // 2 + 8
             else:
                 x = (frame_size[0] - resized.width) // 2
-            if name != "lucian_q":
-                y = (frame_size[1] - resized.height) // 2
+            y = (frame_size[1] - resized.height) // 2
             frame.alpha_composite(resized, (x, y))
             frames.append(frame)
-
-        if name == "lucian_q":
-            # An instantaneous one-tick line needs its brightest complete
-            # beam first; the remaining phases are retained for renderers that
-            # let the triggered animation finish independently.
-            frames = [frames[index] for index in [4, 3, 2, 5, 6, 7, 1, 0]]
 
         atlas = Image.new(
             "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
@@ -613,6 +793,116 @@ def build_lucian_vfx() -> list[Path]:
             {"anims": {tag: effect_anim(frame_size[0], frame_size[1], list(range(8)), [duration] * 8)}},
         )
         outputs.extend([sheet, anim])
+    return outputs
+
+
+def build_orianna_vfx() -> list[Path]:
+    """Build separate ball, field, shield, and shockwave effect resources."""
+    EFFECT_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+
+    def write_effect(
+        name: str,
+        frames: list[Image.Image],
+        frame_size: tuple[int, int],
+        anims: dict[str, object],
+    ) -> None:
+        atlas = Image.new(
+            "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
+        )
+        for index, frame in enumerate(frames):
+            atlas.alpha_composite(frame, (index * frame_size[0], 0))
+        sheet = EFFECT_DIR / f"{name}#sheet.png"
+        anim = EFFECT_DIR / f"{name}#anim.fanim"
+        save_png(sheet, atlas)
+        write_json(anim, {"anims": anims})
+        outputs.extend([sheet, anim])
+
+    attack_cells = split_grid(
+        Image.open(ORIANNA_VFX_SOURCES["orianna_attack"]).convert("RGBA"), 4, 2
+    )
+    attack_frames = [
+        fit_cell(cell, (32, 32), (28, 14)) for cell in attack_cells[:4]
+    ] + [fit_cell(cell, (32, 32), (24, 24)) for cell in attack_cells[4:]]
+    write_effect(
+        "orianna_attack",
+        attack_frames,
+        (32, 32),
+        {
+            "projectile": effect_anim(32, 32, list(range(4)), [0.04] * 4),
+            "impact": effect_anim(32, 32, list(range(4, 8)), [0.04, 0.06, 0.08, 0.10]),
+        },
+    )
+
+    q_cells = split_grid(
+        Image.open(ORIANNA_VFX_SOURCES["orianna_q"]).convert("RGBA"), 4, 3
+    )
+    q_ball_frames = [fit_cell(cell, (40, 40), (34, 24)) for cell in q_cells[:4]]
+    write_effect(
+        "orianna_q_ball",
+        q_ball_frames,
+        (40, 40),
+        {"projectile": effect_anim(40, 40, list(range(4)), [0.06] * 4)},
+    )
+    q_field_frames = [fit_cell(cell, (112, 64), (64, 54)) for cell in q_cells[4:8]]
+    q_field_frames.extend(fit_cell(cell, (112, 64), (104, 44)) for cell in q_cells[8:12])
+    write_effect(
+        "orianna_q_field",
+        q_field_frames,
+        (112, 64),
+        {
+            "impact": effect_anim(112, 64, list(range(4)), [0.08] * 4),
+            "field": effect_anim(112, 64, list(range(4, 8)), [0.15] * 4),
+        },
+    )
+
+    e_cells = split_grid(
+        Image.open(ORIANNA_VFX_SOURCES["orianna_e_shield"]).convert("RGBA"), 4, 3
+    )
+    e_frames = [fit_cell(cell, (80, 80), (38, 26)) for cell in e_cells[:4]]
+    e_frames.extend(fit_cell(cell, (80, 80), (72, 72)) for cell in e_cells[4:])
+    write_effect(
+        "orianna_e_shield",
+        e_frames,
+        (80, 80),
+        {
+            "projectile": effect_anim(80, 80, list(range(4)), [0.06] * 4),
+            "loop": effect_anim(80, 80, list(range(4, 8)), [0.15] * 4),
+            "impact": effect_anim(80, 80, [8, 9], [0.08, 0.12]),
+            "break": effect_anim(80, 80, [10, 11], [0.10, 0.14]),
+        },
+    )
+
+    # Resize whole source cells rather than each visible subject so the eight
+    # generated ring phases retain their intended decreasing relative radius.
+    r_cells = [
+        hard_alpha(cell)
+        for cell in split_grid(
+            Image.open(ORIANNA_VFX_SOURCES["orianna_r_ring"]).convert("RGBA"), 4, 3
+        )
+    ]
+    r_frames: list[Image.Image] = []
+    for cell in r_cells:
+        scale = min(150 / cell.width, 150 / cell.height)
+        resized = cell.resize(
+            (max(1, round(cell.width * scale)), max(1, round(cell.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 64)
+        frame = Image.new("RGBA", (160, 160), (0, 0, 0, 0))
+        frame.alpha_composite(
+            resized, ((160 - resized.width) // 2, (160 - resized.height) // 2)
+        )
+        r_frames.append(frame)
+    write_effect(
+        "orianna_r_ring",
+        r_frames,
+        (160, 160),
+        {
+            "ring": effect_anim(160, 160, list(range(8)), [0.125] * 8),
+            "burst": effect_anim(160, 160, list(range(8, 12)), [0.08, 0.08, 0.12, 0.12]),
+        },
+    )
     return outputs
 
 
@@ -773,37 +1063,31 @@ def build_lucian_data() -> Path:
             "cancelable": True,
             "range": 65000,
             "casting_type": "Targeting",
-            "casting_target": "EnemyChampion",
+            "casting_target": "EnemyWithoutTower",
             "attack_type": "Skill",
             "effect": {
                 "type": "Combine",
                 "effects": [
                     {"type": "Sfx", "name": "lol_lucian_q_cast"},
-                    {"type": "CasterAnimation", "name": "skill", "tick": 20},
                     {
-                        "type": "Delayed",
-                        "tick": 10,
-                        "effects": [
+                        "type": "LinearProjectile",
+                        "penetrate": True,
+                        "speed": 16000,
+                        "range": 76000,
+                        "name": "lol_lucian_q_piercing_light",
+                        "shape": {"Circle": {"radius": 10000}},
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [
                             {
-                                "type": "LineRangeProjectile",
-                                "width": 12000,
-                                "length": 76000,
-                                "delay": 0,
-                                "apply": 1,
-                                "name": "lol_lucian_q_damage_line",
-                                "applied_target": "EnemyWithoutTower",
-                                "applied_effects": [
-                                    {
-                                        "effect": {
-                                            "type": "Attack",
-                                            "damage": 55,
-                                            "attack_ratio": 85,
-                                        },
-                                        "casting_type": "Targeting",
-                                    }
-                                ],
+                                "effect": {
+                                    "type": "Attack",
+                                    "damage": 55,
+                                    "attack_ratio": 85,
+                                },
+                                "casting_type": "Targeting",
                             }
                         ],
+                        "end_effects": [],
                     },
                     lucian_lightslinger_buff(),
                 ],
@@ -882,6 +1166,14 @@ def build_lucian_data() -> Path:
             },
             {
                 "type": "Animated",
+                "name": "lol_lucian_q_piercing_light",
+                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
+                "tag": "projectile",
+                "z": 3,
+                "repeat": False,
+            },
+            {
+                "type": "Animated",
                 "name": "lol_lucian_culling_shot",
                 "anim": "asset/lol_mod/aseprite_resources/effects/lucian_r",
                 "tag": "projectile",
@@ -893,6 +1185,448 @@ def build_lucian_data() -> Path:
         "view_buffs": [],
     }
     path = MOD_ROOT / "champion" / "archer.data_champion"
+    write_json(path, champion)
+    return path
+
+
+def build_orianna_data() -> Path:
+    """Replace native Barrier Magician (project 003) with Q/E/R Orianna."""
+
+    def timed_buff(name: str, field: str, value: int) -> dict[str, object]:
+        return {
+            "type": "AddBuff",
+            "buff_state": {
+                "name": name,
+                "duration": {"Time": {"tick": 40}},
+                field: value,
+            },
+        }
+
+    def level_three_buff(name: str, value: int) -> dict[str, object]:
+        return {
+            "type": "SwitchByLevel3",
+            "effect_start": {"type": "Combine", "effects": []},
+            "effect_level3": timed_buff(name, "attack_speed_mult", value),
+        }
+
+    champion = {
+        "id": "barrier_magician",
+        "category": "Magician",
+        "tags": ["AP", "Range", "Shield", "CC", "Magic"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/orianna",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/orianna_skill",
+            "asset/lol_mod/icons/orianna_skill2",
+            "asset/lol_mod/icons/orianna_ult",
+        ],
+        "stat": {
+            "attack": 80,
+            "magic_power": 30,
+            "hp": 900,
+            "defence": 20,
+            "magic_resistance": 20,
+            "move_speed": 1000,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 6,
+            "magic_power": 15,
+            "hp": 100,
+            "defence": 8,
+            "magic_resistance": 4,
+            "move_speed": 5,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": {
+            "action_name": "attack",
+            "description": "#asset/base/text/champion?description.barrier_magician.attack",
+            "duration": 30,
+            "cooltime": 90,
+            "start_timing": 24,
+            "cancelable": True,
+            "range": 60000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "Enemy",
+            "attack_type": "BaseAttack",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_orianna_attack_cast"},
+                    {
+                        "type": "TargetProjectile",
+                        "speed": 4800,
+                        "name": "lol_orianna_attack_dart",
+                        "y_offset": 0,
+                        "applied_target": "Enemy",
+                        "applied_effects": [
+                            {
+                                "effect": {
+                                    "type": "Combine",
+                                    "effects": [
+                                        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                                        {"type": "ApAttack", "damage": 10, "attack_ratio": 15},
+                                        {
+                                            "type": "ViewEffect",
+                                            "name": "lol_orianna_attack_hit_visual",
+                                        },
+                                        {
+                                            "type": "TargetSfx",
+                                            "name": "lol_orianna_attack_hit",
+                                        },
+                                    ],
+                                },
+                                "casting_type": "Targeting",
+                            }
+                        ],
+                    },
+                ],
+            },
+        },
+        "skill": {
+            "action_name": "skill1",
+            "description": "#asset/base/text/champion?description.barrier_magician.skill",
+            "duration": 30,
+            "cooltime": 360,
+            "start_timing": 24,
+            "cancelable": False,
+            "range": 70000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_orianna_q_cast"},
+                    {
+                        "type": "ParabolicProjectile",
+                        "name": "lol_orianna_q_ball",
+                        "travel_time": 15,
+                        "range": 70000,
+                        "shape": {"Circle": {"radius": 26000}},
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [
+                            {
+                                "effect": {
+                                    "type": "ApAttack",
+                                    "damage": 50,
+                                    "attack_ratio": 55,
+                                },
+                                "casting_type": "Targeting",
+                            }
+                        ],
+                        "end_effects": [
+                            {"type": "ViewEffect", "name": "lol_orianna_q_impact"},
+                            {"type": "TargetSfx", "name": "lol_orianna_q_hit"},
+                            {
+                                "type": "RangePeriodProjectile",
+                                "name": "lol_orianna_q_field_visual",
+                                "tick": 180,
+                                "period": 30,
+                                "first_delay": 0,
+                                "shape": {"Circle": {"radius": 30000}},
+                                "applied_target": "AllyChampion",
+                                "applied_effects": [
+                                    {
+                                        "effect": {
+                                            "type": "Combine",
+                                            "effects": [
+                                                timed_buff(
+                                                    "lol_orianna_q_ally_move",
+                                                    "move_speed_mult",
+                                                    18,
+                                                ),
+                                                level_three_buff(
+                                                    "lol_orianna_q_ally_attack_speed", 15
+                                                ),
+                                            ],
+                                        },
+                                        "casting_type": "Targeting",
+                                    }
+                                ],
+                                "end_effects": [],
+                            },
+                            {
+                                "type": "RangePeriodProjectile",
+                                "name": "lol_orianna_q_field_enemy_logic",
+                                "tick": 180,
+                                "period": 30,
+                                "first_delay": 0,
+                                "shape": {"Circle": {"radius": 30000}},
+                                "applied_target": "EnemyWithoutTower",
+                                "applied_effects": [
+                                    {
+                                        "effect": {
+                                            "type": "Combine",
+                                            "effects": [
+                                                timed_buff(
+                                                    "lol_orianna_q_enemy_move",
+                                                    "move_speed_mult",
+                                                    -22,
+                                                ),
+                                                level_three_buff(
+                                                    "lol_orianna_q_enemy_attack_speed", -15
+                                                ),
+                                            ],
+                                        },
+                                        "casting_type": "Targeting",
+                                    }
+                                ],
+                                "end_effects": [],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        "skill2": {
+            "action_name": "skill2",
+            "description": "#asset/base/text/champion?description.barrier_magician.skill2",
+            "duration": 30,
+            "cooltime": 480,
+            "start_timing": 24,
+            "cancelable": False,
+            "range": 70000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "AllyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_orianna_e_cast"},
+                    {
+                        "type": "TargetProjectile",
+                        "speed": 6000,
+                        "name": "lol_orianna_e_ball",
+                        "y_offset": 0,
+                        "applied_target": "AllyChampion",
+                        "applied_effects": [
+                            {
+                                "effect": {
+                                    "type": "Combine",
+                                    "effects": [
+                                        {
+                                            "type": "Shield",
+                                            "amount": 180,
+                                            "attack_ratio": 0,
+                                            "ap_ratio": 55,
+                                            "tick": 180,
+                                        },
+                                        {
+                                            "type": "AddBuff",
+                                            "buff_state": {
+                                                "name": "lol_orianna_protect",
+                                                "duration": "WithShield",
+                                                "defence": 12,
+                                                "magic_resistance": 12,
+                                                "skill_damaged_reduce": 15,
+                                                "base_attack_damaged_reduce": 10,
+                                            },
+                                        },
+                                        {"type": "TargetSfx", "name": "lol_orianna_e_hit"},
+                                    ],
+                                },
+                                "casting_type": "Targeting",
+                            }
+                        ],
+                    },
+                ],
+            },
+        },
+        "ult": {
+            "action_name": "ult",
+            "description": "#asset/base/text/champion?description.barrier_magician.ult",
+            "duration": 30,
+            "cooltime": 3000,
+            "start_timing": 24,
+            "cancelable": False,
+            "range": 75000,
+            "growth_range": 0,
+            "casting_type": "Targeting",
+            "casting_target": "EnemyChampion",
+            "attack_type": "Skill",
+            "can_use_with_move": False,
+            "effect": {
+                "type": "Combine",
+                "effects": [
+                    {"type": "Sfx", "name": "lol_orianna_r_cast"},
+                    {
+                        "type": "ParabolicProjectile",
+                        "name": "lol_orianna_r_core",
+                        "travel_time": 1,
+                        "range": 75000,
+                        "shape": {"Circle": {"radius": 1}},
+                        "applied_target": "EnemyChampion",
+                        "applied_effects": [],
+                        "end_effects": [
+                            {
+                                "type": "ViewEffect",
+                                "name": "lol_orianna_r_ring_visual",
+                            },
+                            {
+                                "type": "ShrinkingBarrier",
+                                "name": "lol_orianna_r_ring_logic",
+                                "start_radius": 60000,
+                                "end_radius": 18000,
+                                "shrink_per_tick": 700,
+                                "tick": 60,
+                                "edge_thickness": 6000,
+                                "applied_effects": [
+                                    {
+                                        "effect": {"type": "Bind", "duration": 8},
+                                        "casting_type": "Targeting",
+                                    }
+                                ],
+                            },
+                            {
+                                "type": "Delayed",
+                                "tick": 60,
+                                "effects": [
+                                    {
+                                        "type": "ViewEffect",
+                                        "name": "lol_orianna_r_burst_visual",
+                                    },
+                                    {"type": "TargetSfx", "name": "lol_orianna_r_hit"},
+                                    {
+                                        "type": "RangeProjectile",
+                                        "name": "lol_orianna_r_burst_hitbox",
+                                        "delay": 0,
+                                        "apply": 1,
+                                        "shape": {"Circle": {"radius": 42000}},
+                                        "applied_target": "EnemyWithoutTower",
+                                        "applied_effects": [
+                                            {
+                                                "effect": {
+                                                    "type": "ApAttack",
+                                                    "damage": 130,
+                                                    "attack_ratio": 100,
+                                                },
+                                                "casting_type": "Targeting",
+                                            },
+                                            {
+                                                "effect": {
+                                                    "type": "Pull",
+                                                    "speed": 3200,
+                                                    "tick": 12,
+                                                },
+                                                "casting_type": "Targeting",
+                                            },
+                                            {
+                                                "effect": {
+                                                    "type": "Airborne",
+                                                    "duration": 24,
+                                                },
+                                                "casting_type": "Targeting",
+                                            },
+                                        ],
+                                        "end_effects": [],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        "view_projectiles": [
+            {
+                "type": "Animated",
+                "name": "lol_orianna_attack_dart",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_attack",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_orianna_q_ball",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_ball",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_orianna_q_field_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_field",
+                "tag": "field",
+                "z": -1,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_orianna_e_ball",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_e_shield",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_orianna_r_core",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_ball",
+                "tag": "projectile",
+                "z": 2,
+                "repeat": True,
+            },
+        ],
+        "view_effects": [
+            {
+                "type": "Animation",
+                "name": "lol_orianna_attack_hit_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_attack",
+                "tag": "impact",
+                "z": 1,
+                "is_follow": False,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_orianna_q_impact",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_q_field",
+                "tag": "impact",
+                "z": 0,
+                "is_follow": False,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_orianna_r_ring_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_r_ring",
+                "tag": "ring",
+                "z": -1,
+                "is_follow": False,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_orianna_r_burst_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_r_ring",
+                "tag": "burst",
+                "z": 1,
+                "is_follow": False,
+            },
+        ],
+        "view_buffs": [
+            {
+                "type": "ThreePhase",
+                "name": "lol_orianna_protect",
+                "anim": "asset/lol_mod/aseprite_resources/effects/orianna_e_shield",
+                "pre_tag": "impact",
+                "loop_tag": "loop",
+                "remove_tag": "break",
+                "z": 1,
+            }
+        ],
+    }
+    path = MOD_ROOT / "champion" / "barrier_magician.data_champion"
     write_json(path, champion)
     return path
 
@@ -963,7 +1697,7 @@ def build_lucian_qa_contacts(actor_frames: list[Image.Image], icons: list[Path])
 
     panels = [
         ("lucian_attack", (64, 32), "attack / passive bolt"),
-        ("lucian_q", (192, 64), "Q gold muzzle beam"),
+        ("lucian_q", (192, 32), "Q muzzle-pivot straight beam"),
         ("lucian_r", (64, 32), "R bullet"),
     ]
     vfx_contact = Image.new("RGBA", (8 * 128, 3 * 96), (20, 18, 28, 255))
@@ -978,6 +1712,71 @@ def build_lucian_qa_contacts(actor_frames: list[Image.Image], icons: list[Path])
             vfx_contact.alpha_composite(zoom, (index * 128, row * 96))
         draw.text((4, row * 96 + 80), label, fill=(255, 255, 255, 255))
     vfx_path = QA_DIR / "lucian_vfx_contact_final.png"
+    save_png(vfx_path, vfx_contact)
+    return [actor_path, icon_path, vfx_path]
+
+
+def build_orianna_qa_contacts(
+    actor_frames: list[Image.Image], icons: list[Path]
+) -> list[Path]:
+    QA_DIR.mkdir(parents=True, exist_ok=True)
+    action_counts = [
+        ("idle", 4),
+        ("run", 8),
+        ("attack", 5),
+        ("hit", 1),
+        ("dead", 9),
+        ("skill1/Q", 5),
+        ("skill2/E", 5),
+        ("ult/R", 4),
+    ]
+    labels = [
+        f"{action} {index + 1}"
+        for action, count in action_counts
+        for index in range(count)
+    ]
+    actor_contact = Image.new("RGBA", (7 * 128, 6 * 144), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(actor_contact)
+    for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
+        x = (index % 7) * 128
+        y = (index // 7) * 144
+        actor_contact.alpha_composite(
+            frame.resize((128, 128), Image.Resampling.NEAREST), (x, y)
+        )
+        draw.text((x + 4, y + 128), label, fill=(255, 255, 255, 255))
+    actor_path = QA_DIR / "orianna_actor_contact_final.png"
+    save_png(actor_path, actor_contact)
+
+    icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(icon_contact)
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
+        icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
+        icon_contact.alpha_composite(icon, (index * 192, 0))
+        draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
+    icon_path = QA_DIR / "orianna_skill_icons_final.png"
+    save_png(icon_path, icon_contact)
+
+    panels = [
+        ("orianna_attack", (32, 32), 8, "attack energy dart + impact"),
+        ("orianna_q_ball", (40, 40), 4, "Q ball"),
+        ("orianna_q_field", (112, 64), 8, "Q impact + field"),
+        ("orianna_e_shield", (80, 80), 12, "E projectile + shield + break"),
+        ("orianna_r_ring", (160, 160), 12, "R shrink + shockwave"),
+    ]
+    vfx_contact = Image.new("RGBA", (12 * 128, 5 * 148), (20, 18, 28, 255))
+    draw = ImageDraw.Draw(vfx_contact)
+    for row, (name, frame_size, count, label) in enumerate(panels):
+        sheet = Image.open(EFFECT_DIR / f"{name}#sheet.png").convert("RGBA")
+        for index in range(count):
+            frame = sheet.crop(
+                (index * frame_size[0], 0, (index + 1) * frame_size[0], frame_size[1])
+            )
+            frame.thumbnail((124, 124), Image.Resampling.NEAREST)
+            x = index * 128 + (128 - frame.width) // 2
+            y = row * 148 + (124 - frame.height) // 2
+            vfx_contact.alpha_composite(frame, (x, y))
+        draw.text((4, row * 148 + 128), label, fill=(255, 255, 255, 255))
+    vfx_path = QA_DIR / "orianna_vfx_contact_final.png"
     save_png(vfx_path, vfx_contact)
     return [actor_path, icon_path, vfx_path]
 
@@ -1034,8 +1833,13 @@ def main() -> int:
         *ICON_SOURCES.values(),
         *(entry[0] for entry in VFX_SOURCES.values()),
         LUCIAN_ACTOR_SOURCE,
+        LUCIAN_RUN_SOURCE,
         *LUCIAN_ICON_SOURCES.values(),
         *(entry[0] for entry in LUCIAN_VFX_SOURCES.values()),
+        ORIANNA_ACTOR_SOURCE,
+        ORIANNA_RUN_SOURCE,
+        *ORIANNA_ICON_SOURCES.values(),
+        *ORIANNA_VFX_SOURCES.values(),
     ]
     missing = [path for path in required_sources if not path.exists()]
     if missing:
@@ -1049,6 +1853,11 @@ def main() -> int:
     lucian_vfx = build_lucian_vfx()
     lucian_champion = build_lucian_data()
     lucian_qa = build_lucian_qa_contacts(lucian_frames, lucian_icons)
+    orianna_sheet, orianna_anim, orianna_frames = build_orianna_actor()
+    orianna_icons = build_orianna_icons()
+    orianna_vfx = build_orianna_vfx()
+    orianna_champion = build_orianna_data()
+    orianna_qa = build_orianna_qa_contacts(orianna_frames, orianna_icons)
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -1062,6 +1871,12 @@ def main() -> int:
         *lucian_vfx,
         lucian_champion,
         *lucian_qa,
+        orianna_sheet,
+        orianna_anim,
+        *orianna_icons,
+        *orianna_vfx,
+        orianna_champion,
+        *orianna_qa,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

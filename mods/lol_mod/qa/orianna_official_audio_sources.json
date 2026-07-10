@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "champion": "Orianna",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Orianna.wad.client (local League install)",
+    "size_bytes": 73790849,
+    "sha256": "8b6507bf5e23bc8e46b49ffdcbdf02bc703d5110a082444ae8c57427225bc596"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/orianna/skins/base/orianna_base_sfx_audio.bnk",
+    "wad_path_hash": "9843d800f2532dff",
+    "wad_offset": 68623222,
+    "size_bytes": 1106293,
+    "compression": "none",
+    "sha256": "4e73b53d06961792c3f9d40518ddaab588f1c74f635d945c15bc6cca3449865d"
+  },
+  "event_mapping_audit": {
+    "base_skin_registry": {
+      "virtual_path": "data/characters/orianna/skins/skin0.bin",
+      "wad_path_hash": "059a04d06eb47eb2",
+      "compressed_size_bytes": 3171,
+      "size_bytes": 17629,
+      "sha256": "46ea3ec11d507d2cea15333209e6d1bd613c987c086c232bf4adbf1b2a2183ae"
+    },
+    "internal_event_bank": {
+      "virtual_path": "assets/sounds/wwise2016/sfx/characters/orianna/skins/base/orianna_base_sfx_events.bnk",
+      "wad_path_hash": "e4d25429bdd79d49",
+      "compressed_size_bytes": 3476,
+      "size_bytes": 13314,
+      "sha256": "974db529987ef479656d3ca1e7b61e3bd1cc93ab1a8e58287161de642710bca9"
+    },
+    "wad_reader": {
+      "name": "LeagueToolkit wadtools",
+      "version": "0.5.6",
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866"
+    },
+    "path_hashtable": {
+      "name": "CommunityDragon hashes.game.txt",
+      "size_bytes": 207968174,
+      "sha256": "f7d5e73ff1c4b7b4630cef6d4bafe3d1b7a80a2f51e3bf9d4db4e018954d041b"
+    },
+    "event_resolver": {
+      "name": "wwiser",
+      "version": "20250928",
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53",
+      "event_id_algorithm": "lowercase FNV-1 32-bit",
+      "selection_policy": "One official media variant per Riot event. The basic-attack cast runtime event layers the official OnCast and OnMissileLaunch clips, then uses the Flesh switch branch for OnHit. E cast uses the second member of the same Riot random pool used by Q cast so the two fixed mod events remain distinct."
+    }
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "version": "r2117-116-g4021c853",
+    "path": "external vgmstream-cli (not committed)",
+    "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+    "arguments": ["-i", "-W", "1"]
+  },
+  "outputs": [
+    {
+      "event_key": "orianna_attack_oncast",
+      "riot_event": "Play_sfx_Orianna_OriannaBasicAttack_OnCast",
+      "riot_event_id": 2743591656,
+      "event_media_pool": [10486779, 50362070, 172325572, 17107848],
+      "media_id": 10486779,
+      "source_wem_size_bytes": 4815,
+      "source_wem_sha256": "44e171e9fa39515829b6236edcaab23bb4aac2a1d358e2cff7d8bd5b7d611120",
+      "duration_seconds": 0.45555555555555555,
+      "sound_info": "sound/sfx/orianna_attack_cast.sound_info",
+      "clip": "orianna_attack_oncast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_attack_oncast_clip.wav", "size_bytes": 40224, "sha256": "aeef2849dc932c134adb6216f6a11b1bcfcd8f3c7b86809069d96d2c5cd8591f", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 20090}
+    },
+    {
+      "event_key": "orianna_attack_cast",
+      "riot_event": "Play_sfx_Orianna_OriannaBasicAttack_OnMissileLaunch",
+      "riot_event_id": 3412979286,
+      "event_media_pool": [107968075, 177148774, 393366994, 45520813],
+      "media_id": 107968075,
+      "source_wem_size_bytes": 5780,
+      "source_wem_sha256": "874ac5216b57624c6a3dd82041aa2590fe10a690a66e40e1127be9640f2ed03f",
+      "duration_seconds": 0.5895238095238096,
+      "sound_info": "sound/sfx/orianna_attack_cast.sound_info",
+      "clip": "orianna_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_attack_cast_clip.wav", "size_bytes": 52040, "sha256": "e7afba6278066ed33e9818e8f2b3c0b5a2e1d448dd75f65cd4205de317542ec1", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 25998}
+    },
+    {
+      "event_key": "orianna_attack_hit",
+      "riot_event": "Play_sfx_Orianna_OriannaBasicAttack_OnHit",
+      "riot_event_id": 1453538296,
+      "event_switch": "Flesh (Wwise ID 1153642577)",
+      "event_media_pool": [88465727, 80894070, 13151160, 54554591],
+      "media_id": 88465727,
+      "source_wem_size_bytes": 6819,
+      "source_wem_sha256": "057373ec5c5be545f224263e81eb06e3ce53be06172232421a89733b96343ec4",
+      "duration_seconds": 0.7629024943310657,
+      "sound_info": "sound/sfx/orianna_attack_hit.sound_info",
+      "clip": "orianna_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_attack_hit_clip.wav", "size_bytes": 67332, "sha256": "5e68059f1493b2f40dd5eb44f596c2fdff8b6d3891a5ce80a8fda8ce91cc5f85", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 33644}
+    },
+    {
+      "event_key": "orianna_q_cast",
+      "riot_event": "Play_sfx_OrianaIzunaCommand_OnCast",
+      "riot_event_id": 2878235885,
+      "event_media_pool": [115694724, 36982805, 90662928, 251512719],
+      "media_id": 115694724,
+      "source_wem_size_bytes": 6232,
+      "source_wem_sha256": "90571b3d158dc13bf7594d25683b70bdf5fac7817ee81e19963d9b706513e2c1",
+      "duration_seconds": 0.6379818594104308,
+      "sound_info": "sound/sfx/orianna_q_cast.sound_info",
+      "clip": "orianna_q_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_q_cast_clip.wav", "size_bytes": 56314, "sha256": "666fc77ba6443241fd89e307a2fa1ac86678a4b5f85a440c405e5d5d7da97f5c", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 28135}
+    },
+    {
+      "event_key": "orianna_q_hit",
+      "riot_event": "Play_sfx_Orianna_OriannaIzuna_hit",
+      "riot_event_id": 4058868190,
+      "event_media_pool": [791749679, 888317944, 580182307, 450485132],
+      "media_id": 791749679,
+      "source_wem_size_bytes": 5612,
+      "source_wem_sha256": "d2d650ce0ac9f605776d3f774be59a9ced1471cdf6bf79e02de0b8ac963447d9",
+      "duration_seconds": 0.6217687074829932,
+      "sound_info": "sound/sfx/orianna_q_hit.sound_info",
+      "clip": "orianna_q_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_q_hit_clip.wav", "size_bytes": 54884, "sha256": "4671deecc38aebc32253bc97cf97b1e5f73b7f20d430d049e6caa50c007d3c42", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 27420}
+    },
+    {
+      "event_key": "orianna_e_cast",
+      "riot_event": "Play_sfx_OrianaRedactCommand_OnCast",
+      "riot_event_id": 1566420527,
+      "event_media_pool": [115694724, 36982805, 90662928, 251512719],
+      "media_id": 36982805,
+      "source_wem_size_bytes": 5663,
+      "source_wem_sha256": "465b2943e06bcf2e7955c9f660efde7aafb69dadfad6fb31c4e9f474fc51881b",
+      "duration_seconds": 0.6084126984126984,
+      "sound_info": "sound/sfx/orianna_e_cast.sound_info",
+      "clip": "orianna_e_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_e_cast_clip.wav", "size_bytes": 53706, "sha256": "b70f082d01e428779b5884e5f1bafd27ced8a796812b21792f00547c3942e379", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 26831}
+    },
+    {
+      "event_key": "orianna_e_hit",
+      "riot_event": "Play_sfx_OrianaRedactShield_OnBuffActivate",
+      "riot_event_id": 3943339528,
+      "event_media_pool": [350706451],
+      "media_id": 350706451,
+      "source_wem_size_bytes": 8174,
+      "source_wem_sha256": "bed33119f3b0b0824e58df425a0d662248fc0ed1edc4736a5d234f5e9d19d1bd",
+      "duration_seconds": 0.9126984126984127,
+      "sound_info": "sound/sfx/orianna_e_hit.sound_info",
+      "clip": "orianna_e_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_e_hit_clip.wav", "size_bytes": 80544, "sha256": "de2f05c3c46599f58684ed9f563437e42e65f6461e0f47b59835f5e11cd6676f", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 40250}
+    },
+    {
+      "event_key": "orianna_r_cast",
+      "riot_event": "Play_sfx_OrianaDetonateCommand_OnCast",
+      "riot_event_id": 3712536696,
+      "event_media_pool": [249237419, 74559808, 166607323, 382749418],
+      "media_id": 249237419,
+      "source_wem_size_bytes": 6910,
+      "source_wem_sha256": "871946155faf9c60d199244f4998b93c1d46cf05f8e7e60fc235e75e19c2aa2b",
+      "duration_seconds": 0.7896371882086167,
+      "sound_info": "sound/sfx/orianna_r_cast.sound_info",
+      "clip": "orianna_r_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_r_cast_clip.wav", "size_bytes": 69690, "sha256": "60df9d50813099d69c95d3284d2dcf748f694f0d79d25546b989ce855f09b365", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 34823}
+    },
+    {
+      "event_key": "orianna_r_hit",
+      "riot_event": "Play_sfx_Orianna_OriannaDetonateCommand_hit",
+      "riot_event_id": 388677692,
+      "event_media_pool": [648642925, 467783881, 1048097850, 1023409026],
+      "media_id": 648642925,
+      "source_wem_size_bytes": 17192,
+      "source_wem_sha256": "79938f8d719f984201b62b445bcd5589e7a4ec82cd656c0ce543b92b5590d090",
+      "duration_seconds": 2.2020408163265306,
+      "sound_info": "sound/sfx/orianna_r_hit.sound_info",
+      "clip": "orianna_r_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/orianna_r_hit_clip.wav", "size_bytes": 194264, "sha256": "362d79bedce6545e0d954317199d910cf53d3dc3bb456bbcfc2e18904cd2c3ff", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 97110}
+    }
+  ]
+}

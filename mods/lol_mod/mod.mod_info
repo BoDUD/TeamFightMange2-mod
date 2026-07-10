@@ -1,10 +1,10 @@
 {
   "id": "lol_mod",
   "mod_id": "lol_mod",
-  "name": "League Champions: Shen & Lucian / 慎与卢锡安",
+  "name": "League Champions: Shen, Lucian & Orianna / 慎、卢锡安与奥利安娜",
   "author": "BoDUD",
-  "version": "0.3.0",
-  "description": "Adds Shen and reworks native champion 002 as a full same-id Lucian data champion with Lightslinger, Q/E/R, original image-generated pixel art/VFX, and locally extracted League base SFX.",
+  "version": "0.4.1",
+  "description": "Adds Shen, reworks native champion 002 as same-id Lucian, and reworks official 003 Barrier Mage (barrier_magician) as same-id Orianna with a non-persistent Ball, Q field control, E ally shielding, and target-point R Shockwave. All champion art, icons, and VFX are original image-generated assets.",
   "last_updated": "2026-07-10",
   "dependencies": [
     {
