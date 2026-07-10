@@ -1,6 +1,16 @@
 # TeamFightMange2-mod
 
-这个仓库目前提供一个可独立安装的《团战经理 2》数据英雄模组：`lol_mod`。
+这个仓库提供一个可独立安装的《团战经理 2》英雄包模组：`lol_mod`。
+
+## v0.2：圣枪游侠·卢锡安
+
+- 新增唯一英雄 ID `lol_lucian`，与 `lol_shen` 并存，不覆盖原生英雄。
+- 被动「圣光银弹」：Q/E/R 后 4 秒内的下一次普攻追加一发 45% 攻击力子弹。
+- Q「透体圣光」：锁定敌方英雄后向其方向发射贯穿光束。
+- E「冷酷追击」：定向冲刺 300 距离，不造成伤害；独立跟随拖影保持角色视觉居中。
+- R「圣枪洗礼」：原地引导并按 8 tick 间隔发射 15 发不可穿透子弹。
+- 本体、九帧交叉步跑动、Q/E/R 图标和 Q/E/R 特效均由内置 image-gen 生成并保留审计记录。
+- 普攻、被动、Q、E、R 音效直接从本机 League of Legends 的 Lucian Base Wwise 资源提取。
 
 ## v0.1：暮光之眼·慎
 
@@ -40,4 +50,12 @@ python .\mods\lol_mod\tools\extract_shen_audio.py `
   --vgmstream "C:\path\to\vgmstream-cli.exe"
 ```
 
-这是非商业同人模组。League of Legends、Shen 及相关音效归其权利人所有；仓库中的角色模型、图标和 VFX 是为本模组生成的原创像素素材。
+卢锡安音效使用同样的固定哈希校验流程：
+
+```powershell
+python .\mods\lol_mod\tools\extract_lucian_audio.py `
+  --wad "D:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Lucian.wad.client" `
+  --vgmstream "C:\path\to\vgmstream-cli.exe"
+```
+
+这是非商业同人模组。League of Legends、Shen、Lucian 及相关音效归其权利人所有；仓库中的角色模型、图标和 VFX 是为本模组生成的原创像素素材。

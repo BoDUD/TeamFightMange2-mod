@@ -62,5 +62,69 @@
   "asset/base/sound/sfx/shen_r_arrive_clip": {
     "remapping": "asset/lol_mod/sound/sfx/shen_r_arrive_clip",
     "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_passive_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_passive_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_passive_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_passive_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_passive_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_lucian_r_channel": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_channel",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lucian_r_channel_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lucian_r_channel_clip",
+    "type": "override"
   }
 }

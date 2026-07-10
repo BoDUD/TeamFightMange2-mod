@@ -25,20 +25,27 @@ def test_static_validator_passes() -> None:
 
 
 def test_data_champion_is_additive_and_localized() -> None:
-    champion = json.loads((MOD / "champion" / "lol_shen.data_champion").read_text(encoding="utf-8"))
+    shen = json.loads((MOD / "champion" / "lol_shen.data_champion").read_text(encoding="utf-8"))
+    lucian = json.loads((MOD / "champion" / "lol_lucian.data_champion").read_text(encoding="utf-8"))
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
     text = json.loads((MOD / "text" / "champion.i18n").read_text(encoding="utf-8"))
-    assert champion["id"] == "lol_shen"
+    assert shen["id"] == "lol_shen"
+    assert lucian["id"] == "lol_lucian"
     assert mod_info["mod_id"] == "lol_mod"
+    assert mod_info["version"] == "0.2.0"
     assert text["zh-hans"]["description"]["lol_shen"]["name"] == "慎"
     assert text["zh-hant"]["description"]["lol_shen"]["name"] == "慎"
+    assert text["zh-hans"]["description"]["lol_lucian"]["name"] == "卢锡安"
+    assert text["zh-hant"]["description"]["lol_lucian"]["name"] == "路西恩"
 
 
 def test_generated_sources_and_official_audio_are_auditable() -> None:
-    imagegen = json.loads((MOD / "qa" / "shen_imagegen_sources.json").read_text(encoding="utf-8"))
-    audio = json.loads((MOD / "qa" / "shen_official_audio_sources.json").read_text(encoding="utf-8"))
-    assert len(imagegen["sources"]) == 8
-    assert {entry["role"] for entry in imagegen["sources"]} == {
+    shen_imagegen = json.loads((MOD / "qa" / "shen_imagegen_sources.json").read_text(encoding="utf-8"))
+    shen_audio = json.loads((MOD / "qa" / "shen_official_audio_sources.json").read_text(encoding="utf-8"))
+    lucian_imagegen = json.loads((MOD / "qa" / "lucian_imagegen_sources.json").read_text(encoding="utf-8"))
+    lucian_audio = json.loads((MOD / "qa" / "lucian_official_audio_sources.json").read_text(encoding="utf-8"))
+    assert len(shen_imagegen["sources"]) == 8
+    assert {entry["role"] for entry in shen_imagegen["sources"]} == {
         "actor_model",
         "run_cycle",
         "q_icon",
@@ -48,5 +55,17 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
         "w_vfx",
         "r_vfx",
     }
-    assert len(audio["outputs"]) == 7
-    assert all(entry["volume"] >= 0.85 for entry in audio["outputs"])
+    assert len(lucian_imagegen["sources"]) == 8
+    assert {entry["role"] for entry in lucian_imagegen["sources"]} == {
+        "actor_model",
+        "run_cycle",
+        "q_icon",
+        "e_icon",
+        "r_icon",
+        "q_vfx",
+        "e_vfx",
+        "r_vfx",
+    }
+    assert len(shen_audio["outputs"]) == 7
+    assert len(lucian_audio["outputs"]) == 8
+    assert all(entry["volume"] >= 0.85 for entry in [*shen_audio["outputs"], *lucian_audio["outputs"]])

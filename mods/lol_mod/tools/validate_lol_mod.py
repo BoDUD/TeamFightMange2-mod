@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for the additive Shen champion and its generated assets."""
+"""Static validation for the additive Shen and Lucian champion pack."""
 
 from __future__ import annotations
 
@@ -148,6 +148,169 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         check(marker in serialized, f"named state marker missing: {marker}")
 
 
+def validate_lucian_data_contract(champion: dict[str, Any]) -> None:
+    check(champion.get("id") == "lol_lucian", "champion id must be lol_lucian")
+    check(champion.get("category") == "Range", "Lucian category must be Range")
+    check(set(champion.get("tags", [])) == {"AD", "Range"}, "Lucian role tags must be AD/Range")
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/lucian_skill",
+            "asset/lol_mod/icons/lucian_skill2",
+            "asset/lol_mod/icons/lucian_ult",
+        ],
+        "Lucian skill icon order must be Q/E/R",
+    )
+    expected_stats = {
+        "attack": 100,
+        "magic_power": 0,
+        "hp": 900,
+        "defence": 20,
+        "magic_resistance": 15,
+        "move_speed": 900,
+        "hp_regen": 2,
+        "stack": 0,
+        "crit_chance": 0,
+    }
+    expected_growth = {
+        "attack": 13,
+        "magic_power": 0,
+        "hp": 90,
+        "defence": 6,
+        "magic_resistance": 3,
+        "move_speed": 9,
+        "hp_regen": 1,
+        "stack": 0,
+        "crit_chance": 0,
+    }
+    check(champion.get("stat") == expected_stats, "Lucian base stats do not match the design")
+    check(champion.get("growth") == expected_growth, "Lucian growth stats do not match the design")
+
+    attack = champion.get("attack", {})
+    check(
+        (attack.get("range"), attack.get("cooltime"), attack.get("duration"), attack.get("start_timing"))
+        == (62000, 60, 24, 10),
+        "Lucian attack range/timing mismatch",
+    )
+    switch = attack.get("effect", {})
+    check(switch.get("type") == "SwitchByBuff", "Lucian attack must branch with SwitchByBuff")
+    check(
+        switch.get("buff_name") == "lol_lucian_lightslinger_ready",
+        "Lucian attack must consume the Lightslinger marker",
+    )
+    empowered = switch.get("effect_buff", {})
+    empowered_projectiles = find_effect(empowered, "TargetProjectile")
+    check(len(empowered_projectiles) == 2, "Lightslinger must fire exactly two target projectiles")
+    empowered_attacks = find_effect(empowered, "Attack")
+    check(
+        sorted(effect.get("attack_ratio") for effect in empowered_attacks) == [45, 100],
+        "Lightslinger ratios must be 100% then 45% Attack",
+    )
+    empowered_delays = sorted(effect.get("tick") for effect in find_effect(empowered, "Delayed"))
+    check(empowered_delays == [4, 10], "Lightslinger shots must be six ticks apart at ticks 4 and 10")
+    check(
+        bool(find_effect(empowered, "RemoveCasterBuff", name="lol_lucian_lightslinger_ready")),
+        "Lightslinger empowered attack must consume its marker",
+    )
+
+    q = champion.get("skill", {})
+    check(
+        (q.get("casting_target"), q.get("range"), q.get("cooltime"), q.get("start_timing"))
+        == ("EnemyChampion", 65000, 300, 10),
+        "Lucian Q targeting/range/timing mismatch",
+    )
+    q_projectiles = find_effect(q, "LinearProjectile")
+    check(len(q_projectiles) == 1, "Lucian Q must contain exactly one line projectile")
+    if q_projectiles:
+        projectile = q_projectiles[0]
+        check(projectile.get("penetrate") is True, "Lucian Q must penetrate")
+        check(projectile.get("range") == 76000, "Lucian Q line range must be 76000")
+        check(projectile.get("applied_target") == "EnemyWithoutTower", "Lucian Q must exclude towers")
+        check(
+            projectile.get("shape", {}).get("Rect") == {"width": 12000, "height": 76000},
+            "Lucian Q line shape mismatch",
+        )
+    q_attacks = find_effect(q, "Attack")
+    check(
+        len(q_attacks) == 1
+        and q_attacks[0].get("damage") == 55
+        and q_attacks[0].get("attack_ratio") == 85,
+        "Lucian Q damage must be 55 + 85% Attack",
+    )
+
+    e = champion.get("skill2", {})
+    check(
+        (e.get("casting_type"), e.get("range"), e.get("cooltime"), e.get("duration"), e.get("start_timing"))
+        == ("Direction", 30000, 420, 18, 4),
+        "Lucian E direction/range/timing mismatch",
+    )
+    rush = find_effect(e, "RushTime")
+    check(
+        len(rush) == 1 and rush[0].get("speed") == 3000 and rush[0].get("tick") == 10,
+        "Lucian E must dash 30000 units through RushTime",
+    )
+    check(not find_effect(e, "Attack") and not find_effect(e, "ApAttack"), "Lucian E must deal no damage")
+    check(
+        bool(find_effect(e, "CasterViewEffect", name="lol_lucian_dash_visual")),
+        "Lucian E afterimage effect is missing",
+    )
+
+    for action_name, action in (("Q", q), ("E", e)):
+        ready = [
+            effect
+            for effect in find_effect(action, "AddCasterBuff")
+            if effect.get("buff_state", {}).get("name") == "lol_lucian_lightslinger_ready"
+        ]
+        check(len(ready) == 1, f"Lucian {action_name} must activate Lightslinger exactly once")
+        if ready:
+            check(
+                ready[0].get("buff_state", {}).get("duration", {}).get("Time", {}).get("tick") == 240,
+                f"Lucian {action_name} Lightslinger duration must be 240 ticks",
+            )
+
+    ult = champion.get("ult", {})
+    check(
+        (ult.get("range"), ult.get("cooltime"), ult.get("duration"), ult.get("start_timing"))
+        == (120000, 3600, 150, 12),
+        "Lucian R range/timing mismatch",
+    )
+    check(ult.get("casting_type") == "Direction", "Lucian R must be a direction cast")
+    check(ult.get("cancelable") is True, "Lucian R must be interruptible")
+    check(ult.get("can_use_with_move") is False, "Lucian R must keep Lucian stationary")
+    shot_delays = [
+        effect
+        for effect in find_effect(ult, "Delayed")
+        if find_effect(effect, "LinearProjectile", name="lol_lucian_culling_shot")
+    ]
+    check(len(shot_delays) == 15, "Lucian R must fire exactly 15 projectiles")
+    check(
+        sorted(effect.get("tick") for effect in shot_delays) == list(range(12, 125, 8)),
+        "Lucian R shots must run from tick 12 to 124 at eight-tick intervals",
+    )
+    for projectile in find_effect(ult, "LinearProjectile", name="lol_lucian_culling_shot"):
+        check(projectile.get("penetrate") is False, "Lucian R bullets must not penetrate")
+        check(projectile.get("speed") == 9000 and projectile.get("range") == 120000, "Lucian R projectile speed/range mismatch")
+        check(projectile.get("shape", {}).get("Circle", {}).get("radius") == 4500, "Lucian R bullet radius must be 4500")
+        attacks = find_effect(projectile, "Attack")
+        check(
+            len(attacks) == 1 and attacks[0].get("damage") == 8 and attacks[0].get("attack_ratio") == 18,
+            "Lucian R bullet damage must be 8 + 18% Attack",
+        )
+    completion = [effect for effect in find_effect(ult, "Delayed", tick=132)]
+    check(len(completion) == 1, "Lucian R must activate Lightslinger at tick 132")
+    if completion:
+        check(
+            bool(
+                [
+                    effect
+                    for effect in find_effect(completion[0], "AddCasterBuff")
+                    if effect.get("buff_state", {}).get("name") == "lol_lucian_lightslinger_ready"
+                ]
+            ),
+            "Lucian R completion marker is missing",
+        )
+
+
 def validate_animation(sheet_relative: str, anim_relative: str, required: dict[str, int]) -> None:
     sheet_path = MOD_ROOT / sheet_relative
     anim = load_json(anim_relative)
@@ -217,6 +380,57 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
             check(icon.convert("RGBA").getchannel("A").getbbox() is not None, f"{relative} is empty")
 
 
+def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
+    actor_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
+    actor = Image.open(actor_path).convert("RGBA")
+    check(actor.size == (1344, 64), f"Lucian actor sheet must be 1344x64, got {actor.size}")
+    bboxes: list[tuple[int, int, int, int]] = []
+    hashes: list[str] = []
+    for index in range(21):
+        frame = actor.crop((index * 64, 0, (index + 1) * 64, 64))
+        bbox = frame.getchannel("A").getbbox()
+        check(bbox is not None, f"Lucian actor frame {index} is empty")
+        if bbox:
+            bboxes.append(bbox)
+            check(bbox[3] <= 46, f"Lucian actor frame {index} crosses the y=45 foot baseline")
+            check(bbox[0] >= 2 and bbox[2] <= 62, f"Lucian actor frame {index} touches a side edge")
+        hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
+    if bboxes:
+        idle = bboxes[0]
+        idle_height = idle[3] - idle[1]
+        idle_center = (idle[0] + idle[2] - 1) / 2
+        check(34 <= idle_height <= 37, "Lucian idle must remain in the 34-37px official scale class")
+        check(44 <= idle[3] <= 46, "Lucian idle does not use the y=45 foot baseline")
+        check(29 <= idle_center <= 34, "Lucian idle is not horizontally centered")
+    check(len(set(hashes[2:11])) == 9, "Lucian run cycle must contain nine unique frames")
+    check(hashes[2] != hashes[10], "Lucian run cycle endpoints must be visually distinct")
+    check(len(set(hashes[11:14])) == 3, "Lucian right/left/double shots must be distinct")
+
+    run_frames = [actor.crop((index * 64, 0, (index + 1) * 64, 64)) for index in range(2, 11)]
+    lower_sets: list[set[tuple[int, int]]] = []
+    for frame in run_frames:
+        alpha = frame.getchannel("A")
+        lower_sets.append(
+            {(x, y) for y in range(31, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128}
+        )
+    differences = []
+    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
+        union = current | following
+        differences.append(len(current ^ following) / len(union) if union else 0.0)
+    if differences:
+        check(min(differences) >= 0.06, "Lucian adjacent run frames are too similar to show cross-steps")
+        check(max(differences) <= 0.88, "Lucian adjacent run frames change too abruptly")
+
+    for icon_path in champion.get("skill_icons", []):
+        relative = icon_path.removeprefix("asset/lol_mod/") + ".png"
+        path = MOD_ROOT / relative
+        check(path.is_file(), f"missing Lucian icon: {relative}")
+        if path.is_file():
+            icon = Image.open(path).convert("RGBA")
+            check(icon.size == (64, 64), f"{relative} must be 64x64")
+            check(icon.getchannel("A").getbbox() == (0, 0, 64, 64), f"{relative} must be full-bleed")
+
+
 def validate_compact_view_and_w_layout() -> None:
     style = load_json("style/champion_view.champion_view")
     shen = style.get("entries", {}).get("lol_shen", {})
@@ -242,15 +456,40 @@ def validate_compact_view_and_w_layout() -> None:
         check(42 <= center_y <= 45, f"W frame {index} is not centered on Shen's y=44 foot point")
         check(bbox[0] >= 2 and bbox[2] <= 110 and bbox[1] >= 2 and bbox[3] <= 62, f"W frame {index} touches an atlas edge")
 
+    lucian = style.get("entries", {}).get("lol_lucian", {})
+    check(lucian.get("face") == {"x": 0, "y": -34}, "Lucian compact portrait offset must be x=0/y=-34")
+    check(lucian.get("center") == {"x": 0, "y": -12}, "Lucian battle/card center offset must be x=0/y=-12")
+
+    e_path = MOD_ROOT / "aseprite_resources/effects/lucian_e#sheet.png"
+    e_sheet = Image.open(e_path).convert("RGBA")
+    check(e_sheet.size == (896, 64), f"Lucian E sheet must be 896x64, got {e_sheet.size}")
+    for index in range(8):
+        frame = e_sheet.crop((index * 112, 0, (index + 1) * 112, 64))
+        bbox = frame.getchannel("A").getbbox()
+        check(bbox is not None, f"Lucian E frame {index} is empty")
+        if bbox:
+            check(bbox[3] <= 46, f"Lucian E frame {index} crosses the actor foot baseline")
+            check(bbox[0] >= 2 and bbox[2] <= 110, f"Lucian E frame {index} touches a side edge")
+
 
 def validate_localization() -> None:
     text = load_json("text/champion.i18n")
     for locale in ("en", "zh-hans", "zh-hant"):
-        description = text.get(locale, {}).get("description", {}).get("lol_shen", {})
-        check(set(description) == {"name", "attack", "skill", "skill2", "ult"}, f"{locale} Shen localization is incomplete")
+        descriptions = text.get(locale, {}).get("description", {})
+        for champion_id in ("lol_shen", "lol_lucian"):
+            description = descriptions.get(champion_id, {})
+            check(
+                set(description) == {"name", "attack", "skill", "skill2", "ult"},
+                f"{locale} {champion_id} localization is incomplete",
+            )
     check(text.get("zh-hans", {}).get("description", {}).get("lol_shen", {}).get("name") == "慎", "zh-hans name must be 慎")
     check(text.get("zh-hant", {}).get("description", {}).get("lol_shen", {}).get("name") == "慎", "zh-hant name must be 慎")
+    check(text.get("zh-hans", {}).get("description", {}).get("lol_lucian", {}).get("name") == "卢锡安", "zh-hans Lucian name must be 卢锡安")
+    check(text.get("zh-hant", {}).get("description", {}).get("lol_lucian", {}).get("name") == "路西恩", "zh-hant Lucian name must be 路西恩")
     check("lowest-health" in text.get("en", {}).get("description", {}).get("lol_shen", {}).get("ult", ""), "English R text must disclose the target-selection limitation")
+    lucian_en = text.get("en", {}).get("description", {}).get("lol_lucian", {})
+    check("15 shots" in lucian_en.get("ult", ""), "English Lucian R text must disclose 15 shots")
+    check("45%" in lucian_en.get("attack", ""), "English Lucian passive text must disclose the 45% second shot")
 
 
 def validate_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
@@ -294,21 +533,74 @@ def validate_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(sha256(path) == wav.get("sha256"), f"audio QA hash mismatch: {wav.get('path')}")
 
 
-def validate_imagegen_sources() -> None:
-    manifest = load_json("qa/shen_imagegen_sources.json")
-    roles = {source.get("role") for source in manifest.get("sources", [])}
-    check(roles == {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"}, "image-gen source roles are incomplete")
-    for source in manifest.get("sources", []):
-        path = MOD_ROOT / source.get("path", "missing")
-        check(path.is_file(), f"missing image-gen source: {source.get('path')}")
+def validate_lucian_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    sfx_names = sorted(
+        {
+            effect.get("name")
+            for effect in walk_effects(champion)
+            if effect.get("type") in {"Sfx", "TargetSfx"}
+        }
+    )
+    check(len(sfx_names) == 8, f"expected 8 wired Lucian sound events, got {len(sfx_names)}")
+    for name in sfx_names:
+        source_key = f"asset/base/sound/sfx/{name}"
+        event_override = override.get(source_key, {})
+        check(event_override.get("type") == "override", f"missing Lucian sound event remap: {source_key}")
+        remapping = event_override.get("remapping", "")
+        relative = remapping.removeprefix("asset/lol_mod/") + ".sound_info"
+        event_path = MOD_ROOT / relative
+        check(event_path.is_file(), f"missing sound_info for {name}: {relative}")
+        if not event_path.is_file():
+            continue
+        sound_info = load_json(relative)
+        plays = sound_info.get("plays", [])
+        check(bool(plays), f"{relative} must contain plays")
+        for play in plays:
+            check(float(play.get("volume", 0)) >= 0.85, f"{relative} volume is below 0.85")
+            clip = play.get("clip", "")
+            clip_source = f"asset/base/sound/sfx/{clip}"
+            clip_override = override.get(clip_source, {})
+            check(clip_override.get("type") == "override", f"missing Lucian clip remap: {clip_source}")
+            clip_relative = clip_override.get("remapping", "").removeprefix("asset/lol_mod/") + ".wav"
+            clip_path = MOD_ROOT / clip_relative
+            check(clip_path.is_file() and clip_path.stat().st_size > 1000, f"missing/empty clip: {clip_relative}")
+            if clip_path.is_file():
+                with wave.open(str(clip_path), "rb") as decoded:
+                    check(decoded.getnchannels() == 1, f"{clip_relative} must be mono")
+                    check(decoded.getsampwidth() == 2, f"{clip_relative} must be 16-bit PCM")
+                    check(decoded.getframerate() == 44100, f"{clip_relative} must be 44.1 kHz")
+
+    audio_manifest = load_json("qa/lucian_official_audio_sources.json")
+    check(len(audio_manifest.get("outputs", [])) == 8, "Lucian official audio QA manifest must cover 8 clips")
+    for output in audio_manifest.get("outputs", []):
+        wav = output.get("wav", {})
+        path = MOD_ROOT / wav.get("path", "missing")
+        check(path.is_file(), f"Lucian audio QA manifest references missing WAV: {wav.get('path')}")
         if path.is_file():
-            check(sha256(path) == source.get("sha256"), f"image-gen source hash mismatch: {source.get('path')}")
+            check(sha256(path) == wav.get("sha256"), f"Lucian audio QA hash mismatch: {wav.get('path')}")
+
+
+def validate_imagegen_sources() -> None:
+    expected = {
+        "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
+        "qa/lucian_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "e_icon", "r_icon", "q_vfx", "e_vfx", "r_vfx"},
+    }
+    for manifest_path, expected_roles in expected.items():
+        manifest = load_json(manifest_path)
+        roles = {source.get("role") for source in manifest.get("sources", [])}
+        check(roles == expected_roles, f"{manifest_path}: image-gen source roles are incomplete")
+        for source in manifest.get("sources", []):
+            path = MOD_ROOT / source.get("path", "missing")
+            check(path.is_file(), f"missing image-gen source: {source.get('path')}")
+            if path.is_file():
+                check(sha256(path) == source.get("sha256"), f"image-gen source hash mismatch: {source.get('path')}")
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    check(len(processed) == 8, "processed image-gen source set must contain 8 alpha PNGs")
+    check(len(processed) == 16, "processed image-gen source set must contain 16 PNGs")
     for path in processed:
         image = Image.open(path).convert("RGBA")
         corners = [image.getpixel((0, 0)), image.getpixel((image.width - 1, 0)), image.getpixel((0, image.height - 1)), image.getpixel((image.width - 1, image.height - 1))]
-        check(all(pixel[3] == 0 for pixel in corners), f"processed source has a non-transparent corner: {path.name}")
+        if "icon" not in path.name:
+            check(all(pixel[3] == 0 for pixel in corners), f"processed source has a non-transparent corner: {path.name}")
     check((MOD_ROOT / "source/imagegen/PROMPTS.md").is_file(), "final image-gen prompt record is missing")
 
 
@@ -328,9 +620,12 @@ def validate_manifest() -> None:
 
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
+    lucian = load_json("champion/lol_lucian.data_champion")
     override = load_json("mod.override_info")
-    load_json("mod.mod_info")
+    mod_info = load_json("mod.mod_info")
+    check(mod_info.get("version") == "0.2.0", "lol_mod version must be 0.2.0")
     validate_data_contract(champion)
+    validate_lucian_data_contract(lucian)
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",
@@ -339,18 +634,40 @@ def main() -> int:
     validate_animation("aseprite_resources/effects/shen_q#sheet.png", "aseprite_resources/effects/shen_q#anim.fanim", {"projectile": 8})
     validate_animation("aseprite_resources/effects/shen_w#sheet.png", "aseprite_resources/effects/shen_w#anim.fanim", {"field": 6})
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
+    validate_animation(
+        "aseprite_resources/champions/lucian#sheet.png",
+        "aseprite_resources/champions/lucian#anim.fanim",
+        {
+            "idle": 7,
+            "run": 9,
+            "attack": 3,
+            "attack_right": 4,
+            "attack_left": 4,
+            "attack_double": 6,
+            "skill": 5,
+            "skill2": 5,
+            "ult": 17,
+            "hit": 1,
+            "dead": 1,
+        },
+    )
+    validate_animation("aseprite_resources/effects/lucian_q#sheet.png", "aseprite_resources/effects/lucian_q#anim.fanim", {"projectile": 8})
+    validate_animation("aseprite_resources/effects/lucian_e#sheet.png", "aseprite_resources/effects/lucian_e#anim.fanim", {"dash": 8})
+    validate_animation("aseprite_resources/effects/lucian_r#sheet.png", "aseprite_resources/effects/lucian_r#anim.fanim", {"projectile": 8})
     validate_actor_and_icons(champion)
+    validate_lucian_actor_and_icons(lucian)
     validate_compact_view_and_w_layout()
     validate_localization()
     validate_audio(champion, override)
+    validate_lucian_audio(lucian, override)
     validate_imagegen_sources()
     validate_manifest()
     if ERRORS:
-        print("Shen mod validation failed:")
+        print("League champion pack validation failed:")
         for error in ERRORS:
             print(f"- {error}")
         return 1
-    print("Shen mod validation passed")
+    print("League champion pack validation passed")
     return 0
 
 

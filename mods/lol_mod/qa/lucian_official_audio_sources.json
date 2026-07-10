@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "champion": "Lucian",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Lucian.wad.client (local League install)",
+    "size_bytes": 93382711,
+    "sha256": "cb3c292af057e206ce3460892d18b19bd6fa453fde97bc2d5c0bf3786437e7b6"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/lucian/skins/base/lucian_base_sfx_audio.bnk",
+    "wad_path_hash": "85c8063dea11583c",
+    "wad_offset": 53713801,
+    "size_bytes": 1080886,
+    "compression": "none",
+    "sha256": "100d1f20103f93a7af5e2136622cd001d70b7eeb6d56503f1488d9aaf83885ca"
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "version": "r2117-116-g4021c853",
+    "path": "external vgmstream-cli (not committed)",
+    "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+    "arguments": ["-i", "-W", "1"]
+  },
+  "outputs": [
+    {
+      "event_key": "lucian_attack_cast",
+      "riot_event": "Play_sfx_Lucian_LucianBasicAttack_OnMissileLaunch",
+      "media_id": 119804074,
+      "source_wem_size_bytes": 8187,
+      "source_wem_sha256": "368354b87361197c210dea504b2fe06b924d43e5c0b6f14f1cc8179589c0b9b2",
+      "duration_seconds": 0.9984353741496599,
+      "sound_info": "sound/sfx/lucian_attack_cast.sound_info",
+      "clip": "lucian_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_attack_cast_clip.wav", "size_bytes": 88106, "sha256": "e134c51fa71c8ec1fd9e3ba26fd4a5f520924d6b9d857c192a1f2cf0180c57ca", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 44031}
+    },
+    {
+      "event_key": "lucian_attack_hit",
+      "riot_event": "Play_sfx_Lucian_LucianBasicAttack_OnHit",
+      "media_id": 655387061,
+      "source_wem_size_bytes": 6665,
+      "source_wem_sha256": "028022425eee93b6d4dc80fc3130f6d5b4cb1ea6339653632593feb6f5e3985f",
+      "duration_seconds": 0.7383219954648526,
+      "sound_info": "sound/sfx/lucian_attack_hit.sound_info",
+      "clip": "lucian_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_attack_hit_clip.wav", "size_bytes": 65164, "sha256": "0476cf36c308c3ecdc0fa2273a6bf7170cab18e5d04069f231115788696e69d7", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 32560}
+    },
+    {
+      "event_key": "lucian_passive_cast",
+      "riot_event": "Play_sfx_Lucian_LucianPassiveAttack_OnMissileLaunch",
+      "media_id": 288975061,
+      "source_wem_size_bytes": 9310,
+      "source_wem_sha256": "7af9f6ddafb7903fe75331f9a3bc514526c1ca9baa53d022eabb30f8ad8b7123",
+      "duration_seconds": 1.1389115646258503,
+      "sound_info": "sound/sfx/lucian_passive_cast.sound_info",
+      "clip": "lucian_passive_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_passive_cast_clip.wav", "size_bytes": 100496, "sha256": "c2e63d9ba92f1b4ea634d67e2d69da6bb1c277c3c596b226be1eb1c2bf6382ed", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 50226}
+    },
+    {
+      "event_key": "lucian_passive_hit",
+      "riot_event": "Play_sfx_Lucian_LucianPassiveAttack_OnHit",
+      "media_id": 368178684,
+      "source_wem_size_bytes": 6213,
+      "source_wem_sha256": "caf64c5d5e6e7e8d219d3893e2ee7dc703b03dbd68996288d96a171df65b9a3f",
+      "duration_seconds": 0.6802947845804989,
+      "sound_info": "sound/sfx/lucian_passive_hit.sound_info",
+      "clip": "lucian_passive_hit_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_passive_hit_clip.wav", "size_bytes": 60046, "sha256": "2ecf21ff7e73cea37f9eee0ae525f4ac4b3b522878ac47621d154a7737ecc167", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 30001}
+    },
+    {
+      "event_key": "lucian_q_cast",
+      "riot_event": "Play_sfx_Lucian_LucianQ_OnCast",
+      "media_id": 264429047,
+      "source_wem_size_bytes": 5502,
+      "source_wem_sha256": "c987e7106258ca951568b544829366922fc8724d4edb759559d6507919fc94d4",
+      "duration_seconds": 0.6059410430839002,
+      "sound_info": "sound/sfx/lucian_q_cast.sound_info",
+      "clip": "lucian_q_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_q_cast_clip.wav", "size_bytes": 53488, "sha256": "26cb7e3cc92812fc9800b963462ac2f40da89aad3d35c32f8147ca16657adf2f", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 26722}
+    },
+    {
+      "event_key": "lucian_e_cast",
+      "riot_event": "Play_sfx_Lucian_LucianE_OnCast",
+      "media_id": 268159856,
+      "source_wem_size_bytes": 16918,
+      "source_wem_sha256": "0247426d1b19970f5481c50a2e6269dd1cb32015da670f3f68eb8d82c0550596",
+      "duration_seconds": 2.102925170068027,
+      "sound_info": "sound/sfx/lucian_e_cast.sound_info",
+      "clip": "lucian_e_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_e_cast_clip.wav", "size_bytes": 185522, "sha256": "9124bdda0056c4c731d87ca8000c07472b4376a865868c31260414fdacd8a268", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 92739}
+    },
+    {
+      "event_key": "lucian_r_cast",
+      "riot_event": "Play_sfx_Lucian_LucianR_OnCast",
+      "media_id": 335009448,
+      "source_wem_size_bytes": 13637,
+      "source_wem_sha256": "aad092010f37fe0f0edbf3c64511154e4c226c0ac2d7d016e18d83865da48c49",
+      "duration_seconds": 1.6021768707482993,
+      "sound_info": "sound/sfx/lucian_r_cast.sound_info",
+      "clip": "lucian_r_cast_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_r_cast_clip.wav", "size_bytes": 141356, "sha256": "126df11699fc793bffe4a1b74efcc9f52eb49533a7d01403f30bc83671435a1d", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 70656}
+    },
+    {
+      "event_key": "lucian_r_channel",
+      "riot_event": "Play_sfx_Lucian_LucianR_OnBuffActivate",
+      "media_id": 134398349,
+      "source_wem_size_bytes": 34424,
+      "source_wem_sha256": "5aa3fffa55fde172c1f51be482b3bf0c6d56bbf9b5183f4e4285712992abd785",
+      "duration_seconds": 4.18312925170068,
+      "sound_info": "sound/sfx/lucian_r_channel.sound_info",
+      "clip": "lucian_r_channel_clip",
+      "volume": 1.0,
+      "wav": {"path": "sound/sfx/lucian_r_channel_clip.wav", "size_bytes": 368996, "sha256": "880a4bcadbeb3bfac8e3e43c94dce9c61098cece402e7049c967e59610bf30ac", "channels": 1, "sample_rate_hz": 44100, "sample_width_bytes": 2, "frame_count": 184476}
+    }
+  ]
+}

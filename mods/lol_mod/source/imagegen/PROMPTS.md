@@ -33,3 +33,35 @@ Use case: stylized-concept. Exact 3x2 source sheet of six sequential final-scale
 ## R VFX
 
 Use case: stylized-concept. Exact 4x2 source sheet of eight sequential final-scale pixel-art phases for Stand United: small eye rune, circular shield outline, protective lotus silhouette, forming teleport columns, intense columns, masked-eye flash, expanding arrival ring, and dissolving afterglow. Teal/cyan/violet/white, crisp hard pixels, stable 112x112-cell footprint, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, fire, generic explosion, angel wings, floor plane, or soft transparency.
+
+## Lucian actor model
+
+Create a production-ready 4x3 pixel-art contact sheet for base-skin Lucian: consistent dark-skinned adult man, short black hair, navy long coat with silver trim, armor and two cyan relic pistols, always facing screen-right. Pose order: two idles, right-pistol shot, left-pistol shot; passive double shot, Q brace, E anticipation, E travel; R start, R fire, hit, defeated. Identical identity, proportions, palette, ground baseline and compact scale in all cells; standing height about 48% of each cell with generous padding. Flat `#ff00ff` only; no grid, labels, UI, extra limbs, cropping, shadows or transparency.
+
+## Lucian run-cycle refinement
+
+Using the accepted Lucian actor as exact identity reference, create a 3x3 nine-frame screen-right run loop with obvious alternating cross-step gait: left contact, passing/cross, right contact, airborne recoil, opposite strong contact, opposite passing/cross, recovery and distinct loop return. Preserve both pistols, coat, scale, baseline and pixel clusters. Flat `#ff00ff`; no labels, grid, muzzle flash, model drift, missing feet or transparency.
+
+## Lucian Q icon
+
+Square full-bleed pixel-art icon for Piercing Light: paired silver relic pistols aligned into one concentrated cyan-white piercing beam, dark navy background, bold high-contrast motif readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian E icon
+
+Square full-bleed pixel-art icon for Relentless Pursuit: centered Lucian silhouette lunging screen-right with two cyan afterimages trailing left and a sharp speed streak, dark navy background, readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian R icon
+
+Square full-bleed pixel-art icon for The Culling: two relic pistols driving a symmetric storm of discrete cyan-white bullets toward screen-right, dark navy background, readable at 32x32. No frame, text, logo, UI, transparency or magenta.
+
+## Lucian Q VFX
+
+Exact 4x2 contact sheet of eight sequential Piercing Light phases: a thin horizontal cyan-white lance ignites, sharpens, reaches a fixed bright core, sparks and cleanly dissipates. Effect only, fixed origin and footprint, about 55% cell width. Flat `#ff00ff`; no character, weapon, labels, grid, blur or transparency.
+
+## Lucian E VFX
+
+Exact 4x2 contact sheet of eight sequential Relentless Pursuit afterimage phases derived from the accepted Lucian silhouette. Translucent cyan ghost echoes and speed streaks remain mainly left of a fixed center so the separately rendered active actor stays centered; fixed y origin and footprint. Flat `#ff00ff`; no labels, grid, smoke, UI or transparency.
+
+## Lucian R VFX
+
+Exact 4x2 contact sheet of eight looping single-projectile phases for The Culling: one compact horizontal cyan-white diamond bullet with a short tail and controlled side sparks, fixed center and footprint. Flat `#ff00ff`; no beam, projectile cluster, labels, grid, blur or transparency.
