@@ -4,7 +4,7 @@ Lucian reworks the existing `archer` ID through the official same-ID `.data_cham
 
 - Passive — Lightslinger: Q, E, and completed R add `lol_lucian_lightslinger_ready` for 240 ticks. The next attack fires at ticks 4 and 10 for `100% Attack` and `45% Attack`, then removes the marker.
 - Basic attack: one dedicated image-gen `lol_lucian_light_bolt` target projectile for `100% Attack` at 620 range.
-- Q — Piercing Light: champion-targeted cast, 650 cast range, 760 penetrating line, `55 + 85% Attack`, excluding towers.
+- Q — Piercing Light: champion-targeted cast, 650 cast range, one instantaneous 120x760 `LineRangeProjectile` for `55 + 85% Attack`, excluding towers. Its eight image-gen gold-white phases are packed into 192x64 actor frames centered on Lucian's facing axis, so the beam starts at the pistol muzzle and mirrors with the actor; Q has no moving or target-following visual projectile.
 - E — Relentless Pursuit: direction cast with `RushTime` at 3000 units/tick for 10 ticks, 300 total range and no damage. It intentionally spawns no release VFX, trail or afterimage.
 - R — The Culling: stationary and cancelable, 15 non-piercing direction projectiles at ticks 12 through 124, each `8 + 18% Attack`, 1200 range and 45 hit radius.
 

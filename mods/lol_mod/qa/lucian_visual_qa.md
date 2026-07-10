@@ -2,10 +2,10 @@
 
 | Surface / action | Source route | Acceptance |
 | --- | --- | --- |
-| Face / actor | image-gen v2 4x3 chibi actor source | warm high-contrast face at the official 002 idle envelope: 31-33px high, about 25px wide, y=45 foot baseline |
-| Run | image-gen v3 compact 3x3 sprint source | nine unique crouched gunslinger phases, cross/passing steps, at most 31px high/30px wide, distinct from Shen |
-| Basic/passive attack | v2 actor muzzle poses plus dedicated image-gen `lucian_attack` projectile | one bolt normally; two separate bolts under Lightslinger |
-| Q | independent image-gen gold-white beam | direction-aware projectile rotates around x=96 and starts at x=116, so both facings begin at the forward pistol muzzle; distinct from cyan attack/R bullets |
+| Face / actor | image-gen v10 unified 7x3 model with final-scale face redesign | one consistent face, hairstyle, coat, body scale, two complete boots and two separate pistols across all 21 poses; both idle eyes pack to separate x=30/x=34 pixels on one row at 35px height and y=45 baseline |
+| Run | the same v10 unified actor source | nine unique alternating-contact gunslinger phases with two passing/cross steps; no separately generated model or Shen-derived gait |
+| Basic/passive attack | v10 single/double muzzle poses plus dedicated image-gen `lucian_attack` projectile | one bolt normally; two separate arms, pistols and bolts under Lightslinger |
+| Q | image-gen v3 gold-white eight-phase beam embedded in Q wide frames | one 1-tick fixed damage line; visual frames are centered on Lucian and mirror with his facing, begin at the pistol muzzle, remain visibly distinct from cyan attacks and cannot track a target |
 | E | actor dash animation only | 300-range movement with no release VFX, trail or afterimage |
 | R | independent image-gen compact bullet | 15 discrete non-piercing projectiles, no baked multi-hit cluster |
 | Skill icons | direct `skill_icons` paths | exact order Q, E, R; no W or native Archer atlas cells |

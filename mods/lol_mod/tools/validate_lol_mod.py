@@ -245,18 +245,22 @@ def validate_lucian_data_contract(champion: dict[str, Any]) -> None:
         == ("EnemyChampion", 65000, 300, 10),
         "Lucian Q targeting/range/timing mismatch",
     )
-    q_projectiles = find_effect(q, "LinearProjectile")
-    check(len(q_projectiles) == 1, "Lucian Q must contain exactly one line projectile")
-    if q_projectiles:
-        projectile = q_projectiles[0]
-        check(projectile.get("name") == "lol_lucian_q_beam_visual", "Lucian Q projectile must own the directional beam visual")
-        check(projectile.get("penetrate") is True, "Lucian Q must penetrate")
-        check(projectile.get("range") == 76000, "Lucian Q line range must be 76000")
-        check(projectile.get("applied_target") == "EnemyWithoutTower", "Lucian Q must exclude towers")
+    q_projectiles = find_effect(q, "LineRangeProjectile")
+    check(len(q_projectiles) == 1, "Lucian Q must contain exactly one instantaneous damage line")
+    check(not find_effect(q, "TargetProjectile"), "Lucian Q must not use a target-following projectile")
+    damage_line = next((effect for effect in q_projectiles if effect.get("name") == "lol_lucian_q_damage_line"), {})
+    check(bool(damage_line), "Lucian Q instantaneous damage line must exist")
+    check(
+        not find_effect(q, "LinearProjectile"),
+        "Lucian Q must not regress to a moving visual projectile",
+    )
+    if damage_line:
         check(
-            projectile.get("shape", {}).get("Rect") == {"width": 12000, "height": 76000},
-            "Lucian Q line shape mismatch",
+            (damage_line.get("width"), damage_line.get("length"), damage_line.get("delay"), damage_line.get("apply"))
+            == (12000, 76000, 0, 1),
+            "Lucian Q must resolve as one instantaneous 120x760 frozen line",
         )
+        check(damage_line.get("applied_target") == "EnemyWithoutTower", "Lucian Q must exclude towers")
     q_attacks = find_effect(q, "Attack")
     check(
         len(q_attacks) == 1
@@ -265,14 +269,9 @@ def validate_lucian_data_contract(champion: dict[str, Any]) -> None:
         "Lucian Q damage must be 55 + 85% Attack",
     )
     check(not find_effect(q, "CasterViewEffect"), "Lucian Q must not use a direction-blind caster-only beam")
-    q_view = next(
-        (view for view in champion.get("view_projectiles", []) if view.get("name") == "lol_lucian_q_beam_visual"),
-        {},
-    )
     check(
-        q_view.get("anim") == "asset/lol_mod/aseprite_resources/effects/lucian_q"
-        and q_view.get("type") == "Animated",
-        "Lucian Q beam must rotate and travel through the directional projectile binding",
+        not any(view.get("name") == "lol_lucian_q_beam_visual" for view in champion.get("view_projectiles", [])),
+        "Lucian Q must not retain the retired moving beam binding",
     )
 
     e = champion.get("skill2", {})
@@ -611,7 +610,7 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
 def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
     actor_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
     actor = Image.open(actor_path).convert("RGBA")
-    check(actor.size == (1344, 64), f"Lucian actor sheet must be 1344x64, got {actor.size}")
+    check(actor.size == (2880, 64), f"Lucian actor sheet must be 2880x64, got {actor.size}")
     bboxes: list[tuple[int, int, int, int]] = []
     hashes: list[str] = []
     for index in range(21):
@@ -628,20 +627,60 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
         idle_height = idle[3] - idle[1]
         idle_width = idle[2] - idle[0]
         idle_center = (idle[0] + idle[2] - 1) / 2
-        check(31 <= idle_height <= 33, "Lucian idle must match the official Archer 31-33px height")
-        check(23 <= idle_width <= 27, "Lucian idle must match the official Archer ~25px width")
+        check(idle_height == 35, "Lucian idle must remain at the accepted 35px readable-face height")
+        check(19 <= idle_width <= 21, "Lucian idle must retain the accepted compact gunslinger width")
         check(44 <= idle[3] <= 46, "Lucian idle does not use the y=45 foot baseline")
         check(29 <= idle_center <= 34, "Lucian idle is not horizontally centered")
+    for idle_index in (0, 1):
+        idle_frame = actor.crop((idle_index * 64, 0, (idle_index + 1) * 64, 64))
+        alpha = idle_frame.getchannel("A")
+        eye_rows = {
+            y: [
+                x
+                for x in range(27, 37)
+                if idle_frame.getpixel((x, y))[3] >= 128
+                and min(idle_frame.getpixel((x, y))[:3]) >= 230
+            ]
+            for y in range(13, 18)
+        }
+        check(
+            any(xs == [30, 34] for xs in eye_rows.values()),
+            f"Lucian v10 idle {idle_index} must retain two same-row eyes at x=30/x=34",
+        )
+        boot_x = [x for x in range(64) if alpha.getpixel((x, 44)) >= 128]
+        boot_segments: list[list[int]] = []
+        for x in boot_x:
+            if not boot_segments or x > boot_segments[-1][-1] + 1:
+                boot_segments.append([x])
+            else:
+                boot_segments[-1].append(x)
+        check(
+            len(boot_segments) == 2
+            and min(len(segment) for segment in boot_segments) >= 4
+            and boot_segments[1][0] - boot_segments[0][-1] >= 3,
+            f"Lucian idle {idle_index} must show two complete separated boots",
+        )
     check(len(set(hashes[2:11])) == 9, "Lucian run cycle must contain nine unique frames")
     check(hashes[2] != hashes[10], "Lucian run cycle endpoints must be visually distinct")
     check(len(set(hashes[11:14])) == 3, "Lucian right/left/double shots must be distinct")
+
+    q_wide_frames = [
+        actor.crop((1344 + index * 192, 0, 1344 + (index + 1) * 192, 64))
+        for index in range(8)
+    ]
+    q_bboxes = [frame.getchannel("A").getbbox() for frame in q_wide_frames]
+    check(all(bbox is not None for bbox in q_bboxes), "all eight Lucian Q wide frames must be visible")
+    check(
+        sum(bool(bbox and bbox[2] >= 180) for bbox in q_bboxes) >= 5,
+        "Lucian Q wide animation must show a full-length muzzle beam for at least five phases",
+    )
 
     run_frames = [actor.crop((index * 64, 0, (index + 1) * 64, 64)) for index in range(2, 11)]
     run_bboxes = [frame.getchannel("A").getbbox() for frame in run_frames]
     for index, bbox in enumerate(run_bboxes, start=1):
         if bbox:
-            check(bbox[2] - bbox[0] <= 30, f"Lucian run {index} is wider than the official-footprint allowance")
-            check(bbox[3] - bbox[1] <= 31, f"Lucian run {index} is taller than the official Archer run")
+            check(bbox[2] - bbox[0] <= 32, f"Lucian run {index} is wider than the readable-face footprint allowance")
+            check(bbox[3] - bbox[1] <= 32, f"Lucian run {index} is taller than the readable-face run allowance")
             check(44 <= bbox[3] <= 46, f"Lucian run {index} changed the official foot baseline")
     lower_sets: list[set[tuple[int, int]]] = []
     for frame in run_frames:
@@ -872,7 +911,7 @@ def validate_native_lucian_audio(override: dict[str, Any]) -> None:
 def validate_imagegen_sources() -> None:
     expected = {
         "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
-        "qa/lucian_imagegen_sources.json": {"actor_model", "run_cycle", "attack_vfx", "q_icon", "e_icon", "r_icon", "q_vfx", "r_vfx"},
+        "qa/lucian_imagegen_sources.json": {"actor_model", "attack_vfx", "q_icon", "e_icon", "r_icon", "q_vfx", "r_vfx"},
     }
     for manifest_path, expected_roles in expected.items():
         manifest = load_json(manifest_path)
@@ -884,7 +923,7 @@ def validate_imagegen_sources() -> None:
             if path.is_file():
                 check(sha256(path) == source.get("sha256"), f"image-gen source hash mismatch: {source.get('path')}")
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    check(len(processed) == 16, "processed image-gen source set must contain 16 PNGs")
+    check(len(processed) == 15, "processed image-gen source set must contain 15 active PNGs")
     for path in processed:
         image = Image.open(path).convert("RGBA")
         corners = [image.getpixel((0, 0)), image.getpixel((image.width - 1, 0)), image.getpixel((0, image.height - 1)), image.getpixel((image.width - 1, image.height - 1))]
@@ -933,7 +972,7 @@ def main() -> int:
             "attack_right": 4,
             "attack_left": 4,
             "attack_double": 6,
-            "skill": 5,
+            "skill": 10,
             "skill2": 5,
             "ult": 17,
             "hit": 1,
@@ -947,11 +986,10 @@ def main() -> int:
     check(attack_cyan_ratio >= 0.65, f"Lucian basic attack must retain its cyan-blue identity, got {attack_cyan_ratio:.1%}")
     validate_animation("aseprite_resources/effects/lucian_q#sheet.png", "aseprite_resources/effects/lucian_q#anim.fanim", {"projectile": 8})
     q_sheet = Image.open(MOD_ROOT / "aseprite_resources/effects/lucian_q#sheet.png").convert("RGBA")
-    check(q_sheet.size == (1536, 64), f"Lucian Q direction-aware sheet must be 1536x64, got {q_sheet.size}")
+    check(q_sheet.size == (1536, 64), f"Lucian Q image-gen source sheet must be 1536x64, got {q_sheet.size}")
     for index in range(8):
         bbox = q_sheet.crop((index * 192, 0, (index + 1) * 192, 64)).getchannel("A").getbbox()
-        if bbox:
-            check(bbox[0] >= 116, f"Lucian Q frame {index} starts before the measured pistol-muzzle anchor")
+        check(bbox is not None, f"Lucian Q image-gen frame {index} is empty")
     q_pixels = opaque_rgb(q_sheet)
     q_gold_ratio = sum(red >= blue + 25 and green >= blue + 5 for red, green, blue in q_pixels) / max(1, len(q_pixels))
     check(q_gold_ratio >= 0.65, f"Lucian Q must retain its gold-white identity, got {q_gold_ratio:.1%}")

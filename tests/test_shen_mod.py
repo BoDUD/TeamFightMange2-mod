@@ -60,10 +60,9 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
         "w_vfx",
         "r_vfx",
     }
-    assert len(lucian_imagegen["sources"]) == 8
+    assert len(lucian_imagegen["sources"]) == 7
     assert {entry["role"] for entry in lucian_imagegen["sources"]} == {
         "actor_model",
-        "run_cycle",
         "attack_vfx",
         "q_icon",
         "e_icon",

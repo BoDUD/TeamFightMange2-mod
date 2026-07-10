@@ -74,7 +74,9 @@ if ($config.PSObject.Properties.Name -contains "enabled_mods") {
 } else {
     $config | Add-Member -NotePropertyName enabled_mods -NotePropertyValue @("lol_mod")
 }
-$config | ConvertTo-Json -Depth 20 -Compress | Set-Content -LiteralPath $configPath -Encoding UTF8
+$configJson = $config | ConvertTo-Json -Depth 20 -Compress
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($configPath, $configJson, $utf8NoBom)
 
 Write-Output "Installed lol_mod to $targetMod"
 Write-Output "Enabled mods: lol_mod"

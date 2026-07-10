@@ -4,13 +4,13 @@
   "files": [
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 10713,
-      "sha256": "bba5ec8cacd7ea7e836f61857966daf201f69e6bdfa6e4586e38927eadf03366"
+      "size": 11550,
+      "sha256": "861c347cbc4a420456000758b243ea5d25b2c4ded38c7a6797ad447653ed7315"
     },
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 344221,
-      "sha256": "f81d78e39c7c491f3b0e095222082f937777ead3289745971ec9a5402e0293d2"
+      "size": 737467,
+      "sha256": "d771f329e1b10e40bfc5cab041935e48ede508fdd6b5b1db053cf4cddb6aa967"
     },
     {
       "path": "aseprite_resources/champions/shen#anim.fanim",
@@ -40,7 +40,7 @@
     {
       "path": "aseprite_resources/effects/lucian_q#sheet.png",
       "size": 393378,
-      "sha256": "6addf5d690b31c949567100d32d5251c514ec42f90e8457c44632631af526a99"
+      "sha256": "b47e6d8c3e97c8332edfd27fa0d364fdb8d7bad1e1b0df17a61a0c5f509208f6"
     },
     {
       "path": "aseprite_resources/effects/lucian_r#anim.fanim",
@@ -84,8 +84,8 @@
     },
     {
       "path": "champion/archer.data_champion",
-      "size": 21917,
-      "sha256": "fba4caf25a3d69e1720b7316af33fbcd2500228b98565229805cdccaecd8e325"
+      "size": 21543,
+      "sha256": "786154b1daca11ed571a1f330f76e6ae72476382dd6cf05b125d2d8f966074b1"
     },
     {
       "path": "champion/lol_shen.data_champion",

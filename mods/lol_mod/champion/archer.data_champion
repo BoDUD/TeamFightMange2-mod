@@ -206,17 +206,12 @@
           "tick": 10,
           "effects": [
             {
-              "type": "LinearProjectile",
-              "penetrate": true,
-              "speed": 15000,
-              "range": 76000,
-              "name": "lol_lucian_q_beam_visual",
-              "shape": {
-                "Rect": {
-                  "width": 12000,
-                  "height": 76000
-                }
-              },
+              "type": "LineRangeProjectile",
+              "width": 12000,
+              "length": 76000,
+              "delay": 0,
+              "apply": 1,
+              "name": "lol_lucian_q_damage_line",
               "applied_target": "EnemyWithoutTower",
               "applied_effects": [
                 {
@@ -227,8 +222,7 @@
                   },
                   "casting_type": "Targeting"
                 }
-              ],
-              "end_effects": []
+              ]
             }
           ]
         },
@@ -805,14 +799,6 @@
       "anim": "asset/lol_mod/aseprite_resources/effects/lucian_attack",
       "tag": "projectile",
       "z": 2,
-      "repeat": true
-    },
-    {
-      "type": "Animated",
-      "name": "lol_lucian_q_beam_visual",
-      "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
-      "tag": "projectile",
-      "z": 3,
       "repeat": true
     },
     {

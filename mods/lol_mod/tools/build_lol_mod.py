@@ -36,8 +36,7 @@ VFX_SOURCES = {
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
-LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_v2_alpha.png"
-LUCIAN_RUN_SOURCE = SOURCE / "lucian_run_contact_v3_alpha.png"
+LUCIAN_ACTOR_SOURCE = SOURCE / "lucian_actor_contact_v10_alpha.png"
 LUCIAN_ICON_SOURCES = {
     "lucian_skill.png": SOURCE / "lucian_q_icon_source_alpha.png",
     "lucian_skill2.png": SOURCE / "lucian_e_icon_source_alpha.png",
@@ -45,7 +44,7 @@ LUCIAN_ICON_SOURCES = {
 }
 LUCIAN_VFX_SOURCES = {
     "lucian_attack": (SOURCE / "lucian_attack_vfx_contact_alpha.png", 4, 2, (64, 32), (52, 16)),
-    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v2_alpha.png", 4, 2, (192, 64), (72, 24)),
+    "lucian_q": (SOURCE / "lucian_q_vfx_contact_v3_alpha.png", 4, 2, (192, 64), (82, 18)),
     "lucian_r": (SOURCE / "lucian_r_vfx_contact_alpha.png", 4, 2, (64, 32), (48, 18)),
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
@@ -272,42 +271,63 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack a readable chibi Lucian with a distinct nine-phase gunslinger sprint."""
+    """Pack one coherent 21-pose Lucian sheet plus muzzle-anchored Q wide frames."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
+    source_cells = [hard_alpha(cell) for cell in split_grid(source, 7, 3)]
+    source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
+
+    # Derive one scale from the two idle frames and apply it to every pose. This
+    # preserves a single head/body/gun size across idle, run, attacks and skills.
+    idle_height = max(subject.height for subject in source_subjects[:2])
+    actor_scale = 35 / idle_height
     base_frames: list[Image.Image] = []
-    for cell in split_grid(source, 4, 3):
-        cell = hard_alpha(cell)
-        subject = cell.crop(alpha_bbox(cell))
-        scale = min(33 / subject.height, 58 / subject.width)
+    for subject in source_subjects:
+        scale = min(actor_scale, 58 / subject.width, 43 / subject.height)
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-            Image.Resampling.LANCZOS,
+            Image.Resampling.NEAREST,
         )
-        resized = palette_finish(resized, 48)
+        resized = palette_finish(resized, 40)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         base_frames.append(frame)
 
-    run_frames: list[Image.Image] = []
-    run_source = Image.open(LUCIAN_RUN_SOURCE).convert("RGBA")
-    for cell in split_grid(run_source, 3, 3):
-        cell = hard_alpha(cell)
-        subject = cell.crop(alpha_bbox(cell))
-        scale = min(31 / subject.height, 30 / subject.width)
-        resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+    # Q visibility no longer depends on a moving projectile. Composite the
+    # image-gen beam into 192px actor frames with Lucian centered at x=96; the
+    # engine mirrors the whole frame around that center for left-facing casts.
+    q_source = Image.open(LUCIAN_VFX_SOURCES["lucian_q"][0]).convert("RGBA")
+    q_subjects = [
+        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
+        for cell in split_grid(q_source, 4, 2)
+    ]
+    q_reference_width = max(subject.width for subject in q_subjects)
+    q_reference_height = max(subject.height for subject in q_subjects)
+    q_scale = min(76 / q_reference_width, 18 / q_reference_height)
+    q_pose = base_frames[14]
+    q_frames: list[Image.Image] = []
+    for subject in q_subjects:
+        beam = subject.resize(
+            (max(1, round(subject.width * q_scale)), max(1, round(subject.height * q_scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        run_frames.append(frame)
+        beam = palette_finish(beam, 48)
+        wide = Image.new("RGBA", (192, 64), (0, 0, 0, 0))
+        wide.alpha_composite(q_pose, (64, 0))
+        # The generated Q pose's right-hand pistol muzzle is x=112/y=27 in
+        # this centered wide frame. Every beam phase shares that exact origin.
+        wide.alpha_composite(beam, (112, 27 - beam.height // 2))
+        q_frames.append(wide)
 
-    # Atlas order: two idles, nine unique run phases, then ten combat poses.
-    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
-    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
-    for index, frame in enumerate(frames):
-        atlas.alpha_composite(frame, (index * 64, 0))
+    frames = base_frames
+    packed_frames = [*base_frames, *q_frames]
+    frame_x: list[int] = []
+    cursor = 0
+    for frame in packed_frames:
+        frame_x.append(cursor)
+        cursor += frame.width
+    atlas = Image.new("RGBA", (cursor, 64), (0, 0, 0, 0))
+    for x, frame in zip(frame_x, packed_frames, strict=True):
+        atlas.alpha_composite(frame, (x, 0))
 
     ACTOR_DIR.mkdir(parents=True, exist_ok=True)
     sheet_path = ACTOR_DIR / "lucian#sheet.png"
@@ -321,7 +341,7 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         "attack_right": ([0, 11, 11, 0], [0.06, 0.08, 0.08, 0.18]),
         "attack_left": ([0, 12, 12, 0], [0.06, 0.08, 0.08, 0.18]),
         "attack_double": ([0, 13, 13, 11, 12, 0], [0.04, 0.06, 0.06, 0.08, 0.08, 0.16]),
-        "skill": ([0, 14, 14, 14, 0], [0.05, 0.08, 0.10, 0.08, 0.09]),
+        "skill": ([0, 21, 22, 23, 24, 25, 26, 27, 28, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
         "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
         "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
         "hit": ([19], [0.12]),
@@ -333,7 +353,12 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
             "frames": [
                 {
                     "duration": duration,
-                    "data": {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                    "data": {
+                        "x": frame_x[index],
+                        "y": 0,
+                        "w": packed_frames[index].width,
+                        "h": 64,
+                    },
                 }
                 for index, duration in zip(indexes, durations, strict=True)
             ]
@@ -547,9 +572,9 @@ def build_lucian_vfx() -> list[Path]:
             resized = palette_finish(resized, 48)
             frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
             if name == "lucian_q":
-                # Caster-follow Q beam: the 192x64 canvas is centered on the
-                # actor. Start the visible gold lance 20px to the right of
-                # center, matching Lucian's Q pistol muzzle at the cast pose.
+                # The line area rotates this canvas around its x=96 pivot.
+                # Start the visible gold lance 20px forward of that pivot so
+                # either facing begins at Lucian's pistol muzzle.
                 x = min(frame_size[0] - resized.width - 2, frame_size[0] // 2 + 20)
                 y = 24 - resized.height // 2
             else:
@@ -558,6 +583,12 @@ def build_lucian_vfx() -> list[Path]:
                 y = (frame_size[1] - resized.height) // 2
             frame.alpha_composite(resized, (x, y))
             frames.append(frame)
+
+        if name == "lucian_q":
+            # An instantaneous one-tick line needs its brightest complete
+            # beam first; the remaining phases are retained for renderers that
+            # let the triggered animation finish independently.
+            frames = [frames[index] for index in [4, 3, 2, 5, 6, 7, 1, 0]]
 
         atlas = Image.new(
             "RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0)
@@ -754,12 +785,12 @@ def build_lucian_data() -> Path:
                         "tick": 10,
                         "effects": [
                             {
-                                "type": "LinearProjectile",
-                                "penetrate": True,
-                                "speed": 15000,
-                                "range": 76000,
-                                "name": "lol_lucian_q_beam_visual",
-                                "shape": {"Rect": {"width": 12000, "height": 76000}},
+                                "type": "LineRangeProjectile",
+                                "width": 12000,
+                                "length": 76000,
+                                "delay": 0,
+                                "apply": 1,
+                                "name": "lol_lucian_q_damage_line",
                                 "applied_target": "EnemyWithoutTower",
                                 "applied_effects": [
                                     {
@@ -771,7 +802,6 @@ def build_lucian_data() -> Path:
                                         "casting_type": "Targeting",
                                     }
                                 ],
-                                "end_effects": [],
                             }
                         ],
                     },
@@ -848,14 +878,6 @@ def build_lucian_data() -> Path:
                 "anim": "asset/lol_mod/aseprite_resources/effects/lucian_attack",
                 "tag": "projectile",
                 "z": 2,
-                "repeat": True,
-            },
-            {
-                "type": "Animated",
-                "name": "lol_lucian_q_beam_visual",
-                "anim": "asset/lol_mod/aseprite_resources/effects/lucian_q",
-                "tag": "projectile",
-                "z": 3,
                 "repeat": True,
             },
             {
@@ -1012,7 +1034,6 @@ def main() -> int:
         *ICON_SOURCES.values(),
         *(entry[0] for entry in VFX_SOURCES.values()),
         LUCIAN_ACTOR_SOURCE,
-        LUCIAN_RUN_SOURCE,
         *LUCIAN_ICON_SOURCES.values(),
         *(entry[0] for entry in LUCIAN_VFX_SOURCES.values()),
     ]
