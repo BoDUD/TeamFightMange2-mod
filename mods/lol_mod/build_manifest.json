@@ -619,13 +619,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 120320,
-      "sha256": "624febf710506736137a838cdc3120fdd328a6d4dce6f488cf321bdf0de4bd9c"
+      "size": 121344,
+      "sha256": "633649fda9bc719ed4a8053da45ab722a19f8edbae7657178a8cb801972fecab"
     },
     {
       "path": "mod.mod_info",
-      "size": 842,
-      "sha256": "916d8316c54f1709bd566927c210b7469fcdaaa1029bfb1b2f149582e3b745be"
+      "size": 912,
+      "sha256": "1e7c020b9ba02e2d0978f25a5f90d11565906dc00fbf48694bdc187a23c84a9b"
     },
     {
       "path": "mod.override_info",

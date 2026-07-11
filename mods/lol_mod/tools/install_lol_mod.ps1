@@ -35,6 +35,42 @@ $runtimeEntries = @(
     "lol_mod.dll"
 )
 
+$manifestPath = Join-Path $sourceMod "build_manifest.json"
+if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+    throw "Missing source build manifest: $manifestPath"
+}
+$manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+foreach ($row in $manifest.files) {
+    $source = Join-Path $sourceMod ($row.path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+    if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+        throw "Source runtime file missing before install: $source"
+    }
+    if ((Get-Item -LiteralPath $source).Length -ne $row.size) {
+        throw "Source runtime size mismatch before install: $($row.path)"
+    }
+    $hash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($hash -ne $row.sha256) {
+        throw "Source runtime hash mismatch before install: $($row.path)"
+    }
+}
+
+$sourceDll = Join-Path $sourceMod "lol_mod.dll"
+$escapedDll = $sourceDll.Replace('"', '""')
+$probeSource = @"
+using System.Runtime.InteropServices;
+
+public static class LolModApiVersionProbe
+{
+    [DllImport(@"$escapedDll", EntryPoint = "tfm2_mod_api_version", CallingConvention = CallingConvention.Cdecl)]
+    public static extern uint GetVersion();
+}
+"@
+Add-Type -TypeDefinition $probeSource
+$apiVersion = [LolModApiVersionProbe]::GetVersion()
+if ($apiVersion -ne 8) {
+    throw "Source lol_mod.dll must export Teamfight Manager 2 Mod API 0.8; got raw version 0x$($apiVersion.ToString('x8'))"
+}
+
 New-Item -ItemType Directory -Force -Path $modsRoot | Out-Null
 if (Test-Path -LiteralPath $targetMod) {
     $resolvedTarget = (Resolve-Path -LiteralPath $targetMod).Path
@@ -53,8 +89,6 @@ foreach ($entry in $runtimeEntries) {
     Copy-Item -LiteralPath $source -Destination $targetMod -Recurse -Force
 }
 
-$manifestPath = Join-Path $sourceMod "build_manifest.json"
-$manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
 foreach ($row in $manifest.files) {
     $installed = Join-Path $targetMod ($row.path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) {

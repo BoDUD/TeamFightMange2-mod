@@ -2,6 +2,12 @@
 
 《团战经理 2》的 League 风格英雄模组，当前模组目录为 `mods/lol_mod`。
 
+## v0.7.1：游戏 0.5.0 / Mod API 0.8 兼容修复
+
+- 使用 Team Samoyed 官方 `0.5.0_hotfix2` SDK 和固定工具链 `nightly-2026-05-24` 重新编译原生 DLL，导出 API 版本由 0.7 更新为 0.8。
+- 新增原生 DLL 构建脚本与 API 导出校验，旧 SDK 会直接报错，避免再次把 0.7 DLL 打进运行包。
+- 模组版本提升到 0.7.1；美术、技能和品质升级内容保持不变。
+
 ## v0.7.0：BP、百科、野区与装备品质升级
 
 - 为慎、卢锡安、奥利安娜、贝蕾亚和希维尔加入选人完成后的独立插画；不依赖 Ban/Pick View Plus，未覆盖英雄仍回退到官方头像。
@@ -59,6 +65,7 @@
 
 ```powershell
 python -m pip install -r .\requirements-dev.txt
+powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\build_native_dll.ps1
 python .\mods\lol_mod\tools\build_lol_mod.py --rebuild-quality
 python .\mods\lol_mod\tools\validate_lol_mod.py
 python -m pytest -q

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import array
+import ctypes
 import hashlib
 import json
 import math
@@ -17,6 +18,7 @@ from PIL import Image
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
+EXPECTED_MOD_API_VERSION = 8
 
 ORIANNA_NATIVE_ANIMATION: dict[str, list[float]] = {
     "skill1": [0.080000006] * 5,
@@ -3786,6 +3788,25 @@ def validate_manifest() -> None:
             check(sha256(file_path) == row.get("sha256"), f"build manifest hash mismatch: {row.get('path')}")
 
 
+def validate_native_dll() -> None:
+    path = MOD_ROOT / "lol_mod.dll"
+    check(path.is_file(), "lol_mod.dll is missing; run tools/build_native_dll.ps1")
+    if not path.is_file() or sys.platform != "win32":
+        return
+    try:
+        library = ctypes.WinDLL(str(path))
+        api_version = library.tfm2_mod_api_version
+        api_version.restype = ctypes.c_uint32
+        exported = int(api_version())
+    except (AttributeError, OSError) as error:
+        check(False, f"failed to read lol_mod.dll API version: {error}")
+        return
+    check(
+        exported == EXPECTED_MOD_API_VERSION,
+        f"lol_mod.dll must export Mod API 0.{EXPECTED_MOD_API_VERSION}, got raw version 0x{exported:08x}",
+    )
+
+
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     lucian = load_json("champion/archer.data_champion")
@@ -3794,7 +3815,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.6.0", "lol_mod version must be 0.6.0")
+    check(mod_info.get("version") == "0.7.1", "lol_mod version must be 0.7.1")
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()
@@ -3870,6 +3891,7 @@ def main() -> int:
     validate_briar_imagegen_and_qa_files()
     validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()
+    validate_native_dll()
     validate_manifest()
     if ERRORS:
         print("League champion pack validation failed:")
