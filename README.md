@@ -2,6 +2,17 @@
 
 《团战经理 2》的 League 风格英雄模组，当前模组目录为 `mods/lol_mod`。
 
+## v0.7.0：BP、百科、野区与装备品质升级
+
+- 为慎、卢锡安、奥利安娜、贝蕾亚和希维尔加入选人完成后的独立插画；不依赖 Ban/Pick View Plus，未覆盖英雄仍回退到官方头像。
+- 百科为这 5 个英雄使用独立全身立绘，从头到脚完整显示；比赛 HUD、计分板和小头像继续使用原有紧凑 `face` 资源。
+- 以 imagegen 生成并替换本体全部 6 个中立演员家族：纳什男爵、元素龙、绯红印记树怪、苍蓝雕纹魔像、魔沼蛙和暗影狼；目标位置、刷新槽和原生数值保持不变。
+- 额外生成锋喙鸟和石甲虫两套完整动作美术，补齐 League 的 6 类普通野区营地素材。TFM2 本体只有 `rhino/tree/mushroom/bee` 四个普通营地槽，因此这两套暂存为未映射备用资源，不能虚假宣称已作为第 5、6 个营地实际刷新。
+- 元素龙包内包含炼狱、海洋、山脉、云端、海克斯科技和远古龙六套模型。公开模组 SDK 没有可重放同步的“每次刷新换资源/龙魂后切远古龙”状态接口，当前运行时安全地使用炼狱亚龙；完整动态轮换仍需底层目标物刷新钩子。
+- 纳什男爵拥有独立攻击/命中特效、目标 HUD、贴纸和增益图标；攻击与死亡音效从本机 League of Legends Map11 Wwise 资源按固定 bank、事件、媒体 ID 和 SHA-256 提取。
+- 蓝红双方防御塔替换为 imagegen 生成的 League 风格塔身，并同步替换塔芯、攻击弹体、命中特效和塔图标；严格保留官方 581×64 / 357×64 图集尺寸、动作时长、锚点和独立地图阴影。
+- 原生 30 件装备图标和名称全部替换为 League 风格等价物，保留 TFM2 原有属性、价格与升级树，避免纯美术改动影响平衡。
+
 ## v0.6.0：希维尔同 ID 重做官方 005
 
 - 通过 `champion/boomerang_hunter.data_champion` 同 ID 覆盖官方 Boomerang Hunter；项目编号 005 不会误作引擎编号，实机强制测试使用 native index 26。
@@ -48,10 +59,12 @@
 
 ```powershell
 python -m pip install -r .\requirements-dev.txt
-python .\mods\lol_mod\tools\build_lol_mod.py
+python .\mods\lol_mod\tools\build_lol_mod.py --rebuild-quality
 python .\mods\lol_mod\tools\validate_lol_mod.py
 python -m pytest -q
 ```
+
+男爵官方音频只在需要重新提取时单独执行 `python .\mods\lol_mod\tools\extract_baron_audio.py`；普通构建直接使用已提交且带 SHA-256 来源记录的 WAV，避免要求每位构建者都安装 League of Legends。
 
 ## 安装到本机游戏
 
@@ -62,3 +75,5 @@ powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\install_lol_mod.ps
 ```
 
 本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
+
+TeamFightMange2-mod was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen, Lucian, Orianna, Briar, and Sivir assets from accepted sources."""
+"""Build champion assets and optionally rebuild the quality-upgrade runtime pack."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ import hashlib
 import json
 from pathlib import Path
 import struct
+import subprocess
+import sys
 import wave
 
 from PIL import Image, ImageDraw
@@ -20,9 +22,18 @@ ACTOR_DIR = MOD_ROOT / "aseprite_resources" / "champions"
 EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
+CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
+QUALITY_BUILDERS = (
+    "pack_quality_items.py",
+    "pack_quality_objectives.py",
+    "pack_quality_small_jungle.py",
+    "pack_quality_missing_lol_camps.py",
+    "pack_quality_objective_ui.py",
+    "pack_quality_towers.py",
+)
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
@@ -124,6 +135,13 @@ SIVIR_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int]] = [
     (640, 915, 875, 1160),
     (885, 925, 1175, 1160),
 ]
+CHAMPION_FULLBODY_SHEETS = {
+    "lol_shen": ACTOR_DIR / "shen#sheet.png",
+    "archer": ACTOR_DIR / "lucian#sheet.png",
+    "barrier_magician": ACTOR_DIR / "orianna#sheet.png",
+    "berserker": ACTOR_DIR / "briar#sheet.png",
+    "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
+}
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
 ARCHER_SKILL_ICON_BOXES = {
@@ -213,6 +231,30 @@ def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]
         for row in range(rows)
         for column in range(columns)
     ]
+
+
+def build_champion_fullbody_portraits() -> list[Path]:
+    """Export the complete first idle frame for encyclopedia-only portraits."""
+    CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
+        with Image.open(sheet_path) as opened:
+            sheet = opened.convert("RGBA")
+            if sheet.width < 64 or sheet.height < 64:
+                raise ValueError(f"Champion sheet is smaller than one 64px frame: {sheet_path}")
+            idle_frame = sheet.crop((0, 0, 64, 64))
+            subject = idle_frame.crop(alpha_bbox(idle_frame))
+            scale = min(54 / subject.width, 58 / subject.height)
+            subject = subject.resize(
+                (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+                Image.Resampling.NEAREST,
+            )
+            portrait = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+            portrait.alpha_composite(subject, ((64 - subject.width) // 2, 62 - subject.height))
+        output = CHAMPION_FULLBODY_DIR / f"{champion_id}.png"
+        save_png(output, portrait)
+        outputs.append(output)
+    return outputs
 
 
 def hard_alpha(image: Image.Image, threshold: int = 56) -> Image.Image:
@@ -3348,9 +3390,12 @@ def build_manifest() -> Path:
         MOD_ROOT / "champion",
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
+        MOD_ROOT / "BanPickIllust",
+        MOD_ROOT / "ui",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
+        MOD_ROOT / "lol_mod.dll",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -3375,10 +3420,25 @@ def build_manifest() -> Path:
     return path
 
 
+def rebuild_quality_upgrade() -> None:
+    for script_name in QUALITY_BUILDERS:
+        script = MOD_ROOT / "tools" / script_name
+        if not script.is_file():
+            raise FileNotFoundError(f"Missing quality-upgrade builder: {script}")
+        subprocess.run([sys.executable, str(script)], cwd=MOD_ROOT, check=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skip-manifest", action="store_true", help="Build art only")
+    parser.add_argument(
+        "--rebuild-quality",
+        action="store_true",
+        help="rebuild item, objective, jungle, tower, and auxiliary UI outputs",
+    )
     args = parser.parse_args()
+    if args.rebuild_quality:
+        rebuild_quality_upgrade()
     required_sources = [
         ACTOR_SOURCE,
         RUN_SOURCE,
@@ -3430,6 +3490,7 @@ def main() -> int:
     sivir_silence = build_sivir_native_silence()
     sivir_qa = build_sivir_qa_contacts(sivir_frames, sivir_icons)
     sivir_imagegen_audit = build_sivir_imagegen_audit()
+    champion_fullbody_portraits = build_champion_fullbody_portraits()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -3463,6 +3524,7 @@ def main() -> int:
         *sivir_silence,
         *sivir_qa,
         sivir_imagegen_audit,
+        *champion_fullbody_portraits,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

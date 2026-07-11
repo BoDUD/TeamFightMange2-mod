@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "release": "0.7.0",
+  "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, and defensive towers",
+  "runtime_implemented": {
+    "banpick_splashes": [
+      "lol_shen",
+      "archer",
+      "barrier_magician",
+      "berserker",
+      "boomerang_hunter"
+    ],
+    "encyclopedia_fullbody": [
+      "lol_shen",
+      "archer",
+      "barrier_magician",
+      "berserker",
+      "boomerang_hunter"
+    ],
+    "neutral_actor_overrides": {
+      "epic": "Baron Nashor",
+      "serpen": "Infernal Drake",
+      "rhino": "Red Brambleback",
+      "stump": "Blue Sentinel",
+      "mushroom": "Gromp",
+      "bee": "Murk Wolf"
+    },
+    "baron": {
+      "actor_and_attack_vfx": true,
+      "objective_ui": true,
+      "official_audio_source": "local League of Legends Map11 Wwise banks",
+      "audio_hash_manifest": "qa/baron_official_audio_sources.json"
+    },
+    "items": {
+      "native_slot_count": 30,
+      "icons_and_names_replaced": true,
+      "native_stats_prices_and_upgrade_tree_preserved": true
+    },
+    "towers": {
+      "blue_and_red_actor": true,
+      "blue_and_red_orb": true,
+      "projectile_and_hit_vfx": true,
+      "ui_icon": true,
+      "native_shadow_preserved": true,
+      "native_stats_positions_and_timing_preserved": true
+    }
+  },
+  "packaged_variants": {
+    "dragon_art": [
+      "infernal",
+      "ocean",
+      "mountain",
+      "cloud",
+      "hextech",
+      "elder"
+    ],
+    "additional_lol_camp_art": {
+      "raptor": "art_ready_unmapped",
+      "krug": "art_ready_unmapped"
+    }
+  },
+  "engine_limitations": {
+    "ordinary_neutral_actor_slots": [
+      "rhino",
+      "stump",
+      "mushroom",
+      "bee"
+    ],
+    "raptor_and_krug": "TFM2 has no fifth or sixth ordinary neutral actor/spawn state; these two generated packs are not claimed as independently spawning camps.",
+    "elemental_dragon_state_machine": "The public mod SDK exposes no replay-safe per-respawn objective resource swap or Dragon Soul/Elder state hook. Runtime serpen safely defaults to Infernal Drake; the other five art packs are not claimed as dynamically selected."
+  },
+  "verification_boundary": {
+    "static_build_and_contract_checks": true,
+    "game_launched": false,
+    "runtime_tested": false,
+    "reason": "User requested that the PR be opened before manual in-game testing."
+  }
+}

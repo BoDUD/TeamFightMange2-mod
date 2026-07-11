@@ -1,0 +1,335 @@
+{
+  "schema": "lol_mod.quality_objective_ui_assets.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_objective_ui.py",
+  "scope": "Static objective UI derivation only; no game launch and no runtime test execution.",
+  "source_route": {
+    "baron": {
+      "sheet": {
+        "path": "aseprite_resources/ingame/epic#sheet.png",
+        "sha256": "113a240055c743167199e706113d3efa233ededed308241cbf16c178b7412cb7",
+        "bytes": 1070540
+      },
+      "idle_rect": [
+        218,
+        0,
+        436,
+        218
+      ],
+      "derived_outputs": [
+        "ui/ingame/epic.png",
+        "ui/icons/morgard*.svg",
+        "aseprite_resources/ingame/epic_buff_animation#*",
+        "aseprite_resources/ingame/epic_monster_hp_guage#*"
+      ]
+    },
+    "infernal_dragon": {
+      "sheet": {
+        "path": "aseprite_resources/ingame/serpen#sheet.png",
+        "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b",
+        "bytes": 181869
+      },
+      "idle_rect": [
+        115,
+        0,
+        230,
+        115
+      ],
+      "derived_outputs": [
+        "ui/icons/serpen*.svg"
+      ]
+    },
+    "original_game_payload_copied": false
+  },
+  "native_contracts": {
+    "asset/base/ui/ingame/epic": {
+      "type": "png",
+      "dimensions": [
+        90,
+        90
+      ],
+      "base_sha256": "f1b674b78dc6f0e44b1484f0c2dc7d16d1bba9dc6fb4cfa92c6cc9e8e122c9be"
+    },
+    "asset/base/ui/icons/morgard": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "base_sha256": "1d7519f2ee55893b71b4284c98dafcb2c8ae542e1de067242eec5d0a6e16982f"
+    },
+    "asset/base/ui/icons/morgard_sticker_blue": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "base_sha256": "b0d8929d63453f29ba5f20d7eb90b07853e77f18c0c2a2d306d14e1041e28d7c"
+    },
+    "asset/base/ui/icons/morgard_sticker_red": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "base_sha256": "6d93dcf495ce6f94ce789d5ca8bf68c52e482bbb231ed61996b82c00aebc1b1e"
+    },
+    "asset/base/ui/icons/serpen": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "base_sha256": "745dab9e9fa729b5edd49d4f715b1a1bfd481928c052baacd908b0c054806d89"
+    },
+    "asset/base/ui/icons/serpen_sticker_blue": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        25,
+        24
+      ],
+      "base_sha256": "3f5b4999b861751e1059614139fc9f3a425218f1e40c397ae91df5484ec30022"
+    },
+    "asset/base/ui/icons/serpen_sticker_red": {
+      "type": "svg",
+      "view_box": [
+        0,
+        0,
+        25,
+        24
+      ],
+      "base_sha256": "0e49116fd322d6c8789be1673066055581ff496afe09ecd7475a5b8251358f5b"
+    },
+    "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet": {
+      "type": "png",
+      "dimensions": [
+        60,
+        10
+      ],
+      "base_sha256": "74f58a3fa2ec38991876622152dc01d2c97fafd444d13fc941beef528f0e2955"
+    },
+    "asset/base/aseprite_resources/ingame/epic_buff_animation#anim": {
+      "type": "fanim",
+      "tag": "buff",
+      "frame_count": 6,
+      "base_sha256": "66691ac0aeb43d31aa1d5e45f51e36a119bbea252108fce62418b5921271cf53"
+    },
+    "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#sheet": {
+      "type": "png",
+      "dimensions": [
+        206,
+        10
+      ],
+      "base_sha256": "b3055b2c731f49dcaf4c78c0eb8179f40710cdc677330abab07e65a7fa60eae1"
+    },
+    "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": {
+      "type": "sprite_sheet",
+      "rect_keys": [
+        "bg_0",
+        "hp_bar_0",
+        "slot_line_0"
+      ],
+      "base_sha256": "64e94a2e99bf69bc5ce22b9c9808413c29092ccde8cea54e3f1778e179fb38e6"
+    }
+  },
+  "derived_palette": {
+    "dark": [
+      0,
+      0,
+      0
+    ],
+    "mid": [
+      20,
+      13,
+      42
+    ],
+    "bright": [
+      139,
+      45,
+      205
+    ],
+    "accent": [
+      98,
+      164,
+      213
+    ]
+  },
+  "outputs": {
+    "asset/base/ui/ingame/epic": {
+      "path": "ui/ingame/epic.png",
+      "sha256": "cb6118a4fd1d6dcf33e628ba33b2315e854927b42b5a54e20b7100869deb804f",
+      "bytes": 607,
+      "dimensions": [
+        90,
+        90
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        6,
+        6,
+        84,
+        84
+      ],
+      "partial_alpha_pixels": 0,
+      "override_target": "asset/base/ui/ingame/epic",
+      "mod_asset_key": "asset/lol_mod/ui/ingame/epic"
+    },
+    "asset/base/ui/icons/morgard": {
+      "path": "ui/icons/morgard.svg",
+      "sha256": "1b943366a52f65f5c2da75a8b7ed1e18f3c7f033167ba12e5f5690a3c23295c3",
+      "bytes": 16510,
+      "override_target": "asset/base/ui/icons/morgard",
+      "mod_asset_key": "asset/lol_mod/ui/icons/morgard"
+    },
+    "asset/base/ui/icons/morgard_sticker_blue": {
+      "path": "ui/icons/morgard_sticker_blue.svg",
+      "sha256": "035169407dea8ad07537a9ce463622ef94dcaafdad1d20a69315ed55de521f7b",
+      "bytes": 9360,
+      "override_target": "asset/base/ui/icons/morgard_sticker_blue",
+      "mod_asset_key": "asset/lol_mod/ui/icons/morgard_sticker_blue"
+    },
+    "asset/base/ui/icons/morgard_sticker_red": {
+      "path": "ui/icons/morgard_sticker_red.svg",
+      "sha256": "3fcfe783e7f5bdf2e3d33de2ea0ce298c8ceef97bd200250b7ab4ab6d1536215",
+      "bytes": 9360,
+      "override_target": "asset/base/ui/icons/morgard_sticker_red",
+      "mod_asset_key": "asset/lol_mod/ui/icons/morgard_sticker_red"
+    },
+    "asset/base/ui/icons/serpen": {
+      "path": "ui/icons/serpen.svg",
+      "sha256": "5a9d205869ced459693b732d43aed68238326505750606207dccab0fe37f71a3",
+      "bytes": 11212,
+      "override_target": "asset/base/ui/icons/serpen",
+      "mod_asset_key": "asset/lol_mod/ui/icons/serpen"
+    },
+    "asset/base/ui/icons/serpen_sticker_blue": {
+      "path": "ui/icons/serpen_sticker_blue.svg",
+      "sha256": "02536d10c6ffb341b04810a62ce767d0e9f466475c42fa8183324a12803235eb",
+      "bytes": 8868,
+      "override_target": "asset/base/ui/icons/serpen_sticker_blue",
+      "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_blue"
+    },
+    "asset/base/ui/icons/serpen_sticker_red": {
+      "path": "ui/icons/serpen_sticker_red.svg",
+      "sha256": "642bc098208e247fa0f16c2ef35928a91a65ca6e221f42c63139c6be5caf0216",
+      "bytes": 8868,
+      "override_target": "asset/base/ui/icons/serpen_sticker_red",
+      "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_red"
+    },
+    "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet": {
+      "path": "aseprite_resources/ingame/epic_buff_animation#sheet.png",
+      "sha256": "e7cd345fd2513414c6b18d5159140e7938a3b7ad4e77a387a8ecfc92ec99ee5b",
+      "bytes": 482,
+      "dimensions": [
+        60,
+        10
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        2,
+        1,
+        57,
+        8
+      ],
+      "partial_alpha_pixels": 0,
+      "override_target": "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/epic_buff_animation#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/epic_buff_animation#anim": {
+      "path": "aseprite_resources/ingame/epic_buff_animation#anim.fanim",
+      "sha256": "6625dbbe4034d22a4107dfcbf02339d02c9761dbe92d8249f7c54226ec55d1a0",
+      "bytes": 1073,
+      "override_target": "asset/base/aseprite_resources/ingame/epic_buff_animation#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/epic_buff_animation#anim"
+    },
+    "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#sheet": {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#sheet.png",
+      "sha256": "021bd6804cbf7fdd9855435de854fdd63ac3adbc24af13dfe7c3d4132b7b1fac",
+      "bytes": 215,
+      "dimensions": [
+        206,
+        10
+      ],
+      "mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        0,
+        205,
+        9
+      ],
+      "partial_alpha_pixels": 0,
+      "override_target": "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_data",
+      "sha256": "27af66281b79951bcaebca5ea50dcdd6481dabeef0917716f1f45629797469ba",
+      "bytes": 181,
+      "override_target": "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#data"
+    }
+  },
+  "buff_frame_alpha_bboxes": [
+    [
+      2,
+      2,
+      7,
+      7
+    ],
+    [
+      1,
+      1,
+      7,
+      7
+    ],
+    [
+      1,
+      1,
+      8,
+      8
+    ],
+    [
+      1,
+      1,
+      8,
+      8
+    ],
+    [
+      1,
+      1,
+      7,
+      7
+    ],
+    [
+      2,
+      2,
+      7,
+      7
+    ]
+  ],
+  "static_checks": {
+    "epic_png_preserves_90x90_contract": true,
+    "baron_icons_are_distinct_from_base_payload": true,
+    "all_six_svg_icons_nonempty": true,
+    "team_stickers_are_distinct": true,
+    "buff_sheet_preserves_60x10_contract": true,
+    "buff_animation_preserves_tag_and_six_rects": true,
+    "buff_frames_nonempty": true,
+    "hp_sheet_preserves_206x10_contract": true,
+    "hp_sprite_rect_keys_and_values_preserved": true,
+    "png_outputs_use_hard_alpha": true
+  },
+  "result": {
+    "output_count": 11,
+    "all_static_checks_passed": true
+  }
+}

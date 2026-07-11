@@ -27,9 +27,12 @@ $runtimeEntries = @(
     "champion",
     "icons",
     "aseprite_resources",
+    "BanPickIllust",
+    "ui",
     "style",
     "text",
-    "sound"
+    "sound",
+    "lol_mod.dll"
 )
 
 New-Item -ItemType Directory -Force -Path $modsRoot | Out-Null

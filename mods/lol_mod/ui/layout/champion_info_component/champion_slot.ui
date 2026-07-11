@@ -1,0 +1,192 @@
+champion_slot:color_icon_button {
+  @"asset/base/style/main#tertiary_button";
+
+  width: 119px;
+  height: 130px;
+
+  #icon:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    ignore_event: true;
+  }
+
+  #lol_fullbody_shen:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/lol_shen";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #lol_fullbody_lucian:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/archer";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #lol_fullbody_orianna:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/barrier_magician";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #lol_fullbody_briar:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/berserker";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #lol_fullbody_sivir:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/boomerang_hunter";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #name:label {
+    @"asset/base/style/main#label";
+    width: 108px;
+    height: 37px;
+
+    anchor_y: 1;
+    pivot_y: 1;
+    x: 5px;
+    y: 0px;
+
+    align_x: Center;
+    align_y: Center;
+
+    size: 14;
+    text: "#asset/base/text/champion?description.cavalry_knight.name";
+  }
+
+  #tier_dropdown:dropdown {
+    @"asset/base/style/main#dropdown";
+    x: 4px;
+    y: 70px;
+    width: 64px;
+    height: 22px;
+    z: 103;
+
+    text: {
+      size: 12;
+    }
+
+    item_text: {
+      size: 12;
+    }
+
+    text_layout: {
+      x: 6px;
+      y: 2px;
+      width: 100%;
+      height: 18px;
+    }
+
+    item_layout: {
+      height: 26px;
+      width: 60px;
+      x: 6px;
+    }
+
+    item_text_layout: {
+      y: 3px;
+      width: 60px;
+      height: 20px;
+    }
+
+    icon_layout: {
+      x: -6px;
+      pivot_x: 1;
+      anchor_x: 1;
+      pivot_y: 0.5;
+      anchor_y: 0.5;
+      width: 6px;
+      height: 3.5px;
+    }
+
+    selected_icon_layout: {
+      anchor_x: 1;
+      pivot_x: 1;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      x: -4px;
+      width: 10px;
+      height: 6.83px;
+    }
+  }
+
+  #pos1:image {
+    width: 18px;
+    height: 18px;
+    source: "asset/base/ui/icons/mid";
+    x: 77px;
+    y: 72px;
+    ignore_event: true;
+    visible: false;
+  }
+
+  #pos2:image {
+    width: 18px;
+    height: 18px;
+    source: "asset/base/ui/icons/mid";
+    x: 98px;
+    y: 72px;
+    ignore_event: true;
+    visible: false;
+  }
+}

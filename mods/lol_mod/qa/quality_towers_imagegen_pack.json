@@ -1,0 +1,1338 @@
+{
+  "schema": "lol_mod.quality_towers_imagegen_pack.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_towers.py",
+  "scope": "Static tower art processing and native-contract packing; no game launch or runtime test.",
+  "source_processing": {
+    "actor_source": {
+      "path": "source/imagegen/jungle/tower_actor_contact.png",
+      "sha256": "cd895636e73adbf3a813615da7b24d66063ef7bc711d1037f5ec8b62a6d0f000",
+      "bytes": 1975625,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "source_mode": "RGB",
+      "alpha_bbox": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "alpha": {
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "corner_values": [
+          255,
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    "actor_processed": {
+      "path": "source/processed/jungle/tower_actor_contact_alpha.png",
+      "sha256": "33f833c52c0a401a6f772d7a01cd5091ad388a1aa661c5ab82631efca7e521c4",
+      "bytes": 1342722,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        70,
+        23,
+        1175,
+        1234
+      ],
+      "alpha": {
+        "transparent_pixels": 1058100,
+        "partial_pixels": 0,
+        "opaque_pixels": 514416,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "vfx_source": {
+      "path": "source/imagegen/jungle/tower_vfx_contact.png",
+      "sha256": "bd3b6b449a4333a85f0c802571f5838f1056432b109ba2c7ab75c453edad49b4",
+      "bytes": 1383737,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGB",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha": {
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572864,
+        "corner_values": [
+          255,
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    "vfx_processed": {
+      "path": "source/processed/jungle/tower_vfx_contact_alpha.png",
+      "sha256": "170223cb8a5974794e935faa0d7c2aa0a19e17520491d77309a6b9aad103c434",
+      "bytes": 255456,
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        60,
+        116,
+        1463,
+        913
+      ],
+      "alpha": {
+        "transparent_pixels": 1464598,
+        "partial_pixels": 0,
+        "opaque_pixels": 108266,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "actor_grid": [
+      4,
+      4
+    ],
+    "actor_route": "cells 0-7 idle; cells 8-13 attack; cells 14-15 unused",
+    "vfx_grid": [
+      4,
+      3
+    ],
+    "vfx_route": {
+      "projectile_cell": 1,
+      "hit_effect_cells": [
+        4,
+        5,
+        6,
+        7,
+        11
+      ]
+    },
+    "chroma_key": "#FF00FF",
+    "chroma_distance_threshold": 52.0,
+    "balanced_magenta_score_threshold": 96.0,
+    "downsample": "LANCZOS followed by hard alpha and constrained palette",
+    "tower_body_fit": "exact native 28px visible width and per-frame native visible height inside 31x63 rect"
+  },
+  "base_contracts": {
+    "asset/base/aseprite_resources/ingame/blue_tower#sheet": {
+      "dimensions": [
+        581,
+        64
+      ],
+      "sha256": "1f5cc4a79a9b32605ebd2daf3a58f9f98391603df1325ab8f93a5c8484e6c972"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower#sheet": {
+      "dimensions": [
+        581,
+        64
+      ],
+      "sha256": "32931a2e8c343f64929c70a7c80bf145ecf485e8f4c7ee4d2c8ea33a63f0f8e7"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower#anim": {
+      "sha256": "5b13fe59e7c1bf6f77e561b6348b3ffcaeac591b986ec85d4e0cf4684e346e9d"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower#anim": {
+      "sha256": "dfee68221575546c4611d06949709eadf235e5a59e1c7aeda014ab03dc6f016e"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower_orb#sheet": {
+      "dimensions": [
+        357,
+        64
+      ],
+      "sha256": "6d9a1d470e79974396abca3d96ae74912b63f53ff435eac3596d85c50b4a2668"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower_orb#sheet": {
+      "dimensions": [
+        357,
+        64
+      ],
+      "sha256": "2f61f3095e389a9818c484794585f7c09f9c07889d73ae4a31112b1609286370"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower_orb#anim": {
+      "sha256": "6e4dfab91be84d05a3d0ec7cd428076726213f1a0b5009b7b6342e6a730c6593"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower_orb#anim": {
+      "sha256": "252a774af6ff7f3ec269557538edf9b800336d72166d63655f2485ccfb6ffdeb"
+    },
+    "asset/base/aseprite_resources/skill_effect/blue_tower_projectile": {
+      "dimensions": [
+        4,
+        4
+      ],
+      "sha256": "771f8a27d8a151d6e3f2509a934d9abaa36ef06f30f88782d87abc6e369530a5"
+    },
+    "asset/base/aseprite_resources/skill_effect/red_tower_projectile": {
+      "dimensions": [
+        4,
+        4
+      ],
+      "sha256": "fc44b5ed50a61cc5ba168552d7fd568af3229a0520a24222ead3b2e09c889730"
+    },
+    "asset/base/ui/icons/tower": {
+      "view_box": [
+        0,
+        0,
+        20,
+        20
+      ],
+      "sha256": "2662bf9a1317526cded1f05fccc15f8c9c457c4e797b9f86386d55f20b0196a4"
+    },
+    "asset/base/aseprite_resources/ingame/5v5/tower_shadow": {
+      "dimensions": [
+        23,
+        24
+      ],
+      "sha256": "64cf1f686af7990bbcaa4d26082d5a1e0b837df22c1396e8ce5f94a04263505d",
+      "override": false
+    }
+  },
+  "animation_contracts": {
+    "tower": {
+      "idle": {
+        "frame_count": 8,
+        "durations": [
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005
+        ],
+        "rects": [
+          [
+            0,
+            0,
+            31,
+            63
+          ],
+          [
+            32,
+            0,
+            31,
+            63
+          ],
+          [
+            64,
+            0,
+            31,
+            63
+          ],
+          [
+            96,
+            0,
+            31,
+            63
+          ],
+          [
+            128,
+            0,
+            31,
+            63
+          ],
+          [
+            160,
+            0,
+            31,
+            63
+          ],
+          [
+            192,
+            0,
+            31,
+            63
+          ],
+          [
+            224,
+            0,
+            31,
+            63
+          ]
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            256,
+            0,
+            31,
+            63
+          ],
+          [
+            288,
+            0,
+            31,
+            63
+          ],
+          [
+            320,
+            0,
+            31,
+            63
+          ],
+          [
+            352,
+            0,
+            31,
+            63
+          ],
+          [
+            384,
+            0,
+            31,
+            63
+          ],
+          [
+            416,
+            0,
+            31,
+            63
+          ]
+        ]
+      },
+      "attack_projectile": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            448,
+            0,
+            64,
+            21
+          ]
+        ]
+      },
+      "hit_effect": {
+        "frame_count": 5,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            513,
+            0,
+            7,
+            7
+          ],
+          [
+            521,
+            0,
+            9,
+            9
+          ],
+          [
+            531,
+            0,
+            11,
+            11
+          ],
+          [
+            543,
+            0,
+            17,
+            17
+          ],
+          [
+            561,
+            0,
+            19,
+            19
+          ]
+        ]
+      }
+    },
+    "tower_orb": {
+      "idle": {
+        "frame_count": 8,
+        "durations": [
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005
+        ],
+        "rects": [
+          [
+            0,
+            0,
+            13,
+            59
+          ],
+          [
+            14,
+            0,
+            13,
+            57
+          ],
+          [
+            28,
+            0,
+            13,
+            55
+          ],
+          [
+            42,
+            0,
+            13,
+            57
+          ],
+          [
+            56,
+            0,
+            13,
+            59
+          ],
+          [
+            70,
+            0,
+            13,
+            61
+          ],
+          [
+            84,
+            0,
+            13,
+            63
+          ],
+          [
+            98,
+            0,
+            13,
+            61
+          ]
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            112,
+            0,
+            13,
+            59
+          ],
+          [
+            126,
+            0,
+            13,
+            59
+          ],
+          [
+            140,
+            0,
+            21,
+            59
+          ],
+          [
+            162,
+            0,
+            21,
+            59
+          ],
+          [
+            184,
+            0,
+            25,
+            63
+          ],
+          [
+            210,
+            0,
+            13,
+            59
+          ]
+        ]
+      },
+      "attack_projectile": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            224,
+            0,
+            64,
+            21
+          ]
+        ]
+      },
+      "hit_effect": {
+        "frame_count": 5,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            289,
+            0,
+            7,
+            7
+          ],
+          [
+            297,
+            0,
+            9,
+            9
+          ],
+          [
+            307,
+            0,
+            11,
+            11
+          ],
+          [
+            319,
+            0,
+            17,
+            17
+          ],
+          [
+            337,
+            0,
+            19,
+            19
+          ]
+        ]
+      }
+    }
+  },
+  "placement_qa": {
+    "tower_idle": [
+      {
+        "rect": [
+          0,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          32,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          4,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          57
+        ]
+      },
+      {
+        "rect": [
+          64,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          5,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          56
+        ]
+      },
+      {
+        "rect": [
+          96,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          4,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          57
+        ]
+      },
+      {
+        "rect": [
+          128,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          160,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          2,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          59
+        ]
+      },
+      {
+        "rect": [
+          192,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          60
+        ]
+      },
+      {
+        "rect": [
+          224,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          2,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          59
+        ]
+      }
+    ],
+    "tower_attack": [
+      {
+        "rect": [
+          256,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          288,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          320,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          352,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      },
+      {
+        "rect": [
+          384,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          60
+        ]
+      },
+      {
+        "rect": [
+          416,
+          0,
+          31,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          3,
+          29,
+          61
+        ],
+        "visible_dimensions": [
+          28,
+          58
+        ]
+      }
+    ],
+    "orb_idle": [
+      {
+        "rect": [
+          0,
+          0,
+          13,
+          59
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      },
+      {
+        "rect": [
+          14,
+          0,
+          13,
+          57
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          28
+        ],
+        "visible_dimensions": [
+          10,
+          27
+        ]
+      },
+      {
+        "rect": [
+          28,
+          0,
+          13,
+          55
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          27
+        ],
+        "visible_dimensions": [
+          10,
+          26
+        ]
+      },
+      {
+        "rect": [
+          42,
+          0,
+          13,
+          57
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          28
+        ],
+        "visible_dimensions": [
+          10,
+          27
+        ]
+      },
+      {
+        "rect": [
+          56,
+          0,
+          13,
+          59
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      },
+      {
+        "rect": [
+          70,
+          0,
+          13,
+          61
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      },
+      {
+        "rect": [
+          84,
+          0,
+          13,
+          63
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      },
+      {
+        "rect": [
+          98,
+          0,
+          13,
+          61
+        ],
+        "duration": 0.120000005,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      }
+    ],
+    "orb_attack": [
+      {
+        "rect": [
+          112,
+          0,
+          13,
+          59
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          29
+        ],
+        "visible_dimensions": [
+          10,
+          28
+        ]
+      },
+      {
+        "rect": [
+          126,
+          0,
+          13,
+          59
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          29
+        ],
+        "visible_dimensions": [
+          10,
+          28
+        ]
+      },
+      {
+        "rect": [
+          140,
+          0,
+          21,
+          59
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          19,
+          29
+        ],
+        "visible_dimensions": [
+          18,
+          28
+        ]
+      },
+      {
+        "rect": [
+          162,
+          0,
+          21,
+          59
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          19,
+          30
+        ],
+        "visible_dimensions": [
+          18,
+          29
+        ]
+      },
+      {
+        "rect": [
+          184,
+          0,
+          25,
+          63
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          23,
+          32
+        ],
+        "visible_dimensions": [
+          22,
+          31
+        ]
+      },
+      {
+        "rect": [
+          210,
+          0,
+          13,
+          59
+        ],
+        "duration": 0.080000006,
+        "alpha_bbox": [
+          1,
+          1,
+          11,
+          30
+        ],
+        "visible_dimensions": [
+          10,
+          29
+        ]
+      }
+    ]
+  },
+  "team_recolor": {
+    "rule": "Only bright blue/cyan energy pixels are hue-mapped to red/pink; stone, gold, and neutral metal pixels are copied unchanged.",
+    "red_tower_changed_pixels": 1597,
+    "red_orb_changed_pixels": 1457,
+    "red_skill_projectile_changed_pixels": 14,
+    "blue_red_alpha_masks_equal": true
+  },
+  "outputs": {
+    "asset/base/aseprite_resources/ingame/blue_tower#sheet": {
+      "path": "aseprite_resources/ingame/blue_tower#sheet.png",
+      "sha256": "aec3d327f62f6b83ecb6a145a25162fbd3b8b412fc1f0c9c13c2c823580ede20",
+      "bytes": 45051,
+      "dimensions": [
+        581,
+        64
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        1,
+        1,
+        579,
+        61
+      ],
+      "alpha": {
+        "transparent_pixels": 21043,
+        "partial_pixels": 0,
+        "opaque_pixels": 16141,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/blue_tower#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_tower#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower#anim": {
+      "path": "aseprite_resources/ingame/blue_tower#anim.fanim",
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415",
+      "bytes": 3796,
+      "override_target": "asset/base/aseprite_resources/ingame/blue_tower#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_tower#anim"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower#sheet": {
+      "path": "aseprite_resources/ingame/red_tower#sheet.png",
+      "sha256": "4f4e30dbb81561dd7776c835c78316d2a6268655f150aa4d0e38a36267cc527b",
+      "bytes": 45122,
+      "dimensions": [
+        581,
+        64
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        1,
+        1,
+        579,
+        61
+      ],
+      "alpha": {
+        "transparent_pixels": 21043,
+        "partial_pixels": 0,
+        "opaque_pixels": 16141,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/red_tower#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_tower#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower#anim": {
+      "path": "aseprite_resources/ingame/red_tower#anim.fanim",
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415",
+      "bytes": 3796,
+      "override_target": "asset/base/aseprite_resources/ingame/red_tower#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_tower#anim"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower_orb#sheet": {
+      "path": "aseprite_resources/ingame/blue_tower_orb#sheet.png",
+      "sha256": "afe8e0955c51ca0c40229b2f29eea7910689933e5e9a0c9859b279c914a0b1ca",
+      "bytes": 13595,
+      "dimensions": [
+        357,
+        64
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        1,
+        1,
+        355,
+        32
+      ],
+      "alpha": {
+        "transparent_pixels": 18548,
+        "partial_pixels": 0,
+        "opaque_pixels": 4300,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/blue_tower_orb#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_tower_orb#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/blue_tower_orb#anim": {
+      "path": "aseprite_resources/ingame/blue_tower_orb#anim.fanim",
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19",
+      "bytes": 3792,
+      "override_target": "asset/base/aseprite_resources/ingame/blue_tower_orb#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_tower_orb#anim"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower_orb#sheet": {
+      "path": "aseprite_resources/ingame/red_tower_orb#sheet.png",
+      "sha256": "9db77f580219b7d6a93245bd764a98e3f3d56126bf51c223f416b0ff0f180c49",
+      "bytes": 13645,
+      "dimensions": [
+        357,
+        64
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        1,
+        1,
+        355,
+        32
+      ],
+      "alpha": {
+        "transparent_pixels": 18548,
+        "partial_pixels": 0,
+        "opaque_pixels": 4300,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/red_tower_orb#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_tower_orb#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/red_tower_orb#anim": {
+      "path": "aseprite_resources/ingame/red_tower_orb#anim.fanim",
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19",
+      "bytes": 3792,
+      "override_target": "asset/base/aseprite_resources/ingame/red_tower_orb#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_tower_orb#anim"
+    },
+    "asset/base/aseprite_resources/skill_effect/blue_tower_projectile": {
+      "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
+      "sha256": "7a8ff254fe17697029bb5fcd8f83bd479ead7022cc7b373cbd1f8d93b6099c41",
+      "bytes": 103,
+      "dimensions": [
+        4,
+        4
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        0,
+        4,
+        4
+      ],
+      "alpha": {
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 16,
+        "corner_values": [
+          255,
+          255,
+          255,
+          255
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/skill_effect/blue_tower_projectile",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/skill_effect/blue_tower_projectile"
+    },
+    "asset/base/aseprite_resources/skill_effect/red_tower_projectile": {
+      "path": "aseprite_resources/skill_effect/red_tower_projectile.png",
+      "sha256": "488fc1f708cf967e60546837e94136301c589917c910c4b0b0925221df94d3f5",
+      "bytes": 96,
+      "dimensions": [
+        4,
+        4
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        0,
+        0,
+        4,
+        4
+      ],
+      "alpha": {
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 16,
+        "corner_values": [
+          255,
+          255,
+          255,
+          255
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/skill_effect/red_tower_projectile",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/skill_effect/red_tower_projectile"
+    },
+    "asset/base/ui/icons/tower": {
+      "path": "ui/icons/tower.svg",
+      "sha256": "3fed940159675ae03bdbdc09a103f46e62191df6d78e9c4bdf3b36f7439d86b0",
+      "bytes": 7501,
+      "override_target": "asset/base/ui/icons/tower",
+      "mod_asset_key": "asset/lol_mod/ui/icons/tower"
+    }
+  },
+  "explicitly_not_overridden": {
+    "asset/base/aseprite_resources/ingame/5v5/tower_shadow": "Original geometry retained.",
+    "tower_sounds": "Audio replacement is outside this quality pass."
+  },
+  "static_checks": {
+    "processed_sources_have_transparent_corners": true,
+    "processed_sources_use_hard_alpha": true,
+    "tower_sheets_preserve_581x64": true,
+    "orb_sheets_preserve_357x64": true,
+    "tower_body_visible_boxes_match_native": true,
+    "tower_body_bottom_and_center_match_native": true,
+    "orb_visible_boxes_preserve_upper_anchor": true,
+    "tower_and_orb_anim_contracts_preserved": true,
+    "all_vfx_contract_frames_nonempty": true,
+    "red_tower_is_controlled_team_recolor": true,
+    "red_orb_is_controlled_team_recolor": true,
+    "skill_projectiles_preserve_4x4_full_geometry": true,
+    "tower_icon_preserves_20x20_viewbox": true,
+    "tower_shadow_and_sounds_untouched": true
+  },
+  "result": {
+    "output_count": 11,
+    "all_static_checks_passed": true
+  }
+}

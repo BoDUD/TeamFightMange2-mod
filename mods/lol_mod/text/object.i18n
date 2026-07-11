@@ -1,0 +1,114 @@
+{
+  "en": {
+    "mushroom": {
+      "name": "Gromp"
+    },
+    "rhino": {
+      "name": "Red Brambleback"
+    },
+    "stump": {
+      "name": "Blue Sentinel"
+    },
+    "section": {
+      "epic_buff": "Baron Nashor Minion Buff",
+      "serpen_buff": "Dragon Slayer Permanent Buff"
+    },
+    "epic": {
+      "name": "Baron Nashor",
+      "buff_desc": "Applied to allied minions near the slayer while the Baron Nashor buff is active",
+      "buff_timer": "{Name} Buff {Time}"
+    },
+    "serpen": {
+      "name": "Infernal Drake",
+      "buff_desc": "Permanently applied to the entire team that slays the Infernal Drake"
+    },
+    "bee": {
+      "name": "Murk Wolf",
+      "count": "Unit Count: 3 (triangle formation)"
+    }
+  },
+  "ko": {
+    "mushroom": {
+      "name": "\ub450\uaebc\ube44"
+    },
+    "rhino": {
+      "name": "\ubd89\uc740 \ub369\uad74\uc815\ub839"
+    },
+    "stump": {
+      "name": "\ud478\ub978 \ud30c\uc218\uafbc"
+    },
+    "section": {
+      "epic_buff": "\ub0b4\uc154 \ub0a8\uc791 \ubbf8\ub2c8\uc5b8 \ubc84\ud504",
+      "serpen_buff": "\ub4dc\ub798\uace4 \uc0ac\ub0e5\uafbc \uc601\uad6c \ubc84\ud504"
+    },
+    "epic": {
+      "name": "\ub0b4\uc154 \ub0a8\uc791",
+      "buff_desc": "\ub0b4\uc154 \ub0a8\uc791 \ubc84\ud504\uac00 \uc720\uc9c0 \uc911\uc77c \ub54c \ucc98\uce58\uc790 \uc8fc\ubcc0\uc758 \uc544\uad70 \ubbf8\ub2c8\uc5b8\uc5d0\uac8c \uc801\uc6a9",
+      "buff_timer": "{Name} \ubc84\ud504 {Time}"
+    },
+    "serpen": {
+      "name": "\ud654\uc5fc\uc758 \ub4dc\ub798\uace4",
+      "buff_desc": "\ud654\uc5fc\uc758 \ub4dc\ub798\uace4 \ucc98\uce58 \uc2dc \ucc98\uce58\ud55c \ud300 \uc804\uccb4\uc5d0 \uc601\uad6c \uc801\uc6a9"
+    },
+    "bee": {
+      "name": "\uc5b4\uc2a4\ub984 \ub291\ub300",
+      "count": "\uc720\ub2db \uc218: 3\ub9c8\ub9ac (\uc0bc\uac01 \ub300\ud615)"
+    }
+  },
+  "zh-hans": {
+    "mushroom": {
+      "name": "\u9b54\u6cbc\u86d9"
+    },
+    "rhino": {
+      "name": "\u7eef\u7ea2\u5370\u8bb0\u6811\u602a"
+    },
+    "stump": {
+      "name": "\u82cd\u84dd\u96d5\u7eb9\u9b54\u50cf"
+    },
+    "section": {
+      "epic_buff": "\u7eb3\u4ec0\u7537\u7235\u5c0f\u5175\u589e\u76ca",
+      "serpen_buff": "\u5c60\u9f99\u8005\u6c38\u4e45\u589e\u76ca"
+    },
+    "epic": {
+      "name": "\u7eb3\u4ec0\u7537\u7235",
+      "buff_desc": "\u7eb3\u4ec0\u7537\u7235\u589e\u76ca\u6301\u7eed\u671f\u95f4\uff0c\u5bf9\u51fb\u6740\u8005\u9644\u8fd1\u7684\u5df1\u65b9\u5c0f\u5175\u751f\u6548",
+      "buff_timer": "{Name}\u589e\u76ca {Time}"
+    },
+    "serpen": {
+      "name": "\u70bc\u72f1\u4e9a\u9f99",
+      "buff_desc": "\u51fb\u6740\u70bc\u72f1\u4e9a\u9f99\u540e\u6c38\u4e45\u5bf9\u51fb\u6740\u65b9\u5168\u961f\u751f\u6548"
+    },
+    "bee": {
+      "name": "\u6697\u5f71\u72fc",
+      "count": "\u5355\u4f4d\u6570\uff1a3\u53ea\uff08\u4e09\u89d2\u9635\u578b\uff09"
+    }
+  },
+  "zh-hant": {
+    "mushroom": {
+      "name": "\u9b54\u6cbc\u86d9"
+    },
+    "rhino": {
+      "name": "\u8d64\u7d05\u523a\u80cc\u7378"
+    },
+    "stump": {
+      "name": "\u84bc\u85cd\u96d5\u7d0b\u9b54\u50cf"
+    },
+    "section": {
+      "epic_buff": "\u5df4\u9f8d\u7d0d\u4ec0\u58eb\u5175\u589e\u76ca",
+      "serpen_buff": "\u5c60\u9f8d\u8005\u6c38\u4e45\u589e\u76ca"
+    },
+    "epic": {
+      "name": "\u5df4\u9f8d\u7d0d\u4ec0",
+      "buff_desc": "\u5df4\u9f8d\u7d0d\u4ec0\u589e\u76ca\u6301\u7e8c\u671f\u9593\uff0c\u5c0d\u64ca\u6bba\u8005\u9644\u8fd1\u7684\u53cb\u65b9\u58eb\u5175\u751f\u6548",
+      "buff_timer": "{Name}\u589e\u76ca {Time}"
+    },
+    "serpen": {
+      "name": "\u7149\u7344\u98db\u9f8d",
+      "buff_desc": "\u64ca\u6bba\u7149\u7344\u98db\u9f8d\u5f8c\u6c38\u4e45\u5c0d\u64ca\u6bba\u65b9\u5168\u968a\u751f\u6548"
+    },
+    "bee": {
+      "name": "\u9eef\u5f71\u72fc",
+      "count": "\u55ae\u4f4d\u6578\uff1a3\u96bb\uff08\u4e09\u89d2\u9663\u578b\uff09"
+    }
+  }
+}

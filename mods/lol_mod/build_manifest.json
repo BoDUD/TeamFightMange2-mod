@@ -273,6 +273,251 @@
       "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
     },
     {
+      "path": "aseprite_resources/ingame/bee#anim.fanim",
+      "size": 7538,
+      "sha256": "ed1885fcca478de3e73907b2e5a3fd0efff4fc77e1bc5570e9ad9634d4318523"
+    },
+    {
+      "path": "aseprite_resources/ingame/bee#sheet.png",
+      "size": 55444,
+      "sha256": "907f262fd254fd85e32ff0f2040b9a9dc655ec22ae662dbfdb5d3739ea1f39fa"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#sheet.png",
+      "size": 45051,
+      "sha256": "aec3d327f62f6b83ecb6a145a25162fbd3b8b412fc1f0c9c13c2c823580ede20"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#sheet.png",
+      "size": 13595,
+      "sha256": "afe8e0955c51ca0c40229b2f29eea7910689933e5e9a0c9859b279c914a0b1ca"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
+      "size": 195988,
+      "sha256": "dce2cd2d3f67d570127252b07f1a47f8eb2035388c9bd63248eb41bb5c5a6e9a"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
+      "size": 205198,
+      "sha256": "6d598264e3529b8d8390d5aa24b07a8596e8598354eb3f6ea3f9eda9c5396862"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
+      "size": 196687,
+      "sha256": "200d0764e4317cfccde4b0ac7bd48bfabea5b62a56baff193d40c88109f04075"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
+      "size": 181869,
+      "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
+      "size": 195727,
+      "sha256": "242bb97249d9b4f0cce0b8b1cb06b36fae1ec3587e92307ff5ffaf9664517244"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
+      "size": 197156,
+      "sha256": "8fe6ef80ca311518254f0f31287162e8a70792083c963443bdb9a52e4007093c"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#anim.fanim",
+      "size": 6668,
+      "sha256": "a850a674a681e50e8a3d1071aad3f69056d788263ed61e841d5b8aee29816966"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#sheet.png",
+      "size": 1070540,
+      "sha256": "113a240055c743167199e706113d3efa233ededed308241cbf16c178b7412cb7"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#anim.fanim",
+      "size": 1073,
+      "sha256": "6625dbbe4034d22a4107dfcbf02339d02c9761dbe92d8249f7c54226ec55d1a0"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#sheet.png",
+      "size": 482,
+      "sha256": "e7cd345fd2513414c6b18d5159140e7938a3b7ad4e77a387a8ecfc92ec99ee5b"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_data",
+      "size": 181,
+      "sha256": "27af66281b79951bcaebca5ea50dcdd6481dabeef0917716f1f45629797469ba"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#sheet.png",
+      "size": 215,
+      "sha256": "021bd6804cbf7fdd9855435de854fdd63ac3adbc24af13dfe7c3d4132b7b1fac"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#data.sprite_data",
+      "size": 1830,
+      "sha256": "055e6e0b012379c67ef41a4d373b8718db1bd5bf64f2800320c60bce51df3182"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#sheet.png",
+      "size": 15264,
+      "sha256": "ebea8ebbdc3e65025c1220ef2e92a1c060085ed966e4745a6c67873194ed1547"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#anim.fanim",
+      "size": 3915,
+      "sha256": "58d0665f5b609df098c2bdc64b072fa9c32e727ef8e0671e4d827e9f0d4fc7b7"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#sheet.png",
+      "size": 126087,
+      "sha256": "49f568c2082d8754abbc6a1b502997a92ddc12af4dd3a09a123a7a12c642df4b"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#anim.fanim",
+      "size": 3912,
+      "sha256": "cae68aa3d9416f6f68ba26cb5a5fcad47fe78d0803fb74b08c306a8011d1a6aa"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#sheet.png",
+      "size": 62997,
+      "sha256": "942ec241e9f28526c5a1c73bc932ad11adfd5bf6a801afa96bb95ef7a1ab0e92"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#anim.fanim",
+      "size": 3915,
+      "sha256": "78c35736869ff9c6ddaebd58215dd0ff59a15cdb503b1a7c69c24895455ad4a7"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#sheet.png",
+      "size": 128134,
+      "sha256": "412210403433a486df4c21b3962b17e012bc43165c266e381c70e300db589810"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#sheet.png",
+      "size": 45122,
+      "sha256": "4f4e30dbb81561dd7776c835c78316d2a6268655f150aa4d0e38a36267cc527b"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#sheet.png",
+      "size": 13645,
+      "sha256": "9db77f580219b7d6a93245bd764a98e3f3d56126bf51c223f416b0ff0f180c49"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#anim.fanim",
+      "size": 3914,
+      "sha256": "c3da884ce3c41bb62f0da5c93011a73ff99b07b9fa09a68a40889ac012efa5b9"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#sheet.png",
+      "size": 134054,
+      "sha256": "e443b9e9b93a87ccef0931ed564ae34d95c6e457abb727f573f9407bb5f7d5b9"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#anim.fanim",
+      "size": 3459,
+      "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#sheet.png",
+      "size": 181869,
+      "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#anim.fanim",
+      "size": 3915,
+      "sha256": "64da1fedfc5d475a3c3e01e36aa83021afd2c5195e7c1a43c125c900e7e431eb"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#sheet.png",
+      "size": 149806,
+      "sha256": "c089d1ac64fe303e54f93e131760152f7343d7b60e1f77832b31dbadb0d4ec1c"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
+      "size": 103,
+      "sha256": "7a8ff254fe17697029bb5fcd8f83bd479ead7022cc7b373cbd1f8d93b6099c41"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/red_tower_projectile.png",
+      "size": 96,
+      "sha256": "488fc1f708cf967e60546837e94136301c589917c910c4b0b0925221df94d3f5"
+    },
+    {
+      "path": "BanPickIllust/archer.png",
+      "size": 2932996,
+      "sha256": "faf74bff3129e3afd5019c7939fe973a54b2dd3a167aca41445978131dccad84"
+    },
+    {
+      "path": "BanPickIllust/barrier_magician.png",
+      "size": 3302521,
+      "sha256": "93ee86a0c3f3588157216675702e562c0b80ba845420cf99d8c58dea26de171e"
+    },
+    {
+      "path": "BanPickIllust/berserker.png",
+      "size": 2769095,
+      "sha256": "30a6aa3eb4e842d49bb7e149e4275ae0f44563955212ab0fb0f1d7ca6bc0c408"
+    },
+    {
+      "path": "BanPickIllust/boomerang_hunter.png",
+      "size": 3232858,
+      "sha256": "8f2890914892aeb1f446a28fa5d4e6e71738907533e72df4c62515db9c38b431"
+    },
+    {
+      "path": "BanPickIllust/lol_shen.png",
+      "size": 2742594,
+      "sha256": "a2c3893a42b3c3f2af3772a7267b19966f22cf1f2a2842dabbf4cb97ded89a35"
+    },
+    {
       "path": "champion/archer.data_champion",
       "size": 21588,
       "sha256": "866afddedefc76de57d43b91c2f48043ea4e5a942392ac5f4c13b48ed7707412"
@@ -373,14 +618,69 @@
       "sha256": "106b51aadae466c81370ee59ab640efd3d266cc7419f936458655d4c70e4cec7"
     },
     {
+      "path": "lol_mod.dll",
+      "size": 120320,
+      "sha256": "624febf710506736137a838cdc3120fdd328a6d4dce6f488cf321bdf0de4bd9c"
+    },
+    {
       "path": "mod.mod_info",
-      "size": 746,
-      "sha256": "79ac62828e239c539896635ca130c6940cfc2a869dd00e88c5a7ab5feabe93f9"
+      "size": 842,
+      "sha256": "916d8316c54f1709bd566927c210b7469fcdaaa1029bfb1b2f149582e3b745be"
     },
     {
       "path": "mod.override_info",
-      "size": 15069,
-      "sha256": "c44b25df46f2f6b8b5946a6ac98ed0e8652e7801778a8bd2ce1f07ae19e73217"
+      "size": 24023,
+      "sha256": "a2f736cbc02c0024644c995b3b1f89c38426d99defed344cfcf1d7af7dca502a"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left.sound_info",
+      "size": 142,
+      "sha256": "1b52371185d76056d51326763a41f1e6bcbb82fc1fd2db80505ccd49af4352da"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_hit_clip.wav",
+      "size": 57638,
+      "sha256": "0038c1c0770422f65630ff2a0457af144943192458695877791e8f8bfcb06397"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_launch_clip.wav",
+      "size": 161958,
+      "sha256": "c5c932ef3ec3fa940a74f51d07d9ab458bebc896a4da77b3cfed918ea6d6dede"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right.sound_info",
+      "size": 144,
+      "sha256": "ae639f5efe0a8fe3796dca8a403c7094494b07c69bbbdb6e3bb924ecfc3b2319"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_hit_clip.wav",
+      "size": 64696,
+      "sha256": "0164ae502b74e84812745cdc20b81b52ca13accc92b9723e61a07c841d7b6bc2"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_launch_clip.wav",
+      "size": 157514,
+      "sha256": "15eb7f2e5fbcc1c1a89180e658bc3753dcb8cb23a3c6195f3866cd59e0025977"
+    },
+    {
+      "path": "sound/sfx/baron_death.sound_info",
+      "size": 134,
+      "sha256": "3d333d7d0be2577b6cf06e1b6111b7316e0091d3349bae86d60a25bd2422ef21"
+    },
+    {
+      "path": "sound/sfx/baron_death_body_clip.wav",
+      "size": 687694,
+      "sha256": "773fd6e72c3e66cde5dc1846aaa783de008681226c5947b5134371a9fde6fff7"
+    },
+    {
+      "path": "sound/sfx/baron_death_mix_clip.wav",
+      "size": 687694,
+      "sha256": "b81a1122b36e3965fa45643d566e2520cc8b7ab36ac8a0f6fa4455a85763791a"
+    },
+    {
+      "path": "sound/sfx/baron_death_void_clip.wav",
+      "size": 483582,
+      "sha256": "6164007ed45b7a20780aafddcdf87b7e7a4f1ac70e8ab4b30a0352fe9fb9ef8d"
     },
     {
       "path": "sound/sfx/briar_attack_cast.sound_info",
@@ -796,6 +1096,96 @@
       "path": "text/champion.i18n",
       "size": 26311,
       "sha256": "ddc6999d3add82dc0e54774d09cfcaab0398a4c67e2dcd508de1f1163994ed01"
+    },
+    {
+      "path": "text/item.i18n",
+      "size": 8761,
+      "sha256": "19536efabe505d1214146da5bb103123ced315a5adbecb8dcdda20a0361d3f13"
+    },
+    {
+      "path": "text/object.i18n",
+      "size": 3817,
+      "sha256": "15472165d0a7db9f76281085e677691d278dfa79147b9c53d572399ea7c9c87a"
+    },
+    {
+      "path": "ui/champion_fullbody/archer.png",
+      "size": 16516,
+      "sha256": "ac58c44215938bcb6021ad83682312404d05c5fb5c8e65b5abe4fb4e30db5681"
+    },
+    {
+      "path": "ui/champion_fullbody/barrier_magician.png",
+      "size": 16516,
+      "sha256": "829241a25442d73bae69836d52d07561bf36bedc160cf7171cb28bd42693678c"
+    },
+    {
+      "path": "ui/champion_fullbody/berserker.png",
+      "size": 16516,
+      "sha256": "226b7eabb00ece5b611950ceba5f42ac44331f6a763ceb91448de5daba0be175"
+    },
+    {
+      "path": "ui/champion_fullbody/boomerang_hunter.png",
+      "size": 16516,
+      "sha256": "25c3bb530b4aac5420443d957452489bf9f5c9caabc6b7d358b7c899f4f82779"
+    },
+    {
+      "path": "ui/champion_fullbody/lol_shen.png",
+      "size": 16516,
+      "sha256": "b4408edfda39fd4756a46754b91560e6d437cc46542940947863681a037427e0"
+    },
+    {
+      "path": "ui/icons/morgard.svg",
+      "size": 16510,
+      "sha256": "1b943366a52f65f5c2da75a8b7ed1e18f3c7f033167ba12e5f5690a3c23295c3"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_blue.svg",
+      "size": 9360,
+      "sha256": "035169407dea8ad07537a9ce463622ef94dcaafdad1d20a69315ed55de521f7b"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_red.svg",
+      "size": 9360,
+      "sha256": "3fcfe783e7f5bdf2e3d33de2ea0ce298c8ceef97bd200250b7ab4ab6d1536215"
+    },
+    {
+      "path": "ui/icons/serpen.svg",
+      "size": 11212,
+      "sha256": "5a9d205869ced459693b732d43aed68238326505750606207dccab0fe37f71a3"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_blue.svg",
+      "size": 8868,
+      "sha256": "02536d10c6ffb341b04810a62ce767d0e9f466475c42fa8183324a12803235eb"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_red.svg",
+      "size": 8868,
+      "sha256": "642bc098208e247fa0f16c2ef35928a91a65ca6e221f42c63139c6be5caf0216"
+    },
+    {
+      "path": "ui/icons/tower.svg",
+      "size": 7501,
+      "sha256": "3fed940159675ae03bdbdc09a103f46e62191df6d78e9c4bdf3b36f7439d86b0"
+    },
+    {
+      "path": "ui/ingame/epic.png",
+      "size": 607,
+      "sha256": "cb6118a4fd1d6dcf33e628ba33b2315e854927b42b5a54e20b7100869deb804f"
+    },
+    {
+      "path": "ui/layout/banpick/blue_pick_slot.ui",
+      "size": 11407,
+      "sha256": "5979ad4543862f16f22193f2abda6e09b3dbc71150415d1c7dbe26c45fbb0ffc"
+    },
+    {
+      "path": "ui/layout/banpick/red_pick_slot.ui",
+      "size": 11505,
+      "sha256": "c74436a0ca3106808e7f256b57aa80d9e80d4497a05721671a35d31eadcb3035"
+    },
+    {
+      "path": "ui/layout/champion_info_component/champion_slot.ui",
+      "size": 3032,
+      "sha256": "59b348feb7c4b7889d26a317e1699de49e504e460e0ffdafa741516c72e0fe43"
     }
   ]
 }
