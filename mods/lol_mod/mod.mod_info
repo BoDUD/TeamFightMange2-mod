@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.7.1",
-  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. This quality release adds post-pick splash illustrations, full-body encyclopedia portraits, image-generated Baron Nashor, elemental-drake, neutral-monster, defensive-tower, and League-style item art, plus locally extracted official Baron audio. Six elemental-drake art variants are packaged; the supported runtime currently uses Infernal Drake because the public mod SDK exposes no replay-safe per-spawn objective swap. The native DLL is rebuilt for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.7.2",
+  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. This quality release adds working post-pick splash illustrations, full-body encyclopedia portraits, image-generated Baron Nashor, five seeded per-match elemental drakes, neutral monsters, defensive towers, Nexus crystals, and League-style item art, plus locally extracted official Baron audio. Objective and wolf animation sheets preserve the native frame contracts, and every override source is validated against Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-11",
   "dependencies": [
     {

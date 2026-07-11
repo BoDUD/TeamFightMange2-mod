@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.1"
+    assert mod_info["version"] == "0.7.2"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -74,6 +74,41 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
     assert len(shen_audio["outputs"]) == 7
     assert len(lucian_audio["outputs"]) == 8
     assert all(entry["volume"] >= 0.85 for entry in [*shen_audio["outputs"], *lucian_audio["outputs"]])
+
+
+def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None:
+    source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+
+    assert 'root.query_mut("main")' in source
+    assert "runner.team1_order" in source and "runner.team2_order" in source
+    assert "top.right.champion_info.data.champions.contents" in source
+    assert '&format!("{prefix}.champion")' in source
+
+    variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]
+    assert "snapshot.seed" in source
+    assert "registration.set_server_extension" in source
+    assert "dragon_variant_index" in source
+    for variant in variants:
+        assert f'"dragon_variants/{variant}"' in source
+        for suffix in ("sheet", "anim"):
+            key = (
+                "asset/base/aseprite_resources/ingame/"
+                f"dragon_variants/{variant}#{suffix}"
+            )
+            assert override[key] == {
+                "remapping": key.replace("asset/base/", "asset/lol_mod/", 1),
+                "type": "override",
+            }
+
+
+def test_override_metadata_uses_registered_sprite_sheet_extension() -> None:
+    assert not list(MOD.rglob("*.sprite_data"))
+    for relative in (
+        "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_sheet",
+        "aseprite_resources/ingame/item_icons_18x18#data.sprite_sheet",
+    ):
+        assert (MOD / relative).is_file()
 
 
 def test_lucian_q_locks_an_enemy_unit_and_shares_one_piercing_projectile() -> None:

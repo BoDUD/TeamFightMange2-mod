@@ -479,6 +479,46 @@
     "remapping": "asset/lol_mod/aseprite_resources/ingame/serpen#anim",
     "type": "override"
   },
+  "asset/base/aseprite_resources/ingame/dragon_variants/infernal#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/infernal#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/ocean#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/ocean#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/mountain#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/mountain#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/cloud#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/cloud#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/hextech#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/hextech#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#anim",
+    "type": "override"
+  },
   "asset/base/aseprite_resources/ingame/rhino#sheet": {
     "remapping": "asset/lol_mod/aseprite_resources/ingame/rhino#sheet",
     "type": "override"
@@ -621,6 +661,38 @@
   },
   "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": {
     "remapping": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#data",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#anim",
     "type": "override"
   },
   "asset/base/aseprite_resources/ingame/blue_tower#sheet": {

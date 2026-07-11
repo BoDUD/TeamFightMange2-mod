@@ -1,0 +1,869 @@
+{
+  "schema": "lol_mod.quality_nexus_imagegen_pack.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_nexus.py",
+  "image_generation": {
+    "tool": "built-in imagegen",
+    "source": {
+      "path": "source/imagegen/jungle/nexus_actor_orb_contact.png",
+      "sha256": "8767d45d57ba9a6b9bee35f7f5ac615e00c17bda84408d9becfc701f389495cc",
+      "bytes": 1758643,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "source_mode": "RGB",
+      "alpha_bbox": [
+        0,
+        0,
+        1254,
+        1254
+      ],
+      "alpha": {
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "corner_values": [
+          255,
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    "processed": {
+      "path": "source/processed/jungle/nexus_actor_orb_contact_alpha.png",
+      "sha256": "82183b77d2bba693020f59d44be544287cb2c9958dbcb5f91e646f34f2c80671",
+      "bytes": 1212200,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        75,
+        85,
+        1179,
+        1074
+      ],
+      "alpha": {
+        "transparent_pixels": 1089867,
+        "partial_pixels": 6693,
+        "opaque_pixels": 475956,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "contact_grid": [
+      2,
+      2
+    ],
+    "cell_order": [
+      "blue_nexus",
+      "red_nexus",
+      "blue_orb",
+      "red_orb"
+    ],
+    "prompt_record": "source/imagegen/QUALITY_UPGRADE_PROMPTS.md",
+    "runtime_team_pairing": "Blue imagegen cells are the geometry authority; blue energy pixels are hue-mapped to red so both runtime alpha masks are byte-identical.",
+    "red_actor_changed_pixels": 10930,
+    "red_orb_changed_pixels": 2880
+  },
+  "animation_contracts": {
+    "nexus": {
+      "idle": {
+        "frame_count": 8,
+        "durations": [
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005
+        ],
+        "rects": [
+          [
+            0,
+            0,
+            57,
+            65
+          ],
+          [
+            58,
+            0,
+            57,
+            63
+          ],
+          [
+            116,
+            0,
+            57,
+            63
+          ],
+          [
+            174,
+            0,
+            57,
+            63
+          ],
+          [
+            232,
+            0,
+            57,
+            65
+          ],
+          [
+            290,
+            0,
+            57,
+            67
+          ],
+          [
+            348,
+            0,
+            57,
+            69
+          ],
+          [
+            406,
+            0,
+            57,
+            67
+          ]
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            464,
+            0,
+            57,
+            65
+          ],
+          [
+            522,
+            0,
+            57,
+            65
+          ],
+          [
+            580,
+            0,
+            57,
+            73
+          ],
+          [
+            638,
+            0,
+            57,
+            79
+          ],
+          [
+            696,
+            0,
+            57,
+            80
+          ],
+          [
+            754,
+            0,
+            57,
+            80
+          ]
+        ]
+      },
+      "attack_projectile": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            812,
+            0,
+            3,
+            3
+          ]
+        ]
+      },
+      "hit_effect": {
+        "frame_count": 5,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            816,
+            0,
+            3,
+            3
+          ],
+          [
+            820,
+            0,
+            3,
+            3
+          ],
+          [
+            824,
+            0,
+            3,
+            3
+          ],
+          [
+            828,
+            0,
+            3,
+            3
+          ],
+          [
+            832,
+            0,
+            3,
+            3
+          ]
+        ]
+      }
+    },
+    "nexus_orb": {
+      "idle": {
+        "frame_count": 8,
+        "durations": [
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005,
+          0.120000005
+        ],
+        "rects": [
+          [
+            0,
+            0,
+            31,
+            65
+          ],
+          [
+            32,
+            0,
+            31,
+            63
+          ],
+          [
+            64,
+            0,
+            31,
+            61
+          ],
+          [
+            96,
+            0,
+            31,
+            63
+          ],
+          [
+            128,
+            0,
+            31,
+            65
+          ],
+          [
+            160,
+            0,
+            31,
+            67
+          ],
+          [
+            192,
+            0,
+            31,
+            69
+          ],
+          [
+            224,
+            0,
+            31,
+            67
+          ]
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            256,
+            0,
+            31,
+            65
+          ],
+          [
+            288,
+            0,
+            31,
+            65
+          ],
+          [
+            320,
+            0,
+            39,
+            73
+          ],
+          [
+            360,
+            0,
+            45,
+            79
+          ],
+          [
+            406,
+            0,
+            45,
+            80
+          ],
+          [
+            452,
+            0,
+            49,
+            80
+          ]
+        ]
+      },
+      "attack_projectile": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            502,
+            0,
+            3,
+            3
+          ]
+        ]
+      },
+      "hit_effect": {
+        "frame_count": 5,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            506,
+            0,
+            3,
+            3
+          ],
+          [
+            510,
+            0,
+            3,
+            3
+          ],
+          [
+            514,
+            0,
+            3,
+            3
+          ],
+          [
+            518,
+            0,
+            3,
+            3
+          ],
+          [
+            522,
+            0,
+            3,
+            3
+          ]
+        ]
+      }
+    }
+  },
+  "placement": {
+    "nexus_visible_boxes": [
+      [
+        1,
+        1,
+        55,
+        62
+      ],
+      [
+        59,
+        1,
+        113,
+        61
+      ],
+      [
+        117,
+        2,
+        171,
+        61
+      ],
+      [
+        175,
+        1,
+        229,
+        61
+      ],
+      [
+        233,
+        1,
+        287,
+        62
+      ],
+      [
+        291,
+        1,
+        345,
+        63
+      ],
+      [
+        349,
+        1,
+        403,
+        64
+      ],
+      [
+        407,
+        1,
+        461,
+        63
+      ],
+      [
+        465,
+        1,
+        519,
+        62
+      ],
+      [
+        523,
+        1,
+        577,
+        62
+      ],
+      [
+        581,
+        1,
+        635,
+        66
+      ],
+      [
+        639,
+        8,
+        693,
+        69
+      ],
+      [
+        697,
+        9,
+        751,
+        70
+      ],
+      [
+        755,
+        9,
+        809,
+        70
+      ]
+    ],
+    "nexus_stable_frame_sizes": [
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ],
+      [
+        52,
+        53
+      ]
+    ],
+    "orb_visible_boxes": [
+      [
+        1,
+        1,
+        29,
+        30
+      ],
+      [
+        33,
+        1,
+        61,
+        30
+      ],
+      [
+        65,
+        1,
+        93,
+        30
+      ],
+      [
+        97,
+        1,
+        125,
+        30
+      ],
+      [
+        129,
+        1,
+        157,
+        30
+      ],
+      [
+        161,
+        1,
+        189,
+        30
+      ],
+      [
+        193,
+        1,
+        221,
+        30
+      ],
+      [
+        225,
+        1,
+        253,
+        30
+      ],
+      [
+        257,
+        1,
+        285,
+        30
+      ],
+      [
+        289,
+        1,
+        317,
+        30
+      ],
+      [
+        321,
+        1,
+        357,
+        38
+      ],
+      [
+        368,
+        8,
+        396,
+        37
+      ],
+      [
+        414,
+        9,
+        442,
+        38
+      ],
+      [
+        462,
+        9,
+        490,
+        38
+      ]
+    ],
+    "orb_stable_frame_sizes": [
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        25,
+        25
+      ]
+    ]
+  },
+  "outputs": {
+    "asset/base/aseprite_resources/ingame/blue_nexus#sheet": {
+      "path": "aseprite_resources/ingame/blue_nexus#sheet.png",
+      "sha256": "ca5a9b0dc2dccb3ee99c4e694e5c652efbd02078dfc52ba2fd3f5ef4390d4680",
+      "bytes": 7742,
+      "dimensions": [
+        836,
+        81
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        2,
+        1,
+        834,
+        70
+      ],
+      "alpha": {
+        "transparent_pixels": 42828,
+        "partial_pixels": 0,
+        "opaque_pixels": 24888,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/blue_nexus#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/blue_nexus#anim": {
+      "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e",
+      "bytes": 3790,
+      "override_target": "asset/base/aseprite_resources/ingame/blue_nexus#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#anim"
+    },
+    "asset/base/aseprite_resources/ingame/red_nexus#sheet": {
+      "path": "aseprite_resources/ingame/red_nexus#sheet.png",
+      "sha256": "2c5844d3a866f6eccd1f2530ea7125fec770b03fb4be0c2c19e4e5dbb1b1bb86",
+      "bytes": 8089,
+      "dimensions": [
+        836,
+        81
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        2,
+        1,
+        834,
+        70
+      ],
+      "alpha": {
+        "transparent_pixels": 42828,
+        "partial_pixels": 0,
+        "opaque_pixels": 24888,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/red_nexus#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_nexus#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/red_nexus#anim": {
+      "path": "aseprite_resources/ingame/red_nexus#anim.fanim",
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e",
+      "bytes": 3790,
+      "override_target": "asset/base/aseprite_resources/ingame/red_nexus#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_nexus#anim"
+    },
+    "asset/base/aseprite_resources/ingame/blue_nexus_orb#sheet": {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#sheet.png",
+      "sha256": "07deffbfc36eee1afb29bbb3048e6fa9fbd43489f019d383e9649f7ce7422eb8",
+      "bytes": 2657,
+      "dimensions": [
+        526,
+        81
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        2,
+        1,
+        524,
+        38
+      ],
+      "alpha": {
+        "transparent_pixels": 37794,
+        "partial_pixels": 0,
+        "opaque_pixels": 4812,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/blue_nexus_orb#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/blue_nexus_orb#anim": {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#anim.fanim",
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660",
+      "bytes": 3788,
+      "override_target": "asset/base/aseprite_resources/ingame/blue_nexus_orb#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#anim"
+    },
+    "asset/base/aseprite_resources/ingame/red_nexus_orb#sheet": {
+      "path": "aseprite_resources/ingame/red_nexus_orb#sheet.png",
+      "sha256": "c4d1c70ed8adaf540b89455f323470bed68a687a847330c2290a18b98354bf88",
+      "bytes": 2693,
+      "dimensions": [
+        526,
+        81
+      ],
+      "source_mode": "RGBA",
+      "alpha_bbox": [
+        2,
+        1,
+        524,
+        38
+      ],
+      "alpha": {
+        "transparent_pixels": 37794,
+        "partial_pixels": 0,
+        "opaque_pixels": 4812,
+        "corner_values": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "override_target": "asset/base/aseprite_resources/ingame/red_nexus_orb#sheet",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#sheet"
+    },
+    "asset/base/aseprite_resources/ingame/red_nexus_orb#anim": {
+      "path": "aseprite_resources/ingame/red_nexus_orb#anim.fanim",
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660",
+      "bytes": 3788,
+      "override_target": "asset/base/aseprite_resources/ingame/red_nexus_orb#anim",
+      "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#anim"
+    }
+  },
+  "explicitly_not_overridden": {
+    "asset/base/aseprite_resources/ingame/5v5/nexus_shadow": "Native position-locked shadow retained.",
+    "nexus_destroy_effect": "Native destruction timing/effect retained.",
+    "nexus_audio": "Audio is outside this visual replacement pass."
+  },
+  "static_checks": {
+    "source_is_builtin_imagegen_contact_sheet": true,
+    "processed_source_has_alpha_and_transparent_corners": true,
+    "native_sheet_dimensions_preserved": true,
+    "actor_frames_use_one_stable_size": true,
+    "orb_frames_use_one_stable_size": true,
+    "team_actor_alpha_masks_match": true,
+    "team_orb_alpha_masks_match": true,
+    "controlled_red_team_recolor_changed_pixels": true,
+    "native_anim_tag_counts_preserved": true
+  }
+}

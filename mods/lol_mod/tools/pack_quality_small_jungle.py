@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import struct
 from dataclasses import dataclass
@@ -50,6 +51,7 @@ class PackSpec:
     sequences: dict[str, list[int]]
     ignored_source_cells: tuple[int, ...] = ()
     attack_vfx_note: str = ""
+    preserve_native_rects: bool = False
 
 
 SPECS = (
@@ -117,18 +119,22 @@ SPECS = (
         display_name="Murk Wolf",
         runtime_name="bee",
         cell_size=64,
-        max_visible_width=60,
-        max_visible_height=52,
+        max_visible_width=24,
+        max_visible_height=30,
         baseline=54,
         sequences={
-            "idle": [0, 1, 2, 3] * 4,
-            "run": [4, 5, 6, 7] * 4,
-            "attack": [8, 9, 10, 11, 11],
+            # Native bee idle/run point at the same 16 rectangles and advance
+            # at 0.03s.  Use one restrained, shared breathing cycle instead of
+            # alternating standing and full sprint poses at 33 fps.
+            "idle": [0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 3, 3],
+            "run": [0, 0, 1, 1, 0, 0, 2, 2, 0, 0, 1, 1, 0, 0, 3, 3],
+            "attack": [8, 9, 10, 11, 0],
             "dead": [12, 13, 14, 15],
         },
+        preserve_native_rects=True,
         attack_vfx_note=(
             "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; "
-            "the body-bearing recovery cell is held once to satisfy the five-frame contract."
+            "the final native frame returns to the stable idle body instead of holding a displaced recovery pose."
         ),
     ),
 )
@@ -203,6 +209,48 @@ def load_native_animation_contracts(
     return documents, records
 
 
+def load_native_sheets(
+    runtime_names: tuple[str, ...],
+) -> tuple[dict[str, Image.Image], dict[str, dict[str, Any]]]:
+    keys = {
+        f"asset/base/aseprite_resources/ingame/{name}#sheet": name
+        for name in runtime_names
+    }
+    images: dict[str, Image.Image] = {}
+    records: dict[str, dict[str, Any]] = {}
+    with BUNDLE_PATH.open("rb") as handle:
+        entry_count = read_u32(handle)
+        for _index in range(entry_count):
+            type_length = read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = read_u32(handle)
+            if key not in keys:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            runtime_name = keys[key]
+            with Image.open(io.BytesIO(payload)) as opened:
+                images[runtime_name] = opened.convert("RGBA")
+            records[runtime_name] = {
+                "bundle_file": BUNDLE_PATH.name,
+                "asset_key": key,
+                "asset_type": asset_type,
+                "entry_size_bytes": data_length,
+                "entry_sha256": hashlib.sha256(payload).hexdigest(),
+                "dimensions": list(images[runtime_name].size),
+            }
+            if len(images) == len(keys):
+                break
+    missing = sorted(set(runtime_names) - set(images))
+    if missing:
+        raise KeyError(f"Missing native sheets in bundle.game_data: {missing}")
+    return images, records
+
+
 def validate_native_animation_contract(
     runtime_name: str,
     generated: dict[str, Any],
@@ -224,6 +272,141 @@ def validate_native_animation_contract(
         )
 
 
+def validate_native_frame_rect_contract(
+    runtime_name: str,
+    generated: dict[str, Any],
+    native: dict[str, Any],
+) -> None:
+    validate_native_animation_contract(runtime_name, generated, native)
+    if generated != native:
+        raise ValueError(
+            f"{runtime_name}: generated x/y/w/h rectangles differ from the native contract"
+        )
+
+
+def frame_rect(frame: dict[str, Any]) -> tuple[int, int, int, int]:
+    data = frame["data"]
+    return (
+        int(data["x"]),
+        int(data["y"]),
+        int(data["w"]),
+        int(data["h"]),
+    )
+
+
+def frame_crop(sheet: Image.Image, frame: dict[str, Any]) -> Image.Image:
+    x, y, width, height = frame_rect(frame)
+    return sheet.crop((x, y, x + width, y + height))
+
+
+def weighted_alpha_centroid_x(image: Image.Image) -> float:
+    alpha = image.getchannel("A")
+    total = 0
+    weighted_x = 0
+    for y in range(alpha.height):
+        for x in range(alpha.width):
+            value = alpha.getpixel((x, y))
+            total += value
+            weighted_x += x * value
+    if total <= 0:
+        return (image.width - 1) / 2
+    return weighted_x / total
+
+
+def ground_anchor_x(image: Image.Image) -> float:
+    alpha = image.getchannel("A")
+    bbox = alpha.getbbox()
+    if bbox is None:
+        return (image.width - 1) / 2
+    band_height = max(2, round((bbox[3] - bbox[1]) * 0.15))
+    top = max(bbox[1], bbox[3] - band_height)
+    total = 0
+    weighted_x = 0
+    for y in range(top, bbox[3]):
+        for x in range(bbox[0], bbox[2]):
+            value = alpha.getpixel((x, y))
+            total += value
+            weighted_x += x * value
+    return weighted_x / total if total else weighted_alpha_centroid_x(image)
+
+
+def paste_clipped(canvas: Image.Image, sprite: Image.Image, x: int, y: int) -> None:
+    left = max(0, x)
+    top = max(0, y)
+    right = min(canvas.width, x + sprite.width)
+    bottom = min(canvas.height, y + sprite.height)
+    if right <= left or bottom <= top:
+        return
+    crop = sprite.crop((left - x, top - y, right - x, bottom - y))
+    canvas.alpha_composite(crop, (left, top))
+
+
+def render_native_rect_frame(
+    source: Image.Image,
+    native_frame: Image.Image,
+    *,
+    scale: float,
+    anchor_mode: str,
+) -> Image.Image:
+    output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
+    source_bbox = alpha_bbox(source)
+    native_bbox = native_frame.getchannel("A").getbbox()
+    subject = normalize_transparent_rgb(source.crop(source_bbox))
+    subject = subject.resize(
+        (
+            max(1, round(subject.width * scale)),
+            max(1, round(subject.height * scale)),
+        ),
+        Image.Resampling.NEAREST,
+    )
+    subject = normalize_transparent_rgb(subject)
+    subject = subject.crop(alpha_bbox(subject))
+    if native_bbox is None:
+        target_bottom = native_frame.height - 2
+        target_anchor = (native_frame.width - 1) / 2
+    else:
+        target_bottom = native_bbox[3]
+        target_anchor = (
+            ground_anchor_x(native_frame)
+            if anchor_mode == "ground"
+            else weighted_alpha_centroid_x(native_frame)
+        )
+    subject_anchor = (
+        ground_anchor_x(subject)
+        if anchor_mode == "ground"
+        else weighted_alpha_centroid_x(subject)
+    )
+    x = round(target_anchor - subject_anchor)
+    y = target_bottom - subject.height
+    paste_clipped(output, subject, x, y)
+    return output
+
+
+def place_native_frame(
+    sheet: Image.Image,
+    frame_image: Image.Image,
+    frame: dict[str, Any],
+) -> None:
+    x, y, width, height = frame_rect(frame)
+    if frame_image.size != (width, height):
+        raise ValueError(
+            f"native frame image {frame_image.size} != rectangle {(width, height)}"
+        )
+    sheet.alpha_composite(frame_image, (x, y))
+
+
+def centroid_span(sheet: Image.Image, document: dict[str, Any], tag: str) -> float:
+    values = []
+    for frame in document["anims"][tag]["frames"]:
+        crop = frame_crop(sheet, frame)
+        if crop.getchannel("A").getbbox() is None:
+            continue
+        values.append(
+            weighted_alpha_centroid_x(crop) - int(frame["data"]["w"]) / 2
+        )
+    return max(values) - min(values) if values else 0.0
+
+
 def alpha_bbox(image: Image.Image, threshold: int = TRIM_ALPHA_THRESHOLD) -> tuple[int, int, int, int]:
     alpha = image.getchannel("A")
     mask = alpha.point(lambda value: 255 if value > threshold else 0)
@@ -236,7 +419,7 @@ def alpha_bbox(image: Image.Image, threshold: int = TRIM_ALPHA_THRESHOLD) -> tup
 def normalize_transparent_rgb(image: Image.Image) -> Image.Image:
     rgba = image.convert("RGBA")
     normalized: list[tuple[int, int, int, int]] = []
-    for red, green, blue, alpha in rgba.getdata():
+    for red, green, blue, alpha in rgba.get_flattened_data():
         if alpha <= TRIM_ALPHA_THRESHOLD:
             normalized.append((0, 0, 0, 0))
         else:
@@ -352,6 +535,197 @@ def runtime_frame_record(
         or bbox[1] <= 0
         or bbox[2] >= cell_size
         or bbox[3] >= cell_size,
+    }
+
+
+def pack_native_rect_one(
+    spec: PackSpec,
+    native_document: dict[str, Any],
+    native_record: dict[str, Any],
+    native_sheet: Image.Image,
+    native_sheet_record: dict[str, Any],
+) -> dict[str, Any]:
+    source_path = SOURCE_ROOT / f"{spec.source_name}_action_contact.png"
+    processed_path = PROCESSED_ROOT / f"{spec.source_name}_action_contact_alpha.png"
+    if not source_path.is_file() or not processed_path.is_file():
+        raise FileNotFoundError(f"Missing source/processed pair for {spec.source_name}")
+
+    processed = Image.open(processed_path).convert("RGBA")
+    if processed.size != (1254, 1254):
+        raise ValueError(f"Unexpected {spec.source_name} processed dimensions: {processed.size}")
+    cells = split_grid(processed)
+    native_anims = native_document["anims"]
+    if set(spec.sequences) != set(native_anims):
+        raise ValueError(
+            f"{spec.runtime_name}: source/native tag mismatch; "
+            f"source={sorted(spec.sequences)}, native={sorted(native_anims)}"
+        )
+
+    used_indices = sorted(
+        {index for indexes in spec.sequences.values() for index in indexes}
+    )
+    source_cell_records = {
+        str(index): source_cell_record(cells[index])
+        for index in used_indices
+    }
+    max_source_width = max(
+        alpha_bbox(cells[index])[2] - alpha_bbox(cells[index])[0]
+        for index in used_indices
+    )
+    max_source_height = max(
+        alpha_bbox(cells[index])[3] - alpha_bbox(cells[index])[1]
+        for index in used_indices
+    )
+    scale = min(
+        spec.max_visible_width / max_source_width,
+        spec.max_visible_height / max_source_height,
+        1.0,
+    )
+
+    sheet = Image.new("RGBA", native_sheet.size, (0, 0, 0, 0))
+    tag_records: dict[str, Any] = {}
+    for tag_name, native_tag in native_anims.items():
+        source_indexes = spec.sequences[tag_name]
+        native_frames = native_tag["frames"]
+        if len(source_indexes) != len(native_frames):
+            raise ValueError(
+                f"{spec.runtime_name}.{tag_name}: {len(source_indexes)} source "
+                f"frames for {len(native_frames)} native rectangles"
+            )
+        qa_frames: list[dict[str, Any]] = []
+        for source_index, native_frame_spec in zip(
+            source_indexes,
+            native_frames,
+            strict=True,
+        ):
+            native_frame = frame_crop(native_sheet, native_frame_spec)
+            # The wolf leap source contains small dust/claw particles below the
+            # body.  Treating those particles as the foot anchor pushes most of
+            # the wolf outside the tiny native bee attack rectangle.  Center
+            # the alpha silhouette and preserve the native per-frame bottom.
+            anchor_mode = "centroid"
+            rendered = render_native_rect_frame(
+                cells[source_index],
+                native_frame,
+                scale=scale,
+                anchor_mode=anchor_mode,
+            )
+            place_native_frame(sheet, rendered, native_frame_spec)
+            bbox = alpha_bbox(rendered)
+            native_bbox = native_frame.getchannel("A").getbbox()
+            x, y, width, height = frame_rect(native_frame_spec)
+            qa_frames.append(
+                {
+                    "source_cell": source_index,
+                    "duration": native_frame_spec["duration"],
+                    "rect": [x, y, width, height],
+                    "alpha_bbox": list(bbox),
+                    "visible_dimensions": [bbox[2] - bbox[0], bbox[3] - bbox[1]],
+                    "bottom_matches_native": native_bbox is not None
+                    and bbox[3] == native_bbox[3],
+                    "centroid_offset_x": round(
+                        weighted_alpha_centroid_x(rendered) - width / 2,
+                        6,
+                    ),
+                }
+            )
+        tag_records[tag_name] = {
+            "frame_count": len(qa_frames),
+            "durations": [frame["duration"] for frame in native_frames],
+            "source_sequence": source_indexes,
+            "frames": qa_frames,
+        }
+
+    sheet_path = RUNTIME_ROOT / f"{spec.runtime_name}#sheet.png"
+    anim_path = RUNTIME_ROOT / f"{spec.runtime_name}#anim.fanim"
+    sheet.save(sheet_path, format="PNG", compress_level=9)
+    generated_document = {
+        "anims": {
+            tag_name: {"frames": native_tag["frames"]}
+            for tag_name, native_tag in native_anims.items()
+        }
+    }
+    anim_path.write_text(
+        json.dumps(generated_document, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    validate_native_frame_rect_contract(
+        spec.runtime_name,
+        generated_document,
+        native_document,
+    )
+    all_frames = [
+        frame
+        for tag in tag_records.values()
+        for frame in tag["frames"]
+    ]
+    maximum_visible_width = max(frame["visible_dimensions"][0] for frame in all_frames)
+    idle_centroid_span = centroid_span(sheet, generated_document, "idle")
+    run_centroid_span = centroid_span(sheet, generated_document, "run")
+    if sheet.size != native_sheet.size:
+        raise ValueError(f"{spec.runtime_name}: native sheet dimensions changed")
+    if maximum_visible_width > spec.max_visible_width:
+        raise ValueError(
+            f"{spec.runtime_name}: visible width {maximum_visible_width} exceeds {spec.max_visible_width}"
+        )
+    if any(not frame["bottom_matches_native"] for frame in all_frames):
+        raise ValueError(f"{spec.runtime_name}: frame bottom differs from native anchor")
+    if idle_centroid_span > 2.0 or run_centroid_span > 2.0:
+        raise ValueError(
+            f"{spec.runtime_name}: shared idle/run centroid span is unstable: "
+            f"idle={idle_centroid_span}, run={run_centroid_span}"
+        )
+
+    return {
+        "display_name": spec.display_name,
+        "runtime_asset": spec.runtime_name,
+        "native_animation_contract": native_record,
+        "native_sheet_contract": native_sheet_record,
+        "source": image_record(source_path),
+        "processed": image_record(processed_path),
+        "pack": {
+            "grid": [GRID_COLUMNS, GRID_ROWS],
+            "trim_alpha_threshold": TRIM_ALPHA_THRESHOLD,
+            "resampling": "Pillow Image.Resampling.NEAREST",
+            "single_scale_for_all_actions": round(scale, 10),
+            "max_source_visible_dimensions": [max_source_width, max_source_height],
+            "max_runtime_visible_envelope": [
+                spec.max_visible_width,
+                spec.max_visible_height,
+            ],
+            "native_sheet_dimensions_preserved": True,
+            "native_frame_rectangles_preserved": True,
+            "native_alpha_bottoms_preserved": True,
+            "anchor": "native alpha centroid with native per-frame alpha bottom",
+            "source_cells": source_cell_records,
+            "attack_vfx_static_review": {
+                "result": "pass",
+                "note": spec.attack_vfx_note,
+            },
+        },
+        "runtime": {
+            "sheet": image_record(sheet_path),
+            "animation": binary_record(anim_path),
+            "tags": tag_records,
+            "motion_metrics": {
+                "maximum_visible_width_px": maximum_visible_width,
+                "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
+                "run_horizontal_centroid_span_px": round(run_centroid_span, 6),
+            },
+        },
+        "static_checks": {
+            "native_sheet_dimensions_exact": True,
+            "native_frame_rectangles_exact": True,
+            "native_animation_contract_exact": True,
+            "all_frame_bottoms_match_native": True,
+            "visible_width_native_class": maximum_visible_width
+            <= spec.max_visible_width,
+            "idle_horizontal_centroid_stable": idle_centroid_span <= 2.0,
+            "run_horizontal_centroid_stable": run_centroid_span <= 2.0,
+            "shared_idle_run_rectangles_use_same_source_sequence": spec.sequences["idle"]
+            == spec.sequences["run"],
+        },
     }
 
 
@@ -547,16 +921,27 @@ def main() -> int:
     QA_PATH.parent.mkdir(parents=True, exist_ok=True)
     runtime_names = tuple(spec.runtime_name for spec in SPECS)
     native_documents, native_records = load_native_animation_contracts(runtime_names)
+    native_sheets, native_sheet_records = load_native_sheets(runtime_names)
     assets = [
-        pack_one(
-            spec,
-            native_documents[spec.runtime_name],
-            native_records[spec.runtime_name],
+        (
+            pack_native_rect_one(
+                spec,
+                native_documents[spec.runtime_name],
+                native_records[spec.runtime_name],
+                native_sheets[spec.runtime_name],
+                native_sheet_records[spec.runtime_name],
+            )
+            if spec.preserve_native_rects
+            else pack_one(
+                spec,
+                native_documents[spec.runtime_name],
+                native_records[spec.runtime_name],
+            )
         )
         for spec in SPECS
     ]
     payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "generator": "mods/lol_mod/tools/pack_quality_small_jungle.py",
         "scope": "static image processing only; no game launch and no test execution",
         "chroma_key_processing": {

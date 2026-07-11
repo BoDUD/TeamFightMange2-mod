@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "release": "0.7.1",
-  "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, and defensive towers",
+  "release": "0.7.2",
+  "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, and Nexus crystals",
   "runtime_implemented": {
     "banpick_splashes": [
       "lol_shen",
@@ -19,7 +19,7 @@
     ],
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
-      "serpen": "Infernal Drake",
+      "serpen": "Seeded per-match elemental Drake (Infernal fallback)",
       "rhino": "Red Brambleback",
       "stump": "Blue Sentinel",
       "mushroom": "Gromp",
@@ -30,6 +30,18 @@
       "objective_ui": true,
       "official_audio_source": "local League of Legends Map11 Wwise banks",
       "audio_hash_manifest": "qa/baron_official_audio_sources.json"
+    },
+    "elemental_dragon": {
+      "per_match_seeded_selection": [
+        "infernal",
+        "ocean",
+        "mountain",
+        "cloud",
+        "hextech"
+      ],
+      "same_for_both_teams_and_replay": true,
+      "per_respawn_rotation_or_dragon_soul": false,
+      "elder_transition": false
     },
     "items": {
       "native_slot_count": 30,
@@ -43,6 +55,11 @@
       "ui_icon": true,
       "native_shadow_preserved": true,
       "native_stats_positions_and_timing_preserved": true
+    },
+    "nexus": {
+      "imagegen_blue_and_red_actor": true,
+      "imagegen_blue_and_red_orb": true,
+      "native_sheet_dimensions_and_animation_contracts_preserved": true
     }
   },
   "packaged_variants": {
@@ -67,12 +84,12 @@
       "bee"
     ],
     "raptor_and_krug": "TFM2 has no fifth or sixth ordinary neutral actor/spawn state; these two generated packs are not claimed as independently spawning camps.",
-    "elemental_dragon_state_machine": "The public mod SDK exposes no replay-safe per-respawn objective resource swap or Dragon Soul/Elder state hook. Runtime serpen safely defaults to Infernal Drake; the other five art packs are not claimed as dynamically selected."
+    "elemental_dragon_state_machine": "API 0.8 now deterministically selects one of five base elemental dragons per match from the authoritative match seed; both teams and replay derive the same visual. The public API still exposes no safe per-respawn rotation, Dragon Soul, or Elder-transition hook, and a replay opened before any MatchUIRunner database handle safely retains default serpen."
   },
   "verification_boundary": {
     "static_build_and_contract_checks": true,
     "game_launched": false,
     "runtime_tested": false,
-    "reason": "User requested that the PR be opened before manual in-game testing."
+    "reason": "Static build and contract verification is complete; the updated package is awaiting the user's manual in-game retest."
   }
 }

@@ -1,9 +1,13 @@
 {
-  "schema": "lol_mod.quality_objectives_imagegen_pack.v2",
+  "schema": "lol_mod.quality_objectives_imagegen_pack.v3",
   "processing": {
     "chroma_key_helper": "$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py",
     "chroma_key_mode": "auto-key border, hard tolerance 40",
-    "hard_key_reason": "Preserves purple Baron/impact pixels that conflict with a magenta soft matte.",
+    "edge_connected_dragon_cleanup": {
+      "band_depth_px": 3,
+      "clear_distance": 82.0,
+      "despill": "nearest non-magenta opaque interior colour"
+    },
     "action_source_grid": [
       4,
       4
@@ -15,7 +19,9 @@
     "alpha_trim_before_resize": true,
     "resampling": "Pillow Image.Resampling.NEAREST",
     "non_uniform_stretching": false,
-    "body_anchor": "authored horizontal cell anchor with fixed bottom baseline"
+    "body_anchor": "native alpha centroid for idle/body, native ground anchor for attacks, native per-frame alpha bottom",
+    "native_sheet_dimensions_preserved": true,
+    "native_frame_rectangles_preserved": true
   },
   "sources": {
     "baron_action": {
@@ -311,11 +317,29 @@
   },
   "runtime": {
     "epic": {
-      "body_scale": 0.8786610878661087,
-      "impact_scale": 0.11370262390670553,
-      "body_bottom_exclusive": 215,
-      "body_unique_cells": 23,
-      "attack_right_reuses_attack_left_rects": true,
+      "body_scale": 0.4491525423728814,
+      "impact_scales": [
+        0.15789473684210525,
+        0.10037174721189591,
+        0.10862619808306709,
+        0.11078717201166181,
+        0.09090909090909091,
+        0.09803921568627451,
+        0.08835341365461848
+      ],
+      "visible_width_cap": 106,
+      "native_sheet_contract": {
+        "bundle_file": "bundle.game_data",
+        "bundle_size_bytes": 1128427203,
+        "asset_key": "asset/base/aseprite_resources/ingame/epic#sheet",
+        "asset_type": "png",
+        "entry_size_bytes": 385749,
+        "entry_sha256": "542147d0f6ded547e1150b68105cd7c7fa3c9dcfb635a24e5111effb6ec62fb7",
+        "dimensions": [
+          3538,
+          150
+        ]
+      },
       "native_animation_contract": {
         "bundle_file": "bundle.game_data",
         "bundle_size_bytes": 1128427203,
@@ -400,27 +424,30 @@
         }
       },
       "native_animation_contract_exact": true,
+      "native_frame_rect_contract_exact": true,
+      "idle_horizontal_centroid_span_px": 0.276882,
+      "attack_directions_use_mirrored_body_art": true,
       "sheet": {
         "path": "aseprite_resources/ingame/epic#sheet.png",
-        "sha256": "113a240055c743167199e706113d3efa233ededed308241cbf16c178b7412cb7",
-        "bytes": 1070540,
+        "sha256": "3677be16d424a3c4134824c1a614bccbe857f4efc520045a0f089829069ce30e",
+        "bytes": 487293,
         "mode": "RGBA",
         "size": [
-          5014,
-          259
+          3538,
+          150
         ],
         "alpha_bbox": [
-          12,
-          0,
-          4794,
-          259
+          2,
+          1,
+          3326,
+          128
         ],
         "transparent_corners": true
       },
       "animation": {
         "path": "aseprite_resources/ingame/epic#anim.fanim",
-        "sha256": "a850a674a681e50e8a3d1071aad3f69056d788263ed61e841d5b8aee29816966",
-        "bytes": 6668
+        "sha256": "889bcbf648e007fc46cb19d85a959355d760a77fde8084dbbc31435cd5f0c23f",
+        "bytes": 6658
       },
       "tag_frame_counts": {
         "base": 1,
@@ -433,227 +460,239 @@
       "tag_frame_alpha_bboxes": {
         "base": [
           [
-            12,
-            5,
-            218,
-            215
+            2,
+            13,
+            108,
+            120
           ]
         ],
         "idle": [
           [
-            12,
-            5,
-            218,
-            215
+            2,
+            15,
+            108,
+            122
           ],
           [
-            4,
-            6,
-            216,
-            215
+            3,
+            13,
+            109,
+            120
           ],
           [
-            0,
-            5,
-            202,
-            215
+            3,
+            11,
+            109,
+            118
           ],
           [
-            0,
-            5,
-            193,
-            215
+            3,
+            13,
+            109,
+            120
           ]
         ],
         "attack_target_effect": [
           [
-            22,
-            25,
-            30,
-            32
+            9,
+            27,
+            20,
+            37
           ],
           [
-            10,
-            14,
-            43,
-            41
+            2,
+            13,
+            31,
+            35
           ],
           [
-            8,
-            11,
-            44,
-            41
+            1,
+            3,
+            35,
+            37
           ],
           [
-            8,
-            8,
-            39,
-            41
+            2,
+            1,
+            31,
+            39
           ],
           [
             9,
-            0,
-            41,
-            30
-          ],
-          [
-            12,
-            0,
-            37,
-            28
-          ],
-          [
             11,
-            1,
-            34,
-            26
+            35,
+            39
+          ],
+          [
+            10,
+            10,
+            31,
+            35
+          ],
+          [
+            14,
+            10,
+            30,
+            30
           ]
         ],
         "attack_right": [
           [
-            6,
-            0,
-            218,
-            215
+            9,
+            10,
+            109,
+            122
           ],
           [
-            0,
-            0,
-            191,
-            215
+            11,
+            13,
+            109,
+            124
           ],
           [
-            0,
-            19,
-            218,
-            215
+            14,
+            26,
+            109,
+            126
           ],
           [
-            0,
-            19,
-            218,
-            215
+            22,
+            17,
+            113,
+            117
           ],
           [
-            0,
-            25,
-            218,
-            215
+            20,
+            18,
+            113,
+            115
           ]
         ],
         "dead": [
           [
-            0,
-            18,
-            206,
-            215
+            4,
+            23,
+            109,
+            124
+          ],
+          [
+            4,
+            25,
+            109,
+            126
           ],
           [
             0,
-            18,
-            206,
-            215
+            29,
+            109,
+            128
           ],
           [
             0,
+            29,
+            109,
+            128
+          ],
+          [
+            0,
+            29,
+            109,
+            128
+          ],
+          [
+            0,
+            39,
+            109,
+            128
+          ],
+          [
+            0,
+            39,
+            109,
+            128
+          ],
+          [
+            0,
+            39,
+            109,
+            128
+          ],
+          [
+            0,
+            61,
+            109,
+            128
+          ],
+          [
+            0,
+            38,
+            93,
+            105
+          ],
+          [
+            4,
+            28,
+            123,
+            95
+          ],
+          [
+            26,
             22,
-            206,
-            215
-          ],
-          [
-            0,
-            22,
-            206,
-            215
-          ],
-          [
-            0,
-            22,
-            206,
-            215
-          ],
-          [
-            0,
-            41,
-            205,
-            215
-          ],
-          [
-            0,
-            41,
-            205,
-            215
-          ],
-          [
-            0,
-            41,
-            205,
-            215
-          ],
-          [
-            0,
-            71,
-            216,
-            215
-          ],
-          [
-            0,
-            71,
-            216,
-            215
-          ],
-          [
-            0,
-            71,
-            216,
-            215
-          ],
-          [
-            0,
-            71,
-            216,
-            215
+            148,
+            89
           ],
           null
         ],
         "attack_left": [
           [
-            6,
             0,
-            218,
-            215
+            10,
+            99,
+            122
           ],
           [
             0,
-            0,
-            191,
-            215
+            13,
+            97,
+            124
           ],
           [
             0,
-            19,
-            218,
-            215
+            26,
+            94,
+            126
           ],
           [
             0,
-            19,
-            218,
-            215
+            17,
+            90,
+            117
           ],
           [
             0,
-            25,
-            218,
-            215
+            18,
+            92,
+            115
           ]
         ]
       }
     },
     "dragon_variants": {
       "infernal": {
-        "body_scale": 0.4246031746031746,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.2109375,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -709,27 +748,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 1.042619,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 4080,
+          "hot_magenta_edge_pixels": 1,
+          "hot_magenta_edge_ratio": 0.000245
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
-          "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b",
-          "bytes": 181869,
+          "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5",
+          "bytes": 58072,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            6,
-            27,
-            1944,
-            112
+            0,
+            28,
+            1489,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -740,120 +788,132 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              6,
-              29,
-              113,
-              112
+              0,
+              36,
+              53,
+              77
             ]
           ],
           "idle": [
             [
-              6,
-              29,
-              113,
-              112
+              0,
+              36,
+              53,
+              77
+            ],
+            [
+              1,
+              36,
+              54,
+              77
             ],
             [
               2,
-              30,
-              109,
-              112
+              35,
+              54,
+              75
             ],
             [
               0,
-              30,
-              104,
-              112
-            ],
-            [
-              0,
-              31,
-              100,
-              112
+              37,
+              54,
+              77
             ]
           ],
           "attack": [
             [
-              4,
-              27,
-              111,
-              112
+              0,
+              31,
+              53,
+              73
             ],
             [
-              0,
-              33,
-              111,
-              112
+              15,
+              28,
+              72,
+              67
             ],
             [
-              0,
-              32,
-              104,
-              112
+              70,
+              153,
+              133,
+              193
             ],
             [
-              0,
-              39,
-              115,
-              112
+              80,
+              161,
+              143,
+              197
             ],
             [
-              0,
-              39,
-              115,
-              112
+              93,
+              187,
+              156,
+              223
             ]
           ],
           "dead": [
             [
-              6,
-              40,
-              108,
-              112
+              3,
+              41,
+              54,
+              77
             ],
             [
               0,
+              48,
+              54,
+              77
+            ],
+            [
+              0,
+              58,
+              55,
+              81
+            ],
+            [
+              0,
+              62,
+              55,
+              81
+            ],
+            [
+              0,
+              62,
+              55,
+              81
+            ],
+            [
+              0,
+              60,
               53,
-              102,
-              112
+              79
             ],
             [
               0,
-              64,
-              101,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
+              60,
+              53,
+              79
             ],
             null
           ]
         }
       },
       "ocean": {
-        "body_scale": 0.421259842519685,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.18305084745762712,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -909,27 +969,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 0.582208,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 3504,
+          "hot_magenta_edge_pixels": 2,
+          "hot_magenta_edge_ratio": 0.000571
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
-          "sha256": "8fe6ef80ca311518254f0f31287162e8a70792083c963443bdb9a52e4007093c",
-          "bytes": 197156,
+          "sha256": "c1b9d185db1422de755c957e71d73eb9a438c380a4596b7097a1c809664f46f8",
+          "bytes": 49196,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            7,
-            27,
-            1944,
-            112
+            5,
+            33,
+            1486,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -940,120 +1009,132 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              7,
-              29,
-              114,
-              112
+              5,
+              41,
+              51,
+              77
             ]
           ],
           "idle": [
             [
-              7,
-              29,
-              114,
-              112
+              4,
+              41,
+              50,
+              77
             ],
             [
-              1,
-              30,
-              108,
-              112
+              4,
+              41,
+              51,
+              77
             ],
             [
-              0,
-              31,
-              102,
-              112
+              5,
+              40,
+              50,
+              75
             ],
             [
-              0,
-              32,
-              99,
-              112
+              4,
+              42,
+              51,
+              77
             ]
           ],
           "attack": [
             [
-              4,
-              27,
-              111,
-              112
+              3,
+              36,
+              49,
+              73
             ],
             [
-              0,
+              18,
               33,
-              111,
-              112
+              68,
+              67
             ],
             [
-              0,
-              32,
-              115,
-              112
+              73,
+              158,
+              128,
+              193
             ],
             [
-              0,
-              39,
-              115,
-              112
+              81,
+              165,
+              137,
+              197
             ],
             [
-              0,
-              39,
-              115,
-              112
+              94,
+              191,
+              150,
+              223
             ]
           ],
           "dead": [
             [
-              5,
-              39,
-              109,
-              112
+              6,
+              46,
+              51,
+              77
             ],
             [
-              0,
-              53,
-              104,
-              112
+              3,
+              51,
+              59,
+              77
             ],
             [
-              0,
-              64,
-              102,
-              112
+              3,
+              60,
+              59,
+              81
             ],
             [
-              0,
-              74,
-              104,
-              112
+              3,
+              65,
+              52,
+              81
             ],
             [
-              0,
-              74,
-              104,
-              112
+              3,
+              65,
+              52,
+              81
             ],
             [
-              0,
-              74,
-              104,
-              112
+              1,
+              63,
+              50,
+              79
             ],
             [
-              0,
-              74,
-              104,
-              112
+              1,
+              63,
+              50,
+              79
             ],
             null
           ]
         }
       },
       "mountain": {
-        "body_scale": 0.4196078431372549,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.21176470588235294,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -1109,27 +1190,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 0.823236,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 3991,
+          "hot_magenta_edge_pixels": 29,
+          "hot_magenta_edge_ratio": 0.007266
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
-          "sha256": "242bb97249d9b4f0cce0b8b1cb06b36fae1ec3587e92307ff5ffaf9664517244",
-          "bytes": 195727,
+          "sha256": "4bb8af500ecaa65cadeeed4c2a561459179500ec5a8fbd5f1fe8d75c8ef967a8",
+          "bytes": 63791,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            7,
+            0,
             27,
-            1944,
-            112
+            1490,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -1140,120 +1230,132 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              7,
-              28,
-              114,
-              112
+              0,
+              35,
+              54,
+              77
             ]
           ],
           "idle": [
             [
-              7,
-              28,
-              114,
-              112
-            ],
-            [
-              3,
-              29,
-              109,
-              112
-            ],
-            [
               0,
-              29,
-              103,
-              112
+              35,
+              54,
+              77
             ],
             [
-              0,
-              30,
-              100,
-              112
+              1,
+              35,
+              54,
+              77
+            ],
+            [
+              2,
+              33,
+              54,
+              75
+            ],
+            [
+              1,
+              36,
+              55,
+              77
             ]
           ],
           "attack": [
             [
-              5,
+              0,
+              30,
+              53,
+              73
+            ],
+            [
+              14,
               27,
-              111,
-              112
+              71,
+              67
             ],
             [
-              0,
-              32,
-              111,
-              112
+              69,
+              153,
+              133,
+              193
             ],
             [
-              0,
-              32,
-              115,
-              112
+              78,
+              160,
+              141,
+              197
             ],
             [
-              0,
-              39,
-              115,
-              112
-            ],
-            [
-              0,
-              39,
-              115,
-              112
+              91,
+              186,
+              154,
+              223
             ]
           ],
           "dead": [
             [
-              6,
-              40,
-              109,
-              112
-            ],
-            [
-              0,
+              2,
+              41,
               54,
-              102,
-              112
+              77
             ],
             [
               0,
-              66,
-              101,
-              112
+              48,
+              54,
+              77
             ],
             [
               0,
-              74,
-              104,
-              112
+              58,
+              54,
+              81
             ],
             [
               0,
-              74,
-              104,
-              112
+              62,
+              55,
+              81
             ],
             [
               0,
-              74,
-              104,
-              112
+              62,
+              55,
+              81
             ],
             [
               0,
-              74,
-              104,
-              112
+              60,
+              53,
+              79
+            ],
+            [
+              0,
+              60,
+              54,
+              79
             ],
             null
           ]
         }
       },
       "cloud": {
-        "body_scale": 0.4115384615384615,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.18120805369127516,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -1309,27 +1411,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 1.018868,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 3622,
+          "hot_magenta_edge_pixels": 8,
+          "hot_magenta_edge_ratio": 0.002209
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
-          "sha256": "dce2cd2d3f67d570127252b07f1a47f8eb2035388c9bd63248eb41bb5c5a6e9a",
-          "bytes": 195988,
+          "sha256": "bcc9b5400b582700ccb5d9a4a7492ce7193da2cb01518849255c4ac370b1fba5",
+          "bytes": 50906,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            6,
-            28,
-            1946,
-            112
+            5,
+            32,
+            1487,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/cloud#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -1340,120 +1451,132 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              6,
-              28,
-              113,
-              112
+              5,
+              40,
+              52,
+              77
             ]
           ],
           "idle": [
             [
-              6,
-              28,
-              113,
-              112
+              4,
+              40,
+              51,
+              77
             ],
             [
-              2,
-              30,
-              107,
-              112
+              5,
+              41,
+              51,
+              77
             ],
             [
-              0,
-              29,
-              103,
-              112
+              5,
+              39,
+              51,
+              75
             ],
             [
-              0,
-              31,
-              99,
-              112
+              5,
+              41,
+              52,
+              77
             ]
           ],
           "attack": [
             [
-              3,
-              28,
-              109,
-              112
+              1,
+              36,
+              48,
+              73
             ],
             [
-              0,
-              33,
-              109,
-              112
+              18,
+              32,
+              67,
+              67
             ],
             [
-              0,
-              31,
-              115,
-              112
+              73,
+              157,
+              128,
+              193
             ],
             [
-              0,
-              37,
-              115,
-              112
+              74,
+              164,
+              130,
+              197
             ],
             [
-              0,
-              37,
-              115,
-              112
+              87,
+              190,
+              143,
+              223
             ]
           ],
           "dead": [
             [
-              5,
-              36,
-              105,
-              112
-            ],
-            [
-              0,
+              6,
+              43,
               50,
-              102,
-              112
+              77
             ],
             [
-              0,
-              63,
-              99,
-              112
+              4,
+              50,
+              59,
+              77
             ],
             [
-              0,
-              74,
-              106,
-              112
+              4,
+              60,
+              51,
+              81
             ],
             [
-              0,
-              74,
-              106,
-              112
+              2,
+              64,
+              52,
+              81
             ],
             [
-              0,
-              74,
-              106,
-              112
+              2,
+              64,
+              52,
+              81
             ],
             [
-              0,
-              74,
-              106,
-              112
+              1,
+              62,
+              51,
+              79
+            ],
+            [
+              1,
+              62,
+              51,
+              79
             ],
             null
           ]
         }
       },
       "hextech": {
-        "body_scale": 0.42971887550200805,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.21176470588235294,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -1509,27 +1632,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 1.365265,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 4188,
+          "hot_magenta_edge_pixels": 5,
+          "hot_magenta_edge_ratio": 0.001194
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
-          "sha256": "200d0764e4317cfccde4b0ac7bd48bfabea5b62a56baff193d40c88109f04075",
-          "bytes": 196687,
+          "sha256": "2973c5072bb411771b6e361e2f9cbddec953c4702e562d8974f4616df8ea8390",
+          "bytes": 61611,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            7,
-            26,
-            1944,
-            112
+            1,
+            28,
+            1490,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -1540,120 +1672,132 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              7,
-              28,
-              114,
-              112
+              1,
+              35,
+              54,
+              77
             ]
           ],
           "idle": [
             [
-              7,
-              28,
-              114,
-              112
+              0,
+              35,
+              53,
+              77
+            ],
+            [
+              1,
+              36,
+              54,
+              77
             ],
             [
               2,
-              28,
-              109,
-              112
+              34,
+              54,
+              75
             ],
             [
               0,
-              29,
-              104,
-              112
-            ],
-            [
-              0,
-              29,
-              100,
-              112
+              36,
+              54,
+              77
             ]
           ],
           "attack": [
             [
-              4,
-              26,
-              112,
-              112
-            ],
-            [
-              0,
-              33,
-              112,
-              112
-            ],
-            [
               0,
               31,
-              104,
-              112
+              53,
+              73
             ],
             [
-              0,
-              39,
-              115,
-              112
+              15,
+              28,
+              72,
+              67
             ],
             [
-              0,
-              39,
-              115,
-              112
+              70,
+              153,
+              133,
+              193
+            ],
+            [
+              80,
+              161,
+              144,
+              197
+            ],
+            [
+              93,
+              187,
+              157,
+              223
             ]
           ],
           "dead": [
             [
-              5,
-              39,
-              108,
-              112
+              3,
+              41,
+              54,
+              77
             ],
             [
               0,
+              48,
+              54,
+              77
+            ],
+            [
+              0,
+              57,
+              55,
+              81
+            ],
+            [
+              0,
+              63,
+              55,
+              81
+            ],
+            [
+              0,
+              63,
+              55,
+              81
+            ],
+            [
+              0,
+              61,
               53,
-              103,
-              112
+              79
             ],
             [
               0,
-              64,
-              102,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
-            ],
-            [
-              0,
-              75,
-              104,
-              112
+              61,
+              54,
+              79
             ],
             null
           ]
         }
       },
       "elder": {
-        "body_scale": 0.4163424124513619,
-        "body_bottom_exclusive": 112,
+        "body_scale": 0.21011673151750973,
+        "visible_width_cap": 54,
+        "native_sheet_contract": {
+          "bundle_file": "bundle.game_data",
+          "bundle_size_bytes": 1128427203,
+          "asset_key": "asset/base/aseprite_resources/ingame/serpen#sheet",
+          "asset_type": "png",
+          "entry_size_bytes": 101776,
+          "entry_sha256": "9955aedb7c992b5892095156988cdcd7469dff9bc5caa254b95eaa9267f913fd",
+          "dimensions": [
+            1498,
+            226
+          ]
+        },
         "native_animation_contract": {
           "bundle_file": "bundle.game_data",
           "bundle_size_bytes": 1128427203,
@@ -1709,27 +1853,36 @@
           }
         },
         "native_animation_contract_exact": true,
+        "native_frame_rect_contract_exact": true,
+        "idle_horizontal_centroid_span_px": 0.860806,
+        "edge_connected_magenta_cleanup": {
+          "edge_band_depth_px": 3,
+          "clear_distance": 82.0,
+          "edge_pixels": 4424,
+          "hot_magenta_edge_pixels": 10,
+          "hot_magenta_edge_ratio": 0.00226
+        },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
-          "sha256": "6d598264e3529b8d8390d5aa24b07a8596e8598354eb3f6ea3f9eda9c5396862",
-          "bytes": 205198,
+          "sha256": "8e087798cf2e3f7b10c62469d974a7318a428ca79f3388923c1567426e25de67",
+          "bytes": 65921,
           "mode": "RGBA",
           "size": [
-            2070,
-            115
+            1498,
+            226
           ],
           "alpha_bbox": [
-            6,
-            22,
-            1945,
-            112
+            0,
+            25,
+            1490,
+            223
           ],
           "transparent_corners": true
         },
         "animation": {
           "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
-          "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-          "bytes": 3459
+          "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+          "bytes": 3425
         },
         "tag_frame_counts": {
           "base": 1,
@@ -1740,112 +1893,112 @@
         "tag_frame_alpha_bboxes": {
           "base": [
             [
-              6,
-              26,
-              113,
-              112
+              0,
+              34,
+              54,
+              77
             ]
           ],
           "idle": [
             [
-              6,
-              26,
-              113,
-              112
+              0,
+              34,
+              54,
+              77
+            ],
+            [
+              1,
+              34,
+              54,
+              77
             ],
             [
               2,
-              26,
-              107,
-              112
+              32,
+              54,
+              75
             ],
             [
-              0,
-              26,
-              101,
-              112
-            ],
-            [
-              0,
-              26,
-              99,
-              112
+              1,
+              34,
+              54,
+              77
             ]
           ],
           "attack": [
             [
-              2,
-              22,
-              109,
-              112
-            ],
-            [
               0,
               28,
-              111,
-              112
+              54,
+              73
             ],
             [
-              0,
-              26,
-              115,
-              112
+              15,
+              25,
+              73,
+              67
             ],
             [
-              0,
-              35,
-              115,
-              112
+              69,
+              150,
+              133,
+              193
             ],
             [
-              0,
-              35,
-              115,
-              112
+              80,
+              158,
+              144,
+              197
+            ],
+            [
+              93,
+              184,
+              157,
+              223
             ]
           ],
           "dead": [
             [
-              4,
-              36,
-              106,
-              112
+              2,
+              39,
+              53,
+              77
             ],
             [
               0,
-              47,
-              102,
-              112
+              44,
+              54,
+              77
             ],
             [
               0,
-              60,
-              101,
-              112
+              55,
+              55,
+              81
             ],
             [
               0,
-              72,
-              105,
-              112
+              61,
+              55,
+              81
             ],
             [
               0,
-              72,
-              105,
-              112
+              61,
+              55,
+              81
             ],
             [
               0,
-              72,
-              105,
-              112
+              59,
+              54,
+              79
             ],
             [
               0,
-              72,
-              105,
-              112
+              59,
+              54,
+              79
             ],
             null
           ]
@@ -1856,25 +2009,25 @@
       "dynamic_rotation_owned_by": "main objective runtime task",
       "sheet": {
         "path": "aseprite_resources/ingame/serpen#sheet.png",
-        "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b",
-        "bytes": 181869,
+        "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5",
+        "bytes": 58072,
         "mode": "RGBA",
         "size": [
-          2070,
-          115
+          1498,
+          226
         ],
         "alpha_bbox": [
-          6,
-          27,
-          1944,
-          112
+          0,
+          28,
+          1489,
+          223
         ],
         "transparent_corners": true
       },
       "animation": {
         "path": "aseprite_resources/ingame/serpen#anim.fanim",
-        "sha256": "445b8f64bbc2d9e0c4b03025661f2455ae265159f169bbbf9b37a41a249dae75",
-        "bytes": 3459
+        "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23",
+        "bytes": 3425
       },
       "matches_infernal_sheet_sha256": true,
       "matches_infernal_anim_sha256": true,
@@ -1887,112 +2040,112 @@
       "tag_frame_alpha_bboxes": {
         "base": [
           [
-            6,
-            29,
-            113,
-            112
+            0,
+            36,
+            53,
+            77
           ]
         ],
         "idle": [
           [
-            6,
-            29,
-            113,
-            112
+            0,
+            36,
+            53,
+            77
+          ],
+          [
+            1,
+            36,
+            54,
+            77
           ],
           [
             2,
-            30,
-            109,
-            112
+            35,
+            54,
+            75
           ],
           [
             0,
-            30,
-            104,
-            112
-          ],
-          [
-            0,
-            31,
-            100,
-            112
+            37,
+            54,
+            77
           ]
         ],
         "attack": [
           [
-            4,
-            27,
-            111,
-            112
+            0,
+            31,
+            53,
+            73
           ],
           [
-            0,
-            33,
-            111,
-            112
+            15,
+            28,
+            72,
+            67
           ],
           [
-            0,
-            32,
-            104,
-            112
+            70,
+            153,
+            133,
+            193
           ],
           [
-            0,
-            39,
-            115,
-            112
+            80,
+            161,
+            143,
+            197
           ],
           [
-            0,
-            39,
-            115,
-            112
+            93,
+            187,
+            156,
+            223
           ]
         ],
         "dead": [
           [
-            6,
-            40,
-            108,
-            112
+            3,
+            41,
+            54,
+            77
           ],
           [
             0,
+            48,
+            54,
+            77
+          ],
+          [
+            0,
+            58,
+            55,
+            81
+          ],
+          [
+            0,
+            62,
+            55,
+            81
+          ],
+          [
+            0,
+            62,
+            55,
+            81
+          ],
+          [
+            0,
+            60,
             53,
-            102,
-            112
+            79
           ],
           [
             0,
-            64,
-            101,
-            112
-          ],
-          [
-            0,
-            75,
-            104,
-            112
-          ],
-          [
-            0,
-            75,
-            104,
-            112
-          ],
-          [
-            0,
-            75,
-            104,
-            112
-          ],
-          [
-            0,
-            75,
-            104,
-            112
+            60,
+            53,
+            79
           ],
           null
         ]
@@ -2000,14 +2153,21 @@
     }
   },
   "static_checks": {
-    "epic_size": true,
+    "epic_size_matches_native": true,
     "epic_tag_counts": true,
     "epic_native_animation_contract_exact": true,
-    "dragon_sizes": true,
+    "epic_native_frame_rect_contract_exact": true,
+    "dragon_sizes_match_native": true,
     "dragon_tag_counts": true,
     "dragon_native_animation_contracts_exact": true,
-    "epic_body_baseline_stable": true,
-    "dragon_body_baselines_stable": true,
+    "dragon_native_frame_rect_contracts_exact": true,
+    "epic_body_bottoms_match_native": true,
+    "dragon_body_bottoms_match_native": true,
+    "epic_idle_centroid_stable": true,
+    "dragon_idle_centroids_stable": true,
+    "epic_base_idle_visible_width_native_class": true,
+    "dragon_base_idle_visible_width_native_class": true,
+    "dragon_hot_magenta_edge_removed": true,
     "dragon_breath_frames_extend_right": true,
     "epic_target_effect_frames_nonempty": true,
     "all_processed_corners_transparent": true,

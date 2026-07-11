@@ -428,7 +428,7 @@ def main() -> int:
     palette = choose_baron_palette(baron)
     hp_sheet, hp_data = build_hp_gauge(palette)
     hp_sheet_path = INGAME_ROOT / "epic_monster_hp_guage#sheet.png"
-    hp_data_path = INGAME_ROOT / "epic_monster_hp_guage#data.sprite_data"
+    hp_data_path = INGAME_ROOT / "epic_monster_hp_guage#data.sprite_sheet"
     hp_sheet.save(hp_sheet_path, format="PNG", compress_level=9)
     hp_data_path.write_text(
         json.dumps(hp_data, separators=(",", ":"), ensure_ascii=False) + "\n",

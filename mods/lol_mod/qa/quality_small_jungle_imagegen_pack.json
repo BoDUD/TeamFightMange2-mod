@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "generator": "mods/lol_mod/tools/pack_quality_small_jungle.py",
   "scope": "static image processing only; no game launch and no test execution",
   "chroma_key_processing": {
@@ -3445,6 +3445,17 @@
           }
         }
       },
+      "native_sheet_contract": {
+        "bundle_file": "bundle.game_data",
+        "asset_key": "asset/base/aseprite_resources/ingame/bee#sheet",
+        "asset_type": "png",
+        "entry_size_bytes": 27814,
+        "entry_sha256": "4cb9c7187c8ff9c49ce04bb5fb65bcc25935465825f6ccc22d4b75629b3a7234",
+        "dimensions": [
+          714,
+          54
+        ]
+      },
       "source": {
         "path": "source/imagegen/jungle/murk_wolf_action_contact.png",
         "size_bytes": 1738821,
@@ -3512,18 +3523,19 @@
         ],
         "trim_alpha_threshold": 8,
         "resampling": "Pillow Image.Resampling.NEAREST",
-        "single_scale_for_all_actions": 0.1910828025,
+        "single_scale_for_all_actions": 0.076433121,
         "max_source_visible_dimensions": [
           314,
           227
         ],
         "max_runtime_visible_envelope": [
-          60,
-          52
+          24,
+          30
         ],
-        "cell_size": 64,
-        "baseline_exclusive": 54,
-        "ignored_source_cells": [],
+        "native_sheet_dimensions_preserved": true,
+        "native_frame_rectangles_preserved": true,
+        "native_alpha_bottoms_preserved": true,
+        "anchor": "native alpha centroid with native per-frame alpha bottom",
         "source_cells": {
           "0": {
             "cell_dimensions": [
@@ -3587,70 +3599,6 @@
             "visible_dimensions": [
               296,
               208
-            ]
-          },
-          "4": {
-            "cell_dimensions": [
-              314,
-              313
-            ],
-            "alpha_bbox": [
-              8,
-              94,
-              305,
-              254
-            ],
-            "visible_dimensions": [
-              297,
-              160
-            ]
-          },
-          "5": {
-            "cell_dimensions": [
-              313,
-              313
-            ],
-            "alpha_bbox": [
-              9,
-              92,
-              313,
-              254
-            ],
-            "visible_dimensions": [
-              304,
-              162
-            ]
-          },
-          "6": {
-            "cell_dimensions": [
-              314,
-              313
-            ],
-            "alpha_bbox": [
-              0,
-              105,
-              314,
-              257
-            ],
-            "visible_dimensions": [
-              314,
-              152
-            ]
-          },
-          "7": {
-            "cell_dimensions": [
-              313,
-              313
-            ],
-            "alpha_bbox": [
-              0,
-              100,
-              281,
-              259
-            ],
-            "visible_dimensions": [
-              281,
-              159
             ]
           },
           "8": {
@@ -3784,31 +3732,31 @@
         },
         "attack_vfx_static_review": {
           "result": "pass",
-          "note": "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; the body-bearing recovery cell is held once to satisfy the five-frame contract."
+          "note": "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; the final native frame returns to the stable idle body instead of holding a displaced recovery pose."
         }
       },
       "runtime": {
         "sheet": {
           "path": "aseprite_resources/ingame/bee#sheet.png",
-          "size_bytes": 55444,
-          "sha256": "907f262fd254fd85e32ff0f2040b9a9dc655ec22ae662dbfdb5d3739ea1f39fa",
+          "size_bytes": 9939,
+          "sha256": "a05f4cabf2ac34a0ee4f64365f9b252cc7f9e9d62a54e7646321688e1b2f824a",
           "dimensions": [
-            2624,
-            64
+            714,
+            54
           ],
           "mode": "RGBA",
           "alpha": {
             "present": true,
             "min": 0,
             "max": 255,
-            "transparent_pixels": 130417,
-            "partial_pixels": 5147,
-            "opaque_pixels": 32372,
+            "transparent_pixels": 34599,
+            "partial_pixels": 594,
+            "opaque_pixels": 3363,
             "nonzero_bbox": [
-              4,
-              11,
-              2619,
-              54
+              28,
+              2,
+              710,
+              51
             ],
             "corner_values": [
               0,
@@ -3820,8 +3768,8 @@
         },
         "animation": {
           "path": "aseprite_resources/ingame/bee#anim.fanim",
-          "size_bytes": 7538,
-          "sha256": "ed1885fcca478de3e73907b2e5a3fd0efff4fc77e1bc5570e9ad9634d4318523"
+          "size_bytes": 7510,
+          "sha256": "d9860101cf7ff9dcb3820f78b49170bb184af0d65fa114489f6a6bcbfc0c9489"
         },
         "tags": {
           "idle": {
@@ -3844,473 +3792,376 @@
               0.030000001,
               0.030000001
             ],
-            "uniform_duration": 0.030000001,
             "source_sequence": [
               0,
-              1,
-              2,
-              3,
               0,
               1,
+              1,
+              0,
+              0,
               2,
-              3,
+              2,
+              0,
               0,
               1,
-              2,
-              3,
-              0,
               1,
-              2,
+              0,
+              0,
+              3,
               3
             ],
             "frames": [
               {
-                "atlas_index": 0,
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
+                  28,
                   0,
-                  0,
-                  64,
-                  64
+                  27,
+                  23
                 ],
                 "alpha_bbox": [
-                  4,
-                  16,
-                  59,
-                  54
+                  0,
+                  6,
+                  22,
+                  21
                 ],
                 "visible_dimensions": [
-                  55,
-                  38
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3056,
-                  "partial": 128,
-                  "opaque": 912
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
               },
               {
-                "atlas_index": 1,
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  56,
+                  0,
+                  27,
+                  23
+                ],
+                "alpha_bbox": [
+                  1,
+                  6,
+                  23,
+                  21
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.495017
+              },
+              {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  64,
+                  84,
                   0,
-                  64,
-                  64
+                  25,
+                  23
                 ],
                 "alpha_bbox": [
-                  4,
-                  12,
-                  59,
-                  54
+                  0,
+                  5,
+                  22,
+                  21
                 ],
                 "visible_dimensions": [
-                  55,
-                  42
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3025,
-                  "partial": 132,
-                  "opaque": 939
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 2,
-                "source_cell": 2,
+                "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  128,
+                  110,
                   0,
-                  64,
-                  64
+                  27,
+                  23
                 ],
                 "alpha_bbox": [
-                  2,
-                  17,
-                  61,
-                  54
+                  1,
+                  5,
+                  23,
+                  21
                 ],
                 "visible_dimensions": [
-                  59,
-                  37
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3104,
-                  "partial": 131,
-                  "opaque": 861
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 3,
-                "source_cell": 3,
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  138,
+                  0,
+                  27,
+                  25
+                ],
+                "alpha_bbox": [
+                  0,
+                  8,
+                  22,
+                  23
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  166,
+                  0,
+                  25,
+                  31
+                ],
+                "alpha_bbox": [
+                  0,
+                  11,
+                  21,
+                  26
+                ],
+                "visible_dimensions": [
+                  21,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.417876
+              },
+              {
+                "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
                   192,
                   0,
-                  64,
-                  64
+                  25,
+                  41
                 ],
                 "alpha_bbox": [
-                  3,
-                  14,
-                  60,
-                  54
-                ],
-                "visible_dimensions": [
-                  57,
-                  40
-                ],
-                "alpha_pixels": {
-                  "transparent": 3068,
-                  "partial": 139,
-                  "opaque": 889
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 4,
-                "source_cell": 0,
-                "duration": 0.030000001,
-                "rect": [
-                  256,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  4,
                   16,
-                  59,
-                  54
+                  24,
+                  31
                 ],
                 "visible_dimensions": [
-                  55,
-                  38
+                  24,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3056,
-                  "partial": 128,
-                  "opaque": 912
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.854474
               },
               {
-                "atlas_index": 5,
-                "source_cell": 1,
-                "duration": 0.030000001,
-                "rect": [
-                  320,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  4,
-                  12,
-                  59,
-                  54
-                ],
-                "visible_dimensions": [
-                  55,
-                  42
-                ],
-                "alpha_pixels": {
-                  "transparent": 3025,
-                  "partial": 132,
-                  "opaque": 939
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 6,
                 "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  384,
+                  218,
                   0,
-                  64,
-                  64
+                  25,
+                  31
                 ],
                 "alpha_bbox": [
-                  2,
-                  17,
-                  61,
-                  54
-                ],
-                "visible_dimensions": [
-                  59,
-                  37
-                ],
-                "alpha_pixels": {
-                  "transparent": 3104,
-                  "partial": 131,
-                  "opaque": 861
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 7,
-                "source_cell": 3,
-                "duration": 0.030000001,
-                "rect": [
-                  448,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  3,
-                  14,
-                  60,
-                  54
+                  11,
+                  24,
+                  26
                 ],
                 "visible_dimensions": [
-                  57,
-                  40
+                  24,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3068,
-                  "partial": 139,
-                  "opaque": 889
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.854474
               },
               {
-                "atlas_index": 8,
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  512,
+                  244,
                   0,
-                  64,
-                  64
+                  27,
+                  27
                 ],
                 "alpha_bbox": [
-                  4,
-                  16,
-                  59,
-                  54
-                ],
-                "visible_dimensions": [
-                  55,
-                  38
-                ],
-                "alpha_pixels": {
-                  "transparent": 3056,
-                  "partial": 128,
-                  "opaque": 912
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 9,
-                "source_cell": 1,
-                "duration": 0.030000001,
-                "rect": [
-                  576,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  4,
-                  12,
-                  59,
-                  54
+                  10,
+                  22,
+                  25
                 ],
                 "visible_dimensions": [
-                  55,
-                  42
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3025,
-                  "partial": 132,
-                  "opaque": 939
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
               },
               {
-                "atlas_index": 10,
-                "source_cell": 2,
-                "duration": 0.030000001,
-                "rect": [
-                  640,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  2,
-                  17,
-                  61,
-                  54
-                ],
-                "visible_dimensions": [
-                  59,
-                  37
-                ],
-                "alpha_pixels": {
-                  "transparent": 3104,
-                  "partial": 131,
-                  "opaque": 861
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 11,
-                "source_cell": 3,
-                "duration": 0.030000001,
-                "rect": [
-                  704,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  3,
-                  14,
-                  60,
-                  54
-                ],
-                "visible_dimensions": [
-                  57,
-                  40
-                ],
-                "alpha_pixels": {
-                  "transparent": 3068,
-                  "partial": 139,
-                  "opaque": 889
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 12,
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  768,
+                  272,
                   0,
-                  64,
-                  64
+                  27,
+                  27
                 ],
                 "alpha_bbox": [
-                  4,
-                  16,
-                  59,
-                  54
+                  1,
+                  10,
+                  23,
+                  25
                 ],
                 "visible_dimensions": [
-                  55,
-                  38
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3056,
-                  "partial": 128,
-                  "opaque": 912
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.495017
               },
               {
-                "atlas_index": 13,
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  832,
+                  300,
                   0,
-                  64,
-                  64
+                  25,
+                  27
                 ],
                 "alpha_bbox": [
-                  4,
-                  12,
-                  59,
-                  54
+                  0,
+                  9,
+                  22,
+                  25
                 ],
                 "visible_dimensions": [
-                  55,
-                  42
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3025,
-                  "partial": 132,
-                  "opaque": 939
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 14,
-                "source_cell": 2,
+                "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  896,
+                  326,
                   0,
-                  64,
-                  64
+                  27,
+                  27
                 ],
                 "alpha_bbox": [
-                  2,
-                  17,
-                  61,
-                  54
+                  1,
+                  9,
+                  23,
+                  25
                 ],
                 "visible_dimensions": [
-                  59,
-                  37
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3104,
-                  "partial": 131,
-                  "opaque": 861
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 15,
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  354,
+                  0,
+                  27,
+                  25
+                ],
+                "alpha_bbox": [
+                  0,
+                  8,
+                  22,
+                  23
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  382,
+                  0,
+                  25,
+                  31
+                ],
+                "alpha_bbox": [
+                  0,
+                  11,
+                  21,
+                  26
+                ],
+                "visible_dimensions": [
+                  21,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.417876
+              },
+              {
                 "source_cell": 3,
                 "duration": 0.030000001,
                 "rect": [
-                  960,
+                  408,
                   0,
-                  64,
-                  64
+                  25,
+                  41
                 ],
                 "alpha_bbox": [
-                  3,
-                  14,
-                  60,
-                  54
+                  0,
+                  16,
+                  23,
+                  31
                 ],
                 "visible_dimensions": [
-                  57,
-                  40
+                  23,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3068,
-                  "partial": 139,
-                  "opaque": 889
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.3236
+              },
+              {
+                "source_cell": 3,
+                "duration": 0.030000001,
+                "rect": [
+                  434,
+                  0,
+                  25,
+                  31
+                ],
+                "alpha_bbox": [
+                  0,
+                  11,
+                  23,
+                  26
+                ],
+                "visible_dimensions": [
+                  23,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.3236
               }
             ]
           },
@@ -4323,154 +4174,123 @@
               0.080000006,
               0.080000006
             ],
-            "uniform_duration": 0.080000006,
             "source_sequence": [
               8,
               9,
               10,
               11,
-              11
+              0
             ],
             "frames": [
               {
-                "atlas_index": 16,
                 "source_cell": 8,
                 "duration": 0.080000006,
                 "rect": [
-                  1024,
+                  460,
                   0,
-                  64,
-                  64
+                  29,
+                  21
                 ],
                 "alpha_bbox": [
+                  2,
                   7,
-                  21,
-                  57,
-                  54
+                  22,
+                  19
                 ],
                 "visible_dimensions": [
-                  50,
-                  33
+                  20,
+                  12
                 ],
-                "alpha_pixels": {
-                  "transparent": 3189,
-                  "partial": 106,
-                  "opaque": 801
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.670563
               },
               {
-                "atlas_index": 17,
                 "source_cell": 9,
                 "duration": 0.080000006,
                 "rect": [
-                  1088,
+                  490,
                   0,
-                  64,
-                  64
+                  25,
+                  23
                 ],
                 "alpha_bbox": [
+                  0,
                   2,
-                  11,
-                  61,
-                  54
+                  23,
+                  19
                 ],
                 "visible_dimensions": [
-                  59,
-                  43
+                  23,
+                  17
                 ],
-                "alpha_pixels": {
-                  "transparent": 3152,
-                  "partial": 162,
-                  "opaque": 782
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.572105
               },
               {
-                "atlas_index": 18,
                 "source_cell": 10,
                 "duration": 0.080000006,
                 "rect": [
-                  1152,
+                  516,
                   0,
-                  64,
-                  64
+                  33,
+                  39
                 ],
                 "alpha_bbox": [
-                  2,
+                  11,
+                  18,
+                  33,
+                  31
+                ],
+                "visible_dimensions": [
+                  22,
+                  13
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": 3.702546
+              },
+              {
+                "source_cell": 11,
+                "duration": 0.080000006,
+                "rect": [
+                  550,
+                  0,
+                  29,
+                  31
+                ],
+                "alpha_bbox": [
+                  5,
+                  12,
+                  26,
+                  26
+                ],
+                "visible_dimensions": [
                   21,
-                  62,
-                  54
+                  14
                 ],
-                "visible_dimensions": [
-                  60,
-                  33
-                ],
-                "alpha_pixels": {
-                  "transparent": 3062,
-                  "partial": 276,
-                  "opaque": 758
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": 1.069262
               },
               {
-                "atlas_index": 19,
-                "source_cell": 11,
+                "source_cell": 0,
                 "duration": 0.080000006,
                 "rect": [
-                  1216,
+                  580,
                   0,
-                  64,
-                  64
+                  27,
+                  25
                 ],
                 "alpha_bbox": [
-                  6,
-                  18,
-                  58,
-                  54
+                  1,
+                  8,
+                  23,
+                  23
                 ],
                 "visible_dimensions": [
-                  52,
-                  36
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3171,
-                  "partial": 135,
-                  "opaque": 790
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 20,
-                "source_cell": 11,
-                "duration": 0.080000006,
-                "rect": [
-                  1280,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  6,
-                  18,
-                  58,
-                  54
-                ],
-                "visible_dimensions": [
-                  52,
-                  36
-                ],
-                "alpha_pixels": {
-                  "transparent": 3171,
-                  "partial": 135,
-                  "opaque": 790
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.495017
               }
             ]
           },
@@ -4482,7 +4302,6 @@
               0.15,
               0.15
             ],
-            "uniform_duration": 0.15,
             "source_sequence": [
               12,
               13,
@@ -4491,116 +4310,92 @@
             ],
             "frames": [
               {
-                "atlas_index": 21,
                 "source_cell": 12,
                 "duration": 0.15,
                 "rect": [
-                  1344,
+                  608,
                   0,
-                  64,
-                  64
+                  25,
+                  31
                 ],
                 "alpha_bbox": [
-                  4,
-                  22,
-                  60,
-                  54
+                  3,
+                  16,
+                  20,
+                  29
                 ],
                 "visible_dimensions": [
-                  56,
-                  32
+                  17,
+                  13
                 ],
-                "alpha_pixels": {
-                  "transparent": 3239,
-                  "partial": 116,
-                  "opaque": 741
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.086854
               },
               {
-                "atlas_index": 22,
                 "source_cell": 13,
                 "duration": 0.15,
                 "rect": [
-                  1408,
+                  634,
                   0,
-                  64,
-                  64
+                  25,
+                  45
                 ],
                 "alpha_bbox": [
-                  2,
-                  29,
-                  62,
-                  54
+                  1,
+                  33,
+                  25,
+                  43
                 ],
                 "visible_dimensions": [
-                  60,
-                  25
+                  24,
+                  10
                 ],
-                "alpha_pixels": {
-                  "transparent": 3266,
-                  "partial": 103,
-                  "opaque": 727
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.013858
               },
               {
-                "atlas_index": 23,
                 "source_cell": 14,
                 "duration": 0.15,
                 "rect": [
-                  1472,
+                  660,
                   0,
-                  64,
-                  64
+                  25,
+                  51
                 ],
                 "alpha_bbox": [
                   2,
-                  30,
-                  62,
-                  54
+                  41,
+                  22,
+                  49
                 ],
                 "visible_dimensions": [
-                  60,
-                  24
+                  20,
+                  8
                 ],
-                "alpha_pixels": {
-                  "transparent": 3390,
-                  "partial": 69,
-                  "opaque": 637
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.093524
               },
               {
-                "atlas_index": 24,
                 "source_cell": 15,
                 "duration": 0.15,
                 "rect": [
-                  1536,
+                  686,
                   0,
-                  64,
-                  64
+                  27,
+                  53
                 ],
                 "alpha_bbox": [
-                  5,
-                  29,
-                  59,
-                  54
+                  2,
+                  41,
+                  24,
+                  51
                 ],
                 "visible_dimensions": [
-                  54,
-                  25
+                  22,
+                  10
                 ],
-                "alpha_pixels": {
-                  "transparent": 3509,
-                  "partial": 73,
-                  "opaque": 514
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.69328
               }
             ]
           },
@@ -4624,487 +4419,395 @@
               0.030000001,
               0.030000001
             ],
-            "uniform_duration": 0.030000001,
             "source_sequence": [
-              4,
-              5,
-              6,
-              7,
-              4,
-              5,
-              6,
-              7,
-              4,
-              5,
-              6,
-              7,
-              4,
-              5,
-              6,
-              7
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              2,
+              2,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              3,
+              3
             ],
             "frames": [
               {
-                "atlas_index": 25,
-                "source_cell": 4,
+                "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  1600,
+                  28,
                   0,
-                  64,
-                  64
+                  27,
+                  23
                 ],
                 "alpha_bbox": [
-                  3,
-                  23,
-                  60,
-                  54
+                  0,
+                  6,
+                  22,
+                  21
                 ],
                 "visible_dimensions": [
-                  57,
-                  31
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3238,
-                  "partial": 121,
-                  "opaque": 737
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
               },
               {
-                "atlas_index": 26,
-                "source_cell": 5,
+                "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  1664,
+                  56,
                   0,
-                  64,
-                  64
+                  27,
+                  23
                 ],
                 "alpha_bbox": [
-                  3,
+                  1,
+                  6,
                   23,
-                  61,
-                  54
+                  21
                 ],
                 "visible_dimensions": [
-                  58,
-                  31
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3301,
-                  "partial": 109,
-                  "opaque": 686
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.495017
               },
               {
-                "atlas_index": 27,
-                "source_cell": 6,
+                "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  1728,
+                  84,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  2,
                   25,
-                  62,
-                  54
-                ],
-                "visible_dimensions": [
-                  60,
-                  29
-                ],
-                "alpha_pixels": {
-                  "transparent": 3263,
-                  "partial": 119,
-                  "opaque": 714
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 28,
-                "source_cell": 7,
-                "duration": 0.030000001,
-                "rect": [
-                  1792,
-                  0,
-                  64,
-                  64
+                  23
                 ],
                 "alpha_bbox": [
+                  0,
                   5,
-                  24,
-                  59,
-                  54
+                  22,
+                  21
                 ],
                 "visible_dimensions": [
-                  54,
-                  30
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3262,
-                  "partial": 114,
-                  "opaque": 720
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 29,
-                "source_cell": 4,
+                "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  1856,
+                  110,
                   0,
-                  64,
-                  64
+                  27,
+                  23
                 ],
                 "alpha_bbox": [
-                  3,
+                  1,
+                  5,
                   23,
-                  60,
-                  54
+                  21
                 ],
                 "visible_dimensions": [
-                  57,
-                  31
+                  22,
+                  16
                 ],
-                "alpha_pixels": {
-                  "transparent": 3238,
-                  "partial": 121,
-                  "opaque": 737
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
               },
               {
-                "atlas_index": 30,
-                "source_cell": 5,
+                "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  1920,
+                  138,
                   0,
-                  64,
-                  64
+                  27,
+                  25
                 ],
                 "alpha_bbox": [
-                  3,
-                  23,
-                  61,
-                  54
+                  0,
+                  8,
+                  22,
+                  23
                 ],
                 "visible_dimensions": [
-                  58,
-                  31
+                  22,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3301,
-                  "partial": 109,
-                  "opaque": 686
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
               },
               {
-                "atlas_index": 31,
-                "source_cell": 6,
+                "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  1984,
+                  166,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  2,
                   25,
-                  62,
-                  54
-                ],
-                "visible_dimensions": [
-                  60,
-                  29
-                ],
-                "alpha_pixels": {
-                  "transparent": 3263,
-                  "partial": 119,
-                  "opaque": 714
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 32,
-                "source_cell": 7,
-                "duration": 0.030000001,
-                "rect": [
-                  2048,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  5,
-                  24,
-                  59,
-                  54
-                ],
-                "visible_dimensions": [
-                  54,
-                  30
-                ],
-                "alpha_pixels": {
-                  "transparent": 3262,
-                  "partial": 114,
-                  "opaque": 720
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 33,
-                "source_cell": 4,
-                "duration": 0.030000001,
-                "rect": [
-                  2112,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  3,
-                  23,
-                  60,
-                  54
-                ],
-                "visible_dimensions": [
-                  57,
                   31
                 ],
-                "alpha_pixels": {
-                  "transparent": 3238,
-                  "partial": 121,
-                  "opaque": 737
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 34,
-                "source_cell": 5,
-                "duration": 0.030000001,
-                "rect": [
-                  2176,
-                  0,
-                  64,
-                  64
-                ],
                 "alpha_bbox": [
-                  3,
-                  23,
-                  61,
-                  54
+                  0,
+                  11,
+                  21,
+                  26
                 ],
                 "visible_dimensions": [
-                  58,
-                  31
+                  21,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3301,
-                  "partial": 109,
-                  "opaque": 686
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.417876
               },
               {
-                "atlas_index": 35,
-                "source_cell": 6,
+                "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  2240,
+                  192,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  2,
                   25,
-                  62,
-                  54
-                ],
-                "visible_dimensions": [
-                  60,
-                  29
-                ],
-                "alpha_pixels": {
-                  "transparent": 3263,
-                  "partial": 119,
-                  "opaque": 714
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 36,
-                "source_cell": 7,
-                "duration": 0.030000001,
-                "rect": [
-                  2304,
-                  0,
-                  64,
-                  64
+                  41
                 ],
                 "alpha_bbox": [
-                  5,
+                  0,
+                  16,
                   24,
-                  59,
-                  54
-                ],
-                "visible_dimensions": [
-                  54,
-                  30
-                ],
-                "alpha_pixels": {
-                  "transparent": 3262,
-                  "partial": 114,
-                  "opaque": 720
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 37,
-                "source_cell": 4,
-                "duration": 0.030000001,
-                "rect": [
-                  2368,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  3,
-                  23,
-                  60,
-                  54
-                ],
-                "visible_dimensions": [
-                  57,
                   31
                 ],
-                "alpha_pixels": {
-                  "transparent": 3238,
-                  "partial": 121,
-                  "opaque": 737
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 38,
-                "source_cell": 5,
-                "duration": 0.030000001,
-                "rect": [
-                  2432,
-                  0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  3,
-                  23,
-                  61,
-                  54
-                ],
                 "visible_dimensions": [
-                  58,
-                  31
+                  24,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3301,
-                  "partial": 109,
-                  "opaque": 686
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.854474
               },
               {
-                "atlas_index": 39,
-                "source_cell": 6,
+                "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  2496,
+                  218,
                   0,
-                  64,
-                  64
-                ],
-                "alpha_bbox": [
-                  2,
                   25,
-                  62,
-                  54
-                ],
-                "visible_dimensions": [
-                  60,
-                  29
-                ],
-                "alpha_pixels": {
-                  "transparent": 3263,
-                  "partial": 119,
-                  "opaque": 714
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
-              },
-              {
-                "atlas_index": 40,
-                "source_cell": 7,
-                "duration": 0.030000001,
-                "rect": [
-                  2560,
-                  0,
-                  64,
-                  64
+                  31
                 ],
                 "alpha_bbox": [
-                  5,
+                  0,
+                  11,
                   24,
-                  59,
-                  54
+                  26
                 ],
                 "visible_dimensions": [
-                  54,
-                  30
+                  24,
+                  15
                 ],
-                "alpha_pixels": {
-                  "transparent": 3262,
-                  "partial": 114,
-                  "opaque": 720
-                },
-                "bottom_matches_baseline": true,
-                "touches_cell_edge": false
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.854474
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  244,
+                  0,
+                  27,
+                  27
+                ],
+                "alpha_bbox": [
+                  0,
+                  10,
+                  22,
+                  25
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  272,
+                  0,
+                  27,
+                  27
+                ],
+                "alpha_bbox": [
+                  1,
+                  10,
+                  23,
+                  25
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.495017
+              },
+              {
+                "source_cell": 1,
+                "duration": 0.030000001,
+                "rect": [
+                  300,
+                  0,
+                  25,
+                  27
+                ],
+                "alpha_bbox": [
+                  0,
+                  9,
+                  22,
+                  25
+                ],
+                "visible_dimensions": [
+                  22,
+                  16
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
+              },
+              {
+                "source_cell": 1,
+                "duration": 0.030000001,
+                "rect": [
+                  326,
+                  0,
+                  27,
+                  27
+                ],
+                "alpha_bbox": [
+                  1,
+                  9,
+                  23,
+                  25
+                ],
+                "visible_dimensions": [
+                  22,
+                  16
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -0.621061
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  354,
+                  0,
+                  27,
+                  25
+                ],
+                "alpha_bbox": [
+                  0,
+                  8,
+                  22,
+                  23
+                ],
+                "visible_dimensions": [
+                  22,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.495017
+              },
+              {
+                "source_cell": 0,
+                "duration": 0.030000001,
+                "rect": [
+                  382,
+                  0,
+                  25,
+                  31
+                ],
+                "alpha_bbox": [
+                  0,
+                  11,
+                  21,
+                  26
+                ],
+                "visible_dimensions": [
+                  21,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.417876
+              },
+              {
+                "source_cell": 3,
+                "duration": 0.030000001,
+                "rect": [
+                  408,
+                  0,
+                  25,
+                  41
+                ],
+                "alpha_bbox": [
+                  0,
+                  16,
+                  23,
+                  31
+                ],
+                "visible_dimensions": [
+                  23,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.3236
+              },
+              {
+                "source_cell": 3,
+                "duration": 0.030000001,
+                "rect": [
+                  434,
+                  0,
+                  25,
+                  31
+                ],
+                "alpha_bbox": [
+                  0,
+                  11,
+                  23,
+                  26
+                ],
+                "visible_dimensions": [
+                  23,
+                  15
+                ],
+                "bottom_matches_native": true,
+                "centroid_offset_x": -1.3236
               }
             ]
           }
+        },
+        "motion_metrics": {
+          "maximum_visible_width_px": 24,
+          "idle_horizontal_centroid_span_px": 1.0,
+          "run_horizontal_centroid_span_px": 1.0
         }
       },
       "static_checks": {
-        "processed_corners_transparent": true,
-        "all_frames_visible": true,
-        "all_frames_share_one_scale": true,
-        "all_frame_bottoms_match_baseline": true,
-        "all_alpha_bboxes_stay_inside_cells": true,
-        "attack_frames_keep_body": true,
-        "attack_vfx_starts_at_body_origin": true,
-        "native_animation_contract_exact": true
+        "native_sheet_dimensions_exact": true,
+        "native_frame_rectangles_exact": true,
+        "native_animation_contract_exact": true,
+        "all_frame_bottoms_match_native": true,
+        "visible_width_native_class": true,
+        "idle_horizontal_centroid_stable": true,
+        "run_horizontal_centroid_stable": true,
+        "shared_idle_run_rectangles_use_same_source_sequence": true
       }
     }
   ],

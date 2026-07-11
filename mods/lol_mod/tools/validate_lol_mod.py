@@ -10,6 +10,7 @@ import json
 import math
 import sys
 import wave
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -19,6 +20,94 @@ from PIL import Image
 MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
 EXPECTED_MOD_API_VERSION = 8
+
+NEXUS_NATIVE_SHEET_SIZES: dict[str, tuple[int, int]] = {
+    "nexus": (836, 81),
+    "nexus_orb": (526, 81),
+}
+
+NEXUS_NATIVE_ANIMATION_CONTRACTS: dict[str, dict[str, dict[str, Any]]] = {
+    "nexus": {
+        "idle": {
+            "durations": [0.120000005] * 8,
+            "rects": [
+                [0, 0, 57, 65],
+                [58, 0, 57, 63],
+                [116, 0, 57, 63],
+                [174, 0, 57, 63],
+                [232, 0, 57, 65],
+                [290, 0, 57, 67],
+                [348, 0, 57, 69],
+                [406, 0, 57, 67],
+            ],
+        },
+        "attack": {
+            "durations": [0.080000006] * 6,
+            "rects": [
+                [464, 0, 57, 65],
+                [522, 0, 57, 65],
+                [580, 0, 57, 73],
+                [638, 0, 57, 79],
+                [696, 0, 57, 80],
+                [754, 0, 57, 80],
+            ],
+        },
+        "attack_projectile": {
+            "durations": [0.080000006],
+            "rects": [[812, 0, 3, 3]],
+        },
+        "hit_effect": {
+            "durations": [0.080000006] * 5,
+            "rects": [
+                [816, 0, 3, 3],
+                [820, 0, 3, 3],
+                [824, 0, 3, 3],
+                [828, 0, 3, 3],
+                [832, 0, 3, 3],
+            ],
+        },
+    },
+    "nexus_orb": {
+        "idle": {
+            "durations": [0.120000005] * 8,
+            "rects": [
+                [0, 0, 31, 65],
+                [32, 0, 31, 63],
+                [64, 0, 31, 61],
+                [96, 0, 31, 63],
+                [128, 0, 31, 65],
+                [160, 0, 31, 67],
+                [192, 0, 31, 69],
+                [224, 0, 31, 67],
+            ],
+        },
+        "attack": {
+            "durations": [0.080000006] * 6,
+            "rects": [
+                [256, 0, 31, 65],
+                [288, 0, 31, 65],
+                [320, 0, 39, 73],
+                [360, 0, 45, 79],
+                [406, 0, 45, 80],
+                [452, 0, 49, 80],
+            ],
+        },
+        "attack_projectile": {
+            "durations": [0.080000006],
+            "rects": [[502, 0, 3, 3]],
+        },
+        "hit_effect": {
+            "durations": [0.080000006] * 5,
+            "rects": [
+                [506, 0, 3, 3],
+                [510, 0, 3, 3],
+                [514, 0, 3, 3],
+                [518, 0, 3, 3],
+                [522, 0, 3, 3],
+            ],
+        },
+    },
+}
 
 ORIANNA_NATIVE_ANIMATION: dict[str, list[float]] = {
     "skill1": [0.080000006] * 5,
@@ -3774,6 +3863,481 @@ def validate_imagegen_sources() -> None:
         check(not (MOD_ROOT / relative).exists(), f"retired low-quality Lucian model must be deleted: {relative}")
 
 
+def override_asset_extensions(source_key: str) -> tuple[str, ...]:
+    """Return the on-disk extension(s) accepted by the source asset type."""
+    if source_key.startswith("asset/base/text/"):
+        return (".i18n",)
+    if source_key.startswith("asset/base/style/"):
+        return (".champion_view",)
+    if source_key.startswith("asset/base/ui/layout/"):
+        return (".ui",)
+    if source_key.startswith("asset/base/ui/icons/"):
+        return (".svg",)
+    if source_key.startswith(("asset/base/ui/banpick/illust/", "asset/base/ui/ingame/")):
+        return (".png",)
+    if source_key.startswith("asset/base/sound/"):
+        # The source bundle fixes whether an event is SoundInfo or a raw clip.
+        # Both are valid sound asset classes, but a remapping target must resolve
+        # to exactly one of them.
+        return (".sound_info", ".wav")
+    if source_key.startswith("asset/base/aseprite_resources/"):
+        if source_key.endswith("#sheet"):
+            return (".png",)
+        if source_key.endswith("#anim"):
+            return (".fanim",)
+        if source_key.endswith("#data"):
+            return (".sprite_sheet",)
+        return (".png",)
+    return ()
+
+
+def asset_file_is_loadable(path: Path) -> bool:
+    try:
+        if path.suffix == ".png":
+            with Image.open(path) as image:
+                image.verify()
+        elif path.suffix in {".i18n", ".champion_view", ".sound_info", ".fanim", ".sprite_sheet"}:
+            document = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(document, dict):
+                raise ValueError("root value must be an object")
+        elif path.suffix == ".wav":
+            with wave.open(str(path), "rb") as stream:
+                if (
+                    stream.getnchannels() <= 0
+                    or stream.getsampwidth() <= 0
+                    or stream.getframerate() <= 0
+                    or stream.getnframes() <= 0
+                ):
+                    raise ValueError("invalid or empty PCM stream")
+        elif path.suffix == ".svg":
+            ET.fromstring(path.read_text(encoding="utf-8"))
+        elif path.suffix == ".ui":
+            source = path.read_text(encoding="utf-8")
+            if not source.strip() or "\0" in source:
+                raise ValueError("empty or NUL-containing UI source")
+        else:
+            raise ValueError(f"unsupported asset extension {path.suffix}")
+    except Exception as error:
+        check(False, f"override source is not loadable: {path.relative_to(MOD_ROOT).as_posix()}: {error}")
+        return False
+    return True
+
+
+def validate_override_asset_discoverability(
+    override: dict[str, Any],
+    *,
+    require_manifest: bool = True,
+) -> tuple[int, int]:
+    """Model the loader's typed extension lookup for every override remapping."""
+    sprite_data_files = sorted(MOD_ROOT.rglob("*.sprite_data"))
+    check(
+        not sprite_data_files,
+        "legacy .sprite_data files are not loadable and must be removed: "
+        + ", ".join(path.relative_to(MOD_ROOT).as_posix() for path in sprite_data_files),
+    )
+
+    required_sprite_sheets = {
+        "asset/base/aseprite_resources/ingame/item_icons_18x18#data": (
+            "asset/lol_mod/aseprite_resources/ingame/item_icons_18x18#data",
+            "aseprite_resources/ingame/item_icons_18x18#data.sprite_sheet",
+        ),
+        "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": (
+            "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#data",
+            "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_sheet",
+        ),
+    }
+    for source_key, (target_key, relative) in required_sprite_sheets.items():
+        check(
+            override.get(source_key) == {"remapping": target_key, "type": "override"},
+            f"typed sprite-sheet remapping changed: {source_key}",
+        )
+        check((MOD_ROOT / relative).is_file(), f"required sprite-sheet metadata is missing: {relative}")
+
+    manifest_paths: set[str] = set()
+    if require_manifest:
+        manifest_path = MOD_ROOT / "build_manifest.json"
+        check(manifest_path.is_file(), "build_manifest.json is missing for override discoverability validation")
+        if manifest_path.is_file():
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest_paths = {
+                    row.get("path", "")
+                    for row in manifest.get("files", [])
+                    if isinstance(row, dict)
+                }
+                check("mod.override_info" in manifest_paths, "build manifest must contain mod.override_info")
+            except Exception as error:
+                check(False, f"build_manifest.json cannot be read for override validation: {error}")
+
+    discovered = 0
+    total = len(override)
+    for source_key, row in override.items():
+        check(isinstance(row, dict), f"override row must be an object: {source_key}")
+        if not isinstance(row, dict):
+            continue
+        check(row.get("type") in {"override", "merge"}, f"override row has the wrong type: {source_key}")
+        target_key = row.get("remapping")
+        check(isinstance(target_key, str), f"override remapping is missing: {source_key}")
+        if not isinstance(target_key, str):
+            continue
+        prefix = "asset/lol_mod/"
+        check(target_key.startswith(prefix), f"override target must stay inside asset/lol_mod: {source_key}")
+        if not target_key.startswith(prefix):
+            continue
+        relative_stem = target_key.removeprefix(prefix)
+        extensions = override_asset_extensions(source_key)
+        check(bool(extensions), f"override source uses an unsupported asset type: {source_key}")
+        if not extensions:
+            continue
+        candidates = [MOD_ROOT / f"{relative_stem}{extension}" for extension in extensions]
+        candidates = [path for path in candidates if path.is_file()]
+        check(
+            len(candidates) == 1,
+            f"override target must resolve to exactly one typed source: {source_key} -> {relative_stem} "
+            f"(found {len(candidates)})",
+        )
+        if len(candidates) != 1:
+            continue
+        path = candidates[0]
+        try:
+            relative = path.resolve().relative_to(MOD_ROOT.resolve()).as_posix()
+        except ValueError:
+            check(False, f"override target escapes the mod root: {source_key}")
+            continue
+        loadable = asset_file_is_loadable(path)
+        if require_manifest:
+            check(relative in manifest_paths, f"override source is absent from build_manifest.json: {relative}")
+        if loadable:
+            discovered += 1
+
+    check(
+        discovered == total,
+        f"only {discovered}/{total} override asset source(s) are typed, present, and loadable",
+    )
+    return discovered, total
+
+
+def normalized_animation_contract(document: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for tag, animation in document.get("anims", {}).items():
+        frames = animation.get("frames", [])
+        result[tag] = {
+            "durations": [frame.get("duration") for frame in frames],
+            "rects": [
+                [
+                    int(round(frame.get("data", {}).get(axis, -1)))
+                    for axis in ("x", "y", "w", "h")
+                ]
+                for frame in frames
+            ],
+        }
+    return result
+
+
+def frame_crop(sheet: Image.Image, frame: dict[str, Any]) -> Image.Image:
+    data = frame.get("data", {})
+    x, y, width, height = (
+        int(round(data.get("x", -1))),
+        int(round(data.get("y", -1))),
+        int(round(data.get("w", 0))),
+        int(round(data.get("h", 0))),
+    )
+    return sheet.crop((x, y, x + width, y + height))
+
+
+def weighted_alpha_centroid_x(image: Image.Image) -> float:
+    alpha = image.convert("RGBA").getchannel("A")
+    total = 0
+    weighted = 0
+    for index, value in enumerate(alpha.get_flattened_data()):
+        total += value
+        weighted += (index % alpha.width) * value
+    return weighted / total if total else alpha.width / 2
+
+
+def tag_motion_metrics(
+    sheet: Image.Image,
+    document: dict[str, Any],
+    tag: str,
+) -> tuple[list[int], float]:
+    widths: list[int] = []
+    centroids: list[float] = []
+    for frame in document.get("anims", {}).get(tag, {}).get("frames", []):
+        crop = frame_crop(sheet, frame)
+        bbox = crop.getchannel("A").getbbox()
+        if bbox is None:
+            continue
+        widths.append(bbox[2] - bbox[0])
+        centroids.append(weighted_alpha_centroid_x(crop) - crop.width / 2)
+    span = max(centroids) - min(centroids) if centroids else 0.0
+    return widths, span
+
+
+def validate_recorded_file(record: dict[str, Any], label: str) -> Path | None:
+    relative = record.get("path")
+    check(isinstance(relative, str), f"{label}: QA file path is missing")
+    if not isinstance(relative, str):
+        return None
+    path = MOD_ROOT / relative
+    check(path.is_file(), f"{label}: recorded file is missing: {relative}")
+    if not path.is_file():
+        return None
+    expected_size = record.get("bytes", record.get("size_bytes"))
+    if expected_size is not None:
+        check(path.stat().st_size == expected_size, f"{label}: recorded byte size changed: {relative}")
+    expected_hash = record.get("sha256")
+    if expected_hash is not None:
+        check(sha256(path) == expected_hash, f"{label}: recorded hash changed: {relative}")
+    return path
+
+
+def validate_quality_nexus_assets(override: dict[str, Any]) -> None:
+    qa_path = MOD_ROOT / "qa/quality_nexus_imagegen_pack.json"
+    check(qa_path.is_file(), "Nexus ImageGen QA record is missing")
+    if not qa_path.is_file():
+        return
+    qa = load_json("qa/quality_nexus_imagegen_pack.json")
+    check(qa.get("schema") == "lol_mod.quality_nexus_imagegen_pack.v1", "Nexus QA schema changed")
+    static_checks = qa.get("static_checks", {})
+    check(
+        bool(static_checks) and all(value is True for value in static_checks.values()),
+        "Nexus QA contains a failed static check",
+    )
+
+    image_generation = qa.get("image_generation", {})
+    for source_kind in ("source", "processed"):
+        record = image_generation.get(source_kind, {})
+        path = validate_recorded_file(record, f"Nexus {source_kind} ImageGen source")
+        if path is not None and source_kind == "processed":
+            with Image.open(path) as opened:
+                processed = opened.convert("RGBA")
+            corners = (
+                (0, 0),
+                (processed.width - 1, 0),
+                (0, processed.height - 1),
+                (processed.width - 1, processed.height - 1),
+            )
+            check(all(processed.getpixel(point)[3] == 0 for point in corners), "Nexus processed source corners must be transparent")
+
+    expected_outputs: dict[str, tuple[str, str, str]] = {}
+    for team in ("blue", "red"):
+        for asset_kind, contract_kind in (("nexus", "nexus"), ("nexus_orb", "nexus_orb")):
+            stem = f"{team}_{asset_kind}"
+            for suffix, extension in (("sheet", ".png"), ("anim", ".fanim")):
+                source_key = f"asset/base/aseprite_resources/ingame/{stem}#{suffix}"
+                relative = f"aseprite_resources/ingame/{stem}#{suffix}{extension}"
+                expected_outputs[source_key] = (relative, contract_kind, suffix)
+
+    outputs = qa.get("outputs", {})
+    check(set(outputs) == set(expected_outputs), "Nexus QA must contain exactly eight runtime resources")
+    sheets: dict[str, Image.Image] = {}
+    animations: dict[str, dict[str, Any]] = {}
+    for source_key, (relative, contract_kind, suffix) in expected_outputs.items():
+        target_key = source_key.replace("asset/base/", "asset/lol_mod/", 1)
+        check(
+            override.get(source_key) == {"remapping": target_key, "type": "override"},
+            f"Nexus override mapping changed: {source_key}",
+        )
+        record = outputs.get(source_key, {})
+        check(record.get("path") == relative, f"Nexus QA output path changed: {source_key}")
+        check(record.get("override_target") == source_key, f"Nexus QA override target changed: {source_key}")
+        check(record.get("mod_asset_key") == target_key, f"Nexus QA mod asset key changed: {source_key}")
+        path = validate_recorded_file(record, f"Nexus output {source_key}")
+        if path is None:
+            continue
+        stem = Path(relative).name.split("#", 1)[0]
+        if suffix == "sheet":
+            with Image.open(path) as opened:
+                sheet = opened.convert("RGBA")
+            sheets[stem] = sheet
+            check(sheet.size == NEXUS_NATIVE_SHEET_SIZES[contract_kind], f"{stem} native sheet dimensions changed: {sheet.size}")
+            check(record.get("dimensions") == list(sheet.size), f"{stem} QA sheet dimensions are stale")
+            corners = ((0, 0), (sheet.width - 1, 0), (0, sheet.height - 1), (sheet.width - 1, sheet.height - 1))
+            check(all(sheet.getpixel(point)[3] == 0 for point in corners), f"{stem} sheet corners must be transparent")
+        else:
+            document = load_json(relative)
+            animations[stem] = document
+            actual_contract = normalized_animation_contract(document)
+            expected_contract = NEXUS_NATIVE_ANIMATION_CONTRACTS[contract_kind]
+            check(actual_contract == expected_contract, f"{stem} no longer matches the native Nexus animation contract")
+            expected_qa_contract = {
+                tag: {
+                    "frame_count": len(contract["durations"]),
+                    "durations": contract["durations"],
+                    "rects": contract["rects"],
+                }
+                for tag, contract in expected_contract.items()
+            }
+            check(
+                qa.get("animation_contracts", {}).get(contract_kind) == expected_qa_contract,
+                f"{contract_kind} QA animation contract is stale",
+            )
+
+    for asset_kind, expected_body_size in (("nexus", (52, 53)), ("nexus_orb", (25, 25))):
+        blue_stem = f"blue_{asset_kind}"
+        red_stem = f"red_{asset_kind}"
+        if blue_stem not in sheets or red_stem not in sheets:
+            continue
+        check(
+            sheets[blue_stem].getchannel("A").tobytes() == sheets[red_stem].getchannel("A").tobytes(),
+            f"blue/red {asset_kind} alpha masks must remain byte-identical",
+        )
+        if blue_stem in animations and red_stem in animations:
+            check(
+                animations[blue_stem].get("anims") == animations[red_stem].get("anims"),
+                f"blue/red {asset_kind} animation documents must match",
+            )
+        for stem in (blue_stem, red_stem):
+            if stem not in animations:
+                continue
+            visible_sizes: set[tuple[int, int]] = set()
+            for tag in ("idle", "attack"):
+                for frame in animations[stem].get("anims", {}).get(tag, {}).get("frames", []):
+                    bbox = frame_crop(sheets[stem], frame).getchannel("A").getbbox()
+                    check(bbox is not None, f"{stem} {tag} contains an empty body frame")
+                    if bbox is not None:
+                        visible_sizes.add((bbox[2] - bbox[0], bbox[3] - bbox[1]))
+            check(visible_sizes == {expected_body_size}, f"{stem} body size is unstable: {sorted(visible_sizes)}")
+
+
+def validate_objective_and_wolf_motion_qa() -> None:
+    objective_path = MOD_ROOT / "qa/quality_objectives_imagegen_pack.json"
+    check(objective_path.is_file(), "objective ImageGen QA record is missing")
+    if objective_path.is_file():
+        qa = load_json("qa/quality_objectives_imagegen_pack.json")
+        check(qa.get("schema") == "lol_mod.quality_objectives_imagegen_pack.v3", "objective QA schema changed")
+        static_checks = qa.get("static_checks", {})
+        check(
+            bool(static_checks) and all(value is True for value in static_checks.values()),
+            "objective QA contains a failed static check",
+        )
+        runtime = qa.get("runtime", {})
+
+        def validate_runtime_monster(
+            label: str,
+            record: dict[str, Any],
+            expected_dimensions: tuple[int, int],
+            maximum_visible_width: int,
+        ) -> tuple[Path | None, Path | None]:
+            native_dimensions = record.get("native_sheet_contract", {}).get("dimensions")
+            check(native_dimensions == list(expected_dimensions), f"{label}: native sheet dimensions changed in QA")
+            check(record.get("visible_width_cap") <= maximum_visible_width, f"{label}: visible-width cap regressed")
+            check(record.get("native_animation_contract_exact") is True, f"{label}: native animation contract is not exact")
+            check(record.get("native_frame_rect_contract_exact") is True, f"{label}: native frame rectangles are not exact")
+            sheet_path = validate_recorded_file(record.get("sheet", {}), f"{label} sheet")
+            anim_path = validate_recorded_file(record.get("animation", {}), f"{label} animation")
+            if sheet_path is None or anim_path is None:
+                return sheet_path, anim_path
+            with Image.open(sheet_path) as opened:
+                sheet = opened.convert("RGBA")
+            document = json.loads(anim_path.read_text(encoding="utf-8"))
+            check(sheet.size == expected_dimensions, f"{label}: runtime sheet dimensions changed: {sheet.size}")
+            check(record.get("sheet", {}).get("size") == list(sheet.size), f"{label}: runtime sheet QA dimensions are stale")
+            widths: list[int] = []
+            for tag in ("base", "idle"):
+                tag_widths, _ = tag_motion_metrics(sheet, document, tag)
+                widths.extend(tag_widths)
+            check(bool(widths), f"{label}: base/idle frames are empty")
+            if widths:
+                check(max(widths) <= maximum_visible_width, f"{label}: visible body width regressed to {max(widths)}px")
+            _, idle_span = tag_motion_metrics(sheet, document, "idle")
+            recorded_span = record.get("idle_horizontal_centroid_span_px")
+            check(isinstance(recorded_span, (int, float)), f"{label}: idle centroid QA is missing")
+            if isinstance(recorded_span, (int, float)):
+                check(math.isclose(idle_span, recorded_span, abs_tol=1e-6), f"{label}: idle centroid QA is stale")
+            check(idle_span <= 2.0, f"{label}: idle horizontal centroid drifts by {idle_span:.3f}px")
+            return sheet_path, anim_path
+
+        epic = runtime.get("epic", {})
+        validate_runtime_monster("Baron", epic, (3538, 150), 106)
+
+        dragon_variants = runtime.get("dragon_variants", {})
+        expected_dragons = {"infernal", "ocean", "mountain", "cloud", "hextech", "elder"}
+        check(set(dragon_variants) == expected_dragons, "objective QA must contain five elemental dragons and Elder")
+        variant_paths: dict[str, tuple[Path | None, Path | None]] = {}
+        for name in sorted(expected_dragons):
+            record = dragon_variants.get(name, {})
+            variant_paths[name] = validate_runtime_monster(
+                f"{name} dragon",
+                record,
+                (1498, 226),
+                54,
+            )
+            edge_ratio = record.get("edge_connected_magenta_cleanup", {}).get("hot_magenta_edge_ratio")
+            check(isinstance(edge_ratio, (int, float)), f"{name} dragon: magenta-edge QA is missing")
+            if isinstance(edge_ratio, (int, float)):
+                check(edge_ratio <= 0.01, f"{name} dragon: magenta edge ratio regressed to {edge_ratio:.2%}")
+
+        serpen = runtime.get("serpen_infernal_default", {})
+        serpen_sheet = validate_recorded_file(serpen.get("sheet", {}), "default Serpen sheet")
+        serpen_anim = validate_recorded_file(serpen.get("animation", {}), "default Serpen animation")
+        infernal_sheet, infernal_anim = variant_paths.get("infernal", (None, None))
+        if serpen_sheet is not None and infernal_sheet is not None:
+            check(sha256(serpen_sheet) == sha256(infernal_sheet), "default Serpen sheet must match Infernal Dragon")
+        if serpen_anim is not None and infernal_anim is not None:
+            check(sha256(serpen_anim) == sha256(infernal_anim), "default Serpen animation must match Infernal Dragon")
+
+    wolf_path = MOD_ROOT / "qa/quality_small_jungle_imagegen_pack.json"
+    check(wolf_path.is_file(), "small-jungle ImageGen QA record is missing")
+    if not wolf_path.is_file():
+        return
+    qa = load_json("qa/quality_small_jungle_imagegen_pack.json")
+    check(qa.get("schema_version") == 3, "small-jungle QA schema changed")
+    check(qa.get("result", {}).get("all_static_checks_passed") is True, "small-jungle QA has failed checks")
+    assets = qa.get("assets", [])
+    for record in assets:
+        static_checks = record.get("static_checks", {})
+        check(
+            bool(static_checks) and all(value is True for value in static_checks.values()),
+            f"{record.get('runtime_asset', 'unknown')}: small-jungle QA contains a failed check",
+        )
+    wolves = [record for record in assets if record.get("runtime_asset") == "bee"]
+    check(len(wolves) == 1, "small-jungle QA must contain exactly one Murk Wolf/bee runtime record")
+    if len(wolves) != 1:
+        return
+    wolf = wolves[0]
+    check(
+        wolf.get("native_sheet_contract", {}).get("dimensions") == [714, 54],
+        "Murk Wolf native sheet dimensions changed in QA",
+    )
+    check(wolf.get("pack", {}).get("native_sheet_dimensions_preserved") is True, "Murk Wolf native sheet size is not preserved")
+    check(wolf.get("pack", {}).get("native_frame_rectangles_preserved") is True, "Murk Wolf native frame rectangles are not preserved")
+    runtime = wolf.get("runtime", {})
+    sheet_path = validate_recorded_file(runtime.get("sheet", {}), "Murk Wolf sheet")
+    anim_path = validate_recorded_file(runtime.get("animation", {}), "Murk Wolf animation")
+    if sheet_path is None or anim_path is None:
+        return
+    with Image.open(sheet_path) as opened:
+        sheet = opened.convert("RGBA")
+    document = json.loads(anim_path.read_text(encoding="utf-8"))
+    check(sheet.size == (714, 54), f"Murk Wolf runtime sheet dimensions changed: {sheet.size}")
+    motion = runtime.get("motion_metrics", {})
+    maximum_visible_width = motion.get("maximum_visible_width_px")
+    check(maximum_visible_width == 24, f"Murk Wolf QA visible-width cap changed: {maximum_visible_width}")
+    actual_widths: list[int] = []
+    for tag in document.get("anims", {}):
+        widths, _ = tag_motion_metrics(sheet, document, tag)
+        actual_widths.extend(widths)
+    check(bool(actual_widths), "Murk Wolf runtime animation has no visible frames")
+    if actual_widths:
+        check(max(actual_widths) <= 24, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
+    for tag in ("idle", "run"):
+        _, actual_span = tag_motion_metrics(sheet, document, tag)
+        recorded_span = motion.get(f"{tag}_horizontal_centroid_span_px")
+        check(isinstance(recorded_span, (int, float)), f"Murk Wolf {tag} centroid QA is missing")
+        if isinstance(recorded_span, (int, float)):
+            check(math.isclose(actual_span, recorded_span, abs_tol=1e-6), f"Murk Wolf {tag} centroid QA is stale")
+        check(actual_span <= 2.0, f"Murk Wolf {tag} horizontal centroid drifts by {actual_span:.3f}px")
+    native_tags = wolf.get("native_animation_contract", {}).get("tags", {})
+    for tag, native in native_tags.items():
+        frames = document.get("anims", {}).get(tag, {}).get("frames", [])
+        check(len(frames) == native.get("frame_count"), f"Murk Wolf {tag} native frame count changed")
+        check(
+            [frame.get("duration") for frame in frames] == native.get("durations"),
+            f"Murk Wolf {tag} native frame durations changed",
+        )
+
+
 def validate_manifest() -> None:
     path = MOD_ROOT / "build_manifest.json"
     check(path.is_file(), "build_manifest.json is missing; run build_lol_mod.py")
@@ -3815,7 +4379,10 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.1", "lol_mod version must be 0.7.1")
+    check(mod_info.get("version") == "0.7.2", "lol_mod version must be 0.7.2")
+    discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
+    validate_quality_nexus_assets(override)
+    validate_objective_and_wolf_motion_qa()
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()
@@ -3894,10 +4461,12 @@ def main() -> int:
     validate_native_dll()
     validate_manifest()
     if ERRORS:
+        print(f"Override asset discoverability: {discovered_overrides}/{total_overrides}")
         print("League champion pack validation failed:")
         for error in ERRORS:
             print(f"- {error}")
         return 1
+    print(f"Override asset discoverability: {discovered_overrides}/{total_overrides}")
     print("League champion pack validation passed")
     return 0
 

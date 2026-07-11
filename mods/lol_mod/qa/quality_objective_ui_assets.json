@@ -6,8 +6,8 @@
     "baron": {
       "sheet": {
         "path": "aseprite_resources/ingame/epic#sheet.png",
-        "sha256": "113a240055c743167199e706113d3efa233ededed308241cbf16c178b7412cb7",
-        "bytes": 1070540
+        "sha256": "3677be16d424a3c4134824c1a614bccbe857f4efc520045a0f089829069ce30e",
+        "bytes": 487293
       },
       "idle_rect": [
         218,
@@ -25,8 +25,8 @@
     "infernal_dragon": {
       "sheet": {
         "path": "aseprite_resources/ingame/serpen#sheet.png",
-        "sha256": "733bf0f9423bfc6fae3e10aa5b4a0ea23eb47eebc5c293bf3551181396bb042b",
-        "bytes": 181869
+        "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5",
+        "bytes": 58072
       },
       "idle_rect": [
         115,
@@ -148,26 +148,26 @@
       0
     ],
     "mid": [
-      20,
-      13,
-      42
+      22,
+      14,
+      44
     ],
     "bright": [
-      139,
-      45,
-      205
+      149,
+      25,
+      153
     ],
     "accent": [
-      98,
-      164,
-      213
+      96,
+      153,
+      202
     ]
   },
   "outputs": {
     "asset/base/ui/ingame/epic": {
       "path": "ui/ingame/epic.png",
-      "sha256": "cb6118a4fd1d6dcf33e628ba33b2315e854927b42b5a54e20b7100869deb804f",
-      "bytes": 607,
+      "sha256": "a2ba9eccdb15f7cbf12283bd098d024133dd6240fa37b11254081fcfe1560810",
+      "bytes": 479,
       "dimensions": [
         90,
         90
@@ -175,9 +175,9 @@
       "mode": "RGBA",
       "alpha_bbox": [
         6,
-        6,
+        18,
         84,
-        84
+        66
       ],
       "partial_alpha_pixels": 0,
       "override_target": "asset/base/ui/ingame/epic",
@@ -185,50 +185,50 @@
     },
     "asset/base/ui/icons/morgard": {
       "path": "ui/icons/morgard.svg",
-      "sha256": "1b943366a52f65f5c2da75a8b7ed1e18f3c7f033167ba12e5f5690a3c23295c3",
-      "bytes": 16510,
+      "sha256": "cedf62ccde1ed663a412583f3211b87b28861c565345a71a5e97cc77584029de",
+      "bytes": 9216,
       "override_target": "asset/base/ui/icons/morgard",
       "mod_asset_key": "asset/lol_mod/ui/icons/morgard"
     },
     "asset/base/ui/icons/morgard_sticker_blue": {
       "path": "ui/icons/morgard_sticker_blue.svg",
-      "sha256": "035169407dea8ad07537a9ce463622ef94dcaafdad1d20a69315ed55de521f7b",
-      "bytes": 9360,
+      "sha256": "006d48e04753cae1427c66c5e0152ed6c1a087627f138f6d97f09e47a91012f5",
+      "bytes": 6411,
       "override_target": "asset/base/ui/icons/morgard_sticker_blue",
       "mod_asset_key": "asset/lol_mod/ui/icons/morgard_sticker_blue"
     },
     "asset/base/ui/icons/morgard_sticker_red": {
       "path": "ui/icons/morgard_sticker_red.svg",
-      "sha256": "3fcfe783e7f5bdf2e3d33de2ea0ce298c8ceef97bd200250b7ab4ab6d1536215",
-      "bytes": 9360,
+      "sha256": "db30eed179885393aaeca8ffb61bdd32dbe85c7896b94460856576c2e8ca6e25",
+      "bytes": 6411,
       "override_target": "asset/base/ui/icons/morgard_sticker_red",
       "mod_asset_key": "asset/lol_mod/ui/icons/morgard_sticker_red"
     },
     "asset/base/ui/icons/serpen": {
       "path": "ui/icons/serpen.svg",
-      "sha256": "5a9d205869ced459693b732d43aed68238326505750606207dccab0fe37f71a3",
-      "bytes": 11212,
+      "sha256": "98a1be37a9bf6ab9b3985e61f8d71966e7412772b391ba017b53102e27fb35f0",
+      "bytes": 8018,
       "override_target": "asset/base/ui/icons/serpen",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen"
     },
     "asset/base/ui/icons/serpen_sticker_blue": {
       "path": "ui/icons/serpen_sticker_blue.svg",
-      "sha256": "02536d10c6ffb341b04810a62ce767d0e9f466475c42fa8183324a12803235eb",
-      "bytes": 8868,
+      "sha256": "7c9b1a42b79b328366d02f19d05dfd69ff3e0beb7b1f02b798c9e3faf0862245",
+      "bytes": 5717,
       "override_target": "asset/base/ui/icons/serpen_sticker_blue",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_blue"
     },
     "asset/base/ui/icons/serpen_sticker_red": {
       "path": "ui/icons/serpen_sticker_red.svg",
-      "sha256": "642bc098208e247fa0f16c2ef35928a91a65ca6e221f42c63139c6be5caf0216",
-      "bytes": 8868,
+      "sha256": "b78f41ca02c812b4bcedd2ab6bff21dc017a6c91f9da11e8fad27cc64b924697",
+      "bytes": 5717,
       "override_target": "asset/base/ui/icons/serpen_sticker_red",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_red"
     },
     "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet": {
       "path": "aseprite_resources/ingame/epic_buff_animation#sheet.png",
-      "sha256": "e7cd345fd2513414c6b18d5159140e7938a3b7ad4e77a387a8ecfc92ec99ee5b",
-      "bytes": 482,
+      "sha256": "7873bd1de70922b838c79290a5dd21e93f92574cba31317990a29c37f36361f3",
+      "bytes": 420,
       "dimensions": [
         60,
         10
@@ -238,7 +238,7 @@
         2,
         1,
         57,
-        8
+        7
       ],
       "partial_alpha_pixels": 0,
       "override_target": "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet",
@@ -253,7 +253,7 @@
     },
     "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#sheet": {
       "path": "aseprite_resources/ingame/epic_monster_hp_guage#sheet.png",
-      "sha256": "021bd6804cbf7fdd9855435de854fdd63ac3adbc24af13dfe7c3d4132b7b1fac",
+      "sha256": "ac2e1d7d0f44557c9a70e5dbf8c13ac0116621e2c5370a9f528270116c8b33ce",
       "bytes": 215,
       "dimensions": [
         206,
@@ -271,7 +271,7 @@
       "mod_asset_key": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#sheet"
     },
     "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": {
-      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_data",
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_sheet",
       "sha256": "27af66281b79951bcaebca5ea50dcdd6481dabeef0917716f1f45629797469ba",
       "bytes": 181,
       "override_target": "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data",
@@ -289,25 +289,25 @@
       1,
       1,
       7,
+      6
+    ],
+    [
+      1,
+      1,
+      8,
       7
     ],
     [
       1,
       1,
       8,
-      8
-    ],
-    [
-      1,
-      1,
-      8,
-      8
+      7
     ],
     [
       1,
       1,
       7,
-      7
+      6
     ],
     [
       2,

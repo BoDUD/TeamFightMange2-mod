@@ -24,7 +24,7 @@ MOD_ROOT = Path(__file__).resolve().parents[1]
 QA_PATH = MOD_ROOT / "qa" / "quality_items_runtime_pack.json"
 ATLAS_PATH = MOD_ROOT / "aseprite_resources" / "ingame" / "item_icons_18x18#sheet.png"
 SPRITE_DATA_PATH = (
-    MOD_ROOT / "aseprite_resources" / "ingame" / "item_icons_18x18#data.sprite_data"
+    MOD_ROOT / "aseprite_resources" / "ingame" / "item_icons_18x18#data.sprite_sheet"
 )
 ITEM_TEXT_PATH = MOD_ROOT / "text" / "item.i18n"
 

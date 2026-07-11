@@ -33,6 +33,7 @@ QUALITY_BUILDERS = (
     "pack_quality_missing_lol_camps.py",
     "pack_quality_objective_ui.py",
     "pack_quality_towers.py",
+    "pack_quality_nexus.py",
 )
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"

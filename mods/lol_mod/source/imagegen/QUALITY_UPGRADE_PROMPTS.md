@@ -48,6 +48,16 @@ The tower actor was generated as a 4x4 pixel-art contact sheet on solid `#FF00FF
 
 Blue-team runtime art uses the generated cyan energy palette. Red-team art is a deterministic team-color derivation of the same generated geometry so both sides retain identical silhouette, size, frame anchors, and animation timing.
 
+## Nexus / base crystals
+
+The nexus source was generated with built-in imagegen as a strict 2x2 contact sheet on a perfectly flat green chroma-key background: blue nexus, red nexus, blue energy orb, and red energy orb. The prompt required a low sturdy circular dark-stone base, restrained gold trim, short protective pylons, one bold central crystal, identical blue/red geometry, orthographic three-quarter framing, and shapes readable after reduction to the native 57-pixel actor and 31-pixel orb frame widths. It explicitly excluded towers, aura rings, health bars, shadows, characters, text, UI, purple/magenta glow, and external particles.
+
+| Role | Project source | Preserved generated original |
+| --- | --- | --- |
+| Nexus actors and orbs | `jungle/nexus_actor_orb_contact.png` | `exec-cfd890cf-325b-40dc-b63d-d605bc251155.png` |
+
+The blue imagegen cells are the runtime geometry authority. Red-team runtime art is a deterministic hue derivation of the same pixel geometry so the two teams have byte-identical alpha masks and cannot flicker from silhouette drift. The native nexus shadow and destruction effects remain separate and unchanged.
+
 ## Equipment icons
 
 All 30 item icons were generated independently as centered, fully visible, high-resolution fantasy inventory objects on a flat chroma-key background, with no text, logo, UI frame, cast shadow, detached particles, or exact copy of existing Riot artwork. The exact per-item prompts, generated paths, source hashes, and processed hashes are recorded in:
