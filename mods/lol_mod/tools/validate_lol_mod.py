@@ -4323,8 +4323,8 @@ def validate_objective_and_wolf_motion_qa() -> None:
         for record in assets
     }
     for runtime_name, native_dimensions, runtime_dimensions, width_cap in (
-        ("rhino", [1372, 52], [1372, 52], 50),
-        ("stump", [782, 42], [924, 42], 40),
+        ("rhino", [1372, 52], [1435, 52], 64),
+        ("stump", [782, 42], [1302, 47], 56),
     ):
         record = by_runtime.get(runtime_name, {})
         check(bool(record), f"{runtime_name}: small-jungle QA record is missing")
@@ -4335,6 +4335,7 @@ def validate_objective_and_wolf_motion_qa() -> None:
         check(record.get("pack", {}).get("native_anchor_reference_preserved") is True, f"{runtime_name}: native anchor reference is missing")
         motion = record.get("runtime", {}).get("motion_metrics", {})
         check(motion.get("maximum_visible_width_px", 99) <= width_cap, f"{runtime_name}: visible width exceeds tuned envelope")
+        check(motion.get("maximum_visible_width_px", 0) >= width_cap - 1, f"{runtime_name}: actor is undersized for tuned envelope")
         check(motion.get("maximum_idle_run_center_offset_px", 99) <= 1.0, f"{runtime_name}: idle/run body is off-centre")
         check(motion.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, f"{runtime_name}: placement anchor drifted")
         check(motion.get("maximum_bottom_delta_to_native_px") == 0, f"{runtime_name}: native landing line drifted")
@@ -4359,18 +4360,18 @@ def validate_objective_and_wolf_motion_qa() -> None:
     with Image.open(sheet_path) as opened:
         sheet = opened.convert("RGBA")
     document = json.loads(anim_path.read_text(encoding="utf-8"))
-    check(sheet.size == (950, 54), f"Murk Wolf runtime sheet dimensions changed: {sheet.size}")
+    check(sheet.size == (1150, 54), f"Murk Wolf runtime sheet dimensions changed: {sheet.size}")
     motion = runtime.get("motion_metrics", {})
     maximum_visible_width = motion.get("maximum_visible_width_px")
-    check(maximum_visible_width == 32, f"Murk Wolf QA visible-width target changed: {maximum_visible_width}")
+    check(maximum_visible_width == 40, f"Murk Wolf QA visible-width target changed: {maximum_visible_width}")
     actual_widths: list[int] = []
     for tag in document.get("anims", {}):
         widths, _ = tag_motion_metrics(sheet, document, tag)
         actual_widths.extend(widths)
     check(bool(actual_widths), "Murk Wolf runtime animation has no visible frames")
     if actual_widths:
-        check(max(actual_widths) <= 32, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
-        check(max(actual_widths) >= 31, f"Murk Wolf is undersized at {max(actual_widths)}px")
+        check(max(actual_widths) <= 40, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
+        check(max(actual_widths) >= 39, f"Murk Wolf is undersized at {max(actual_widths)}px")
     check(motion.get("maximum_idle_run_center_offset_px", 99) <= 1.0, "Murk Wolf idle/run body is off-centre")
     check(motion.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, "Murk Wolf placement anchor drifted")
     check(motion.get("maximum_bottom_delta_to_native_px") == 0, "Murk Wolf native landing line drifted")
@@ -4432,7 +4433,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.3", "lol_mod version must be 0.7.3")
+    check(mod_info.get("version") == "0.7.4", "lol_mod version must be 0.7.4")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

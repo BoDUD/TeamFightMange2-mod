@@ -4,8 +4,8 @@
   "scope": "static image processing only; no game launch and no test execution",
   "placement_policy": {
     "map_spawn_coordinates_changed": false,
-    "red_blue_buff_fix": "Actor art is re-centred inside the runtime frame and placed on the bundled native alpha-bottom landing line; jungle camp spawn coordinates are untouched.",
-    "wolf_scale_fix": "Murk Wolf visible width is raised from the previous 24px cap to 32px, while native action counts/durations and a <=2px centroid stability gate remain enforced."
+    "red_blue_buff_fix": "Red Brambleback and Blue Sentinel are enlarged to the 64px and 56px tuned envelopes, re-centred inside safely widened runtime frames, and placed on the bundled native alpha-bottom landing line; jungle camp spawn coordinates are untouched.",
+    "wolf_scale_fix": "Murk Wolf visible width is raised from the previous 32px cap to 40px, while native action counts/durations and a <=2px centroid stability gate remain enforced."
   },
   "chroma_key_processing": {
     "tool": "$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py",
@@ -156,25 +156,26 @@
         ],
         "trim_alpha_threshold": 8,
         "resampling": "Pillow Image.Resampling.NEAREST",
-        "single_scale_for_all_actions": 0.1650165017,
+        "single_scale_for_all_actions": 0.2112211221,
         "max_source_visible_dimensions": [
           303,
           240
         ],
         "max_runtime_visible_envelope": [
-          50,
-          40
+          64,
+          51
         ],
         "runtime_sheet_dimensions": [
-          1372,
+          1435,
           52
         ],
-        "native_sheet_dimensions_exact": true,
+        "native_sheet_dimensions_exact": false,
         "native_sheet_height_preserved": true,
-        "native_frame_rectangles_exact": true,
-        "native_frame_rectangles_safely_expanded": false,
+        "native_sheet_height_safely_top_expanded": true,
+        "native_frame_rectangles_exact": false,
+        "native_frame_rectangles_safely_expanded": true,
         "minimum_runtime_frame_dimensions": [
-          0,
+          68,
           0
         ],
         "native_anchor_reference_preserved": true,
@@ -446,10 +447,10 @@
       "runtime": {
         "sheet": {
           "path": "aseprite_resources/ingame/rhino#sheet.png",
-          "size_bytes": 56513,
-          "sha256": "12a7b266bc4d00d4f9061e3f5ce404aa3b2c9aede47950c2d5481c05a0bed485",
+          "size_bytes": 87188,
+          "sha256": "a25830974a2eaf96a58e3e6c3b4fde36cf091115c5b69a87903a03e2c04fd818",
           "dimensions": [
-            1372,
+            1435,
             52
           ],
           "mode": "RGBA",
@@ -457,13 +458,13 @@
             "present": true,
             "min": 0,
             "max": 255,
-            "transparent_pixels": 52617,
-            "partial_pixels": 2111,
-            "opaque_pixels": 16616,
+            "transparent_pixels": 44426,
+            "partial_pixels": 3218,
+            "opaque_pixels": 26976,
             "nonzero_bbox": [
-              70,
-              3,
-              1365,
+              7,
+              0,
+              1431,
               45
             ],
             "corner_values": [
@@ -476,8 +477,8 @@
         },
         "animation": {
           "path": "aseprite_resources/ingame/rhino#anim.fanim",
-          "size_bytes": 3912,
-          "sha256": "fa210772957f0428b4c7a2d94de26684cbd6f7ed390d5279016dacf5e4c2ec77"
+          "size_bytes": 3911,
+          "sha256": "00156cb830fc38c8ee5b3f02c962e9d6575c4c7b043eb6b41107a63d0b8fbf9f"
         },
         "tags": {
           "attack": {
@@ -501,9 +502,9 @@
                 "source_cell": 8,
                 "duration": 0.080000006,
                 "rect": [
-                  802,
                   0,
-                  57,
+                  0,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -513,27 +514,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  8,
-                  6,
-                  51,
+                  7,
+                  0,
+                  62,
                   43
                 ],
                 "visible_dimensions": [
-                  43,
-                  37
+                  55,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.516958,
-                "anchor_delta_to_target_px": -0.209378
+                "body_centroid_offset_from_rect_center_px": -1.151649,
+                "anchor_delta_to_target_px": -0.344069
               },
               {
                 "source_cell": 9,
                 "duration": 0.080000006,
                 "rect": [
-                  860,
+                  68,
                   0,
-                  57,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -543,25 +544,25 @@
                   45
                 ],
                 "alpha_bbox": [
-                  8,
-                  6,
-                  51,
+                  7,
+                  0,
+                  62,
                   43
                 ],
                 "visible_dimensions": [
-                  43,
-                  37
+                  55,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.264852,
-                "anchor_delta_to_target_px": 0.221441
+                "body_centroid_offset_from_rect_center_px": -0.432878,
+                "anchor_delta_to_target_px": 0.023711
               },
               {
                 "source_cell": 10,
                 "duration": 0.080000006,
                 "rect": [
-                  918,
+                  136,
                   0,
                   71,
                   45
@@ -573,79 +574,79 @@
                   45
                 ],
                 "alpha_bbox": [
-                  17,
+                  11,
+                  2,
+                  71,
+                  43
+                ],
+                "visible_dimensions": [
+                  60,
+                  41
+                ],
+                "bottom_matches_native": true,
+                "bottom_delta_to_native_px": 0,
+                "body_centroid_offset_from_rect_center_px": 4.740125,
+                "anchor_delta_to_target_px": 0.210159
+              },
+              {
+                "source_cell": 11,
+                "duration": 0.080000006,
+                "rect": [
+                  207,
+                  0,
+                  71,
+                  45
+                ],
+                "native_rect": [
+                  990,
+                  0,
+                  71,
+                  45
+                ],
+                "alpha_bbox": [
+                  13,
+                  0,
+                  71,
+                  43
+                ],
+                "visible_dimensions": [
+                  58,
+                  43
+                ],
+                "bottom_matches_native": true,
+                "bottom_delta_to_native_px": 0,
+                "body_centroid_offset_from_rect_center_px": 4.255591,
+                "anchor_delta_to_target_px": -0.220694
+              },
+              {
+                "source_cell": 11,
+                "duration": 0.080000006,
+                "rect": [
+                  278,
+                  0,
+                  69,
+                  45
+                ],
+                "native_rect": [
+                  1062,
+                  0,
+                  69,
+                  45
+                ],
+                "alpha_bbox": [
                   12,
-                  66,
-                  43
-                ],
-                "visible_dimensions": [
-                  49,
-                  31
-                ],
-                "bottom_matches_native": true,
-                "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 4.446505,
-                "anchor_delta_to_target_px": -0.083461
-              },
-              {
-                "source_cell": 11,
-                "duration": 0.080000006,
-                "rect": [
-                  990,
-                  0,
-                  71,
-                  45
-                ],
-                "native_rect": [
-                  990,
-                  0,
-                  71,
-                  45
-                ],
-                "alpha_bbox": [
-                  19,
-                  10,
-                  63,
-                  43
-                ],
-                "visible_dimensions": [
-                  44,
-                  33
-                ],
-                "bottom_matches_native": true,
-                "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 4.304369,
-                "anchor_delta_to_target_px": -0.171916
-              },
-              {
-                "source_cell": 11,
-                "duration": 0.080000006,
-                "rect": [
-                  1062,
                   0,
                   69,
-                  45
-                ],
-                "native_rect": [
-                  1062,
-                  0,
-                  69,
-                  45
-                ],
-                "alpha_bbox": [
-                  18,
-                  10,
-                  62,
                   43
                 ],
                 "visible_dimensions": [
-                  44,
-                  33
+                  57,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 4.304369,
-                "anchor_delta_to_target_px": 0.215787
+                "body_centroid_offset_from_rect_center_px": 4.250152,
+                "anchor_delta_to_target_px": 0.161571
               }
             ]
           },
@@ -668,9 +669,9 @@
                 "source_cell": 12,
                 "duration": 0.15,
                 "rect": [
-                  1132,
+                  347,
                   0,
-                  59,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -680,87 +681,87 @@
                   45
                 ],
                 "alpha_bbox": [
-                  11,
-                  10,
-                  51,
+                  9,
+                  1,
+                  61,
                   43
                 ],
                 "visible_dimensions": [
-                  40,
-                  33
+                  52,
+                  42
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.463892,
-                "anchor_delta_to_target_px": 0.265331
+                "body_centroid_offset_from_rect_center_px": -0.415155,
+                "anchor_delta_to_target_px": -0.113716
               },
               {
                 "source_cell": 13,
                 "duration": 0.15,
                 "rect": [
-                  1192,
+                  415,
                   0,
-                  59,
+                  68,
                   43
                 ],
                 "native_rect": [
                   1192,
-                  0,
-                  59,
-                  43
-                ],
-                "alpha_bbox": [
-                  8,
-                  13,
-                  53,
-                  41
-                ],
-                "visible_dimensions": [
-                  45,
-                  28
-                ],
-                "bottom_matches_native": true,
-                "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.193113,
-                "anchor_delta_to_target_px": -0.122953
-              },
-              {
-                "source_cell": 14,
-                "duration": 0.15,
-                "rect": [
-                  1252,
-                  0,
-                  59,
-                  43
-                ],
-                "native_rect": [
-                  1252,
                   0,
                   59,
                   43
                 ],
                 "alpha_bbox": [
                   6,
-                  17,
-                  53,
+                  5,
+                  64,
                   41
                 ],
                 "visible_dimensions": [
-                  47,
-                  24
+                  58,
+                  36
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 1.003943,
-                "anchor_delta_to_target_px": 0.429508
+                "body_centroid_offset_from_rect_center_px": 0.116796,
+                "anchor_delta_to_target_px": 0.30073
+              },
+              {
+                "source_cell": 14,
+                "duration": 0.15,
+                "rect": [
+                  483,
+                  0,
+                  68,
+                  43
+                ],
+                "native_rect": [
+                  1252,
+                  0,
+                  59,
+                  43
+                ],
+                "alpha_bbox": [
+                  3,
+                  10,
+                  62,
+                  41
+                ],
+                "visible_dimensions": [
+                  59,
+                  31
+                ],
+                "bottom_matches_native": true,
+                "bottom_delta_to_native_px": 0,
+                "body_centroid_offset_from_rect_center_px": -0.198121,
+                "anchor_delta_to_target_px": -0.272556
               },
               {
                 "source_cell": 15,
                 "duration": 0.15,
                 "rect": [
-                  1312,
+                  551,
                   0,
-                  59,
+                  68,
                   43
                 ],
                 "native_rect": [
@@ -770,19 +771,19 @@
                   43
                 ],
                 "alpha_bbox": [
-                  4,
-                  21,
-                  53,
+                  2,
+                  16,
+                  65,
                   41
                 ],
                 "visible_dimensions": [
-                  49,
-                  20
+                  63,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.126967,
-                "anchor_delta_to_target_px": -0.409139
+                "body_centroid_offset_from_rect_center_px": 0.352375,
+                "anchor_delta_to_target_px": 0.316268
               }
             ]
           },
@@ -805,9 +806,9 @@
                 "source_cell": 0,
                 "duration": 0.14,
                 "rect": [
-                  60,
+                  619,
                   0,
-                  59,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -817,27 +818,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  10,
-                  3,
-                  52,
+                  8,
+                  0,
+                  62,
                   43
                 ],
                 "visible_dimensions": [
-                  42,
-                  40
+                  54,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.431452,
-                "anchor_delta_to_target_px": 0.431452
+                "body_centroid_offset_from_rect_center_px": -0.366975,
+                "anchor_delta_to_target_px": -0.366975
               },
               {
                 "source_cell": 1,
                 "duration": 0.14,
                 "rect": [
-                  120,
+                  687,
                   0,
-                  59,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -847,27 +848,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  9,
-                  3,
-                  52,
+                  8,
+                  0,
+                  63,
                   43
                 ],
                 "visible_dimensions": [
-                  43,
-                  40
+                  55,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.055761,
-                "anchor_delta_to_target_px": 0.055761
+                "body_centroid_offset_from_rect_center_px": 0.272579,
+                "anchor_delta_to_target_px": 0.272579
               },
               {
                 "source_cell": 2,
                 "duration": 0.14,
                 "rect": [
-                  180,
+                  755,
                   0,
-                  59,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -877,27 +878,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  9,
-                  3,
-                  52,
+                  8,
+                  0,
+                  62,
                   43
                 ],
                 "visible_dimensions": [
-                  43,
-                  40
+                  54,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.183279,
-                "anchor_delta_to_target_px": -0.183279
+                "body_centroid_offset_from_rect_center_px": -0.401185,
+                "anchor_delta_to_target_px": -0.401185
               },
               {
                 "source_cell": 3,
                 "duration": 0.14,
                 "rect": [
-                  240,
+                  823,
                   0,
-                  59,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -907,19 +908,19 @@
                   45
                 ],
                 "alpha_bbox": [
-                  9,
-                  4,
-                  53,
+                  7,
+                  0,
+                  63,
                   43
                 ],
                 "visible_dimensions": [
-                  44,
-                  39
+                  56,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.362097,
-                "anchor_delta_to_target_px": 0.362097
+                "body_centroid_offset_from_rect_center_px": -0.463828,
+                "anchor_delta_to_target_px": -0.463828
               }
             ]
           },
@@ -950,9 +951,9 @@
                 "source_cell": 4,
                 "duration": 0.080000006,
                 "rect": [
-                  300,
+                  891,
                   0,
-                  59,
+                  68,
                   43
                 ],
                 "native_rect": [
@@ -962,27 +963,27 @@
                   43
                 ],
                 "alpha_bbox": [
-                  9,
-                  6,
-                  52,
+                  8,
+                  0,
+                  63,
                   40
                 ],
                 "visible_dimensions": [
-                  43,
-                  34
+                  55,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.119275,
-                "anchor_delta_to_target_px": 0.119275
+                "body_centroid_offset_from_rect_center_px": 0.272265,
+                "anchor_delta_to_target_px": 0.272265
               },
               {
                 "source_cell": 5,
                 "duration": 0.080000006,
                 "rect": [
-                  360,
+                  959,
                   0,
-                  61,
+                  68,
                   43
                 ],
                 "native_rect": [
@@ -992,27 +993,27 @@
                   43
                 ],
                 "alpha_bbox": [
-                  11,
-                  5,
-                  53,
+                  9,
+                  0,
+                  63,
                   40
                 ],
                 "visible_dimensions": [
-                  42,
-                  35
+                  54,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.120137,
-                "anchor_delta_to_target_px": 0.120137
+                "body_centroid_offset_from_rect_center_px": 0.156171,
+                "anchor_delta_to_target_px": 0.156171
               },
               {
                 "source_cell": 6,
                 "duration": 0.080000006,
                 "rect": [
-                  422,
+                  1027,
                   0,
-                  63,
+                  68,
                   43
                 ],
                 "native_rect": [
@@ -1022,27 +1023,27 @@
                   43
                 ],
                 "alpha_bbox": [
-                  13,
-                  4,
-                  53,
+                  10,
+                  0,
+                  61,
                   40
                 ],
                 "visible_dimensions": [
-                  40,
-                  36
+                  51,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.309277,
-                "anchor_delta_to_target_px": 0.309277
+                "body_centroid_offset_from_rect_center_px": -0.039889,
+                "anchor_delta_to_target_px": -0.039889
               },
               {
                 "source_cell": 7,
                 "duration": 0.080000006,
                 "rect": [
-                  486,
+                  1095,
                   0,
-                  63,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -1052,27 +1053,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  9,
-                  9,
-                  54,
+                  6,
+                  0,
+                  64,
                   43
                 ],
                 "visible_dimensions": [
-                  45,
-                  34
+                  58,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.458744,
-                "anchor_delta_to_target_px": -0.458744
+                "body_centroid_offset_from_rect_center_px": 0.302505,
+                "anchor_delta_to_target_px": 0.302505
               },
               {
                 "source_cell": 4,
                 "duration": 0.080000006,
                 "rect": [
-                  550,
+                  1163,
                   0,
-                  61,
+                  68,
                   45
                 ],
                 "native_rect": [
@@ -1082,124 +1083,124 @@
                   45
                 ],
                 "alpha_bbox": [
-                  10,
                   8,
-                  53,
+                  0,
+                  63,
                   42
                 ],
                 "visible_dimensions": [
-                  43,
-                  34
+                  55,
+                  42
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.119275,
-                "anchor_delta_to_target_px": 0.119275
+                "body_centroid_offset_from_rect_center_px": 0.295035,
+                "anchor_delta_to_target_px": 0.295035
               },
               {
                 "source_cell": 5,
                 "duration": 0.080000006,
                 "rect": [
-                  612,
+                  1231,
                   0,
-                  63,
+                  68,
                   49
                 ],
                 "native_rect": [
                   612,
-                  0,
-                  63,
-                  49
-                ],
-                "alpha_bbox": [
-                  12,
-                  10,
-                  54,
-                  45
-                ],
-                "visible_dimensions": [
-                  42,
-                  35
-                ],
-                "bottom_matches_native": true,
-                "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.120137,
-                "anchor_delta_to_target_px": 0.120137
-              },
-              {
-                "source_cell": 6,
-                "duration": 0.080000006,
-                "rect": [
-                  676,
-                  0,
-                  61,
-                  51
-                ],
-                "native_rect": [
-                  676,
-                  0,
-                  61,
-                  51
-                ],
-                "alpha_bbox": [
-                  12,
-                  7,
-                  52,
-                  43
-                ],
-                "visible_dimensions": [
-                  40,
-                  36
-                ],
-                "bottom_matches_native": true,
-                "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.309277,
-                "anchor_delta_to_target_px": 0.309277
-              },
-              {
-                "source_cell": 7,
-                "duration": 0.080000006,
-                "rect": [
-                  738,
-                  0,
-                  63,
-                  49
-                ],
-                "native_rect": [
-                  738,
                   0,
                   63,
                   49
                 ],
                 "alpha_bbox": [
                   9,
-                  8,
-                  54,
-                  42
+                  0,
+                  63,
+                  45
                 ],
                 "visible_dimensions": [
-                  45,
-                  34
+                  54,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.458744,
-                "anchor_delta_to_target_px": -0.458744
+                "body_centroid_offset_from_rect_center_px": 0.226758,
+                "anchor_delta_to_target_px": 0.226758
+              },
+              {
+                "source_cell": 6,
+                "duration": 0.080000006,
+                "rect": [
+                  1299,
+                  0,
+                  68,
+                  51
+                ],
+                "native_rect": [
+                  676,
+                  0,
+                  61,
+                  51
+                ],
+                "alpha_bbox": [
+                  10,
+                  0,
+                  61,
+                  43
+                ],
+                "visible_dimensions": [
+                  51,
+                  43
+                ],
+                "bottom_matches_native": true,
+                "bottom_delta_to_native_px": 0,
+                "body_centroid_offset_from_rect_center_px": 0.029293,
+                "anchor_delta_to_target_px": 0.029293
+              },
+              {
+                "source_cell": 7,
+                "duration": 0.080000006,
+                "rect": [
+                  1367,
+                  0,
+                  68,
+                  49
+                ],
+                "native_rect": [
+                  738,
+                  0,
+                  63,
+                  49
+                ],
+                "alpha_bbox": [
+                  6,
+                  0,
+                  64,
+                  42
+                ],
+                "visible_dimensions": [
+                  58,
+                  42
+                ],
+                "bottom_matches_native": true,
+                "bottom_delta_to_native_px": 0,
+                "body_centroid_offset_from_rect_center_px": 0.290692,
+                "anchor_delta_to_target_px": 0.290692
               }
             ]
           }
         },
         "motion_metrics": {
-          "maximum_visible_width_px": 49,
-          "idle_horizontal_centroid_span_px": 0.614731,
-          "run_horizontal_centroid_span_px": 0.768021,
-          "maximum_idle_run_center_offset_px": 0.458744,
-          "maximum_anchor_delta_to_target_px": 0.458744,
+          "maximum_visible_width_px": 63,
+          "idle_horizontal_centroid_span_px": 0.736407,
+          "run_horizontal_centroid_span_px": 0.342394,
+          "maximum_idle_run_center_offset_px": 0.463828,
+          "maximum_anchor_delta_to_target_px": 0.463828,
           "maximum_bottom_delta_to_native_px": 0
         }
       },
       "static_checks": {
-        "native_sheet_exact_or_height_preserving_reflow": true,
+        "native_sheet_exact_or_safely_top_expanded": true,
         "native_frame_rectangles_exact_or_safely_expanded": true,
         "native_animation_contract_exact": true,
         "all_frame_bottoms_match_native": true,
@@ -1350,26 +1351,27 @@
         ],
         "trim_alpha_threshold": 8,
         "resampling": "Pillow Image.Resampling.NEAREST",
-        "single_scale_for_all_actions": 0.1290322581,
+        "single_scale_for_all_actions": 0.1806451613,
         "max_source_visible_dimensions": [
           310,
           257
         ],
         "max_runtime_visible_envelope": [
-          40,
-          34
+          56,
+          47
         ],
         "runtime_sheet_dimensions": [
-          924,
-          42
+          1302,
+          47
         ],
         "native_sheet_dimensions_exact": false,
-        "native_sheet_height_preserved": true,
+        "native_sheet_height_preserved": false,
+        "native_sheet_height_safely_top_expanded": true,
         "native_frame_rectangles_exact": false,
         "native_frame_rectangles_safely_expanded": true,
         "minimum_runtime_frame_dimensions": [
-          44,
-          0
+          62,
+          47
         ],
         "native_anchor_reference_preserved": true,
         "native_alpha_bottoms_preserved": true,
@@ -1640,25 +1642,25 @@
       "runtime": {
         "sheet": {
           "path": "aseprite_resources/ingame/stump#sheet.png",
-          "size_bytes": 35044,
-          "sha256": "70bf0be11fe618113999acb4b641cf4a00f7d8186a393a60a4a328cc70e998c7",
+          "size_bytes": 64741,
+          "sha256": "4663a131eeea7b5c38969b2e7aee772428b979984969a36142d70e42b49d364a",
           "dimensions": [
-            924,
-            42
+            1302,
+            47
           ],
           "mode": "RGBA",
           "alpha": {
             "present": true,
             "min": 0,
             "max": 255,
-            "transparent_pixels": 26894,
-            "partial_pixels": 1176,
-            "opaque_pixels": 10738,
+            "transparent_pixels": 37855,
+            "partial_pixels": 2264,
+            "opaque_pixels": 21075,
             "nonzero_bbox": [
-              6,
-              3,
-              919,
-              39
+              9,
+              0,
+              1295,
+              45
             ],
             "corner_values": [
               0,
@@ -1670,8 +1672,8 @@
         },
         "animation": {
           "path": "aseprite_resources/ingame/stump#anim.fanim",
-          "size_bytes": 3904,
-          "sha256": "d1f962644deca7f330a3d0df807a40e0e79ea8c99a66775ebae383565237bf64"
+          "size_bytes": 3909,
+          "sha256": "1690487058c0dd1c6766ab8f850ac84aa9e78cfc957736ea161a3b91c7381c4c"
         },
         "tags": {
           "dead": {
@@ -1695,8 +1697,8 @@
                 "rect": [
                   0,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   638,
@@ -1705,28 +1707,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  6,
-                  8,
-                  36,
-                  39
+                  9,
+                  2,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  30,
-                  31
+                  44,
+                  43
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.663171,
-                "anchor_delta_to_target_px": -0.415726
+                "body_centroid_offset_from_rect_center_px": -1.58083,
+                "anchor_delta_to_target_px": -0.333385
               },
               {
                 "source_cell": 13,
                 "duration": 0.15,
                 "rect": [
-                  44,
+                  62,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   674,
@@ -1735,28 +1737,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  5,
-                  10,
-                  38,
-                  39
+                  8,
+                  4,
+                  55,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  29
+                  47,
+                  41
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.154876,
-                "anchor_delta_to_target_px": 0.097403
+                "body_centroid_offset_from_rect_center_px": -1.626719,
+                "anchor_delta_to_target_px": -0.37444
               },
               {
                 "source_cell": 14,
                 "duration": 0.15,
                 "rect": [
-                  88,
+                  124,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   710,
@@ -1765,28 +1767,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  2,
-                  16,
-                  40,
-                  39
+                  4,
+                  12,
+                  57,
+                  45
                 ],
                 "visible_dimensions": [
-                  38,
-                  23
+                  53,
+                  33
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.489745,
-                "anchor_delta_to_target_px": -0.278735
+                "body_centroid_offset_from_rect_center_px": -1.21721,
+                "anchor_delta_to_target_px": -0.006201
               },
               {
                 "source_cell": 15,
                 "duration": 0.15,
                 "rect": [
-                  132,
+                  186,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   746,
@@ -1795,19 +1797,19 @@
                   41
                 ],
                 "alpha_bbox": [
-                  3,
-                  19,
-                  40,
-                  39
+                  6,
+                  17,
+                  57,
+                  45
                 ],
                 "visible_dimensions": [
-                  37,
-                  20
+                  51,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.568818,
-                "anchor_delta_to_target_px": -0.357809
+                "body_centroid_offset_from_rect_center_px": -0.835535,
+                "anchor_delta_to_target_px": 0.375474
               }
             ]
           },
@@ -1830,10 +1832,10 @@
                 "source_cell": 0,
                 "duration": 0.14,
                 "rect": [
-                  176,
+                  248,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   36,
@@ -1842,28 +1844,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
-                  6,
-                  38,
-                  39
+                  10,
+                  0,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  31,
-                  33
+                  43,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.000982,
-                "anchor_delta_to_target_px": -0.000982
+                "body_centroid_offset_from_rect_center_px": -0.217301,
+                "anchor_delta_to_target_px": -0.217301
               },
               {
                 "source_cell": 1,
                 "duration": 0.14,
                 "rect": [
-                  220,
+                  310,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   70,
@@ -1872,28 +1874,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
-                  6,
-                  38,
-                  39
+                  10,
+                  0,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  31,
-                  33
+                  43,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.042482,
-                "anchor_delta_to_target_px": -0.042482
+                "body_centroid_offset_from_rect_center_px": -0.276363,
+                "anchor_delta_to_target_px": -0.276363
               },
               {
                 "source_cell": 2,
                 "duration": 0.14,
                 "rect": [
-                  264,
+                  372,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   106,
@@ -1902,28 +1904,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
-                  6,
-                  38,
-                  39
+                  10,
+                  0,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  31,
-                  33
+                  43,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.014619,
-                "anchor_delta_to_target_px": -0.014619
+                "body_centroid_offset_from_rect_center_px": -0.293712,
+                "anchor_delta_to_target_px": -0.293712
               },
               {
                 "source_cell": 3,
                 "duration": 0.14,
                 "rect": [
-                  308,
+                  434,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   144,
@@ -1932,19 +1934,19 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
-                  6,
-                  38,
-                  39
+                  10,
+                  0,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  31,
-                  33
+                  43,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.003418,
-                "anchor_delta_to_target_px": 0.003418
+                "body_centroid_offset_from_rect_center_px": -0.227362,
+                "anchor_delta_to_target_px": -0.227362
               }
             ]
           },
@@ -1969,10 +1971,10 @@
                 "source_cell": 8,
                 "duration": 0.080000006,
                 "rect": [
-                  352,
+                  496,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   468,
@@ -1981,28 +1983,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  1,
-                  10,
-                  33,
-                  39
+                  4,
+                  5,
+                  48,
+                  45
                 ],
                 "visible_dimensions": [
-                  32,
-                  29
+                  44,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -3.306947,
-                "anchor_delta_to_target_px": -0.480158
+                "body_centroid_offset_from_rect_center_px": -2.766175,
+                "anchor_delta_to_target_px": 0.060614
               },
               {
                 "source_cell": 9,
                 "duration": 0.080000006,
                 "rect": [
-                  396,
+                  558,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   508,
@@ -2011,28 +2013,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  2,
-                  7,
-                  35,
-                  39
+                  6,
+                  0,
+                  52,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  32
+                  46,
+                  45
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -4.050216,
-                "anchor_delta_to_target_px": -0.129016
+                "body_centroid_offset_from_rect_center_px": -3.487042,
+                "anchor_delta_to_target_px": 0.434158
               },
               {
                 "source_cell": 10,
                 "duration": 0.080000006,
                 "rect": [
-                  440,
+                  620,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   550,
@@ -2041,28 +2043,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  3,
-                  10,
-                  42,
-                  39
+                  5,
+                  4,
+                  60,
+                  45
                 ],
                 "visible_dimensions": [
-                  39,
-                  29
+                  55,
+                  41
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.087754,
-                "anchor_delta_to_target_px": 0.367011
+                "body_centroid_offset_from_rect_center_px": -0.639472,
+                "anchor_delta_to_target_px": -0.184707
               },
               {
                 "source_cell": 11,
                 "duration": 0.080000006,
                 "rect": [
-                  484,
+                  682,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   578,
@@ -2071,28 +2073,28 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
                   11,
-                  37,
-                  39
+                  5,
+                  52,
+                  45
                 ],
                 "visible_dimensions": [
-                  30,
-                  28
+                  41,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.823012,
-                "anchor_delta_to_target_px": 0.43427
+                "body_centroid_offset_from_rect_center_px": -1.328192,
+                "anchor_delta_to_target_px": -0.07091
               },
               {
                 "source_cell": 11,
                 "duration": 0.080000006,
                 "rect": [
-                  528,
+                  744,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   608,
@@ -2101,19 +2103,19 @@
                   41
                 ],
                 "alpha_bbox": [
-                  7,
-                  11,
-                  37,
-                  39
+                  12,
+                  5,
+                  53,
+                  45
                 ],
                 "visible_dimensions": [
-                  30,
-                  28
+                  41,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.823012,
-                "anchor_delta_to_target_px": -0.133197
+                "body_centroid_offset_from_rect_center_px": -0.328192,
+                "anchor_delta_to_target_px": 0.361623
               }
             ]
           },
@@ -2144,10 +2146,10 @@
                 "source_cell": 4,
                 "duration": 0.080000006,
                 "rect": [
-                  572,
+                  806,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   180,
@@ -2156,28 +2158,28 @@
                   41
                 ],
                 "alpha_bbox": [
+                  8,
                   6,
-                  11,
-                  39,
-                  39
+                  54,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  39
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.373302,
-                "anchor_delta_to_target_px": 0.373302
+                "body_centroid_offset_from_rect_center_px": -0.106055,
+                "anchor_delta_to_target_px": -0.106055
               },
               {
                 "source_cell": 5,
                 "duration": 0.080000006,
                 "rect": [
-                  616,
+                  868,
                   0,
-                  44,
-                  37
+                  62,
+                  47
                 ],
                 "native_rect": [
                   216,
@@ -2186,28 +2188,28 @@
                   37
                 ],
                 "alpha_bbox": [
-                  8,
-                  7,
-                  38,
-                  35
+                  12,
+                  5,
+                  54,
+                  45
                 ],
                 "visible_dimensions": [
-                  30,
-                  28
+                  42,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.184722,
-                "anchor_delta_to_target_px": -0.184722
+                "body_centroid_offset_from_rect_center_px": 0.350974,
+                "anchor_delta_to_target_px": 0.350974
               },
               {
                 "source_cell": 6,
                 "duration": 0.080000006,
                 "rect": [
-                  660,
+                  930,
                   0,
-                  44,
-                  35
+                  62,
+                  47
                 ],
                 "native_rect": [
                   250,
@@ -2216,28 +2218,28 @@
                   35
                 ],
                 "alpha_bbox": [
-                  7,
+                  9,
                   4,
-                  40,
-                  32
+                  55,
+                  44
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.375979,
-                "anchor_delta_to_target_px": 0.375979
+                "body_centroid_offset_from_rect_center_px": -0.493749,
+                "anchor_delta_to_target_px": -0.493749
               },
               {
                 "source_cell": 7,
                 "duration": 0.080000006,
                 "rect": [
-                  704,
+                  992,
                   0,
-                  44,
-                  37
+                  62,
+                  47
                 ],
                 "native_rect": [
                   284,
@@ -2246,28 +2248,28 @@
                   37
                 ],
                 "alpha_bbox": [
+                  9,
                   6,
-                  7,
-                  39,
-                  35
+                  55,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  39
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.262992,
-                "anchor_delta_to_target_px": -0.262992
+                "body_centroid_offset_from_rect_center_px": -0.055142,
+                "anchor_delta_to_target_px": -0.055142
               },
               {
                 "source_cell": 4,
                 "duration": 0.080000006,
                 "rect": [
-                  748,
+                  1054,
                   0,
-                  44,
-                  41
+                  62,
+                  47
                 ],
                 "native_rect": [
                   318,
@@ -2276,28 +2278,28 @@
                   41
                 ],
                 "alpha_bbox": [
+                  8,
                   6,
-                  11,
-                  39,
-                  39
+                  54,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  39
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.373302,
-                "anchor_delta_to_target_px": 0.373302
+                "body_centroid_offset_from_rect_center_px": -0.106055,
+                "anchor_delta_to_target_px": -0.106055
               },
               {
                 "source_cell": 5,
                 "duration": 0.080000006,
                 "rect": [
-                  792,
+                  1116,
                   0,
-                  44,
-                  37
+                  62,
+                  47
                 ],
                 "native_rect": [
                   354,
@@ -2306,28 +2308,28 @@
                   37
                 ],
                 "alpha_bbox": [
-                  8,
-                  7,
-                  38,
-                  35
+                  12,
+                  5,
+                  54,
+                  45
                 ],
                 "visible_dimensions": [
-                  30,
-                  28
+                  42,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.184722,
-                "anchor_delta_to_target_px": -0.184722
+                "body_centroid_offset_from_rect_center_px": 0.350974,
+                "anchor_delta_to_target_px": 0.350974
               },
               {
                 "source_cell": 6,
                 "duration": 0.080000006,
                 "rect": [
-                  836,
+                  1178,
                   0,
-                  44,
-                  35
+                  62,
+                  47
                 ],
                 "native_rect": [
                   392,
@@ -2336,28 +2338,28 @@
                   35
                 ],
                 "alpha_bbox": [
-                  7,
+                  9,
                   3,
-                  40,
-                  31
+                  55,
+                  43
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  40
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.375979,
-                "anchor_delta_to_target_px": 0.375979
+                "body_centroid_offset_from_rect_center_px": -0.493749,
+                "anchor_delta_to_target_px": -0.493749
               },
               {
                 "source_cell": 7,
                 "duration": 0.080000006,
                 "rect": [
-                  880,
+                  1240,
                   0,
-                  44,
-                  37
+                  62,
+                  47
                 ],
                 "native_rect": [
                   430,
@@ -2366,34 +2368,34 @@
                   37
                 ],
                 "alpha_bbox": [
+                  9,
                   6,
-                  7,
-                  39,
-                  35
+                  55,
+                  45
                 ],
                 "visible_dimensions": [
-                  33,
-                  28
+                  46,
+                  39
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.262992,
-                "anchor_delta_to_target_px": -0.262992
+                "body_centroid_offset_from_rect_center_px": -0.055142,
+                "anchor_delta_to_target_px": -0.055142
               }
             ]
           }
         },
         "motion_metrics": {
-          "maximum_visible_width_px": 39,
-          "idle_horizontal_centroid_span_px": 0.0459,
-          "run_horizontal_centroid_span_px": 0.638971,
-          "maximum_idle_run_center_offset_px": 0.375979,
-          "maximum_anchor_delta_to_target_px": 0.480158,
+          "maximum_visible_width_px": 55,
+          "idle_horizontal_centroid_span_px": 0.076411,
+          "run_horizontal_centroid_span_px": 0.844724,
+          "maximum_idle_run_center_offset_px": 0.493749,
+          "maximum_anchor_delta_to_target_px": 0.493749,
           "maximum_bottom_delta_to_native_px": 0
         }
       },
       "static_checks": {
-        "native_sheet_exact_or_height_preserving_reflow": true,
+        "native_sheet_exact_or_safely_top_expanded": true,
         "native_frame_rectangles_exact_or_safely_expanded": true,
         "native_animation_contract_exact": true,
         "all_frame_bottoms_match_native": true,
@@ -3672,26 +3674,27 @@
         ],
         "trim_alpha_threshold": 8,
         "resampling": "Pillow Image.Resampling.NEAREST",
-        "single_scale_for_all_actions": 0.101910828,
+        "single_scale_for_all_actions": 0.127388535,
         "max_source_visible_dimensions": [
           314,
           227
         ],
         "max_runtime_visible_envelope": [
-          32,
-          26
+          40,
+          29
         ],
         "runtime_sheet_dimensions": [
-          950,
+          1150,
           54
         ],
         "native_sheet_dimensions_exact": false,
         "native_sheet_height_preserved": true,
+        "native_sheet_height_safely_top_expanded": true,
         "native_frame_rectangles_exact": false,
         "native_frame_rectangles_safely_expanded": true,
         "minimum_runtime_frame_dimensions": [
-          38,
-          29
+          46,
+          31
         ],
         "native_anchor_reference_preserved": true,
         "native_alpha_bottoms_preserved": true,
@@ -3898,10 +3901,10 @@
       "runtime": {
         "sheet": {
           "path": "aseprite_resources/ingame/bee#sheet.png",
-          "size_bytes": 15577,
-          "sha256": "84ae7ecfdf648b8203cc496666f3dbd507a929d63766f83b2ec5202c45fa9d41",
+          "size_bytes": 22845,
+          "sha256": "39b69a4976921790b553039318cff1b1af7574f778375199d381c8d74b4741a7",
           "dimensions": [
-            950,
+            1150,
             54
           ],
           "mode": "RGBA",
@@ -3909,13 +3912,13 @@
             "present": true,
             "min": 0,
             "max": 255,
-            "transparent_pixels": 44410,
-            "partial_pixels": 943,
-            "opaque_pixels": 5947,
+            "transparent_pixels": 51282,
+            "partial_pixels": 1461,
+            "opaque_pixels": 9357,
             "nonzero_bbox": [
-              3,
               2,
-              945,
+              0,
+              1144,
               51
             ],
             "corner_values": [
@@ -3928,8 +3931,8 @@
         },
         "animation": {
           "path": "aseprite_resources/ingame/bee#anim.fanim",
-          "size_bytes": 7508,
-          "sha256": "169c4a5ef481c427c52bf6eb38d53684aedcc58791f39e0f0a0ab773e34fdde9"
+          "size_bytes": 7511,
+          "sha256": "5136841cb8707d2dd9511dc9b688c5cafd028bdf9aea5755358ff6e494b8739e"
         },
         "tags": {
           "idle": {
@@ -3977,8 +3980,8 @@
                 "rect": [
                   0,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   28,
@@ -3987,28 +3990,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  38,
+                  46,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   56,
@@ -4017,28 +4020,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  76,
+                  92,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   84,
@@ -4047,28 +4050,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  114,
+                  138,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   110,
@@ -4077,28 +4080,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  152,
+                  184,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   138,
@@ -4107,27 +4110,27 @@
                   25
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  190,
+                  230,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4137,27 +4140,27 @@
                   31
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
+                  2,
+                  1,
+                  39,
                   26
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  228,
+                  276,
                   0,
-                  38,
+                  46,
                   41
                 ],
                 "native_rect": [
@@ -4168,26 +4171,26 @@
                 ],
                 "alpha_bbox": [
                   3,
-                  11,
-                  35,
+                  6,
+                  42,
                   31
                 ],
                 "visible_dimensions": [
-                  32,
-                  20
+                  39,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.136549,
-                "anchor_delta_to_target_px": 0.136549
+                "body_centroid_offset_from_rect_center_px": -0.196506,
+                "anchor_delta_to_target_px": -0.196506
               },
               {
                 "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  266,
+                  322,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4198,27 +4201,27 @@
                 ],
                 "alpha_bbox": [
                   3,
-                  6,
-                  35,
+                  1,
+                  42,
                   26
                 ],
                 "visible_dimensions": [
-                  32,
-                  20
+                  39,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.136549,
-                "anchor_delta_to_target_px": 0.136549
+                "body_centroid_offset_from_rect_center_px": -0.196506,
+                "anchor_delta_to_target_px": -0.196506
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  304,
+                  368,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   244,
@@ -4227,28 +4230,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  342,
+                  414,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   272,
@@ -4257,28 +4260,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  380,
+                  460,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   300,
@@ -4287,28 +4290,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  418,
+                  506,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   326,
@@ -4317,28 +4320,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  456,
+                  552,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   354,
@@ -4347,27 +4350,27 @@
                   25
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  494,
+                  598,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4377,27 +4380,27 @@
                   31
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
+                  2,
+                  1,
+                  39,
                   26
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 3,
                 "duration": 0.030000001,
                 "rect": [
-                  532,
+                  644,
                   0,
-                  38,
+                  46,
                   41
                 ],
                 "native_rect": [
@@ -4408,26 +4411,26 @@
                 ],
                 "alpha_bbox": [
                   4,
-                  10,
-                  34,
+                  5,
+                  42,
                   31
                 ],
                 "visible_dimensions": [
-                  30,
-                  21
+                  38,
+                  26
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.236123,
-                "anchor_delta_to_target_px": 0.236123
+                "body_centroid_offset_from_rect_center_px": 0.156558,
+                "anchor_delta_to_target_px": 0.156558
               },
               {
                 "source_cell": 3,
                 "duration": 0.030000001,
                 "rect": [
-                  570,
+                  690,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4438,18 +4441,18 @@
                 ],
                 "alpha_bbox": [
                   4,
-                  5,
-                  34,
+                  0,
+                  42,
                   26
                 ],
                 "visible_dimensions": [
-                  30,
-                  21
+                  38,
+                  26
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.236123,
-                "anchor_delta_to_target_px": 0.236123
+                "body_centroid_offset_from_rect_center_px": 0.156558,
+                "anchor_delta_to_target_px": 0.156558
               }
             ]
           },
@@ -4474,10 +4477,10 @@
                 "source_cell": 8,
                 "duration": 0.080000006,
                 "rect": [
-                  608,
+                  736,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   460,
@@ -4486,28 +4489,28 @@
                   21
                 ],
                 "alpha_bbox": [
-                  2,
-                  10,
-                  29,
-                  27
+                  3,
+                  7,
+                  37,
+                  29
                 ],
                 "visible_dimensions": [
-                  27,
-                  17
+                  34,
+                  22
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.868806,
-                "anchor_delta_to_target_px": -0.495618
+                "body_centroid_offset_from_rect_center_px": -0.894448,
+                "anchor_delta_to_target_px": 0.478741
               },
               {
                 "source_cell": 9,
                 "duration": 0.080000006,
                 "rect": [
-                  646,
+                  782,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   490,
@@ -4516,27 +4519,27 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
                   2,
-                  33,
-                  25
+                  0,
+                  41,
+                  27
                 ],
                 "visible_dimensions": [
-                  30,
-                  23
+                  39,
+                  27
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.651212,
-                "anchor_delta_to_target_px": 0.279618
+                "body_centroid_offset_from_rect_center_px": -1.743954,
+                "anchor_delta_to_target_px": 0.186876
               },
               {
                 "source_cell": 10,
                 "duration": 0.080000006,
                 "rect": [
-                  684,
+                  828,
                   0,
-                  38,
+                  46,
                   39
                 ],
                 "native_rect": [
@@ -4547,26 +4550,26 @@
                 ],
                 "alpha_bbox": [
                   10,
-                  13,
-                  38,
+                  9,
+                  46,
                   31
                 ],
                 "visible_dimensions": [
-                  28,
-                  18
+                  36,
+                  22
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 3.73548,
-                "anchor_delta_to_target_px": 0.472183
+                "body_centroid_offset_from_rect_center_px": 3.246373,
+                "anchor_delta_to_target_px": -0.016925
               },
               {
                 "source_cell": 11,
                 "duration": 0.080000006,
                 "rect": [
-                  722,
+                  874,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4577,27 +4580,27 @@
                 ],
                 "alpha_bbox": [
                   5,
-                  7,
-                  33,
+                  2,
+                  40,
                   26
                 ],
                 "visible_dimensions": [
-                  28,
-                  19
+                  35,
+                  24
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.833173,
-                "anchor_delta_to_target_px": -0.188927
+                "body_centroid_offset_from_rect_center_px": 0.526132,
+                "anchor_delta_to_target_px": -0.495968
               },
               {
                 "source_cell": 0,
                 "duration": 0.080000006,
                 "rect": [
-                  760,
+                  920,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   580,
@@ -4606,19 +4609,19 @@
                   25
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.42289
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.147288
               }
             ]
           },
@@ -4641,9 +4644,9 @@
                 "source_cell": 12,
                 "duration": 0.15,
                 "rect": [
-                  798,
+                  966,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4653,27 +4656,27 @@
                   31
                 ],
                 "alpha_bbox": [
-                  4,
-                  12,
-                  34,
+                  6,
+                  7,
+                  42,
                   29
                 ],
                 "visible_dimensions": [
-                  30,
-                  17
+                  36,
+                  22
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.603729,
-                "anchor_delta_to_target_px": -0.446425
+                "body_centroid_offset_from_rect_center_px": -1.247161,
+                "anchor_delta_to_target_px": -0.089857
               },
               {
                 "source_cell": 13,
                 "duration": 0.15,
                 "rect": [
-                  836,
+                  1012,
                   0,
-                  38,
+                  46,
                   45
                 ],
                 "native_rect": [
@@ -4683,27 +4686,27 @@
                   45
                 ],
                 "alpha_bbox": [
-                  3,
-                  30,
-                  35,
+                  4,
+                  26,
+                  44,
                   43
                 ],
                 "visible_dimensions": [
-                  32,
-                  13
+                  40,
+                  17
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.349274,
-                "anchor_delta_to_target_px": -0.474929
+                "body_centroid_offset_from_rect_center_px": -0.691666,
+                "anchor_delta_to_target_px": 0.18268
               },
               {
                 "source_cell": 14,
                 "duration": 0.15,
                 "rect": [
-                  874,
+                  1058,
                   0,
-                  38,
+                  46,
                   51
                 ],
                 "native_rect": [
@@ -4713,27 +4716,27 @@
                   51
                 ],
                 "alpha_bbox": [
-                  4,
-                  36,
-                  36,
+                  5,
+                  33,
+                  45,
                   49
                 ],
                 "visible_dimensions": [
-                  32,
-                  13
+                  40,
+                  16
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -1.452961,
-                "anchor_delta_to_target_px": -0.258046
+                "body_centroid_offset_from_rect_center_px": -1.21647,
+                "anchor_delta_to_target_px": -0.021555
               },
               {
                 "source_cell": 15,
                 "duration": 0.15,
                 "rect": [
-                  912,
+                  1104,
                   0,
-                  38,
+                  46,
                   53
                 ],
                 "native_rect": [
@@ -4744,18 +4747,18 @@
                 ],
                 "alpha_bbox": [
                   4,
+                  34,
                   40,
-                  33,
                   51
                 ],
                 "visible_dimensions": [
-                  29,
-                  11
+                  36,
+                  17
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": -0.575858,
-                "anchor_delta_to_target_px": 0.434977
+                "body_centroid_offset_from_rect_center_px": -1.18402,
+                "anchor_delta_to_target_px": -0.173184
               }
             ]
           },
@@ -4804,8 +4807,8 @@
                 "rect": [
                   0,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   28,
@@ -4814,28 +4817,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  38,
+                  46,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   56,
@@ -4844,28 +4847,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  76,
+                  92,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   84,
@@ -4874,28 +4877,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  114,
+                  138,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   110,
@@ -4904,28 +4907,28 @@
                   23
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  152,
+                  184,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   138,
@@ -4934,27 +4937,27 @@
                   25
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  190,
+                  230,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -4964,27 +4967,27 @@
                   31
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
+                  2,
+                  1,
+                  39,
                   26
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  228,
+                  276,
                   0,
-                  38,
+                  46,
                   41
                 ],
                 "native_rect": [
@@ -4995,26 +4998,26 @@
                 ],
                 "alpha_bbox": [
                   3,
-                  11,
-                  35,
+                  6,
+                  42,
                   31
                 ],
                 "visible_dimensions": [
-                  32,
-                  20
+                  39,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.136549,
-                "anchor_delta_to_target_px": 0.136549
+                "body_centroid_offset_from_rect_center_px": -0.196506,
+                "anchor_delta_to_target_px": -0.196506
               },
               {
                 "source_cell": 2,
                 "duration": 0.030000001,
                 "rect": [
-                  266,
+                  322,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -5025,27 +5028,27 @@
                 ],
                 "alpha_bbox": [
                   3,
-                  6,
-                  35,
+                  1,
+                  42,
                   26
                 ],
                 "visible_dimensions": [
-                  32,
-                  20
+                  39,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.136549,
-                "anchor_delta_to_target_px": 0.136549
+                "body_centroid_offset_from_rect_center_px": -0.196506,
+                "anchor_delta_to_target_px": -0.196506
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  304,
+                  368,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   244,
@@ -5054,28 +5057,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  342,
+                  414,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   272,
@@ -5084,28 +5087,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  380,
+                  460,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   300,
@@ -5114,28 +5117,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 1,
                 "duration": 0.030000001,
                 "rect": [
-                  418,
+                  506,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   326,
@@ -5144,28 +5147,28 @@
                   27
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
-                  27
+                  2,
+                  1,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  21
+                  37,
+                  28
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.162276,
-                "anchor_delta_to_target_px": 0.162276
+                "body_centroid_offset_from_rect_center_px": -0.371622,
+                "anchor_delta_to_target_px": -0.371622
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  456,
+                  552,
                   0,
-                  38,
-                  29
+                  46,
+                  31
                 ],
                 "native_rect": [
                   354,
@@ -5174,27 +5177,27 @@
                   25
                 ],
                 "alpha_bbox": [
-                  3,
-                  7,
-                  32,
-                  27
+                  2,
+                  4,
+                  39,
+                  29
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 0,
                 "duration": 0.030000001,
                 "rect": [
-                  494,
+                  598,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -5204,27 +5207,27 @@
                   31
                 ],
                 "alpha_bbox": [
-                  3,
-                  6,
-                  32,
+                  2,
+                  1,
+                  39,
                   26
                 ],
                 "visible_dimensions": [
-                  29,
-                  20
+                  37,
+                  25
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.262633,
-                "anchor_delta_to_target_px": 0.262633
+                "body_centroid_offset_from_rect_center_px": -0.307544,
+                "anchor_delta_to_target_px": -0.307544
               },
               {
                 "source_cell": 3,
                 "duration": 0.030000001,
                 "rect": [
-                  532,
+                  644,
                   0,
-                  38,
+                  46,
                   41
                 ],
                 "native_rect": [
@@ -5235,26 +5238,26 @@
                 ],
                 "alpha_bbox": [
                   4,
-                  10,
-                  34,
+                  5,
+                  42,
                   31
                 ],
                 "visible_dimensions": [
-                  30,
-                  21
+                  38,
+                  26
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.236123,
-                "anchor_delta_to_target_px": 0.236123
+                "body_centroid_offset_from_rect_center_px": 0.156558,
+                "anchor_delta_to_target_px": 0.156558
               },
               {
                 "source_cell": 3,
                 "duration": 0.030000001,
                 "rect": [
-                  570,
+                  690,
                   0,
-                  38,
+                  46,
                   31
                 ],
                 "native_rect": [
@@ -5265,33 +5268,33 @@
                 ],
                 "alpha_bbox": [
                   4,
-                  5,
-                  34,
+                  0,
+                  42,
                   26
                 ],
                 "visible_dimensions": [
-                  30,
-                  21
+                  38,
+                  26
                 ],
                 "bottom_matches_native": true,
                 "bottom_delta_to_native_px": 0,
-                "body_centroid_offset_from_rect_center_px": 0.236123,
-                "anchor_delta_to_target_px": 0.236123
+                "body_centroid_offset_from_rect_center_px": 0.156558,
+                "anchor_delta_to_target_px": 0.156558
               }
             ]
           }
         },
         "motion_metrics": {
-          "maximum_visible_width_px": 32,
-          "idle_horizontal_centroid_span_px": 0.10035,
-          "run_horizontal_centroid_span_px": 0.10035,
-          "maximum_idle_run_center_offset_px": 0.262633,
-          "maximum_anchor_delta_to_target_px": 0.495618,
+          "maximum_visible_width_px": 40,
+          "idle_horizontal_centroid_span_px": 0.485215,
+          "run_horizontal_centroid_span_px": 0.485215,
+          "maximum_idle_run_center_offset_px": 0.371622,
+          "maximum_anchor_delta_to_target_px": 0.495968,
           "maximum_bottom_delta_to_native_px": 0
         }
       },
       "static_checks": {
-        "native_sheet_exact_or_height_preserving_reflow": true,
+        "native_sheet_exact_or_safely_top_expanded": true,
         "native_frame_rectangles_exact_or_safely_expanded": true,
         "native_animation_contract_exact": true,
         "all_frame_bottoms_match_native": true,

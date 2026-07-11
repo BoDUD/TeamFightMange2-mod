@@ -101,6 +101,7 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
+      z: 50;
       text: "ABCD";
     }
   }
@@ -185,6 +186,7 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
+      z: 50;
       text: "ABCD";
     }
   }
@@ -349,6 +351,7 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
+      z: 50;
       text: "ABCD";
     }
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.3",
+  "release": "0.7.4",
   "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, and Nexus crystals",
   "runtime_implemented": {
     "banpick_splashes": [

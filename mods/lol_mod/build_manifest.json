@@ -274,13 +274,13 @@
     },
     {
       "path": "aseprite_resources/ingame/bee#anim.fanim",
-      "size": 7508,
-      "sha256": "169c4a5ef481c427c52bf6eb38d53684aedcc58791f39e0f0a0ab773e34fdde9"
+      "size": 7511,
+      "sha256": "5136841cb8707d2dd9511dc9b688c5cafd028bdf9aea5755358ff6e494b8739e"
     },
     {
       "path": "aseprite_resources/ingame/bee#sheet.png",
-      "size": 15577,
-      "sha256": "84ae7ecfdf648b8203cc496666f3dbd507a929d63766f83b2ec5202c45fa9d41"
+      "size": 22845,
+      "sha256": "39b69a4976921790b553039318cff1b1af7574f778375199d381c8d74b4741a7"
     },
     {
       "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
@@ -494,13 +494,13 @@
     },
     {
       "path": "aseprite_resources/ingame/rhino#anim.fanim",
-      "size": 3912,
-      "sha256": "fa210772957f0428b4c7a2d94de26684cbd6f7ed390d5279016dacf5e4c2ec77"
+      "size": 3911,
+      "sha256": "00156cb830fc38c8ee5b3f02c962e9d6575c4c7b043eb6b41107a63d0b8fbf9f"
     },
     {
       "path": "aseprite_resources/ingame/rhino#sheet.png",
-      "size": 56513,
-      "sha256": "12a7b266bc4d00d4f9061e3f5ce404aa3b2c9aede47950c2d5481c05a0bed485"
+      "size": 87188,
+      "sha256": "a25830974a2eaf96a58e3e6c3b4fde36cf091115c5b69a87903a03e2c04fd818"
     },
     {
       "path": "aseprite_resources/ingame/serpen#anim.fanim",
@@ -514,13 +514,13 @@
     },
     {
       "path": "aseprite_resources/ingame/stump#anim.fanim",
-      "size": 3904,
-      "sha256": "d1f962644deca7f330a3d0df807a40e0e79ea8c99a66775ebae383565237bf64"
+      "size": 3909,
+      "sha256": "1690487058c0dd1c6766ab8f850ac84aa9e78cfc957736ea161a3b91c7381c4c"
     },
     {
       "path": "aseprite_resources/ingame/stump#sheet.png",
-      "size": 35044,
-      "sha256": "70bf0be11fe618113999acb4b641cf4a00f7d8186a393a60a4a328cc70e998c7"
+      "size": 64741,
+      "sha256": "4663a131eeea7b5c38969b2e7aee772428b979984969a36142d70e42b49d364a"
     },
     {
       "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
@@ -659,13 +659,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 355328,
-      "sha256": "fb4d91909606cbdc1d09f9b7cfb0de70c19e9c09762fd34a24305ed07f672d6d"
+      "size": 381440,
+      "sha256": "3abc4040fd4d8c908a350fae78c0d54b5f9acf134c0bb2e87a899e8d84663ec5"
     },
     {
       "path": "mod.mod_info",
-      "size": 931,
-      "sha256": "d4ae6b69ce54cb6417b40b3bc01217c3202e80f4fa5a214eb495b1972d666cc5"
+      "size": 1006,
+      "sha256": "1d7ef1839b46d0c8a706b10c05965e18e7739f8a72a25c5ff2bd960e900d179a"
     },
     {
       "path": "mod.override_info",
@@ -1214,13 +1214,13 @@
     },
     {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
-      "size": 11407,
-      "sha256": "5979ad4543862f16f22193f2abda6e09b3dbc71150415d1c7dbe26c45fbb0ffc"
+      "size": 11446,
+      "sha256": "ddb1ef360e9475c8a8fe501eb03768b5e1505284a4246b8c99ff92b480a46907"
     },
     {
       "path": "ui/layout/banpick/red_pick_slot.ui",
-      "size": 11505,
-      "sha256": "c74436a0ca3106808e7f256b57aa80d9e80d4497a05721671a35d31eadcb3035"
+      "size": 11544,
+      "sha256": "a1abc55f7419dc0a12758b57494c88aaa252e286fc01c246ba270475e081406e"
     },
     {
       "path": "ui/layout/champion_info_component/champion_slot.ui",

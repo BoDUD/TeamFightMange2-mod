@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.3"
+    assert mod_info["version"] == "0.7.4"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -85,6 +85,18 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "runner.team1_order" in source and "runner.team2_order" in source
     assert "top.right.champion_info.data.champions.contents" in source
     assert '&format!("{prefix}.champion")' in source
+    assert "engine_ui::runner::ImageRunner" in source
+    assert "image_source(root, &icon_query)" in source
+    assert "splash_id_from_source" in source
+    assert "snapshot_found && has_explicit_pick" in source
+    assert "stale_owned_source" in source
+    assert "property.source = asset.clone()" in source
+    assert "set_pixel_layout(champion_node, card_x, 1.0, 284.0, 172.0)" in source
+    assert "quality_bp_runtime_telemetry.tsv" in source
+
+    build_script = (MOD / "tools" / "build_native_dll.ps1").read_text(encoding="utf-8")
+    assert '"--extern", "engine_ui=$($engineUi.FullName)"' in build_script
+    assert '"--extern", "engine_core=$($engineCore.FullName)"' in build_script
 
     variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]
     assert "snapshot.seed" in source

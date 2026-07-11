@@ -61,9 +61,9 @@ SPECS = (
         source_name="red_brambleback",
         display_name="Red Brambleback",
         runtime_name="rhino",
-        cell_size=59,
-        max_visible_width=50,
-        max_visible_height=40,
+        cell_size=68,
+        max_visible_width=64,
+        max_visible_height=51,
         baseline=78,
         sequences={
             "idle": [0, 1, 2, 3],
@@ -76,14 +76,15 @@ SPECS = (
             "and originate at the attacking fist; the final recovery cell is held to fill five frames."
         ),
         preserve_native_rects=True,
+        native_frame_min_width=68,
     ),
     PackSpec(
         source_name="blue_sentinel",
         display_name="Blue Sentinel",
         runtime_name="stump",
-        cell_size=44,
-        max_visible_width=40,
-        max_visible_height=34,
+        cell_size=58,
+        max_visible_width=56,
+        max_visible_height=47,
         baseline=84,
         sequences={
             "idle": [0, 1, 2, 3],
@@ -96,7 +97,8 @@ SPECS = (
             "inside source attack cells 9-10; the body-bearing recovery cell is held once."
         ),
         preserve_native_rects=True,
-        native_frame_min_width=44,
+        native_frame_min_width=62,
+        native_frame_min_height=47,
     ),
     PackSpec(
         source_name="gromp",
@@ -123,9 +125,9 @@ SPECS = (
         source_name="murk_wolf",
         display_name="Murk Wolf",
         runtime_name="bee",
-        cell_size=38,
-        max_visible_width=32,
-        max_visible_height=26,
+        cell_size=46,
+        max_visible_width=40,
+        max_visible_height=29,
         baseline=54,
         sequences={
             # Native bee idle/run point at the same 16 rectangles and advance
@@ -137,8 +139,8 @@ SPECS = (
             "dead": [12, 13, 14, 15],
         },
         preserve_native_rects=True,
-        native_frame_min_width=38,
-        native_frame_min_height=29,
+        native_frame_min_width=46,
+        native_frame_min_height=31,
         attack_vfx_note=(
             "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; "
             "the final native frame returns to the stable idle body instead of holding a displaced recovery pose."
@@ -806,8 +808,8 @@ def pack_native_rect_one(
     ]
     if not expanded_layout and sheet.size != native_sheet.size:
         raise ValueError(f"{spec.runtime_name}: native sheet dimensions changed")
-    if expanded_layout and sheet.height != native_sheet.height:
-        raise ValueError(f"{spec.runtime_name}: expanded layout changed native sheet height")
+    if expanded_layout and sheet.height < native_sheet.height:
+        raise ValueError(f"{spec.runtime_name}: expanded layout shrank native sheet height")
     if maximum_visible_width > spec.max_visible_width:
         raise ValueError(
             f"{spec.runtime_name}: visible width {maximum_visible_width} exceeds {spec.max_visible_width}"
@@ -855,6 +857,9 @@ def pack_native_rect_one(
             "runtime_sheet_dimensions": list(sheet.size),
             "native_sheet_dimensions_exact": not expanded_layout,
             "native_sheet_height_preserved": sheet.height == native_sheet.height,
+            "native_sheet_height_safely_top_expanded": (
+                expanded_layout and sheet.height >= native_sheet.height
+            ),
             "native_frame_rectangles_exact": not expanded_layout,
             "native_frame_rectangles_safely_expanded": expanded_layout,
             "minimum_runtime_frame_dimensions": [
@@ -893,10 +898,10 @@ def pack_native_rect_one(
             },
         },
         "static_checks": {
-            "native_sheet_exact_or_height_preserving_reflow": (
+            "native_sheet_exact_or_safely_top_expanded": (
                 sheet.size == native_sheet.size
                 if not expanded_layout
-                else sheet.height == native_sheet.height
+                else sheet.height >= native_sheet.height
             ),
             "native_frame_rectangles_exact_or_safely_expanded": True,
             "native_animation_contract_exact": True,
@@ -1135,13 +1140,14 @@ def main() -> int:
         "placement_policy": {
             "map_spawn_coordinates_changed": False,
             "red_blue_buff_fix": (
-                "Actor art is re-centred inside the runtime frame and placed on "
-                "the bundled native alpha-bottom landing line; jungle camp spawn "
-                "coordinates are untouched."
+                "Red Brambleback and Blue Sentinel are enlarged to the 64px and "
+                "56px tuned envelopes, re-centred inside safely widened runtime "
+                "frames, and placed on the bundled native alpha-bottom landing "
+                "line; jungle camp spawn coordinates are untouched."
             ),
             "wolf_scale_fix": (
-                "Murk Wolf visible width is raised from the previous 24px cap to "
-                "32px, while native action counts/durations and a <=2px centroid "
+                "Murk Wolf visible width is raised from the previous 32px cap to "
+                "40px, while native action counts/durations and a <=2px centroid "
                 "stability gate remain enforced."
             ),
         },

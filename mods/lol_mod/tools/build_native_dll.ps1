@@ -29,15 +29,31 @@ if ($pinned -ne "nightly-2026-05-24") {
 
 $modApi = Get-ChildItem -LiteralPath $depsDir -Filter "libmod_api-*.rlib"
 $gameView = Get-ChildItem -LiteralPath $depsDir -Filter "libgame_view-*.rlib"
-if ($modApi.Count -ne 1 -or $gameView.Count -ne 1) {
-    throw "The SDK must contain exactly one mod_api rlib and one game_view rlib"
+$engineUi = Get-ChildItem -LiteralPath $depsDir -Filter "libengine_ui-*.rlib"
+$engineCore = Get-ChildItem -LiteralPath $depsDir -Filter "libengine_core-*.rlib"
+if (
+    $modApi.Count -ne 1 -or
+    $gameView.Count -ne 1 -or
+    $engineUi.Count -ne 1 -or
+    $engineCore.Count -ne 1
+) {
+    throw "The SDK must contain exactly one mod_api, game_view, engine_ui, and engine_core rlib"
 }
 
 $expectedModApiHash = "C99E9CC2B78D26093234B4749609332F512DAFDB4E34A82BF548EFDA6AA5E384"
 $expectedGameViewHash = "6D8FCCB508697C4244038E97B0C66DA1F7DC2D699950FE06FF6415A795FBC719"
+$expectedEngineUiHash = "A3CDF84F4233275E8E50AE8BCAFB09903C9F42608F00B0FA79EFA63B2136936D"
+$expectedEngineCoreHash = "5275DE1221836C5C25C309CE9438F2E08DF3AFEA61541B85B2C2A8822A8107ED"
 $actualModApiHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $modApi.FullName).Hash
 $actualGameViewHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $gameView.FullName).Hash
-if ($actualModApiHash -ne $expectedModApiHash -or $actualGameViewHash -ne $expectedGameViewHash) {
+$actualEngineUiHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $engineUi.FullName).Hash
+$actualEngineCoreHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $engineCore.FullName).Hash
+if (
+    $actualModApiHash -ne $expectedModApiHash -or
+    $actualGameViewHash -ne $expectedGameViewHash -or
+    $actualEngineUiHash -ne $expectedEngineUiHash -or
+    $actualEngineCoreHash -ne $expectedEngineCoreHash
+) {
     throw "SDK fingerprint does not match the official Teamfight Manager 2 0.5.0_hotfix2 package"
 }
 
@@ -51,6 +67,8 @@ try {
         "-L", "dependency=$depsDir",
         "--extern", "mod_api=$($modApi.FullName)",
         "--extern", "game_view=$($gameView.FullName)",
+        "--extern", "engine_ui=$($engineUi.FullName)",
+        "--extern", "engine_core=$($engineCore.FullName)",
         "-L", "native=$nativeDir"
     )
     $env:CARGO_ENCODED_RUSTFLAGS = $flags -join [char]31
