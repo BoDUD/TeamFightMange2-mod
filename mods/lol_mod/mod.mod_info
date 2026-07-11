@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.7.5",
-  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.5 rebuilds ban/pick splash presentation from the verified Ban/Pick View Plus contract: it rewrites the live card NinePatch render command every frame in post_render instead of resizing stock ImageRunner nodes or relying on static splash siblings. Native question cards, swap-phase state, and champion icons remain untouched below the 284x172 illustration. It also keeps the readable Red Brambleback, Blue Sentinel, and Murk Wolf scale from 0.7.4 with centered bodies, native landing lines, and stable animation timing. The pack includes full-body encyclopedia portraits, image-generated objectives, neutral monsters, towers, Nexus crystals, League-style item art, and locally extracted official Baron audio for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.7.6",
+  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.6 fixes BP detection and follows the verified Ban/Pick View Plus route: it finds blue_picks/red_picks and pick_slot_N from relative UI/pass paths, preserves the actor NinePatch, clones it, and appends a 284x172 illustration overlay. Telemetry is now reserved for real BP candidates instead of being exhausted during startup. It also locks every elemental dragon attack pose to a constant frame-relative ground point, preventing widening breath canvases from walking the model forward. Native question cards, swap-phase state, and compact icons remain intact. The pack includes full-body encyclopedia portraits, image-generated objectives, neutral monsters, towers, Nexus crystals, League-style item art, and locally extracted official Baron audio for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-11",
   "dependencies": [
     {

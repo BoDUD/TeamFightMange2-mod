@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.5"
+    assert mod_info["version"] == "0.7.6"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -85,8 +85,25 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "fn post_render(" in source
     assert "rewrite_bp_render_commands(ui, state)" in source
     assert "RenderCommand::NinePatch" in source
-    assert 'ui.query("main.blue_picks")' in source
-    assert 'ui.query("main.red_picks")' in source
+    assert 'ui.query("blue_picks")' in source
+    assert 'ui.query("red_picks")' in source
+    assert 'ui.query("header.delegate_btn")' in source
+    assert 'ui.query("main.blue_picks")' not in source
+    assert 'ui.query("main.red_picks")' not in source
+    assert "fn bp_identity_from_pass(" in source
+    assert 'pass.contains("blue_picks")' in source
+    assert 'pass.contains("red_picks")' in source
+    assert 'let marker = "pick_slot_"' in source
+    assert '"texture_skip"' in source
+    assert "fn ui_tree_contains_id(" in source
+    assert 'ui_tree_contains_id(&ui.root, "blue_picks")' in source
+    assert 'ui_tree_contains_id(&ui.root, "red_picks")' in source
+    assert "let mut overlays = Vec::new()" in source
+    assert "let mut overlay = (*command).clone()" in source
+    assert "overlays.push(overlay)" in source
+    assert "commands.extend(overlays)" in source
+    assert '"overlay_append"' in source
+    assert '"version=0.7.6;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -99,8 +116,10 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
         key.startswith("asset/base/ui/banpick/illust/") for key in override
     )
     assert "splash_id_from_source" in source
-    assert "texture_rect.w = 1420.0" in source
-    assert "texture_rect.h = 860.0" in source
+    assert "texture_rect.w = 1.0" in source
+    assert "texture_rect.h = 1.0" in source
+    assert "texture_rect.w = 1420.0" not in source
+    assert "texture_rect.h = 860.0" not in source
     assert "original_geometry.1 + 11.0" in source
     assert "*w = 284.0" in source and "*h = 172.0" in source
     assert "*z = 200" in source
@@ -108,6 +127,20 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "done.champion.icon" not in source
     assert "sync_side(" not in source
     assert "quality_bp_runtime_telemetry.tsv" in source
+
+    objective_packer = (MOD / "tools" / "pack_quality_objectives.py").read_text(
+        encoding="utf-8"
+    )
+    assert 'center_on_frame=tag_name in {"base", "idle", "attack"}' in objective_packer
+    assert "DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER = 35.0" in objective_packer
+    assert "bottom_from_frame_center" in objective_packer
+    assert 'elif tag_name == "attack":' in objective_packer
+    assert '"maximum_attack_ground_anchor_offset_px"' in objective_packer
+    assert '"maximum_attack_ground_offset_error_px"' in objective_packer
+    assert '"attack_body_bbox_center_y_span_px"' in objective_packer
+    assert '"dragon_attack_ground_anchors_centered"' in objective_packer
+    assert '"dragon_attack_ground_offsets_stable"' in objective_packer
+    assert '"dragon_attack_body_vertical_span_bounded"' in objective_packer
 
     for filename in ("blue_pick_slot.ui", "red_pick_slot.ui"):
         slot_ui = (MOD / "ui" / "layout" / "banpick" / filename).read_text(

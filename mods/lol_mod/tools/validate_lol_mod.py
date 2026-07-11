@@ -4261,6 +4261,22 @@ def validate_objective_and_wolf_motion_qa() -> None:
             check(idle_span <= 2.0, f"{label}: idle horizontal centroid drifts by {idle_span:.3f}px")
             if not exact_native_frame_rectangles:
                 check(record.get("maximum_idle_center_offset_px", 99) <= 1.0, f"{label}: idle body is not centred")
+                check(
+                    record.get("maximum_attack_ground_anchor_offset_px", 99) <= 1.0,
+                    f"{label}: attack body walks away from the entity centre",
+                )
+                check(
+                    record.get("attack_ground_offset_from_frame_center_target_px") == 35.0,
+                    f"{label}: attack ground target changed",
+                )
+                check(
+                    record.get("maximum_attack_ground_offset_error_px", 99) <= 0.5,
+                    f"{label}: attack body drifts in map depth",
+                )
+                check(
+                    record.get("attack_body_bbox_center_y_span_px", 99) <= 5.0,
+                    f"{label}: attack body vertical pose span is unstable",
+                )
                 check(record.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, f"{label}: runtime anchor drifted")
                 check(record.get("maximum_bottom_delta_to_native_px") == 0, f"{label}: native landing line drifted")
             return sheet_path, anim_path
@@ -4433,7 +4449,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.5", "lol_mod version must be 0.7.5")
+    check(mod_info.get("version") == "0.7.6", "lol_mod version must be 0.7.6")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

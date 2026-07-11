@@ -19,9 +19,9 @@
     "alpha_trim_before_resize": true,
     "resampling": "Pillow Image.Resampling.NEAREST",
     "non_uniform_stretching": false,
-    "body_anchor": "runtime frame centre for dragon base/idle, native alpha centroid/ground anchor for other actions, native per-frame alpha bottom",
+    "body_anchor": "runtime frame centre for dragon base/idle and attack ground contact, native alpha centroid for death, native per-frame alpha bottom",
     "baron_native_sheet_and_frame_rectangles_preserved": true,
-    "dragon_native_timing_and_bottom_anchor_preserved": true,
+    "dragon_native_timing_and_stable_attack_pivot": true,
     "dragon_narrow_body_frames_safely_expanded": true,
     "dragon_scale_calibration": {
       "previous_visible_width_cap_px": 54,
@@ -761,6 +761,10 @@
         "idle_horizontal_centroid_span_px": 0.562527,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.311024,
+        "maximum_attack_ground_anchor_offset_px": 0.366197,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 4.0,
         "maximum_anchor_delta_to_target_px": 0.459195,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
@@ -781,7 +785,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.251503,
-              "body_centroid_offset_from_rect_center_px": 0.251503
+              "body_centroid_offset_from_rect_center_px": 0.251503,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             }
           ],
           "idle": [
@@ -801,7 +807,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.251503,
-              "body_centroid_offset_from_rect_center_px": 0.251503
+              "body_centroid_offset_from_rect_center_px": 0.251503,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 1,
@@ -819,7 +827,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.098174,
-              "body_centroid_offset_from_rect_center_px": -0.098174
+              "body_centroid_offset_from_rect_center_px": -0.098174,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             },
             {
               "source_cell": 2,
@@ -837,7 +847,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.203927,
-              "body_centroid_offset_from_rect_center_px": -0.203927
+              "body_centroid_offset_from_rect_center_px": -0.203927,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 3,
@@ -855,7 +867,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.311024,
-              "body_centroid_offset_from_rect_center_px": -0.311024
+              "body_centroid_offset_from_rect_center_px": -0.311024,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             }
           ],
           "attack": [
@@ -874,8 +888,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.248783,
-              "body_centroid_offset_from_rect_center_px": -2.455279
+              "anchor_delta_to_target_px": 0.018135,
+              "body_centroid_offset_from_rect_center_px": 3.544721,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 8.5
             },
             {
               "source_cell": 5,
@@ -891,9 +907,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.02699,
-              "body_centroid_offset_from_rect_center_px": -1.171632
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": -0.366197,
+              "body_centroid_offset_from_rect_center_px": 0.828368,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 6,
@@ -909,9 +927,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.188679,
-              "body_centroid_offset_from_rect_center_px": -0.036986
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": -0.311321,
+              "body_centroid_offset_from_rect_center_px": 0.963014,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 7,
@@ -927,9 +947,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.190058,
-              "body_centroid_offset_from_rect_center_px": 8.188474
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": -0.309942,
+              "body_centroid_offset_from_rect_center_px": 9.188474,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             },
             {
               "source_cell": 7,
@@ -945,9 +967,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.190058,
-              "body_centroid_offset_from_rect_center_px": 8.188474
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": -0.309942,
+              "body_centroid_offset_from_rect_center_px": 9.188474,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             }
           ],
           "dead": [
@@ -967,7 +991,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.297368,
-              "body_centroid_offset_from_rect_center_px": -1.415263
+              "body_centroid_offset_from_rect_center_px": -1.415263,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 14.5
             },
             {
               "source_cell": 13,
@@ -985,7 +1011,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.333614,
-              "body_centroid_offset_from_rect_center_px": -2.339122
+              "body_centroid_offset_from_rect_center_px": -2.339122,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 18.5
             },
             {
               "source_cell": 14,
@@ -1003,7 +1031,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.367365,
-              "body_centroid_offset_from_rect_center_px": -3.0691
+              "body_centroid_offset_from_rect_center_px": -3.0691,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -1021,7 +1051,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.459195,
-              "body_centroid_offset_from_rect_center_px": -2.24254
+              "body_centroid_offset_from_rect_center_px": -2.24254,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -1039,7 +1071,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.350529,
-              "body_centroid_offset_from_rect_center_px": -2.24254
+              "body_centroid_offset_from_rect_center_px": -2.24254,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -1057,7 +1091,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.115718,
-              "body_centroid_offset_from_rect_center_px": -3.24254
+              "body_centroid_offset_from_rect_center_px": -3.24254,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -1075,7 +1111,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.303848,
-              "body_centroid_offset_from_rect_center_px": -3.24254
+              "body_centroid_offset_from_rect_center_px": -3.24254,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -1093,7 +1131,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -1106,8 +1146,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
-          "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87",
-          "bytes": 89742,
+          "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16",
+          "bytes": 89312,
           "mode": "RGBA",
           "size": [
             1861,
@@ -1115,9 +1155,9 @@
           ],
           "alpha_bbox": [
             8,
-            17,
+            19,
             1846,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -1169,34 +1209,34 @@
           ],
           "attack": [
             [
-              7,
+              13,
               19,
-              75,
+              81,
               73
             ],
             [
-              7,
-              17,
-              80,
-              67
+              9,
+              23,
+              82,
+              73
             ],
             [
-              63,
-              142,
-              144,
-              193
+              64,
+              82,
+              145,
+              133
             ],
             [
-              75,
-              151,
-              156,
-              197
+              76,
+              89,
+              157,
+              135
             ],
             [
-              88,
-              177,
-              169,
-              223
+              89,
+              102,
+              170,
+              148
             ]
           ],
           "dead": [
@@ -1322,6 +1362,10 @@
         "idle_horizontal_centroid_span_px": 0.526902,
         "maximum_base_idle_visible_width_px": 68,
         "maximum_idle_center_offset_px": 0.4263,
+        "maximum_attack_ground_anchor_offset_px": 0.317757,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 3.5,
         "maximum_anchor_delta_to_target_px": 0.653307,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
@@ -1342,7 +1386,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.4263,
-              "body_centroid_offset_from_rect_center_px": 0.4263
+              "body_centroid_offset_from_rect_center_px": 0.4263,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             }
           ],
           "idle": [
@@ -1362,7 +1408,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.4263,
-              "body_centroid_offset_from_rect_center_px": 0.4263
+              "body_centroid_offset_from_rect_center_px": 0.4263,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             },
             {
               "source_cell": 1,
@@ -1380,7 +1428,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.100602,
-              "body_centroid_offset_from_rect_center_px": -0.100602
+              "body_centroid_offset_from_rect_center_px": -0.100602,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             },
             {
               "source_cell": 2,
@@ -1398,7 +1448,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.064772,
-              "body_centroid_offset_from_rect_center_px": -0.064772
+              "body_centroid_offset_from_rect_center_px": -0.064772,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 3,
@@ -1416,7 +1468,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.030218,
-              "body_centroid_offset_from_rect_center_px": -0.030218
+              "body_centroid_offset_from_rect_center_px": -0.030218,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             }
           ],
           "attack": [
@@ -1435,8 +1489,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.242165,
-              "body_centroid_offset_from_rect_center_px": -3.088426
+              "anchor_delta_to_target_px": 0.024752,
+              "body_centroid_offset_from_rect_center_px": 2.911574,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 9.0
             },
             {
               "source_cell": 5,
@@ -1452,9 +1508,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.02145,
-              "body_centroid_offset_from_rect_center_px": -0.183385
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": -0.317757,
+              "body_centroid_offset_from_rect_center_px": 1.816615,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 6,
@@ -1470,9 +1528,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.353211,
-              "body_centroid_offset_from_rect_center_px": -0.075985
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": -0.146789,
+              "body_centroid_offset_from_rect_center_px": 0.924015,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 7,
@@ -1488,9 +1548,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.256614,
-              "body_centroid_offset_from_rect_center_px": 6.389669
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": -0.243386,
+              "body_centroid_offset_from_rect_center_px": 7.389669,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             },
             {
               "source_cell": 7,
@@ -1506,9 +1568,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.256614,
-              "body_centroid_offset_from_rect_center_px": 6.389669
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": -0.243386,
+              "body_centroid_offset_from_rect_center_px": 7.389669,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             }
           ],
           "dead": [
@@ -1528,7 +1592,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.072365,
-              "body_centroid_offset_from_rect_center_px": -1.640267
+              "body_centroid_offset_from_rect_center_px": -1.640267,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 14.5
             },
             {
               "source_cell": 13,
@@ -1546,7 +1612,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.105329,
-              "body_centroid_offset_from_rect_center_px": -2.110837
+              "body_centroid_offset_from_rect_center_px": -2.110837,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 19.0
             },
             {
               "source_cell": 14,
@@ -1564,7 +1632,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.653307,
-              "body_centroid_offset_from_rect_center_px": -3.355042
+              "body_centroid_offset_from_rect_center_px": -3.355042,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -1582,7 +1652,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.462045,
-              "body_centroid_offset_from_rect_center_px": -2.239691
+              "body_centroid_offset_from_rect_center_px": -2.239691,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -1600,7 +1672,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.353379,
-              "body_centroid_offset_from_rect_center_px": -2.239691
+              "body_centroid_offset_from_rect_center_px": -2.239691,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -1618,7 +1692,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.112869,
-              "body_centroid_offset_from_rect_center_px": -3.239691
+              "body_centroid_offset_from_rect_center_px": -3.239691,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -1636,7 +1712,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.300999,
-              "body_centroid_offset_from_rect_center_px": -3.239691
+              "body_centroid_offset_from_rect_center_px": -3.239691,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -1654,7 +1732,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -1667,8 +1747,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
-          "sha256": "b07a1925c87d2a70726fdbdefb8f89b157b926ed195db4284852decdf2f74a3c",
-          "bytes": 96225,
+          "sha256": "7b59816613bd14ff183f9589938bb5d3565d7d4508a6cf5add238129cc5b0625",
+          "bytes": 95851,
           "mode": "RGBA",
           "size": [
             1861,
@@ -1676,9 +1756,9 @@
           ],
           "alpha_bbox": [
             9,
-            17,
+            20,
             1846,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -1730,34 +1810,34 @@
           ],
           "attack": [
             [
-              7,
+              13,
               20,
-              74,
+              80,
               73
             ],
             [
-              8,
-              17,
-              81,
-              67
+              10,
+              23,
+              83,
+              73
             ],
             [
-              63,
-              143,
-              143,
-              193
+              64,
+              83,
+              144,
+              133
             ],
             [
-              73,
-              151,
-              154,
-              197
+              74,
+              89,
+              155,
+              135
             ],
             [
-              86,
-              177,
-              167,
-              223
+              87,
+              102,
+              168,
+              148
             ]
           ],
           "dead": [
@@ -1883,6 +1963,10 @@
         "idle_horizontal_centroid_span_px": 0.755366,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.402899,
+        "maximum_attack_ground_anchor_offset_px": 0.375,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 4.0,
         "maximum_anchor_delta_to_target_px": 0.47078,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
@@ -1903,7 +1987,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.350191,
-              "body_centroid_offset_from_rect_center_px": 0.350191
+              "body_centroid_offset_from_rect_center_px": 0.350191,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             }
           ],
           "idle": [
@@ -1923,7 +2009,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.350191,
-              "body_centroid_offset_from_rect_center_px": 0.350191
+              "body_centroid_offset_from_rect_center_px": 0.350191,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 1,
@@ -1941,7 +2029,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.174521,
-              "body_centroid_offset_from_rect_center_px": -0.174521
+              "body_centroid_offset_from_rect_center_px": -0.174521,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 2,
@@ -1959,7 +2049,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.352467,
-              "body_centroid_offset_from_rect_center_px": -0.352467
+              "body_centroid_offset_from_rect_center_px": -0.352467,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 3,
@@ -1977,7 +2069,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.402899,
-              "body_centroid_offset_from_rect_center_px": 0.402899
+              "body_centroid_offset_from_rect_center_px": 0.402899,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             }
           ],
           "attack": [
@@ -1996,8 +2090,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.015073,
-              "body_centroid_offset_from_rect_center_px": -2.576821
+              "anchor_delta_to_target_px": 0.281991,
+              "body_centroid_offset_from_rect_center_px": 3.423179,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 8.5
             },
             {
               "source_cell": 5,
@@ -2013,9 +2109,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.449453,
-              "body_centroid_offset_from_rect_center_px": -2.036316
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": 0.21134,
+              "body_centroid_offset_from_rect_center_px": 0.963684,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 6,
@@ -2031,9 +2129,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.420398,
-              "body_centroid_offset_from_rect_center_px": -0.7869
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": 0.079602,
+              "body_centroid_offset_from_rect_center_px": 1.2131,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 7,
@@ -2049,9 +2149,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.125,
-              "body_centroid_offset_from_rect_center_px": 4.594311
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": -0.375,
+              "body_centroid_offset_from_rect_center_px": 5.594311,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             },
             {
               "source_cell": 7,
@@ -2067,9 +2169,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.125,
-              "body_centroid_offset_from_rect_center_px": 4.594311
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": -0.375,
+              "body_centroid_offset_from_rect_center_px": 5.594311,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.5
             }
           ],
           "dead": [
@@ -2089,7 +2193,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.47078,
-              "body_centroid_offset_from_rect_center_px": -1.241852
+              "body_centroid_offset_from_rect_center_px": -1.241852,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 14.5
             },
             {
               "source_cell": 13,
@@ -2107,7 +2213,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.357734,
-              "body_centroid_offset_from_rect_center_px": -2.363243
+              "body_centroid_offset_from_rect_center_px": -2.363243,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 19.0
             },
             {
               "source_cell": 14,
@@ -2125,7 +2233,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.257349,
-              "body_centroid_offset_from_rect_center_px": -2.959085
+              "body_centroid_offset_from_rect_center_px": -2.959085,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -2143,7 +2253,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.246807,
-              "body_centroid_offset_from_rect_center_px": -2.948542
+              "body_centroid_offset_from_rect_center_px": -2.948542,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -2161,7 +2273,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.355473,
-              "body_centroid_offset_from_rect_center_px": -2.948542
+              "body_centroid_offset_from_rect_center_px": -2.948542,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -2179,7 +2293,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.17828,
-              "body_centroid_offset_from_rect_center_px": -2.948542
+              "body_centroid_offset_from_rect_center_px": -2.948542,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -2197,7 +2313,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.00985,
-              "body_centroid_offset_from_rect_center_px": -2.948542
+              "body_centroid_offset_from_rect_center_px": -2.948542,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -2215,7 +2333,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -2228,8 +2348,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
-          "sha256": "eb663dbd6dfb5082a85be62b102c9cf51f3f93aa76b4360478bcfc5a0c80f015",
-          "bytes": 97524,
+          "sha256": "1ae405c9c556b7f845cad4a01565d4a8c00ccb297312675bcbf2b429a8f64e41",
+          "bytes": 97128,
           "mode": "RGBA",
           "size": [
             1861,
@@ -2237,9 +2357,9 @@
           ],
           "alpha_bbox": [
             8,
-            16,
+            19,
             1846,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -2291,34 +2411,34 @@
           ],
           "attack": [
             [
-              7,
+              13,
               19,
-              75,
+              81,
               73
             ],
             [
-              6,
-              16,
-              79,
-              67
+              9,
+              22,
+              82,
+              73
             ],
             [
-              62,
-              142,
-              143,
-              193
+              64,
+              82,
+              145,
+              133
             ],
             [
-              71,
-              151,
-              151,
-              197
+              72,
+              89,
+              152,
+              135
             ],
             [
-              84,
-              177,
-              164,
-              223
+              85,
+              102,
+              165,
+              148
             ]
           ],
           "dead": [
@@ -2444,7 +2564,11 @@
         "idle_horizontal_centroid_span_px": 0.089418,
         "maximum_base_idle_visible_width_px": 68,
         "maximum_idle_center_offset_px": 0.061492,
-        "maximum_anchor_delta_to_target_px": 0.44261,
+        "maximum_attack_ground_anchor_offset_px": 0.490385,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 3.0,
+        "maximum_anchor_delta_to_target_px": 0.490385,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
           "base": [
@@ -2464,7 +2588,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.027926,
-              "body_centroid_offset_from_rect_center_px": 0.027926
+              "body_centroid_offset_from_rect_center_px": 0.027926,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             }
           ],
           "idle": [
@@ -2484,7 +2610,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.027926,
-              "body_centroid_offset_from_rect_center_px": 0.027926
+              "body_centroid_offset_from_rect_center_px": 0.027926,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 1,
@@ -2502,7 +2630,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.061492,
-              "body_centroid_offset_from_rect_center_px": -0.061492
+              "body_centroid_offset_from_rect_center_px": -0.061492,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 2,
@@ -2520,7 +2650,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.059506,
-              "body_centroid_offset_from_rect_center_px": -0.059506
+              "body_centroid_offset_from_rect_center_px": -0.059506,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 3,
@@ -2538,7 +2670,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.023903,
-              "body_centroid_offset_from_rect_center_px": 0.023903
+              "body_centroid_offset_from_rect_center_px": 0.023903,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             }
           ],
           "attack": [
@@ -2557,8 +2691,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.171289,
-              "body_centroid_offset_from_rect_center_px": -2.962037
+              "anchor_delta_to_target_px": 0.095628,
+              "body_centroid_offset_from_rect_center_px": 3.037963,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 8.5
             },
             {
               "source_cell": 5,
@@ -2574,9 +2710,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.212876,
-              "body_centroid_offset_from_rect_center_px": -1.839127
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": 0.447917,
+              "body_centroid_offset_from_rect_center_px": 1.160873,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 6,
@@ -2592,9 +2730,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.349246,
-              "body_centroid_offset_from_rect_center_px": -1.02039
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": 0.150754,
+              "body_centroid_offset_from_rect_center_px": 0.97961,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 9.5
             },
             {
               "source_cell": 7,
@@ -2610,9 +2750,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.009615,
-              "body_centroid_offset_from_rect_center_px": -2.063712
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": 0.490385,
+              "body_centroid_offset_from_rect_center_px": -0.063712,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             },
             {
               "source_cell": 7,
@@ -2628,9 +2770,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.009615,
-              "body_centroid_offset_from_rect_center_px": -2.063712
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": 0.490385,
+              "body_centroid_offset_from_rect_center_px": -0.063712,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.5
             }
           ],
           "dead": [
@@ -2650,7 +2794,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.227047,
-              "body_centroid_offset_from_rect_center_px": -1.939678
+              "body_centroid_offset_from_rect_center_px": -1.939678,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 13.0
             },
             {
               "source_cell": 13,
@@ -2668,7 +2814,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.313652,
-              "body_centroid_offset_from_rect_center_px": -1.691857
+              "body_centroid_offset_from_rect_center_px": -1.691857,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 18.0
             },
             {
               "source_cell": 14,
@@ -2686,7 +2834,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.057735,
-              "body_centroid_offset_from_rect_center_px": -2.644
+              "body_centroid_offset_from_rect_center_px": -2.644,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.0
             },
             {
               "source_cell": 15,
@@ -2704,7 +2854,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.132303,
-              "body_centroid_offset_from_rect_center_px": -2.569432
+              "body_centroid_offset_from_rect_center_px": -2.569432,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -2722,7 +2874,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.023637,
-              "body_centroid_offset_from_rect_center_px": -2.569432
+              "body_centroid_offset_from_rect_center_px": -2.569432,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -2740,7 +2894,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.44261,
-              "body_centroid_offset_from_rect_center_px": -3.569432
+              "body_centroid_offset_from_rect_center_px": -3.569432,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -2758,7 +2914,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.36926,
-              "body_centroid_offset_from_rect_center_px": -2.569432
+              "body_centroid_offset_from_rect_center_px": -2.569432,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -2776,7 +2934,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -2789,8 +2949,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
-          "sha256": "3f9d7ba01e8c9675528e0aaf4cad80c36ae4e3ca965db9aa69c2b2fb02640705",
-          "bytes": 99049,
+          "sha256": "2f6a67a61e0d3dd737b9f831e1f02b054131aefa309a8a3ceda1fde7ced93a2d",
+          "bytes": 99018,
           "mode": "RGBA",
           "size": [
             1861,
@@ -2798,9 +2958,9 @@
           ],
           "alpha_bbox": [
             9,
-            16,
+            19,
             1847,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -2852,34 +3012,34 @@
           ],
           "attack": [
             [
-              6,
+              12,
               19,
-              74,
+              80,
               73
             ],
             [
-              7,
-              16,
-              79,
-              67
+              10,
+              22,
+              82,
+              73
             ],
             [
-              62,
-              141,
-              142,
-              193
-            ],
-            [
-              62,
-              149,
+              64,
+              81,
               144,
-              197
+              133
             ],
             [
-              75,
-              175,
-              157,
-              223
+              64,
+              87,
+              146,
+              135
+            ],
+            [
+              77,
+              100,
+              159,
+              148
             ]
           ],
           "dead": [
@@ -3005,7 +3165,11 @@
         "idle_horizontal_centroid_span_px": 0.755686,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.385563,
-        "maximum_anchor_delta_to_target_px": 0.459302,
+        "maximum_attack_ground_anchor_offset_px": 0.051402,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 4.0,
+        "maximum_anchor_delta_to_target_px": 0.404579,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
           "base": [
@@ -3025,7 +3189,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.014188,
-              "body_centroid_offset_from_rect_center_px": -0.014188
+              "body_centroid_offset_from_rect_center_px": -0.014188,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             }
           ],
           "idle": [
@@ -3045,7 +3211,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.014188,
-              "body_centroid_offset_from_rect_center_px": -0.014188
+              "body_centroid_offset_from_rect_center_px": -0.014188,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 1,
@@ -3063,7 +3231,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.370123,
-              "body_centroid_offset_from_rect_center_px": -0.370123
+              "body_centroid_offset_from_rect_center_px": -0.370123,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             },
             {
               "source_cell": 2,
@@ -3081,7 +3251,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.079562,
-              "body_centroid_offset_from_rect_center_px": 0.079562
+              "body_centroid_offset_from_rect_center_px": 0.079562,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 3,
@@ -3099,7 +3271,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.385563,
-              "body_centroid_offset_from_rect_center_px": 0.385563
+              "body_centroid_offset_from_rect_center_px": 0.385563,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 11.0
             }
           ],
           "attack": [
@@ -3118,8 +3292,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.317765,
-              "body_centroid_offset_from_rect_center_px": -2.219035
+              "anchor_delta_to_target_px": -0.050847,
+              "body_centroid_offset_from_rect_center_px": 3.780965,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 8.0
             },
             {
               "source_cell": 5,
@@ -3135,9 +3311,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.353561,
-              "body_centroid_offset_from_rect_center_px": -0.24585
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": 0.014354,
+              "body_centroid_offset_from_rect_center_px": 1.75415,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 6,
@@ -3153,9 +3331,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.448598,
-              "body_centroid_offset_from_rect_center_px": -0.066636
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": -0.051402,
+              "body_centroid_offset_from_rect_center_px": 0.933364,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 7,
@@ -3171,9 +3351,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.459302,
-              "body_centroid_offset_from_rect_center_px": 6.190803
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": -0.040698,
+              "body_centroid_offset_from_rect_center_px": 7.190803,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.0
             },
             {
               "source_cell": 7,
@@ -3189,9 +3371,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": 0.459302,
-              "body_centroid_offset_from_rect_center_px": 6.190803
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": -0.040698,
+              "body_centroid_offset_from_rect_center_px": 7.190803,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 12.0
             }
           ],
           "dead": [
@@ -3211,7 +3395,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.260636,
-              "body_centroid_offset_from_rect_center_px": -1.451996
+              "body_centroid_offset_from_rect_center_px": -1.451996,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 14.5
             },
             {
               "source_cell": 13,
@@ -3229,7 +3415,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.072512,
-              "body_centroid_offset_from_rect_center_px": -2.078021
+              "body_centroid_offset_from_rect_center_px": -2.078021,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 18.5
             },
             {
               "source_cell": 14,
@@ -3247,7 +3435,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.063101,
-              "body_centroid_offset_from_rect_center_px": -2.638635
+              "body_centroid_offset_from_rect_center_px": -2.638635,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -3265,7 +3455,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.358464,
-              "body_centroid_offset_from_rect_center_px": -2.343271
+              "body_centroid_offset_from_rect_center_px": -2.343271,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -3283,7 +3475,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.249798,
-              "body_centroid_offset_from_rect_center_px": -2.343271
+              "body_centroid_offset_from_rect_center_px": -2.343271,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 25.5
             },
             {
               "source_cell": 15,
@@ -3301,7 +3495,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.216449,
-              "body_centroid_offset_from_rect_center_px": -3.343271
+              "body_centroid_offset_from_rect_center_px": -3.343271,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -3319,7 +3515,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.404579,
-              "body_centroid_offset_from_rect_center_px": -3.343271
+              "body_centroid_offset_from_rect_center_px": -3.343271,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 23.5
             },
             {
               "source_cell": 15,
@@ -3337,7 +3535,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -3350,8 +3550,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
-          "sha256": "e88f45a7589314c8729371a098ff797738e130e03a1c2d1e119f95ad6dcdfd6e",
-          "bytes": 96507,
+          "sha256": "2a531dd21507651c7fdb7b9cacef87bdddad84fc2797e0cd86c28d09dc2c9f8e",
+          "bytes": 96185,
           "mode": "RGBA",
           "size": [
             1861,
@@ -3359,9 +3559,9 @@
           ],
           "alpha_bbox": [
             8,
-            17,
+            18,
             1846,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -3413,34 +3613,34 @@
           ],
           "attack": [
             [
-              7,
+              13,
               18,
-              75,
+              81,
               73
             ],
             [
-              8,
-              17,
-              81,
-              67
+              10,
+              23,
+              83,
+              73
             ],
             [
-              63,
-              142,
-              144,
-              193
+              64,
+              82,
+              145,
+              133
             ],
             [
-              74,
-              150,
-              156,
-              197
+              75,
+              88,
+              157,
+              135
             ],
             [
-              87,
-              176,
-              169,
-              223
+              88,
+              101,
+              170,
+              148
             ]
           ],
           "dead": [
@@ -3566,6 +3766,10 @@
         "idle_horizontal_centroid_span_px": 0.671899,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.387482,
+        "maximum_attack_ground_anchor_offset_px": 0.476744,
+        "attack_ground_offset_from_frame_center_target_px": 35.0,
+        "maximum_attack_ground_offset_error_px": 0.0,
+        "attack_body_bbox_center_y_span_px": 4.0,
         "maximum_anchor_delta_to_target_px": 0.480713,
         "maximum_bottom_delta_to_native_px": 0,
         "placement": {
@@ -3586,7 +3790,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.387482,
-              "body_centroid_offset_from_rect_center_px": 0.387482
+              "body_centroid_offset_from_rect_center_px": 0.387482,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             }
           ],
           "idle": [
@@ -3606,7 +3812,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.387482,
-              "body_centroid_offset_from_rect_center_px": 0.387482
+              "body_centroid_offset_from_rect_center_px": 0.387482,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 1,
@@ -3624,7 +3832,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.007597,
-              "body_centroid_offset_from_rect_center_px": 0.007597
+              "body_centroid_offset_from_rect_center_px": 0.007597,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             },
             {
               "source_cell": 2,
@@ -3642,7 +3852,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.284417,
-              "body_centroid_offset_from_rect_center_px": -0.284417
+              "body_centroid_offset_from_rect_center_px": -0.284417,
+              "bottom_offset_from_frame_center_px": 36.0,
+              "bbox_center_y_offset_from_rect_center_px": 9.0
             },
             {
               "source_cell": 3,
@@ -3660,7 +3872,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.106942,
-              "body_centroid_offset_from_rect_center_px": 0.106942
+              "body_centroid_offset_from_rect_center_px": 0.106942,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.0
             }
           ],
           "attack": [
@@ -3679,8 +3893,10 @@
                 75
               ],
               "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.381636,
-              "body_centroid_offset_from_rect_center_px": -1.848265
+              "anchor_delta_to_target_px": -0.114719,
+              "body_centroid_offset_from_rect_center_px": 4.151735,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 6.5
             },
             {
               "source_cell": 5,
@@ -3696,9 +3912,11 @@
                 89,
                 75
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.003386,
-              "body_centroid_offset_from_rect_center_px": -1.445545
+              "bottom_delta_to_native_px": 6,
+              "anchor_delta_to_target_px": -0.342593,
+              "body_centroid_offset_from_rect_center_px": 0.554455,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 8.5
             },
             {
               "source_cell": 6,
@@ -3714,9 +3932,11 @@
                 197,
                 195
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.064516,
-              "body_centroid_offset_from_rect_center_px": -1.697323
+              "bottom_delta_to_native_px": -60,
+              "anchor_delta_to_target_px": 0.435484,
+              "body_centroid_offset_from_rect_center_px": 0.302677,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 7.5
             },
             {
               "source_cell": 7,
@@ -3732,9 +3952,11 @@
                 201,
                 199
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.023256,
-              "body_centroid_offset_from_rect_center_px": 5.427367
+              "bottom_delta_to_native_px": -62,
+              "anchor_delta_to_target_px": 0.476744,
+              "body_centroid_offset_from_rect_center_px": 7.427367,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             },
             {
               "source_cell": 7,
@@ -3750,9 +3972,11 @@
                 227,
                 225
               ],
-              "bottom_delta_to_native_px": 0,
-              "anchor_delta_to_target_px": -0.023256,
-              "body_centroid_offset_from_rect_center_px": 5.427367
+              "bottom_delta_to_native_px": -75,
+              "anchor_delta_to_target_px": 0.476744,
+              "body_centroid_offset_from_rect_center_px": 7.427367,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 10.5
             }
           ],
           "dead": [
@@ -3772,7 +3996,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.095192,
-              "body_centroid_offset_from_rect_center_px": -1.61744
+              "body_centroid_offset_from_rect_center_px": -1.61744,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 13.0
             },
             {
               "source_cell": 13,
@@ -3790,7 +4016,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.43875,
-              "body_centroid_offset_from_rect_center_px": -2.444259
+              "body_centroid_offset_from_rect_center_px": -2.444259,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 16.5
             },
             {
               "source_cell": 14,
@@ -3808,7 +4036,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.254305,
-              "body_centroid_offset_from_rect_center_px": -2.95604
+              "body_centroid_offset_from_rect_center_px": -2.95604,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 20.5
             },
             {
               "source_cell": 15,
@@ -3826,7 +4056,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.28233,
-              "body_centroid_offset_from_rect_center_px": -2.419405
+              "body_centroid_offset_from_rect_center_px": -2.419405,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 24.5
             },
             {
               "source_cell": 15,
@@ -3844,7 +4076,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": 0.173664,
-              "body_centroid_offset_from_rect_center_px": -2.419405
+              "body_centroid_offset_from_rect_center_px": -2.419405,
+              "bottom_offset_from_frame_center_px": 37.0,
+              "bbox_center_y_offset_from_rect_center_px": 24.5
             },
             {
               "source_cell": 15,
@@ -3862,7 +4096,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.292583,
-              "body_centroid_offset_from_rect_center_px": -3.419405
+              "body_centroid_offset_from_rect_center_px": -3.419405,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -3880,7 +4116,9 @@
               ],
               "bottom_delta_to_native_px": 0,
               "anchor_delta_to_target_px": -0.480713,
-              "body_centroid_offset_from_rect_center_px": -3.419405
+              "body_centroid_offset_from_rect_center_px": -3.419405,
+              "bottom_offset_from_frame_center_px": 35.0,
+              "bbox_center_y_offset_from_rect_center_px": 22.5
             },
             {
               "source_cell": 15,
@@ -3898,7 +4136,9 @@
               ],
               "bottom_delta_to_native_px": null,
               "anchor_delta_to_target_px": null,
-              "body_centroid_offset_from_rect_center_px": null
+              "body_centroid_offset_from_rect_center_px": null,
+              "bottom_offset_from_frame_center_px": null,
+              "bbox_center_y_offset_from_rect_center_px": null
             }
           ]
         },
@@ -3911,8 +4151,8 @@
         },
         "sheet": {
           "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
-          "sha256": "c1bb8f44f342435757aeab109467c420915c4fc1853b48fbd5d6f97518a95a3f",
-          "bytes": 103365,
+          "sha256": "371b3611992f8369161f6d561ecb1e2d4d03a53c10768bfd66c69dd6d98a311a",
+          "bytes": 102821,
           "mode": "RGBA",
           "size": [
             1861,
@@ -3920,9 +4160,9 @@
           ],
           "alpha_bbox": [
             8,
-            13,
+            15,
             1846,
-            223
+            148
           ],
           "transparent_corners": true
         },
@@ -3974,34 +4214,34 @@
           ],
           "attack": [
             [
-              7,
+              13,
               15,
-              76,
+              82,
               73
             ],
             [
-              6,
-              13,
-              81,
-              67
+              8,
+              19,
+              83,
+              73
             ],
             [
-              61,
-              137,
-              143,
-              193
+              63,
+              77,
+              145,
+              133
             ],
             [
-              74,
-              147,
-              156,
-              197
+              76,
+              85,
+              158,
+              135
             ],
             [
-              87,
-              173,
-              169,
-              223
+              89,
+              98,
+              171,
+              148
             ]
           ],
           "dead": [
@@ -4056,8 +4296,8 @@
       "dynamic_rotation_owned_by": "main objective runtime task",
       "sheet": {
         "path": "aseprite_resources/ingame/serpen#sheet.png",
-        "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87",
-        "bytes": 89742,
+        "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16",
+        "bytes": 89312,
         "mode": "RGBA",
         "size": [
           1861,
@@ -4065,9 +4305,9 @@
         ],
         "alpha_bbox": [
           8,
-          17,
+          19,
           1846,
-          223
+          148
         ],
         "transparent_corners": true
       },
@@ -4121,34 +4361,34 @@
         ],
         "attack": [
           [
-            7,
+            13,
             19,
-            75,
+            81,
             73
           ],
           [
-            7,
-            17,
-            80,
-            67
+            9,
+            23,
+            82,
+            73
           ],
           [
-            63,
-            142,
-            144,
-            193
+            64,
+            82,
+            145,
+            133
           ],
           [
-            75,
-            151,
-            156,
-            197
+            76,
+            89,
+            157,
+            135
           ],
           [
-            88,
-            177,
-            169,
-            223
+            89,
+            102,
+            170,
+            148
           ]
         ],
         "dead": [
@@ -4217,6 +4457,9 @@
     "dragon_base_idle_size_target_reached": true,
     "dragon_idle_centres_match_runtime_frame_centres": true,
     "dragon_anchor_deltas_bounded": true,
+    "dragon_attack_ground_anchors_centered": true,
+    "dragon_attack_ground_offsets_stable": true,
+    "dragon_attack_body_vertical_span_bounded": true,
     "dragon_hot_magenta_edge_removed": true,
     "dragon_breath_frames_extend_right": true,
     "epic_target_effect_frames_nonempty": true,

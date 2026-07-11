@@ -329,8 +329,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
-      "size": 99049,
-      "sha256": "3f9d7ba01e8c9675528e0aaf4cad80c36ae4e3ca965db9aa69c2b2fb02640705"
+      "size": 99018,
+      "sha256": "2f6a67a61e0d3dd737b9f831e1f02b054131aefa309a8a3ceda1fde7ced93a2d"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
@@ -339,8 +339,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
-      "size": 103365,
-      "sha256": "c1bb8f44f342435757aeab109467c420915c4fc1853b48fbd5d6f97518a95a3f"
+      "size": 102821,
+      "sha256": "371b3611992f8369161f6d561ecb1e2d4d03a53c10768bfd66c69dd6d98a311a"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
@@ -349,8 +349,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
-      "size": 96507,
-      "sha256": "e88f45a7589314c8729371a098ff797738e130e03a1c2d1e119f95ad6dcdfd6e"
+      "size": 96185,
+      "sha256": "2a531dd21507651c7fdb7b9cacef87bdddad84fc2797e0cd86c28d09dc2c9f8e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
@@ -359,8 +359,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
-      "size": 89742,
-      "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87"
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
@@ -369,8 +369,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
-      "size": 97524,
-      "sha256": "eb663dbd6dfb5082a85be62b102c9cf51f3f93aa76b4360478bcfc5a0c80f015"
+      "size": 97128,
+      "sha256": "1ae405c9c556b7f845cad4a01565d4a8c00ccb297312675bcbf2b429a8f64e41"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
@@ -379,8 +379,8 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
-      "size": 96225,
-      "sha256": "b07a1925c87d2a70726fdbdefb8f89b157b926ed195db4284852decdf2f74a3c"
+      "size": 95851,
+      "sha256": "7b59816613bd14ff183f9589938bb5d3565d7d4508a6cf5add238129cc5b0625"
     },
     {
       "path": "aseprite_resources/ingame/epic#anim.fanim",
@@ -509,8 +509,8 @@
     },
     {
       "path": "aseprite_resources/ingame/serpen#sheet.png",
-      "size": 89742,
-      "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87"
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
     },
     {
       "path": "aseprite_resources/ingame/stump#anim.fanim",
@@ -659,13 +659,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 388608,
-      "sha256": "9e5cb08e95cee47f2f2a614c3ab6161b89d50c03670fc9ee369c2dcf9fc4deef"
+      "size": 414208,
+      "sha256": "c42fd95438bb25d1a9e2478cf67d5c9ad0473c0ea38d543299fe1887005bc96f"
     },
     {
       "path": "mod.mod_info",
-      "size": 1185,
-      "sha256": "506cf9fe83a6d028adc8be107f543d0f60759b1994683998ad7eeec4e49d9504"
+      "size": 1225,
+      "sha256": "cdcdf438d3805aaa5af791152a5f6de55a77d5f4cc551230d4c04fdaab19b8a1"
     },
     {
       "path": "mod.override_info",

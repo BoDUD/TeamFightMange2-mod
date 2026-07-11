@@ -33,6 +33,7 @@ BARON_NATIVE_VISIBLE_WIDTH = 106
 DRAGON_TUNED_BODY_WIDTH = 68
 DRAGON_MAX_VISIBLE_WIDTH = 80
 DRAGON_MIN_FRAME_WIDTH = 88
+DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER = 35.0
 CHROMA_KEY = (255, 0, 255)
 CHROMA_CLEAR_DISTANCE = 82.0
 CHROMA_EDGE_BAND_DEPTH = 3
@@ -428,6 +429,7 @@ def render_native_actor_frame(
     mirror: bool = False,
     anchor_mode: str = "centroid",
     center_on_frame: bool = False,
+    bottom_from_frame_center: float | None = None,
 ) -> Image.Image:
     output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
     source_bbox = source_cell.getchannel("A").getbbox()
@@ -450,7 +452,12 @@ def render_native_actor_frame(
             source.getchannel("A").point(lambda value: value * opacity // 255)
         )
 
-    if native_bbox is None:
+    if bottom_from_frame_center is not None:
+        target_bottom = round(
+            (native_frame.height + 1) / 2 + bottom_from_frame_center
+        )
+        target_anchor = (native_frame.width - 1) / 2
+    elif native_bbox is None:
         target_bottom = native_frame.height - 2
         target_anchor = (native_frame.width - 1) / 2
     else:
@@ -1024,7 +1031,12 @@ def pack_dragon(
                 scale=body_scale,
                 opacity=opacity,
                 anchor_mode=anchor_mode,
-                center_on_frame=tag_name in {"base", "idle"},
+                center_on_frame=tag_name in {"base", "idle", "attack"},
+                bottom_from_frame_center=(
+                    DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER
+                    if tag_name == "attack"
+                    else None
+                ),
             )
             place_frame(
                 sheet,
@@ -1037,10 +1049,19 @@ def pack_dragon(
                 anchor_delta = None
                 bottom_delta = None
                 center_offset = None
+                bottom_offset_from_frame_center = None
+                bbox_center_y_offset = None
             else:
                 if tag_name in {"base", "idle"}:
                     target_anchor = (generated_width - 1) / 2
                     rendered_anchor = weighted_alpha_centroid_x(rendered)
+                elif tag_name == "attack":
+                    # The custom dragon must stay on the entity centre while
+                    # the native attack rectangles widen for breath VFX. Using
+                    # the native frame's shifting ground anchor made every
+                    # successive attack pose visibly walk forward.
+                    target_anchor = (generated_width - 1) / 2
+                    rendered_anchor = ground_anchor_x(rendered)
                 elif anchor_mode == "ground":
                     target_anchor = ground_anchor_x(native_reference)
                     rendered_anchor = ground_anchor_x(rendered)
@@ -1058,6 +1079,15 @@ def pack_dragon(
                     - (generated_width - 1) / 2,
                     6,
                 )
+                bottom_offset_from_frame_center = round(
+                    (rendered_bbox[3] - 1) - (generated_height - 1) / 2,
+                    6,
+                )
+                bbox_center_y_offset = round(
+                    (rendered_bbox[1] + rendered_bbox[3] - 1) / 2
+                    - (generated_height - 1) / 2,
+                    6,
+                )
             tag_placements.append(
                 {
                     "source_cell": source_index,
@@ -1066,6 +1096,8 @@ def pack_dragon(
                     "bottom_delta_to_native_px": bottom_delta,
                     "anchor_delta_to_target_px": anchor_delta,
                     "body_centroid_offset_from_rect_center_px": center_offset,
+                    "bottom_offset_from_frame_center_px": bottom_offset_from_frame_center,
+                    "bbox_center_y_offset_from_rect_center_px": bbox_center_y_offset,
                 }
             )
         placement_records[tag_name] = tag_placements
@@ -1091,17 +1123,43 @@ def pack_dragon(
         for placement in placements
         if not (tag_name == "dead" and placement["bottom_delta_to_native_px"] is None)
     ]
+    native_bottom_placements = [
+        placement
+        for tag_name, placements in placement_records.items()
+        for placement in placements
+        if tag_name != "attack"
+        and not (tag_name == "dead" and placement["bottom_delta_to_native_px"] is None)
+    ]
     maximum_anchor_delta = max(
         abs(placement["anchor_delta_to_target_px"])
         for placement in body_placements
     )
     maximum_bottom_delta = max(
         abs(placement["bottom_delta_to_native_px"])
-        for placement in body_placements
+        for placement in native_bottom_placements
     )
     maximum_idle_center_offset = max(
         abs(placement["body_centroid_offset_from_rect_center_px"])
         for placement in placement_records["idle"]
+    )
+    maximum_attack_ground_anchor_offset = max(
+        abs(placement["anchor_delta_to_target_px"])
+        for placement in placement_records["attack"]
+    )
+    attack_bottom_offsets = [
+        placement["bottom_offset_from_frame_center_px"]
+        for placement in placement_records["attack"]
+    ]
+    maximum_attack_bottom_offset_error = max(
+        abs(offset - DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER)
+        for offset in attack_bottom_offsets
+    )
+    attack_bbox_center_y_offsets = [
+        placement["bbox_center_y_offset_from_rect_center_px"]
+        for placement in placement_records["attack"]
+    ]
+    attack_bbox_center_y_span = (
+        max(attack_bbox_center_y_offsets) - min(attack_bbox_center_y_offsets)
     )
     base_idle_widths = [
         bbox[2] - bbox[0]
@@ -1142,6 +1200,21 @@ def pack_dragon(
         "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
         "maximum_base_idle_visible_width_px": maximum_base_idle_width,
         "maximum_idle_center_offset_px": round(maximum_idle_center_offset, 6),
+        "maximum_attack_ground_anchor_offset_px": round(
+            maximum_attack_ground_anchor_offset,
+            6,
+        ),
+        "attack_ground_offset_from_frame_center_target_px": (
+            DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER
+        ),
+        "maximum_attack_ground_offset_error_px": round(
+            maximum_attack_bottom_offset_error,
+            6,
+        ),
+        "attack_body_bbox_center_y_span_px": round(
+            attack_bbox_center_y_span,
+            6,
+        ),
         "maximum_anchor_delta_to_target_px": round(maximum_anchor_delta, 6),
         "maximum_bottom_delta_to_native_px": maximum_bottom_delta,
         "placement": placement_records,
@@ -1213,9 +1286,9 @@ def main() -> int:
             "alpha_trim_before_resize": True,
             "resampling": "Pillow Image.Resampling.NEAREST",
             "non_uniform_stretching": False,
-            "body_anchor": "runtime frame centre for dragon base/idle, native alpha centroid/ground anchor for other actions, native per-frame alpha bottom",
+            "body_anchor": "runtime frame centre for dragon base/idle and attack ground contact, native alpha centroid for death, native per-frame alpha bottom",
             "baron_native_sheet_and_frame_rectangles_preserved": True,
-            "dragon_native_timing_and_bottom_anchor_preserved": True,
+            "dragon_native_timing_and_stable_attack_pivot": True,
             "dragon_narrow_body_frames_safely_expanded": True,
             "dragon_scale_calibration": {
                 "previous_visible_width_cap_px": 54,
@@ -1342,6 +1415,18 @@ def main() -> int:
             ),
             "dragon_anchor_deltas_bounded": all(
                 record["maximum_anchor_delta_to_target_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_attack_ground_anchors_centered": all(
+                record["maximum_attack_ground_anchor_offset_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_attack_ground_offsets_stable": all(
+                record["maximum_attack_ground_offset_error_px"] <= 0.5
+                for record in dragons.values()
+            ),
+            "dragon_attack_body_vertical_span_bounded": all(
+                record["attack_body_bbox_center_y_span_px"] <= 5.0
                 for record in dragons.values()
             ),
             "dragon_hot_magenta_edge_removed": all(

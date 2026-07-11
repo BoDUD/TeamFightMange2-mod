@@ -402,11 +402,30 @@ impl BpRenderSide {
 }
 
 fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
-    // The reference mod uses `main.header.bp_settings` as its BP-page marker.
-    // Our minimal layout intentionally has no settings button, so the native
-    // blue/red pick containers are the equivalent scene guard.
-    let bp_ui_found = ui.query("main.blue_picks").is_some() || ui.query("main.red_picks").is_some();
-    let command_count: usize = state.commands.values().map(Vec::len).sum();
+    // The native layout root is `main:match_ui`, so GameUI queries are relative
+    // (`blue_picks`, not `main.blue_picks`). Ban/Pick View Plus also identifies
+    // the concrete side and slot from RenderState pass keys. Prefer that exact
+    // route, with relative UI + geometry only as a compatibility fallback.
+    let queried_blue = ui.query("blue_picks").is_some();
+    let queried_red = ui.query("red_picks").is_some();
+    let queried_delegate =
+        ui.query("header.delegate_btn").is_some() || ui.query("main.header.delegate_btn").is_some();
+    let tree_blue = ui_tree_contains_id(&ui.root, "blue_picks");
+    let tree_red = ui_tree_contains_id(&ui.root, "red_picks");
+    let matched_passes = state
+        .commands
+        .keys()
+        .filter(|pass| bp_identity_from_pass(pass).is_some())
+        .count();
+    let bp_ui_found = queried_blue
+        || queried_red
+        || queried_delegate
+        || tree_blue
+        || tree_red
+        || matched_passes > 0;
+    if !bp_ui_found {
+        return;
+    }
     write_bp_render_telemetry_once(
         "scan",
         "",
@@ -414,21 +433,79 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "bp_ui_found={bp_ui_found};passes={};commands={command_count}",
-            state.commands.len()
+            "version=0.7.6;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            ui.root.id,
+            state.commands.len(),
         ),
     );
-    if !bp_ui_found {
-        return;
-    }
 
     for (pass, commands) in &mut state.commands {
+        let pass_identity = bp_identity_from_pass(pass);
         let map_width = state
             .map_size
             .get(pass)
             .map(|(width, _)| *width)
             .unwrap_or(1920.0);
-        for command in commands {
+        let mut overlays = Vec::new();
+        for command in commands.iter() {
+            let RenderCommand::NinePatch {
+                texture,
+                x,
+                y,
+                w,
+                h,
+                ..
+            } = command
+            else {
+                continue;
+            };
+
+            let Some(champion_id) = splash_id_from_source(texture) else {
+                if pass_identity.is_some() && texture.contains("/champions/") {
+                    write_bp_render_telemetry_once(
+                        "texture_skip",
+                        "",
+                        None,
+                        texture,
+                        "",
+                        &format!("pass={pass};map_width={map_width:.1}"),
+                    );
+                }
+                continue;
+            };
+            let geometry_identity = || {
+                let side = bp_side_from_geometry(*x, *y, *h, map_width)?;
+                let slot = bp_slot_from_geometry(*y, *h)?;
+                Some((side, slot))
+            };
+            let Some((side, slot_index)) = pass_identity.or_else(geometry_identity) else {
+                write_bp_render_telemetry_once(
+                    "candidate_skip",
+                    "",
+                    None,
+                    texture,
+                    "",
+                    &format!(
+                        "champion={champion_id};pass={pass};map_width={map_width:.1};geometry={x:.1},{y:.1},{w:.1},{h:.1}"
+                    ),
+                );
+                continue;
+            };
+            let Some(asset) = splash_asset(champion_id) else {
+                continue;
+            };
+
+            let original_texture = texture.clone();
+            let original_geometry = (*x, *y, *w, *h);
+            let target_x = match side {
+                BpRenderSide::Blue => original_geometry.0 - 145.0,
+                BpRenderSide::Red => original_geometry.0 - 6.0,
+            };
+            // BVP's own 50px-header layout maps native icon y=50 to overlay
+            // y=61. Our game keeps the stock 97px header, so preserve the same
+            // +11px card-relative offset instead of incorrectly forcing y=61.
+            let target_y = original_geometry.1 + 11.0;
+            let mut overlay = (*command).clone();
             let RenderCommand::NinePatch {
                 texture,
                 texture_rect,
@@ -449,49 +526,20 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 flip_x,
                 flip_y,
                 ..
-            } = command
+            } = &mut overlay
             else {
-                continue;
+                unreachable!("cloned NinePatch changed variant")
             };
-
-            let Some(champion_id) = splash_id_from_source(texture) else {
-                continue;
-            };
-            let Some(side) = bp_side_from_geometry(*x, *y, *h, map_width) else {
-                write_bp_render_telemetry_once(
-                    "candidate_skip",
-                    "",
-                    None,
-                    texture,
-                    "",
-                    &format!(
-                        "champion={champion_id};pass={pass};map_width={map_width:.1};geometry={x:.1},{y:.1},{w:.1},{h:.1}"
-                    ),
-                );
-                continue;
-            };
-            let Some(slot_index) = bp_slot_from_geometry(*y, *h) else {
-                continue;
-            };
-            let Some(asset) = splash_asset(champion_id) else {
-                continue;
-            };
-
-            let original_texture = texture.clone();
-            let original_geometry = (*x, *y, *w, *h);
             *texture = asset.to_owned();
             texture_rect.x = 0.0;
             texture_rect.y = 0.0;
-            texture_rect.w = 1420.0;
-            texture_rect.h = 860.0;
-            *x = match side {
-                BpRenderSide::Blue => original_geometry.0 - 145.0,
-                BpRenderSide::Red => original_geometry.0 - 6.0,
-            };
-            // BVP's own 50px-header layout maps native icon y=50 to overlay
-            // y=61. Our game keeps the stock 97px header, so preserve the same
-            // +11px card-relative offset instead of incorrectly forcing y=61.
-            *y = original_geometry.1 + 11.0;
+            // NinePatch texture_rect is normalized UV space. The source PNG
+            // is 1420x860, but Ban/Pick View Plus writes the full image as
+            // (0,0,1,1); pixel dimensions here sample outside the texture.
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *x = target_x;
+            *y = target_y;
             *w = 284.0;
             *h = 172.0;
             *z = 200;
@@ -506,26 +554,54 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             *sample_nearest = false;
             *flip_x = side == BpRenderSide::Red;
             *flip_y = false;
+            overlays.push(overlay);
 
             write_bp_render_telemetry_once(
-                "rewrite",
+                "overlay_append",
                 side.as_str(),
                 Some(slot_index),
                 &original_texture,
                 asset,
                 &format!(
-                    "champion={champion_id};pass={pass};map_width={map_width:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
+                    "champion={champion_id};route={};pass={pass};map_width={map_width:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
+                    if pass_identity.is_some() { "pass" } else { "geometry" },
                     original_geometry.0,
                     original_geometry.1,
                     original_geometry.2,
                     original_geometry.3,
-                    *x,
-                    *y,
-                    *flip_x,
+                    target_x,
+                    target_y,
+                    side == BpRenderSide::Red,
                 ),
             );
         }
+        commands.extend(overlays);
     }
+}
+
+fn ui_tree_contains_id(root: &Node, target: &str) -> bool {
+    root.id == target
+        || root
+            .child
+            .iter()
+            .any(|child| ui_tree_contains_id(child, target))
+}
+
+fn bp_identity_from_pass(pass: &str) -> Option<(BpRenderSide, usize)> {
+    let side = if pass.contains("blue_picks") {
+        BpRenderSide::Blue
+    } else if pass.contains("red_picks") {
+        BpRenderSide::Red
+    } else {
+        return None;
+    };
+    let marker = "pick_slot_";
+    let digits: String = pass[pass.find(marker)? + marker.len()..]
+        .chars()
+        .take_while(char::is_ascii_digit)
+        .collect();
+    let slot = digits.parse::<usize>().ok()?;
+    (slot < PICK_SLOT_LIMIT).then_some((side, slot))
 }
 
 fn bp_side_from_geometry(x: f32, y: f32, height: f32, map_width: f32) -> Option<BpRenderSide> {

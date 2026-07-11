@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.5",
+  "release": "0.7.6",
   "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, and Nexus crystals",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -12,10 +12,11 @@
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
-      "implementation": "post_render NinePatch command replacement",
+      "implementation": "post_render actor NinePatch clone plus illustration overlay append",
       "source_key": "suffix after /champions/ with terminal #sheet removed",
+      "texture_uv": "normalized 0,0,1,1",
       "card_size": "284x172",
-      "red_side_detection": "335px edge band relative to each render-pass width",
+      "card_detection": "RenderState pass key blue_picks/red_picks + pick_slot_N; relative-UI and geometry fallback",
       "static_splash_nodes": false
     },
     "encyclopedia_fullbody": [
@@ -48,6 +49,7 @@
         "hextech"
       ],
       "same_for_both_teams_and_replay": true,
+      "attack_frame_pivot": "ground X at frame centre; ground Y at frame centre +35px for all five attack frames",
       "per_respawn_rotation_or_dragon_soul": false,
       "elder_transition": false
     },
