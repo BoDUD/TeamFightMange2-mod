@@ -4049,7 +4049,8 @@ def weighted_alpha_centroid_x(image: Image.Image) -> float:
     alpha = image.convert("RGBA").getchannel("A")
     total = 0
     weighted = 0
-    for index, value in enumerate(alpha.get_flattened_data()):
+    pixels = getattr(alpha, "get_flattened_data", alpha.getdata)()
+    for index, value in enumerate(pixels):
         total += value
         weighted += (index % alpha.width) * value
     return weighted / total if total else alpha.width / 2

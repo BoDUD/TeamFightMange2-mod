@@ -419,7 +419,8 @@ def alpha_bbox(image: Image.Image, threshold: int = TRIM_ALPHA_THRESHOLD) -> tup
 def normalize_transparent_rgb(image: Image.Image) -> Image.Image:
     rgba = image.convert("RGBA")
     normalized: list[tuple[int, int, int, int]] = []
-    for red, green, blue, alpha in rgba.get_flattened_data():
+    pixels = getattr(rgba, "get_flattened_data", rgba.getdata)()
+    for red, green, blue, alpha in pixels:
         if alpha <= TRIM_ALPHA_THRESHOLD:
             normalized.append((0, 0, 0, 0))
         else:

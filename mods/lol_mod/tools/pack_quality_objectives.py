@@ -259,7 +259,9 @@ def normalize_hard_alpha(image: Image.Image) -> Image.Image:
     output.putdata(
         [
             (0, 0, 0, 0) if alpha == 0 else (red, green, blue, 255)
-            for red, green, blue, alpha in rgba.get_flattened_data()
+            for red, green, blue, alpha in getattr(
+                rgba, "get_flattened_data", rgba.getdata
+            )()
         ]
     )
     return output
