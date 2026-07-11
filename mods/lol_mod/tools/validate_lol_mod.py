@@ -191,6 +191,12 @@ BRIAR_VIEW_EFFECTS: dict[str, tuple[str, str, int, bool]] = {
         1,
         True,
     ),
+    "lol_briar_q_overhead_visual": (
+        "asset/lol_mod/aseprite_resources/effects/briar_q_overhead",
+        "impact",
+        2,
+        True,
+    ),
     "lol_briar_r_mark_visual": (
         "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
         "mark",
@@ -212,13 +218,6 @@ BRIAR_VIEW_EFFECTS: dict[str, tuple[str, str, int, bool]] = {
 }
 
 BRIAR_VIEW_BUFFS: dict[str, tuple[str, str, str, str, int]] = {
-    "lol_briar_blood_frenzy": (
-        "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
-        "pre",
-        "loop",
-        "remove",
-        1,
-    ),
     "lol_briar_certain_death_frenzy": (
         "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
         "pre",
@@ -230,6 +229,10 @@ BRIAR_VIEW_BUFFS: dict[str, tuple[str, str, str, str, int]] = {
 
 BRIAR_EFFECT_ANIMATION: dict[str, tuple[tuple[int, int], dict[str, list[float]]]] = {
     "briar_bleed": ((384, 48), {"tick": [0.04, 0.05, 0.06, 0.07, 0.06, 0.06, 0.08, 0.10]}),
+    "briar_q_overhead": (
+        (512, 64),
+        {"impact": [0.04, 0.04, 0.05, 0.05, 0.06, 0.06, 0.07, 0.09]},
+    ),
     "briar_frenzy": (
         (768, 96),
         {
@@ -774,6 +777,37 @@ def validate_briar_data_contract(champion: dict[str, Any]) -> None:
     check(
         len(find_effect(q, "CasterAnimation", name="skill1", tick=20)) == 1,
         "Briar Q must preserve the native skill1 action for 20 ticks",
+    )
+    check(
+        len(find_effect(q, "ViewEffect", name="lol_briar_q_overhead_visual")) == 1,
+        "Briar Q must trigger one target-following overhead impact visual",
+    )
+    q_views = [
+        view
+        for view in champion.get("view_effects", [])
+        if view.get("name") == "lol_briar_q_overhead_visual"
+    ]
+    check(
+        q_views
+        == [
+            {
+                "type": "Animation",
+                "name": "lol_briar_q_overhead_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_q_overhead",
+                "tag": "impact",
+                "z": 2,
+                "is_follow": True,
+            }
+        ],
+        "Briar Q overhead impact must follow the target at foreground z=2",
+    )
+    check(
+        not [
+            buff
+            for buff in champion.get("view_buffs", [])
+            if buff.get("name") == "lol_briar_blood_frenzy"
+        ],
+        "Briar Q must not enclose the caster in the old persistent frenzy ring",
     )
     q_switches = find_effect(q, "SwitchByBuff", buff_name="lol_briar_certain_death_frenzy")
     check(len(q_switches) == 1, "Briar Q must branch once around the enhanced R frenzy")
@@ -3628,7 +3662,7 @@ def validate_briar_imagegen_and_qa_files() -> None:
     contact_specs = {
         "qa/briar_actor_contact_final.png": (896, 576),
         "qa/briar_skill_icons_final.png": (576, 208),
-        "qa/briar_vfx_contact_final.png": (1024, 888),
+        "qa/briar_vfx_contact_final.png": (1024, 1036),
     }
     for relative, expected_size in contact_specs.items():
         path = MOD_ROOT / relative
@@ -3637,6 +3671,37 @@ def validate_briar_imagegen_and_qa_files() -> None:
         image = Image.open(path).convert("RGBA")
         check(image.size == expected_size, f"{relative} must be {expected_size}, got {image.size}")
         check(image.getchannel("A").getbbox() is not None, f"{relative} must not be empty")
+
+    q_sheet_path = MOD_ROOT / "aseprite_resources/effects/briar_q_overhead#sheet.png"
+    q_anim_path = MOD_ROOT / "aseprite_resources/effects/briar_q_overhead#anim.fanim"
+    check(q_sheet_path.is_file(), "Briar Q overhead effect sheet is missing")
+    check(q_anim_path.is_file(), "Briar Q overhead effect animation is missing")
+    if q_sheet_path.is_file():
+        q_sheet = Image.open(q_sheet_path).convert("RGBA")
+        check(q_sheet.size == (512, 64), "Briar Q overhead sheet must be eight 64x64 frames")
+        for index in range(8):
+            frame = q_sheet.crop((index * 64, 0, (index + 1) * 64, 64))
+            bbox = frame.getchannel("A").getbbox()
+            check(bbox is not None, f"Briar Q overhead frame {index} is empty")
+            if bbox is not None:
+                check(
+                    bbox[2] - bbox[0] <= 30 and bbox[3] - bbox[1] <= 22,
+                    f"Briar Q overhead frame {index} exceeds the compact 30x22 marker",
+                )
+                check(
+                    bbox[1] >= 2 and bbox[3] <= 24,
+                    f"Briar Q overhead frame {index} must stay in the top 24 pixels",
+                )
+    if q_anim_path.is_file():
+        q_frames = load_json(
+            "aseprite_resources/effects/briar_q_overhead#anim.fanim"
+        ).get("anims", {}).get("impact", {}).get("frames", [])
+        check(len(q_frames) == 8, "Briar Q overhead impact tag must contain eight frames")
+        check(
+            [frame.get("duration") for frame in q_frames]
+            == [0.04, 0.04, 0.05, 0.05, 0.06, 0.06, 0.07, 0.09],
+            "Briar Q overhead impact timing must remain a short 0.46-second burst",
+        )
 
     for relative in ("qa/briar_skill_contract_qa.md", "qa/briar_visual_qa.md", "qa/briar_live_qa.md"):
         path = MOD_ROOT / relative
@@ -3657,6 +3722,7 @@ def validate_briar_imagegen_and_qa_files() -> None:
         "e_icon": "source/imagegen/briar_e_icon_source.png",
         "r_icon": "source/imagegen/briar_r_icon_source.png",
         "passive_bleed_vfx": "source/imagegen/briar_bleed_vfx_contact.png",
+        "q_overhead_hit_vfx": "source/imagegen/champions/004_briar/briar_q_overhead_v1_source.png",
         "q_frenzy_vfx": "source/imagegen/briar_frenzy_vfx_contact.png",
         "e_vfx": "source/imagegen/briar_e_vfx_contact.png",
         "r_vfx": "source/imagegen/briar_r_vfx_contact.png",
@@ -3665,6 +3731,7 @@ def validate_briar_imagegen_and_qa_files() -> None:
         "actor_model_alpha": "source/processed/briar_actor_contact_alpha.png",
         "run_cycle_alpha": "source/processed/briar_run_contact_alpha.png",
         "passive_bleed_vfx_alpha": "source/processed/briar_bleed_vfx_contact_alpha.png",
+        "q_overhead_hit_vfx_alpha": "source/processed/champions/004_briar/briar_q_overhead_v1_alpha.png",
         "q_frenzy_vfx_alpha": "source/processed/briar_frenzy_vfx_contact_alpha.png",
         "e_vfx_alpha": "source/processed/briar_e_vfx_contact_alpha.png",
         "r_vfx_alpha": "source/processed/briar_r_vfx_contact_alpha.png",
@@ -3798,6 +3865,7 @@ def validate_imagegen_sources() -> None:
             "e_icon",
             "r_icon",
             "passive_bleed_vfx",
+            "q_overhead_hit_vfx",
             "q_frenzy_vfx",
             "e_vfx",
             "r_vfx",
@@ -4223,6 +4291,7 @@ def validate_objective_and_wolf_motion_qa() -> None:
             *,
             minimum_visible_width: int | None = None,
             exact_native_frame_rectangles: bool,
+            attack_only_safe_expansion: bool = False,
         ) -> tuple[Path | None, Path | None]:
             native_dimensions = record.get("native_sheet_contract", {}).get("dimensions")
             check(native_dimensions == list(native_dimensions_expected), f"{label}: native sheet dimensions changed in QA")
@@ -4230,6 +4299,19 @@ def validate_objective_and_wolf_motion_qa() -> None:
             check(record.get("native_animation_contract_exact") is True, f"{label}: native animation contract is not exact")
             if exact_native_frame_rectangles:
                 check(record.get("native_frame_rect_contract_exact") is True, f"{label}: native frame rectangles are not exact")
+            elif attack_only_safe_expansion:
+                check(
+                    record.get("native_frame_rect_contract_attack_safe_expanded") is True,
+                    f"{label}: attack-safe frame expansion contract is missing",
+                )
+                check(
+                    record.get("non_attack_frame_sizes_match_native") is True,
+                    f"{label}: non-attack frame sizes changed",
+                )
+                check(
+                    record.get("target_effect_frame_sizes_match_native") is True,
+                    f"{label}: target-effect frame sizes changed",
+                )
             else:
                 check(
                     record.get("native_frame_rect_contract_safely_expanded") is True,
@@ -4259,7 +4341,7 @@ def validate_objective_and_wolf_motion_qa() -> None:
             if isinstance(recorded_span, (int, float)):
                 check(math.isclose(idle_span, recorded_span, abs_tol=1e-6), f"{label}: idle centroid QA is stale")
             check(idle_span <= 2.0, f"{label}: idle horizontal centroid drifts by {idle_span:.3f}px")
-            if not exact_native_frame_rectangles:
+            if not exact_native_frame_rectangles and not attack_only_safe_expansion:
                 check(record.get("maximum_idle_center_offset_px", 99) <= 1.0, f"{label}: idle body is not centred")
                 check(
                     record.get("maximum_attack_ground_anchor_offset_px", 99) <= 1.0,
@@ -4286,10 +4368,57 @@ def validate_objective_and_wolf_motion_qa() -> None:
             "Baron",
             epic,
             (3538, 150),
-            (3538, 150),
+            (4050, 150),
             106,
-            exact_native_frame_rectangles=True,
+            exact_native_frame_rectangles=False,
+            attack_only_safe_expansion=True,
         )
+        check(
+            epic.get("attack_source_indices") == [4, 5, 6, 7, 10],
+            "Baron: attack source sequence must end on the clean recovery pose",
+        )
+        check(
+            epic.get("attack_frame_widths") == [141, 127, 187, 215, 139],
+            "Baron: attack-safe canvas widths changed",
+        )
+        check(
+            epic.get("maximum_attack_alpha_clip_loss_pixels") == 0,
+            "Baron: attack pixels are clipped by the runtime canvas",
+        )
+        check(
+            epic.get("minimum_attack_side_clearance_px", -1) >= 2,
+            "Baron: attack artwork touches a runtime frame side",
+        )
+        check(
+            epic.get("maximum_attack_anchor_offset_delta_px", 99) <= 0.75,
+            "Baron: attack ground anchor moved relative to the native frame centre",
+        )
+        check(
+            epic.get("maximum_attack_bottom_delta_to_native_px") == 0,
+            "Baron: attack landing line moved",
+        )
+        check(
+            epic.get("minimum_target_effect_frame_clearance_px", -1) >= 1,
+            "Baron: target-impact VFX touches its runtime canvas edge",
+        )
+        attack_metrics = epic.get("attack_frame_metrics", [])
+        check(len(attack_metrics) == 10, "Baron: expected five frames per attack direction")
+        for metric in attack_metrics:
+            label = f"Baron {metric.get('tag')}[{metric.get('frame_index')}]"
+            check(metric.get("alpha_clip_loss_pixels") == 0, f"{label}: alpha was clipped")
+            check(metric.get("left_clearance_px", -1) >= 2, f"{label}: left edge is clipped")
+            check(metric.get("right_clearance_px", -1) >= 2, f"{label}: right edge is clipped")
+            check(metric.get("bottom_delta_to_native_px") == 0, f"{label}: landing line drifted")
+        contact_path = validate_recorded_file(
+            epic.get("attack_contact_sheet", {}),
+            "Baron attack contact sheet",
+        )
+        if contact_path is not None:
+            with Image.open(contact_path) as opened:
+                check(
+                    opened.size == (1610, 540),
+                    f"Baron attack contact sheet dimensions changed: {opened.size}",
+                )
 
         dragon_variants = runtime.get("dragon_variants", {})
         expected_dragons = {"infernal", "ocean", "mountain", "cloud", "hextech", "elder"}
@@ -4433,13 +4562,32 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
     check(map_qa_path.is_file(), "quality-map ImageGen QA record is missing")
     if map_qa_path.is_file():
         map_qa = load_json("qa/quality_map_imagegen_pack.json")
-        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v2", "quality-map QA schema changed")
+        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v3", "quality-map QA schema changed")
         static_checks = map_qa.get("static_checks", {})
         check(bool(static_checks) and all(static_checks.values()), "quality-map QA contains a failed check")
         check(all(map_qa.get("mask_checks", {}).values()), "quality-map native alpha footprint changed")
         check(
             all(map_qa.get("native_alpha_checks", {}).values()),
             "quality-map runtime alpha differs from the native bundle",
+        )
+        landmarks = map_qa.get("landmarks", {})
+        landmark_masks = landmarks.get("mask_audit", {})
+        landmark_application = landmarks.get("application", {})
+        check(
+            landmark_masks.get("landmark_type_count") == 9
+            and landmark_masks.get("landmark_instance_count") == 30,
+            "quality-map landmark inventory changed",
+        )
+        check(
+            landmark_masks.get("inter_landmark_overlap_pixels") == 0
+            and landmark_masks.get("wall_or_bush_overlap_pixels_after_exclusion") == 0,
+            "quality-map landmark masks overlap another landmark, wall, or brush",
+        )
+        check(
+            landmark_application.get("changed_pixels_outside_allowed_union") == 0
+            and landmark_application.get("alpha_preserved") is True
+            and landmark_application.get("size_preserved") is True,
+            "quality-map landmark compositor escaped its native masks",
         )
         check(
             all(map_qa.get("rgb_delta_checks", {}).values()),
@@ -4527,6 +4675,166 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
             layout.get("restored_native_sha256") == layout.get("native_baseline_normalized_sha256"),
             "BP-skin layout contains changes outside the audited skin delta",
         )
+        components = bp_qa.get("components", {})
+        expected_component_sizes = {
+            "header_chrome": [1920, 85],
+            "bottom_chrome": [1920, 150],
+            "champion_card_frame": [119, 130],
+            "filter_toolbar": [1260, 50],
+            "champion_grid_frame": [1250, 377],
+            "stat_frame": [549, 371],
+            "skill_frame": [687, 115],
+            "side_pick_frame": [300, 174],
+        }
+        imagegen_assets = components.get("imagegen_assets", {})
+        for name, dimensions in expected_component_sizes.items():
+            asset = imagegen_assets.get(name, {})
+            validate_recorded_file(asset.get("source", {}), f"BP-skin {name} ImageGen source")
+            runtime_record = asset.get("runtime", {})
+            check(
+                runtime_record.get("dimensions") == dimensions,
+                f"BP-skin {name} runtime dimensions changed",
+            )
+            validate_recorded_file(runtime_record, f"BP-skin {name} runtime")
+        champion_slot = components.get("champion_slot", {})
+        check(
+            champion_slot.get("restored_native_sha256")
+            == champion_slot.get("native_baseline_normalized_sha256"),
+            "BP-skin champion-slot contains changes outside the audited visual delta",
+        )
+        contact = components.get("contact_sheet", {})
+        check(
+            contact.get("dimensions") == [1200, 800],
+            "BP-skin component contact dimensions changed",
+        )
+        validate_recorded_file(contact, "BP-skin component contact")
+        check(
+            bp_qa.get("imagegen_asset_requests") == [],
+            "BP-skin still lists unfulfilled ImageGen component requests",
+        )
+
+
+def validate_quality_ingame_hud(override: dict[str, Any]) -> None:
+    qa_path = MOD_ROOT / "qa/quality_ingame_hud_imagegen_pack.json"
+    check(qa_path.is_file(), "in-game HUD ImageGen QA record is missing")
+    if not qa_path.is_file():
+        return
+    qa = load_json("qa/quality_ingame_hud_imagegen_pack.json")
+    check(
+        qa.get("schema") == "lol_mod.quality_ingame_hud_imagegen_pack.v1",
+        "in-game HUD QA schema changed",
+    )
+    static_checks = qa.get("static_checks", {})
+    check(bool(static_checks) and all(static_checks.values()), "in-game HUD QA contains a failed check")
+
+    expected_layouts = {
+        "player_info",
+        "wide_player_info",
+        "camera_info",
+        "wide_camera_info",
+        "kill_log",
+        "center_kill",
+        "center_notify",
+        "player_detail",
+        "detail_slot",
+        "chat",
+    }
+    layouts = qa.get("layouts", {})
+    check(set(layouts) == expected_layouts, "in-game HUD safe component inventory changed")
+    for name in expected_layouts:
+        record = layouts.get(name, {})
+        validate_recorded_file(record, f"in-game HUD layout {name}")
+        check(
+            record.get("restored_native_sha256")
+            == record.get("native_baseline_normalized_sha256"),
+            f"in-game HUD {name} contains changes outside exact decorative insertions",
+        )
+        check(record.get("native_node_ids_preserved") is True, f"in-game HUD {name} changed a native node ID")
+        expected_override = {
+            "remapping": f"asset/lol_mod/ui/layout/ingame_component/{name}",
+            "type": "override",
+        }
+        key = f"asset/base/ui/layout/ingame_component/{name}"
+        check(override.get(key) == expected_override, f"in-game HUD override is missing or incorrect: {name}")
+        path = MOD_ROOT / record.get("path", "missing")
+        if path.is_file():
+            source = path.read_text(encoding="utf-8")
+            check("source/imagegen/" not in source, f"in-game HUD {name} references source-tree art")
+            for node in record.get("overlay_nodes", []):
+                marker = f"#{node}:image"
+                check(marker in source, f"in-game HUD {name} is missing overlay {node}")
+                if marker in source:
+                    block = source.split(marker, 1)[1].split("}", 1)[0]
+                    check("ignore_event: true;" in block, f"in-game HUD overlay accepts events: {node}")
+                    check(
+                        f'source: "asset/lol_mod/ui/ingame/{node}";' in block,
+                        f"in-game HUD overlay does not use its packed runtime asset: {node}",
+                    )
+
+    expected_runtime_sizes = {
+        "player_info_blue": [412, 40],
+        "player_info_red": [352, 40],
+        "wide_player_info_blue": [272, 30],
+        "wide_player_info_red": [272, 30],
+        "camera_info_blue": [449, 60],
+        "camera_info_red": [449, 60],
+        "wide_camera_info_blue": [300, 60],
+        "wide_camera_info_red": [300, 60],
+        "player_detail_blue": [393, 40],
+        "player_detail_red": [393, 40],
+        "kill_log": [130, 48],
+        "center_kill": [600, 45],
+        "center_notify": [600, 45],
+        "detail_slot": [36, 36],
+        "chat_icon": [30, 30],
+    }
+    runtime_assets = qa.get("runtime_assets", {})
+    check(set(runtime_assets) == set(expected_runtime_sizes), "in-game HUD runtime asset inventory changed")
+    for name, dimensions in expected_runtime_sizes.items():
+        runtime = runtime_assets.get(name, {}).get("runtime", {})
+        check(runtime.get("dimensions") == dimensions, f"in-game HUD {name} dimensions changed")
+        validate_recorded_file(runtime, f"in-game HUD runtime {name}")
+        check(
+            str(runtime.get("path", "")).startswith("ui/ingame/lol_hud_")
+            and "source/imagegen/" not in str(runtime.get("path", "")),
+            f"in-game HUD {name} is not a packed runtime asset",
+        )
+        alpha = runtime.get("alpha", {})
+        check(alpha.get("max", 255) < 255 and alpha.get("partial_pixels", 0) > 0, f"in-game HUD {name} lost translucency")
+
+    sources = qa.get("imagegen_sources", {})
+    for name in ("panel", "control"):
+        validate_recorded_file(sources.get(name, {}), f"in-game HUD ImageGen source {name}")
+    contact = qa.get("contact_sheet", {})
+    check(contact.get("dimensions") == [1200, 700], "in-game HUD contact dimensions changed")
+    validate_recorded_file(contact, "in-game HUD contact")
+
+    skipped = {row.get("asset_key") for row in qa.get("skipped_contracts", [])}
+    check("asset/base/ui/layout/ingame" in skipped, "dynamic in-game root skip is undocumented")
+    check(
+        "asset/base/aseprite_resources/ingame/minimap_5v5#sheet" in skipped
+        and "asset/base/aseprite_resources/ingame/minimap_5v5#data" in skipped,
+        "dynamic minimap skips are undocumented",
+    )
+    for key in (
+        "asset/base/ui/layout/ingame",
+        "asset/base/aseprite_resources/ingame/minimap_5v5#sheet",
+        "asset/base/aseprite_resources/ingame/minimap_5v5#data",
+    ):
+        check(key not in override, f"visual-only HUD must not override unstable contract: {key}")
+
+    manifest_path = MOD_ROOT / "build_manifest.json"
+    if manifest_path.is_file():
+        manifest_paths = {
+            row.get("path") for row in load_json("build_manifest.json").get("files", [])
+        }
+        required_manifest_paths = {
+            record.get("path") for record in layouts.values()
+        } | {
+            row.get("runtime", {}).get("path") for row in runtime_assets.values()
+        }
+        missing = sorted(path for path in required_manifest_paths if path not in manifest_paths)
+        check(not missing, "in-game HUD runtime files are missing from build_manifest.json: " + ", ".join(missing))
 
 
 def validate_manifest() -> None:
@@ -4570,11 +4878,12 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.8", "lol_mod version must be 0.7.8")
+    check(mod_info.get("version") == "0.7.9", "lol_mod version must be 0.7.9")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()
     validate_quality_map_and_bp_skin(override)
+    validate_quality_ingame_hud(override)
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()

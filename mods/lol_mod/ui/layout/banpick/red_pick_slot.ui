@@ -23,6 +23,13 @@ pick_slot:color_icon_button {
   hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
   click_sound: "asset/base/sound/sfx/UI_mouse_click";
 
+  #lol_bp_side_pick_frame:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame";
+  }
+
   #wait:empty {
     width: 100%;
     height: 174px;

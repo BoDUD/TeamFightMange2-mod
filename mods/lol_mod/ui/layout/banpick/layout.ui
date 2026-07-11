@@ -21,6 +21,13 @@ main:match_ui {
     width: 100%;
     height: 85px;
 
+    #lol_bp_header_chrome:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_header_chrome";
+    }
+
     #step:label {
       @"asset/base/style/main#label";
       width: 214px;
@@ -134,6 +141,13 @@ main:match_ui {
 
     anchor_y: 1;
     pivot_y: 1;
+
+    #lol_bp_bottom_chrome:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_bottom_chrome";
+    }
 
     #matchup:label {
       @"asset/base/style/main#label";
@@ -961,6 +975,13 @@ main:match_ui {
     rounding: Uniform {
       rounding: 6;
     }
+
+    #lol_bp_champion_grid_frame:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_champion_grid_frame";
+    }
   }
 
   #player_turn_highlight:canvas {
@@ -972,6 +993,15 @@ main:match_ui {
 
     x: 332px;
     y: 142px;
+  }
+
+  #lol_bp_filter_toolbar:image {
+    ignore_event: true;
+    x: 330px;
+    y: 90px;
+    width: 1260px;
+    height: 50px;
+    source: "asset/lol_mod/ui/banpick/lol_bp_filter_toolbar";
   }
 
   #timer_area:empty {
@@ -1325,6 +1355,13 @@ main:match_ui {
 
       width: 549px;
       height: 371px;
+
+      #lol_bp_stat_frame:image {
+        ignore_event: true;
+        width: 100%;
+        height: 100%;
+        source: "asset/lol_mod/ui/banpick/lol_bp_stat_frame";
+      }
 
       #header:color {
         color: #0b2130f8;
@@ -2608,6 +2645,15 @@ main:match_ui {
         bottom: 10px;
       }
 
+      #lol_bp_skill_frame:image {
+        ignore_event: true;
+        x: -10px;
+        y: -10px;
+        width: 687px;
+        height: 115px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame";
+      }
+
       #data:empty {
         width: 667px;
         height: 95px;
@@ -2732,6 +2778,15 @@ main:match_ui {
         bottom: 10px;
       }
 
+      #lol_bp_skill_frame:image {
+        ignore_event: true;
+        x: -10px;
+        y: -10px;
+        width: 687px;
+        height: 115px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame";
+      }
+
       #data:empty {
         width: 667px;
         height: 95px;
@@ -2854,6 +2909,15 @@ main:match_ui {
         right: 10px;
         top: 10px;
         bottom: 10px;
+      }
+
+      #lol_bp_skill_frame:image {
+        ignore_event: true;
+        x: -10px;
+        y: -10px;
+        width: 687px;
+        height: 115px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame";
       }
 
       #data:empty {

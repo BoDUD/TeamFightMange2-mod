@@ -111,10 +111,54 @@ def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
     assert "hover: #c8aa6eff;" in champion_slot
     for token in ("text_edit:", "tertiary_button:", "primary_button:", "secondary_button:", "dropdown:"):
         assert token in style
-    assert len(qa["imagegen_asset_requests"]) == 5
+    assert qa["imagegen_asset_requests"] == []
+    assert len(qa["component_source_contracts"]) == 3
+    assert qa["components"]["champion_slot"]["restored_native_sha256"] == qa[
+        "components"
+    ]["champion_slot"]["native_baseline_normalized_sha256"]
 
 
-def test_bp_pick_card_skin_changes_colors_only_not_card_geometry() -> None:
+def test_bp_imagegen_component_chrome_is_sized_and_noninteractive() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
+    champion_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(encoding="utf-8")
+    expected = {
+        "header_chrome": (1920, 85),
+        "bottom_chrome": (1920, 150),
+        "champion_card_frame": (119, 130),
+        "filter_toolbar": (1260, 50),
+        "champion_grid_frame": (1250, 377),
+        "stat_frame": (549, 371),
+        "skill_frame": (687, 115),
+        "side_pick_frame": (300, 174),
+    }
+    for name, size in expected.items():
+        record = qa["components"]["imagegen_assets"][name]["runtime"]
+        assert tuple(record["dimensions"]) == size
+        path = MOD / record["path"]
+        with Image.open(path) as image:
+            assert image.size == size
+            assert image.mode == "RGBA"
+            assert image.getchannel("A").getextrema()[0] == 0
+
+    for node in (
+        "lol_bp_header_chrome",
+        "lol_bp_bottom_chrome",
+        "lol_bp_filter_toolbar",
+        "lol_bp_champion_grid_frame",
+        "lol_bp_stat_frame",
+        "lol_bp_skill_frame",
+    ):
+        block = layout.split(f"#{node}:image", 1)[1].split("}", 1)[0]
+        assert "ignore_event: true;" in block
+    frame = champion_slot.split("#lol_bp_champion_card_frame:image", 1)[1].split("}", 1)[0]
+    assert "ignore_event: true;" in frame
+    assert qa["components"]["contact_sheet"]["dimensions"] == [1200, 800]
+
+
+def test_bp_pick_card_skin_preserves_geometry_and_uses_noninteractive_frame() -> None:
     blue = (MOD / "ui" / "layout" / "banpick" / "blue_pick_slot.ui").read_text(
         encoding="utf-8"
     )
@@ -127,6 +171,9 @@ def test_bp_pick_card_skin_changes_colors_only_not_card_geometry() -> None:
         assert "width: 15px;" in slot
         assert "height: 172px;" in slot
         assert "z: 50;" in slot
+        frame = slot.split("#lol_bp_side_pick_frame:image", 1)[1].split("}", 1)[0]
+        assert "ignore_event: true;" in frame
+        assert 'source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame";' in frame
     assert "back_color: #07131ff2;" in blue
     assert "color: #294f6aff;" in blue
     assert "back_color: #180a0ff2;" in red

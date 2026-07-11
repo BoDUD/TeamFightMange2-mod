@@ -27,6 +27,98 @@
     "remapping": "asset/lol_mod/ui/layout/champion_info_component/champion_slot",
     "type": "override"
   },
+  "asset/base/ui/layout/ingame_component/player_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/player_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/wide_player_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_player_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/camera_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/camera_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/wide_camera_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_camera_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/kill_log": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/kill_log",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/center_kill": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/center_kill",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/center_notify": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/center_notify",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/player_detail": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/player_detail",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/detail_slot": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/detail_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/chat": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/chat",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick2": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick_match5_lastgame": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match2": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match3": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match4": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match5": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match6": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_takedown": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_double_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/triple_takedown": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_triple_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/devastation": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_quadra_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/annihilation": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_penta_kill",
+    "type": "override"
+  },
   "asset/base/sound/sfx/lol_shen_attack_cast": {
     "remapping": "asset/lol_mod/sound/sfx/shen_attack_cast",
     "type": "override"

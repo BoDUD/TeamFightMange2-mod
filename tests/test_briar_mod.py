@@ -6,6 +6,8 @@ import math
 from pathlib import Path
 import wave
 
+from PIL import Image
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
@@ -61,6 +63,8 @@ BRIAR_RUNTIME_PATHS = {
     "icons/briar_ult.png",
     "aseprite_resources/effects/briar_bleed#sheet.png",
     "aseprite_resources/effects/briar_bleed#anim.fanim",
+    "aseprite_resources/effects/briar_q_overhead#sheet.png",
+    "aseprite_resources/effects/briar_q_overhead#anim.fanim",
     "aseprite_resources/effects/briar_frenzy#sheet.png",
     "aseprite_resources/effects/briar_frenzy#anim.fanim",
     "aseprite_resources/effects/briar_e_scream#sheet.png",
@@ -90,12 +94,14 @@ BRIAR_IMAGEGEN_SOURCES = {
     "source/imagegen/briar_e_icon_source.png",
     "source/imagegen/briar_r_icon_source.png",
     "source/imagegen/briar_bleed_vfx_contact.png",
+    "source/imagegen/champions/004_briar/briar_q_overhead_v1_source.png",
     "source/imagegen/briar_frenzy_vfx_contact.png",
     "source/imagegen/briar_e_vfx_contact.png",
     "source/imagegen/briar_r_vfx_contact.png",
     "source/processed/briar_actor_contact_alpha.png",
     "source/processed/briar_run_contact_alpha.png",
     "source/processed/briar_bleed_vfx_contact_alpha.png",
+    "source/processed/champions/004_briar/briar_q_overhead_v1_alpha.png",
     "source/processed/briar_frenzy_vfx_contact_alpha.png",
     "source/processed/briar_e_vfx_contact_alpha.png",
     "source/processed/briar_r_vfx_contact_alpha.png",
@@ -368,6 +374,77 @@ def test_briar_q_and_r_frenzy_states_are_mutually_exclusive() -> None:
         "magic_resistance": 20,
         "toughness": 20,
     }
+
+
+def test_briar_q_uses_a_short_target_following_overhead_vfx_without_a_body_ring() -> None:
+    briar = load_json("champion/berserker.data_champion")
+    q = briar["skill"]
+    assert [effect["type"] for effect in q["effect"]["effects"]] == [
+        "Sfx",
+        "CasterAnimation",
+        "ViewEffect",
+        "SwitchByBuff",
+    ]
+    assert direct_effects(q["effect"], "ViewEffect") == [
+        {"type": "ViewEffect", "name": "lol_briar_q_overhead_visual"}
+    ]
+
+    q_view = next(
+        view
+        for view in briar["view_effects"]
+        if view["name"] == "lol_briar_q_overhead_visual"
+    )
+    assert q_view == {
+        "type": "Animation",
+        "name": "lol_briar_q_overhead_visual",
+        "anim": "asset/lol_mod/aseprite_resources/effects/briar_q_overhead",
+        "tag": "impact",
+        "z": 2,
+        "is_follow": True,
+    }
+    assert {buff["name"] for buff in briar["view_buffs"]} == {
+        "lol_briar_certain_death_frenzy"
+    }
+
+    anim = load_json("aseprite_resources/effects/briar_q_overhead#anim.fanim")
+    frames = anim["anims"]["impact"]["frames"]
+    assert len(frames) == 8
+    assert [frame["duration"] for frame in frames] == [
+        0.04,
+        0.04,
+        0.05,
+        0.05,
+        0.06,
+        0.06,
+        0.07,
+        0.09,
+    ]
+    sheet = Image.open(MOD / "aseprite_resources/effects/briar_q_overhead#sheet.png").convert(
+        "RGBA"
+    )
+    assert sheet.size == (512, 64)
+    for index in range(8):
+        frame = sheet.crop((index * 64, 0, (index + 1) * 64, 64))
+        bbox = frame.getchannel("A").getbbox()
+        assert bbox is not None
+        assert bbox[2] - bbox[0] <= 30
+        assert bbox[3] - bbox[1] <= 22
+        assert bbox[1] >= 2
+        assert bbox[3] <= 24
+
+    # The Q actor pose keeps the same source index and frame contract, but no
+    # longer contains the generated yellow/orange bracket pixels.
+    actor = Image.open(MOD / "aseprite_resources/champions/briar#sheet.png").convert("RGBA")
+    q_break = actor.crop((6 * 64, 0, 7 * 64, 64))
+    q_pixels = q_break.tobytes()
+    assert not any(
+        q_pixels[offset + 3]
+        and q_pixels[offset] >= 110
+        and q_pixels[offset + 1] >= 55
+        and q_pixels[offset + 2] <= 80
+        and q_pixels[offset + 1] * 100 >= q_pixels[offset] * 35
+        for offset in range(0, len(q_pixels), 4)
+    )
 
 
 def test_briar_e_delays_one_heal_and_releases_one_line_hitbox() -> None:

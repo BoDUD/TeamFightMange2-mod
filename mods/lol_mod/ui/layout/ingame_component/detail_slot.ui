@@ -1,0 +1,55 @@
+detail_slot:empty {
+  width: 36px;
+  height: 36px;
+
+  #icon_slot:color {
+    width: 36px;
+    height: 36px;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    color: #5b73ffff;
+
+    hover: {
+      color: #e8e8e8ff;
+    }
+
+    #bg:color {
+      width: 34px;
+      height: 34px;
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      anchor_x: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 0.5;
+      pivot_y: 0.5;
+
+      color: #4a4c56ff;
+      ignore_event: true;
+    }
+
+    #lol_hud_detail_slot:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/ingame/lol_hud_detail_slot";
+    }
+
+    #icon:image {
+      width: 30px;
+      height: 30px;
+
+      anchor_x: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 0.5;
+      pivot_y: 0.5;
+      ignore_event: true;
+    }
+  }
+}

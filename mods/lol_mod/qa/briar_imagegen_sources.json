@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "generator": "built-in image_gen",
-  "generated_on": "2026-07-11",
-  "audited_on": "2026-07-11",
+  "generated_on": "2026-07-11 through 2026-07-12",
+  "audited_on": "2026-07-12",
   "prompt_record": "source/imagegen/PROMPTS.md",
-  "background_removal": "imagegen remove_chroma_key.py with border auto-key, soft matte and despill; icons are cropped and pixel-finished directly from their opaque generated sources",
+  "background_removal": "imagegen remove_chroma_key.py with border auto-key, soft matte and despill; icons are cropped and pixel-finished directly from their opaque generated sources; the Q overhead contact's white gutters are discarded by an 18px per-cell packer inset",
   "sources": [
     {
       "role": "actor_model",
@@ -60,6 +60,17 @@
       "dimensions": [1774, 887],
       "mode": "RGB",
       "alpha": {"present": false}
+    },
+    {
+      "role": "q_overhead_hit_vfx",
+      "path": "source/imagegen/champions/004_briar/briar_q_overhead_v1_source.png",
+      "sha256": "187e4fc17d0e1408c0ebbb79b8b87656cc11f3dfcb037d0d44a2ac7ca84acf1f",
+      "size_bytes": 991499,
+      "dimensions": [1774, 887],
+      "mode": "RGB",
+      "alpha": {"present": false},
+      "source_grid": [4, 2],
+      "cell_gutter_inset_pixels": 18
     },
     {
       "role": "q_frenzy_vfx",
@@ -118,6 +129,16 @@
       "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1461875, "partial_pixels": 14940, "opaque_pixels": 96723, "nonzero_bbox": [89, 95, 1656, 780]}
     },
     {
+      "role": "q_overhead_hit_vfx_alpha",
+      "path": "source/processed/champions/004_briar/briar_q_overhead_v1_alpha.png",
+      "sha256": "a5aa4f91105ed100baa4a25d61d4d583f96e6c86a528ff9bba782dfce5d662cb",
+      "size_bytes": 137642,
+      "dimensions": [1774, 887],
+      "mode": "RGBA",
+      "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 1490262, "partial_pixels": 4617, "opaque_pixels": 78659, "nonzero_bbox": [0, 0, 1774, 887]},
+      "packing_note": "white source gutters are discarded with an 18px per-cell inset before runtime alpha bounding"
+    },
+    {
       "role": "q_frenzy_vfx_alpha",
       "path": "source/processed/briar_frenzy_vfx_contact_alpha.png",
       "sha256": "a53b10ed7aff481c87c2b36afa90d8bb1b1013b4cd58c61c710a855ad3a85de9",
@@ -149,13 +170,13 @@
     "actor": {
       "sheet": {
         "path": "aseprite_resources/champions/briar#sheet.png",
-        "sha256": "0fe184628d0ce3b380c127f3b09b3507608ec94705c68b285366a0ab45a31fbc",
+        "sha256": "54c535a61b94b2d5ad8dca3d2dc2293ebd413d89686cd8066f943ffccaee433d",
         "size_bytes": 458919,
         "dimensions": [1792, 64],
         "mode": "RGBA",
         "cell_size": [64, 64],
         "cell_count": 28,
-        "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 98376, "partial_pixels": 928, "opaque_pixels": 15384, "nonzero_bbox": [21, 2, 1718, 46]},
+        "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 98395, "partial_pixels": 928, "opaque_pixels": 15365, "nonzero_bbox": [21, 2, 1718, 46]},
         "core_frame_alpha": "hard 0/255; the only partial-alpha cells are the intentional 58% and 28% death fades",
         "foot_baseline_exclusive_y": 46
       },
@@ -179,7 +200,12 @@
         "animation": {"path": "aseprite_resources/effects/briar_bleed#anim.fanim", "sha256": "eb7a1139a238afac01aac8e1b3982cd29bc73951f72d05c9b17c50fbf769d0d8", "size_bytes": 1373, "tags": {"tick": {"frames": 8, "duration_seconds": 0.52}}}
       },
       {
-        "role": "q_frenzy",
+        "role": "q_target_overhead_hit",
+        "sheet": {"path": "aseprite_resources/effects/briar_q_overhead#sheet.png", "sha256": "9dd9118392c4e4512a4a28867dd2278642c05e9b613eebb0d9b1679282fb6f3f", "size_bytes": 131214, "dimensions": [512, 64], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 31969, "partial_pixels": 0, "opaque_pixels": 799, "nonzero_bbox": [25, 2, 494, 24]}},
+        "animation": {"path": "aseprite_resources/effects/briar_q_overhead#anim.fanim", "sha256": "754cabd4d14e6311c4a304540318f6b3d636af64a592a4a0e553ee97926dfca9", "size_bytes": 1377, "cell_size": [64, 64], "tags": {"impact": {"frames": 8, "duration_seconds": 0.46, "frame_indexes": [0, 1, 2, 3, 4, 5, 6, 7]}}, "visible_box": {"max_width": 30, "max_height": 22, "y_min": 2, "y_max_exclusive": 24}}
+      },
+      {
+        "role": "r_frenzy",
         "sheet": {"path": "aseprite_resources/effects/briar_frenzy#sheet.png", "sha256": "f585cdaf30781c81a475fb8c3ba6ba91ab4f51b38e4b96b902d5e819702f796c", "size_bytes": 295096, "dimensions": [768, 96], "mode": "RGBA", "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 59845, "partial_pixels": 0, "opaque_pixels": 13883, "nonzero_bbox": [4, 12, 764, 96]}},
         "animation": {"path": "aseprite_resources/effects/briar_frenzy#anim.fanim", "sha256": "f81e40bb947f5bf824c5430e2b00f524297062744e3f686613cbb257191db1bc", "size_bytes": 1466, "cell_size": [96, 96], "tags": {"pre": {"frames": 4, "duration_seconds": 0.31, "frame_indexes": [0, 1, 2, 3]}, "loop": {"frames": 2, "duration_seconds": 0.44, "frame_indexes": [4, 5]}, "remove": {"frames": 2, "duration_seconds": 0.24, "frame_indexes": [6, 7]}}}
       },
@@ -206,8 +232,8 @@
     ]
   },
   "contact_sheets": [
-    {"path": "qa/briar_actor_contact_final.png", "sha256": "681ddf59c7878419cc4afe10d07c6beb0552c6480e9e60377ba131dee92bf5b5", "size_bytes": 2065183, "dimensions": [896, 576], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
+    {"path": "qa/briar_actor_contact_final.png", "sha256": "771a434d06e34549f539ad7c63480fd52fc42891ea16a3ea87005c9f25ba8f3b", "size_bytes": 2065183, "dimensions": [896, 576], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
     {"path": "qa/briar_skill_icons_final.png", "sha256": "521522c0c3e3f1c71449082b533a3a6b237f75c0f633ca81c08df41c4ff8c055", "size_bytes": 479543, "dimensions": [576, 208], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
-    {"path": "qa/briar_vfx_contact_final.png", "sha256": "9e823dfbeb3fcafa887236505659270593cc4a2114eb61ba5ebc2f9a2f1305fc", "size_bytes": 3638479, "dimensions": [1024, 888], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}}
+    {"path": "qa/briar_vfx_contact_final.png", "sha256": "2f84f115aeb69c770d57dd93ae70c2fe09526b318612b364d0b53560a221b352", "size_bytes": 4244880, "dimensions": [1024, 1036], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}}
   ]
 }

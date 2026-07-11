@@ -105,78 +105,418 @@
     "visibility_contract": "plate replaces #timer_bar_bg inside native #timer_area; no independent always-visible root sibling"
   },
   "components": {
+    "imagegen_prompts": {
+      "header_chrome": "Chroma-key background, one wide premium fantasy MOBA draft header chrome, dark navy centre, blue left and muted red right accents, thin antique-gold trim, no text, logo, icon, or character.",
+      "bottom_chrome": "Chroma-key background, one wide premium fantasy MOBA draft footer chrome, restrained blue left and muted red right accents, dark centre and thin antique-gold trim, no text, logo, icon, or character.",
+      "champion_card_frame": "Chroma-key background, one isolated portrait champion-select card frame, slim dark metal and antique-gold/teal edge, transparent centre, no text, icon, logo, portrait, or shadow."
+    },
+    "imagegen_assets": {
+      "header_chrome": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_header_chrome_v1_source.png",
+          "size_bytes": 1181008,
+          "sha256": "5443dc7f3b1fe816cf4f36dcacee592f316fcad82f3517ce57e1a99e836e6d36",
+          "dimensions": [
+            1881,
+            836
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_header_chrome.png",
+          "size_bytes": 184677,
+          "sha256": "591ccf14383b8293f2effb5bd63cc717a8b81ff720deee89411ffca062c47d6c",
+          "dimensions": [
+            1920,
+            85
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            251,
+            3,
+            249
+          ],
+          "source_bbox": [
+            37,
+            294,
+            1843,
+            517
+          ],
+          "transparent_pixels": 1229568,
+          "partial_alpha_pixels": 1545
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "bottom_chrome": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_bottom_chrome_v1_source.png",
+          "size_bytes": 1127063,
+          "sha256": "0a033692387d0d78538f711ed7418310a6325cb5fb1a24dbbe7b9a4dcbd7b584",
+          "dimensions": [
+            1419,
+            1108
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_bottom_chrome.png",
+          "size_bytes": 319536,
+          "sha256": "4c03e76971de741bc0297fa46b2acddbf34eee809a5ee7b887ea09f19ba1c461",
+          "dimensions": [
+            1920,
+            150
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            249,
+            4,
+            242
+          ],
+          "source_bbox": [
+            17,
+            444,
+            1402,
+            674
+          ],
+          "transparent_pixels": 1303939,
+          "partial_alpha_pixels": 2204
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "champion_card_frame": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_champion_card_frame_v1_source.png",
+          "size_bytes": 1023569,
+          "sha256": "fd930a03f5ee411d365ec2b7dd72806ffbaf2bb4b1c5bd271a19000389bf40f6",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_champion_card_frame.png",
+          "size_bytes": 9111,
+          "sha256": "1be7c3e742c5fb3bce5ff38722a0706524971b0c5e1548150db82e28ad61cd4a",
+          "dimensions": [
+            119,
+            130
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            251,
+            3,
+            250
+          ],
+          "source_bbox": [
+            276,
+            107,
+            979,
+            1140
+          ],
+          "transparent_pixels": 1447255,
+          "partial_alpha_pixels": 2790
+        },
+        "packing_method": "alpha_bbox_direct_resize"
+      },
+      "filter_toolbar": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_control_frame_v1_source.png",
+          "size_bytes": 915086,
+          "sha256": "0a56d30c0b45d1c25d1aebacb8e3e3cf369cd798dee8a0fc9c0f63fc8b38d93f",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_filter_toolbar.png",
+          "size_bytes": 34255,
+          "sha256": "a22173d171cb65cd1d4146eff41b2a350c2698f57ced2571582d42609e4b0d14",
+          "dimensions": [
+            1260,
+            50
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            251,
+            3,
+            248
+          ],
+          "source_bbox": [
+            99,
+            524,
+            1154,
+            730
+          ],
+          "transparent_pixels": 1356703,
+          "partial_alpha_pixels": 1066
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "champion_grid_frame": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+          "size_bytes": 902419,
+          "sha256": "c3d5da64703ef343d9a9c127014e30d1b35ec35c6fad3a280c78e415877c68eb",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_champion_grid_frame.png",
+          "size_bytes": 183484,
+          "sha256": "3849533bff2d3f0b48ac7093e9231618040401350e88b13ca02618c8d49e08d1",
+          "dimensions": [
+            1250,
+            377
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            249,
+            3,
+            247
+          ],
+          "source_bbox": [
+            51,
+            433,
+            1202,
+            809
+          ],
+          "transparent_pixels": 1140057,
+          "partial_alpha_pixels": 1534
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "stat_frame": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+          "size_bytes": 902419,
+          "sha256": "c3d5da64703ef343d9a9c127014e30d1b35ec35c6fad3a280c78e415877c68eb",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_stat_frame.png",
+          "size_bytes": 100793,
+          "sha256": "741508ff478eef71b5803eb8549fb1cf60aec2917ff3a4a749c56d0ac87729cf",
+          "dimensions": [
+            549,
+            371
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            249,
+            3,
+            247
+          ],
+          "source_bbox": [
+            51,
+            433,
+            1202,
+            809
+          ],
+          "transparent_pixels": 1140057,
+          "partial_alpha_pixels": 1534
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "skill_frame": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+          "size_bytes": 902419,
+          "sha256": "c3d5da64703ef343d9a9c127014e30d1b35ec35c6fad3a280c78e415877c68eb",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_skill_frame.png",
+          "size_bytes": 56601,
+          "sha256": "80727bb739778f06151227cf6a48f01f71914ddf2598c5b3f9c73330233b3b44",
+          "dimensions": [
+            687,
+            115
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            249,
+            3,
+            247
+          ],
+          "source_bbox": [
+            51,
+            433,
+            1202,
+            809
+          ],
+          "transparent_pixels": 1140057,
+          "partial_alpha_pixels": 1534
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      },
+      "side_pick_frame": {
+        "source": {
+          "path": "source/imagegen/ui/lol_bp_side_pick_frame_v1_source.png",
+          "size_bytes": 1285510,
+          "sha256": "004093b58c51c0595f4dcab0ce2031dcd384c976334e57cce9e0a56a2b767873",
+          "dimensions": [
+            1647,
+            955
+          ],
+          "mode": "RGB"
+        },
+        "runtime": {
+          "path": "ui/banpick/lol_bp_side_pick_frame.png",
+          "size_bytes": 51300,
+          "sha256": "a094577b76e0b1bd1b52834396be49a4bd6a859b62018ab18432b17d3bc1edc9",
+          "dimensions": [
+            300,
+            174
+          ],
+          "mode": "RGBA"
+        },
+        "chroma_key": {
+          "sampled_key": [
+            251,
+            3,
+            250
+          ],
+          "source_bbox": [
+            230,
+            191,
+            1421,
+            736
+          ],
+          "transparent_pixels": 926830,
+          "partial_alpha_pixels": 3267
+        },
+        "packing_method": "alpha_bbox_nine_slice"
+      }
+    },
     "control_style": {
       "path": "style/bp_controls.style",
       "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d"
     },
     "champion_slot": {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "sha256": "306d0d0437601c8a03ddec56c2c930345670d40b746df98654edb1c49586188f"
+      "sha256": "92754923518425b69fa004b86c287e80c5c694a3292f52c74772a991c886b6bc",
+      "native_baseline_normalized_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
+      "restored_native_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a"
     },
     "blue_pick_slot": {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
-      "sha256": "fc135c4afbea9709830ab5586b45178039620a344ee3d02b79fb6028a4350bc6"
+      "sha256": "3d7644b288784ed8d4c1585b10ad39bdd018ef5a8d33f412552ad82c4716805f"
     },
     "red_pick_slot": {
       "path": "ui/layout/banpick/red_pick_slot.ui",
-      "sha256": "beaf87667d03785361c59cbf4707183617e7d309d02f276b143581881cc8b852"
+      "sha256": "a342d2077d5aa512a8e852bb6d0227c154db14965c9c87609c446a06236e0f31"
+    },
+    "contact_sheet": {
+      "path": "qa/quality_bp_component_contact.png",
+      "size_bytes": 537952,
+      "sha256": "0a6eefbfefc081f66c3ea56c37a6cce3837bdbad54f3203790038ca0c00c6f4d",
+      "dimensions": [
+        1200,
+        800
+      ],
+      "mode": "RGBA"
     }
   },
-  "imagegen_asset_requests": [
+  "component_source_contracts": [
     {
-      "id": "champion_card_frame",
-      "source_path": "source/imagegen/ui/lol_bp_champion_card_frame_v1_source.png",
+      "id": "panel_frame",
+      "source_path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
       "runtime_dimensions": [
-        119,
-        130
+        [
+          1250,
+          377
+        ],
+        [
+          549,
+          371
+        ],
+        [
+          687,
+          115
+        ]
       ],
-      "alpha": "transparent centre and exterior; frame pixels only",
-      "layout_reference": "asset/base/ui/layout/banpick/champion_slot root frame overlay"
+      "alpha": "keyed exterior; low-contrast dark centre; slim 9-slice-safe frame",
+      "layout_reference": "champion grid, #champion_info #stat, and #skill1/#skill2/#ult"
     },
     {
-      "id": "skill_card_frame",
-      "source_path": "source/imagegen/ui/lol_bp_skill_card_frame_v1_source.png",
+      "id": "control_frame",
+      "source_path": "source/imagegen/ui/lol_bp_control_frame_v1_source.png",
       "runtime_dimensions": [
-        687,
-        115
+        [
+          40,
+          40
+        ],
+        [
+          170,
+          40
+        ],
+        [
+          164,
+          40
+        ],
+        [
+          248,
+          40
+        ],
+        [
+          108,
+          40
+        ],
+        [
+          285,
+          40
+        ],
+        [
+          639,
+          67
+        ]
       ],
-      "alpha": "transparent centre and exterior; border plus weak left icon-divider ornament",
-      "layout_reference": "layout.ui #champion_info #skill1/#skill2/#ult background overlay"
+      "alpha": "keyed exterior; dark centre; 9-slice-safe 1-2px frame",
+      "layout_reference": "category/position/search/delegate/swap controls"
     },
     {
-      "id": "square_control_frame",
-      "source_path": "source/imagegen/ui/lol_bp_square_control_frame_v1_source.png",
+      "id": "side_pick_frame",
+      "source_path": "source/imagegen/ui/lol_bp_side_pick_frame_v1_source.png",
       "runtime_dimensions": [
-        40,
-        40
+        300,
+        174
       ],
-      "alpha": "transparent centre; 1-2px frame only",
-      "layout_reference": "40x40 category/position/search-clear controls"
-    },
-    {
-      "id": "delegate_button_frame",
-      "source_path": "source/imagegen/ui/lol_bp_delegate_button_frame_v1_source.png",
-      "runtime_dimensions": [
-        285,
-        40
-      ],
-      "alpha": "transparent centre; frame only",
-      "layout_reference": "layout.ui #header #delegate_btn"
-    },
-    {
-      "id": "swap_confirm_button_frame",
-      "source_path": "source/imagegen/ui/lol_bp_swap_confirm_button_frame_v1_source.png",
-      "runtime_dimensions": [
-        639,
-        67
-      ],
-      "alpha": "transparent centre; frame only",
-      "layout_reference": "layout.ui #swap #bottom #confirm"
+      "alpha": "keyed exterior; dark centre; restrained 9-slice-safe frame",
+      "layout_reference": "blue_pick_slot.ui and red_pick_slot.ui root cards"
     }
   ],
+  "imagegen_asset_requests": [],
   "layout": {
     "path": "ui/layout/banpick/layout.ui",
-    "sha256": "d2eb0f185706c2a984bd29cddd4bcc6c73b6ac4b8d89804389a9704b717bdf5f",
+    "sha256": "d62cff711c1c5c3bebbf0fcded689bd1f13e140de910ef8dad2ec265e32e5258",
     "native_baseline_sha256": "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc",
     "native_baseline_normalized_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
     "restored_native_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
@@ -184,7 +524,8 @@
       "one ignore_event image node",
       "BP-local background/panel/border color values",
       "BP-local style references",
-      "ImageGen timer plate/icon sources inside the native timer geometry"
+      "ImageGen timer plate/icon sources inside the native timer geometry",
+      "ignore_event component chrome overlays inside native BP nodes"
     ]
   },
   "geometry_contract": {
@@ -216,6 +557,11 @@
     "bp_controls_use_local_style_only": true,
     "champion_slot_override_registered": true,
     "component_palette_is_lol_style": true,
+    "component_imagegen_runtime_dimensions": true,
+    "component_imagegen_runtime_has_alpha": true,
+    "component_overlays_are_noninteractive": true,
+    "champion_slot_restores_after_skin_delta": true,
+    "component_contact_generated": true,
     "native_layout_restores_after_skin_delta": true,
     "layout_override_registered": true
   }

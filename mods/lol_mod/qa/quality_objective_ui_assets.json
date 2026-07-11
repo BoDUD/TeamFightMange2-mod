@@ -6,8 +6,8 @@
     "baron": {
       "sheet": {
         "path": "aseprite_resources/ingame/epic#sheet.png",
-        "sha256": "3677be16d424a3c4134824c1a614bccbe857f4efc520045a0f089829069ce30e",
-        "bytes": 487293
+        "sha256": "0e0e7bbbc50626a95e62f9e5f13e251a27eacde5d9e2f97b134fd9809950ef2f",
+        "bytes": 541416
       },
       "idle_rect": [
         218,

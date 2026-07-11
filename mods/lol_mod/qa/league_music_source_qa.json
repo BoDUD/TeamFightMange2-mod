@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "source": "local official League of Legends installation only",
+    "network_downloads": false,
+    "image_generation": false,
+    "edit": "PCM decode plus a fixed 4.0 dB runtime gain; Map11 is bounded by its official Wwise loop markers; no EQ, compression, arbitrary cut, or remix"
+  },
+  "tools": {
+    "wadtools": {
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866",
+      "version": "0.5.6"
+    },
+    "vgmstream": {
+      "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+      "version": "r2117-116-g4021c853"
+    },
+    "wwiser": {
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53",
+      "version": "v20250928"
+    }
+  },
+  "pregame": {
+    "wad": "DATA/FINAL/UI.wad.client",
+    "wad_sha256": "613ddbaca45c4dc2c578f46e9e929754acfa49393fa20c7e55be2b9ba1f1d156",
+    "chunks": [
+      {
+        "logical_name": "audio_bank",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.bnk",
+        "path_hash": "7da9bd7a2f87a1e7",
+        "sha256": "d6c4453c1b48690686b32f503a7cc430acc4ba6c2f4b80b55bf01832db4dac53"
+      },
+      {
+        "logical_name": "audio_package",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.wpk",
+        "path_hash": "f4e176db72e53676",
+        "sha256": "f068f68df6d579bb1b242d4ce84c45144dc8f1d4b794c979fce6bd5ed254e5a8"
+      },
+      {
+        "logical_name": "events_bank",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_events.bnk",
+        "path_hash": "63fed30d9a9310a6",
+        "sha256": "ae9af6b8934ba93d17892c21041b1321d478bdb98c97d871b263f8eb15dcff3e"
+      }
+    ],
+    "event_id": 3696965764,
+    "media_id": 888629231,
+    "wem_sha256": "426dcf4fda8e8f1d8bd7cbf76e6f94f566b11daa30572330e358a0a89a5b98e9",
+    "selection": "resolved default PregameUI event cycle used when no mode state is supplied"
+  },
+  "match": {
+    "wad": "DATA/FINAL/Maps/Shipping/Map11.wad.client",
+    "wad_sha256": "e4bdd4d26294c16fd520a17ec9dcb6eb7425564d60a4890a58313a0cd24d6868",
+    "chunks": [
+      {
+        "logical_name": "audio_bank",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_map11_audio.bnk",
+        "path_hash": "a69ecbdb71ee8f40",
+        "sha256": "243bfcdc8ff6f9519e9a7c9f4151aac7c56e63c70f99718684a9ab740c2b3f9d"
+      },
+      {
+        "logical_name": "audio_package",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_map11_audio.wpk",
+        "path_hash": "ee1e7b734bc4b38e",
+        "sha256": "3704a0abb31dd51432b7c3ca2d36fa4106e84494c375929ecc32ad740bae38fc"
+      },
+      {
+        "logical_name": "events_bank",
+        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_map11_events.bnk",
+        "path_hash": "95670f552c39823e",
+        "sha256": "e47258c722241a227f43125f5632eebbadd7e6c7f386541a3f7a7eb5d92cf364"
+      }
+    ],
+    "event_id": 3832820115,
+    "state_group_id": 3133338805,
+    "state_value_id": 1129718747,
+    "media": {
+      "15424654": "163a69376a87e91bf9c89078be1db556ca8822d2774f41ff8df7bd2ceaec3b7a",
+      "141256618": "459ad3f086831f98b249a3f17dbafa483d85649de2c823da494e49fd80f91696",
+      "177267501": "f6742b04729e26932a11dabb61edfbdc1e8e9eb599239319692a594d32733dfb",
+      "204917839": "f42a1578244bc720b455049ba7f405d846f5c9c641f62b2c209093eb26b038b7",
+      "834478730": "2aeac5b31416eabc1189562340ec9bfd36e6d570cbf140fb6591b9e54c5d54a0"
+    },
+    "resolved_cycle_frames": 13268915,
+    "official_loop_start_frame": 817151,
+    "official_loop_end_frame": 13268915,
+    "selection": "official loop body from one resolved Summoner's Rift Map11 music cycle"
+  },
+  "outputs": {
+    "lol_banpick": {
+      "path": "sound/bgm/lol_banpick.wav",
+      "runtime_gain_db": 4.0,
+      "runtime_keys": [
+        "asset/base/sound/bgm/banpick",
+        "asset/base/sound/bgm/banpick2",
+        "asset/base/sound/bgm/banpick_match5_lastgame"
+      ],
+      "channels": 2,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 5700928,
+      "duration_seconds": 129.27274376417233,
+      "compression": "NONE",
+      "size_bytes": 22803756,
+      "sha256": "5e021cd71bb998f32d2ae39580d84f387a296d250f10b3d1b7963799b79cba0f",
+      "loop_boundary_max_delta": 10,
+      "loop_boundary_max_delta_dbfs": -70.30899869919436
+    },
+    "lol_match": {
+      "path": "sound/bgm/lol_match.wav",
+      "runtime_gain_db": 4.0,
+      "runtime_keys": [
+        "asset/base/sound/bgm/match",
+        "asset/base/sound/bgm/match2",
+        "asset/base/sound/bgm/match3",
+        "asset/base/sound/bgm/match4",
+        "asset/base/sound/bgm/match5",
+        "asset/base/sound/bgm/match6"
+      ],
+      "channels": 2,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 12451764,
+      "duration_seconds": 282.35292517006803,
+      "compression": "NONE",
+      "size_bytes": 49807100,
+      "sha256": "4de34d2a92da90086b2d563c6b38f14c0cc6d2f112e3c4a1da3a318ab1b6db85",
+      "loop_boundary_max_delta": 808,
+      "loop_boundary_max_delta_dbfs": -32.16077148370263
+    }
+  }
+}

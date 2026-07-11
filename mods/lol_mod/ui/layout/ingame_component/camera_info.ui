@@ -1,0 +1,183 @@
+camera_info:empty {
+  width: 907px;
+  height: 60px;
+
+  #blue_player:color_icon_button {
+    @"asset/base/style/main#camera_button";
+
+    width: 449px;
+    height: 60px;
+
+    #lol_hud_camera_info_blue:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/ingame/lol_hud_camera_info_blue";
+    }
+
+    #icon:image {
+      x: 10px;
+      y: 10px;
+
+      width: 40px;
+      height: 40px;
+      ignore_event: true;
+
+      #ult_indicator:color {
+        x: 30px;
+        y: 2px;
+        width: 10px;
+        height: 10px;
+        color: #4a4c56ff;
+        rounding: Uniform {
+          rounding: 5;
+        }
+        ignore_event: true;
+      }
+
+      #death_timer:label {
+        @"asset/base/style/main#label";
+
+        width: 100%;
+        height: 22px;
+        anchor_y: 1;
+        pivot_y: 1;
+
+        align_x: Center;
+        align_y: Bottom;
+        size: 18;
+
+        color: #e8e8e8ff;
+        outline_color: #000000ff;
+        outline: 2;
+      }
+    }
+
+    #text:label {
+      @"asset/base/style/main#bold_label";
+
+      x: 60px;
+      y: 11px;
+
+      width: 200px;
+      height: 28px;
+
+      size: 18;
+
+      align_y: Center;
+
+      text: "Lv.5 abc";
+    }
+
+    #hp_bg:color {
+      x: 60px;
+      y: 39px;
+
+      width: 379px;
+      height: 10px;
+
+      color: #09332bff;
+      ignore_event: true;
+
+      #hp_bar:color {
+        width: 100%;
+        height: 100%;
+
+        color: #22caadff;
+
+        ignore_event: true;
+      }
+    }
+  }
+
+  #red_player:color_icon_button {
+    @"asset/base/style/main#camera_button";
+
+    width: 449px;
+    height: 60px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    #lol_hud_camera_info_red:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/ingame/lol_hud_camera_info_red";
+    }
+
+    #icon:image {
+      x: 10px;
+      y: 10px;
+
+      width: 40px;
+      height: 40px;
+      ignore_event: true;
+
+      #ult_indicator:color {
+        x: 30px;
+        y: 2px;
+        width: 10px;
+        height: 10px;
+        color: #4a4c56ff;
+        rounding: Uniform {
+          rounding: 5;
+        }
+        ignore_event: true;
+      }
+
+      #death_timer:label {
+        @"asset/base/style/main#label";
+
+        width: 100%;
+        height: 22px;
+        anchor_y: 1;
+        pivot_y: 1;
+
+        align_x: Center;
+        align_y: Bottom;
+        size: 18;
+
+        color: #e8e8e8ff;
+        outline_color: #000000ff;
+        outline: 2;
+      }
+    }
+
+    #text:label {
+      @"asset/base/style/main#bold_label";
+
+      x: 60px;
+      y: 11px;
+
+      width: 200px;
+      height: 28px;
+
+      size: 18;
+
+      align_y: Center;
+
+      text: "Lv.5 abc";
+    }
+
+    #hp_bg:color {
+      x: 60px;
+      y: 39px;
+
+      width: 379px;
+      height: 10px;
+
+      color: #09332bff;
+      ignore_event: true;
+
+      #hp_bar:color {
+        width: 100%;
+        height: 100%;
+
+        color: #22caadff;
+
+        ignore_event: true;
+      }
+    }
+  }
+}

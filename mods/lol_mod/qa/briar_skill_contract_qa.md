@@ -6,14 +6,14 @@ Briar replaces official champion 004 through the native `berserker` ID and `cham
 | --- | --- | --- | --- |
 | Basic attack / Crimson Curse | `attack` | `Enemy` target, range 25,000; `100% Attack` physical hit. Each application requests a 120-tick Bleed with period 60; every tick deals `4 + 3% Attack`, heals the caster for `2 + 1% Attack`, and plays the short bleed visual. | required |
 | Empowered Snack | `attack` through `SwitchByBuff(lol_briar_snack_ready)` | Next attack keeps the base `100% Attack` hit, adds `25 + 40% Attack + 2% target maximum HP`, heals Briar for `40 + 15% Attack`, applies Crimson Curse, plays frenzy attack audio, then removes `lol_briar_snack_ready`. | required |
-| Q / Blood Frenzy | `skill` | `EnemyChampion` target gate, range 45,000, cooldown 360, 20-tick action. For 180 ticks grants +60% attack speed, +18% move speed and 25 Vamp, and creates exactly one `lol_briar_snack_ready`. If R frenzy is active, Q refreshes only the one Snack and does not replace the enhanced R state. | required |
+| Q / Blood Frenzy | `skill` | `EnemyChampion` target gate, range 45,000, cooldown 360, 20-tick action. For 180 ticks grants +60% attack speed, +18% move speed and 25 Vamp, and creates exactly one `lol_briar_snack_ready`. If R frenzy is active, Q refreshes only the one Snack and does not replace the enhanced R state. One 0.46-second `lol_briar_q_overhead_visual` follows the selected target above its head; the state no longer uses a persistent body-enclosing ring. | required |
 | E / Chilling Scream | `skill2` | Direction cast against `EnemyWithoutTower`, 50,000 length and 24,000 width; 30-tick fixed charge within a 54-tick action. On cast Briar gets 35% damage reduction for 30 ticks and heals `50 + 15% Attack`; release deals `75 + 100% Attack`, applies Crimson Curse, Knockback `{speed:3000,tick:12}` and 18-tick Airborne. | required |
 | R / Certain Death | `ult` | `EnemyChampion` target, range 80,000, cooldown 3600. Shows the target mark and waits 18 ticks, then `MoveToTarget` at speed 6000. Arrival deals `100 + 120% Attack`, applies Crimson Curse, fears enemy champions within 30,000 for 30 ticks, and grants 240 ticks of enhanced frenzy: +50% attack speed, +25% move speed, 30 Vamp, +20 Defence, +20 Magic Resistance and +20 Toughness, plus one Snack. | required |
 
 Named state, VFX and audio proof:
 
 - Passive marker and tick: `lol_briar_crimson_curse`, `lol_briar_bleed_tick_visual`.
-- Q states: `lol_briar_blood_frenzy`, `lol_briar_snack_ready`; Q cast audio is `lol_briar_q_cast`.
+- Q states: `lol_briar_blood_frenzy`, `lol_briar_snack_ready`; the short target-following marker is `lol_briar_q_overhead_visual`, and Q cast audio is `lol_briar_q_cast`.
 - Normal and empowered attacks route through `lol_briar_attack_cast/hit` and `lol_briar_frenzy_cast/hit` respectively.
 - E visual-only travel is `lol_briar_e_scream_projectile`; damage and control come from `lol_briar_e_hitbox`, preventing the visual projectile from double-hitting.
 - E protection state is `lol_briar_chilling_scream_guard`; audio is `lol_briar_e_cast/hit`.

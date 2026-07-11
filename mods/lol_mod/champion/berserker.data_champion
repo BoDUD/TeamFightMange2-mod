@@ -219,6 +219,10 @@
           "tick": 20
         },
         {
+          "type": "ViewEffect",
+          "name": "lol_briar_q_overhead_visual"
+        },
+        {
           "type": "SwitchByBuff",
           "buff_name": "lol_briar_certain_death_frenzy",
           "effect_none": {
@@ -617,6 +621,14 @@
     },
     {
       "type": "Animation",
+      "name": "lol_briar_q_overhead_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/briar_q_overhead",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
       "name": "lol_briar_r_mark_visual",
       "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
       "tag": "mark",
@@ -641,15 +653,6 @@
     }
   ],
   "view_buffs": [
-    {
-      "type": "ThreePhase",
-      "name": "lol_briar_blood_frenzy",
-      "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
-      "pre_tag": "pre",
-      "loop_tag": "loop",
-      "remove_tag": "remove",
-      "z": 1
-    },
     {
       "type": "ThreePhase",
       "name": "lol_briar_certain_death_frenzy",

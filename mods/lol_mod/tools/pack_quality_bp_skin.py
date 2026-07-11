@@ -17,6 +17,20 @@ TIMER_PLATE_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_timer_pla
 TIMER_ICON_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_timer_icon_v1_source.png"
 TIMER_PLATE_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_timer_plate.png"
 TIMER_ICON_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_timer_icon.png"
+HEADER_CHROME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_header_chrome_v1_source.png"
+BOTTOM_CHROME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_bottom_chrome_v1_source.png"
+CHAMPION_FRAME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_champion_card_frame_v1_source.png"
+PANEL_FRAME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_panel_frame_v1_source.png"
+CONTROL_FRAME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_control_frame_v1_source.png"
+SIDE_PICK_FRAME_SOURCE = MOD_ROOT / "source" / "imagegen" / "ui" / "lol_bp_side_pick_frame_v1_source.png"
+HEADER_CHROME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_header_chrome.png"
+BOTTOM_CHROME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_bottom_chrome.png"
+CHAMPION_FRAME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_champion_card_frame.png"
+FILTER_TOOLBAR_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_filter_toolbar.png"
+CHAMPION_GRID_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_champion_grid_frame.png"
+STAT_FRAME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_stat_frame.png"
+SKILL_FRAME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_skill_frame.png"
+SIDE_PICK_FRAME_RUNTIME = MOD_ROOT / "ui" / "banpick" / "lol_bp_side_pick_frame.png"
 LAYOUT_PATH = MOD_ROOT / "ui" / "layout" / "banpick" / "layout.ui"
 CHAMPION_SLOT_PATH = MOD_ROOT / "ui" / "layout" / "banpick" / "champion_slot.ui"
 BLUE_PICK_SLOT_PATH = MOD_ROOT / "ui" / "layout" / "banpick" / "blue_pick_slot.ui"
@@ -24,16 +38,28 @@ RED_PICK_SLOT_PATH = MOD_ROOT / "ui" / "layout" / "banpick" / "red_pick_slot.ui"
 CONTROL_STYLE_PATH = MOD_ROOT / "style" / "bp_controls.style"
 OVERRIDE_PATH = MOD_ROOT / "mod.override_info"
 QA_PATH = MOD_ROOT / "qa" / "quality_bp_skin_imagegen_pack.json"
+CONTACT_PATH = MOD_ROOT / "qa" / "quality_bp_component_contact.png"
 
 RUNTIME_SIZE = (1920, 1080)
 TIMER_PLATE_SIZE = (170, 20)
 TIMER_ICON_SIZE = (20, 20)
+HEADER_CHROME_SIZE = (1920, 85)
+BOTTOM_CHROME_SIZE = (1920, 150)
+CHAMPION_FRAME_SIZE = (119, 130)
+FILTER_TOOLBAR_SIZE = (1260, 50)
+CHAMPION_GRID_SIZE = (1250, 377)
+STAT_FRAME_SIZE = (549, 371)
+SKILL_FRAME_SIZE = (687, 115)
+SIDE_PICK_FRAME_SIZE = (300, 174)
 CHROMA_KEY = (255, 0, 255)
 CHROMA_TRANSPARENT_DISTANCE = 42.0
 CHROMA_OPAQUE_DISTANCE = 118.0
 NATIVE_LAYOUT_SHA256 = "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc"
 NATIVE_LAYOUT_NORMALIZED_SHA256 = (
     "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05"
+)
+NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256 = (
+    "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a"
 )
 
 IMAGEGEN_PROMPT = (
@@ -56,41 +82,33 @@ TIMER_IMAGEGEN_PROMPTS = {
     ),
 }
 
+COMPONENT_IMAGEGEN_PROMPTS = {
+    "header_chrome": "Chroma-key background, one wide premium fantasy MOBA draft header chrome, dark navy centre, blue left and muted red right accents, thin antique-gold trim, no text, logo, icon, or character.",
+    "bottom_chrome": "Chroma-key background, one wide premium fantasy MOBA draft footer chrome, restrained blue left and muted red right accents, dark centre and thin antique-gold trim, no text, logo, icon, or character.",
+    "champion_card_frame": "Chroma-key background, one isolated portrait champion-select card frame, slim dark metal and antique-gold/teal edge, transparent centre, no text, icon, logo, portrait, or shadow.",
+}
+
 COMPONENT_IMAGEGEN_REQUESTS = [
     {
-        "id": "champion_card_frame",
-        "source_path": "source/imagegen/ui/lol_bp_champion_card_frame_v1_source.png",
-        "runtime_dimensions": [119, 130],
-        "alpha": "transparent centre and exterior; frame pixels only",
-        "layout_reference": "asset/base/ui/layout/banpick/champion_slot root frame overlay",
+        "id": "panel_frame",
+        "source_path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+        "runtime_dimensions": [[1250, 377], [549, 371], [687, 115]],
+        "alpha": "keyed exterior; low-contrast dark centre; slim 9-slice-safe frame",
+        "layout_reference": "champion grid, #champion_info #stat, and #skill1/#skill2/#ult",
     },
     {
-        "id": "skill_card_frame",
-        "source_path": "source/imagegen/ui/lol_bp_skill_card_frame_v1_source.png",
-        "runtime_dimensions": [687, 115],
-        "alpha": "transparent centre and exterior; border plus weak left icon-divider ornament",
-        "layout_reference": "layout.ui #champion_info #skill1/#skill2/#ult background overlay",
+        "id": "control_frame",
+        "source_path": "source/imagegen/ui/lol_bp_control_frame_v1_source.png",
+        "runtime_dimensions": [[40, 40], [170, 40], [164, 40], [248, 40], [108, 40], [285, 40], [639, 67]],
+        "alpha": "keyed exterior; dark centre; 9-slice-safe 1-2px frame",
+        "layout_reference": "category/position/search/delegate/swap controls",
     },
     {
-        "id": "square_control_frame",
-        "source_path": "source/imagegen/ui/lol_bp_square_control_frame_v1_source.png",
-        "runtime_dimensions": [40, 40],
-        "alpha": "transparent centre; 1-2px frame only",
-        "layout_reference": "40x40 category/position/search-clear controls",
-    },
-    {
-        "id": "delegate_button_frame",
-        "source_path": "source/imagegen/ui/lol_bp_delegate_button_frame_v1_source.png",
-        "runtime_dimensions": [285, 40],
-        "alpha": "transparent centre; frame only",
-        "layout_reference": "layout.ui #header #delegate_btn",
-    },
-    {
-        "id": "swap_confirm_button_frame",
-        "source_path": "source/imagegen/ui/lol_bp_swap_confirm_button_frame_v1_source.png",
-        "runtime_dimensions": [639, 67],
-        "alpha": "transparent centre; frame only",
-        "layout_reference": "layout.ui #swap #bottom #confirm",
+        "id": "side_pick_frame",
+        "source_path": "source/imagegen/ui/lol_bp_side_pick_frame_v1_source.png",
+        "runtime_dimensions": [300, 174],
+        "alpha": "keyed exterior; dark centre; restrained 9-slice-safe frame",
+        "layout_reference": "blue_pick_slot.ui and red_pick_slot.ui root cards",
     },
 ]
 
@@ -101,6 +119,90 @@ LOL_BACKGROUND_BLOCK = """\
     width: 100%;
     height: 100%;
     source: \"asset/lol_mod/ui/banpick/lol_bp_background\";
+  }
+"""
+
+LOL_HEADER_CHROME_BLOCK = """\
+
+    #lol_bp_header_chrome:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_header_chrome";
+    }
+"""
+
+LOL_BOTTOM_CHROME_BLOCK = """\
+
+    #lol_bp_bottom_chrome:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_bottom_chrome";
+    }
+"""
+
+LOL_CHAMPION_FRAME_BLOCK = """\
+
+  #lol_bp_champion_card_frame:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame";
+  }
+"""
+
+LOL_FILTER_TOOLBAR_BLOCK = """\
+
+  #lol_bp_filter_toolbar:image {
+    ignore_event: true;
+    x: 330px;
+    y: 90px;
+    width: 1260px;
+    height: 50px;
+    source: "asset/lol_mod/ui/banpick/lol_bp_filter_toolbar";
+  }
+"""
+
+LOL_CHAMPION_GRID_BLOCK = """\
+
+    #lol_bp_champion_grid_frame:image {
+      ignore_event: true;
+      width: 100%;
+      height: 100%;
+      source: "asset/lol_mod/ui/banpick/lol_bp_champion_grid_frame";
+    }
+"""
+
+LOL_STAT_FRAME_BLOCK = """\
+
+      #lol_bp_stat_frame:image {
+        ignore_event: true;
+        width: 100%;
+        height: 100%;
+        source: "asset/lol_mod/ui/banpick/lol_bp_stat_frame";
+      }
+"""
+
+LOL_SKILL_FRAME_BLOCK = """\
+
+      #lol_bp_skill_frame:image {
+        ignore_event: true;
+        x: -10px;
+        y: -10px;
+        width: 687px;
+        height: 115px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame";
+      }
+"""
+
+LOL_SIDE_PICK_FRAME_BLOCK = """\
+
+  #lol_bp_side_pick_frame:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame";
   }
 """
 
@@ -253,8 +355,141 @@ def pack_timer_asset(source: Path, runtime: Path, size: tuple[int, int], *, fit:
     }
 
 
+def nine_slice_resize(
+    image: Image.Image,
+    size: tuple[int, int],
+    source_margins: tuple[int, int, int, int],
+    target_margins: tuple[int, int, int, int],
+) -> Image.Image:
+    source = image.convert("RGBA")
+    sw, sh = source.size
+    tw, th = size
+    sl, st, sr, sb = source_margins
+    tl, tt, tr, tb = target_margins
+    if sl + sr >= sw or st + sb >= sh or tl + tr >= tw or tt + tb >= th:
+        raise ValueError("Invalid nine-slice margins")
+    sx = (0, sl, sw - sr, sw)
+    sy = (0, st, sh - sb, sh)
+    tx = (0, tl, tw - tr, tw)
+    ty = (0, tt, th - tb, th)
+    output = Image.new("RGBA", size, (0, 0, 0, 0))
+    for row in range(3):
+        for col in range(3):
+            piece = source.crop((sx[col], sy[row], sx[col + 1], sy[row + 1]))
+            target_size = (tx[col + 1] - tx[col], ty[row + 1] - ty[row])
+            piece = piece.resize(target_size, Image.Resampling.LANCZOS)
+            output.alpha_composite(piece, (tx[col], ty[row]))
+    return output
+
+
+def pack_component_asset(
+    source: Path,
+    runtime: Path,
+    size: tuple[int, int],
+    *,
+    source_margin_ratio: tuple[float, float] | None = None,
+    target_margins: tuple[int, int, int, int] | None = None,
+) -> dict[str, Any]:
+    with Image.open(source) as opened:
+        keyed, key_record = remove_magenta_key(opened)
+    if source_margin_ratio is None:
+        packed = keyed.resize(size, Image.Resampling.LANCZOS)
+        method = "alpha_bbox_direct_resize"
+    else:
+        mx = max(1, int(round(keyed.width * source_margin_ratio[0])))
+        my = max(1, int(round(keyed.height * source_margin_ratio[1])))
+        assert target_margins is not None
+        packed = nine_slice_resize(
+            keyed,
+            size,
+            (mx, my, mx, my),
+            target_margins,
+        )
+        method = "alpha_bbox_nine_slice"
+    runtime.parent.mkdir(parents=True, exist_ok=True)
+    packed.save(runtime, optimize=True)
+    return {
+        "source": image_record(source),
+        "runtime": image_record(runtime),
+        "chroma_key": key_record,
+        "packing_method": method,
+    }
+
+
+def build_component_contact() -> None:
+    canvas = Image.new("RGBA", (1200, 800), (5, 12, 20, 255))
+    with Image.open(HEADER_CHROME_RUNTIME) as header:
+        canvas.alpha_composite(header.convert("RGBA").resize((1200, 53), Image.Resampling.LANCZOS), (0, 0))
+    with Image.open(FILTER_TOOLBAR_RUNTIME) as toolbar:
+        canvas.alpha_composite(toolbar.convert("RGBA").resize((1008, 40), Image.Resampling.LANCZOS), (96, 65))
+    with Image.open(CHAMPION_GRID_RUNTIME) as grid:
+        canvas.alpha_composite(grid.convert("RGBA").resize((600, 181), Image.Resampling.LANCZOS), (20, 120))
+    with Image.open(STAT_FRAME_RUNTIME) as stat:
+        canvas.alpha_composite(stat.convert("RGBA").resize((350, 237), Image.Resampling.LANCZOS), (625, 120))
+    with Image.open(SKILL_FRAME_RUNTIME) as skill:
+        canvas.alpha_composite(skill.convert("RGBA").resize((600, 100), Image.Resampling.LANCZOS), (20, 320))
+    with Image.open(SIDE_PICK_FRAME_RUNTIME) as side:
+        canvas.alpha_composite(side.convert("RGBA").resize((450, 261), Image.Resampling.LANCZOS), (20, 440))
+    with Image.open(BOTTOM_CHROME_RUNTIME) as bottom:
+        canvas.alpha_composite(bottom.convert("RGBA").resize((1200, 94), Image.Resampling.LANCZOS), (0, 706))
+    with Image.open(CHAMPION_FRAME_RUNTIME) as frame:
+        canvas.alpha_composite(frame.convert("RGBA").resize((238, 260), Image.Resampling.NEAREST), (500, 440))
+    with Image.open(TIMER_PLATE_RUNTIME) as plate:
+        canvas.alpha_composite(plate.convert("RGBA").resize((340, 40), Image.Resampling.NEAREST), (800, 455))
+    with Image.open(TIMER_ICON_RUNTIME) as icon:
+        canvas.alpha_composite(icon.convert("RGBA").resize((80, 80), Image.Resampling.NEAREST), (930, 525))
+    CONTACT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(CONTACT_PATH, optimize=True)
+
+
+CHAMPION_SLOT_COLOR_RESTORES = {
+    "#07131ff2": "#161721ff",
+    "#06101aff": "#0f1016ff",
+    "#f0e6d2ff": "#e8e8e8ff",
+    "#0b2742ff": "#0d1440ff",
+    "#061424ff": "#05081aff",
+    "#9ed8ffff": "#adb9ffff",
+    "#34141dff": "#3b0f13ff",
+    "#19080dff": "#180608ff",
+    "#ffbbc1ff": "#f7b1b8ff",
+    "#30343bff": "#666666ff",
+    "#171a1fff": "#333333ff",
+    "#68717aff": "#666666ff",
+    "#29475cff": "#4a4c56ff",
+    "#c8aa6eff": "#e8e8e8ff",
+    "#2376a7ff": "#263cbfff",
+    "#b33b4bff": "#b02e3aff",
+    "#39566eff": "#4a4c56ff",
+    "#8090a0ff": "#8a8c96ff",
+}
+
+
+def restored_native_champion_slot_hash(layout: str) -> str:
+    restored = layout.replace(LOL_CHAMPION_FRAME_BLOCK, "")
+    for styled, native in CHAMPION_SLOT_COLOR_RESTORES.items():
+        restored = restored.replace(styled, native)
+    restored = restored.replace(
+        """  line_width: 1;
+  rounding: 6;
+  down_height: 38;
+""",
+        """  line_width: 1;
+  rounding: 12;
+  down_height: 38;
+""",
+    )
+    canonical = "\n".join(line.rstrip() for line in restored.splitlines()) + "\n"
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def restored_native_layout(layout: str) -> str:
     restored = layout.replace(LOL_BACKGROUND_BLOCK, "")
+    restored = restored.replace(LOL_HEADER_CHROME_BLOCK, "")
+    restored = restored.replace(LOL_BOTTOM_CHROME_BLOCK, "")
+    restored = restored.replace(LOL_FILTER_TOOLBAR_BLOCK, "")
+    restored = restored.replace(LOL_CHAMPION_GRID_BLOCK, "")
+    restored = restored.replace(LOL_STAT_FRAME_BLOCK, "")
+    restored = restored.replace(LOL_SKILL_FRAME_BLOCK, "")
     restored = restored.replace(
         """    #timer_icon:image {
       width: 20px;
@@ -401,6 +636,12 @@ def main() -> int:
         SOURCE_PATH,
         TIMER_PLATE_SOURCE,
         TIMER_ICON_SOURCE,
+        HEADER_CHROME_SOURCE,
+        BOTTOM_CHROME_SOURCE,
+        CHAMPION_FRAME_SOURCE,
+        PANEL_FRAME_SOURCE,
+        CONTROL_FRAME_SOURCE,
+        SIDE_PICK_FRAME_SOURCE,
         LAYOUT_PATH,
         CHAMPION_SLOT_PATH,
         BLUE_PICK_SLOT_PATH,
@@ -422,6 +663,61 @@ def main() -> int:
     timer_icon = pack_timer_asset(
         TIMER_ICON_SOURCE, TIMER_ICON_RUNTIME, TIMER_ICON_SIZE, fit=True
     )
+    header_chrome = pack_component_asset(
+        HEADER_CHROME_SOURCE,
+        HEADER_CHROME_RUNTIME,
+        HEADER_CHROME_SIZE,
+        source_margin_ratio=(0.11, 0.24),
+        target_margins=(150, 18, 150, 18),
+    )
+    bottom_chrome = pack_component_asset(
+        BOTTOM_CHROME_SOURCE,
+        BOTTOM_CHROME_RUNTIME,
+        BOTTOM_CHROME_SIZE,
+        source_margin_ratio=(0.12, 0.24),
+        target_margins=(170, 30, 170, 30),
+    )
+    champion_frame = pack_component_asset(
+        CHAMPION_FRAME_SOURCE,
+        CHAMPION_FRAME_RUNTIME,
+        CHAMPION_FRAME_SIZE,
+    )
+    filter_toolbar = pack_component_asset(
+        CONTROL_FRAME_SOURCE,
+        FILTER_TOOLBAR_RUNTIME,
+        FILTER_TOOLBAR_SIZE,
+        source_margin_ratio=(0.09, 0.28),
+        target_margins=(20, 8, 20, 8),
+    )
+    champion_grid_frame = pack_component_asset(
+        PANEL_FRAME_SOURCE,
+        CHAMPION_GRID_RUNTIME,
+        CHAMPION_GRID_SIZE,
+        source_margin_ratio=(0.08, 0.18),
+        target_margins=(18, 14, 18, 14),
+    )
+    stat_frame = pack_component_asset(
+        PANEL_FRAME_SOURCE,
+        STAT_FRAME_RUNTIME,
+        STAT_FRAME_SIZE,
+        source_margin_ratio=(0.08, 0.18),
+        target_margins=(16, 14, 16, 14),
+    )
+    skill_frame = pack_component_asset(
+        PANEL_FRAME_SOURCE,
+        SKILL_FRAME_RUNTIME,
+        SKILL_FRAME_SIZE,
+        source_margin_ratio=(0.08, 0.18),
+        target_margins=(16, 10, 16, 10),
+    )
+    side_pick_frame = pack_component_asset(
+        SIDE_PICK_FRAME_SOURCE,
+        SIDE_PICK_FRAME_RUNTIME,
+        SIDE_PICK_FRAME_SIZE,
+        source_margin_ratio=(0.10, 0.16),
+        target_margins=(14, 14, 14, 14),
+    )
+    build_component_contact()
 
     layout = LAYOUT_PATH.read_text(encoding="utf-8")
     champion_slot = CHAMPION_SLOT_PATH.read_text(encoding="utf-8")
@@ -540,6 +836,52 @@ def main() -> int:
             and "back_color: #180a0ff2;" in red_pick_slot
             and "color: #08131ef7;" in layout
         ),
+        "component_imagegen_runtime_dimensions": (
+            header_chrome["runtime"]["dimensions"] == list(HEADER_CHROME_SIZE)
+            and bottom_chrome["runtime"]["dimensions"] == list(BOTTOM_CHROME_SIZE)
+            and champion_frame["runtime"]["dimensions"] == list(CHAMPION_FRAME_SIZE)
+            and filter_toolbar["runtime"]["dimensions"] == list(FILTER_TOOLBAR_SIZE)
+            and champion_grid_frame["runtime"]["dimensions"] == list(CHAMPION_GRID_SIZE)
+            and stat_frame["runtime"]["dimensions"] == list(STAT_FRAME_SIZE)
+            and skill_frame["runtime"]["dimensions"] == list(SKILL_FRAME_SIZE)
+            and side_pick_frame["runtime"]["dimensions"] == list(SIDE_PICK_FRAME_SIZE)
+        ),
+        "component_imagegen_runtime_has_alpha": all(
+            has_transparency(path)
+            for path in (
+                HEADER_CHROME_RUNTIME,
+                BOTTOM_CHROME_RUNTIME,
+                CHAMPION_FRAME_RUNTIME,
+                FILTER_TOOLBAR_RUNTIME,
+                CHAMPION_GRID_RUNTIME,
+                STAT_FRAME_RUNTIME,
+                SKILL_FRAME_RUNTIME,
+                SIDE_PICK_FRAME_RUNTIME,
+            )
+        ),
+        "component_overlays_are_noninteractive": all(
+            f"#{node}:image" in text
+            and "ignore_event: true;" in text.split(f"#{node}:image", 1)[1].split("}", 1)[0]
+            for node, text in (
+                ("lol_bp_header_chrome", layout),
+                ("lol_bp_bottom_chrome", layout),
+                ("lol_bp_filter_toolbar", layout),
+                ("lol_bp_champion_grid_frame", layout),
+                ("lol_bp_stat_frame", layout),
+                ("lol_bp_skill_frame", layout),
+                ("lol_bp_champion_card_frame", champion_slot),
+                ("lol_bp_side_pick_frame", blue_pick_slot),
+                ("lol_bp_side_pick_frame", red_pick_slot),
+            )
+        ),
+        "champion_slot_restores_after_skin_delta": (
+            restored_native_champion_slot_hash(champion_slot)
+            == NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256
+        ),
+        "component_contact_generated": (
+            CONTACT_PATH.is_file()
+            and image_record(CONTACT_PATH)["dimensions"] == [1200, 800]
+        ),
         "native_layout_restores_after_skin_delta": (
             restored_native_layout_hash(layout) == NATIVE_LAYOUT_NORMALIZED_SHA256
         ),
@@ -572,6 +914,17 @@ def main() -> int:
             ),
         },
         "components": {
+            "imagegen_prompts": COMPONENT_IMAGEGEN_PROMPTS,
+            "imagegen_assets": {
+                "header_chrome": header_chrome,
+                "bottom_chrome": bottom_chrome,
+                "champion_card_frame": champion_frame,
+                "filter_toolbar": filter_toolbar,
+                "champion_grid_frame": champion_grid_frame,
+                "stat_frame": stat_frame,
+                "skill_frame": skill_frame,
+                "side_pick_frame": side_pick_frame,
+            },
             "control_style": {
                 "path": CONTROL_STYLE_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(CONTROL_STYLE_PATH),
@@ -579,6 +932,8 @@ def main() -> int:
             "champion_slot": {
                 "path": CHAMPION_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(CHAMPION_SLOT_PATH),
+                "native_baseline_normalized_sha256": NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256,
+                "restored_native_sha256": restored_native_champion_slot_hash(champion_slot),
             },
             "blue_pick_slot": {
                 "path": BLUE_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
@@ -588,8 +943,10 @@ def main() -> int:
                 "path": RED_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(RED_PICK_SLOT_PATH),
             },
+            "contact_sheet": image_record(CONTACT_PATH),
         },
-        "imagegen_asset_requests": COMPONENT_IMAGEGEN_REQUESTS,
+        "component_source_contracts": COMPONENT_IMAGEGEN_REQUESTS,
+        "imagegen_asset_requests": [],
         "layout": {
             "path": LAYOUT_PATH.relative_to(MOD_ROOT).as_posix(),
             "sha256": sha256(LAYOUT_PATH),
@@ -601,6 +958,7 @@ def main() -> int:
                 "BP-local background/panel/border color values",
                 "BP-local style references",
                 "ImageGen timer plate/icon sources inside the native timer geometry",
+                "ignore_event component chrome overlays inside native BP nodes",
             ],
         },
         "geometry_contract": geometry_contract,

@@ -1,0 +1,36 @@
+notify:empty {
+  width: 600px;
+  height: 45px;
+
+  anchor_x: 0.5;
+  pivot_x: 0.5;
+  y: 100px;
+
+  #lol_hud_center_notify:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/ingame/lol_hud_center_notify";
+  }
+
+  #text:label {
+    @"asset/base/style/main#bold_label";
+    size: 30;
+    outline: 1;
+    color: #e8e8e8ff;
+    outline_color: #000000ff;
+
+    align_x: Center;
+    align_y: Center;
+
+    width: 600px;
+    height: 45px;
+
+    anchor_x: 0.5;
+    anchor_y: 0.5;
+    pivot_x: 0.5;
+    pivot_y: 0.5;
+
+    text: "#asset/base/text/ui?ingame.speed_change_denied";
+  }
+}

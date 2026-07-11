@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "source": "local official League of Legends installation only",
+    "locale": "en_US",
+    "locale_reason": "Map11.zh_CN.wad.client and Map11.zh_MY.wad.client are absent; the installed Global.zh_MY WAD contains no Female1 announcer chunks",
+    "network_downloads": false,
+    "selection": "one deterministic take from each official equal-weight Random/Shuffle pool",
+    "audio_edit": "vgmstream PCM16 decode only; no gain, cut, EQ, or remix"
+  },
+  "source": {
+    "announcer_wad": "DATA/FINAL/Maps/Shipping/Map11.en_US.wad.client",
+    "announcer_wad_sha256": "92bda6eb08cebfa1aedb0c42ab3e227e5cf8aa0bf4aac8e0d245fcb529ac1d84",
+    "announcer_chunks": [
+      {
+        "logical_name": "audio_bank",
+        "internal_path": "assets/sounds/wwise2016/vo/en_us/shared/announcer_global_female1_vo_audio.bnk",
+        "path_hash": "5abee840d3887a17",
+        "sha256": "5e565cf5654f1c5886cfa5533799b49aa11005023828179112fd1165b17f38b5"
+      },
+      {
+        "logical_name": "audio_package",
+        "internal_path": "assets/sounds/wwise2016/vo/en_us/shared/announcer_global_female1_vo_audio.wpk",
+        "path_hash": "ccdbafd023095999",
+        "sha256": "774a9a4790e2254816d346973563e6d33245a3836209a8c624227465b19cdefa"
+      },
+      {
+        "logical_name": "events_bank",
+        "internal_path": "assets/sounds/wwise2016/vo/en_us/shared/announcer_global_female1_vo_events.bnk",
+        "path_hash": "71ad34977c070d95",
+        "sha256": "3e299bccb00bf87a3efaecb143d34684cdf0c07c94c57b555a8c920f49d752e6"
+      }
+    ],
+    "map11_registry_wad": "DATA/FINAL/Maps/Shipping/Map11.wad.client",
+    "map11_registry_wad_sha256": "e4bdd4d26294c16fd520a17ec9dcb6eb7425564d60a4890a58313a0cd24d6868",
+    "map11_registry_chunk": {
+      "logical_name": "map11_bin",
+      "internal_path": "data/maps/shipping/map11/map11.bin",
+      "path_hash": "4081e5c462798b73",
+      "sha256": "5c7d6b51183b3eb794a6c56152d09d8a8aec9c2a6db6c5ce895c9a263ec93030"
+    }
+  },
+  "native_runtime_contract": {
+    "implementation": "game_view::ui::ingame_ui::play_kill_count_sound",
+    "count_to_key": {
+      "2": "asset/base/sound/sfx/dual_takedown",
+      "3": "asset/base/sound/sfx/triple_takedown",
+      "4": "asset/base/sound/sfx/devastation",
+      "5": "asset/base/sound/sfx/annihilation"
+    },
+    "visual_layer": "reuse native center_kill #text and #kills/#icon1..#icon5 timing",
+    "first_blood_boundary": "The base bundle and public mod API expose no proven global first-kill sound dispatch key. The official source is audited but no dead asset or guessed callback is shipped."
+  },
+  "announcements": [
+    {
+      "name": "first_blood",
+      "event_name": "Play_vo_Announcer_Female1_FirstBloodYouYourTeam",
+      "event_id": 1941092771,
+      "action_id": 946464929,
+      "random_shuffle_container_id": 285619036,
+      "pool": [
+        835992869
+      ],
+      "pool_weights": [
+        50000
+      ],
+      "selected_media_id": 835992869,
+      "selected_wem_sha256": "66955b127e96ec37660b3035c66fb54105e2ad74724fe6563276a7681433e1bd",
+      "decoded_wav_sha256": "04866584faff88ddb06123180eb314a5d27e5c5a12ffa6f18dd7be707e347346",
+      "frame_count": 93335,
+      "duration_seconds": 2.116439909297052,
+      "runtime_key": null,
+      "output": null,
+      "status": "audited_no_public_trigger"
+    },
+    {
+      "name": "double_kill",
+      "event_name": "Play_vo_Announcer_Female1_DoubleKillYouYourTeam",
+      "event_id": 3743703056,
+      "action_id": 705523733,
+      "random_shuffle_container_id": 233586721,
+      "pool": [
+        38776155,
+        655441407,
+        247555986
+      ],
+      "pool_weights": [
+        50000,
+        50000,
+        50000
+      ],
+      "selected_media_id": 38776155,
+      "selected_wem_sha256": "3227ba68011f2fd83661e4d9cf9b789205c1c1717effeadd80f7b39a8a802503",
+      "decoded_wav_sha256": "33ded903792be89b2ba9ccb5b265f490f1e828955019b1bbf95a42cf91451bbb",
+      "frame_count": 66645,
+      "duration_seconds": 1.5112244897959184,
+      "runtime_key": "asset/base/sound/sfx/dual_takedown",
+      "output": "sound/sfx/lol_announcer_double_kill.wav",
+      "status": "runtime_mapped"
+    },
+    {
+      "name": "triple_kill",
+      "event_name": "Play_vo_Announcer_Female1_TripleKillYouYourTeam",
+      "event_id": 627773033,
+      "action_id": 315400013,
+      "random_shuffle_container_id": 709383474,
+      "pool": [
+        457215657,
+        411304003
+      ],
+      "pool_weights": [
+        50000,
+        50000
+      ],
+      "selected_media_id": 457215657,
+      "selected_wem_sha256": "756e6bd7450beaac84512e9391e3327fc61966a89ed59b165d149ae0f597eef0",
+      "decoded_wav_sha256": "654b67b6ee94f218286f60d06948f0f9c0360fc26e28d1998927c603f8558e3e",
+      "frame_count": 81394,
+      "duration_seconds": 1.8456689342403627,
+      "runtime_key": "asset/base/sound/sfx/triple_takedown",
+      "output": "sound/sfx/lol_announcer_triple_kill.wav",
+      "status": "runtime_mapped"
+    },
+    {
+      "name": "quadra_kill",
+      "event_name": "Play_vo_Announcer_Female1_QuadraKillYouYourTeam",
+      "event_id": 3159104195,
+      "action_id": 784095126,
+      "random_shuffle_container_id": 330617342,
+      "pool": [
+        688775583,
+        391206161
+      ],
+      "pool_weights": [
+        50000,
+        50000
+      ],
+      "selected_media_id": 391206161,
+      "selected_wem_sha256": "4e858cd401dc1beeab36e428d42c0684aeda58a6296b2c95b707fd852620073c",
+      "decoded_wav_sha256": "b139bdb76b5f3a678d053b4bce96c1b32dcafd0e754fd3acb2bb6353226b3365",
+      "frame_count": 87771,
+      "duration_seconds": 1.9902721088435373,
+      "runtime_key": "asset/base/sound/sfx/devastation",
+      "output": "sound/sfx/lol_announcer_quadra_kill.wav",
+      "status": "runtime_mapped"
+    },
+    {
+      "name": "penta_kill",
+      "event_name": "Play_vo_Announcer_Female1_PentaKillYouYourTeam",
+      "event_id": 2402155913,
+      "action_id": 63859497,
+      "random_shuffle_container_id": 1006520571,
+      "pool": [
+        177689956,
+        963502603
+      ],
+      "pool_weights": [
+        50000,
+        50000
+      ],
+      "selected_media_id": 963502603,
+      "selected_wem_sha256": "a57f6825015ab183452abd945757b7248aca693a10f24a5909fbc99b60d06e1f",
+      "decoded_wav_sha256": "4ac46721472862f4007116a58d7a96fbde11291b9298d70e207d9340d293e383",
+      "frame_count": 97616,
+      "duration_seconds": 2.213514739229025,
+      "runtime_key": "asset/base/sound/sfx/annihilation",
+      "output": "sound/sfx/lol_announcer_penta_kill.wav",
+      "status": "runtime_mapped"
+    }
+  ],
+  "tools": {
+    "wadtools_sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866",
+    "vgmstream_sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07"
+  }
+}

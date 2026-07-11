@@ -1,0 +1,80 @@
+kill_log:empty {
+  width: 130px;
+  height: 48px;
+
+  anchor_x: 1;
+  pivot_x: 1;
+
+  #bg:color {
+    width: 130px;
+    height: 48px;
+    color: #4d5464cc;
+    rounding: Individual {
+      top_left: 6;
+      top_right: 0;
+      bottom_left: 6;
+      bottom_right: 0;
+    }
+  }
+
+  #lol_hud_kill_log:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/ingame/lol_hud_kill_log";
+  }
+
+  #killer_slot:color {
+    x: 4px;
+    y: 4px;
+    width: 40px;
+    height: 40px;
+    rounding: Uniform {
+      rounding: 8;
+    }
+    color: #161721ff;
+
+    #icon:image {
+      width: 36px;
+      height: 36px;
+
+      anchor_x: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 0.5;
+      pivot_y: 0.5;
+    }
+  }
+
+  #icon:image {
+    x: 50px;
+    y: 12px;
+
+    width: 24px;
+    height: 24px;
+
+    source: "asset/base/ui/ingame/kill";
+  }
+
+  #killed_slot:color {
+    x: 80px;
+    y: 4px;
+    width: 40px;
+    height: 40px;
+    rounding: Uniform {
+      rounding: 8;
+    }
+    color: #161721ff;
+
+    #icon:image {
+      width: 36px;
+      height: 36px;
+
+      anchor_x: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 0.5;
+      pivot_y: 0.5;
+    }
+  }
+}

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageOps
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,8 +44,8 @@ def test_quality_map_imagegen_sources_and_native_masks_are_audited() -> None:
     qa = json.loads(
         (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
     )
-    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v2"
-    assert qa["imagegen_mode"] == "built-in image generation; palette and microdetail only"
+    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v3"
+    assert qa["imagegen_mode"].endswith("official-mask landmark decals")
     assert set(qa["sources"]) == {"microdetail", "wall_palette", "bush_palette"}
     assert all((MOD / record["path"]).is_file() for record in qa["sources"].values())
     assert set(qa["native_bundle_layers"]) == set(MAP_NAMES)
@@ -75,6 +76,52 @@ def test_quality_map_imagegen_sources_and_native_masks_are_audited() -> None:
         assert path.is_file()
         assert runtime[name]["sha256"]
 
+    landmarks = qa["landmarks"]
+    mask_audit = landmarks["mask_audit"]
+    application = landmarks["application"]
+    assert mask_audit["coordinate_space"].endswith("xyxy bounds are half-open")
+    assert mask_audit["landmark_type_count"] == 9
+    assert mask_audit["landmark_instance_count"] == 30
+    assert mask_audit["union_nonzero_pixels"] > 0
+    assert mask_audit["inter_landmark_overlap_pixels"] == 0
+    assert mask_audit["wall_or_bush_overlap_pixels_after_exclusion"] == 0
+    assert mask_audit["objective_pit_water_like_overlap_pixels"] == {
+        "baron_pit": 0,
+        "dragon_pit": 0,
+    }
+    assert set(mask_audit["inventory"]) == {
+        "baron_pit",
+        "dragon_pit",
+        "jungle_camp_large",
+        "jungle_camp_small",
+        "tower_pad",
+        "blue_nexus_pad",
+        "red_nexus_pad",
+        "blue_spawn_platform",
+        "red_spawn_platform",
+    }
+    assert len(mask_audit["inventory"]["tower_pad"]["instances"]) == 16
+    assert len(mask_audit["inventory"]["jungle_camp_large"]["instances"]) == 4
+    assert len(mask_audit["inventory"]["jungle_camp_small"]["instances"]) == 4
+    assert mask_audit["inventory"]["baron_pit"]["instances"][0][
+        "bbox_xyxy_half_open"
+    ] == [336, 352, 528, 544]
+    assert mask_audit["inventory"]["dragon_pit"]["instances"][0][
+        "bbox_xyxy_half_open"
+    ] == [736, 736, 928, 928]
+    assert application["sources_expected"] == 9
+    assert application["sources_available"] <= application["sources_expected"]
+    assert application["changed_pixels_outside_allowed_union"] == 0
+    assert application["alpha_preserved"] and application["size_preserved"]
+    assert all(
+        record["status"] in {"applied", "awaiting_imagegen"}
+        for record in application["source_records"].values()
+    )
+    assert all((MOD / record["path"]).is_file() for record in landmarks["mask_files"].values())
+    assert (MOD / landmarks["union_mask"]["path"]).is_file()
+    assert (MOD / landmarks["preview"]["path"]).is_file()
+    assert (MOD / landmarks["detail_preview"]["path"]).is_file()
+
 
 def test_quality_map_runtime_alpha_footprints_match_native_masks() -> None:
     qa = json.loads(
@@ -91,6 +138,44 @@ def test_quality_map_runtime_alpha_footprints_match_native_masks() -> None:
         with Image.open(MOD / qa["runtime"][name]["path"]) as runtime:
             actual = runtime.convert("RGBA").getchannel("A").tobytes()
         assert actual == expected, name
+
+
+def test_landmark_compositor_cannot_change_mask_exterior_or_alpha(tmp_path: Path) -> None:
+    packer_path = MOD / "tools" / "pack_quality_map.py"
+    spec = importlib.util.spec_from_file_location("quality_map_packer_test", packer_path)
+    assert spec and spec.loader
+    packer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(packer)
+
+    native, _records = packer.load_native_layers()
+    masks, union, mask_audit = packer.build_landmark_masks(native, persist=False)
+    for index, landmark in enumerate(packer.LANDMARK_SPECS.values()):
+        # Deliberately loud opaque sources make a one-pixel mask leak easy to detect.
+        color = ((53 + index * 37) % 256, (211 - index * 19) % 256, 247, 255)
+        Image.new("RGBA", (257, 257), color).save(tmp_path / landmark["source"])
+
+    before = native["background_5v5"].copy()
+    after, audit = packer.apply_landmark_overlays(
+        before,
+        masks,
+        union,
+        source_root=tmp_path,
+    )
+    assert audit["sources_available"] == audit["sources_expected"] == 9
+    assert audit["changed_pixels"] > 0
+    assert audit["changed_pixels_outside_allowed_union"] == 0
+    assert audit["alpha_preserved"] and audit["size_preserved"]
+    assert mask_audit["inter_landmark_overlap_pixels"] == 0
+    assert mask_audit["wall_or_bush_overlap_pixels_after_exclusion"] == 0
+    assert all(
+        value == 0
+        for value in mask_audit["objective_pit_water_like_overlap_pixels"].values()
+    )
+
+    difference = packer.change_mask(before, after)
+    outside = ImageChops.multiply(difference, ImageOps.invert(packer.binary_mask(union)))
+    assert outside.getbbox() is None
+    assert before.getchannel("A").tobytes() == after.getchannel("A").tobytes()
 
 
 def test_gromp_is_reduced_without_moving_its_runtime_frame_anchor() -> None:
@@ -137,3 +222,4 @@ def test_quality_map_packer_cannot_reintroduce_whole_map_or_tiled_layers() -> No
     assert "rift_background_5v5_v2_source.png" in source
     assert "REJECTED_WHOLE_MAP_SOURCE.exists()" in source
     assert '"runtime_structure_source": "native bundle 5v5 layers only"' in source
+    assert '"changed_pixels_outside_allowed_union"' in source

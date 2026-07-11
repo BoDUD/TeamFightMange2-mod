@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "release": "0.7.8",
-  "requested_scope": "Ban/pick splashes and UI skin, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, Nexus crystals, and a structure-preserving Rift map skin",
+  "release": "0.7.9",
+  "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
       "lol_shen",
@@ -27,12 +27,43 @@
       "imagegen_background": "ui/banpick/lol_bp_background.png",
       "imagegen_timer_plate": "ui/banpick/lol_bp_timer_plate.png",
       "imagegen_timer_icon": "ui/banpick/lol_bp_timer_icon.png",
+      "imagegen_header_chrome": "ui/banpick/lol_bp_header_chrome.png",
+      "imagegen_bottom_chrome": "ui/banpick/lol_bp_bottom_chrome.png",
+      "imagegen_champion_card_frame": "ui/banpick/lol_bp_champion_card_frame.png",
+      "imagegen_component_frames": [
+        "ui/banpick/lol_bp_filter_toolbar.png",
+        "ui/banpick/lol_bp_champion_grid_frame.png",
+        "ui/banpick/lol_bp_stat_frame.png",
+        "ui/banpick/lol_bp_skill_frame.png",
+        "ui/banpick/lol_bp_side_pick_frame.png"
+      ],
       "native_layout_geometry_preserved": true,
       "noninteractive_decorative_node": true,
       "blue_red_card_palette_refined": true,
       "page_local_controls_style": "style/bp_controls.style",
       "champion_list_stat_and_skill_panels_refined": true,
       "bvp_runtime_controls_copied": false
+    },
+    "ingame_hud_skin": {
+      "imagegen_source_reuse": [
+        "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+        "source/imagegen/ui/lol_bp_control_frame_v1_source.png"
+      ],
+      "native_components": [
+        "player_info",
+        "wide_player_info",
+        "camera_info",
+        "wide_camera_info",
+        "kill_log",
+        "center_kill",
+        "center_notify",
+        "player_detail",
+        "detail_slot",
+        "chat"
+      ],
+      "native_node_ids_dimensions_events_and_text_preserved": true,
+      "decorative_nodes_ignore_event": true,
+      "dynamic_main_layout_and_semantic_icon_atlases_untouched": true
     },
     "encyclopedia_fullbody": [
       "lol_shen",
@@ -51,9 +82,20 @@
     },
     "baron": {
       "actor_and_attack_vfx": true,
+      "attack_canvas_clip_loss_pixels": 0,
+      "attack_action_frames_and_duration_preserved": true,
+      "attack_ground_anchor_max_delta_pixels": 0.450144,
       "objective_ui": true,
       "official_audio_source": "local League of Legends Map11 Wwise banks",
       "audio_hash_manifest": "qa/baron_official_audio_sources.json"
+    },
+    "briar_q_visual": {
+      "runtime_effect": "briar_q_overhead",
+      "frames": 8,
+      "duration_seconds": 0.46,
+      "target_following_overhead_marker": true,
+      "body_enclosing_ring_removed": true,
+      "gameplay_payload_and_native_actor_timing_preserved": true
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -106,9 +148,41 @@
       "native_bundle_is_only_spatial_geometry_source": true,
       "native_alpha_masks_exact_for_all_nine_layers": true,
       "generated_whole_map_with_shifted_water_deleted": true,
-      "tower_pads_camp_markers_epic_pits_and_water_are_native": true,
+      "official_mask_landmark_instances": {
+        "baron_and_dragon_pits": 2,
+        "neutral_camp_pads": 8,
+        "tower_foundations": 16,
+        "nexus_plinths": 2,
+        "spawn_platforms": 2
+      },
+      "landmark_union_outside_changed_pixels": 0,
+      "landmark_wall_bush_and_water_intersections": 0,
+      "landmark_native_outer_rim_pixels": 2,
       "dynamic_minimap_markers_preserved": true,
       "map_setting_collision_paths_spawns_and_positions_preserved": true
+    },
+    "system_audio": {
+      "source": "local official League of Legends installation",
+      "network_downloads": false,
+      "banpick_bgm_override_keys": 3,
+      "match_bgm_override_keys": 6,
+      "runtime_music_assets": [
+        "sound/bgm/lol_banpick.wav",
+        "sound/bgm/lol_match.wav"
+      ],
+      "native_multikill_trigger_keys": {
+        "2": "dual_takedown",
+        "3": "triple_takedown",
+        "4": "devastation",
+        "5": "annihilation"
+      },
+      "announcer_locale": "en_US",
+      "announcer_locale_reason": "the local League installation contains Map11.en_US but no Map11.zh_CN announcer WAD",
+      "native_center_kill_visual_timing_preserved": true,
+      "provenance": [
+        "qa/league_music_source_qa.json",
+        "qa/league_announcer_source_qa.json"
+      ]
     }
   },
   "packaged_variants": {
@@ -133,7 +207,8 @@
       "bee"
     ],
     "raptor_and_krug": "TFM2 has no fifth or sixth ordinary neutral actor/spawn state; these two generated packs are not claimed as independently spawning camps.",
-    "elemental_dragon_state_machine": "API 0.8 now deterministically selects one of five base elemental dragons per match from the authoritative match seed; both teams and replay derive the same visual. The public API still exposes no safe per-respawn rotation, Dragon Soul, or Elder-transition hook, and a replay opened before any MatchUIRunner database handle safely retains default serpen."
+    "elemental_dragon_state_machine": "API 0.8 now deterministically selects one of five base elemental dragons per match from the authoritative match seed; both teams and replay derive the same visual. The public API still exposes no safe per-respawn rotation, Dragon Soul, or Elder-transition hook, and a replay opened before any MatchUIRunner database handle safely retains default serpen.",
+    "first_blood_announcer": "The official First Blood event, container, media ID, WEM and decoded hash are audited. TFM2 exposes native sound dispatch only for 2/3/4/5 multikills, while IngameUIRunner kill logs and play_sound remain private and Mod API 0.8 has no safe global first-kill sound callback. No OS-level bypass or guessed every-kill remap is shipped."
   },
   "verification_boundary": {
     "static_build_and_contract_checks": true,
