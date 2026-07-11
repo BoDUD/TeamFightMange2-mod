@@ -30,6 +30,15 @@ const BP_NATIVE_ACTOR_HEIGHT: f32 = 184.0;
 const BP_NATIVE_ACTOR_BLUE_X: f32 = 160.0;
 const BP_NATIVE_ACTOR_RED_INSET: f32 = 294.0;
 const BP_NATIVE_ACTOR_TOP: f32 = 87.0;
+// The native pick-complete animation briefly scales the 137x184 actor down to
+// roughly 125x147 and starts the red-side slide at x ~= 1579 on a 1920-wide
+// pass.  Keep this transition band wider than the settled card band, while
+// the actor-size gate below excludes 128x128 champion-grid thumbnails.
+const BP_RED_TRANSITION_EDGE_BAND: f32 = 430.0;
+const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;
+const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;
+const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;
+const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;
 const SPLASH_SPECS: [(&str, &str); 5] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
@@ -463,7 +472,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.7.7;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.7.8;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -483,7 +492,9 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         // when a transition emits more than one candidate for the same slot.
         let mut candidates: Vec<Option<BpOverlayCandidate>> =
             (0..PICK_SLOT_LIMIT * 2).map(|_| None).collect();
-        for command in commands.iter() {
+        let mut original_actor_indices = Vec::new();
+        let mut original_actor_counts = [0usize; PICK_SLOT_LIMIT * 2];
+        for (command_index, command) in commands.iter().enumerate() {
             let RenderCommand::NinePatch {
                 texture,
                 x,
@@ -510,7 +521,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 continue;
             };
             let geometry_identity = || {
-                let side = bp_side_from_geometry(*x, *y, *h, map_width)?;
+                let side = bp_side_from_geometry(*x, *y, *w, *h, map_width)?;
                 let slot = bp_slot_from_geometry(*y, *h)?;
                 Some((side, slot))
             };
@@ -530,6 +541,13 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             let Some(asset) = splash_asset(champion_id) else {
                 continue;
             };
+
+            // The illustration replaces this picked-card actor; it is not a
+            // translucent decoration behind it.  Retaining the native actor
+            // lets the scaled slide-in pose protrude beyond the 284x172 art
+            // for a few frames (most visibly on Lucian's red-side pick).
+            original_actor_indices.push(command_index);
+            original_actor_counts[side.candidate_index(slot_index)] += 1;
 
             let original_geometry = (*x, *y, *w, *h);
             let target_x = bp_overlay_x(side, map_width);
@@ -607,10 +625,22 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 });
             }
         }
+
+        // Remove every recognized actor command, including duplicate
+        // transition commands for the same slot.  Iterating in reverse keeps
+        // the recorded indices valid and leaves champion-grid/tooltip icons
+        // untouched because those never pass the picked-card geometry gate.
+        original_actor_indices.sort_unstable();
+        original_actor_indices.dedup();
+        for command_index in original_actor_indices.into_iter().rev() {
+            commands.remove(command_index);
+        }
         let mut overlays = Vec::new();
         for candidate in candidates.into_iter().flatten() {
             let target_x = bp_overlay_x(candidate.side, map_width);
             let target_y = bp_overlay_y(candidate.slot_index);
+            let removed_actor_count =
+                original_actor_counts[candidate.side.candidate_index(candidate.slot_index)];
             write_bp_render_telemetry_once(
                 "overlay_append",
                 candidate.side.as_str(),
@@ -618,7 +648,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 &candidate.original_texture,
                 candidate.asset,
                 &format!(
-                    "champion={};route={};pass={pass};map_width={map_width:.1};score={:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
+                    "champion={};route={};pass={pass};map_width={map_width:.1};score={:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={};original_actor_commands_removed={removed_actor_count}",
                     candidate.champion_id,
                     candidate.route,
                     candidate.score,
@@ -700,14 +730,23 @@ fn bp_identity_from_pass(pass: &str) -> Option<(BpRenderSide, usize)> {
     (slot < PICK_SLOT_LIMIT).then_some((side, slot))
 }
 
-fn bp_side_from_geometry(x: f32, y: f32, height: f32, map_width: f32) -> Option<BpRenderSide> {
-    if !(40.0..=960.0).contains(&y) || !(100.0..=250.0).contains(&height) {
+fn bp_side_from_geometry(
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    map_width: f32,
+) -> Option<BpRenderSide> {
+    if !(40.0..=960.0).contains(&y)
+        || !(BP_TRANSITION_ACTOR_MIN_WIDTH..=BP_TRANSITION_ACTOR_MAX_WIDTH).contains(&width)
+        || !(BP_TRANSITION_ACTOR_MIN_HEIGHT..=BP_TRANSITION_ACTOR_MAX_HEIGHT).contains(&height)
+    {
         return None;
     }
-    // BVP's absolute 1585..2100 red range assumes a 1920-wide render map.
-    // The game can render BP at narrower widths (for example 1618px), so keep
-    // the same 335px edge band relative to the active render pass instead.
-    let right_edge_start = (map_width - 335.0).max(335.0);
+    // The red-side actor starts its completion transition just outside the
+    // settled 335px edge band.  The 120..140 by 140..190 actor-size contract
+    // lets us include that slide without ever converting 128x128 list art.
+    let right_edge_start = (map_width - BP_RED_TRANSITION_EDGE_BAND).max(335.0);
     if (0.0..=335.0).contains(&x) {
         Some(BpRenderSide::Blue)
     } else if (right_edge_start..=(map_width + 180.0)).contains(&x) {

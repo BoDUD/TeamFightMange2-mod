@@ -2,11 +2,11 @@
   "schema": "lol_mod.quality_bp_skin_imagegen_pack.v1",
   "generator": "mods/lol_mod/tools/pack_quality_bp_skin.py",
   "imagegen_mode": "built-in image generation",
-  "prompt": "Original 16:9 premium fantasy MOBA champion-draft background plate: deep navy-black rift stone and mist, cool blue far-left edge, muted crimson far-right edge, thin antique-gold outer accents, and a quiet low-contrast centre. No text, logos, champions, cards, buttons, icons, or copied game UI.",
+  "prompt": "Original 16:9 restrained fantasy MOBA champion-draft background: nearly black navy centre, very faint blue and burgundy edge atmosphere, sparse antique-gold hairlines, no large motifs and enough low-contrast negative space for cards and text. No text, logos, champions, buttons, icons, or copied game UI.",
   "source": {
-    "path": "source/imagegen/ui/lol_bp_background_v1_source.png",
-    "size_bytes": 1680552,
-    "sha256": "30e39f4944cef7116cfd806f644f4d0a640ac410d434ce9ee21595f0bf8d4b08",
+    "path": "source/imagegen/ui/lol_bp_background_v2_source.png",
+    "size_bytes": 1899686,
+    "sha256": "6bc9664ea1222346878a01880c00cc97c34177df43b09f35ab7708c6fe08240b",
     "dimensions": [
       1672,
       941
@@ -15,23 +15,176 @@
   },
   "runtime": {
     "path": "ui/banpick/lol_bp_background.png",
-    "size_bytes": 2192114,
-    "sha256": "38d2dd3c67ca97f8ad08b988fb73ba73849064a1fe02f9839f143cfbc2a2f4bd",
+    "size_bytes": 2397738,
+    "sha256": "84b81761a1b30bed11bcad6e3972ac6807ff4015e3dfe6754f83b09c28ee921d",
     "dimensions": [
       1920,
       1080
     ],
     "mode": "RGBA"
   },
+  "timer_assets": {
+    "prompts": {
+      "plate": "Transparent/chroma-key background, one isolated 6:1 dark navy MOBA timer plate, thin antique-gold bezel and a very subtle cyan inner rim, no text, numbers, icon, logo, bloom, or cast shadow.",
+      "icon": "Transparent/chroma-key background, one isolated front-facing fantasy MOBA hourglass timer emblem, readable at 20 pixels, pale gold frame with minimal cyan sand, no text, digits, logo, bloom, or cast shadow."
+    },
+    "plate": {
+      "source": {
+        "path": "source/imagegen/ui/lol_bp_timer_plate_v1_source.png",
+        "size_bytes": 958162,
+        "sha256": "2b82139dc2218bf7f487b8ed4c31a4566559a11323cf527625691479792b8142",
+        "dimensions": [
+          1774,
+          887
+        ],
+        "mode": "RGB"
+      },
+      "runtime": {
+        "path": "ui/banpick/lol_bp_timer_plate.png",
+        "size_bytes": 3673,
+        "sha256": "528bfc4606486d13f10aa6d02830087b9e0558fe724de3c11195e7a2d35c2071",
+        "dimensions": [
+          170,
+          20
+        ],
+        "mode": "RGBA"
+      },
+      "chroma_key": {
+        "sampled_key": [
+          248,
+          3,
+          245
+        ],
+        "source_bbox": [
+          76,
+          315,
+          1697,
+          568
+        ],
+        "transparent_pixels": 1167098,
+        "partial_alpha_pixels": 1665
+      }
+    },
+    "icon": {
+      "source": {
+        "path": "source/imagegen/ui/lol_bp_timer_icon_v1_source.png",
+        "size_bytes": 1167142,
+        "sha256": "e7c01022cc69740b8ee119fbdd5167e0b91facb0d09d88184afc268facd76fd2",
+        "dimensions": [
+          1254,
+          1254
+        ],
+        "mode": "RGB"
+      },
+      "runtime": {
+        "path": "ui/banpick/lol_bp_timer_icon.png",
+        "size_bytes": 898,
+        "sha256": "012c5a096c9c5d63c60c3e9430eb3ba49f5fdc890b08ef7822e2f24599f6b64d",
+        "dimensions": [
+          20,
+          20
+        ],
+        "mode": "RGBA"
+      },
+      "chroma_key": {
+        "sampled_key": [
+          251,
+          3,
+          237
+        ],
+        "source_bbox": [
+          436,
+          296,
+          818,
+          934
+        ],
+        "transparent_pixels": 1411659,
+        "partial_alpha_pixels": 1080
+      }
+    },
+    "visibility_contract": "plate replaces #timer_bar_bg inside native #timer_area; no independent always-visible root sibling"
+  },
+  "components": {
+    "control_style": {
+      "path": "style/bp_controls.style",
+      "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d"
+    },
+    "champion_slot": {
+      "path": "ui/layout/banpick/champion_slot.ui",
+      "sha256": "306d0d0437601c8a03ddec56c2c930345670d40b746df98654edb1c49586188f"
+    },
+    "blue_pick_slot": {
+      "path": "ui/layout/banpick/blue_pick_slot.ui",
+      "sha256": "fc135c4afbea9709830ab5586b45178039620a344ee3d02b79fb6028a4350bc6"
+    },
+    "red_pick_slot": {
+      "path": "ui/layout/banpick/red_pick_slot.ui",
+      "sha256": "beaf87667d03785361c59cbf4707183617e7d309d02f276b143581881cc8b852"
+    }
+  },
+  "imagegen_asset_requests": [
+    {
+      "id": "champion_card_frame",
+      "source_path": "source/imagegen/ui/lol_bp_champion_card_frame_v1_source.png",
+      "runtime_dimensions": [
+        119,
+        130
+      ],
+      "alpha": "transparent centre and exterior; frame pixels only",
+      "layout_reference": "asset/base/ui/layout/banpick/champion_slot root frame overlay"
+    },
+    {
+      "id": "skill_card_frame",
+      "source_path": "source/imagegen/ui/lol_bp_skill_card_frame_v1_source.png",
+      "runtime_dimensions": [
+        687,
+        115
+      ],
+      "alpha": "transparent centre and exterior; border plus weak left icon-divider ornament",
+      "layout_reference": "layout.ui #champion_info #skill1/#skill2/#ult background overlay"
+    },
+    {
+      "id": "square_control_frame",
+      "source_path": "source/imagegen/ui/lol_bp_square_control_frame_v1_source.png",
+      "runtime_dimensions": [
+        40,
+        40
+      ],
+      "alpha": "transparent centre; 1-2px frame only",
+      "layout_reference": "40x40 category/position/search-clear controls"
+    },
+    {
+      "id": "delegate_button_frame",
+      "source_path": "source/imagegen/ui/lol_bp_delegate_button_frame_v1_source.png",
+      "runtime_dimensions": [
+        285,
+        40
+      ],
+      "alpha": "transparent centre; frame only",
+      "layout_reference": "layout.ui #header #delegate_btn"
+    },
+    {
+      "id": "swap_confirm_button_frame",
+      "source_path": "source/imagegen/ui/lol_bp_swap_confirm_button_frame_v1_source.png",
+      "runtime_dimensions": [
+        639,
+        67
+      ],
+      "alpha": "transparent centre; frame only",
+      "layout_reference": "layout.ui #swap #bottom #confirm"
+    }
+  ],
   "layout": {
     "path": "ui/layout/banpick/layout.ui",
-    "sha256": "cbe459f7a5cfcd871fa3015d8f3a5d854184670159e1d94d437f4374df4fda68",
+    "sha256": "d2eb0f185706c2a984bd29cddd4bcc6c73b6ac4b8d89804389a9704b717bdf5f",
     "native_baseline_sha256": "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc",
     "native_baseline_normalized_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
     "restored_native_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
     "allowed_changes": [
       "one ignore_event image node",
-      "BP-local background/panel/border color values"
+      "BP-local background/panel/border color values",
+      "BP-local style references",
+      "ImageGen timer plate/icon sources inside the native timer geometry"
     ]
   },
   "geometry_contract": {
@@ -41,7 +194,12 @@
     "red_picks_native": true,
     "champion_grid_native": true,
     "champion_info_native": true,
-    "swap_native": true
+    "swap_native": true,
+    "timer_area_native": true,
+    "timer_bar_native": true,
+    "champion_slot_native": true,
+    "pick_slots_native": true,
+    "skill_cards_native": true
   },
   "static_checks": {
     "runtime_dimensions_1920x1080": true,
@@ -50,6 +208,14 @@
     "decorative_source_not_champion_scan_candidate": true,
     "native_geometry_contract": true,
     "bvp_runtime_nodes_absent": true,
+    "v1_background_source_removed": true,
+    "timer_plate_is_visibility_scoped": true,
+    "timer_icon_is_imagegen_asset": true,
+    "timer_runtime_dimensions": true,
+    "timer_runtime_has_alpha": true,
+    "bp_controls_use_local_style_only": true,
+    "champion_slot_override_registered": true,
+    "component_palette_is_lol_style": true,
     "native_layout_restores_after_skin_delta": true,
     "layout_override_registered": true
   }

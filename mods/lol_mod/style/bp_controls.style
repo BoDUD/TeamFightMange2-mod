@@ -1,0 +1,280 @@
+text_edit: {
+  stroke: 1;
+  color: #39566eff;
+  hover: {
+    back_color: #0d2231ff;
+    color: #c8aa6eff;
+  }
+
+  font: "asset/base/font/set/regular";
+
+  back_color: #07131ff2;
+  text_color: #f0e6d2ff;
+  placeholder_color: #8090a0ff;
+
+  rounding: Uniform {
+    rounding: 4;
+  }
+
+  selection_color: #0ac8b9ff;
+}
+
+tertiary_button: {
+  btn: {
+    rounding: Uniform {
+      rounding: 4;
+    }
+    color: #39566eff;
+    stroke: 1;
+    back_color: #081522f5;
+  }
+
+  text: {
+    font: "asset/base/font/set/bold";
+    color: #dce7efff;
+  }
+
+  icon: {
+    color: #dce7efff;
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  hover: {
+    btn: {
+      color: #c8aa6eff;
+      back_color: #102536ff;
+    }
+
+    text: {
+      color: #f0e6d2ff;
+    }
+
+    icon: {
+      color: #f0e6d2ff;
+    }
+  }
+
+  disabled: {
+    btn: {
+      color: #273c4ba6;
+      back_color: #09121ba6;
+    }
+
+    text: {
+      color: #667785a6;
+    }
+
+    icon: {
+      color: #667785a6;
+    }
+  }
+}
+
+primary_button: {
+  btn: {
+    rounding: Uniform {
+      rounding: 4;
+    }
+    color: #c8aa6eff;
+    stroke: 1;
+    back_color: #0b4a55ff;
+  }
+
+  text: {
+    font: "asset/base/font/set/bold";
+    color: #f0e6d2ff;
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  hover: {
+    btn: {
+      color: #f0e6d2ff;
+      back_color: #0d6570ff;
+    }
+
+    text: {
+      color: #ffffffff;
+    }
+  }
+
+  disabled: {
+    btn: {
+      color: #40515ba6;
+      back_color: #12242ba6;
+    }
+
+    text: {
+      color: #78858aa6;
+    }
+  }
+}
+
+secondary_button: {
+  btn: {
+    rounding: Uniform {
+      rounding: 4;
+    }
+    color: #6f8798ff;
+    stroke: 1;
+    back_color: #0b1824f5;
+  }
+
+  text: {
+    font: "asset/base/font/set/bold";
+    color: #dce7efff;
+  }
+
+  icon: {
+    color: #dce7efff;
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  hover: {
+    btn: {
+      color: #c8aa6eff;
+      back_color: #102536ff;
+    }
+
+    text: {
+      color: #f0e6d2ff;
+    }
+
+    icon: {
+      color: #f0e6d2ff;
+    }
+  }
+
+  disabled: {
+    btn: {
+      color: #273c4ba6;
+      back_color: #09121ba6;
+    }
+
+    text: {
+      color: #667785a6;
+    }
+
+    icon: {
+      color: #667785a6;
+    }
+  }
+}
+
+dropdown: {
+  background: {
+    color: #39566eff;
+    back_color: #07131ff2;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 4;
+    }
+
+    hover: {
+      color: #c8aa6eff;
+    }
+
+    disabled: {
+      color: #273c4ba6;
+      back_color: #09121ba6;
+    }
+  }
+
+  icon: {
+    source: "asset/base/ui/icons/dropdown";
+    color: #8fa1b0ff;
+
+    hover: {
+      color: #f0e6d2ff;
+    }
+
+    disabled: {
+      color: #4a5b68ff;
+    }
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  icon_layout: {
+    x: -20px;
+    pivot_x: 1;
+    anchor_x: 1;
+    pivot_y: 0.5;
+    anchor_y: 0.5;
+
+    width: 8.78px;
+    height: 5.06px;
+  }
+
+  selected_icon: {
+    source: "asset/base/ui/icons/check";
+    color: #0ac8b9ff;
+
+    hover: {
+      color: #f0e6d2ff;
+    }
+  }
+
+  selected_icon_layout: {
+    anchor_x: 1;
+    pivot_x: 1;
+
+    anchor_y: 0.5;
+    pivot_y: 0.5;
+
+    x: -25px;
+
+    width: 14px;
+    height: 9.57px;
+  }
+
+  text: {
+    font: "asset/base/font/set/regular";
+    color: #f0e6d2ff;
+    align_y: Center;
+
+    disabled: {
+      color: #4a5b68ff;
+    }
+  }
+
+  item_text: {
+    font: "asset/base/font/set/regular";
+    color: #a7b4c0ff;
+    align_y: Center;
+
+    hover: {
+      color: #f0e6d2ff;
+    }
+  }
+
+  item_start_offset: 0px;
+  item_end_offset: 0px;
+
+  scroll_bar: {
+    source: "asset/base/sprite/white";
+    color: #0ac8b9ff;
+
+    hover: {
+      color: #66e6d8ff;
+    }
+
+    active: {
+      color: #66e6d8ff;
+    }
+  }
+
+  scroll_bar_width: 4;
+  scroll_bar_padding: {
+    top: 8px;
+    bottom: 8px;
+  }
+  scroll_speed: 100;
+}

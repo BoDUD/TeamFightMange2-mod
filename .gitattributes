@@ -12,6 +12,7 @@
 *.override_info text eol=lf
 *.py text eol=lf
 *.sound_info text eol=lf
+*.style text eol=lf
 *.champion_view text eol=lf
 *.sprite_sheet text eol=lf
 *.svg text eol=lf

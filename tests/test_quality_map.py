@@ -43,14 +43,29 @@ def test_quality_map_imagegen_sources_and_native_masks_are_audited() -> None:
     qa = json.loads(
         (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
     )
-    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v1"
-    assert qa["imagegen_mode"] == "built-in image generation/editing"
-    assert set(qa["sources"]) == {"background", "wall", "bush"}
+    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v2"
+    assert qa["imagegen_mode"] == "built-in image generation; palette and microdetail only"
+    assert set(qa["sources"]) == {"microdetail", "wall_palette", "bush_palette"}
     assert all((MOD / record["path"]).is_file() for record in qa["sources"].values())
+    assert set(qa["native_bundle_layers"]) == set(MAP_NAMES)
     assert all(qa["mask_checks"].values())
+    assert all(qa["native_alpha_checks"].values())
+    assert all(qa["rgb_delta_checks"].values())
     assert all(qa["static_checks"].values())
     assert qa["contracts"]["collision_and_spawns"].endswith("map_setting")
-    assert qa["contracts"]["wall_and_bush_geometry"] == "byte-exact native alpha masks"
+    assert qa["contracts"]["runtime_structure_source"] == "native bundle 5v5 layers only"
+    assert qa["contracts"]["wall_and_bush_geometry"].startswith("native RGBA contours")
+    assert qa["source_usage"]["microdetail"]["strength"] <= 0.05
+    assert not qa["source_usage"]["microdetail"]["spatial_terrain_semantics_copied"]
+    assert all(
+        not record.get("spatial_pixels_copied", True)
+        for name, record in qa["source_usage"].items()
+        if name.endswith("palette")
+    )
+
+    rejected = qa["rejected_routes"]
+    assert len(rejected) == 1 and rejected[0]["status"] == "deleted"
+    assert not (MOD / rejected[0]["path"]).exists()
 
     runtime = qa["runtime"]
     assert runtime["background_5v5"]["dimensions"] == [1280, 1280]
@@ -113,3 +128,12 @@ def test_gromp_is_reduced_without_moving_its_runtime_frame_anchor() -> None:
 def test_quality_builder_rebuilds_the_map_pack() -> None:
     source = (MOD / "tools" / "build_lol_mod.py").read_text(encoding="utf-8")
     assert '"pack_quality_map.py"' in source
+
+
+def test_quality_map_packer_cannot_reintroduce_whole_map_or_tiled_layers() -> None:
+    source = (MOD / "tools" / "pack_quality_map.py").read_text(encoding="utf-8")
+    assert "tiled_source" not in source
+    assert "masked_texture" not in source
+    assert "rift_background_5v5_v2_source.png" in source
+    assert "REJECTED_WHOLE_MAP_SOURCE.exists()" in source
+    assert '"runtime_structure_source": "native bundle 5v5 layers only"' in source

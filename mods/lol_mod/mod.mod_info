@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.7.7",
-  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.7 locks Ban/Pick illustrations to the verified Ban/Pick View Plus card coordinates instead of inheriting actor slide-and-scale animation geometry, and deduplicates each blue/red slot to one overlay. It retains the 0.7.6 fixed dragon attack ground anchors and adds a refined Rift visual pass with native map structure, collision, spawn points, and objective locations preserved. Native question cards, swap-phase state, and compact icons remain intact. The pack includes full-body encyclopedia portraits, image-generated objectives, neutral monsters, towers, Nexus crystals, terrain art, minimap art, League-style item art, and locally extracted official Baron audio for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.7.8",
+  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.8 removes the picked-card actor during Ban/Pick completion transitions so Lucian and the other splash illustrations no longer expose a brief sprite remnant. It also replaces the rejected whole-map generation with all nine official 5v5 layers extracted directly from bundle.game_data; ImageGen is now limited to a 5% semantics-free microtexture and global palette guidance, so roads, water, walls, brush, camps, pits, collision, pathing, spawns, and minimap geometry remain native. The Ban/Pick page gains a calmer generated backdrop, generated timer plate and icon, and page-local League-inspired list, button, filter, stat, and skill-card styling while retaining official geometry, interactions, question cards, and swap state. The pack includes full-body encyclopedia portraits, image-generated objectives, neutral monsters, towers, Nexus crystals, League-style item art, and locally extracted official Baron audio for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-11",
   "dependencies": [
     {

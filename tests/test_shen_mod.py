@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.7"
+    assert mod_info["version"] == "0.7.8"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -102,13 +102,13 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.7.7;root=' in source
+    assert '"version=0.7.8;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
     assert "for (pass, commands) in &mut state.commands" in source
     assert ".map_size" in source and ".get(pass)" in source
-    assert "map_width - 335.0" in source
+    assert "map_width - BP_RED_TRANSITION_EDGE_BAND" in source
     assert '"candidate_skip"' in source
     assert '"asset/lol_mod/BanPickIllust/lol_shen"' in source
     assert not any(
@@ -211,6 +211,22 @@ def test_bp_overlay_is_card_anchored_and_deduplicated() -> None:
     assert "for candidate in candidates.into_iter().flatten()" in rewrite
     assert rewrite.count("overlays.push(candidate.overlay);") == 1
     assert "overlays.push(overlay);" not in rewrite
+
+    # A pick-complete transition must replace the original actor command,
+    # rather than leaving its scaled slide-in pose behind the splash.  The
+    # red transition starts around x=1579 at 1920px, while 128x128 champion
+    # list thumbnails remain outside the accepted actor-size contract.
+    assert "const BP_RED_TRANSITION_EDGE_BAND: f32 = 430.0;" in source
+    assert "const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;" in source
+    assert "const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;" in source
+    assert "const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;" in source
+    assert "const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;" in source
+    assert "bp_side_from_geometry(*x, *y, *w, *h, map_width)" in rewrite
+    assert "original_actor_indices.push(command_index);" in rewrite
+    assert "original_actor_counts[side.candidate_index(slot_index)] += 1;" in rewrite
+    assert "for command_index in original_actor_indices.into_iter().rev()" in rewrite
+    assert "commands.remove(command_index);" in rewrite
+    assert "original_actor_commands_removed={removed_actor_count}" in rewrite
 
 
 def test_override_metadata_uses_registered_sprite_sheet_extension() -> None:

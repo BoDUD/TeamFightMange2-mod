@@ -15,6 +15,10 @@
     "remapping": "asset/lol_mod/ui/layout/banpick/red_pick_slot",
     "type": "override"
   },
+  "asset/base/ui/layout/banpick/champion_slot": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
+    "type": "override"
+  },
   "asset/base/ui/layout/banpick/layout": {
     "remapping": "asset/lol_mod/ui/layout/banpick/layout",
     "type": "override"

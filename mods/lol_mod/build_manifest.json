@@ -274,48 +274,48 @@
     },
     {
       "path": "aseprite_resources/ingame/5v5/background_5v5.png",
-      "size": 2545753,
-      "sha256": "c1e03e58f0541f3554dc4e59babba0e65f7b5e268198b41a36120800d5841dcc"
+      "size": 919038,
+      "sha256": "1d1a02744ff51707739a41fb31f66dc50b137dc6e398af4e8d13101cab91049c"
     },
     {
       "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
-      "size": 1910960,
-      "sha256": "eee5fec3cfb393028eebb21aa6e18e602207928e31ef1fcb93c814b1050ef961"
+      "size": 47293,
+      "sha256": "d46d109cb4be9c1899367804aa982aee3c791d75bed90eb3130834b14b56b29d"
     },
     {
       "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
-      "size": 14998,
-      "sha256": "bd63c315dc9cf80a283f2e04000327454ac5e8c5f5e902a2e05e6fd30e87ce3b"
+      "size": 13609,
+      "sha256": "3a62848b6beb27610786ef94b21c244f5a67f3f97e6e146662b6abf4f9ef8df4"
     },
     {
       "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
-      "size": 188697,
-      "sha256": "ba48da9f62075971693d8f2c8dcec103ba63618aef9c3482ace611e7f8cd95cb"
+      "size": 18500,
+      "sha256": "0cd847afcbed5b52e1e63cc0c4595fe1ddde67688b389a4e249da77ead528cfa"
     },
     {
       "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
-      "size": 273,
-      "sha256": "6d3db80d1d989d282da369b19dc212452d7d444c953f8782e624120fbc7431b7"
+      "size": 257,
+      "sha256": "128d9471215f5510e4e39f340b01ec439b0d94759fd4dfbe4dcb504eac7e1dea"
     },
     {
       "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
-      "size": 151,
-      "sha256": "9751dfcd50e3d3085f0ba534606c75f953dce1a70a1a03905718b10f0088582e"
+      "size": 130,
+      "sha256": "a648a107fc724bc9a6ddcec305009491881dfa7ba0c97621cbaef33f4b465bd0"
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
-      "size": 1564268,
-      "sha256": "1397d8f761f8490e2d271265b766f2e1c89c4e0ca8479baffbab5e6260bd69b3"
+      "size": 109616,
+      "sha256": "7bb6439c0235da4fd75e4b2bcfea1f833fa52c5900232b75f63d0b02374a8de7"
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
-      "size": 1351297,
-      "sha256": "8080611994c11592befdaf3444921ae5291764512498f3af1936777a44fb4cdc"
+      "size": 9642,
+      "sha256": "d2a929c6c9adb33cc74cfd3a5deca643a03c1e5af14e682e6dbeaa24a32d30bf"
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
-      "size": 17148,
-      "sha256": "ff8148e4be783d4bdfcc39ec4d44d78d9f789c37f3c91d587e0fcad3e35ed04a"
+      "size": 16264,
+      "sha256": "cc74a72a9128df6219f1ee062365e92fb126915a800534cc09bb68a516d1bd10"
     },
     {
       "path": "aseprite_resources/ingame/bee#anim.fanim",
@@ -704,18 +704,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 418304,
-      "sha256": "828622e8d39115b118bf7d00b1e07daeb8d0a3c595de61d96f5e1677f0b95fcf"
+      "size": 424448,
+      "sha256": "4ec41bcd89e1ef19007596409a6041da1cf09e4f91678304faec1c011ed25130"
     },
     {
       "path": "mod.mod_info",
-      "size": 1144,
-      "sha256": "c3b3b00e87c1790aa0dae38c4cff5e87e3232963164ede758bafa4657fe015d0"
+      "size": 1395,
+      "sha256": "d2fa59bb7d00681164b2d08338124d43c6eea3cc113ffa381e37e014b7c20ff4"
     },
     {
       "path": "mod.override_info",
-      "size": 28221,
-      "sha256": "21b60500baff2bf273dd8ce664e73fc8fc84c75c7ac1142c7aed341303627926"
+      "size": 28365,
+      "sha256": "99e1b8676889ca9e0f05a3552b14e0dd23e9de25d4ff761587f67dcc45395788"
     },
     {
       "path": "sound/sfx/baron_attack_left.sound_info",
@@ -1173,6 +1173,11 @@
       "sha256": "50599bc5874670fcfb09e2687b58e7d053bc30f510e87255c3521b7da5f4ba62"
     },
     {
+      "path": "style/bp_controls.style",
+      "size": 3937,
+      "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d"
+    },
+    {
       "path": "style/champion_view.champion_view",
       "size": 747,
       "sha256": "76900f1442e1917b1e0e0212944b0f717dc44d3a3e54219f92303d967f9fa513"
@@ -1194,8 +1199,18 @@
     },
     {
       "path": "ui/banpick/lol_bp_background.png",
-      "size": 2192114,
-      "sha256": "38d2dd3c67ca97f8ad08b988fb73ba73849064a1fe02f9839f143cfbc2a2f4bd"
+      "size": 2397738,
+      "sha256": "84b81761a1b30bed11bcad6e3972ac6807ff4015e3dfe6754f83b09c28ee921d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_icon.png",
+      "size": 898,
+      "sha256": "012c5a096c9c5d63c60c3e9430eb3ba49f5fdc890b08ef7822e2f24599f6b64d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_plate.png",
+      "size": 3673,
+      "sha256": "528bfc4606486d13f10aa6d02830087b9e0558fe724de3c11195e7a2d35c2071"
     },
     {
       "path": "ui/champion_fullbody/archer.png",
@@ -1265,17 +1280,22 @@
     {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
       "size": 10529,
-      "sha256": "a9c2206fd754cb0847d3137daf1984644ad59b0fccdda37ca49b2b7fc91560f8"
+      "sha256": "fc135c4afbea9709830ab5586b45178039620a344ee3d02b79fb6028a4350bc6"
+    },
+    {
+      "path": "ui/layout/banpick/champion_slot.ui",
+      "size": 5321,
+      "sha256": "306d0d0437601c8a03ddec56c2c930345670d40b746df98654edb1c49586188f"
     },
     {
       "path": "ui/layout/banpick/layout.ui",
-      "size": 67744,
-      "sha256": "cbe459f7a5cfcd871fa3015d8f3a5d854184670159e1d94d437f4374df4fda68"
+      "size": 64557,
+      "sha256": "d2eb0f185706c2a984bd29cddd4bcc6c73b6ac4b8d89804389a9704b717bdf5f"
     },
     {
       "path": "ui/layout/banpick/red_pick_slot.ui",
       "size": 10627,
-      "sha256": "1c3d9a5b23b14494741d6c53393e2991e7f9dc7e30829902263b7c3ea893888a"
+      "sha256": "beaf87667d03785361c59cbf4707183617e7d309d02f276b143581881cc8b852"
     },
     {
       "path": "ui/layout/champion_info_component/champion_slot.ui",

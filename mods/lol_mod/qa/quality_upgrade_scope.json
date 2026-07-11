@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.7",
+  "release": "0.7.8",
   "requested_scope": "Ban/pick splashes and UI skin, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, Nexus crystals, and a structure-preserving Rift map skin",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -12,21 +12,26 @@
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
-      "implementation": "post_render actor NinePatch clone plus illustration overlay append",
+      "implementation": "post_render actor NinePatch replacement: remove the selected-card actor (including 120-140x140-190 transition poses), then append one illustration overlay",
       "source_key": "suffix after /champions/ with terminal #sheet removed",
       "texture_uv": "normalized 0,0,1,1",
       "card_size": "284x172",
       "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=98+188*slot",
       "transition_geometry_is_detection_only": true,
+      "transition_actor_sprite_removed": true,
       "one_overlay_per_side_slot": true,
       "card_detection": "RenderState pass key blue_picks/red_picks + pick_slot_N; relative-UI and geometry fallback",
       "static_splash_nodes": false
     },
     "banpick_skin": {
       "imagegen_background": "ui/banpick/lol_bp_background.png",
+      "imagegen_timer_plate": "ui/banpick/lol_bp_timer_plate.png",
+      "imagegen_timer_icon": "ui/banpick/lol_bp_timer_icon.png",
       "native_layout_geometry_preserved": true,
       "noninteractive_decorative_node": true,
       "blue_red_card_palette_refined": true,
+      "page_local_controls_style": "style/bp_controls.style",
+      "champion_list_stat_and_skill_panels_refined": true,
       "bvp_runtime_controls_copied": false
     },
     "encyclopedia_fullbody": [
@@ -83,9 +88,9 @@
     },
     "map_skin": {
       "imagegen_sources": [
-        "background",
-        "wall_texture",
-        "bush_texture"
+        "semantics_free_microtexture",
+        "wall_global_palette_reference",
+        "bush_global_palette_reference"
       ],
       "runtime_visual_layers": [
         "background_5v5",
@@ -98,8 +103,10 @@
         "nexus_shadow",
         "minimap_5v5_bg"
       ],
-      "native_wall_and_bush_alpha_masks_exact": true,
-      "tower_pads_camp_markers_and_epic_pits_baked_into_background": true,
+      "native_bundle_is_only_spatial_geometry_source": true,
+      "native_alpha_masks_exact_for_all_nine_layers": true,
+      "generated_whole_map_with_shifted_water_deleted": true,
+      "tower_pads_camp_markers_epic_pits_and_water_are_native": true,
       "dynamic_minimap_markers_preserved": true,
       "map_setting_collision_paths_spawns_and_positions_preserved": true
     }

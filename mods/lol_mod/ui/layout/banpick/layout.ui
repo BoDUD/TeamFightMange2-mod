@@ -34,7 +34,7 @@ main:match_ui {
     }
 
     #delegate_btn:color_icon_button {
-      @"asset/base/style/main#secondary_button";
+      @"asset/lol_mod/style/bp_controls#secondary_button";
       x: 15px;
       y: 23px;
       width: 285px;
@@ -513,7 +513,7 @@ main:match_ui {
     visible: false;
 
     #history_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
 
@@ -539,7 +539,7 @@ main:match_ui {
     }
 
     #tooltip_toggle_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 44px;
@@ -566,7 +566,7 @@ main:match_ui {
     }
 
     #chat_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 132px;
@@ -615,7 +615,7 @@ main:match_ui {
     }
 
     #chart_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 176px;
@@ -642,7 +642,7 @@ main:match_ui {
     }
 
     #statistics_overlay_toggle_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 88px;
@@ -683,7 +683,7 @@ main:match_ui {
     visible: false;
 
     #history_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
 
@@ -709,7 +709,7 @@ main:match_ui {
     }
 
     #tooltip_toggle_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 44px;
@@ -736,7 +736,7 @@ main:match_ui {
     }
 
     #chat_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 132px;
@@ -785,7 +785,7 @@ main:match_ui {
     }
 
     #chart_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 176px;
@@ -812,7 +812,7 @@ main:match_ui {
     }
 
     #statistics_overlay_toggle_btn:color_icon_button {
-      @"asset/base/style/main#tertiary_button";
+      @"asset/lol_mod/style/bp_controls#tertiary_button";
       width: 36px;
       height: 36px;
       x: 88px;
@@ -956,10 +956,10 @@ main:match_ui {
     x: 335px;
     y: 145px;
 
-    color: #0a121fed;
+    color: #07131ff2;
 
     rounding: Uniform {
-      rounding: 12;
+      rounding: 6;
     }
   }
 
@@ -989,8 +989,8 @@ main:match_ui {
       width: 20px;
       height: 20px;
       y: 10px;
-      source: "asset/base/ui/icons/time";
-      color: #e8e8e8ff;
+      source: "asset/lol_mod/ui/banpick/lol_bp_timer_icon";
+      color: #ffffffff;
     }
 
     #timer_text:label {
@@ -999,15 +999,16 @@ main:match_ui {
       height: 40px;
       y: 1px;
       size: 20;
+      color: #f0e6d2ff;
       align_y: Center;
       text: ": 30";
     }
 
-    #timer_bar_bg:color {
+    #timer_bar_bg:image {
       width: 170px;
       height: 20px;
       y: 10px;
-      color: #4a4c56ff;
+      source: "asset/lol_mod/ui/banpick/lol_bp_timer_plate";
 
       rounding: Uniform {
         rounding: 6;
@@ -1016,7 +1017,7 @@ main:match_ui {
       #timer_bar:color {
         width: 170px;
         height: 20px;
-        color: #37d5b3ff;
+        color: #0ac8b9ff;
 
         rounding: Uniform {
           rounding: 6;
@@ -1026,7 +1027,7 @@ main:match_ui {
   }
 
   #prev_champion_category:color_icon_button {
-    @"asset/base/style/main#tertiary_button";
+    @"asset/lol_mod/style/bp_controls#tertiary_button";
     x: 335px;
     y: 95px;
     width: 40px;
@@ -1044,7 +1045,7 @@ main:match_ui {
   }
 
   #champion_category:dropdown {
-    @"asset/base/style/main#dropdown";
+    @"asset/lol_mod/style/bp_controls#dropdown";
     x: 383px;
     y: 95px;
     width: 170px;
@@ -1079,7 +1080,7 @@ main:match_ui {
   }
 
   #next_champion_category:color_icon_button {
-    @"asset/base/style/main#tertiary_button";
+    @"asset/lol_mod/style/bp_controls#tertiary_button";
     x: 561px;
     y: 95px;
     width: 40px;
@@ -1097,7 +1098,7 @@ main:match_ui {
   }
 
   #prev_champion_position:color_icon_button {
-    @"asset/base/style/main#tertiary_button";
+    @"asset/lol_mod/style/bp_controls#tertiary_button";
     x: 621px;
     y: 95px;
     width: 40px;
@@ -1115,7 +1116,7 @@ main:match_ui {
   }
 
   #champion_position:dropdown {
-    @"asset/base/style/main#dropdown";
+    @"asset/lol_mod/style/bp_controls#dropdown";
     x: 669px;
     y: 95px;
     width: 164px;
@@ -1164,7 +1165,7 @@ main:match_ui {
   }
 
   #next_champion_position:color_icon_button {
-    @"asset/base/style/main#tertiary_button";
+    @"asset/lol_mod/style/bp_controls#tertiary_button";
     x: 841px;
     y: 95px;
     width: 40px;
@@ -1182,7 +1183,7 @@ main:match_ui {
   }
 
   #champion_search:text_edit {
-    @"asset/base/style/main#text_edit";
+    @"asset/lol_mod/style/bp_controls#text_edit";
     x: 901px;
     y: 95px;
     width: 248px;
@@ -1214,7 +1215,7 @@ main:match_ui {
   }
 
   #champion_search_clear:color_icon_button {
-    @"asset/base/style/main#tertiary_button";
+    @"asset/lol_mod/style/bp_controls#tertiary_button";
     x: 1157px;
     y: 95px;
     width: 40px;
@@ -1232,7 +1233,7 @@ main:match_ui {
   }
 
   #champion_tier_filter:dropdown {
-    @"asset/base/style/main#dropdown";
+    @"asset/lol_mod/style/bp_controls#dropdown";
     x: 1217px;
     y: 95px;
     width: 108px;
@@ -1282,16 +1283,16 @@ main:match_ui {
     }
     bar: {
       source: "asset/base/sprite/white";
-      color: #37d5b3ff;
+      color: #0ac8b9ff;
 
       hover: {
-      color: #ecfbf8ff;
+      color: #66e6d8ff;
       }
     }
 
     back: {
       source: "asset/base/sprite/white";
-      color: #4a4c56ff;
+      color: #203848ff;
     }
 
     #contents:empty {
@@ -1317,20 +1318,20 @@ main:match_ui {
     y:536px;
 
     #stat:color {
-      color: #0a121fed;
+      color: #07131ff2;
       rounding: Uniform {
-        rounding: 12;
+        rounding: 6;
       }
 
       width: 549px;
       height: 371px;
 
       #header:color {
-        color: #07101bf4;
+        color: #0b2130f8;
 
         rounding: Individual {
-          top_left: 12;
-          top_right: 12;
+          top_left: 6;
+          top_right: 6;
           bottom_left: 0;
           bottom_right: 0;
         }
@@ -1384,7 +1385,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -1396,7 +1397,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -1535,7 +1536,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -1547,7 +1548,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -1686,7 +1687,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -1698,7 +1699,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -1837,7 +1838,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -1849,7 +1850,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -1988,7 +1989,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -2000,7 +2001,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -2139,7 +2140,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -2151,7 +2152,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -2290,7 +2291,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -2302,7 +2303,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -2441,7 +2442,7 @@ main:match_ui {
         width: 260px;
         height: 72px;
 
-        color: #1d1f2cff;
+        color: #0d1b29f5;
         rounding: Uniform {
           rounding: 8;
         }
@@ -2453,7 +2454,7 @@ main:match_ui {
         #header:color {
           width: 260px;
           height: 26px;
-          color: #0f1016ff;
+          color: #101f2cff;
           rounding: Individual {
             top_left: 8;
             top_right: 8;
@@ -2595,9 +2596,9 @@ main:match_ui {
       height: 115px;
       x: 563px;
 
-      color: #161721ff;
+      color: #08131ef7;
       rounding: Uniform {
-        rounding: 12;
+        rounding: 6;
       }
 
       padding: {
@@ -2618,7 +2619,7 @@ main:match_ui {
           #icon_bg:color {
             anchor_x: 0.5;
             pivot_x: 0.5;
-            color: #1d1f2cff;
+            color: #132435ff;
             width: 40px;
             height: 40px;
           }
@@ -2689,7 +2690,7 @@ main:match_ui {
         }
 
         #bar:color {
-          color: #4a4c56ff;
+          color: #385266ff;
           width: 1px;
           x: 93px;
           height: 95px;
@@ -2719,9 +2720,9 @@ main:match_ui {
       x: 563px;
       y: 128px;
 
-      color: #161721ff;
+      color: #08131ef7;
       rounding: Uniform {
-        rounding: 12;
+        rounding: 6;
       }
 
       padding: {
@@ -2742,7 +2743,7 @@ main:match_ui {
           #icon_bg:color {
             anchor_x: 0.5;
             pivot_x: 0.5;
-            color: #1d1f2cff;
+            color: #132435ff;
             width: 40px;
             height: 40px;
           }
@@ -2813,7 +2814,7 @@ main:match_ui {
         }
 
         #bar:color {
-          color: #4a4c56ff;
+          color: #385266ff;
           width: 1px;
           x: 93px;
           height: 95px;
@@ -2843,9 +2844,9 @@ main:match_ui {
       x: 563px;
       y: 256px;
 
-      color: #161721ff;
+      color: #08131ef7;
       rounding: Uniform {
-        rounding: 12;
+        rounding: 6;
       }
 
       padding: {
@@ -2866,7 +2867,7 @@ main:match_ui {
           #icon_bg:color {
             anchor_x: 0.5;
             pivot_x: 0.5;
-            color: #1d1f2cff;
+            color: #132435ff;
             width: 40px;
             height: 40px;
           }
@@ -2937,7 +2938,7 @@ main:match_ui {
         }
 
         #bar:color {
-          color: #4a4c56ff;
+          color: #385266ff;
           width: 1px;
           x: 93px;
           height: 95px;
@@ -3278,7 +3279,7 @@ main:match_ui {
       }
 
       #coach:color_icon_button {
-        @"asset/base/style/main#tertiary_button";
+        @"asset/lol_mod/style/bp_controls#tertiary_button";
         width: 639px;
         height: 67px;
 
@@ -3292,7 +3293,7 @@ main:match_ui {
       }
 
       #confirm:color_icon_button {
-        @"asset/base/style/main#primary_button";
+        @"asset/lol_mod/style/bp_controls#primary_button";
         width: 639px;
         height: 67px;
 
@@ -3384,7 +3385,7 @@ main:match_ui {
     }
 
     #cancel:color_icon_button {
-      @"asset/base/style/main#secondary_button";
+      @"asset/lol_mod/style/bp_controls#secondary_button";
 
       width: 320px;
       height: 40px;

@@ -4433,10 +4433,48 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
     check(map_qa_path.is_file(), "quality-map ImageGen QA record is missing")
     if map_qa_path.is_file():
         map_qa = load_json("qa/quality_map_imagegen_pack.json")
-        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v1", "quality-map QA schema changed")
+        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v2", "quality-map QA schema changed")
         static_checks = map_qa.get("static_checks", {})
         check(bool(static_checks) and all(static_checks.values()), "quality-map QA contains a failed check")
         check(all(map_qa.get("mask_checks", {}).values()), "quality-map native alpha footprint changed")
+        check(
+            all(map_qa.get("native_alpha_checks", {}).values()),
+            "quality-map runtime alpha differs from the native bundle",
+        )
+        check(
+            all(map_qa.get("rgb_delta_checks", {}).values()),
+            "quality-map runtime color delta exceeds the low-intensity native limit",
+        )
+        contracts = map_qa.get("contracts", {})
+        check(
+            contracts.get("runtime_structure_source") == "native bundle 5v5 layers only",
+            "quality-map runtime structure must come only from native bundle layers",
+        )
+        check(
+            contracts.get("minimap_source") == "native minimap background with global color grade only",
+            "quality-map minimap must preserve the native map layout",
+        )
+        source_usage = map_qa.get("source_usage", {})
+        check(
+            source_usage.get("microdetail", {}).get("strength", 1.0) <= 0.05,
+            "quality-map ImageGen microdetail strength is too high",
+        )
+        check(
+            not source_usage.get("microdetail", {}).get(
+                "spatial_terrain_semantics_copied", True
+            ),
+            "quality-map ImageGen source must not copy terrain semantics",
+        )
+        for palette_name in ("wall_palette", "wall_front_palette", "bush_palette"):
+            check(
+                not source_usage.get(palette_name, {}).get("spatial_pixels_copied", True),
+                f"quality-map {palette_name} must be a global palette reference only",
+            )
+        rejected_map_path = MOD_ROOT / "source/imagegen/map/rift_background_5v5_v2_source.png"
+        check(
+            not rejected_map_path.exists(),
+            "rejected whole-map ImageGen source must stay deleted",
+        )
         runtime = map_qa.get("runtime", {})
         expected_map_assets = {
             "background_5v5": [1280, 1280],
@@ -4532,7 +4570,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.7", "lol_mod version must be 0.7.7")
+    check(mod_info.get("version") == "0.7.8", "lol_mod version must be 0.7.8")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

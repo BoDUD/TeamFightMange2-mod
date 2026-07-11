@@ -32,6 +32,8 @@ def test_bp_skin_uses_an_imagegen_background_without_replacing_interactions() ->
         "remapping": "asset/lol_mod/ui/layout/banpick/layout",
         "type": "override",
     }
+    assert qa["source"]["path"].endswith("lol_bp_background_v2_source.png")
+    assert not (MOD / "source/imagegen/ui/lol_bp_background_v1_source.png").exists()
 
     node = layout.split("#lol_bp_background:image", 1)[1].split("}", 1)[0]
     assert "ignore_event: true;" in node
@@ -64,6 +66,54 @@ def test_bp_skin_keeps_native_geometry_and_runtime_size() -> None:
         assert image.size == (1920, 1080)
 
 
+def test_bp_timer_uses_imagegen_assets_inside_native_visibility_scope() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
+    timer = qa["timer_assets"]
+    assert timer["plate"]["runtime"]["dimensions"] == [170, 20]
+    assert timer["icon"]["runtime"]["dimensions"] == [20, 20]
+    assert timer["plate"]["chroma_key"]["transparent_pixels"] > 0
+    assert timer["icon"]["chroma_key"]["transparent_pixels"] > 0
+    assert "#lol_bp_timer_plate:image" not in layout
+    assert "#timer_bar_bg:image" in layout
+    assert 'source: "asset/lol_mod/ui/banpick/lol_bp_timer_plate";' in layout
+    assert 'source: "asset/lol_mod/ui/banpick/lol_bp_timer_icon";' in layout
+    for path, size in (
+        (MOD / "ui/banpick/lol_bp_timer_plate.png", (170, 20)),
+        (MOD / "ui/banpick/lol_bp_timer_icon.png", (20, 20)),
+    ):
+        with Image.open(path) as image:
+            assert image.size == size
+            assert image.mode == "RGBA"
+            assert image.getchannel("A").getextrema()[0] == 0
+
+
+def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
+    champion_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(encoding="utf-8")
+    style = (MOD / "style/bp_controls.style").read_text(encoding="utf-8")
+    assert override["asset/base/ui/layout/banpick/champion_slot"] == {
+        "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
+        "type": "override",
+    }
+    assert "asset/base/style/main" not in override
+    assert 'asset/lol_mod/style/bp_controls#dropdown' in layout
+    assert 'asset/lol_mod/style/bp_controls#text_edit' in layout
+    assert "width: 119px;\n  height: 130px;" in champion_slot
+    assert "width: 118px;\n    height: 88px;" in champion_slot
+    assert "normal: #29475cff;" in champion_slot
+    assert "hover: #c8aa6eff;" in champion_slot
+    for token in ("text_edit:", "tertiary_button:", "primary_button:", "secondary_button:", "dropdown:"):
+        assert token in style
+    assert len(qa["imagegen_asset_requests"]) == 5
+
+
 def test_bp_pick_card_skin_changes_colors_only_not_card_geometry() -> None:
     blue = (MOD / "ui" / "layout" / "banpick" / "blue_pick_slot.ui").read_text(
         encoding="utf-8"
@@ -77,10 +127,10 @@ def test_bp_pick_card_skin_changes_colors_only_not_card_geometry() -> None:
         assert "width: 15px;" in slot
         assert "height: 172px;" in slot
         assert "z: 50;" in slot
-    assert "back_color: #07121ee8;" in blue
-    assert "color: #315b7dff;" in blue
-    assert "back_color: #19090ee8;" in red
-    assert "color: #78404cff;" in red
+    assert "back_color: #07131ff2;" in blue
+    assert "color: #294f6aff;" in blue
+    assert "back_color: #180a0ff2;" in red
+    assert "color: #6b3442ff;" in red
 
 
 def test_quality_builder_rebuilds_the_bp_skin() -> None:
