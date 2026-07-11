@@ -130,12 +130,17 @@ fn match_ui_snapshot(root: &mut Node) -> Option<MatchUiSnapshot> {
         return Some(snapshot_from_runner(runner));
     }
 
-    // Game 0.5.0 mounts MatchUIRunner on the `main` scene node while GameUI
-    // exposes the outer application root to extensions. Supporting both
-    // locations preserves direct-root SDK fixtures and fixes the live BP tree.
-    root.query_mut("main")
-        .and_then(|main| main.runner_as_mut::<MatchUIRunner>())
-        .map(snapshot_from_runner)
+    // Match UI can be wrapped by one or more scene/overlay roots before it is
+    // handed to a mod extension.  The wrapper depth also changes between the
+    // normal draft, spectator draft, and post-swap refresh.  Search the real
+    // Node tree instead of assuming either `root` or `root.main` owns the
+    // runner.
+    for child in &mut root.child {
+        if let Some(snapshot) = match_ui_snapshot(child) {
+            return Some(snapshot);
+        }
+    }
+    None
 }
 
 fn remember_database(database: Rc<RefCell<ClientDatabase>>) {
@@ -451,13 +456,43 @@ fn set_visible(root: &mut Node, query: &str, visible: bool) {
         return;
     }
 
-    // Runtime match and encyclopedia trees live below `main` in game 0.5.0.
-    // The old direct-root-only query silently left every imagegen splash
-    // hidden even though the replacement pick-slot layout had loaded.
-    let nested_query = format!("main.{query}");
-    if let Some(node) = root.query_mut(&nested_query) {
+    // A GameUI root is not guaranteed to be the root declared by the loaded
+    // .ui file.  Find the first path component (blue_picks, red_picks, data,
+    // top, ...) at any depth, then let Node::query_mut traverse the stable
+    // path below that component.  This survives the live scene wrappers and
+    // BP overlay rebuilds without depending on a hard-coded `main` depth.
+    if let Some(node) = query_anywhere_mut(root, query) {
         node.visible = visible;
     }
+}
+
+fn query_anywhere_mut<'a>(root: &'a mut Node, query: &str) -> Option<&'a mut Node> {
+    let (anchor_id, relative_query) = query.split_once('.').unwrap_or((query, ""));
+    find_path_anchor_mut(root, anchor_id, relative_query)
+}
+
+fn find_path_anchor_mut<'a>(
+    root: &'a mut Node,
+    anchor_id: &str,
+    relative_query: &str,
+) -> Option<&'a mut Node> {
+    if root.id == anchor_id {
+        if relative_query.is_empty() {
+            return Some(root);
+        }
+        // There can be more than one cached/overlay container with the same
+        // id.  Only accept an anchor that actually owns the requested path;
+        // otherwise continue the DFS to the next matching container.
+        if root.query(relative_query).is_some() {
+            return root.query_mut(relative_query);
+        }
+    }
+    for child in &mut root.child {
+        if let Some(found) = find_path_anchor_mut(child, anchor_id, relative_query) {
+            return Some(found);
+        }
+    }
+    None
 }
 
 fn init(_ctx: &GameCtx) -> ModRegistration {

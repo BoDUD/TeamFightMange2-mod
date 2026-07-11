@@ -25,8 +25,8 @@
     "infernal_dragon": {
       "sheet": {
         "path": "aseprite_resources/ingame/serpen#sheet.png",
-        "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5",
-        "bytes": 58072
+        "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87",
+        "bytes": 89742
       },
       "idle_rect": [
         115,
@@ -206,22 +206,22 @@
     },
     "asset/base/ui/icons/serpen": {
       "path": "ui/icons/serpen.svg",
-      "sha256": "98a1be37a9bf6ab9b3985e61f8d71966e7412772b391ba017b53102e27fb35f0",
-      "bytes": 8018,
+      "sha256": "c1e6db5a11dffbe8cad540e36710bd3f3a2a5288cdea83a144f944778a441e82",
+      "bytes": 8802,
       "override_target": "asset/base/ui/icons/serpen",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen"
     },
     "asset/base/ui/icons/serpen_sticker_blue": {
       "path": "ui/icons/serpen_sticker_blue.svg",
-      "sha256": "7c9b1a42b79b328366d02f19d05dfd69ff3e0beb7b1f02b798c9e3faf0862245",
-      "bytes": 5717,
+      "sha256": "edfaa454442fc6a1c8edb6344d6fec01257a4bd2ec0772d547af455e8e8d21c2",
+      "bytes": 7544,
       "override_target": "asset/base/ui/icons/serpen_sticker_blue",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_blue"
     },
     "asset/base/ui/icons/serpen_sticker_red": {
       "path": "ui/icons/serpen_sticker_red.svg",
-      "sha256": "b78f41ca02c812b4bcedd2ab6bff21dc017a6c91f9da11e8fad27cc64b924697",
-      "bytes": 5717,
+      "sha256": "a7e79222e0d166e99a8e2a701da67f0b5cc38f0e6945f556ef7e3e0b4c51a13d",
+      "bytes": 7544,
       "override_target": "asset/base/ui/icons/serpen_sticker_red",
       "mod_asset_key": "asset/lol_mod/ui/icons/serpen_sticker_red"
     },

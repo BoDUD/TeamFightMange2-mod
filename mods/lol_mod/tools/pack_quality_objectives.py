@@ -25,9 +25,14 @@ GRID_ROWS = 4
 # against an arbitrary replacement canvas.  The old quality pack used 218px
 # and 115px square cells, which made Baron roughly twice as wide as the native
 # actor and made Drake idle frames slide more than twelve pixels side-to-side.
-# These caps are the visible alpha envelopes from the bundled native sheets.
+# Baron stays inside the bundled native envelope. Dragons use a measured middle
+# scale: larger than the over-conservative 54px pass, far below the rejected
+# oversized atlas, with widened frames only where the native body rect was too
+# narrow for the League silhouette.
 BARON_NATIVE_VISIBLE_WIDTH = 106
-DRAGON_NATIVE_VISIBLE_WIDTH = 54
+DRAGON_TUNED_BODY_WIDTH = 68
+DRAGON_MAX_VISIBLE_WIDTH = 80
+DRAGON_MIN_FRAME_WIDTH = 88
 CHROMA_KEY = (255, 0, 255)
 CHROMA_CLEAR_DISTANCE = 82.0
 CHROMA_EDGE_BAND_DEPTH = 3
@@ -363,6 +368,57 @@ def clean_edge_connected_magenta(image: Image.Image) -> Image.Image:
     return normalize_hard_alpha(rgba)
 
 
+def expanded_native_reference(
+    native_frame: Image.Image,
+    width: int,
+    height: int,
+) -> Image.Image:
+    if width < native_frame.width or height < native_frame.height:
+        raise ValueError("Expanded objective frame cannot shrink a native frame")
+    output = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    output.alpha_composite(
+        native_frame,
+        ((width - native_frame.width) // 2, height - native_frame.height),
+    )
+    return output
+
+
+def build_native_anchored_layout(
+    native_document: dict[str, Any],
+    native_sheet: Image.Image,
+    *,
+    minimum_width: int,
+) -> tuple[dict[str, Any], tuple[int, int]]:
+    """Widen narrow body frames without changing actions or durations."""
+    rect_map: dict[tuple[int, int, int, int], tuple[int, int, int, int]] = {}
+    cursor_x = 0
+    generated_anims: dict[str, Any] = {}
+    for tag_name, native_tag in native_document["anims"].items():
+        generated_frames: list[dict[str, Any]] = []
+        for native_frame_spec in native_tag["frames"]:
+            native_rect = frame_rect(native_frame_spec)
+            if native_rect not in rect_map:
+                native_frame = frame_crop(native_sheet, native_frame_spec)
+                visible = native_frame.getchannel("A").getbbox() is not None
+                width = max(native_rect[2], minimum_width) if visible else native_rect[2]
+                rect_map[native_rect] = (cursor_x, 0, width, native_rect[3])
+                cursor_x += width
+            x, y, width, height = rect_map[native_rect]
+            generated_frames.append(
+                {
+                    "duration": native_frame_spec["duration"],
+                    "data": {
+                        "x": float(x),
+                        "y": float(y),
+                        "w": float(width),
+                        "h": float(height),
+                    },
+                }
+            )
+        generated_anims[tag_name] = {"frames": generated_frames}
+    return {"anims": generated_anims}, (cursor_x, native_sheet.height)
+
+
 def render_native_actor_frame(
     source_cell: Image.Image,
     native_frame: Image.Image,
@@ -371,6 +427,7 @@ def render_native_actor_frame(
     opacity: int = 255,
     mirror: bool = False,
     anchor_mode: str = "centroid",
+    center_on_frame: bool = False,
 ) -> Image.Image:
     output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
     source_bbox = source_cell.getchannel("A").getbbox()
@@ -398,7 +455,9 @@ def render_native_actor_frame(
         target_anchor = (native_frame.width - 1) / 2
     else:
         target_bottom = native_bbox[3]
-        if anchor_mode == "ground":
+        if center_on_frame:
+            target_anchor = (native_frame.width - 1) / 2
+        elif anchor_mode == "ground":
             target_anchor = ground_anchor_x(native_frame)
         else:
             target_anchor = weighted_alpha_centroid_x(native_frame)
@@ -894,21 +953,15 @@ def pack_dragon(
         for index in range(16)
     ]
     native_anims = native_document["anims"]
-    native_base = frame_crop(native_sheet, native_anims["base"]["frames"][0])
-    body_scale = native_reference_scale(
-        source_cells[0],
-        native_base,
-        visible_width_cap=DRAGON_NATIVE_VISIBLE_WIDTH,
-    )
-    idle_source_width = max(
+    idle_source_widths = sorted(
         source_cells[index].getchannel("A").getbbox()[2]
         - source_cells[index].getchannel("A").getbbox()[0]
         for index in range(4)
     )
-    body_scale = min(
-        body_scale,
-        DRAGON_NATIVE_VISIBLE_WIDTH / idle_source_width,
-    )
+    representative_idle_width = (
+        idle_source_widths[1] + idle_source_widths[2]
+    ) / 2
+    body_scale = DRAGON_TUNED_BODY_WIDTH / representative_idle_width
 
     dead_spec = [
             (12, 255),
@@ -935,30 +988,87 @@ def pack_dragon(
             for source_index, opacity in dead_spec
         ],
     }
-    sheet = Image.new("RGBA", native_sheet.size, (0, 0, 0, 0))
+    document, sheet_size = build_native_anchored_layout(
+        native_document,
+        native_sheet,
+        minimum_width=DRAGON_MIN_FRAME_WIDTH,
+    )
+    sheet = Image.new("RGBA", sheet_size, (0, 0, 0, 0))
+    placement_records: dict[str, list[dict[str, Any]]] = {}
     for tag_name, specs in source_by_tag.items():
         native_frames = native_anims[tag_name]["frames"]
+        generated_frames = document["anims"][tag_name]["frames"]
         if len(specs) != len(native_frames):
             raise ValueError(
                 f"serpen.{tag_name}: {len(specs)} sources for {len(native_frames)} native frames"
             )
-        for native_frame_spec, (source_index, opacity, anchor_mode) in zip(
+        tag_placements: list[dict[str, Any]] = []
+        for native_frame_spec, generated_frame_spec, (source_index, opacity, anchor_mode) in zip(
             native_frames,
+            generated_frames,
             specs,
             strict=True,
         ):
             native_frame = frame_crop(native_sheet, native_frame_spec)
+            _x, _y, generated_width, generated_height = frame_rect(
+                generated_frame_spec
+            )
+            native_reference = expanded_native_reference(
+                native_frame,
+                generated_width,
+                generated_height,
+            )
+            rendered = render_native_actor_frame(
+                source_cells[source_index],
+                native_reference,
+                scale=body_scale,
+                opacity=opacity,
+                anchor_mode=anchor_mode,
+                center_on_frame=tag_name in {"base", "idle"},
+            )
             place_frame(
                 sheet,
-                render_native_actor_frame(
-                    source_cells[source_index],
-                    native_frame,
-                    scale=body_scale,
-                    opacity=opacity,
-                    anchor_mode=anchor_mode,
-                ),
-                native_frame_spec,
+                rendered,
+                generated_frame_spec,
             )
+            rendered_bbox = rendered.getchannel("A").getbbox()
+            native_bbox = native_reference.getchannel("A").getbbox()
+            if rendered_bbox is None:
+                anchor_delta = None
+                bottom_delta = None
+                center_offset = None
+            else:
+                if tag_name in {"base", "idle"}:
+                    target_anchor = (generated_width - 1) / 2
+                    rendered_anchor = weighted_alpha_centroid_x(rendered)
+                elif anchor_mode == "ground":
+                    target_anchor = ground_anchor_x(native_reference)
+                    rendered_anchor = ground_anchor_x(rendered)
+                else:
+                    target_anchor = weighted_alpha_centroid_x(native_reference)
+                    rendered_anchor = weighted_alpha_centroid_x(rendered)
+                anchor_delta = round(rendered_anchor - target_anchor, 6)
+                bottom_delta = (
+                    rendered_bbox[3] - native_bbox[3]
+                    if native_bbox is not None
+                    else None
+                )
+                center_offset = round(
+                    weighted_alpha_centroid_x(rendered)
+                    - (generated_width - 1) / 2,
+                    6,
+                )
+            tag_placements.append(
+                {
+                    "source_cell": source_index,
+                    "native_rect": list(frame_rect(native_frame_spec)),
+                    "runtime_rect": list(frame_rect(generated_frame_spec)),
+                    "bottom_delta_to_native_px": bottom_delta,
+                    "anchor_delta_to_target_px": anchor_delta,
+                    "body_centroid_offset_from_rect_center_px": center_offset,
+                }
+            )
+        placement_records[tag_name] = tag_placements
 
     sheet_path = VARIANT_DIR / f"{variant}#sheet.png"
     anim_path = VARIANT_DIR / f"{variant}#anim.fanim"
@@ -967,23 +1077,74 @@ def pack_dragon(
     document = write_anim(
         anim_path,
         {
-            tag_name: native_tag["frames"]
-            for tag_name, native_tag in native_anims.items()
+            tag_name: generated_tag["frames"]
+            for tag_name, generated_tag in document["anims"].items()
         },
     )
-    validate_native_frame_rect_contract("serpen", document, native_document)
+    validate_native_animation_contract("serpen", document, native_document)
     bboxes = tag_frame_alpha_bboxes(sheet, document)
     validate_required_nonempty(variant, bboxes, allow_last_dead_empty=True)
     idle_centroid_span = horizontal_centroid_span(sheet, document, "idle")
+    body_placements = [
+        placement
+        for tag_name, placements in placement_records.items()
+        for placement in placements
+        if not (tag_name == "dead" and placement["bottom_delta_to_native_px"] is None)
+    ]
+    maximum_anchor_delta = max(
+        abs(placement["anchor_delta_to_target_px"])
+        for placement in body_placements
+    )
+    maximum_bottom_delta = max(
+        abs(placement["bottom_delta_to_native_px"])
+        for placement in body_placements
+    )
+    maximum_idle_center_offset = max(
+        abs(placement["body_centroid_offset_from_rect_center_px"])
+        for placement in placement_records["idle"]
+    )
+    base_idle_widths = [
+        bbox[2] - bbox[0]
+        for tag_name in ("base", "idle")
+        for bbox in bboxes[tag_name]
+        if bbox is not None
+    ]
+    maximum_base_idle_width = max(base_idle_widths)
+    if maximum_base_idle_width < DRAGON_TUNED_BODY_WIDTH - 1:
+        raise ValueError(
+            f"{variant}: tuned dragon is still undersized at "
+            f"{maximum_base_idle_width}px"
+        )
+    if maximum_base_idle_width > DRAGON_MAX_VISIBLE_WIDTH:
+        raise ValueError(
+            f"{variant}: tuned dragon exceeds its {DRAGON_MAX_VISIBLE_WIDTH}px cap"
+        )
+    if idle_centroid_span > 2.0 or maximum_idle_center_offset > 1.0:
+        raise ValueError(
+            f"{variant}: idle placement is unstable; span={idle_centroid_span}, "
+            f"centre={maximum_idle_center_offset}"
+        )
+    if maximum_anchor_delta > 1.0 or maximum_bottom_delta != 0:
+        raise ValueError(
+            f"{variant}: native placement drifted; anchor={maximum_anchor_delta}, "
+            f"bottom={maximum_bottom_delta}"
+        )
     fringe_stats = hot_magenta_edge_stats(sheet)
     return {
         "body_scale": body_scale,
-        "visible_width_cap": DRAGON_NATIVE_VISIBLE_WIDTH,
+        "representative_body_width_target": DRAGON_TUNED_BODY_WIDTH,
+        "visible_width_cap": DRAGON_MAX_VISIBLE_WIDTH,
+        "minimum_runtime_frame_width": DRAGON_MIN_FRAME_WIDTH,
         "native_sheet_contract": native_sheet_record,
         "native_animation_contract": native_record,
         "native_animation_contract_exact": True,
-        "native_frame_rect_contract_exact": True,
+        "native_frame_rect_contract_safely_expanded": True,
         "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
+        "maximum_base_idle_visible_width_px": maximum_base_idle_width,
+        "maximum_idle_center_offset_px": round(maximum_idle_center_offset, 6),
+        "maximum_anchor_delta_to_target_px": round(maximum_anchor_delta, 6),
+        "maximum_bottom_delta_to_native_px": maximum_bottom_delta,
+        "placement": placement_records,
         "edge_connected_magenta_cleanup": {
             "edge_band_depth_px": CHROMA_EDGE_BAND_DEPTH,
             "clear_distance": CHROMA_CLEAR_DISTANCE,
@@ -1052,9 +1213,20 @@ def main() -> int:
             "alpha_trim_before_resize": True,
             "resampling": "Pillow Image.Resampling.NEAREST",
             "non_uniform_stretching": False,
-            "body_anchor": "native alpha centroid for idle/body, native ground anchor for attacks, native per-frame alpha bottom",
-            "native_sheet_dimensions_preserved": True,
-            "native_frame_rectangles_preserved": True,
+            "body_anchor": "runtime frame centre for dragon base/idle, native alpha centroid/ground anchor for other actions, native per-frame alpha bottom",
+            "baron_native_sheet_and_frame_rectangles_preserved": True,
+            "dragon_native_timing_and_bottom_anchor_preserved": True,
+            "dragon_narrow_body_frames_safely_expanded": True,
+            "dragon_scale_calibration": {
+                "previous_visible_width_cap_px": 54,
+                "representative_body_width_target_px": DRAGON_TUNED_BODY_WIDTH,
+                "maximum_pose_width_px": DRAGON_MAX_VISIBLE_WIDTH,
+                "reason": (
+                    "Restore readable in-game size without returning to the old "
+                    "oversized atlas; every idle frame is re-centred and retains "
+                    "the native alpha-bottom landing line."
+                ),
+            },
         },
         "sources": {
             "baron_action": source_pair_record(
@@ -1104,9 +1276,9 @@ def main() -> int:
             "epic_native_frame_rect_contract_exact": epic[
                 "native_frame_rect_contract_exact"
             ],
-            "dragon_sizes_match_native": all(
-                record["sheet"]["size"]
-                == record["native_sheet_contract"]["dimensions"]
+            "dragon_runtime_sheet_heights_match_native": all(
+                record["sheet"]["size"][1]
+                == record["native_sheet_contract"]["dimensions"][1]
                 for record in dragons.values()
             ),
             "dragon_tag_counts": all(
@@ -1118,8 +1290,8 @@ def main() -> int:
                 record["native_animation_contract_exact"]
                 for record in dragons.values()
             ),
-            "dragon_native_frame_rect_contracts_exact": all(
-                record["native_frame_rect_contract_exact"]
+            "dragon_native_frame_rect_contracts_safely_expanded": all(
+                record["native_frame_rect_contract_safely_expanded"]
                 for record in dragons.values()
             ),
             "epic_body_bottoms_match_native": tag_bottoms_match_native(
@@ -1129,13 +1301,8 @@ def main() -> int:
                 ("base", "idle", "attack_left", "attack_right", "dead"),
             ),
             "dragon_body_bottoms_match_native": all(
-                tag_bottoms_match_native(
-                    Image.open(VARIANT_DIR / f"{variant}#sheet.png").convert("RGBA"),
-                    native_sheets["serpen"],
-                    native_documents["serpen"],
-                    ("base", "idle", "attack", "dead"),
-                )
-                for variant in DRAGON_VARIANTS
+                record["maximum_bottom_delta_to_native_px"] == 0
+                for record in dragons.values()
             ),
             "epic_idle_centroid_stable": epic[
                 "idle_horizontal_centroid_span_px"
@@ -1151,14 +1318,31 @@ def main() -> int:
                 ("base", "idle"),
                 BARON_NATIVE_VISIBLE_WIDTH,
             ),
-            "dragon_base_idle_visible_width_native_class": all(
+            "dragon_base_idle_visible_width_tuned_envelope": all(
                 tag_visible_widths_at_most(
                     Image.open(VARIANT_DIR / f"{variant}#sheet.png").convert("RGBA"),
-                    native_documents["serpen"],
+                    json.loads(
+                        (VARIANT_DIR / f"{variant}#anim.fanim").read_text(
+                            encoding="utf-8"
+                        )
+                    ),
                     ("base", "idle"),
-                    DRAGON_NATIVE_VISIBLE_WIDTH,
+                    DRAGON_MAX_VISIBLE_WIDTH,
                 )
                 for variant in DRAGON_VARIANTS
+            ),
+            "dragon_base_idle_size_target_reached": all(
+                record["maximum_base_idle_visible_width_px"]
+                >= DRAGON_TUNED_BODY_WIDTH - 1
+                for record in dragons.values()
+            ),
+            "dragon_idle_centres_match_runtime_frame_centres": all(
+                record["maximum_idle_center_offset_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_anchor_deltas_bounded": all(
+                record["maximum_anchor_delta_to_target_px"] <= 1.0
+                for record in dragons.values()
             ),
             "dragon_hot_magenta_edge_removed": all(
                 record["edge_connected_magenta_cleanup"][

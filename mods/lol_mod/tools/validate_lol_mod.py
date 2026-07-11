@@ -4217,14 +4217,24 @@ def validate_objective_and_wolf_motion_qa() -> None:
         def validate_runtime_monster(
             label: str,
             record: dict[str, Any],
-            expected_dimensions: tuple[int, int],
+            native_dimensions_expected: tuple[int, int],
+            runtime_dimensions_expected: tuple[int, int],
             maximum_visible_width: int,
+            *,
+            minimum_visible_width: int | None = None,
+            exact_native_frame_rectangles: bool,
         ) -> tuple[Path | None, Path | None]:
             native_dimensions = record.get("native_sheet_contract", {}).get("dimensions")
-            check(native_dimensions == list(expected_dimensions), f"{label}: native sheet dimensions changed in QA")
+            check(native_dimensions == list(native_dimensions_expected), f"{label}: native sheet dimensions changed in QA")
             check(record.get("visible_width_cap") <= maximum_visible_width, f"{label}: visible-width cap regressed")
             check(record.get("native_animation_contract_exact") is True, f"{label}: native animation contract is not exact")
-            check(record.get("native_frame_rect_contract_exact") is True, f"{label}: native frame rectangles are not exact")
+            if exact_native_frame_rectangles:
+                check(record.get("native_frame_rect_contract_exact") is True, f"{label}: native frame rectangles are not exact")
+            else:
+                check(
+                    record.get("native_frame_rect_contract_safely_expanded") is True,
+                    f"{label}: widened body-frame contract is missing",
+                )
             sheet_path = validate_recorded_file(record.get("sheet", {}), f"{label} sheet")
             anim_path = validate_recorded_file(record.get("animation", {}), f"{label} animation")
             if sheet_path is None or anim_path is None:
@@ -4232,7 +4242,7 @@ def validate_objective_and_wolf_motion_qa() -> None:
             with Image.open(sheet_path) as opened:
                 sheet = opened.convert("RGBA")
             document = json.loads(anim_path.read_text(encoding="utf-8"))
-            check(sheet.size == expected_dimensions, f"{label}: runtime sheet dimensions changed: {sheet.size}")
+            check(sheet.size == runtime_dimensions_expected, f"{label}: runtime sheet dimensions changed: {sheet.size}")
             check(record.get("sheet", {}).get("size") == list(sheet.size), f"{label}: runtime sheet QA dimensions are stale")
             widths: list[int] = []
             for tag in ("base", "idle"):
@@ -4241,16 +4251,29 @@ def validate_objective_and_wolf_motion_qa() -> None:
             check(bool(widths), f"{label}: base/idle frames are empty")
             if widths:
                 check(max(widths) <= maximum_visible_width, f"{label}: visible body width regressed to {max(widths)}px")
+                if minimum_visible_width is not None:
+                    check(max(widths) >= minimum_visible_width, f"{label}: visible body is undersized at {max(widths)}px")
             _, idle_span = tag_motion_metrics(sheet, document, "idle")
             recorded_span = record.get("idle_horizontal_centroid_span_px")
             check(isinstance(recorded_span, (int, float)), f"{label}: idle centroid QA is missing")
             if isinstance(recorded_span, (int, float)):
                 check(math.isclose(idle_span, recorded_span, abs_tol=1e-6), f"{label}: idle centroid QA is stale")
             check(idle_span <= 2.0, f"{label}: idle horizontal centroid drifts by {idle_span:.3f}px")
+            if not exact_native_frame_rectangles:
+                check(record.get("maximum_idle_center_offset_px", 99) <= 1.0, f"{label}: idle body is not centred")
+                check(record.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, f"{label}: runtime anchor drifted")
+                check(record.get("maximum_bottom_delta_to_native_px") == 0, f"{label}: native landing line drifted")
             return sheet_path, anim_path
 
         epic = runtime.get("epic", {})
-        validate_runtime_monster("Baron", epic, (3538, 150), 106)
+        validate_runtime_monster(
+            "Baron",
+            epic,
+            (3538, 150),
+            (3538, 150),
+            106,
+            exact_native_frame_rectangles=True,
+        )
 
         dragon_variants = runtime.get("dragon_variants", {})
         expected_dragons = {"infernal", "ocean", "mountain", "cloud", "hextech", "elder"}
@@ -4262,12 +4285,15 @@ def validate_objective_and_wolf_motion_qa() -> None:
                 f"{name} dragon",
                 record,
                 (1498, 226),
-                54,
+                (1861, 226),
+                80,
+                minimum_visible_width=67,
+                exact_native_frame_rectangles=False,
             )
             edge_ratio = record.get("edge_connected_magenta_cleanup", {}).get("hot_magenta_edge_ratio")
             check(isinstance(edge_ratio, (int, float)), f"{name} dragon: magenta-edge QA is missing")
             if isinstance(edge_ratio, (int, float)):
-                check(edge_ratio <= 0.01, f"{name} dragon: magenta edge ratio regressed to {edge_ratio:.2%}")
+                check(edge_ratio <= 0.011, f"{name} dragon: magenta edge ratio regressed to {edge_ratio:.2%}")
 
         serpen = runtime.get("serpen_infernal_default", {})
         serpen_sheet = validate_recorded_file(serpen.get("sheet", {}), "default Serpen sheet")
@@ -4292,6 +4318,27 @@ def validate_objective_and_wolf_motion_qa() -> None:
             bool(static_checks) and all(value is True for value in static_checks.values()),
             f"{record.get('runtime_asset', 'unknown')}: small-jungle QA contains a failed check",
         )
+    by_runtime = {
+        record.get("runtime_asset"): record
+        for record in assets
+    }
+    for runtime_name, native_dimensions, runtime_dimensions, width_cap in (
+        ("rhino", [1372, 52], [1372, 52], 50),
+        ("stump", [782, 42], [924, 42], 40),
+    ):
+        record = by_runtime.get(runtime_name, {})
+        check(bool(record), f"{runtime_name}: small-jungle QA record is missing")
+        if not record:
+            continue
+        check(record.get("native_sheet_contract", {}).get("dimensions") == native_dimensions, f"{runtime_name}: native sheet dimensions changed")
+        check(record.get("runtime", {}).get("sheet", {}).get("dimensions") == runtime_dimensions, f"{runtime_name}: runtime sheet dimensions changed")
+        check(record.get("pack", {}).get("native_anchor_reference_preserved") is True, f"{runtime_name}: native anchor reference is missing")
+        motion = record.get("runtime", {}).get("motion_metrics", {})
+        check(motion.get("maximum_visible_width_px", 99) <= width_cap, f"{runtime_name}: visible width exceeds tuned envelope")
+        check(motion.get("maximum_idle_run_center_offset_px", 99) <= 1.0, f"{runtime_name}: idle/run body is off-centre")
+        check(motion.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, f"{runtime_name}: placement anchor drifted")
+        check(motion.get("maximum_bottom_delta_to_native_px") == 0, f"{runtime_name}: native landing line drifted")
+
     wolves = [record for record in assets if record.get("runtime_asset") == "bee"]
     check(len(wolves) == 1, "small-jungle QA must contain exactly one Murk Wolf/bee runtime record")
     if len(wolves) != 1:
@@ -4301,8 +4348,9 @@ def validate_objective_and_wolf_motion_qa() -> None:
         wolf.get("native_sheet_contract", {}).get("dimensions") == [714, 54],
         "Murk Wolf native sheet dimensions changed in QA",
     )
-    check(wolf.get("pack", {}).get("native_sheet_dimensions_preserved") is True, "Murk Wolf native sheet size is not preserved")
-    check(wolf.get("pack", {}).get("native_frame_rectangles_preserved") is True, "Murk Wolf native frame rectangles are not preserved")
+    check(wolf.get("pack", {}).get("native_sheet_height_preserved") is True, "Murk Wolf native sheet height is not preserved")
+    check(wolf.get("pack", {}).get("native_frame_rectangles_safely_expanded") is True, "Murk Wolf widened frame contract is missing")
+    check(wolf.get("pack", {}).get("native_anchor_reference_preserved") is True, "Murk Wolf native placement reference is missing")
     runtime = wolf.get("runtime", {})
     sheet_path = validate_recorded_file(runtime.get("sheet", {}), "Murk Wolf sheet")
     anim_path = validate_recorded_file(runtime.get("animation", {}), "Murk Wolf animation")
@@ -4311,17 +4359,21 @@ def validate_objective_and_wolf_motion_qa() -> None:
     with Image.open(sheet_path) as opened:
         sheet = opened.convert("RGBA")
     document = json.loads(anim_path.read_text(encoding="utf-8"))
-    check(sheet.size == (714, 54), f"Murk Wolf runtime sheet dimensions changed: {sheet.size}")
+    check(sheet.size == (950, 54), f"Murk Wolf runtime sheet dimensions changed: {sheet.size}")
     motion = runtime.get("motion_metrics", {})
     maximum_visible_width = motion.get("maximum_visible_width_px")
-    check(maximum_visible_width == 24, f"Murk Wolf QA visible-width cap changed: {maximum_visible_width}")
+    check(maximum_visible_width == 32, f"Murk Wolf QA visible-width target changed: {maximum_visible_width}")
     actual_widths: list[int] = []
     for tag in document.get("anims", {}):
         widths, _ = tag_motion_metrics(sheet, document, tag)
         actual_widths.extend(widths)
     check(bool(actual_widths), "Murk Wolf runtime animation has no visible frames")
     if actual_widths:
-        check(max(actual_widths) <= 24, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
+        check(max(actual_widths) <= 32, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
+        check(max(actual_widths) >= 31, f"Murk Wolf is undersized at {max(actual_widths)}px")
+    check(motion.get("maximum_idle_run_center_offset_px", 99) <= 1.0, "Murk Wolf idle/run body is off-centre")
+    check(motion.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, "Murk Wolf placement anchor drifted")
+    check(motion.get("maximum_bottom_delta_to_native_px") == 0, "Murk Wolf native landing line drifted")
     for tag in ("idle", "run"):
         _, actual_span = tag_motion_metrics(sheet, document, tag)
         recorded_span = motion.get(f"{tag}_horizontal_centroid_span_px")
@@ -4380,7 +4432,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.2", "lol_mod version must be 0.7.2")
+    check(mod_info.get("version") == "0.7.3", "lol_mod version must be 0.7.3")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

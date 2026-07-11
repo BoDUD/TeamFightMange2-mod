@@ -52,6 +52,8 @@ class PackSpec:
     ignored_source_cells: tuple[int, ...] = ()
     attack_vfx_note: str = ""
     preserve_native_rects: bool = False
+    native_frame_min_width: int = 0
+    native_frame_min_height: int = 0
 
 
 SPECS = (
@@ -59,9 +61,9 @@ SPECS = (
         source_name="red_brambleback",
         display_name="Red Brambleback",
         runtime_name="rhino",
-        cell_size=87,
-        max_visible_width=83,
-        max_visible_height=76,
+        cell_size=59,
+        max_visible_width=50,
+        max_visible_height=40,
         baseline=78,
         sequences={
             "idle": [0, 1, 2, 3],
@@ -73,14 +75,15 @@ SPECS = (
             "The orange fist arc and ground impact remain inside source attack cells 9-10 "
             "and originate at the attacking fist; the final recovery cell is held to fill five frames."
         ),
+        preserve_native_rects=True,
     ),
     PackSpec(
         source_name="blue_sentinel",
         display_name="Blue Sentinel",
         runtime_name="stump",
-        cell_size=92,
-        max_visible_width=88,
-        max_visible_height=82,
+        cell_size=44,
+        max_visible_width=40,
+        max_visible_height=34,
         baseline=84,
         sequences={
             "idle": [0, 1, 2, 3],
@@ -92,6 +95,8 @@ SPECS = (
             "The blue crystal punch arc and slam remain attached to the Sentinel's fist "
             "inside source attack cells 9-10; the body-bearing recovery cell is held once."
         ),
+        preserve_native_rects=True,
+        native_frame_min_width=44,
     ),
     PackSpec(
         source_name="gromp",
@@ -118,9 +123,9 @@ SPECS = (
         source_name="murk_wolf",
         display_name="Murk Wolf",
         runtime_name="bee",
-        cell_size=64,
-        max_visible_width=24,
-        max_visible_height=30,
+        cell_size=38,
+        max_visible_width=32,
+        max_visible_height=26,
         baseline=54,
         sequences={
             # Native bee idle/run point at the same 16 rectangles and advance
@@ -132,6 +137,8 @@ SPECS = (
             "dead": [12, 13, 14, 15],
         },
         preserve_native_rects=True,
+        native_frame_min_width=38,
+        native_frame_min_height=29,
         attack_vfx_note=(
             "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; "
             "the final native frame returns to the stable idle body instead of holding a displaced recovery pose."
@@ -347,6 +354,7 @@ def render_native_rect_frame(
     *,
     scale: float,
     anchor_mode: str,
+    center_on_frame: bool = False,
 ) -> Image.Image:
     output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
     source_bbox = alpha_bbox(source)
@@ -367,9 +375,13 @@ def render_native_rect_frame(
     else:
         target_bottom = native_bbox[3]
         target_anchor = (
-            ground_anchor_x(native_frame)
-            if anchor_mode == "ground"
-            else weighted_alpha_centroid_x(native_frame)
+            (native_frame.width - 1) / 2
+            if center_on_frame
+            else (
+                ground_anchor_x(native_frame)
+                if anchor_mode == "ground"
+                else weighted_alpha_centroid_x(native_frame)
+            )
         )
     subject_anchor = (
         ground_anchor_x(subject)
@@ -380,6 +392,67 @@ def render_native_rect_frame(
     y = target_bottom - subject.height
     paste_clipped(output, subject, x, y)
     return output
+
+
+def expanded_native_reference(
+    native_frame: Image.Image,
+    width: int,
+    height: int,
+) -> Image.Image:
+    """Pad a native frame symmetrically in X and only above in Y.
+
+    TFM2's jungle actors sit on the alpha bottom rather than an arbitrary
+    replacement baseline.  Bottom-aligning the native pixels retains that
+    landing line while the symmetric horizontal padding gives slightly wider
+    League silhouettes room without changing their visual centre.
+    """
+    if width < native_frame.width or height < native_frame.height:
+        raise ValueError("Expanded native reference cannot shrink a native frame")
+    output = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    x = (width - native_frame.width) // 2
+    y = height - native_frame.height
+    output.alpha_composite(native_frame, (x, y))
+    return output
+
+
+def build_native_anchored_layout(
+    native_document: dict[str, Any],
+    native_sheet: Image.Image,
+    *,
+    minimum_width: int,
+    minimum_height: int,
+) -> tuple[dict[str, Any], tuple[int, int]]:
+    """Reflow native frames while preserving action/timing and shared frames."""
+    rect_map: dict[tuple[int, int, int, int], tuple[int, int, int, int]] = {}
+    cursor_x = 0
+    maximum_height = native_sheet.height
+    generated_anims: dict[str, Any] = {}
+    for tag_name, native_tag in native_document["anims"].items():
+        generated_frames: list[dict[str, Any]] = []
+        for native_frame_spec in native_tag["frames"]:
+            native_rect = frame_rect(native_frame_spec)
+            if native_rect not in rect_map:
+                native_frame = frame_crop(native_sheet, native_frame_spec)
+                visible = native_frame.getchannel("A").getbbox() is not None
+                width = max(native_rect[2], minimum_width) if visible else native_rect[2]
+                height = max(native_rect[3], minimum_height) if visible else native_rect[3]
+                rect_map[native_rect] = (cursor_x, 0, width, height)
+                cursor_x += width
+                maximum_height = max(maximum_height, height)
+            x, y, width, height = rect_map[native_rect]
+            generated_frames.append(
+                {
+                    "duration": native_frame_spec["duration"],
+                    "data": {
+                        "x": float(x),
+                        "y": float(y),
+                        "w": float(width),
+                        "h": float(height),
+                    },
+                }
+            )
+        generated_anims[tag_name] = {"frames": generated_frames}
+    return {"anims": generated_anims}, (cursor_x, maximum_height)
 
 
 def place_native_frame(
@@ -583,23 +656,52 @@ def pack_native_rect_one(
         1.0,
     )
 
-    sheet = Image.new("RGBA", native_sheet.size, (0, 0, 0, 0))
+    expanded_layout = bool(
+        spec.native_frame_min_width or spec.native_frame_min_height
+    )
+    if expanded_layout:
+        generated_document, sheet_size = build_native_anchored_layout(
+            native_document,
+            native_sheet,
+            minimum_width=spec.native_frame_min_width,
+            minimum_height=spec.native_frame_min_height,
+        )
+    else:
+        generated_document = {
+            "anims": {
+                tag_name: {"frames": native_tag["frames"]}
+                for tag_name, native_tag in native_anims.items()
+            }
+        }
+        sheet_size = native_sheet.size
+
+    sheet = Image.new("RGBA", sheet_size, (0, 0, 0, 0))
     tag_records: dict[str, Any] = {}
     for tag_name, native_tag in native_anims.items():
         source_indexes = spec.sequences[tag_name]
         native_frames = native_tag["frames"]
+        generated_frames = generated_document["anims"][tag_name]["frames"]
         if len(source_indexes) != len(native_frames):
             raise ValueError(
                 f"{spec.runtime_name}.{tag_name}: {len(source_indexes)} source "
                 f"frames for {len(native_frames)} native rectangles"
             )
         qa_frames: list[dict[str, Any]] = []
-        for source_index, native_frame_spec in zip(
+        for source_index, native_frame_spec, generated_frame_spec in zip(
             source_indexes,
             native_frames,
+            generated_frames,
             strict=True,
         ):
             native_frame = frame_crop(native_sheet, native_frame_spec)
+            _x, _y, generated_width, generated_height = frame_rect(
+                generated_frame_spec
+            )
+            native_reference = expanded_native_reference(
+                native_frame,
+                generated_width,
+                generated_height,
+            )
             # The wolf leap source contains small dust/claw particles below the
             # body.  Treating those particles as the foot anchor pushes most of
             # the wolf outside the tiny native bee attack rectangle.  Center
@@ -607,25 +709,40 @@ def pack_native_rect_one(
             anchor_mode = "centroid"
             rendered = render_native_rect_frame(
                 cells[source_index],
-                native_frame,
+                native_reference,
                 scale=scale,
                 anchor_mode=anchor_mode,
+                center_on_frame=tag_name in {"idle", "run"},
             )
-            place_native_frame(sheet, rendered, native_frame_spec)
+            place_native_frame(sheet, rendered, generated_frame_spec)
             bbox = alpha_bbox(rendered)
-            native_bbox = native_frame.getchannel("A").getbbox()
-            x, y, width, height = frame_rect(native_frame_spec)
+            native_bbox = native_reference.getchannel("A").getbbox()
+            x, y, width, height = frame_rect(generated_frame_spec)
+            target_centroid = (
+                (width - 1) / 2
+                if tag_name in {"idle", "run"}
+                else weighted_alpha_centroid_x(native_reference)
+            )
+            rendered_centroid = weighted_alpha_centroid_x(rendered)
             qa_frames.append(
                 {
                     "source_cell": source_index,
                     "duration": native_frame_spec["duration"],
                     "rect": [x, y, width, height],
+                    "native_rect": list(frame_rect(native_frame_spec)),
                     "alpha_bbox": list(bbox),
                     "visible_dimensions": [bbox[2] - bbox[0], bbox[3] - bbox[1]],
                     "bottom_matches_native": native_bbox is not None
                     and bbox[3] == native_bbox[3],
-                    "centroid_offset_x": round(
-                        weighted_alpha_centroid_x(rendered) - width / 2,
+                    "bottom_delta_to_native_px": (
+                        bbox[3] - native_bbox[3] if native_bbox else None
+                    ),
+                    "body_centroid_offset_from_rect_center_px": round(
+                        rendered_centroid - (width - 1) / 2,
+                        6,
+                    ),
+                    "anchor_delta_to_target_px": round(
+                        rendered_centroid - target_centroid,
                         6,
                     ),
                 }
@@ -640,22 +757,23 @@ def pack_native_rect_one(
     sheet_path = RUNTIME_ROOT / f"{spec.runtime_name}#sheet.png"
     anim_path = RUNTIME_ROOT / f"{spec.runtime_name}#anim.fanim"
     sheet.save(sheet_path, format="PNG", compress_level=9)
-    generated_document = {
-        "anims": {
-            tag_name: {"frames": native_tag["frames"]}
-            for tag_name, native_tag in native_anims.items()
-        }
-    }
     anim_path.write_text(
         json.dumps(generated_document, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
         newline="\n",
     )
-    validate_native_frame_rect_contract(
-        spec.runtime_name,
-        generated_document,
-        native_document,
-    )
+    if expanded_layout:
+        validate_native_animation_contract(
+            spec.runtime_name,
+            generated_document,
+            native_document,
+        )
+    else:
+        validate_native_frame_rect_contract(
+            spec.runtime_name,
+            generated_document,
+            native_document,
+        )
     all_frames = [
         frame
         for tag in tag_records.values()
@@ -664,8 +782,32 @@ def pack_native_rect_one(
     maximum_visible_width = max(frame["visible_dimensions"][0] for frame in all_frames)
     idle_centroid_span = centroid_span(sheet, generated_document, "idle")
     run_centroid_span = centroid_span(sheet, generated_document, "run")
-    if sheet.size != native_sheet.size:
+    idle_run_frames = [
+        frame
+        for tag_name in ("idle", "run")
+        for frame in tag_records[tag_name]["frames"]
+    ]
+    maximum_idle_run_center_offset = max(
+        abs(frame["body_centroid_offset_from_rect_center_px"])
+        for frame in idle_run_frames
+    )
+    maximum_anchor_delta = max(
+        abs(frame["anchor_delta_to_target_px"])
+        for frame in all_frames
+    )
+    maximum_bottom_delta = max(
+        abs(frame["bottom_delta_to_native_px"] or 0)
+        for frame in all_frames
+    )
+    native_idle_run_share_rectangles = [
+        frame_rect(frame) for frame in native_anims["idle"]["frames"]
+    ] == [
+        frame_rect(frame) for frame in native_anims["run"]["frames"]
+    ]
+    if not expanded_layout and sheet.size != native_sheet.size:
         raise ValueError(f"{spec.runtime_name}: native sheet dimensions changed")
+    if expanded_layout and sheet.height != native_sheet.height:
+        raise ValueError(f"{spec.runtime_name}: expanded layout changed native sheet height")
     if maximum_visible_width > spec.max_visible_width:
         raise ValueError(
             f"{spec.runtime_name}: visible width {maximum_visible_width} exceeds {spec.max_visible_width}"
@@ -676,6 +818,21 @@ def pack_native_rect_one(
         raise ValueError(
             f"{spec.runtime_name}: shared idle/run centroid span is unstable: "
             f"idle={idle_centroid_span}, run={run_centroid_span}"
+        )
+    if maximum_idle_run_center_offset > 1.0:
+        raise ValueError(
+            f"{spec.runtime_name}: idle/run body centroid is off-centre by "
+            f"{maximum_idle_run_center_offset}px"
+        )
+    if maximum_anchor_delta > 1.0 or maximum_bottom_delta != 0:
+        raise ValueError(
+            f"{spec.runtime_name}: native placement drifted; "
+            f"anchor={maximum_anchor_delta}, bottom={maximum_bottom_delta}"
+        )
+    if maximum_visible_width < spec.max_visible_width - 1:
+        raise ValueError(
+            f"{spec.runtime_name}: tuned actor is still undersized at "
+            f"{maximum_visible_width}px"
         )
 
     return {
@@ -695,10 +852,21 @@ def pack_native_rect_one(
                 spec.max_visible_width,
                 spec.max_visible_height,
             ],
-            "native_sheet_dimensions_preserved": True,
-            "native_frame_rectangles_preserved": True,
+            "runtime_sheet_dimensions": list(sheet.size),
+            "native_sheet_dimensions_exact": not expanded_layout,
+            "native_sheet_height_preserved": sheet.height == native_sheet.height,
+            "native_frame_rectangles_exact": not expanded_layout,
+            "native_frame_rectangles_safely_expanded": expanded_layout,
+            "minimum_runtime_frame_dimensions": [
+                spec.native_frame_min_width,
+                spec.native_frame_min_height,
+            ],
+            "native_anchor_reference_preserved": True,
             "native_alpha_bottoms_preserved": True,
-            "anchor": "native alpha centroid with native per-frame alpha bottom",
+            "anchor": (
+                "idle/run visible alpha centroid at frame centre; other actions at "
+                "native alpha centroid; every frame retains native alpha bottom"
+            ),
             "source_cells": source_cell_records,
             "attack_vfx_static_review": {
                 "result": "pass",
@@ -713,19 +881,38 @@ def pack_native_rect_one(
                 "maximum_visible_width_px": maximum_visible_width,
                 "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
                 "run_horizontal_centroid_span_px": round(run_centroid_span, 6),
+                "maximum_idle_run_center_offset_px": round(
+                    maximum_idle_run_center_offset,
+                    6,
+                ),
+                "maximum_anchor_delta_to_target_px": round(
+                    maximum_anchor_delta,
+                    6,
+                ),
+                "maximum_bottom_delta_to_native_px": maximum_bottom_delta,
             },
         },
         "static_checks": {
-            "native_sheet_dimensions_exact": True,
-            "native_frame_rectangles_exact": True,
+            "native_sheet_exact_or_height_preserving_reflow": (
+                sheet.size == native_sheet.size
+                if not expanded_layout
+                else sheet.height == native_sheet.height
+            ),
+            "native_frame_rectangles_exact_or_safely_expanded": True,
             "native_animation_contract_exact": True,
             "all_frame_bottoms_match_native": True,
-            "visible_width_native_class": maximum_visible_width
+            "visible_width_tuned_envelope": maximum_visible_width
             <= spec.max_visible_width,
+            "visible_width_target_reached": maximum_visible_width
+            >= spec.max_visible_width - 1,
             "idle_horizontal_centroid_stable": idle_centroid_span <= 2.0,
             "run_horizontal_centroid_stable": run_centroid_span <= 2.0,
-            "shared_idle_run_rectangles_use_same_source_sequence": spec.sequences["idle"]
-            == spec.sequences["run"],
+            "idle_run_body_centred": maximum_idle_run_center_offset <= 1.0,
+            "native_anchor_delta_bounded": maximum_anchor_delta <= 1.0,
+            "shared_idle_run_contract_respected": (
+                not native_idle_run_share_rectangles
+                or spec.sequences["idle"] == spec.sequences["run"]
+            ),
         },
     }
 
@@ -945,6 +1132,19 @@ def main() -> int:
         "schema_version": 3,
         "generator": "mods/lol_mod/tools/pack_quality_small_jungle.py",
         "scope": "static image processing only; no game launch and no test execution",
+        "placement_policy": {
+            "map_spawn_coordinates_changed": False,
+            "red_blue_buff_fix": (
+                "Actor art is re-centred inside the runtime frame and placed on "
+                "the bundled native alpha-bottom landing line; jungle camp spawn "
+                "coordinates are untouched."
+            ),
+            "wolf_scale_fix": (
+                "Murk Wolf visible width is raised from the previous 24px cap to "
+                "32px, while native action counts/durations and a <=2px centroid "
+                "stability gate remain enforced."
+            ),
+        },
         "chroma_key_processing": {
             "tool": "$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py",
             "arguments": [

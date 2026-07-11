@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.2"
+    assert mod_info["version"] == "0.7.3"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -80,7 +80,8 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
 
-    assert 'root.query_mut("main")' in source
+    assert "for child in &mut root.child" in source
+    assert "find_path_anchor_mut" in source and "query_anywhere_mut" in source
     assert "runner.team1_order" in source and "runner.team2_order" in source
     assert "top.right.champion_info.data.champions.contents" in source
     assert '&format!("{prefix}.champion")' in source

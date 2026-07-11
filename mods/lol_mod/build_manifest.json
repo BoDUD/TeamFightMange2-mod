@@ -274,13 +274,13 @@
     },
     {
       "path": "aseprite_resources/ingame/bee#anim.fanim",
-      "size": 7510,
-      "sha256": "d9860101cf7ff9dcb3820f78b49170bb184af0d65fa114489f6a6bcbfc0c9489"
+      "size": 7508,
+      "sha256": "169c4a5ef481c427c52bf6eb38d53684aedcc58791f39e0f0a0ab773e34fdde9"
     },
     {
       "path": "aseprite_resources/ingame/bee#sheet.png",
-      "size": 9939,
-      "sha256": "a05f4cabf2ac34a0ee4f64365f9b252cc7f9e9d62a54e7646321688e1b2f824a"
+      "size": 15577,
+      "sha256": "84ae7ecfdf648b8203cc496666f3dbd507a929d63766f83b2ec5202c45fa9d41"
     },
     {
       "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
@@ -324,63 +324,63 @@
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/cloud#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
-      "size": 50906,
-      "sha256": "bcc9b5400b582700ccb5d9a4a7492ce7193da2cb01518849255c4ac370b1fba5"
+      "size": 99049,
+      "sha256": "3f9d7ba01e8c9675528e0aaf4cad80c36ae4e3ca965db9aa69c2b2fb02640705"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
-      "size": 65921,
-      "sha256": "8e087798cf2e3f7b10c62469d974a7318a428ca79f3388923c1567426e25de67"
+      "size": 103365,
+      "sha256": "c1bb8f44f342435757aeab109467c420915c4fc1853b48fbd5d6f97518a95a3f"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
-      "size": 61611,
-      "sha256": "2973c5072bb411771b6e361e2f9cbddec953c4702e562d8974f4616df8ea8390"
+      "size": 96507,
+      "sha256": "e88f45a7589314c8729371a098ff797738e130e03a1c2d1e119f95ad6dcdfd6e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
-      "size": 58072,
-      "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5"
+      "size": 89742,
+      "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
-      "size": 63791,
-      "sha256": "4bb8af500ecaa65cadeeed4c2a561459179500ec5a8fbd5f1fe8d75c8ef967a8"
+      "size": 97524,
+      "sha256": "eb663dbd6dfb5082a85be62b102c9cf51f3f93aa76b4360478bcfc5a0c80f015"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
-      "size": 49196,
-      "sha256": "c1b9d185db1422de755c957e71d73eb9a438c380a4596b7097a1c809664f46f8"
+      "size": 96225,
+      "sha256": "b07a1925c87d2a70726fdbdefb8f89b157b926ed195db4284852decdf2f74a3c"
     },
     {
       "path": "aseprite_resources/ingame/epic#anim.fanim",
@@ -494,33 +494,33 @@
     },
     {
       "path": "aseprite_resources/ingame/rhino#anim.fanim",
-      "size": 3914,
-      "sha256": "c3da884ce3c41bb62f0da5c93011a73ff99b07b9fa09a68a40889ac012efa5b9"
+      "size": 3912,
+      "sha256": "fa210772957f0428b4c7a2d94de26684cbd6f7ed390d5279016dacf5e4c2ec77"
     },
     {
       "path": "aseprite_resources/ingame/rhino#sheet.png",
-      "size": 134054,
-      "sha256": "e443b9e9b93a87ccef0931ed564ae34d95c6e457abb727f573f9407bb5f7d5b9"
+      "size": 56513,
+      "sha256": "12a7b266bc4d00d4f9061e3f5ce404aa3b2c9aede47950c2d5481c05a0bed485"
     },
     {
       "path": "aseprite_resources/ingame/serpen#anim.fanim",
-      "size": 3425,
-      "sha256": "f650423e16b0d9f450af6522f2b03e20fd4289385675bdcec1aad3f597f33b23"
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
     },
     {
       "path": "aseprite_resources/ingame/serpen#sheet.png",
-      "size": 58072,
-      "sha256": "185a1e05e2ede228c80d5b94b3558ee51d49507dba59f7dd8ce8707479d371b5"
+      "size": 89742,
+      "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87"
     },
     {
       "path": "aseprite_resources/ingame/stump#anim.fanim",
-      "size": 3915,
-      "sha256": "64da1fedfc5d475a3c3e01e36aa83021afd2c5195e7c1a43c125c900e7e431eb"
+      "size": 3904,
+      "sha256": "d1f962644deca7f330a3d0df807a40e0e79ea8c99a66775ebae383565237bf64"
     },
     {
       "path": "aseprite_resources/ingame/stump#sheet.png",
-      "size": 149806,
-      "sha256": "c089d1ac64fe303e54f93e131760152f7343d7b60e1f77832b31dbadb0d4ec1c"
+      "size": 35044,
+      "sha256": "70bf0be11fe618113999acb4b641cf4a00f7d8186a393a60a4a328cc70e998c7"
     },
     {
       "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
@@ -659,13 +659,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 354816,
-      "sha256": "9ed8d0f2d875aafa62796756629784b95e1e3aa7f67e0cf21df6f804db4c738b"
+      "size": 355328,
+      "sha256": "fb4d91909606cbdc1d09f9b7cfb0de70c19e9c09762fd34a24305ed07f672d6d"
     },
     {
       "path": "mod.mod_info",
-      "size": 876,
-      "sha256": "e72793b9b210fffc3f8ebb20d3b0c60c948c5a8e89c0e8759f1840e61094d5ba"
+      "size": 931,
+      "sha256": "d4ae6b69ce54cb6417b40b3bc01217c3202e80f4fa5a214eb495b1972d666cc5"
     },
     {
       "path": "mod.override_info",
@@ -1189,18 +1189,18 @@
     },
     {
       "path": "ui/icons/serpen.svg",
-      "size": 8018,
-      "sha256": "98a1be37a9bf6ab9b3985e61f8d71966e7412772b391ba017b53102e27fb35f0"
+      "size": 8802,
+      "sha256": "c1e6db5a11dffbe8cad540e36710bd3f3a2a5288cdea83a144f944778a441e82"
     },
     {
       "path": "ui/icons/serpen_sticker_blue.svg",
-      "size": 5717,
-      "sha256": "7c9b1a42b79b328366d02f19d05dfd69ff3e0beb7b1f02b798c9e3faf0862245"
+      "size": 7544,
+      "sha256": "edfaa454442fc6a1c8edb6344d6fec01257a4bd2ec0772d547af455e8e8d21c2"
     },
     {
       "path": "ui/icons/serpen_sticker_red.svg",
-      "size": 5717,
-      "sha256": "b78f41ca02c812b4bcedd2ab6bff21dc017a6c91f9da11e8fad27cc64b924697"
+      "size": 7544,
+      "sha256": "a7e79222e0d166e99a8e2a701da67f0b5cc38f0e6945f556ef7e3e0b4c51a13d"
     },
     {
       "path": "ui/icons/tower.svg",
