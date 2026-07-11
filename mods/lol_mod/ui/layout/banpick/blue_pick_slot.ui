@@ -197,46 +197,6 @@ pick_slot:color_icon_button {
     width: 300px;
     height: 174px;
 
-    #lol_splash_shen:image {
-      width: 300px;
-      height: 174px;
-      source: "asset/lol_mod/BanPickIllust/lol_shen";
-      visible: false;
-      ignore_event: true;
-    }
-
-    #lol_splash_lucian:image {
-      width: 300px;
-      height: 174px;
-      source: "asset/lol_mod/BanPickIllust/archer";
-      visible: false;
-      ignore_event: true;
-    }
-
-    #lol_splash_orianna:image {
-      width: 300px;
-      height: 174px;
-      source: "asset/lol_mod/BanPickIllust/barrier_magician";
-      visible: false;
-      ignore_event: true;
-    }
-
-    #lol_splash_briar:image {
-      width: 300px;
-      height: 174px;
-      source: "asset/lol_mod/BanPickIllust/berserker";
-      visible: false;
-      ignore_event: true;
-    }
-
-    #lol_splash_sivir:image {
-      width: 300px;
-      height: 174px;
-      source: "asset/lol_mod/BanPickIllust/boomerang_hunter";
-      visible: false;
-      ignore_event: true;
-    }
-
     #bar:color {
       color: #5873ffff;
       width: 15px;

@@ -659,18 +659,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 381440,
-      "sha256": "3abc4040fd4d8c908a350fae78c0d54b5f9acf134c0bb2e87a899e8d84663ec5"
+      "size": 388608,
+      "sha256": "9e5cb08e95cee47f2f2a614c3ab6161b89d50c03670fc9ee369c2dcf9fc4deef"
     },
     {
       "path": "mod.mod_info",
-      "size": 1006,
-      "sha256": "1d7ef1839b46d0c8a706b10c05965e18e7739f8a72a25c5ff2bd960e900d179a"
+      "size": 1185,
+      "sha256": "506cf9fe83a6d028adc8be107f543d0f60759b1994683998ad7eeec4e49d9504"
     },
     {
       "path": "mod.override_info",
-      "size": 27269,
-      "sha256": "97a348bd37de194df53fc521c724e3169167e4fb38ff1b17c9f9e17a2532b906"
+      "size": 26589,
+      "sha256": "4863e2560f0362543d36cb05684b6dcdef3c2b2f0ce03aa79171c6547be082ea"
     },
     {
       "path": "sound/sfx/baron_attack_left.sound_info",
@@ -1214,13 +1214,13 @@
     },
     {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
-      "size": 11446,
-      "sha256": "ddb1ef360e9475c8a8fe501eb03768b5e1505284a4246b8c99ff92b480a46907"
+      "size": 10529,
+      "sha256": "53c9f230c975da6f7c7b03981abf2cdfb7c12946d1528b12bd373262dae6a283"
     },
     {
       "path": "ui/layout/banpick/red_pick_slot.ui",
-      "size": 11544,
-      "sha256": "a1abc55f7419dc0a12758b57494c88aaa252e286fc01c246ba270475e081406e"
+      "size": 10627,
+      "sha256": "fcabba9f1c40578b57724e4e5446ebaf39efa952af630abe2a190551b810d66f"
     },
     {
       "path": "ui/layout/champion_info_component/champion_slot.ui",

@@ -2,6 +2,13 @@
 
 《团战经理 2》的 League 风格英雄模组，当前模组目录为 `mods/lol_mod`。
 
+## v0.7.5：按 Ban/Pick View Plus 的逐帧渲染机制重做 BP 插画
+
+- 撤销 0.7.4 对 `done.champion.icon` 和静态 splash 节点的修改；这些都不是参考 Mod 的实现路径。
+- 按本地 Ban/Pick View Plus DLL 的真实契约，在 `post_render` 中识别左右 BP 卡片已生成的 `NinePatch` 绘制指令，并逐帧替换为对应 LOL 插画；英雄键严格取自资源路径 `/champions/` 后缀并移除末尾 `#sheet`。
+- 保留原生卡片、问号、交换阶段和英雄头像节点不变；插画直接读取 `asset/lol_mod/BanPickIllust/*`，使用参考尺寸 `284×172`、`z=200`，红方水平翻转，并按当前原生 97px 顶栏自适应卡片 y 坐标。
+- 红方检测改为相对每个 render pass 的实际宽度计算，不再把参考 Mod 的 1920 宽绝对坐标硬套到 1618 宽窗口；BP 遥测无论是否命中都会记录 render scan 和候选跳过原因。
+
 ## v0.7.4：BP 实际卡槽资源与普通野怪可读性修复
 
 - BP 插画不再只依赖 `MatchUIRunner` 快照；每帧同时读取卡槽 `done.champion.icon` 的真实 `ImageRunner` 资源，直接确定五个 LOL 英雄并显示对应插画。

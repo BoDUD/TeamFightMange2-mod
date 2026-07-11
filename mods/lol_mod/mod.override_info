@@ -443,26 +443,6 @@
     "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
     "type": "override"
   },
-  "asset/base/ui/banpick/illust/lol_shen": {
-    "remapping": "asset/lol_mod/BanPickIllust/lol_shen",
-    "type": "override"
-  },
-  "asset/base/ui/banpick/illust/archer": {
-    "remapping": "asset/lol_mod/BanPickIllust/archer",
-    "type": "override"
-  },
-  "asset/base/ui/banpick/illust/barrier_magician": {
-    "remapping": "asset/lol_mod/BanPickIllust/barrier_magician",
-    "type": "override"
-  },
-  "asset/base/ui/banpick/illust/berserker": {
-    "remapping": "asset/lol_mod/BanPickIllust/berserker",
-    "type": "override"
-  },
-  "asset/base/ui/banpick/illust/boomerang_hunter": {
-    "remapping": "asset/lol_mod/BanPickIllust/boomerang_hunter",
-    "type": "override"
-  },
   "asset/base/aseprite_resources/ingame/epic#sheet": {
     "remapping": "asset/lol_mod/aseprite_resources/ingame/epic#sheet",
     "type": "override"

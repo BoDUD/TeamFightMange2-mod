@@ -4433,7 +4433,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.4", "lol_mod version must be 0.7.4")
+    check(mod_info.get("version") == "0.7.5", "lol_mod version must be 0.7.5")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.4"
+    assert mod_info["version"] == "0.7.5"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -80,22 +80,46 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
 
-    assert "for child in &mut root.child" in source
-    assert "find_path_anchor_mut" in source and "query_anywhere_mut" in source
-    assert "runner.team1_order" in source and "runner.team2_order" in source
     assert "top.right.champion_info.data.champions.contents" in source
-    assert '&format!("{prefix}.champion")' in source
-    assert "engine_ui::runner::ImageRunner" in source
-    assert "image_source(root, &icon_query)" in source
+    assert "match_ui_database_from_node" in source
+    assert "fn post_render(" in source
+    assert "rewrite_bp_render_commands(ui, state)" in source
+    assert "RenderCommand::NinePatch" in source
+    assert 'ui.query("main.blue_picks")' in source
+    assert 'ui.query("main.red_picks")' in source
+    assert 'let marker = "/champions/"' in source
+    assert "source.find(marker)? + marker.len()" in source
+    assert '.strip_suffix("#sheet")' in source
+    assert "for (pass, commands) in &mut state.commands" in source
+    assert ".map_size" in source and ".get(pass)" in source
+    assert "map_width - 335.0" in source
+    assert '"candidate_skip"' in source
+    assert '"asset/lol_mod/BanPickIllust/lol_shen"' in source
+    assert not any(
+        key.startswith("asset/base/ui/banpick/illust/") for key in override
+    )
     assert "splash_id_from_source" in source
-    assert "snapshot_found && has_explicit_pick" in source
-    assert "stale_owned_source" in source
-    assert "property.source = asset.clone()" in source
-    assert "set_pixel_layout(champion_node, card_x, 1.0, 284.0, 172.0)" in source
+    assert "texture_rect.w = 1420.0" in source
+    assert "texture_rect.h = 860.0" in source
+    assert "original_geometry.1 + 11.0" in source
+    assert "*w = 284.0" in source and "*h = 172.0" in source
+    assert "*z = 200" in source
+    assert "*flip_x = side == BpRenderSide::Red" in source
+    assert "done.champion.icon" not in source
+    assert "sync_side(" not in source
     assert "quality_bp_runtime_telemetry.tsv" in source
 
+    for filename in ("blue_pick_slot.ui", "red_pick_slot.ui"):
+        slot_ui = (MOD / "ui" / "layout" / "banpick" / filename).read_text(
+            encoding="utf-8"
+        )
+        assert "lol_splash_" not in slot_ui
+        assert "lol_bp_illustration" not in slot_ui
+        assert "#champion:empty" in slot_ui
+        assert "width: 137px" in slot_ui and "height: 172px" in slot_ui
+
     build_script = (MOD / "tools" / "build_native_dll.ps1").read_text(encoding="utf-8")
-    assert '"--extern", "engine_ui=$($engineUi.FullName)"' in build_script
+    assert '"--extern", "engine_ui=$($engineUi.FullName)"' not in build_script
     assert '"--extern", "engine_core=$($engineCore.FullName)"' in build_script
 
     variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.4",
+  "release": "0.7.5",
   "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, and Nexus crystals",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -10,6 +10,14 @@
       "berserker",
       "boomerang_hunter"
     ],
+    "banpick_runtime_contract": {
+      "reference": "local Ban/Pick View Plus 0.5.0 DLL",
+      "implementation": "post_render NinePatch command replacement",
+      "source_key": "suffix after /champions/ with terminal #sheet removed",
+      "card_size": "284x172",
+      "red_side_detection": "335px edge band relative to each render-pass width",
+      "static_splash_nodes": false
+    },
     "encyclopedia_fullbody": [
       "lol_shen",
       "archer",

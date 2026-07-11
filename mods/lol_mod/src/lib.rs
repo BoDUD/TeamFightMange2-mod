@@ -7,8 +7,7 @@ use std::rc::Rc;
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use engine_core::ui::length::Length;
-use engine_ui::runner::ImageRunner;
+use engine_core::render_state::RenderCommand;
 use game_view::{ClientDatabase, MatchUIRunner};
 use mod_api::MatchType;
 use mod_api::*;
@@ -21,38 +20,16 @@ const DRAGON_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_dragon_variant_runt
 const BP_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_bp_runtime_telemetry.tsv";
 const BP_TELEMETRY_ROW_LIMIT: usize = 80;
 const PICK_SLOT_LIMIT: usize = 5;
-// The actor source is the most reliable identity signal on the live BP card:
-// it is populated by the stock runner even when MatchUIRunner is mounted on a
-// different scene wrapper or its public pick arrays lag a card refresh.
-const SPLASH_SPECS: [(&str, &str, &str, &str); 5] = [
-    (
-        "lol_shen",
-        "lol_splash_shen",
-        "/champions/shen",
-        "asset/lol_mod/BanPickIllust/lol_shen",
-    ),
-    (
-        "archer",
-        "lol_splash_lucian",
-        "/champions/lucian",
-        "asset/lol_mod/BanPickIllust/archer",
-    ),
+const SPLASH_SPECS: [(&str, &str); 5] = [
+    ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
+    ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
         "barrier_magician",
-        "lol_splash_orianna",
-        "/champions/orianna",
         "asset/lol_mod/BanPickIllust/barrier_magician",
     ),
-    (
-        "berserker",
-        "lol_splash_briar",
-        "/champions/briar",
-        "asset/lol_mod/BanPickIllust/berserker",
-    ),
+    ("berserker", "asset/lol_mod/BanPickIllust/berserker"),
     (
         "boomerang_hunter",
-        "lol_splash_sivir",
-        "/champions/sivir",
         "asset/lol_mod/BanPickIllust/boomerang_hunter",
     ),
 ];
@@ -107,75 +84,38 @@ struct LolModExtension;
 
 impl ModExtension for LolModExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
-        // MatchUIRunner owns both the authoritative pick order and the public
-        // ClientDatabase handle. Clone them before mutating the UI tree.
-        let snapshot = match_ui_snapshot(&mut ui.root);
-
-        if let Some(snapshot) = snapshot {
-            remember_database(snapshot.database);
-            sync_side(&mut ui.root, "blue", &snapshot.blue_picks, true);
-            sync_side(&mut ui.root, "red", &snapshot.red_picks, true);
+        if let Some(database) = match_ui_database(ui) {
+            remember_database(database);
         } else {
-            // The stock pick-card ImageRunner is itself an authoritative live
-            // signal.  Keep synchronising it even if the runner downcast is
-            // unavailable for a wrapper/rebuild frame (or a future SDK build).
-            sync_side(&mut ui.root, "blue", &[], false);
-            sync_side(&mut ui.root, "red", &[], false);
             sync_encyclopedia_portraits(&mut ui.root);
         }
 
         sync_deterministic_dragon();
     }
-}
 
-struct MatchUiSnapshot {
-    blue_picks: Vec<String>,
-    red_picks: Vec<String>,
-    database: Rc<RefCell<ClientDatabase>>,
-}
-
-fn snapshot_from_runner(runner: &mut MatchUIRunner) -> MatchUiSnapshot {
-    MatchUiSnapshot {
-        blue_picks: picks_by_roster_slot(&runner.team1_pick, &runner.team1_order),
-        red_picks: picks_by_roster_slot(&runner.team2_pick, &runner.team2_order),
-        database: runner.database.clone(),
+    fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        rewrite_bp_render_commands(ui, state);
     }
 }
 
-fn picks_by_roster_slot(picks: &[String], order: &[usize]) -> Vec<String> {
-    // Picks are stored in draft order, while pick_slot_N is a roster slot.
-    // team*_order records the roster slot assigned to each drafted champion.
-    // Fall back to the original order for partial/legacy SDK fixtures.
-    if picks.is_empty() || order.len() != picks.len() {
-        return picks.to_vec();
+fn match_ui_database(ui: &mut GameUI) -> Option<Rc<RefCell<ClientDatabase>>> {
+    if let Some(database) = ui
+        .query_mut("main")
+        .and_then(|main| main.runner_as_mut::<MatchUIRunner>())
+        .map(|runner| runner.database.clone())
+    {
+        return Some(database);
     }
-
-    let output_len = PICK_SLOT_LIMIT.max(picks.len());
-    let mut output = vec![String::new(); output_len];
-    let mut occupied = vec![false; output_len];
-    for (draft_index, &slot_index) in order.iter().enumerate() {
-        if slot_index >= output_len || occupied[slot_index] {
-            return picks.to_vec();
-        }
-        output[slot_index] = picks[draft_index].clone();
-        occupied[slot_index] = true;
-    }
-    output
+    match_ui_database_from_node(&mut ui.root)
 }
 
-fn match_ui_snapshot(root: &mut Node) -> Option<MatchUiSnapshot> {
+fn match_ui_database_from_node(root: &mut Node) -> Option<Rc<RefCell<ClientDatabase>>> {
     if let Some(runner) = root.runner_as_mut::<MatchUIRunner>() {
-        return Some(snapshot_from_runner(runner));
+        return Some(runner.database.clone());
     }
-
-    // Match UI can be wrapped by one or more scene/overlay roots before it is
-    // handed to a mod extension.  The wrapper depth also changes between the
-    // normal draft, spectator draft, and post-swap refresh.  Search the real
-    // Node tree instead of assuming either `root` or `root.main` owns the
-    // runner.
     for child in &mut root.child {
-        if let Some(snapshot) = match_ui_snapshot(child) {
-            return Some(snapshot);
+        if let Some(database) = match_ui_database_from_node(child) {
+            return Some(database);
         }
     }
     None
@@ -446,220 +386,209 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
     }
 }
 
-fn sync_side(root: &mut Node, side: &str, picks: &[String], snapshot_found: bool) {
-    // Apply each blue/red subtree independently.  The scene can retain cached
-    // draft trees alongside the visible one; selecting one global first match
-    // is exactly what made the earlier recursive fix capable of editing only a
-    // hidden copy.  Per-anchor processing makes the live and cached trees both
-    // converge without letting a stale source leak into another tree.
-    let anchor_id = format!("{side}_picks");
-    visit_nodes_with_id_mut(root, &anchor_id, &mut |side_root| {
-        for slot_index in 0..PICK_SLOT_LIMIT {
-            sync_slot(
-                side_root,
-                side,
-                slot_index,
-                picks.get(slot_index).map(String::as_str),
-                snapshot_found,
-            );
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum BpRenderSide {
+    Blue,
+    Red,
+}
+
+impl BpRenderSide {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Blue => "blue",
+            Self::Red => "red",
         }
-    });
+    }
 }
 
-fn sync_slot(
-    root: &mut Node,
-    side: &str,
-    slot_index: usize,
-    champion: Option<&str>,
-    snapshot_found: bool,
-) {
-    let prefix = format!("pick_slot_{slot_index}.done");
-    let icon_query = format!("{prefix}.champion.icon");
-    let icon_source = image_source(root, &icon_query);
-
-    // When a MatchUIRunner snapshot exists, its array is authoritative even
-    // for an empty or unsupported slot. This prevents a splash source left
-    // over from the previous occupant from winning during a card refresh.
-    // Only use the stock card's live image source when no snapshot is mounted.
-    let pick_id = champion.and_then(canonical_splash_id);
-    let source_id = icon_source.as_deref().and_then(splash_id_from_source);
-    let has_explicit_pick = champion
-        .map(|value| !value.trim().is_empty())
-        .unwrap_or(false);
-    let supported = if snapshot_found && has_explicit_pick {
-        pick_id
-    } else if snapshot_found {
-        None
-    } else {
-        source_id
-    };
-    let stale_owned_source = snapshot_found && supported.is_none() && source_id.is_some();
-
-    let icon_replaced = if let Some(champion_id) = supported {
-        let splash_asset = splash_asset(champion_id).unwrap_or_default();
-        apply_card_illustration(root, side, &prefix, splash_asset)
-    } else {
-        restore_native_card_layout(root, side, &prefix);
-        false
-    };
-
-    // The direct ImageRunner replacement is the primary route and uses the
-    // node the game already renders.  Keep the five static sibling images as a
-    // conservative fallback for SDK fixtures where ImageRunner downcast is not
-    // available, while preserving stock actor portraits for every other hero.
-    let native_source_visible = supported.is_none() && !stale_owned_source;
-    set_visible(
-        root,
-        &format!("{prefix}.champion"),
-        native_source_visible || icon_replaced,
+fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
+    // The reference mod uses `main.header.bp_settings` as its BP-page marker.
+    // Our minimal layout intentionally has no settings button, so the native
+    // blue/red pick containers are the equivalent scene guard.
+    let bp_ui_found = ui.query("main.blue_picks").is_some() || ui.query("main.red_picks").is_some();
+    let command_count: usize = state.commands.values().map(Vec::len).sum();
+    write_bp_render_telemetry_once(
+        "scan",
+        "",
+        None,
+        "",
+        "",
+        &format!(
+            "bp_ui_found={bp_ui_found};passes={};commands={command_count}",
+            state.commands.len()
+        ),
     );
-    set_visible(root, &icon_query, native_source_visible || icon_replaced);
-
-    for (champion_id, node_id, _, _) in SPLASH_SPECS {
-        set_visible(
-            root,
-            &format!("{prefix}.{node_id}"),
-            !icon_replaced && supported == Some(champion_id),
-        );
-    }
-
-    if icon_source.is_some() || champion.is_some() {
-        write_bp_telemetry_once(
-            side,
-            slot_index,
-            snapshot_found,
-            champion.unwrap_or(""),
-            pick_id.unwrap_or(""),
-            icon_source.as_deref().unwrap_or(""),
-            source_id.unwrap_or(""),
-            supported.unwrap_or(""),
-            icon_replaced,
-        );
-    }
-}
-
-fn visit_nodes_with_id_mut<F>(root: &mut Node, id: &str, visitor: &mut F)
-where
-    F: FnMut(&mut Node),
-{
-    if root.id == id {
-        visitor(root);
+    if !bp_ui_found {
         return;
     }
-    for child in &mut root.child {
-        visit_nodes_with_id_mut(child, id, visitor);
+
+    for (pass, commands) in &mut state.commands {
+        let map_width = state
+            .map_size
+            .get(pass)
+            .map(|(width, _)| *width)
+            .unwrap_or(1920.0);
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                z,
+                rot,
+                left,
+                right,
+                top,
+                bottom,
+                pivot_x,
+                pivot_y,
+                skew_x,
+                sample_nearest,
+                flip_x,
+                flip_y,
+                ..
+            } = command
+            else {
+                continue;
+            };
+
+            let Some(champion_id) = splash_id_from_source(texture) else {
+                continue;
+            };
+            let Some(side) = bp_side_from_geometry(*x, *y, *h, map_width) else {
+                write_bp_render_telemetry_once(
+                    "candidate_skip",
+                    "",
+                    None,
+                    texture,
+                    "",
+                    &format!(
+                        "champion={champion_id};pass={pass};map_width={map_width:.1};geometry={x:.1},{y:.1},{w:.1},{h:.1}"
+                    ),
+                );
+                continue;
+            };
+            let Some(slot_index) = bp_slot_from_geometry(*y, *h) else {
+                continue;
+            };
+            let Some(asset) = splash_asset(champion_id) else {
+                continue;
+            };
+
+            let original_texture = texture.clone();
+            let original_geometry = (*x, *y, *w, *h);
+            *texture = asset.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1420.0;
+            texture_rect.h = 860.0;
+            *x = match side {
+                BpRenderSide::Blue => original_geometry.0 - 145.0,
+                BpRenderSide::Red => original_geometry.0 - 6.0,
+            };
+            // BVP's own 50px-header layout maps native icon y=50 to overlay
+            // y=61. Our game keeps the stock 97px header, so preserve the same
+            // +11px card-relative offset instead of incorrectly forcing y=61.
+            *y = original_geometry.1 + 11.0;
+            *w = 284.0;
+            *h = 172.0;
+            *z = 200;
+            *rot = 0.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *pivot_x = 0.0;
+            *pivot_y = 0.0;
+            *skew_x = 0.0;
+            *sample_nearest = false;
+            *flip_x = side == BpRenderSide::Red;
+            *flip_y = false;
+
+            write_bp_render_telemetry_once(
+                "rewrite",
+                side.as_str(),
+                Some(slot_index),
+                &original_texture,
+                asset,
+                &format!(
+                    "champion={champion_id};pass={pass};map_width={map_width:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
+                    original_geometry.0,
+                    original_geometry.1,
+                    original_geometry.2,
+                    original_geometry.3,
+                    *x,
+                    *y,
+                    *flip_x,
+                ),
+            );
+        }
     }
+}
+
+fn bp_side_from_geometry(x: f32, y: f32, height: f32, map_width: f32) -> Option<BpRenderSide> {
+    if !(40.0..=960.0).contains(&y) || !(100.0..=250.0).contains(&height) {
+        return None;
+    }
+    // BVP's absolute 1585..2100 red range assumes a 1920-wide render map.
+    // The game can render BP at narrower widths (for example 1618px), so keep
+    // the same 335px edge band relative to the active render pass instead.
+    let right_edge_start = (map_width - 335.0).max(335.0);
+    if (0.0..=335.0).contains(&x) {
+        Some(BpRenderSide::Blue)
+    } else if (right_edge_start..=(map_width + 180.0)).contains(&x) {
+        Some(BpRenderSide::Red)
+    } else {
+        None
+    }
+}
+
+fn bp_slot_from_geometry(y: f32, height: f32) -> Option<usize> {
+    let raw = ((y + height * 0.5 - 60.0) / 188.0).floor();
+    if raw < 0.0 {
+        return None;
+    }
+    let slot = raw as usize;
+    (slot < PICK_SLOT_LIMIT).then_some(slot)
 }
 
 fn splash_asset(champion_id: &str) -> Option<&'static str> {
     SPLASH_SPECS
         .iter()
-        .find(|(candidate, _, _, _)| *candidate == champion_id)
-        .map(|(_, _, _, asset)| *asset)
-}
-
-fn canonical_splash_id(value: &str) -> Option<&'static str> {
-    let value = value.trim();
-    if value.is_empty() {
-        return None;
-    }
-    // Shen occupies the original Android/001 design slot in this pack, while
-    // the registered data champion uses the stable `lol_shen` id.
-    if value == "android" || value.ends_with(":android") || value.ends_with("/android") {
-        return Some("lol_shen");
-    }
-    SPLASH_SPECS.iter().find_map(|(champion_id, _, _, _)| {
-        (value == *champion_id
-            || value.ends_with(&format!(":{champion_id}"))
-            || value.ends_with(&format!("/{champion_id}")))
-        .then_some(*champion_id)
-    })
+        .find(|(candidate, _)| *candidate == champion_id)
+        .map(|(_, asset)| *asset)
 }
 
 fn splash_id_from_source(source: &str) -> Option<&'static str> {
-    SPLASH_SPECS
-        .iter()
-        .find(|(_, _, actor_marker, splash_asset)| {
-            source.contains(actor_marker) || source == *splash_asset
-        })
-        .map(|(champion_id, _, _, _)| *champion_id)
-}
-
-fn image_source(root: &mut Node, query: &str) -> Option<String> {
-    query_anywhere_mut(root, query)
-        .and_then(|node| node.runner_as_mut::<ImageRunner>())
-        .map(|image| image.style.normal.source.clone())
-}
-
-fn set_pixel_layout(node: &mut Node, x: f32, y: f32, width: f32, height: f32) {
-    node.layout.set_all(|layout| {
-        layout.x = Length::Pixel(x);
-        layout.y = Length::Pixel(y);
-        layout.width = Length::Pixel(width);
-        layout.height = Length::Pixel(height);
-    });
-}
-
-fn apply_card_illustration(root: &mut Node, side: &str, prefix: &str, asset: &str) -> bool {
-    if asset.is_empty() {
-        return false;
-    }
-    let champion_query = format!("{prefix}.champion");
-    let icon_query = format!("{champion_query}.icon");
-
-    // BanPick View Plus proves that the stable runtime surface is the stock
-    // `done.champion.icon` ImageRunner.  Expand that existing surface to a
-    // 284x172 inset card instead of depending on extra sibling visibility.
-    // Preserve the 15px team-colour strip: it is on the left for blue and on
-    // the right for red. These are the same 284x172 card dimensions proven by
-    // the production BanPick View Plus implementation.
-    let card_x = if side == "red" { 0.0 } else { 15.0 };
-    if let Some(champion_node) = query_anywhere_mut(root, &champion_query) {
-        set_pixel_layout(champion_node, card_x, 1.0, 284.0, 172.0);
-        champion_node.visible = true;
-    }
-    let Some(icon_node) = query_anywhere_mut(root, &icon_query) else {
-        return false;
-    };
-    set_pixel_layout(icon_node, 0.0, 0.0, 284.0, 172.0);
-    icon_node.visible = true;
-    let Some(image) = icon_node.runner_as_mut::<ImageRunner>() else {
-        return false;
-    };
-    let asset = asset.to_owned();
-    image
-        .style
-        .set_all(|property| property.source = asset.clone());
-    true
-}
-
-fn restore_native_card_layout(root: &mut Node, side: &str, prefix: &str) {
-    let champion_query = format!("{prefix}.champion");
-    let icon_query = format!("{champion_query}.icon");
-    let native_x = if side == "red" { 6.0 } else { 160.0 };
-    if let Some(champion_node) = query_anywhere_mut(root, &champion_query) {
-        set_pixel_layout(champion_node, native_x, -10.0, 137.0, 184.0);
-    }
-    if let Some(icon_node) = query_anywhere_mut(root, &icon_query) {
-        set_pixel_layout(icon_node, 0.0, 0.0, 137.0, 172.0);
+    // Mirror Ban/Pick View Plus exactly: find the first `/champions/` marker,
+    // keep the entire suffix, and only strip a terminal `#sheet`. The aliases
+    // below bridge our visual atlas names to the stable champion data ids.
+    let marker = "/champions/";
+    let marker_end = source.find(marker)? + marker.len();
+    let key = source[marker_end..]
+        .strip_suffix("#sheet")
+        .unwrap_or(&source[marker_end..]);
+    match key {
+        "shen" | "lol_shen" => Some("lol_shen"),
+        "lucian" | "archer" => Some("archer"),
+        "orianna" | "barrier_magician" => Some("barrier_magician"),
+        "briar" | "berserker" => Some("berserker"),
+        "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
+        _ => None,
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn write_bp_telemetry_once(
+fn write_bp_render_telemetry_once(
+    event: &str,
     side: &str,
-    slot_index: usize,
-    snapshot_found: bool,
-    raw_pick: &str,
-    pick_id: &str,
-    icon_source: &str,
-    source_id: &str,
-    selected_id: &str,
-    icon_replaced: bool,
+    slot_index: Option<usize>,
+    source: &str,
+    target: &str,
+    detail: &str,
 ) {
-    let signature = format!(
-        "{side}\t{slot_index}\t{snapshot_found}\t{raw_pick}\t{pick_id}\t{icon_source}\t{source_id}\t{selected_id}\t{icon_replaced}"
-    );
+    let signature = format!("{event}\t{side}\t{slot_index:?}\t{source}\t{target}\t{detail}");
     let seen = BP_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()));
     let Ok(mut seen) = seen.lock() else {
         return;
@@ -681,24 +610,18 @@ fn write_bp_telemetry_once(
         return;
     };
     if new_file {
-        let _ = writeln!(
-            file,
-            "unix_ms\tside\tslot\tsnapshot_found\traw_pick\tpick_id\ticon_source\tsource_id\tselected_id\ticon_replaced"
-        );
+        let _ = writeln!(file, "unix_ms\tevent\tside\tslot\tsource\ttarget\tdetail");
     }
     let _ = writeln!(
         file,
-        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+        "{}\t{}\t{}\t{}\t{}\t{}\t{}",
         unix_millis(),
+        sanitize_telemetry(event),
         sanitize_telemetry(side),
-        slot_index,
-        snapshot_found,
-        sanitize_telemetry(raw_pick),
-        sanitize_telemetry(pick_id),
-        sanitize_telemetry(icon_source),
-        sanitize_telemetry(source_id),
-        sanitize_telemetry(selected_id),
-        icon_replaced,
+        slot_index.map_or_else(String::new, |slot| slot.to_string()),
+        sanitize_telemetry(source),
+        sanitize_telemetry(target),
+        sanitize_telemetry(detail),
     );
 }
 
