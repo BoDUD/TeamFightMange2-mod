@@ -3,9 +3,9 @@ pick_slot:color_icon_button {
   height: 174px;
 
   btn: {
-    color: #00000000;
+    color: #315b7dff;
     stroke: 1;
-    back_color: #1d1f2cff;
+    back_color: #07121ee8;
     rounding: Uniform {
       rounding: 8;
     }
@@ -13,7 +13,7 @@ pick_slot:color_icon_button {
 
   hover: {
     btn: {
-      color: #e8e8e8ff;
+      color: #c89b3cff;
     }
   }
 
@@ -27,7 +27,7 @@ pick_slot:color_icon_button {
     height: 174px;
 
     #bar:color {
-      color: #5873ffff;
+      color: #2d9cdbff;
       width: 15px;
       anchor_y: 0.5;
       pivot_y: 0.5;
@@ -113,7 +113,7 @@ pick_slot:color_icon_button {
     height: 174px;
 
     #bar:color {
-      color: #e8e8e8ff;
+      color: #c89b3cff;
       width: 15px;
       anchor_y: 0.5;
       pivot_y: 0.5;
@@ -198,7 +198,7 @@ pick_slot:color_icon_button {
     height: 174px;
 
     #bar:color {
-      color: #5873ffff;
+      color: #2d9cdbff;
       width: 15px;
       anchor_y: 0.5;
       pivot_y: 0.5;

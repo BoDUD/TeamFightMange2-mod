@@ -273,6 +273,51 @@
       "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
     },
     {
+      "path": "aseprite_resources/ingame/5v5/background_5v5.png",
+      "size": 2545753,
+      "sha256": "c1e03e58f0541f3554dc4e59babba0e65f7b5e268198b41a36120800d5841dcc"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
+      "size": 1910960,
+      "sha256": "eee5fec3cfb393028eebb21aa6e18e602207928e31ef1fcb93c814b1050ef961"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
+      "size": 14998,
+      "sha256": "bd63c315dc9cf80a283f2e04000327454ac5e8c5f5e902a2e05e6fd30e87ce3b"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+      "size": 188697,
+      "sha256": "ba48da9f62075971693d8f2c8dcec103ba63618aef9c3482ace611e7f8cd95cb"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
+      "size": 273,
+      "sha256": "6d3db80d1d989d282da369b19dc212452d7d444c953f8782e624120fbc7431b7"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
+      "size": 151,
+      "sha256": "9751dfcd50e3d3085f0ba534606c75f953dce1a70a1a03905718b10f0088582e"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
+      "size": 1564268,
+      "sha256": "1397d8f761f8490e2d271265b766f2e1c89c4e0ca8479baffbab5e6260bd69b3"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
+      "size": 1351297,
+      "sha256": "8080611994c11592befdaf3444921ae5291764512498f3af1936777a44fb4cdc"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
+      "size": 17148,
+      "sha256": "ff8148e4be783d4bdfcc39ec4d44d78d9f789c37f3c91d587e0fcad3e35ed04a"
+    },
+    {
       "path": "aseprite_resources/ingame/bee#anim.fanim",
       "size": 7511,
       "sha256": "5136841cb8707d2dd9511dc9b688c5cafd028bdf9aea5755358ff6e494b8739e"
@@ -449,8 +494,8 @@
     },
     {
       "path": "aseprite_resources/ingame/mushroom#sheet.png",
-      "size": 128134,
-      "sha256": "412210403433a486df4c21b3962b17e012bc43165c266e381c70e300db589810"
+      "size": 80579,
+      "sha256": "222067444c6513b882d39f86b9f240a660d5de7eb4f6dd6c77a686ab4b9e2614"
     },
     {
       "path": "aseprite_resources/ingame/red_nexus#anim.fanim",
@@ -659,18 +704,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 414208,
-      "sha256": "c42fd95438bb25d1a9e2478cf67d5c9ad0473c0ea38d543299fe1887005bc96f"
+      "size": 418304,
+      "sha256": "828622e8d39115b118bf7d00b1e07daeb8d0a3c595de61d96f5e1677f0b95fcf"
     },
     {
       "path": "mod.mod_info",
-      "size": 1225,
-      "sha256": "cdcdf438d3805aaa5af791152a5f6de55a77d5f4cc551230d4c04fdaab19b8a1"
+      "size": 1144,
+      "sha256": "c3b3b00e87c1790aa0dae38c4cff5e87e3232963164ede758bafa4657fe015d0"
     },
     {
       "path": "mod.override_info",
-      "size": 26589,
-      "sha256": "4863e2560f0362543d36cb05684b6dcdef3c2b2f0ce03aa79171c6547be082ea"
+      "size": 28221,
+      "sha256": "21b60500baff2bf273dd8ce664e73fc8fc84c75c7ac1142c7aed341303627926"
     },
     {
       "path": "sound/sfx/baron_attack_left.sound_info",
@@ -1148,6 +1193,11 @@
       "sha256": "15472165d0a7db9f76281085e677691d278dfa79147b9c53d572399ea7c9c87a"
     },
     {
+      "path": "ui/banpick/lol_bp_background.png",
+      "size": 2192114,
+      "sha256": "38d2dd3c67ca97f8ad08b988fb73ba73849064a1fe02f9839f143cfbc2a2f4bd"
+    },
+    {
       "path": "ui/champion_fullbody/archer.png",
       "size": 16516,
       "sha256": "ac58c44215938bcb6021ad83682312404d05c5fb5c8e65b5abe4fb4e30db5681"
@@ -1215,12 +1265,17 @@
     {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
       "size": 10529,
-      "sha256": "53c9f230c975da6f7c7b03981abf2cdfb7c12946d1528b12bd373262dae6a283"
+      "sha256": "a9c2206fd754cb0847d3137daf1984644ad59b0fccdda37ca49b2b7fc91560f8"
+    },
+    {
+      "path": "ui/layout/banpick/layout.ui",
+      "size": 67744,
+      "sha256": "cbe459f7a5cfcd871fa3015d8f3a5d854184670159e1d94d437f4374df4fda68"
     },
     {
       "path": "ui/layout/banpick/red_pick_slot.ui",
       "size": 10627,
-      "sha256": "fcabba9f1c40578b57724e4e5446ebaf39efa952af630abe2a190551b810d66f"
+      "sha256": "1c3d9a5b23b14494741d6c53393e2991e7f9dc7e30829902263b7c3ea893888a"
     },
     {
       "path": "ui/layout/champion_info_component/champion_slot.ui",

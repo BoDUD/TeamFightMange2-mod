@@ -4334,6 +4334,26 @@ def validate_objective_and_wolf_motion_qa() -> None:
             bool(static_checks) and all(value is True for value in static_checks.values()),
             f"{record.get('runtime_asset', 'unknown')}: small-jungle QA contains a failed check",
         )
+
+    gromp_records = [record for record in assets if record.get("runtime_asset") == "mushroom"]
+    check(len(gromp_records) == 1, "small-jungle QA must contain exactly one Gromp/mushroom record")
+    if len(gromp_records) == 1:
+        gromp = gromp_records[0]
+        check(
+            gromp.get("pack", {}).get("max_runtime_visible_envelope") == [72, 50],
+            "Gromp must use the reduced 72x50 visible envelope",
+        )
+        check(gromp.get("pack", {}).get("cell_size") == 97, "Gromp 97px frame anchor changed")
+        check(
+            gromp.get("pack", {}).get("baseline_exclusive") == 78,
+            "Gromp baseline anchor changed",
+        )
+        runtime_tags = gromp.get("runtime", {}).get("tags", {})
+        check(
+            {name: tag.get("frame_count") for name, tag in runtime_tags.items()}
+            == {"idle": 4, "dead": 4, "attack": 5, "run": 8},
+            "Gromp native action counts changed",
+        )
     by_runtime = {
         record.get("runtime_asset"): record
         for record in assets
@@ -4408,6 +4428,69 @@ def validate_objective_and_wolf_motion_qa() -> None:
         )
 
 
+def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
+    map_qa_path = MOD_ROOT / "qa/quality_map_imagegen_pack.json"
+    check(map_qa_path.is_file(), "quality-map ImageGen QA record is missing")
+    if map_qa_path.is_file():
+        map_qa = load_json("qa/quality_map_imagegen_pack.json")
+        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v1", "quality-map QA schema changed")
+        static_checks = map_qa.get("static_checks", {})
+        check(bool(static_checks) and all(static_checks.values()), "quality-map QA contains a failed check")
+        check(all(map_qa.get("mask_checks", {}).values()), "quality-map native alpha footprint changed")
+        runtime = map_qa.get("runtime", {})
+        expected_map_assets = {
+            "background_5v5": [1280, 1280],
+            "wall_5v5": [1280, 1280],
+            "wall_5v5_front": [1280, 1280],
+            "wall_shadow_5v5": [1280, 1280],
+            "bush_5v5": [1280, 1280],
+            "bush_shadow_5v5": [1280, 1280],
+            "tower_shadow": [23, 24],
+            "nexus_shadow": [54, 30],
+            "minimap_5v5_bg": [320, 320],
+        }
+        for name, dimensions in expected_map_assets.items():
+            record = runtime.get(name, {})
+            check(record.get("dimensions") == dimensions, f"{name}: quality-map dimensions changed")
+            validate_recorded_file(record, f"quality-map {name}")
+            key = f"asset/base/aseprite_resources/ingame/5v5/{name}"
+            check(
+                override.get(key)
+                == {
+                    "remapping": key.replace("asset/base/", "asset/lol_mod/", 1),
+                    "type": "override",
+                },
+                f"{name}: quality-map override is missing or incorrect",
+            )
+    check("asset/base/setting/map_setting" not in override, "quality map must never override map_setting")
+    check(
+        "asset/base/aseprite_resources/ingame/minimap_5v5#sheet" not in override,
+        "quality map must preserve dynamic minimap markers",
+    )
+    check(
+        "asset/base/aseprite_resources/ingame/minimap_5v5#data" not in override,
+        "quality map must preserve dynamic minimap marker data",
+    )
+
+    bp_qa_path = MOD_ROOT / "qa/quality_bp_skin_imagegen_pack.json"
+    check(bp_qa_path.is_file(), "BP-skin ImageGen QA record is missing")
+    if bp_qa_path.is_file():
+        bp_qa = load_json("qa/quality_bp_skin_imagegen_pack.json")
+        check(bp_qa.get("schema") == "lol_mod.quality_bp_skin_imagegen_pack.v1", "BP-skin QA schema changed")
+        checks = bp_qa.get("static_checks", {})
+        check(bool(checks) and all(checks.values()), "BP-skin QA contains a failed check")
+        check(all(bp_qa.get("geometry_contract", {}).values()), "BP-skin native layout geometry changed")
+        validate_recorded_file(bp_qa.get("source", {}), "BP-skin ImageGen source")
+        runtime = bp_qa.get("runtime", {})
+        check(runtime.get("dimensions") == [1920, 1080], "BP-skin runtime background must be 1920x1080")
+        validate_recorded_file(runtime, "BP-skin runtime background")
+        layout = bp_qa.get("layout", {})
+        check(
+            layout.get("restored_native_sha256") == layout.get("native_baseline_normalized_sha256"),
+            "BP-skin layout contains changes outside the audited skin delta",
+        )
+
+
 def validate_manifest() -> None:
     path = MOD_ROOT / "build_manifest.json"
     check(path.is_file(), "build_manifest.json is missing; run build_lol_mod.py")
@@ -4449,10 +4532,11 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.6", "lol_mod version must be 0.7.6")
+    check(mod_info.get("version") == "0.7.7", "lol_mod version must be 0.7.7")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()
+    validate_quality_map_and_bp_skin(override)
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()

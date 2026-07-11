@@ -105,8 +105,12 @@ SPECS = (
         display_name="Gromp",
         runtime_name="mushroom",
         cell_size=97,
-        max_visible_width=93,
-        max_visible_height=76,
+        # Keep the proven 97px frame and baseline so the camp anchor cannot
+        # move, but reduce Gromp's visible body/VFX envelope by roughly 23%.
+        # The prior 93px attack silhouette overwhelmed the native camp; 72px
+        # remains slightly larger than Red Brambleback without filling it.
+        max_visible_width=72,
+        max_visible_height=50,
         baseline=78,
         sequences={
             "idle": [0, 1, 2, 3],

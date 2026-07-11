@@ -34,6 +34,8 @@ QUALITY_BUILDERS = (
     "pack_quality_objective_ui.py",
     "pack_quality_towers.py",
     "pack_quality_nexus.py",
+    "pack_quality_map.py",
+    "pack_quality_bp_skin.py",
 )
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"

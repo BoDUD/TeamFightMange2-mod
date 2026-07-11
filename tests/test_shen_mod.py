@@ -39,7 +39,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.7.6"
+    assert mod_info["version"] == "0.7.7"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -98,12 +98,11 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "fn ui_tree_contains_id(" in source
     assert 'ui_tree_contains_id(&ui.root, "blue_picks")' in source
     assert 'ui_tree_contains_id(&ui.root, "red_picks")' in source
-    assert "let mut overlays = Vec::new()" in source
     assert "let mut overlay = (*command).clone()" in source
-    assert "overlays.push(overlay)" in source
+    assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.7.6;root=' in source
+    assert '"version=0.7.7;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -120,8 +119,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "texture_rect.h = 1.0" in source
     assert "texture_rect.w = 1420.0" not in source
     assert "texture_rect.h = 860.0" not in source
-    assert "original_geometry.1 + 11.0" in source
-    assert "*w = 284.0" in source and "*h = 172.0" in source
+    assert "*w = BP_CARD_WIDTH" in source and "*h = BP_CARD_HEIGHT" in source
     assert "*z = 200" in source
     assert "*flip_x = side == BpRenderSide::Red" in source
     assert "done.champion.icon" not in source
@@ -170,6 +168,49 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
                 "remapping": key.replace("asset/base/", "asset/lol_mod/", 1),
                 "type": "override",
             }
+
+
+def test_bp_overlay_is_card_anchored_and_deduplicated() -> None:
+    source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
+    rewrite = source.split("fn rewrite_bp_render_commands", 1)[1].split(
+        "\nfn texture_source", 1
+    )[0]
+
+    # Ban/Pick View Plus uses a blue left anchor at x=15 and a flipped red
+    # right anchor at x=1905 on 1920px. Slot y is 98/286/474/662/850.
+    assert "const BP_CARD_WIDTH: f32 = 284.0;" in source
+    assert "const BP_CARD_HEIGHT: f32 = 172.0;" in source
+    assert "const BP_CARD_EDGE_INSET: f32 = 15.0;" in source
+    assert "const BP_CARD_TOP: f32 = 98.0;" in source
+    assert "const BP_CARD_STEP_Y: f32 = 188.0;" in source
+    assert "BpRenderSide::Blue => BP_CARD_EDGE_INSET" in source
+    assert "BpRenderSide::Red => map_width - BP_CARD_EDGE_INSET" in source
+    assert "BP_CARD_TOP + BP_CARD_STEP_Y * slot_index as f32" in source
+    assert "let target_x = bp_overlay_x(side, map_width);" in rewrite
+    assert "let target_y = bp_overlay_y(slot_index);" in rewrite
+    assert "*w = BP_CARD_WIDTH;" in rewrite
+    assert "*h = BP_CARD_HEIGHT;" in rewrite
+
+    # Never inherit the actor's slide/scale transition geometry again.
+    for old_expression in (
+        "original_geometry.0 - 145.0",
+        "original_geometry.0 - 6.0",
+        "original_geometry.1 + 11.0",
+    ):
+        assert old_expression not in rewrite
+
+    # Each pass owns ten unique candidates: blue/red x five slots. Only the
+    # command nearest the settled actor rectangle produces the final overlay.
+    assert "Self::Blue => 0" in source
+    assert "Self::Red => PICK_SLOT_LIMIT" in source
+    assert "side_offset + slot_index" in source
+    assert "(0..PICK_SLOT_LIMIT * 2).map(|_| None).collect()" in rewrite
+    assert "let candidate_index = side.candidate_index(slot_index);" in rewrite
+    assert "score < candidate.score" in rewrite
+    assert "candidates[candidate_index] = Some(BpOverlayCandidate" in rewrite
+    assert "for candidate in candidates.into_iter().flatten()" in rewrite
+    assert rewrite.count("overlays.push(candidate.overlay);") == 1
+    assert "overlays.push(overlay);" not in rewrite
 
 
 def test_override_metadata_uses_registered_sprite_sheet_extension() -> None:

@@ -1,0 +1,386 @@
+{
+  "schema": "lol_mod.quality_map_imagegen_pack.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_map.py",
+  "imagegen_mode": "built-in image generation/editing",
+  "prompts": {
+    "background": "Repaint the supplied native 1280x1280 Teamfight Manager 2 map as a refined, original League-inspired fantasy MOBA rift while preserving every lane, jungle path, water pool, tower pad, camp pad, epic pit, base platform, boundary, and empty margin. Change surface art only; do not move, add, or remove any structural feature.",
+    "wall": "Seamless orthographic top-down blue-gray slate cliff masonry with moss, roots, and restrained cyan mineral glints; original hand-painted MOBA environment texture.",
+    "bush": "Seamless orthographic top-down dense dark emerald brush with fine grass, ferns, blue-violet flowers, and controlled shadow pockets; original hand-painted MOBA texture."
+  },
+  "sources": {
+    "background": {
+      "path": "source/imagegen/map/rift_background_5v5_v2_source.png",
+      "size_bytes": 2293863,
+      "sha256": "0d322f23ca06910b288dfc602e233023aa5e3adbfecddadb5d21b5268e31d2bb",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    },
+    "wall": {
+      "path": "source/imagegen/map/rift_wall_texture_v2_source.png",
+      "size_bytes": 2801178,
+      "sha256": "0b77fc2892e09c00802adf36bb0e5348e8b8878acef5a9b11a5861aef7b9bf23",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    },
+    "bush": {
+      "path": "source/imagegen/map/rift_bush_texture_v2_source.png",
+      "size_bytes": 3063525,
+      "sha256": "c8e51c00debaf20c87b78efbfd029665aa00c83773b669ec4302d41cf01d38ad",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    }
+  },
+  "native_alpha_masks": {
+    "wall_5v5": {
+      "path": "source/native/map_masks/native_wall_5v5_alpha_reference.png",
+      "size_bytes": 16420,
+      "sha256": "d8d17a3a1dd32723892e5cf585518f6cb6bf3d4de0a4b0ff77a030e0858b4869",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "L",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1347126,
+        "partial_pixels": 0,
+        "opaque_pixels": 291274
+      }
+    },
+    "wall_5v5_front": {
+      "path": "source/native/map_masks/native_wall_5v5_front_alpha_reference.png",
+      "size_bytes": 9964,
+      "sha256": "ba86100316133dab98f00247330b8fa4f40e71a67089c6cd5ecb2c17e1987436",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1582378,
+        "partial_pixels": 0,
+        "opaque_pixels": 56022
+      }
+    },
+    "wall_shadow_5v5": {
+      "path": "source/native/map_masks/native_wall_shadow_5v5_alpha_reference.png",
+      "size_bytes": 20409,
+      "sha256": "5378cd19824b507a5dcde811d081e2bf2838280a7941f0efa4e33254710c6a51",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1493669,
+        "partial_pixels": 144731,
+        "opaque_pixels": 0
+      }
+    },
+    "bush_5v5": {
+      "path": "source/native/map_masks/native_bush_5v5_alpha_reference.png",
+      "size_bytes": 9216,
+      "sha256": "dfd053132bee8f3fa77b999535cc5136f77842491c3bfab6e1bcefdc920b715b",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "L",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1576113,
+        "partial_pixels": 0,
+        "opaque_pixels": 62287
+      }
+    },
+    "bush_shadow_5v5": {
+      "path": "source/native/map_masks/native_bush_shadow_5v5_alpha_reference.png",
+      "size_bytes": 16774,
+      "sha256": "17ba9c054b5a294e77cb0b140b4284ece974bcc3ece0030d0bce3eefb0099b02",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1607657,
+        "partial_pixels": 30743,
+        "opaque_pixels": 0
+      }
+    },
+    "tower_shadow": {
+      "path": "source/native/map_masks/native_tower_shadow_alpha_reference.png",
+      "size_bytes": 154,
+      "sha256": "b34ad0eb0776c3b33cf25c8ec65f4a6ff5cccc14e9d6846b8a5766f37b68c79d",
+      "dimensions": [
+        23,
+        24
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 197,
+        "partial_pixels": 0,
+        "opaque_pixels": 355
+      }
+    },
+    "nexus_shadow": {
+      "path": "source/native/map_masks/native_nexus_shadow_alpha_reference.png",
+      "size_bytes": 298,
+      "sha256": "187a02c58fd7e59238ebaa12507005ab2ed6bf31dc102b3c56d2a9c9b40bfbe2",
+      "dimensions": [
+        54,
+        30
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 894,
+        "partial_pixels": 0,
+        "opaque_pixels": 726
+      }
+    }
+  },
+  "runtime": {
+    "background_5v5": {
+      "path": "aseprite_resources/ingame/5v5/background_5v5.png",
+      "size_bytes": 2545753,
+      "sha256": "c1e03e58f0541f3554dc4e59babba0e65f7b5e268198b41a36120800d5841dcc",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1638400
+      }
+    },
+    "wall_5v5": {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
+      "size_bytes": 1564268,
+      "sha256": "1397d8f761f8490e2d271265b766f2e1c89c4e0ca8479baffbab5e6260bd69b3",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1347126,
+        "partial_pixels": 0,
+        "opaque_pixels": 291274
+      }
+    },
+    "wall_5v5_front": {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
+      "size_bytes": 1351297,
+      "sha256": "8080611994c11592befdaf3444921ae5291764512498f3af1936777a44fb4cdc",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1582378,
+        "partial_pixels": 0,
+        "opaque_pixels": 56022
+      }
+    },
+    "wall_shadow_5v5": {
+      "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
+      "size_bytes": 17148,
+      "sha256": "ff8148e4be783d4bdfcc39ec4d44d78d9f789c37f3c91d587e0fcad3e35ed04a",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1493669,
+        "partial_pixels": 144731,
+        "opaque_pixels": 0
+      }
+    },
+    "bush_5v5": {
+      "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
+      "size_bytes": 1910960,
+      "sha256": "eee5fec3cfb393028eebb21aa6e18e602207928e31ef1fcb93c814b1050ef961",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1576113,
+        "partial_pixels": 0,
+        "opaque_pixels": 62287
+      }
+    },
+    "bush_shadow_5v5": {
+      "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
+      "size_bytes": 14998,
+      "sha256": "bd63c315dc9cf80a283f2e04000327454ac5e8c5f5e902a2e05e6fd30e87ce3b",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1607657,
+        "partial_pixels": 30743,
+        "opaque_pixels": 0
+      }
+    },
+    "tower_shadow": {
+      "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
+      "size_bytes": 151,
+      "sha256": "9751dfcd50e3d3085f0ba534606c75f953dce1a70a1a03905718b10f0088582e",
+      "dimensions": [
+        23,
+        24
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 197,
+        "partial_pixels": 0,
+        "opaque_pixels": 355
+      }
+    },
+    "nexus_shadow": {
+      "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
+      "size_bytes": 273,
+      "sha256": "6d3db80d1d989d282da369b19dc212452d7d444c953f8782e624120fbc7431b7",
+      "dimensions": [
+        54,
+        30
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 894,
+        "partial_pixels": 0,
+        "opaque_pixels": 726
+      }
+    },
+    "minimap_5v5_bg": {
+      "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+      "size_bytes": 188697,
+      "sha256": "ba48da9f62075971693d8f2c8dcec103ba63618aef9c3482ace611e7f8cd95cb",
+      "dimensions": [
+        320,
+        320
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 102400
+      }
+    }
+  },
+  "preview": {
+    "path": "qa/quality_map_composite_preview.png",
+    "size_bytes": 652484,
+    "sha256": "634fc624e036ec8091bccb8bbdf814c802097e4fad9625b61179af91b3b818d3",
+    "dimensions": [
+      1024,
+      512
+    ],
+    "mode": "RGBA",
+    "alpha": {
+      "min": 255,
+      "max": 255,
+      "transparent_pixels": 0,
+      "partial_pixels": 0,
+      "opaque_pixels": 524288
+    }
+  },
+  "contracts": {
+    "background_size": [
+      1280,
+      1280
+    ],
+    "minimap_size": [
+      320,
+      320
+    ],
+    "wall_and_bush_geometry": "byte-exact native alpha masks",
+    "tower_circles_and_camp_markers": "baked into image-generated background_5v5",
+    "minimap_source": "downsampled final background plus wall and bush visual layers",
+    "collision_and_spawns": "unchanged asset/base/setting/map_setting"
+  },
+  "mask_checks": {
+    "wall_5v5": true,
+    "wall_5v5_front": true,
+    "wall_shadow_5v5": true,
+    "bush_5v5": true,
+    "bush_shadow_5v5": true,
+    "tower_shadow": true,
+    "nexus_shadow": true
+  },
+  "static_checks": {
+    "background_native_dimensions": true,
+    "minimap_native_dimensions": true,
+    "all_native_alpha_masks_exact": true,
+    "dynamic_minimap_marker_sheet_untouched": true,
+    "map_setting_untouched": true
+  }
+}

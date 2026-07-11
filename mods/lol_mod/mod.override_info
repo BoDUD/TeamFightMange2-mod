@@ -15,6 +15,10 @@
     "remapping": "asset/lol_mod/ui/layout/banpick/red_pick_slot",
     "type": "override"
   },
+  "asset/base/ui/layout/banpick/layout": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/layout",
+    "type": "override"
+  },
   "asset/base/ui/layout/champion_info_component/champion_slot": {
     "remapping": "asset/lol_mod/ui/layout/champion_info_component/champion_slot",
     "type": "override"
@@ -717,6 +721,42 @@
   },
   "asset/base/ui/icons/tower": {
     "remapping": "asset/lol_mod/ui/icons/tower",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/background_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/background_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_5v5_front": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_5v5_front",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_shadow_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_shadow_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/bush_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/bush_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/bush_shadow_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/bush_shadow_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/tower_shadow": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/tower_shadow",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/nexus_shadow": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/nexus_shadow",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/minimap_5v5_bg": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/minimap_5v5_bg",
     "type": "override"
   }
 }

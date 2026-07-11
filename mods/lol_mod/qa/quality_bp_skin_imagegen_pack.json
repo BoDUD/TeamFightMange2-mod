@@ -1,0 +1,56 @@
+{
+  "schema": "lol_mod.quality_bp_skin_imagegen_pack.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_bp_skin.py",
+  "imagegen_mode": "built-in image generation",
+  "prompt": "Original 16:9 premium fantasy MOBA champion-draft background plate: deep navy-black rift stone and mist, cool blue far-left edge, muted crimson far-right edge, thin antique-gold outer accents, and a quiet low-contrast centre. No text, logos, champions, cards, buttons, icons, or copied game UI.",
+  "source": {
+    "path": "source/imagegen/ui/lol_bp_background_v1_source.png",
+    "size_bytes": 1680552,
+    "sha256": "30e39f4944cef7116cfd806f644f4d0a640ac410d434ce9ee21595f0bf8d4b08",
+    "dimensions": [
+      1672,
+      941
+    ],
+    "mode": "RGB"
+  },
+  "runtime": {
+    "path": "ui/banpick/lol_bp_background.png",
+    "size_bytes": 2192114,
+    "sha256": "38d2dd3c67ca97f8ad08b988fb73ba73849064a1fe02f9839f143cfbc2a2f4bd",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "mode": "RGBA"
+  },
+  "layout": {
+    "path": "ui/layout/banpick/layout.ui",
+    "sha256": "cbe459f7a5cfcd871fa3015d8f3a5d854184670159e1d94d437f4374df4fda68",
+    "native_baseline_sha256": "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc",
+    "native_baseline_normalized_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
+    "restored_native_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
+    "allowed_changes": [
+      "one ignore_event image node",
+      "BP-local background/panel/border color values"
+    ]
+  },
+  "geometry_contract": {
+    "header_85": true,
+    "bottom_150": true,
+    "blue_picks_native": true,
+    "red_picks_native": true,
+    "champion_grid_native": true,
+    "champion_info_native": true,
+    "swap_native": true
+  },
+  "static_checks": {
+    "runtime_dimensions_1920x1080": true,
+    "decorative_node_is_noninteractive": true,
+    "decorative_source_is_mod_local": true,
+    "decorative_source_not_champion_scan_candidate": true,
+    "native_geometry_contract": true,
+    "bvp_runtime_nodes_absent": true,
+    "native_layout_restores_after_skin_delta": true,
+    "layout_override_registered": true
+  }
+}

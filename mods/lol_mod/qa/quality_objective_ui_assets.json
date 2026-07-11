@@ -25,8 +25,8 @@
     "infernal_dragon": {
       "sheet": {
         "path": "aseprite_resources/ingame/serpen#sheet.png",
-        "sha256": "ec8a92a96699ab093c71a4250b03f1b99c403c55750c2de8520eec1c5221ab87",
-        "bytes": 89742
+        "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16",
+        "bytes": 89312
       },
       "idle_rect": [
         115,

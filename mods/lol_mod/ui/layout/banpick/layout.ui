@@ -1,0 +1,3519 @@
+main:match_ui {
+  width: 100%;
+  height: 100%;
+
+  #background:color {
+    width: 100%;
+    height: 100%;
+
+    color: #03070eff;
+  }
+
+  #lol_bp_background:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/banpick/lol_bp_background";
+  }
+
+  #header:color {
+    color: #08111dee;
+    width: 100%;
+    height: 85px;
+
+    #step:label {
+      @"asset/base/style/main#label";
+      width: 214px;
+      height: 100%;
+      x:335px;
+
+      align_y: Center;
+
+      text: "test";
+      size: 24;
+    }
+
+    #delegate_btn:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+      x: 15px;
+      y: 23px;
+      width: 285px;
+      height: 40px;
+
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "#asset/base/text/ui?banpick.delegate_to_coach";
+        align_x: Center;
+        align_y: Center;
+        size: 14;
+      }
+    }
+
+    #desc:label {
+      @"asset/base/style/main#label";
+      width: 1084px;
+      height: 100%;
+
+      align_x: Center;
+      align_y: Center;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      text: "test";
+      size: 30;
+
+      #blue_arrow:image {
+        anchor_x: 0;
+        pivot_x: 1;
+        x: 187px;
+
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+
+        width: 40px;
+        height: 40px;
+
+        source: "asset/base/ui/icons/left_arrow";
+        color: #5b73ffff;
+      }
+
+      #red_arrow:image {
+        anchor_x: 1;
+        pivot_x: 0;
+        x: -187px;
+
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+
+        width: 40px;
+        height: 40px;
+
+        source: "asset/base/ui/icons/right_arrow";
+        color: #ef6471ff;
+      }
+    }
+
+    #swap_phase:label {
+      @"asset/base/style/main#label";
+      size: 24;
+
+      pivot_x: 1;
+      anchor_x: 1;
+      x: -43px;
+
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      width: 506px;
+      height: 82px;
+
+      align_x: Right;
+      align_y: Center;
+
+      text: "#asset/base/text/ui?banpick.swap_phase";
+    }
+
+    #phase:color {
+      width: 100%;
+      height: 2px;
+
+      anchor_y: 1;
+      pivot_y: 1;
+    }
+  }
+
+  #bottom:color {
+    color: #08111dee;
+
+    width: 100%;
+    height: 150px;
+
+    anchor_y: 1;
+    pivot_y: 1;
+
+    #matchup:label {
+      @"asset/base/style/main#label";
+      height: 33px;
+      width: 285px;
+
+      anchor_y: 1;
+      pivot_y: 1;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      y: -5px;
+
+      align_x: Center;
+      align_y: Center;
+      color: #e8e8e8ff;
+      size: 18;
+      text: "A vs B";
+    }
+
+    #blue_side:empty {
+      width: 50%;
+      height: 100%;
+
+      #icon_slot:color {
+        anchor_x: 1;
+        pivot_x: 1;
+
+        x: -60px;
+        y: 25px;
+
+        width: 70px;
+        height: 70px;
+
+        color: #1d1f2cff;
+
+        #icon:image {
+          width: 62px;
+          height: 62px;
+
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          source: "asset/base/aseprite_resources/team_logo";
+        }
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 348px;
+        y: 25px;
+
+        width: 422px;
+        height: 50px;
+
+        size: 30;
+
+        align_x: Center;
+      }
+
+      #bans:empty {
+        x: 335px;
+        y: 85px;
+
+        width: 316px;
+        height: 60px;
+
+        child_type: LeftToRight {
+          spacing: 4px;
+        }
+      }
+
+      #sets:empty {
+        x: 780px;
+        y: 121px;
+        width: 52px;
+
+        child_type: LeftToRight {
+          spacing: 2px;
+        }
+      }
+    }
+
+    #red_side:empty {
+      width: 50%;
+      height: 100%;
+      anchor_x: 1;
+      pivot_x: 1;
+
+      #icon_slot:color {
+        color: #1d1f2cff;
+        x: 60px;
+        y: 25px;
+
+        width: 70px;
+        height: 70px;
+
+        #icon:image {
+          width: 62px;
+          height: 62px;
+
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          source: "asset/base/aseprite_resources/team_logo";
+        }
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+
+        anchor_x: 1;
+        pivot_x: 1;
+
+        x: -348px;
+        y: 25px;
+
+        width: 422px;
+        height: 50px;
+
+        size: 30;
+
+        align_x: Center;
+      }
+
+      #bans:empty {
+        x: -335px;
+        y: 85px;
+
+        anchor_x: 1;
+        pivot_x: 1;
+
+        width: 316px;
+        height: 60px;
+
+        child_type: LeftToRight {
+          spacing: 4px;
+        }
+      }
+
+      #sets:empty {
+        anchor_x: 1;
+        pivot_x: 1;
+
+        x: -780px;
+        y: 121px;
+        width: 52px;
+
+        child_type: LeftToRight {
+          spacing: 2px;
+        }
+      }
+
+      #tools_panel:color {
+        anchor_x: 1;
+        pivot_x: 1;
+
+        x: -348px;
+        y: 0px;
+
+        width: 60px;
+        height: 36px;
+
+        visible: false;
+
+        color: #1d1f2cff;
+
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: LeftToRight {
+          spacing: 4px;
+        }
+
+        padding: {
+          left: 4px;
+          top: 6px;
+          right: 4px;
+          bottom: 6px;
+        }
+
+        #chat_btn:button {
+          width: 24px;
+          height: 24px;
+
+          source: "asset/base/ui/icons/chat";
+          color: #a5a5abff;
+
+          hover: {
+            color: #e8e8e8ff;
+          }
+
+          active: {
+            color: #e8e8e8ff;
+          }
+
+          #chat_red_dot:color {
+            width: 14px;
+            height: 14px;
+
+            anchor_x: 1;
+            pivot_x: 0.5;
+            x: -3px;
+
+            anchor_y: 0;
+            pivot_y: 0.5;
+            y: 3px;
+
+            ignore_event: true;
+            visible: false;
+
+            color: #eb3d4dff;
+
+            rounding: Uniform {
+              rounding: 7;
+            }
+          }
+        }
+
+        #chart_btn:button {
+          width: 24px;
+          height: 24px;
+
+          source: "asset/base/ui/icons/chart";
+          color: #a5a5abff;
+
+          hover: {
+            color: #e8e8e8ff;
+          }
+
+          active: {
+            color: #e8e8e8ff;
+          }
+        }
+      }
+
+    }
+
+    #vs:image {
+      source: "asset/base/ui/icons/battle";
+      width: 19.09px;
+      height: 18.54px;
+
+      pivot_x: 0.5;
+      anchor_x: 0.5;
+
+      y: 65px;
+    }
+
+    #need_win:label {
+      @"asset/base/style/main#label";
+      height: 28px;
+      width: 66px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      y: 34px;
+
+      align_x: Center;
+      align_y: Center;
+      color: #e8e8e8ff;
+      size: 18;
+      text: "Bo3";
+    }
+  }
+
+  #blue_picks:empty {
+    y: 97px;
+
+    width: 300px;
+    height: 926px;
+
+    child_type: TopToBottom {
+      spacing: 14px;
+    }
+  }
+
+  #blue_pool:color {
+    width: 300px;
+    height: 46px;
+
+    color: #1d1f2cff;
+
+    anchor_y: 1;
+    pivot_y: 1;
+    y: -6px;
+
+    visible: false;
+
+    rounding: Individual {
+      top_left: 0;
+      top_right: 12;
+      bottom_left: 0;
+      bottom_right: 12;
+    }
+
+    #data:empty {
+      width: 220px;
+      height: 36px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      child_type: LeftToRight {
+        spacing: 10px;
+      }
+    }
+  }
+
+  #red_picks:empty {
+    anchor_x: 1;
+    pivot_x: 1;
+    y: 97px;
+
+    width: 300px;
+    height: 926px;
+
+    child_type: TopToBottom {
+      spacing: 14px;
+    }
+  }
+
+  #red_pool:color {
+    width: 300px;
+    height: 46px;
+
+    color: #1d1f2cff;
+
+    anchor_x: 1;
+    pivot_x: 1;
+    anchor_y: 1;
+    pivot_y: 1;
+    y: -6px;
+
+    visible: false;
+
+    rounding: Individual {
+      top_left: 12;
+      top_right: 0;
+      bottom_left: 12;
+      bottom_right: 0;
+    }
+
+    #data:empty {
+      width: 220px;
+      height: 36px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      child_type: LeftToRight {
+        spacing: 10px;
+      }
+    }
+  }
+
+  #blue_coach_dialogue_tools:empty {
+    width: 212px;
+    height: 36px;
+
+    anchor_y: 1;
+    pivot_y: 1;
+    x: 12px;
+    y: -10px;
+
+    visible: false;
+
+    #history_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-comment-alt";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-comment-alt";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #tooltip_toggle_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 44px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-phone-slash";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-phone-slash";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #chat_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 132px;
+
+      icon: {
+        source: "asset/base/ui/icons/chat";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/chat";
+        color: #d7dbe4ff;
+      }
+
+      #chat_red_dot:color {
+        width: 14px;
+        height: 14px;
+
+        anchor_x: 1;
+        pivot_x: 0.5;
+        x: -3px;
+
+        anchor_y: 0;
+        pivot_y: 0.5;
+        y: 3px;
+
+        ignore_event: true;
+        visible: false;
+
+        color: #eb3d4dff;
+
+        rounding: Uniform {
+          rounding: 7;
+        }
+      }
+    }
+
+    #chart_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 176px;
+
+      icon: {
+        source: "asset/base/ui/icons/chart";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/chart";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #statistics_overlay_toggle_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 88px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-signal-alt-2";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-signal-alt-2";
+        color: #d7dbe4ff;
+      }
+    }
+  }
+
+  #red_coach_dialogue_tools:empty {
+    width: 212px;
+    height: 36px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+    anchor_y: 1;
+    pivot_y: 1;
+    x: -12px;
+    y: -10px;
+
+    visible: false;
+
+    #history_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-comment-alt";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-comment-alt";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #tooltip_toggle_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 44px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-phone-slash";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-phone-slash";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #chat_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 132px;
+
+      icon: {
+        source: "asset/base/ui/icons/chat";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/chat";
+        color: #d7dbe4ff;
+      }
+
+      #chat_red_dot:color {
+        width: 14px;
+        height: 14px;
+
+        anchor_x: 1;
+        pivot_x: 0.5;
+        x: -3px;
+
+        anchor_y: 0;
+        pivot_y: 0.5;
+        y: 3px;
+
+        ignore_event: true;
+        visible: false;
+
+        color: #eb3d4dff;
+
+        rounding: Uniform {
+          rounding: 7;
+        }
+      }
+    }
+
+    #chart_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 176px;
+
+      icon: {
+        source: "asset/base/ui/icons/chart";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/chart";
+        color: #d7dbe4ff;
+      }
+    }
+
+    #statistics_overlay_toggle_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      width: 36px;
+      height: 36px;
+      x: 88px;
+
+      icon: {
+        source: "asset/base/ui/banpick/fi-sr-signal-alt-2";
+        rect: {
+          x: 8px;
+          y: 8px;
+          w: 20px;
+          h: 20px;
+        }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 8px;
+        y: 8px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/banpick/fi-sr-signal-alt-2";
+        color: #d7dbe4ff;
+      }
+    }
+  }
+
+  #coach_dialogue_toast:color {
+    ignore_event: true;
+    width: 520px;
+    height: 118px;
+    visible: false;
+
+    back_color: #161721ff;
+    color: #4a4c56ff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #face_slot:color {
+      x: 12px;
+      y: 40px;
+      width: 38px;
+      height: 38px;
+
+      color: #1d1f2cff;
+
+      rounding: Uniform {
+        rounding: 6;
+      }
+
+      #face:canvas {
+        width: 38px;
+        height: 38px;
+      }
+
+      #face_fade:color {
+        ignore_event: true;
+        width: 38px;
+        height: 38px;
+
+        color: #16172100;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+    }
+
+    #name:label {
+      @"asset/base/style/main#bold_label";
+      x: 60px;
+      y: 8px;
+      width: 440px;
+      height: 22px;
+
+      size: 14;
+      color: #37d5b3ff;
+      align_y: Center;
+      text: "";
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      x: 60px;
+      y: 55px;
+      width: 440px;
+      height: 54px;
+
+      size: 14;
+      color: #e8e8e8ff;
+      line_height: 18;
+      text: "";
+    }
+
+    #entities:empty {
+      x: 60px;
+      y: 31px;
+      width: 440px;
+      height: 22px;
+    }
+  }
+
+  #coach_dialogue_button_tooltip:color {
+    ignore_event: true;
+    visible: false;
+    width: 140px;
+    height: 30px;
+
+    back_color: #161721ff;
+    color: #4a4c56ff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 6;
+    }
+
+    padding: {
+      left: 10px;
+      right: 10px;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 100%;
+
+      size: 13;
+      color: #e8e8e8ff;
+      align_x: Center;
+      align_y: Center;
+      text: "";
+    }
+  }
+
+  #champions_bg:color {
+    width: 1250px;
+    height: 377px;
+
+    x: 335px;
+    y: 145px;
+
+    color: #0a121fed;
+
+    rounding: Uniform {
+      rounding: 12;
+    }
+  }
+
+  #player_turn_highlight:canvas {
+    ignore_event: true;
+    visible: false;
+
+    width: 1256px;
+    height: 383px;
+
+    x: 332px;
+    y: 142px;
+  }
+
+  #timer_area:empty {
+    visible: false;
+    x: 1345px;
+    y: 95px;
+    width: 240px;
+    height: 40px;
+
+    child_type: LeftToRight {
+      spacing: 4px;
+    }
+
+    #timer_icon:image {
+      width: 20px;
+      height: 20px;
+      y: 10px;
+      source: "asset/base/ui/icons/time";
+      color: #e8e8e8ff;
+    }
+
+    #timer_text:label {
+      @"asset/base/style/main#label";
+      width: 42px;
+      height: 40px;
+      y: 1px;
+      size: 20;
+      align_y: Center;
+      text: ": 30";
+    }
+
+    #timer_bar_bg:color {
+      width: 170px;
+      height: 20px;
+      y: 10px;
+      color: #4a4c56ff;
+
+      rounding: Uniform {
+        rounding: 6;
+      }
+
+      #timer_bar:color {
+        width: 170px;
+        height: 20px;
+        color: #37d5b3ff;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+    }
+  }
+
+  #prev_champion_category:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    x: 335px;
+    y: 95px;
+    width: 40px;
+    height: 40px;
+
+    icon: {
+      source: "asset/base/ui/icons/left";
+      rect: {
+        x: 17;
+        y: 16;
+        w: 6;
+        h: 8;
+      }
+    }
+  }
+
+  #champion_category:dropdown {
+    @"asset/base/style/main#dropdown";
+    x: 383px;
+    y: 95px;
+    width: 170px;
+    height: 40px;
+
+    text: {
+      size: 16;
+    }
+
+    item_text: {
+      size: 16;
+    }
+
+    text_layout: {
+      x: 14px;
+      y: 6px;
+      width: 100%;
+      height: 28px;
+    }
+
+    item_layout: {
+      height: 40px;
+      width: 165.5px;
+      x: 14px;
+    }
+
+    item_text_layout: {
+      y: 6px;
+      width: 165.5px;
+      height: 28px;
+    }
+  }
+
+  #next_champion_category:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    x: 561px;
+    y: 95px;
+    width: 40px;
+    height: 40px;
+
+    icon: {
+      source: "asset/base/ui/icons/right";
+      rect: {
+        x: 17;
+        y: 16;
+        w: 6;
+        h: 8;
+      }
+    }
+  }
+
+  #prev_champion_position:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    x: 621px;
+    y: 95px;
+    width: 40px;
+    height: 40px;
+
+    icon: {
+      source: "asset/base/ui/icons/left";
+      rect: {
+        x: 17;
+        y: 16;
+        w: 6;
+        h: 8;
+      }
+    }
+  }
+
+  #champion_position:dropdown {
+    @"asset/base/style/main#dropdown";
+    x: 669px;
+    y: 95px;
+    width: 164px;
+    height: 40px;
+
+    text: {
+      size: 16;
+    }
+
+    item_text: {
+      size: 16;
+    }
+
+    text_layout: {
+      x: 38px;
+      y: 6px;
+      width: 100%;
+      height: 28px;
+    }
+
+    selected_item_icon_layout: {
+      x: 14px;
+      y: 11px;
+      width: 18px;
+      height: 18px;
+    }
+
+    item_icon_layout: {
+      y: 11px;
+      width: 18px;
+      height: 18px;
+    }
+
+    item_layout: {
+      height: 40px;
+      width: 159.5px;
+      x: 14px;
+    }
+
+    item_text_layout: {
+      x: 26px;
+      y: 6px;
+      width: 133.5px;
+      height: 28px;
+    }
+  }
+
+  #next_champion_position:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    x: 841px;
+    y: 95px;
+    width: 40px;
+    height: 40px;
+
+    icon: {
+      source: "asset/base/ui/icons/right";
+      rect: {
+        x: 17;
+        y: 16;
+        w: 6;
+        h: 8;
+      }
+    }
+  }
+
+  #champion_search:text_edit {
+    @"asset/base/style/main#text_edit";
+    x: 901px;
+    y: 95px;
+    width: 248px;
+    height: 40px;
+
+    size: 16;
+    align_y: Center;
+
+    padding: {
+      left: 44px;
+      top: 5px;
+      right: 15px;
+      bottom: 5px;
+    }
+
+    placeholder: "#asset/base/text/ui?banpick.champion_search_placeholder";
+    max_length: 40;
+
+    #icon:image {
+      ignore_event: true;
+      x: -30px;
+      y: 5px;
+      width: 20px;
+      height: 20px;
+
+      source: "asset/base/ui/banpick/fi-rr-search";
+      color: #858d9dff;
+    }
+  }
+
+  #champion_search_clear:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    x: 1157px;
+    y: 95px;
+    width: 40px;
+    height: 40px;
+
+    icon: {
+      source: "asset/base/ui/icons/cross";
+      rect: {
+        x: 12;
+        y: 12;
+        w: 16;
+        h: 16;
+      }
+    }
+  }
+
+  #champion_tier_filter:dropdown {
+    @"asset/base/style/main#dropdown";
+    x: 1217px;
+    y: 95px;
+    width: 108px;
+    height: 40px;
+
+    text: {
+      size: 16;
+    }
+
+    item_text: {
+      size: 16;
+    }
+
+    text_layout: {
+      x: 14px;
+      y: 6px;
+      width: 100%;
+      height: 28px;
+    }
+
+    item_layout: {
+      height: 40px;
+      width: 103.5px;
+      x: 14px;
+    }
+
+    item_text_layout: {
+      y: 6px;
+      width: 103.5px;
+      height: 28px;
+    }
+  }
+
+  #champions:scroll_view {
+    width: 1250px;
+    height: 377px;
+
+    x: 335px;
+    y: 145px;
+
+    speed: 100;
+    bar_width: 8;
+    bar_padding: {
+      top: 10px;
+      bottom: 10px;
+      right: 4px;
+    }
+    bar: {
+      source: "asset/base/sprite/white";
+      color: #37d5b3ff;
+
+      hover: {
+      color: #ecfbf8ff;
+      }
+    }
+
+    back: {
+      source: "asset/base/sprite/white";
+      color: #4a4c56ff;
+    }
+
+    #contents:empty {
+      x: 50px;
+      y: 20px;
+      width: 1151px;
+      height: auto;
+
+      child_type: Table {
+        spacing_x: 10px;
+        spacing_y: 11px;
+      }
+    }
+  }
+
+  #champion_info:empty {
+    width: 1250px;
+    height: 371px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    y:536px;
+
+    #stat:color {
+      color: #0a121fed;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      width: 549px;
+      height: 371px;
+
+      #header:color {
+        color: #07101bf4;
+
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+          bottom_left: 0;
+          bottom_right: 0;
+        }
+        width: 549px;
+        height: 33px;
+      }
+
+    #name:label {
+      @"asset/base/style/main#label";
+      x: 141px;
+      height: 33px;
+      width: 266px;
+
+      align_x: Center;
+      align_y: Center;
+
+      size: 24;
+
+      color: #e8e8e8ff;
+      text: "";
+    }
+
+    #category:label {
+      @"asset/base/style/main#label";
+      x: 407px;
+      width: 131px;
+      height: 33px;
+
+      align_x: Right;
+      align_y: Center;
+
+      size: 18;
+
+      color: #e8e8e8ff;
+      text: "";
+    }
+
+    #stats:empty {
+      width: 529px;
+      height: 318px;
+
+      x: 10px;
+      y: 43px;
+
+      child_type: Table {
+        spacing_x: 9px;
+        spacing_y: 10px;
+      }
+
+      #attack:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "ad_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.attack";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #magic:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "ap_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.ability_power";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #attack_speed:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "attack_speed_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.attack_speed";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #hp:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "hp_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.hp";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #defense:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "armor_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.defence";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #magic_resistance:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "magic resistance_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.magic_resistance";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #range:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "range_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.range";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+      #move_speed:color {
+        width: 260px;
+        height: 72px;
+
+        color: #1d1f2cff;
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 260px;
+          height: 26px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+            bottom_left: 0;
+            bottom_right: 0;
+          }
+
+          #icon:image {
+            x: 10px;
+            y: 5px;
+            width: 16px;
+            height: 16px;
+
+            source: "asset/base/ui/banpick/champion_stat_icon";
+            rect_tag: "speed_0";
+          }
+
+          #desc:label {
+            x: 31px;
+            @"asset/base/style/main#label";
+            width: 220px;
+            height: 26px;
+
+            size: 16;
+
+            color: #e8e8e8ff;
+
+            align_y: Center;
+
+            text: "#asset/base/text/champion?stat.move_speed";
+          }
+        }
+
+        #lvs:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.1";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv+";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "Lv.12";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #bar:color {
+          width: 260px;
+          height: 1px;
+          color: #4a4c56ff;
+        }
+
+        #values:empty {
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          width: 258px;
+          height: 23px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #lv1:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvup:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #lvmax:label {
+            @"asset/base/style/main#label";
+            width: 86px;
+            height: 23px;
+            size: 16;
+            y: 1px;
+
+            text: "0";
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+    }
+    }
+
+    #skill1:color {
+      width: 687px;
+      height: 115px;
+      x: 563px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      padding: {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        bottom: 10px;
+      }
+
+      #data:empty {
+        width: 667px;
+        height: 95px;
+
+        #icon_slot:empty {
+          width: 83px;
+          height: 95px;
+
+          #icon_bg:color {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+            color: #1d1f2cff;
+            width: 40px;
+            height: 40px;
+          }
+
+          #icon:image {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            width: 40px;
+            height: 40px;
+          }
+
+          #text:label {
+            @"asset/base/style/main#bold_label";
+
+            width: 83px;
+            height: 17px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 50px;
+
+            text: "Lv.1";
+            size: 18;
+
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #cooltime:empty {
+            width: 83px;
+            height: 36px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 66px;
+
+            #icon:image {
+              width: 12px;
+              height: 12px;
+
+              source: "asset/base/ui/banpick/banpick_UI_icons";
+              rect_tag: "cooltime_0";
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+            }
+
+            #text:label {
+              @"asset/base/style/main#label";
+              width: 70px;
+              height: 30px;
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+
+              size: 16;
+
+              color: #e8e8e8ff;
+              fit_width: true;
+
+              align_y: Center;
+              text: "#asset/base/text/champion?stat.cooltime";
+            }
+          }
+        }
+
+        #bar:color {
+          color: #4a4c56ff;
+          width: 1px;
+          x: 93px;
+          height: 95px;
+        }
+
+        #desc:label {
+          @"asset/base/style/main#label";
+          x: 103px;
+
+          width: 564px;
+          height: 95px;
+
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          size: 16;
+          line_height: 22.4;
+
+          text: "test test test lorem ipsum test";
+        }
+      }
+    }
+
+    #skill2:color {
+      width: 687px;
+      height: 115px;
+      x: 563px;
+      y: 128px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      padding: {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        bottom: 10px;
+      }
+
+      #data:empty {
+        width: 667px;
+        height: 95px;
+
+        #icon_slot:empty {
+          width: 83px;
+          height: 95px;
+
+          #icon_bg:color {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+            color: #1d1f2cff;
+            width: 40px;
+            height: 40px;
+          }
+
+          #icon:image {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            width: 40px;
+            height: 40px;
+          }
+
+          #text:label {
+            @"asset/base/style/main#bold_label";
+
+            width: 83px;
+            height: 17px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 50px;
+
+            text: "Lv.3";
+            size: 18;
+
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #cooltime:empty {
+            width: 83px;
+            height: 36px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 66px;
+
+            #icon:image {
+              width: 12px;
+              height: 12px;
+
+              source: "asset/base/ui/banpick/banpick_UI_icons";
+              rect_tag: "cooltime_0";
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+            }
+
+            #text:label {
+              @"asset/base/style/main#label";
+              width: 70px;
+              height: 30px;
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+
+              size: 16;
+
+              color: #e8e8e8ff;
+              fit_width: true;
+
+              align_y: Center;
+              text: "#asset/base/text/champion?stat.cooltime";
+            }
+          }
+        }
+
+        #bar:color {
+          color: #4a4c56ff;
+          width: 1px;
+          x: 93px;
+          height: 95px;
+        }
+
+        #desc:label {
+          @"asset/base/style/main#label";
+          x: 103px;
+
+          width: 564px;
+          height: 95px;
+
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          size: 16;
+          line_height: 22.4;
+
+          text: "test test test lorem ipsum test";
+        }
+      }
+    }
+
+    #ult:color {
+      width: 687px;
+      height: 115px;
+      x: 563px;
+      y: 256px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      padding: {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        bottom: 10px;
+      }
+
+      #data:empty {
+        width: 667px;
+        height: 95px;
+
+        #icon_slot:empty {
+          width: 83px;
+          height: 95px;
+
+          #icon_bg:color {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+            color: #1d1f2cff;
+            width: 40px;
+            height: 40px;
+          }
+
+          #icon:image {
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            width: 40px;
+            height: 40px;
+          }
+
+          #text:label {
+            @"asset/base/style/main#bold_label";
+
+            width: 83px;
+            height: 17px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 50px;
+
+            text: "Lv.5";
+            size: 18;
+
+            align_x: Center;
+            align_y: Center;
+          }
+
+          #cooltime:empty {
+            width: 83px;
+            height: 36px;
+
+            anchor_x: 0.5;
+            pivot_x: 0.5;
+
+            y: 66px;
+
+            #icon:image {
+              width: 12px;
+              height: 12px;
+
+              source: "asset/base/ui/banpick/banpick_UI_icons";
+              rect_tag: "cooltime_0";
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+            }
+
+            #text:label {
+              @"asset/base/style/main#label";
+              width: 70px;
+              height: 30px;
+
+              anchor_y: 0.5;
+              pivot_y: 0.5;
+
+              size: 16;
+
+              color: #e8e8e8ff;
+              fit_width: true;
+
+              align_y: Center;
+              text: "#asset/base/text/champion?stat.cooltime";
+            }
+          }
+        }
+
+        #bar:color {
+          color: #4a4c56ff;
+          width: 1px;
+          x: 93px;
+          height: 95px;
+        }
+
+        #desc:label {
+          @"asset/base/style/main#label";
+          x: 103px;
+
+          width: 564px;
+          height: 95px;
+
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          size: 16;
+          line_height: 22.4;
+
+          text: "test test test lorem ipsum test";
+        }
+      }
+    }
+  }
+
+  #swap:empty {
+    width: 1290px;
+    height: 738px;
+
+    x: 315px;
+    y: 97px;
+
+    visible: false;
+
+    child_type: TopToBottom {
+      spacing: 14px;
+    }
+
+    #blue_table:color {
+      width: 1290px;
+      height: 362px;
+
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      color: #0a121ff0;
+
+      #header:color {
+        width: 1290px;
+        height: 38px;
+
+        color: #163b64f5;
+
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+          bottom_left: 0;
+          bottom_right: 0;
+        }
+
+        child_type: LeftToRight {
+          spacing: 12px;
+        }
+
+        #name:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 125px;
+          height: 38px;
+          x: 149px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?athlete";
+        }
+
+        #main_position:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 114px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?lineup.main_position";
+        }
+
+        #matches:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.game";
+        }
+
+        #kills:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_kill";
+        }
+
+        #deaths:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_death";
+        }
+
+        #assists:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_assist";
+        }
+
+        #kda:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 68px;
+          height: 38px;
+
+          size: 16;
+
+          text: "KDA";
+        }
+
+        #level:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 138px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_level";
+        }
+
+        #rating:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 138px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_rating";
+        }
+      }
+
+      #header_gap:empty {
+        width: 100%;
+        height: 4px;
+      }
+    }
+
+    #red_table:color {
+      width: 1290px;
+      height: 362px;
+
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      color: #0a121ff0;
+
+      #header:color {
+        width: 1290px;
+        height: 38px;
+
+        color: #642638f5;
+
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+          bottom_left: 0;
+          bottom_right: 0;
+        }
+
+        child_type: LeftToRight {
+          spacing: 12px;
+        }
+
+        #name:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 125px;
+          height: 38px;
+          x: 149px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?athlete";
+        }
+
+        #main_position:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 114px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?lineup.main_position";
+        }
+
+        #matches:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.game";
+        }
+
+        #kills:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_kill";
+        }
+
+        #deaths:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_death";
+        }
+
+        #assists:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 118px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_assist";
+        }
+
+        #kda:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 68px;
+          height: 38px;
+
+          size: 16;
+
+          text: "KDA";
+        }
+
+        #level:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 138px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_level";
+        }
+
+        #rating:label {
+          @"asset/base/style/main#label";
+
+          align_y: Center;
+          width: 138px;
+          height: 38px;
+
+          size: 16;
+
+          text: "#asset/base/text/ui?statistics.avr_rating";
+        }
+      }
+
+      #header_gap:empty {
+        width: 100%;
+        height: 4px;
+      }
+    }
+
+    #bottom:empty {
+      width: 1290px;
+      height: 67px;
+
+      child_type: LeftToRight {
+        spacing: 12px;
+      }
+
+      #coach:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        width: 639px;
+        height: 67px;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?banpick.swap_coach";
+          align_x: Center;
+          align_y: Center;
+          size: 24;
+        }
+      }
+
+      #confirm:color_icon_button {
+        @"asset/base/style/main#primary_button";
+        width: 639px;
+        height: 67px;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?banpick.swap_confirm";
+          align_x: Center;
+          align_y: Center;
+          size: 24;
+        }
+      }
+
+      #swap_waiting:label {
+        @"asset/base/style/main#bold_label";
+        width: 1290px;
+        height: 67px;
+
+        visible: false;
+
+        text: "#asset/base/text/ui?banpick.swap_waiting";
+        align_x: Center;
+        align_y: Center;
+        size: 24;
+      }
+
+      #strategy_waiting:label {
+        @"asset/base/style/main#bold_label";
+        width: 1290px;
+        height: 67px;
+
+        visible: false;
+
+        text: "#asset/base/text/ui?banpick.strategy_waiting";
+        align_x: Center;
+        align_y: Center;
+        size: 24;
+      }
+    }
+  }
+
+  #phase_indicator:color {
+    color: #0000009a;
+
+    width: 100%;
+    height: 100%;
+
+    visible: false;
+
+    #text:banpick_phase {
+      @"asset/base/style/main#bold_label";
+
+      width: 100%;
+      height: 100%;
+
+      size: 72;
+      align_x: Center;
+      align_y: Center;
+      effect: {
+        wait_time: 0.3;
+        time: 0.7;
+        stay_time: 1.0;
+      }
+    }
+  }
+
+  #coach_delegation_indicator:color {
+    color: #0000009a;
+
+    width: 100%;
+    height: 100%;
+
+    visible: false;
+
+    #text:label {
+      @"asset/base/style/main#bold_label";
+
+      width: 100%;
+      height: 60px;
+
+      anchor_y: 0.5;
+      pivot_y: 1;
+      y: -20px;
+
+      size: 48;
+      align_x: Center;
+      align_y: Center;
+
+      text: "#asset/base/text/ui?banpick.coach_delegation_running";
+    }
+
+    #cancel:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+
+      width: 320px;
+      height: 40px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      anchor_y: 0.5;
+      pivot_y: 0;
+      y: 30px;
+
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "#asset/base/text/ui?common.cancel";
+        align_x: Center;
+        align_y: Center;
+        size: 24;
+      }
+    }
+  }
+
+  #fade:color {
+    width: 100%;
+    height: 100%;
+
+    color: #000000ff;
+
+    visible: false;
+  }
+
+  #tooltip:color {
+    ignore_event: true;
+    width: 100px;
+    height: 29px;
+    visible: false;
+
+    back_color: #08111df5;
+    color: #9b7b42ff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      width: 100px;
+      height: 24px;
+      y: 3px;
+
+      size: 16;
+
+      align_x: Center;
+      align_y: Center;
+
+      text: "";
+    }
+
+    #pos_header:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 20px;
+      x: 8px;
+      y: 29px;
+      size: 12;
+      color: #8a8c96ff;
+      align_y: Center;
+      visible: false;
+    }
+
+    #pos_row1:empty {
+      width: 100%;
+      height: 22px;
+      y: 49px;
+      visible: false;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+
+    #pos_row2:empty {
+      width: 100%;
+      height: 22px;
+      y: 71px;
+      visible: false;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+  }
+
+}

@@ -20,6 +20,16 @@ const DRAGON_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_dragon_variant_runt
 const BP_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_bp_runtime_telemetry.tsv";
 const BP_TELEMETRY_ROW_LIMIT: usize = 80;
 const PICK_SLOT_LIMIT: usize = 5;
+const BP_CARD_WIDTH: f32 = 284.0;
+const BP_CARD_HEIGHT: f32 = 172.0;
+const BP_CARD_EDGE_INSET: f32 = 15.0;
+const BP_CARD_TOP: f32 = 98.0;
+const BP_CARD_STEP_Y: f32 = 188.0;
+const BP_NATIVE_ACTOR_WIDTH: f32 = 137.0;
+const BP_NATIVE_ACTOR_HEIGHT: f32 = 184.0;
+const BP_NATIVE_ACTOR_BLUE_X: f32 = 160.0;
+const BP_NATIVE_ACTOR_RED_INSET: f32 = 294.0;
+const BP_NATIVE_ACTOR_TOP: f32 = 87.0;
 const SPLASH_SPECS: [(&str, &str); 5] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
@@ -399,6 +409,26 @@ impl BpRenderSide {
             Self::Red => "red",
         }
     }
+
+    fn candidate_index(self, slot_index: usize) -> usize {
+        let side_offset = match self {
+            Self::Blue => 0,
+            Self::Red => PICK_SLOT_LIMIT,
+        };
+        side_offset + slot_index
+    }
+}
+
+struct BpOverlayCandidate {
+    score: f32,
+    side: BpRenderSide,
+    slot_index: usize,
+    champion_id: &'static str,
+    asset: &'static str,
+    original_texture: String,
+    original_geometry: (f32, f32, f32, f32),
+    overlay: RenderCommand,
+    route: &'static str,
 }
 
 fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
@@ -433,7 +463,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.7.6;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.7.7;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -446,7 +476,13 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             .get(pass)
             .map(|(width, _)| *width)
             .unwrap_or(1920.0);
-        let mut overlays = Vec::new();
+        // BP actor commands animate their x/y/w/h while picks slide into a
+        // card. Illustrations are card backgrounds, so they must stay locked
+        // to the side + slot instead of inheriting that transition geometry.
+        // Keep only the command closest to the native settled actor rectangle
+        // when a transition emits more than one candidate for the same slot.
+        let mut candidates: Vec<Option<BpOverlayCandidate>> =
+            (0..PICK_SLOT_LIMIT * 2).map(|_| None).collect();
         for command in commands.iter() {
             let RenderCommand::NinePatch {
                 texture,
@@ -495,16 +531,9 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 continue;
             };
 
-            let original_texture = texture.clone();
             let original_geometry = (*x, *y, *w, *h);
-            let target_x = match side {
-                BpRenderSide::Blue => original_geometry.0 - 145.0,
-                BpRenderSide::Red => original_geometry.0 - 6.0,
-            };
-            // BVP's own 50px-header layout maps native icon y=50 to overlay
-            // y=61. Our game keeps the stock 97px header, so preserve the same
-            // +11px card-relative offset instead of incorrectly forcing y=61.
-            let target_y = original_geometry.1 + 11.0;
+            let target_x = bp_overlay_x(side, map_width);
+            let target_y = bp_overlay_y(slot_index);
             let mut overlay = (*command).clone();
             let RenderCommand::NinePatch {
                 texture,
@@ -540,8 +569,8 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             texture_rect.h = 1.0;
             *x = target_x;
             *y = target_y;
-            *w = 284.0;
-            *h = 172.0;
+            *w = BP_CARD_WIDTH;
+            *h = BP_CARD_HEIGHT;
             *z = 200;
             *rot = 0.0;
             *left = 0.0;
@@ -554,29 +583,96 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             *sample_nearest = false;
             *flip_x = side == BpRenderSide::Red;
             *flip_y = false;
-            overlays.push(overlay);
 
+            let score = bp_actor_candidate_score(side, slot_index, map_width, original_geometry);
+            let candidate_index = side.candidate_index(slot_index);
+            let should_replace = candidates[candidate_index]
+                .as_ref()
+                .is_none_or(|candidate| score < candidate.score);
+            if should_replace {
+                candidates[candidate_index] = Some(BpOverlayCandidate {
+                    score,
+                    side,
+                    slot_index,
+                    champion_id,
+                    asset,
+                    original_texture: texture_source(command).unwrap_or_default().to_owned(),
+                    original_geometry,
+                    overlay,
+                    route: if pass_identity.is_some() {
+                        "pass"
+                    } else {
+                        "geometry"
+                    },
+                });
+            }
+        }
+        let mut overlays = Vec::new();
+        for candidate in candidates.into_iter().flatten() {
+            let target_x = bp_overlay_x(candidate.side, map_width);
+            let target_y = bp_overlay_y(candidate.slot_index);
             write_bp_render_telemetry_once(
                 "overlay_append",
-                side.as_str(),
-                Some(slot_index),
-                &original_texture,
-                asset,
+                candidate.side.as_str(),
+                Some(candidate.slot_index),
+                &candidate.original_texture,
+                candidate.asset,
                 &format!(
-                    "champion={champion_id};route={};pass={pass};map_width={map_width:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
-                    if pass_identity.is_some() { "pass" } else { "geometry" },
-                    original_geometry.0,
-                    original_geometry.1,
-                    original_geometry.2,
-                    original_geometry.3,
+                    "champion={};route={};pass={pass};map_width={map_width:.1};score={:.1};from={:.1},{:.1},{:.1},{:.1};to={:.1},{:.1},284,172;flip_x={}",
+                    candidate.champion_id,
+                    candidate.route,
+                    candidate.score,
+                    candidate.original_geometry.0,
+                    candidate.original_geometry.1,
+                    candidate.original_geometry.2,
+                    candidate.original_geometry.3,
                     target_x,
                     target_y,
-                    side == BpRenderSide::Red,
+                    candidate.side == BpRenderSide::Red,
                 ),
             );
+            overlays.push(candidate.overlay);
         }
         commands.extend(overlays);
     }
+}
+
+fn texture_source(command: &RenderCommand) -> Option<&str> {
+    let RenderCommand::NinePatch { texture, .. } = command else {
+        return None;
+    };
+    Some(texture)
+}
+
+fn bp_overlay_x(side: BpRenderSide, map_width: f32) -> f32 {
+    match side {
+        BpRenderSide::Blue => BP_CARD_EDGE_INSET,
+        // Ban/Pick View Plus defaults to a horizontally flipped red card.
+        // NinePatch flips around pivot_x=0, so its command anchor is the
+        // right edge (1905 at 1920px), not the left edge at 1620px.
+        BpRenderSide::Red => map_width - BP_CARD_EDGE_INSET,
+    }
+}
+
+fn bp_overlay_y(slot_index: usize) -> f32 {
+    BP_CARD_TOP + BP_CARD_STEP_Y * slot_index as f32
+}
+
+fn bp_actor_candidate_score(
+    side: BpRenderSide,
+    slot_index: usize,
+    map_width: f32,
+    geometry: (f32, f32, f32, f32),
+) -> f32 {
+    let expected_x = match side {
+        BpRenderSide::Blue => BP_NATIVE_ACTOR_BLUE_X,
+        BpRenderSide::Red => map_width - BP_NATIVE_ACTOR_RED_INSET,
+    };
+    let expected_y = BP_NATIVE_ACTOR_TOP + BP_CARD_STEP_Y * slot_index as f32;
+    (geometry.0 - expected_x).abs()
+        + (geometry.1 - expected_y).abs()
+        + (geometry.2 - BP_NATIVE_ACTOR_WIDTH).abs()
+        + (geometry.3 - BP_NATIVE_ACTOR_HEIGHT).abs()
 }
 
 fn ui_tree_contains_id(root: &Node, target: &str) -> bool {

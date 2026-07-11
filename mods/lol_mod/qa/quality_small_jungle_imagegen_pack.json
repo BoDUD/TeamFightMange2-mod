@@ -2535,14 +2535,14 @@
         ],
         "trim_alpha_threshold": 8,
         "resampling": "Pillow Image.Resampling.NEAREST",
-        "single_scale_for_all_actions": 0.3049180328,
+        "single_scale_for_all_actions": 0.2360655738,
         "max_source_visible_dimensions": [
           305,
           187
         ],
         "max_runtime_visible_envelope": [
-          93,
-          76
+          72,
+          50
         ],
         "cell_size": 97,
         "baseline_exclusive": 78,
@@ -2799,8 +2799,8 @@
       "runtime": {
         "sheet": {
           "path": "aseprite_resources/ingame/mushroom#sheet.png",
-          "size_bytes": 128134,
-          "sha256": "412210403433a486df4c21b3962b17e012bc43165c266e381c70e300db589810",
+          "size_bytes": 80579,
+          "sha256": "222067444c6513b882d39f86b9f240a660d5de7eb4f6dd6c77a686ab4b9e2614",
           "dimensions": [
             2037,
             97
@@ -2810,13 +2810,13 @@
             "present": true,
             "min": 0,
             "max": 255,
-            "transparent_pixels": 140525,
-            "partial_pixels": 4096,
-            "opaque_pixels": 52968,
+            "transparent_pixels": 163579,
+            "partial_pixels": 2385,
+            "opaque_pixels": 31625,
             "nonzero_bbox": [
-              10,
-              21,
-              2026,
+              19,
+              34,
+              2017,
               78
             ],
             "corner_values": [
@@ -2860,19 +2860,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  21,
-                  86,
+                  19,
+                  34,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  76,
-                  57
+                  59,
+                  44
                 ],
                 "alpha_pixels": {
-                  "transparent": 6053,
-                  "partial": 130,
-                  "opaque": 3226
+                  "transparent": 7390,
+                  "partial": 76,
+                  "opaque": 1943
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -2888,19 +2888,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  23,
-                  87,
+                  19,
+                  35,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  55
+                  59,
+                  43
                 ],
                 "alpha_pixels": {
-                  "transparent": 6120,
-                  "partial": 120,
-                  "opaque": 3169
+                  "transparent": 7431,
+                  "partial": 71,
+                  "opaque": 1907
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -2916,19 +2916,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  9,
-                  25,
-                  87,
+                  18,
+                  37,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  78,
-                  53
+                  60,
+                  41
                 ],
                 "alpha_pixels": {
-                  "transparent": 6251,
-                  "partial": 123,
-                  "opaque": 3035
+                  "transparent": 7524,
+                  "partial": 67,
+                  "opaque": 1818
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -2944,19 +2944,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  25,
-                  87,
+                  18,
+                  37,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  53
+                  60,
+                  41
                 ],
                 "alpha_pixels": {
-                  "transparent": 6267,
-                  "partial": 114,
-                  "opaque": 3028
+                  "transparent": 7513,
+                  "partial": 70,
+                  "opaque": 1826
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -2990,19 +2990,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  11,
-                  25,
-                  86,
+                  19,
+                  37,
+                  77,
                   78
                 ],
                 "visible_dimensions": [
-                  75,
-                  53
+                  58,
+                  41
                 ],
                 "alpha_pixels": {
-                  "transparent": 6402,
-                  "partial": 221,
-                  "opaque": 2786
+                  "transparent": 7602,
+                  "partial": 125,
+                  "opaque": 1682
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3018,19 +3018,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  8,
-                  34,
-                  88,
+                  17,
+                  44,
+                  79,
                   78
                 ],
                 "visible_dimensions": [
-                  80,
-                  44
+                  62,
+                  34
                 ],
                 "alpha_pixels": {
-                  "transparent": 6913,
-                  "partial": 162,
-                  "opaque": 2334
+                  "transparent": 7916,
+                  "partial": 90,
+                  "opaque": 1403
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3046,19 +3046,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  7,
-                  42,
-                  90,
+                  16,
+                  50,
+                  80,
                   78
                 ],
                 "visible_dimensions": [
-                  83,
-                  36
+                  64,
+                  28
                 ],
                 "alpha_pixels": {
-                  "transparent": 7408,
-                  "partial": 108,
-                  "opaque": 1893
+                  "transparent": 8199,
+                  "partial": 61,
+                  "opaque": 1149
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3074,19 +3074,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  7,
-                  45,
-                  89,
+                  16,
+                  53,
+                  80,
                   78
                 ],
                 "visible_dimensions": [
-                  82,
-                  33
+                  64,
+                  25
                 ],
                 "alpha_pixels": {
-                  "transparent": 7583,
-                  "partial": 145,
-                  "opaque": 1681
+                  "transparent": 8334,
+                  "partial": 76,
+                  "opaque": 999
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3122,19 +3122,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  11,
-                  30,
-                  86,
+                  19,
+                  41,
+                  77,
                   78
                 ],
                 "visible_dimensions": [
-                  75,
-                  48
+                  58,
+                  37
                 ],
                 "alpha_pixels": {
-                  "transparent": 6732,
-                  "partial": 95,
-                  "opaque": 2582
+                  "transparent": 7802,
+                  "partial": 64,
+                  "opaque": 1543
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3150,19 +3150,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  13,
-                  26,
-                  84,
+                  21,
+                  38,
+                  76,
                   78
                 ],
                 "visible_dimensions": [
-                  71,
-                  52
+                  55,
+                  40
                 ],
                 "alpha_pixels": {
-                  "transparent": 6652,
-                  "partial": 315,
-                  "opaque": 2442
+                  "transparent": 7746,
+                  "partial": 219,
+                  "opaque": 1444
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3178,19 +3178,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  2,
-                  27,
-                  95,
+                  12,
+                  38,
+                  84,
                   78
                 ],
                 "visible_dimensions": [
-                  93,
-                  51
+                  72,
+                  40
                 ],
                 "alpha_pixels": {
-                  "transparent": 6452,
-                  "partial": 407,
-                  "opaque": 2550
+                  "transparent": 7606,
+                  "partial": 247,
+                  "opaque": 1556
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3206,19 +3206,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  13,
-                  26,
-                  84,
+                  21,
+                  38,
+                  76,
                   78
                 ],
                 "visible_dimensions": [
-                  71,
-                  52
+                  55,
+                  40
                 ],
                 "alpha_pixels": {
-                  "transparent": 6652,
-                  "partial": 315,
-                  "opaque": 2442
+                  "transparent": 7746,
+                  "partial": 219,
+                  "opaque": 1444
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3234,19 +3234,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  11,
-                  30,
-                  86,
+                  19,
+                  41,
+                  77,
                   78
                 ],
                 "visible_dimensions": [
-                  75,
-                  48
+                  58,
+                  37
                 ],
                 "alpha_pixels": {
-                  "transparent": 6732,
-                  "partial": 95,
-                  "opaque": 2582
+                  "transparent": 7802,
+                  "partial": 64,
+                  "opaque": 1543
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3288,19 +3288,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  25,
-                  87,
+                  19,
+                  37,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  53
+                  59,
+                  41
                 ],
                 "alpha_pixels": {
-                  "transparent": 6737,
-                  "partial": 229,
-                  "opaque": 2443
+                  "transparent": 7843,
+                  "partial": 120,
+                  "opaque": 1446
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3316,19 +3316,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  12,
-                  27,
-                  85,
+                  20,
+                  39,
+                  76,
                   78
                 ],
                 "visible_dimensions": [
-                  73,
-                  51
+                  56,
+                  39
                 ],
                 "alpha_pixels": {
-                  "transparent": 6858,
-                  "partial": 207,
-                  "opaque": 2344
+                  "transparent": 7922,
+                  "partial": 113,
+                  "opaque": 1374
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3344,19 +3344,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  26,
-                  87,
+                  19,
+                  38,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  52
+                  59,
+                  40
                 ],
                 "alpha_pixels": {
-                  "transparent": 6832,
-                  "partial": 230,
-                  "opaque": 2347
+                  "transparent": 7909,
+                  "partial": 118,
+                  "opaque": 1382
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3372,19 +3372,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  11,
-                  30,
-                  86,
+                  19,
+                  41,
+                  77,
                   78
                 ],
                 "visible_dimensions": [
-                  75,
-                  48
+                  58,
+                  37
                 ],
                 "alpha_pixels": {
-                  "transparent": 6727,
-                  "partial": 207,
-                  "opaque": 2475
+                  "transparent": 7810,
+                  "partial": 117,
+                  "opaque": 1482
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3400,19 +3400,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  25,
-                  87,
+                  19,
+                  37,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  53
+                  59,
+                  41
                 ],
                 "alpha_pixels": {
-                  "transparent": 6737,
-                  "partial": 229,
-                  "opaque": 2443
+                  "transparent": 7843,
+                  "partial": 120,
+                  "opaque": 1446
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3428,19 +3428,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  12,
-                  27,
-                  85,
+                  20,
+                  39,
+                  76,
                   78
                 ],
                 "visible_dimensions": [
-                  73,
-                  51
+                  56,
+                  39
                 ],
                 "alpha_pixels": {
-                  "transparent": 6858,
-                  "partial": 207,
-                  "opaque": 2344
+                  "transparent": 7922,
+                  "partial": 113,
+                  "opaque": 1374
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3456,19 +3456,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  10,
-                  26,
-                  87,
+                  19,
+                  38,
+                  78,
                   78
                 ],
                 "visible_dimensions": [
-                  77,
-                  52
+                  59,
+                  40
                 ],
                 "alpha_pixels": {
-                  "transparent": 6832,
-                  "partial": 230,
-                  "opaque": 2347
+                  "transparent": 7909,
+                  "partial": 118,
+                  "opaque": 1382
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false
@@ -3484,19 +3484,19 @@
                   97
                 ],
                 "alpha_bbox": [
-                  11,
-                  30,
-                  86,
+                  19,
+                  41,
+                  77,
                   78
                 ],
                 "visible_dimensions": [
-                  75,
-                  48
+                  58,
+                  37
                 ],
                 "alpha_pixels": {
-                  "transparent": 6727,
-                  "partial": 207,
-                  "opaque": 2475
+                  "transparent": 7810,
+                  "partial": 117,
+                  "opaque": 1482
                 },
                 "bottom_matches_baseline": true,
                 "touches_cell_edge": false

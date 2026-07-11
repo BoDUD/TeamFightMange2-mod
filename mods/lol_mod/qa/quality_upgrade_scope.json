@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "release": "0.7.6",
-  "requested_scope": "Ban/pick splashes, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, and Nexus crystals",
+  "release": "0.7.7",
+  "requested_scope": "Ban/pick splashes and UI skin, full-body encyclopedia art, League-style objectives, elemental dragons, all neutral monsters, items, defensive towers, Nexus crystals, and a structure-preserving Rift map skin",
   "runtime_implemented": {
     "banpick_splashes": [
       "lol_shen",
@@ -16,8 +16,18 @@
       "source_key": "suffix after /champions/ with terminal #sheet removed",
       "texture_uv": "normalized 0,0,1,1",
       "card_size": "284x172",
+      "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=98+188*slot",
+      "transition_geometry_is_detection_only": true,
+      "one_overlay_per_side_slot": true,
       "card_detection": "RenderState pass key blue_picks/red_picks + pick_slot_N; relative-UI and geometry fallback",
       "static_splash_nodes": false
+    },
+    "banpick_skin": {
+      "imagegen_background": "ui/banpick/lol_bp_background.png",
+      "native_layout_geometry_preserved": true,
+      "noninteractive_decorative_node": true,
+      "blue_red_card_palette_refined": true,
+      "bvp_runtime_controls_copied": false
     },
     "encyclopedia_fullbody": [
       "lol_shen",
@@ -31,7 +41,7 @@
       "serpen": "Seeded per-match elemental Drake (Infernal fallback)",
       "rhino": "Red Brambleback",
       "stump": "Blue Sentinel",
-      "mushroom": "Gromp",
+      "mushroom": "Gromp, reduced to a 72x50 visible envelope while retaining the 97px frame and baseline",
       "bee": "Murk Wolf"
     },
     "baron": {
@@ -63,13 +73,35 @@
       "blue_and_red_orb": true,
       "projectile_and_hit_vfx": true,
       "ui_icon": true,
-      "native_shadow_preserved": true,
+      "native_shadow_footprint_preserved_with_generated_tint": true,
       "native_stats_positions_and_timing_preserved": true
     },
     "nexus": {
       "imagegen_blue_and_red_actor": true,
       "imagegen_blue_and_red_orb": true,
       "native_sheet_dimensions_and_animation_contracts_preserved": true
+    },
+    "map_skin": {
+      "imagegen_sources": [
+        "background",
+        "wall_texture",
+        "bush_texture"
+      ],
+      "runtime_visual_layers": [
+        "background_5v5",
+        "wall_5v5",
+        "wall_5v5_front",
+        "wall_shadow_5v5",
+        "bush_5v5",
+        "bush_shadow_5v5",
+        "tower_shadow",
+        "nexus_shadow",
+        "minimap_5v5_bg"
+      ],
+      "native_wall_and_bush_alpha_masks_exact": true,
+      "tower_pads_camp_markers_and_epic_pits_baked_into_background": true,
+      "dynamic_minimap_markers_preserved": true,
+      "map_setting_collision_paths_spawns_and_positions_preserved": true
     }
   },
   "packaged_variants": {
