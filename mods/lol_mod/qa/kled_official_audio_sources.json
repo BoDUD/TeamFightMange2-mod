@@ -56,9 +56,9 @@
       "output_contract": "mono 16-bit PCM 44100 Hz"
     }
   },
-  "selection_policy": "One verified official mono base-skin media variant per runtime event. Q uses one missile-launch event plus mark attach/release; E uses its dash cast/hit events; W uses one short activation and four ordered hit events; R uses deterministic one-shot dash cast/hit events and deliberately omits all continuous or stereo sequence events.",
+  "selection_policy": "One verified official mono base-skin media variant per runtime event. Q uses one missile-launch event plus mark attach/release; E uses its dash cast/hit events; R uses deterministic one-shot dash cast/hit events and deliberately omits all continuous or stereo sequence events.",
   "native_audio_isolation": {
-    "reason": "The same-ID native Cavalry action layer can auto-dispatch its original attack/Q/W/R audio in addition to explicit Kled effects.",
+    "reason": "The same-ID native Cavalry action layer can auto-dispatch its original attack/Q/E/R audio in addition to explicit Kled effects.",
     "strategy": "Remap all four native events and all four source clips to one deterministic physical-silence asset.",
     "native_events": [
       "cavalry_knight_attack",
@@ -299,149 +299,6 @@
         "sample_rate_hz": 44100,
         "frame_count": 63174,
         "duration_seconds": 1.432517006802721,
-        "compression": "NONE"
-      }
-    },
-    {
-      "event_key": "kled_w_cast",
-      "runtime_event": "lol_kled_w_cast",
-      "riot_event": "Play_sfx_Kled_KledW_buffactivate",
-      "riot_event_id": 1347896783,
-      "event_media_pool": [
-        327874843,
-        102031052,
-        320011124
-      ],
-      "media_id": 327874843,
-      "source_wem_size_bytes": 11860,
-      "source_wem_sha256": "b1eb3e2c8ac7a5cefdf5d8e6773dac2da0d51ecd9db58bddc529cd1181685929",
-      "selection_note": "first bank-order activation variant; avoids the 5.365-second WActive pool",
-      "dispatch_contract": "top-level Sfx once when Violent Tendencies begins",
-      "sound_info": "sound/sfx/kled_w_cast.sound_info",
-      "clip": "kled_w_cast_clip",
-      "volume": 1.0,
-      "wav": {
-        "path": "sound/sfx/kled_w_cast_clip.wav",
-        "size_bytes": 128604,
-        "sha256": "f3cf2e44e22a4988f3eef0495a593429bff95846420ecc41d6fea86e1d10b4f7",
-        "channels": 1,
-        "sample_width_bytes": 2,
-        "sample_rate_hz": 44100,
-        "frame_count": 64280,
-        "duration_seconds": 1.4575963718820861,
-        "compression": "NONE"
-      }
-    },
-    {
-      "event_key": "kled_w_hit1",
-      "runtime_event": "lol_kled_w_hit1",
-      "riot_event": "Play_sfx_Kled_KledWAttack1_OnHit",
-      "riot_event_id": 949027770,
-      "event_media_pool": [
-        894039159
-      ],
-      "media_id": 894039159,
-      "source_wem_size_bytes": 4457,
-      "source_wem_sha256": "9fcc13b3670a025cf575f72b106df91f9275aee12cea28bfcd18fe97b70a9bb2",
-      "selection_note": "the event has one official media source",
-      "dispatch_contract": "TargetSfx after W stage 1 successfully hits",
-      "sound_info": "sound/sfx/kled_w_hit1.sound_info",
-      "clip": "kled_w_hit1_clip",
-      "volume": 1.0,
-      "wav": {
-        "path": "sound/sfx/kled_w_hit1_clip.wav",
-        "size_bytes": 43124,
-        "sha256": "6a93be9cf03bed74f883294f6b2961c78589e899c50cda95abbb07f28669d098",
-        "channels": 1,
-        "sample_width_bytes": 2,
-        "sample_rate_hz": 44100,
-        "frame_count": 21540,
-        "duration_seconds": 0.4884353741496599,
-        "compression": "NONE"
-      }
-    },
-    {
-      "event_key": "kled_w_hit2",
-      "runtime_event": "lol_kled_w_hit2",
-      "riot_event": "Play_sfx_Kled_KledWAttack2_OnHit",
-      "riot_event_id": 1924585905,
-      "event_media_pool": [
-        381568259
-      ],
-      "media_id": 381568259,
-      "source_wem_size_bytes": 5657,
-      "source_wem_sha256": "74a3ba7995c5b68e745920b4a1193f3841739c99914963cace0712cab24fb220",
-      "selection_note": "the event has one official media source",
-      "dispatch_contract": "TargetSfx after W stage 2 successfully hits",
-      "sound_info": "sound/sfx/kled_w_hit2.sound_info",
-      "clip": "kled_w_hit2_clip",
-      "volume": 1.0,
-      "wav": {
-        "path": "sound/sfx/kled_w_hit2_clip.wav",
-        "size_bytes": 52214,
-        "sha256": "abd31f0bdcc64ded167672ebd259417e7458cbd71b70b6d3e10fcd02c3480251",
-        "channels": 1,
-        "sample_width_bytes": 2,
-        "sample_rate_hz": 44100,
-        "frame_count": 26085,
-        "duration_seconds": 0.5914965986394558,
-        "compression": "NONE"
-      }
-    },
-    {
-      "event_key": "kled_w_hit3",
-      "runtime_event": "lol_kled_w_hit3",
-      "riot_event": "Play_sfx_Kled_KledWAttack3_OnHit",
-      "riot_event_id": 1343519304,
-      "event_media_pool": [
-        501236275
-      ],
-      "media_id": 501236275,
-      "source_wem_size_bytes": 6066,
-      "source_wem_sha256": "2c37917bf79aedabc2b148be9d81149324025d6c415f06be4dd0c638871f3a68",
-      "selection_note": "the event has one official media source",
-      "dispatch_contract": "TargetSfx after W stage 3 successfully hits",
-      "sound_info": "sound/sfx/kled_w_hit3.sound_info",
-      "clip": "kled_w_hit3_clip",
-      "volume": 1.0,
-      "wav": {
-        "path": "sound/sfx/kled_w_hit3_clip.wav",
-        "size_bytes": 47276,
-        "sha256": "9101d4972dd2c05369a5094c23c3d1819b26812f5743cbc94cb9936ad6c93c20",
-        "channels": 1,
-        "sample_width_bytes": 2,
-        "sample_rate_hz": 44100,
-        "frame_count": 23616,
-        "duration_seconds": 0.5355102040816326,
-        "compression": "NONE"
-      }
-    },
-    {
-      "event_key": "kled_w_hit4",
-      "runtime_event": "lol_kled_w_hit4",
-      "riot_event": "Play_sfx_Kled_KledWAttack4_OnHit",
-      "riot_event_id": 275959663,
-      "event_media_pool": [
-        134941698,
-        68645024
-      ],
-      "media_id": 134941698,
-      "source_wem_size_bytes": 13667,
-      "source_wem_sha256": "bd19bd4c9b8e97a65c23c7511f46df61804d9172c06dda249dde8517028ffb88",
-      "selection_note": "first verified official fourth-hit random variant",
-      "dispatch_contract": "TargetSfx after the one legal W fourth-hit proc",
-      "sound_info": "sound/sfx/kled_w_hit4.sound_info",
-      "clip": "kled_w_hit4_clip",
-      "volume": 1.0,
-      "wav": {
-        "path": "sound/sfx/kled_w_hit4_clip.wav",
-        "size_bytes": 170272,
-        "sha256": "d766c6942f8093a9cf5501db40bea2c543a6e01721193f3fb5166d5490f60a81",
-        "channels": 1,
-        "sample_width_bytes": 2,
-        "sample_rate_hz": 44100,
-        "frame_count": 85114,
-        "duration_seconds": 1.9300226757369614,
         "compression": "NONE"
       }
     },

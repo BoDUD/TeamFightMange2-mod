@@ -31,10 +31,8 @@ jobs:
           'mods/lol_mod/aseprite_resources/champions/kled#sheet.png'
           'mods/lol_mod/aseprite_resources/effects/kled_q_tether#anim.fanim'
           'mods/lol_mod/aseprite_resources/effects/kled_q_tether#sheet.png'
-          'mods/lol_mod/aseprite_resources/effects/kled_w_frenzy#anim.fanim'
-          'mods/lol_mod/aseprite_resources/effects/kled_w_frenzy#sheet.png'
-          'mods/lol_mod/aseprite_resources/effects/kled_w_fourth#anim.fanim'
-          'mods/lol_mod/aseprite_resources/effects/kled_w_fourth#sheet.png'
+          'mods/lol_mod/aseprite_resources/effects/kled_e_joust#anim.fanim'
+          'mods/lol_mod/aseprite_resources/effects/kled_e_joust#sheet.png'
           'mods/lol_mod/aseprite_resources/effects/kled_r_trail#anim.fanim'
           'mods/lol_mod/aseprite_resources/effects/kled_r_trail#sheet.png'
           'mods/lol_mod/aseprite_resources/effects/kled_r_impact#anim.fanim'
@@ -68,6 +66,10 @@ jobs:
           mods/lol_mod/qa/kled_actor_contact_final.png
           mods/lol_mod/qa/kled_skill_icons_final.png
           mods/lol_mod/qa/kled_vfx_contact_final.png
+          mods/lol_mod/qa/kled_compact_portrait_qa.md
           mods/lol_mod/qa/kled_imagegen_sources.json
           mods/lol_mod/qa/kled_official_audio_sources.json
+          mods/lol_mod/qa/quality_map_imagegen_pack.json
+          mods/lol_mod/qa/quality_map_composite_preview.png
+          mods/lol_mod/qa/quality_map_surface_detail_preview.png
           mods/lol_mod/build_manifest.json

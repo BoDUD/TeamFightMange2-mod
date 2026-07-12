@@ -883,26 +883,6 @@
     "remapping": "asset/lol_mod/sound/sfx/kled_q_pull",
     "type": "override"
   },
-  "asset/base/sound/sfx/lol_kled_w_cast": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_cast",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_kled_w_hit1": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit1",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_kled_w_hit2": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit2",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_kled_w_hit3": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit3",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_kled_w_hit4": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit4",
-    "type": "override"
-  },
   "asset/base/sound/sfx/lol_kled_r_cast": {
     "remapping": "asset/lol_mod/sound/sfx/kled_r_cast",
     "type": "override"
@@ -937,26 +917,6 @@
   },
   "asset/base/sound/sfx/kled_q_pull_clip": {
     "remapping": "asset/lol_mod/sound/sfx/kled_q_pull_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/kled_w_cast_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_cast_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/kled_w_hit1_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit1_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/kled_w_hit2_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit2_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/kled_w_hit3_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit3_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/kled_w_hit4_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit4_clip",
     "type": "override"
   },
   "asset/base/sound/sfx/kled_r_cast_clip": {

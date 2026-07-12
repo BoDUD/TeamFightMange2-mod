@@ -320,40 +320,75 @@ All ten Kled sources were generated with the built-in `image_gen` tool on 2026-0
 - Purpose: distinct mounted gait phases for the native eight-frame run action.
 - Generation requirements: exact 3x3 chronological run cycle of the locked actor; clear alternating Skaarl leg contacts, forward momentum, restrained vertical bounce, stable rider/weapon/mount proportions, full feet and tail inside safe margins; crisp pixel art on flat `#00ff00`; no walking-in-place clone, sliding, duplicated limbs, attack VFX, labels, borders, scenery, logo, or watermark.
 
-## Kled Q/E composite VFX contact sheet
+## Rejected Kled Q/E composite VFX contact sheet
 
 - Execution ID: `exec-14e0a1e1-38cc-4df3-962d-5a7566b67f01`.
-- Imported target: `source/imagegen/kled_q_vfx_contact.png`; accepted alpha source: `source/processed/kled_q_vfx_contact_alpha.png`.
+- Status: rejected after live review because it visually and mechanically bundled E into Q; the active source and processed derivative were deleted.
 - Purpose: independent dash, spear-hook, rope/trap, tether, and delayed-pull effects for the combined Q+E slot.
 - Generation requirements: exact 4x2 sequential effect grid; compact bronze/red spear-hook and rope/trap silhouettes with hollow centers where the target remains readable; fixed origins, generous padding, crisp hard-edged pixel art, flat `#00ff00`; effect only, no Kled/Skaarl body, character portrait, text, UI frame, giant opaque explosion, green effect pixels, logo, or watermark.
 
-## Kled W four-hit VFX contact sheet
+## Rejected Kled W four-hit VFX contact sheet
 
 - Execution ID: `exec-ad51b92f-1be0-48f5-bd29-0be2b161a7c1`.
-- Imported target: `source/imagegen/kled_w_vfx_contact.png`; accepted alpha source: `source/processed/kled_w_vfx_contact_alpha.png`.
+- Status: rejected after the user confirmed the public skills must be Q/E/R; the active source and processed derivative were deleted.
 - Purpose: W activation, the first three compact hit streaks, the stronger fourth-hit burst, loop, and cleanup phases.
 - Generation requirements: exact 4x2 effect grid; escalating crimson/orange claw and axe-like slashes with a clearly stronger but still compact fourth impact; readable at native size, stable center, generous padding, crisp pixel art on flat `#00ff00`; no character body, text, numbers, borders, blood/gore, opaque screen-filling flash, logo, or watermark.
 
-## Kled R charge/trail VFX contact sheet
+## Rejected Kled R charge/trail VFX contact sheet
 
 - Execution ID: `exec-10d2b838-97f7-4cf7-aa16-383d8d18424d`.
-- Imported target: `source/imagegen/kled_r_vfx_contact.png`; accepted alpha source: `source/processed/kled_r_vfx_contact_alpha.png`.
+- Status: rejected after live review because the effect footprint was too dominant; the active source and processed derivative were deleted.
 - Purpose: R charge start, straight ground trail, allied speed aura, terminal collision, and clean fade phases.
 - Generation requirements: exact 4x2 effect grid; gold/ivory charge arcs, directional chevrons, low dust and ground streaks with mostly hollow actor space; fixed ground origin and generous padding; hard-edged pixel art on flat `#00ff00`; effect only, no mounted body, words, numbers, UI border, tall beam, opaque disk, scenery, logo, or watermark.
 
-## Kled Q icon
+## Rejected Kled Q icon
 
 - Execution ID: `exec-5a1ea3c6-19d0-4305-ac74-ef9c9fee7c04`.
-- Imported target: `source/imagegen/kled_q_icon_source.png`.
+- Status: superseded with the independently rebuilt Q projectile icon; the old active source was deleted.
 - Purpose: original Q-slot icon communicating the spear-hook, rope, and trap latch.
 - Generation requirements: square full-bleed game icon with a compact central silhouette, safe margin for 64x64 downscale, dark vignette and bronze/red highlights; crisp pixel-art finish; no character portrait, letter Q, words, numbers, external UI frame, logo, or watermark.
 
-## Kled W-mapped second-slot icon
+## Rejected Kled W-mapped second-slot icon
 
 - Execution ID: `exec-e1a2db38-2650-40bb-913c-f278763198dc`.
-- Imported target: `source/imagegen/kled_w_icon_source.png`.
+- Status: rejected because the second slot is now true E Jousting; the old active source was deleted.
 - Purpose: original second-slot icon for the mapped Violent Tendencies four-hit sequence.
 - Generation requirements: square full-bleed icon with several escalating red-orange slashes and one bright final impact, strong silhouette at 64x64, safe border margin and crisp pixel-art edges; no face, letter W/E, words, numbers, external frame, logo, or watermark.
+
+## Accepted Kled Q Bear Trap VFX v2
+
+- Execution ID: `exec-c4124e03-bc88-494b-ac4a-fa5672a86289`.
+- Imported target: `source/imagegen/kled_q_vfx_contact_v2.png`; accepted alpha source: `source/processed/kled_q_vfx_contact_v2_alpha.png`.
+- Purpose: eight compact chronological Q-only frames: throw, projectile travel, first-target latch, thin tether, yank, and clean fade.
+- Generation requirements: exact 4x2 grid, final-scale hard-edged pixel art, Noxian bronze/dark iron/muted red, a thin rope and hollow latch center, effect limited to the center 55% of each cell on flat `#00ff00`; no actor, dash, body aura, laser, giant jaw/ring, text, border, logo, or watermark.
+
+## Accepted Kled E Jousting VFX
+
+- Execution ID: `exec-73c43540-2fb5-4e49-9123-11079666a33c`.
+- Imported target: `source/imagegen/kled_e_vfx_contact.png`; accepted alpha source: `source/processed/kled_e_vfx_contact_alpha.png`.
+- Purpose: eight independent E-only dash, low dust, speed streak, pass-through impact, small mark, and fade frames.
+- Generation requirements: exact 4x2 grid, compact low horizontal Noxian red/bronze/ivory pixel effects inside the center 55% of each cell on flat `#00ff00`; no actor, rope, trap, W claw sequence, large enclosing circle, text, border, logo, or watermark.
+
+## Accepted Kled R charge/trail VFX v2
+
+- Execution ID: `exec-cf0350b0-b032-4a79-bc1c-51b4545ecc64`.
+- Imported target: `source/imagegen/kled_r_vfx_contact_v2.png`; accepted alpha source: `source/processed/kled_r_vfx_contact_v2_alpha.png`.
+- Purpose: eight restrained R-only shield flare, ground chevrons, dust trail, open charge arc, collision, and fade frames.
+- Generation requirements: exact 4x2 grid, low ground origin, open center, effect limited to the center 60% of each cell on flat `#00ff00`; no actor, giant opaque ring, tall beam, body-covering aura, text, border, logo, or watermark.
+
+## Accepted Kled Q icon v2
+
+- Execution ID: `exec-20aff087-3bab-4126-98ac-e9ccaca0f6cb`.
+- Imported target: `source/imagegen/kled_q_icon_source_v2.png`.
+- Purpose: Q-only thrown dark-iron bear trap with a thin trailing chain/rope and forward motion.
+- Generation requirements: square full-bleed original MOBA icon, strong 64px silhouette, generous safe margin, bronze edge light and restrained red sparks; no face, Q letter, words, UI frame, logo, watermark, laser, or body aura.
+
+## Accepted Kled E icon
+
+- Execution ID: `exec-37cf68cb-8bfc-455c-93bc-126d997a2570`.
+- Imported target: `source/imagegen/kled_e_icon_source.png`.
+- Purpose: E-only red-gold lance-shaped speed streak and compact pass-through impact.
+- Generation requirements: square full-bleed original MOBA icon readable at 64px, diagonal Noxian red/bronze motion with a 10% safe margin; no face, E/W letter, words, UI frame, rope, trap, four-hit slash sequence, logo, or watermark.
 
 ## Kled R icon
 
@@ -375,3 +410,28 @@ All ten Kled sources were generated with the built-in `image_gen` tool on 2026-0
 - Imported target: `source/imagegen/kled_defeat_contact.png`; accepted alpha source: `source/processed/kled_defeat_contact_alpha.png`.
 - Purpose: mounted fall, settle, and defeated poses for the native `dead` and `fire_dead` frame counts.
 - Generation requirements: exact 2x2 chronological contact sheet using the same locked Kled/Skaarl model and scale; full rider, mount, weapon, and fallen silhouette within large safe margins; crisp pixel art on flat `#00ff00`; no dismount/remount transformation, duplicate body or weapon, gore, spell explosion, text, borders, scenery, logo, or watermark.
+
+# Quality-map surface microdetail v4
+
+These three sources were generated with the built-in `image_gen` tool on 2026-07-12. They are texture references only. The v4 packer removes low-frequency structure with a Gaussian blur, converts the residual to neutral high-frequency luminance, applies it at no more than 8-10% soft-light strength, and composites it back only through the official native alpha. The generated spatial layout, silhouettes, paths, water, collision, map settings, and dynamic minimap markers are never copied.
+
+## Rift exterior cliff microdetail v4
+
+- Execution ID: `exec-314b7938-4a24-46ba-aea4-fb476c3c8329`.
+- Imported target: `source/imagegen/map/rift_cliff_microdetail_v4_source.png`.
+- Runtime use: high-frequency-luminance-only detail, capped at 0.10, only on official `wall_5v5` alpha where `x < 192` or `x >= 1088` and `y >= 160`.
+- Generation requirements: seamless orthographic top-down dark slate rift cliff texture; layered rock microfacets, thin roots, restrained moss, and tiny cyan mineral glints; original hand-painted MOBA environment feel; no lanes, roads, rivers, pools, pits, walls as map geometry, buildings, camps, landmarks, symbols, text, logo, watermark, lighting gradient, or perspective scene.
+
+## Rift wall masonry microdetail v3
+
+- Execution ID: `exec-b126d077-ca6f-4580-845c-85e54c299ad7`.
+- Imported target: `source/imagegen/map/rift_wall_masonry_v3_source.png`.
+- Runtime use: high-frequency-luminance-only detail, capped at 0.08, on the general official `wall_5v5` alpha and the entire official `wall_5v5_front` alpha.
+- Generation requirements: seamless orthographic top-down blue-gray rift masonry texture; varied small slate blocks, fine cracks, restrained moss, tiny roots, and sparse cyan mineral details; original hand-painted MOBA environment feel; no map layout, lanes, water, pits, buildings, camps, landmarks, symbols, text, logo, watermark, lighting gradient, or perspective scene.
+
+## Rift bush microdetail v3
+
+- Execution ID: `exec-d8c82ac3-7568-41bb-973a-304bb910f23b`.
+- Imported target: `source/imagegen/map/rift_bush_microdetail_v3_source.png`.
+- Runtime use: high-frequency-luminance-only detail, capped at 0.08, only through the official `bush_5v5` alpha.
+- Generation requirements: seamless orthographic top-down dense dark emerald rift brush texture; fine leaves, ferns, thin vines, and sparse blue-violet flowers; original hand-painted MOBA environment feel; no paths, clearings, water, stone walls, terrain layout, buildings, camps, landmarks, symbols, text, logo, watermark, lighting gradient, or perspective scene.

@@ -52,8 +52,8 @@
     },
     "cavalry_knight": {
       "face": {
-        "x": 1,
-        "y": -44
+        "x": 0,
+        "y": -12
       },
       "center": {
         "x": 0,

@@ -1,23 +1,25 @@
 # Kled E Jousting QA
 
-Kled's Jousting approximation is folded into the Q slot because the public champion surface has three active cooldown slots. The separate second UI slot is reserved for the original W four-hit mapping.
+Kled's second public active is a standalone Jousting dash. It does not activate an attack-speed state and it does not share Q's projectile, tether, delayed pull, or crowd control.
 
 ## Static contract
 
-- [x] The composite Q owns exactly one `Rush`; no parallel second dash or unsupported fourth active key is declared.
-- [x] Rush speed is 3200, Move Speed ratio is 100%, collision range is 12000, and `penetrate=false` stops the dash on the first valid enemy-champion collision.
-- [x] `lol_kled_e_cast` plays at dash start and `lol_kled_e_hit` plays on the collided target.
-- [x] `lol_kled_q_dash_visual` follows Kled from the independent `kled_q_tether` effect sheet while the actor uses the native `skill1_dash` action.
-- [x] The collided target then receives the composite Q latch/delayed-pull payload documented in `kled_q_tether_qa.md`.
+- [x] `skill2.action_name=skill2` is a directional E cast with a 480-tick cooldown, 13-tick action, and 55000 AI cast range.
+- [x] E owns exactly one non-penetrating `Rush`: speed 3200, Move Speed ratio 100%, collision radius 12000, enemy-champion target filter.
+- [x] The first enemy champion hit takes `30 + 80% AD` exactly once.
+- [x] A successful hit grants only Kled `lol_kled_e_hit_speed` for 60 ticks with +20% Move Speed.
+- [x] `lol_kled_e_cast` plays at dash start and `lol_kled_e_hit` plays once on the collided target.
+- [x] The independent `kled_e_joust` effect sheet supplies `dash` and `impact`; E does not reuse the Q rope sheet.
+- [x] E contains no `LinearProjectile`, `Delayed`, `Grab`, `Bind`, Q tether state, or attack-speed/four-hit state machine.
 
 ## Intentional approximation
 
-There is no standalone E cooldown, no second Jousting recast through the marked target, and no separate direction re-evaluation. The one non-penetrating rush is the frozen data-level approximation that joins E movement to Q's tether identity.
+This data-only E stops on the first enemy-champion collision and has one cast. It does not implement League Kled's second recast through a marked target.
 
 ## Pending live checks
 
 - [ ] Kled moves along the selected direction instead of teleporting or homing before contact.
 - [ ] The dash stops on the first valid enemy champion and does not pass through that target.
-- [ ] A miss completes without applying tether damage, slow, pull, bind, or hit sound.
-- [ ] Left/right casts mirror correctly and keep the mounted body, weapon, dust, and dash origin aligned.
-- [ ] Collision near walls, towers, or camp boundaries does not produce a large position snap or persistent effect.
+- [ ] A miss completes without damage, hit audio, speed buff, Q rope, pull, or bind.
+- [ ] Left/right casts mirror correctly and keep the mounted body, dash trail, and impact origin aligned.
+- [ ] Collision near walls, towers, or camp boundaries does not produce a position snap or persistent effect.

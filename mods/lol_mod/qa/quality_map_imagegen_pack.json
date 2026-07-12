@@ -1,11 +1,12 @@
 {
-  "schema": "lol_mod.quality_map_imagegen_pack.v3",
+  "schema": "lol_mod.quality_map_imagegen_pack.v4",
   "generator": "mods/lol_mod/tools/pack_quality_map.py",
-  "imagegen_mode": "built-in image generation; palette/microdetail plus official-mask landmark decals",
+  "imagegen_mode": "built-in image generation; official-contour high-frequency microdetail plus official-mask landmark decals",
   "prompts": {
     "microtexture": "Uniform seamless top-down microtexture only: tiny moss, soil grain and restrained cyan mineral flecks. No roads, rivers, pools, pits, walls, buildings, camps, lanes, landmarks, borders, symbols, lighting gradients or other terrain semantics.",
-    "wall_palette": "Seamless orthographic top-down blue-gray slate cliff masonry with moss, roots, and restrained cyan mineral glints; original hand-painted MOBA environment texture.",
-    "bush_palette": "Seamless orthographic top-down dense dark emerald brush with fine grass, ferns, blue-violet flowers, and controlled shadow pockets; original hand-painted MOBA texture.",
+    "wall_masonry_microdetail_v3": "Seamless orthographic top-down blue-gray rift masonry microdetail with restrained moss, fine cracks and tiny cyan mineral glints; original hand-painted MOBA environment texture.",
+    "cliff_microdetail_v4": "Seamless orthographic top-down dark slate rift cliff microdetail with layered rock faces, fine roots, restrained moss and tiny cyan mineral glints; no map layout or landmarks.",
+    "bush_microdetail_v3": "Seamless orthographic top-down dense dark emerald rift brush microdetail with fine leaves, ferns and sparse blue-violet flowers; no paths, clearings, walls or terrain landmarks.",
     "landmark_common": "One isolated square orthographic top-down hand-painted MOBA terrain decal, League-inspired but original, crisp readable stonework at small game scale, restrained cyan or team-color magic, no characters, monsters, buildings, text, logos, UI, roads, rivers, pools, walls, grass, perspective, or photographic lighting. Transparent outside the decal if possible; otherwise use one uniform #18382f background."
   },
   "sources": {
@@ -26,10 +27,10 @@
         "opaque_pixels": 1572516
       }
     },
-    "wall_palette": {
-      "path": "source/imagegen/map/rift_wall_texture_v2_source.png",
-      "size_bytes": 2801178,
-      "sha256": "0b77fc2892e09c00802adf36bb0e5348e8b8878acef5a9b11a5861aef7b9bf23",
+    "wall_masonry": {
+      "path": "source/imagegen/map/rift_wall_masonry_v3_source.png",
+      "size_bytes": 2540158,
+      "sha256": "05ca261feeabc02f513040f4f84fd427fea68ed3dd131cd54170e79b5fb2d031",
       "dimensions": [
         1254,
         1254
@@ -41,12 +42,13 @@
         "transparent_pixels": 0,
         "partial_pixels": 0,
         "opaque_pixels": 1572516
-      }
+      },
+      "imagegen_exec_id": "exec-b126d077-ca6f-4580-845c-85e54c299ad7"
     },
-    "bush_palette": {
-      "path": "source/imagegen/map/rift_bush_texture_v2_source.png",
-      "size_bytes": 3063525,
-      "sha256": "c8e51c00debaf20c87b78efbfd029665aa00c83773b669ec4302d41cf01d38ad",
+    "cliff_microdetail": {
+      "path": "source/imagegen/map/rift_cliff_microdetail_v4_source.png",
+      "size_bytes": 3247714,
+      "sha256": "1c00ff9931e7b1d6d62931f9f619e2d19d3cba89d3d7d93441a684a1b973f70c",
       "dimensions": [
         1254,
         1254
@@ -58,7 +60,26 @@
         "transparent_pixels": 0,
         "partial_pixels": 0,
         "opaque_pixels": 1572516
-      }
+      },
+      "imagegen_exec_id": "exec-314b7938-4a24-46ba-aea4-fb476c3c8329"
+    },
+    "bush_microdetail": {
+      "path": "source/imagegen/map/rift_bush_microdetail_v3_source.png",
+      "size_bytes": 2713590,
+      "sha256": "6920e465a408ddf86c1e49a43540b6ca89f30231c76914272aa3373bcee117d3",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      },
+      "imagegen_exec_id": "exec-d8c82ac3-7568-41bb-973a-304bb910f23b"
     }
   },
   "source_usage": {
@@ -67,47 +88,83 @@
       "strength": 0.05,
       "spatial_terrain_semantics_copied": false
     },
-    "wall_palette": {
-      "source_mean_rgb": [
-        50.7293,
-        67.4028,
-        75.1463
-      ],
-      "strength": 0.1,
-      "channel_factors": [
-        0.978751,
-        1.004635,
-        1.016656
-      ],
-      "spatial_pixels_copied": false
-    },
-    "wall_front_palette": {
-      "source_mean_rgb": [
-        50.7293,
-        67.4028,
-        75.1463
-      ],
-      "strength": 0.1,
-      "channel_factors": [
-        0.978751,
-        1.004635,
-        1.016656
-      ],
-      "spatial_pixels_copied": false
-    },
-    "bush_palette": {
-      "source_mean_rgb": [
-        9.5441,
-        49.7758,
-        48.3316
-      ],
+    "wall_main_masonry": {
+      "operation": "high-frequency-luminance-only",
+      "source_path": "source/imagegen/map/rift_wall_masonry_v3_source.png",
+      "source_sha256": "05ca261feeabc02f513040f4f84fd427fea68ed3dd131cd54170e79b5fb2d031",
       "strength": 0.08,
-      "channel_factors": [
-        0.938569,
-        1.016844,
-        1.014034
-      ],
-      "spatial_pixels_copied": false
+      "gaussian_low_frequency_radius": 18.0,
+      "high_frequency_scale": 0.85,
+      "blend_mode": "soft-light then low-strength linear blend",
+      "contour_restore": "Image.composite with official native alpha",
+      "direct_source_pixels_copied": false,
+      "changed_pixels": 72379,
+      "alpha_byte_identical": true,
+      "transparent_rgba_byte_identical": true,
+      "imagegen_exec_id": "exec-b126d077-ca6f-4580-845c-85e54c299ad7",
+      "coverage": "official wall alpha excluding OUTER_CLIFF_REGIONS"
+    },
+    "wall_outer_cliff": {
+      "operation": "high-frequency-luminance-only",
+      "source_path": "source/imagegen/map/rift_cliff_microdetail_v4_source.png",
+      "source_sha256": "1c00ff9931e7b1d6d62931f9f619e2d19d3cba89d3d7d93441a684a1b973f70c",
+      "strength": 0.1,
+      "gaussian_low_frequency_radius": 18.0,
+      "high_frequency_scale": 0.85,
+      "blend_mode": "soft-light then low-strength linear blend",
+      "contour_restore": "Image.composite with official native alpha",
+      "direct_source_pixels_copied": false,
+      "changed_pixels": 93927,
+      "alpha_byte_identical": true,
+      "transparent_rgba_byte_identical": true,
+      "imagegen_exec_id": "exec-314b7938-4a24-46ba-aea4-fb476c3c8329",
+      "coverage": "official wall alpha inside OUTER_CLIFF_REGIONS",
+      "regions_xyxy_half_open": [
+        [
+          0,
+          160,
+          192,
+          1280
+        ],
+        [
+          1088,
+          160,
+          1280,
+          1280
+        ]
+      ]
+    },
+    "wall_front_masonry": {
+      "operation": "high-frequency-luminance-only",
+      "source_path": "source/imagegen/map/rift_wall_masonry_v3_source.png",
+      "source_sha256": "05ca261feeabc02f513040f4f84fd427fea68ed3dd131cd54170e79b5fb2d031",
+      "strength": 0.08,
+      "gaussian_low_frequency_radius": 18.0,
+      "high_frequency_scale": 0.85,
+      "blend_mode": "soft-light then low-strength linear blend",
+      "contour_restore": "Image.composite with official native alpha",
+      "direct_source_pixels_copied": false,
+      "changed_pixels": 23614,
+      "alpha_byte_identical": true,
+      "transparent_rgba_byte_identical": true,
+      "imagegen_exec_id": "exec-b126d077-ca6f-4580-845c-85e54c299ad7",
+      "coverage": "official wall_5v5_front alpha"
+    },
+    "bush_microdetail": {
+      "operation": "high-frequency-luminance-only",
+      "source_path": "source/imagegen/map/rift_bush_microdetail_v3_source.png",
+      "source_sha256": "6920e465a408ddf86c1e49a43540b6ca89f30231c76914272aa3373bcee117d3",
+      "strength": 0.08,
+      "gaussian_low_frequency_radius": 18.0,
+      "high_frequency_scale": 0.85,
+      "blend_mode": "soft-light then low-strength linear blend",
+      "contour_restore": "Image.composite with official native alpha",
+      "direct_source_pixels_copied": false,
+      "changed_pixels": 40044,
+      "alpha_byte_identical": true,
+      "transparent_rgba_byte_identical": true,
+      "imagegen_exec_id": "exec-d8c82ac3-7568-41bb-973a-304bb910f23b",
+      "coverage": "official bush_5v5 alpha"
     }
   },
   "rejected_routes": [
@@ -2133,8 +2190,8 @@
     },
     "wall_5v5": {
       "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
-      "size_bytes": 109616,
-      "sha256": "7bb6439c0235da4fd75e4b2bcfea1f833fa52c5900232b75f63d0b02374a8de7",
+      "size_bytes": 252950,
+      "sha256": "50ebd7da44dddeb8cd9fc5c7bbea136dfac7db9082fe4a66b1e2479b001eeff8",
       "dimensions": [
         1280,
         1280
@@ -2150,8 +2207,8 @@
     },
     "wall_5v5_front": {
       "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
-      "size_bytes": 9642,
-      "sha256": "d2a929c6c9adb33cc74cfd3a5deca643a03c1e5af14e682e6dbeaa24a32d30bf",
+      "size_bytes": 30442,
+      "sha256": "653f0f2c0c7d18077cbdeccea7badea8ac99652e1fbe4a2adb1af806525e705b",
       "dimensions": [
         1280,
         1280
@@ -2184,8 +2241,8 @@
     },
     "bush_5v5": {
       "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
-      "size_bytes": 47293,
-      "sha256": "d46d109cb4be9c1899367804aa982aee3c791d75bed90eb3130834b14b56b29d",
+      "size_bytes": 90117,
+      "sha256": "94d8a386d271ea48036a7ea42aa9ed7c6f1e331e6124e711f9d6bf4adeaa8c2f",
       "dimensions": [
         1280,
         1280
@@ -2270,8 +2327,8 @@
   },
   "preview": {
     "path": "qa/quality_map_composite_preview.png",
-    "size_bytes": 826443,
-    "sha256": "358b8b7faa453ccc33f83e5f73228159c208292a39dc7ba38cb8eb023158b43a",
+    "size_bytes": 842292,
+    "sha256": "8c9788fd0b9042c0c85e8049cae0ccbe1724ffd6727204f76ee9a626e37f45f1",
     "dimensions": [
       1536,
       512
@@ -2285,6 +2342,251 @@
       "opaque_pixels": 786432
     }
   },
+  "surface_detail": {
+    "method": "high-frequency-luminance-only",
+    "low_frequency_removal": "GaussianBlur radius 18.0",
+    "composite_contract": "Image.composite back through official native alpha",
+    "outer_cliff_regions_xyxy_half_open": [
+      [
+        0,
+        160,
+        192,
+        1280
+      ],
+      [
+        1088,
+        160,
+        1280,
+        1280
+      ]
+    ],
+    "layers": {
+      "wall_5v5": {
+        "dimensions_1280": true,
+        "alpha_byte_identical": true,
+        "transparent_rgba_byte_identical": true,
+        "native_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 291274,
+          "bbox_xyxy_half_open": [
+            0,
+            103,
+            1280,
+            1152
+          ],
+          "alpha_sha256": "97ce996397de55d5eb272fed620de3223a9ee356ea6ab9f54430fefe43cd691c"
+        },
+        "runtime_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 291274,
+          "bbox_xyxy_half_open": [
+            0,
+            103,
+            1280,
+            1152
+          ],
+          "alpha_sha256": "97ce996397de55d5eb272fed620de3223a9ee356ea6ab9f54430fefe43cd691c"
+        },
+        "nontransparent_count_identical": true,
+        "nontransparent_bbox_identical": true,
+        "changed_pixels_from_official": 166306,
+        "changed_nontransparent_ratio": 0.570961,
+        "visible_mean_abs_rgb_from_official": [
+          0.5406,
+          0.5528,
+          0.5376
+        ]
+      },
+      "wall_5v5_front": {
+        "dimensions_1280": true,
+        "alpha_byte_identical": true,
+        "transparent_rgba_byte_identical": true,
+        "native_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 56022,
+          "bbox_xyxy_half_open": [
+            0,
+            1113,
+            1280,
+            1170
+          ],
+          "alpha_sha256": "c9e38a9a12dd57a18d1af936af2dd3ad6cd42ff91958a148f67d488c3f9f1e0f"
+        },
+        "runtime_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 56022,
+          "bbox_xyxy_half_open": [
+            0,
+            1113,
+            1280,
+            1170
+          ],
+          "alpha_sha256": "c9e38a9a12dd57a18d1af936af2dd3ad6cd42ff91958a148f67d488c3f9f1e0f"
+        },
+        "nontransparent_count_identical": true,
+        "nontransparent_bbox_identical": true,
+        "changed_pixels_from_official": 23614,
+        "changed_nontransparent_ratio": 0.421513,
+        "visible_mean_abs_rgb_from_official": [
+          0.3854,
+          0.4202,
+          0.3806
+        ]
+      },
+      "bush_5v5": {
+        "dimensions_1280": true,
+        "alpha_byte_identical": true,
+        "transparent_rgba_byte_identical": true,
+        "native_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 62287,
+          "bbox_xyxy_half_open": [
+            160,
+            160,
+            1120,
+            1120
+          ],
+          "alpha_sha256": "dbe94a7e293e3067250a40fd785a65e625beac72467b35a15cafaeb7f5e47e2c"
+        },
+        "runtime_footprint": {
+          "dimensions": [
+            1280,
+            1280
+          ],
+          "nontransparent_pixels": 62287,
+          "bbox_xyxy_half_open": [
+            160,
+            160,
+            1120,
+            1120
+          ],
+          "alpha_sha256": "dbe94a7e293e3067250a40fd785a65e625beac72467b35a15cafaeb7f5e47e2c"
+        },
+        "nontransparent_count_identical": true,
+        "nontransparent_bbox_identical": true,
+        "changed_pixels_from_official": 40044,
+        "changed_nontransparent_ratio": 0.642895,
+        "visible_mean_abs_rgb_from_official": [
+          0.5964,
+          0.6233,
+          0.6072
+        ]
+      }
+    },
+    "shadow_rgba_sha256": {
+      "wall_shadow_5v5": {
+        "official": "85c8719c5d65ef25467adbdc615c97014f28151ced34878db69c53b8324d8f52",
+        "runtime": "85c8719c5d65ef25467adbdc615c97014f28151ced34878db69c53b8324d8f52",
+        "byte_identical": true
+      },
+      "bush_shadow_5v5": {
+        "official": "63eaec2162170c9316700bd988e78972d37948cbfd52132efdb54d32308a7b25",
+        "runtime": "63eaec2162170c9316700bd988e78972d37948cbfd52132efdb54d32308a7b25",
+        "byte_identical": true
+      },
+      "tower_shadow": {
+        "official": "8943beb4a06f650f36d6a558f9b425aaaf104745cdb69a9c3b8bcf222ed45fbd",
+        "runtime": "8943beb4a06f650f36d6a558f9b425aaaf104745cdb69a9c3b8bcf222ed45fbd",
+        "byte_identical": true
+      },
+      "nexus_shadow": {
+        "official": "db3dc507c336a45400494fbb89061b1382eb8e4f8256b3b60d4310cca6672829",
+        "runtime": "db3dc507c336a45400494fbb89061b1382eb8e4f8256b3b60d4310cca6672829",
+        "byte_identical": true
+      }
+    },
+    "preview": {
+      "path": "qa/quality_map_surface_detail_preview.png",
+      "dimensions": [
+        1064,
+        687
+      ],
+      "scale": "1:1",
+      "resampling": "none",
+      "crops": {
+        "left_outer_cliff": {
+          "bbox_xyxy_half_open": [
+            32,
+            160,
+            160,
+            544
+          ],
+          "dimensions": [
+            128,
+            384
+          ],
+          "scale": "1:1",
+          "resampling": "none",
+          "official_rgba_sha256": "b8829fa84d1c8c55b5b87cb1681afd5ad71a96edde63aa52d05eeaa324a8c5e8",
+          "v4_rgba_sha256": "2d821635ec7f0f59bb5e182532f8a4b5609c15de08b9e5f5ba01b689f066ad49"
+        },
+        "bush": {
+          "bbox_xyxy_half_open": [
+            160,
+            160,
+            256,
+            256
+          ],
+          "dimensions": [
+            96,
+            96
+          ],
+          "scale": "1:1",
+          "resampling": "none",
+          "official_rgba_sha256": "2f88317f7444bed259a43bb7d1fadaa683f38bd703ab29eb0054d34f948f838e",
+          "v4_rgba_sha256": "3d58732304c3c67381a1530d0dfe9f5d18ff042e434101637778408cdcc60360"
+        },
+        "bottom_front_wall": {
+          "bbox_xyxy_half_open": [
+            384,
+            1113,
+            896,
+            1170
+          ],
+          "dimensions": [
+            512,
+            57
+          ],
+          "scale": "1:1",
+          "resampling": "none",
+          "official_rgba_sha256": "bc17a231f0b309007bf0522bd98a6c2cecdf049b92923d994d8f8a09807bef03",
+          "v4_rgba_sha256": "51da693e98d35a6a0ac078b70f8f61ed94c4a20ffbd97748790ebe22d6797c91"
+        }
+      },
+      "image": {
+        "path": "qa/quality_map_surface_detail_preview.png",
+        "size_bytes": 103374,
+        "sha256": "39067c5b871ee06a6075788efab6b7dce414d89ccc09a5981c192ef044304e17",
+        "dimensions": [
+          1064,
+          687
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 255,
+          "max": 255,
+          "transparent_pixels": 0,
+          "partial_pixels": 0,
+          "opaque_pixels": 730968
+        }
+      }
+    }
+  },
   "contracts": {
     "background_size": [
       1280,
@@ -2296,7 +2598,10 @@
     ],
     "runtime_structure_source": "native bundle 5v5 layers only",
     "background_geometry": "native background with global grade, 5% semantics-free luminance microdetail, and optional decals confined to audited native landmark masks",
-    "wall_and_bush_geometry": "native RGBA contours; ImageGen supplies global palette only",
+    "wall_and_bush_geometry": "native RGBA contours and transparent bytes; ImageGen supplies only Gaussian-isolated high-frequency luminance at capped low strength",
+    "wall_surface_detail": "masonry <=8%; left/right exterior cliffs <=10%; front wall <=8%",
+    "bush_surface_detail": "brush high-frequency luminance <=8%",
+    "shadow_layers": "decoded official RGBA bytes and SHA-256 unchanged",
     "tower_circles_and_camp_markers": "official background coordinates and silhouettes; a native 2px rim is retained",
     "roads_water_and_non_landmark_ground": "byte-identical to the refined native input outside the landmark union mask",
     "minimap_source": "native minimap background with global color grade only",
@@ -2337,26 +2642,26 @@
     },
     "wall_5v5": {
       "mean_abs_rgb": [
-        3.1272,
-        1.5725,
-        0.3049
+        0.5406,
+        0.5528,
+        0.5376
       ],
       "max_abs_rgb": [
-        11,
-        5,
-        5
+        4,
+        4,
+        4
       ]
     },
     "wall_5v5_front": {
       "mean_abs_rgb": [
-        4.3579,
-        2.3335,
-        1.3957
+        0.3854,
+        0.4202,
+        0.3806
       ],
       "max_abs_rgb": [
-        16,
-        10,
-        7
+        2,
+        2,
+        2
       ]
     },
     "wall_shadow_5v5": {
@@ -2373,14 +2678,14 @@
     },
     "bush_5v5": {
       "mean_abs_rgb": [
-        4.208,
-        1.4453,
-        0.322
+        0.5964,
+        0.6233,
+        0.6072
       ],
       "max_abs_rgb": [
-        7,
         2,
-        1
+        2,
+        2
       ]
     },
     "bush_shadow_5v5": {
@@ -2460,6 +2765,15 @@
     "all_native_alpha_masks_exact": true,
     "all_runtime_alpha_matches_native_bundle": true,
     "all_runtime_rgb_deltas_are_low": true,
+    "surface_layers_keep_1280_dimensions": true,
+    "surface_alpha_bytes_are_official": true,
+    "surface_transparent_rgba_is_official": true,
+    "surface_nontransparent_counts_are_official": true,
+    "surface_nontransparent_bboxes_are_official": true,
+    "surface_microdetail_changed_visible_pixels": true,
+    "surface_microdetail_is_high_frequency_luminance_only": true,
+    "surface_microdetail_strengths_are_capped": true,
+    "shadow_rgba_bytes_are_official": true,
     "rejected_whole_map_source_removed": true,
     "generated_spatial_wall_and_bush_tiling_removed": true,
     "runtime_geometry_comes_only_from_native_bundle": true,

@@ -2958,95 +2958,15 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
         )
     attack = champion.get("attack", {})
     check((attack.get("range"), attack.get("cooltime")) == (27000, 50), "Kled basic attack must retain the 006 range/cooldown")
-
-    haste_switch = attack.get("effect", {})
     check(
-        (haste_switch.get("type"), haste_switch.get("buff_name"))
-        == ("SwitchByBuff", "lol_kled_violent_haste"),
-        "Kled attack must branch first on the Violent Tendencies haste marker",
+        direct_effects(attack.get("effect", {}), "Attack")
+        == [{"type": "Attack", "damage": 0, "attack_ratio": 100}],
+        "Kled basic attack must be one plain 100% Attack hit",
     )
-    check(
-        not find_effect(haste_switch.get("effect_none", {}), "Attack", target_hp_ratio=4),
-        "Kled attacks outside W must not deal maximum-health damage",
-    )
-    stage4_switch = haste_switch.get("effect_buff", {})
-    stage3_switch = stage4_switch.get("effect_none", {})
-    stage2_switch = stage3_switch.get("effect_none", {})
-    stage1_switch = stage2_switch.get("effect_none", {})
-    stage_switches = [stage1_switch, stage2_switch, stage3_switch, stage4_switch]
-    check(
-        [switch.get("type") for switch in stage_switches] == ["SwitchByBuff"] * 4,
-        "Kled attack must contain four nested W stage switches",
-    )
-    check(
-        [switch.get("buff_name") for switch in stage_switches]
-        == [f"lol_kled_violent_stage{index}" for index in range(1, 5)],
-        "Kled W stage switches must be ordered stage1 through stage4",
-    )
-    for index, switch in enumerate(stage_switches[:3], start=1):
-        branch = switch.get("effect_buff", {})
-        attacks = direct_effects(branch, "Attack")
-        check(
-            [(effect.get("damage"), effect.get("attack_ratio")) for effect in attacks]
-            == [(0, 100)],
-            f"Kled W attack {index} must deal exactly one normal 100% Attack hit",
-        )
-        check(
-            not find_effect(branch, "Attack", target_hp_ratio=4),
-            f"Kled W attack {index} must not deal fourth-hit maximum-health damage",
-        )
-        check(
-            [effect.get("name") for effect in direct_effects(branch, "RemoveCasterBuff")]
-            == [f"lol_kled_violent_stage{index}"],
-            f"Kled W attack {index} must remove only its current stage",
-        )
-        check(
-            direct_buff_states(branch, "AddCasterBuff")
-            == [
-                {
-                    "name": f"lol_kled_violent_stage{index + 1}",
-                    "duration": {"Time": {"tick": 240}},
-                }
-            ],
-            f"Kled W attack {index} must advance exactly one stage",
-        )
-        check(
-            not find_effect(branch, "RemoveCasterBuff", name="lol_kled_violent_haste"),
-            f"Kled W attack {index} must retain the haste marker",
-        )
-    fourth = stage4_switch.get("effect_buff", {})
-    check(
-        direct_effects(fourth, "Attack")
-        == [
-            {"type": "Attack", "damage": 0, "attack_ratio": 100},
-            {
-                "type": "Attack",
-                "damage": 20,
-                "attack_ratio": 35,
-                "target_hp_ratio": 4,
-            },
-        ],
-        "Kled W fourth attack must deal one normal hit plus exactly 20 + 35% Attack + 4% max-health damage",
-    )
-    check(
-        len(find_effect(attack, "Attack", target_hp_ratio=4)) == 1,
-        "Kled W maximum-health damage must occur exactly once",
-    )
-    check(
-        {effect.get("name") for effect in direct_effects(fourth, "RemoveCasterBuff")}
-        == {
-            "lol_kled_violent_haste",
-            "lol_kled_violent_stage1",
-            "lol_kled_violent_stage2",
-            "lol_kled_violent_stage3",
-            "lol_kled_violent_stage4",
-        },
-        "Kled W fourth attack must clear haste and every stage marker",
-    )
-    check(
-        not direct_effects(fourth, "AddCasterBuff"),
-        "Kled W fourth attack must not advance or recreate a stage",
-    )
+    check(not find_effect(champion, "SwitchByBuff"), "Kled Q/E/R contract must not contain SwitchByBuff")
+    serialized = json.dumps(champion, ensure_ascii=False)
+    check("lol_kled_violent_" not in serialized, "Kled retired Violent Tendencies markers must be absent")
+    check("kled_w_" not in serialized, "Kled data must not reference retired W audio or VFX")
 
     skill = champion.get("skill", {})
     check(
@@ -3060,32 +2980,34 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
             skill.get("casting_target"),
         )
         == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion"),
-        "Kled combined Q/E action timing or targeting changed",
+        "Kled Q action timing or targeting changed",
     )
-    rushes = find_effect(skill, "Rush")
-    check(len(rushes) == 1, "Kled combined Q/E must contain exactly one Rush")
-    if rushes:
-        rush = rushes[0]
+    check(not find_effect(skill, "Rush"), "Kled Q must never move the caster through Rush")
+    q_projectiles = find_effect(skill, "LinearProjectile", name="lol_kled_q_beartrap_projectile")
+    check(len(q_projectiles) == 1, "Kled Q must contain exactly one bear-trap LinearProjectile")
+    if q_projectiles:
+        projectile = q_projectiles[0]
         check(
             (
-                rush.get("speed"),
-                rush.get("move_speed_ratio"),
-                rush.get("range"),
-                rush.get("casting_target"),
-                rush.get("penetrate"),
+                projectile.get("penetrate"),
+                projectile.get("speed"),
+                projectile.get("range"),
+                projectile.get("shape"),
+                projectile.get("applied_target"),
             )
-            == (3200, 100, 12000, "EnemyChampion", False),
-            "Kled combined Q/E Rush speed/range/target/non-penetration contract changed",
+            == (False, 3600, 65000, {"Circle": {"radius": 8000}}, "EnemyChampion"),
+            "Kled Q projectile speed/range/shape/target/non-penetration contract changed",
         )
-        applied = rush.get("applied_effects", [])
-        check(len(applied) == 1, "Kled combined Q/E Rush must have one first-hit payload")
+        check(projectile.get("end_effects") == [], "Kled Q projectile must not launch a second end projectile")
+        applied = projectile.get("applied_effects", [])
+        check(len(applied) == 1, "Kled Q projectile must have one first-hit payload")
         hit = applied[0] if applied else {}
-        check(hit.get("casting_type") == "Targeting", "Kled combined Q/E hit payload must target the first enemy")
+        check(hit.get("casting_type") == "Targeting", "Kled Q hit payload must target the first enemy champion")
         hit_effect = hit.get("effect", {})
         check(
             direct_effects(hit_effect, "Attack")
             == [{"type": "Attack", "damage": 30, "attack_ratio": 80}],
-            "Kled combined Q/E first hit must deal 30 + 80% Attack exactly once",
+            "Kled Q first hit must deal 30 + 80% Attack exactly once",
         )
         check(
             direct_buff_states(hit_effect, "AddBuff")
@@ -3099,15 +3021,8 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
             "Kled Q tether must slow the target by 20% for 45 ticks",
         )
         check(
-            direct_buff_states(hit_effect, "AddCasterBuff")
-            == [
-                {
-                    "name": "lol_kled_q_hit_speed",
-                    "duration": {"Time": {"tick": 60}},
-                    "move_speed_mult": 20,
-                }
-            ],
-            "Kled combined Q/E hit must grant 20% self speed for 60 ticks",
+            not direct_buff_states(hit_effect, "AddCasterBuff"),
+            "Kled Q must not inherit E's self Move Speed buff",
         )
         delayed = direct_effects(hit_effect, "Delayed")
         check(len(delayed) == 1 and delayed[0].get("tick") == 45, "Kled Q pull must resolve after exactly 45 ticks")
@@ -3129,12 +3044,12 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
                 "Kled Q pull must bind for 30 ticks",
             )
         check(
-            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
             == [(30, 80), (20, 40)],
-            "Kled combined Q/E Rush must resolve exactly two damage instances",
+            "Kled Q projectile must resolve exactly two damage instances",
         )
     check(len(find_effect(skill, "Sfx", name="lol_kled_q_cast")) == 1, "Kled Q cast audio must play once")
-    check(len(find_effect(skill, "Sfx", name="lol_kled_e_cast")) == 1, "Kled merged E dash audio must play once")
+    check(not find_effect(skill, "Sfx", name="lol_kled_e_cast"), "Kled Q must not play E cast audio")
 
     skill2 = champion.get("skill2", {})
     check(
@@ -3144,45 +3059,102 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
             skill2.get("duration"),
             skill2.get("start_timing"),
             skill2.get("range"),
+            skill2.get("casting_type"),
             skill2.get("casting_target"),
         )
-        == ("skill2", 480, 13, 11, 35000, "EnemyChampion"),
-        "Kled W-in-E-slot action timing or combat trigger changed",
+        == ("skill2", 480, 13, 11, 55000, "Direction", "EnemyChampion"),
+        "Kled E action timing or targeting changed",
     )
-    skill2_root = skill2.get("effect", {})
-    marker_names = {
-        "lol_kled_violent_haste",
-        "lol_kled_violent_stage1",
-        "lol_kled_violent_stage2",
-        "lol_kled_violent_stage3",
-        "lol_kled_violent_stage4",
-    }
-    preclean = [effect.get("name") for effect in direct_effects(skill2_root, "RemoveCasterBuff")]
-    check(len(preclean) == 5 and set(preclean) == marker_names, "Kled W cast must clear every stale marker before arming")
-    check(
-        direct_buff_states(skill2_root, "AddCasterBuff")
-        == [
-            {
-                "name": "lol_kled_violent_haste",
-                "duration": {"Time": {"tick": 240}},
-                "attack_speed_mult": 60,
-            },
-            {
-                "name": "lol_kled_violent_stage1",
-                "duration": {"Time": {"tick": 240}},
-            },
-        ],
-        "Kled W cast must arm 60% Attack Speed and stage1 for 240 ticks",
-    )
-    timeout = direct_effects(skill2_root, "Delayed")
-    check(len(timeout) == 1 and timeout[0].get("tick") == 240, "Kled W timeout cleanup must run at 240 ticks")
-    if timeout:
-        timeout_names = [effect.get("name") for effect in direct_effects(timeout[0], "RemoveCasterBuff")]
+    e_rushes = find_effect(skill2, "Rush")
+    check(len(e_rushes) == 1, "Kled E must contain exactly one non-penetrating Rush")
+    if e_rushes:
+        rush = e_rushes[0]
         check(
-            len(timeout_names) == 5 and set(timeout_names) == marker_names,
-            "Kled W timeout must clear haste and all four stages",
+            (
+                rush.get("speed"),
+                rush.get("move_speed_ratio"),
+                rush.get("range"),
+                rush.get("casting_target"),
+                rush.get("penetrate"),
+            )
+            == (3200, 100, 12000, "EnemyChampion", False),
+            "Kled E Rush speed/scaling/hit radius/target/non-penetration contract changed",
         )
-    check(not find_effect(skill2, "Attack"), "Kled W activation must not deal direct damage")
+        applied = rush.get("applied_effects", [])
+        check(len(applied) == 1, "Kled E Rush must have one first-hit payload")
+        hit = applied[0] if applied else {}
+        check(hit.get("casting_type") == "Targeting", "Kled E hit payload must target the first enemy champion")
+        payload = hit.get("effect", {})
+        check(
+            direct_effects(payload, "Attack")
+            == [{"type": "Attack", "damage": 30, "attack_ratio": 80}],
+            "Kled E first hit must deal 30 + 80% Attack exactly once",
+        )
+        check(
+            direct_buff_states(payload, "AddCasterBuff")
+            == [
+                {
+                    "name": "lol_kled_e_hit_speed",
+                    "duration": {"Time": {"tick": 60}},
+                    "move_speed_mult": 20,
+                }
+            ],
+            "Kled E hit must grant 20% self Move Speed for 60 ticks",
+        )
+    check(not find_effect(skill2, "LinearProjectile"), "Kled E must not reuse Q's projectile")
+    check(not find_effect(skill2, "Delayed"), "Kled E must not reuse Q's delayed tether")
+    check(not find_effect(skill2, "Grab") and not find_effect(skill2, "Bind"), "Kled E must not pull or bind")
+    check(len(find_effect(skill2, "Sfx", name="lol_kled_e_cast")) == 1, "Kled E cast audio must play once")
+    check(len(find_effect(skill2, "TargetSfx", name="lol_kled_e_hit")) == 1, "Kled E hit audio must play once")
+    skill2_serialized = json.dumps(skill2, ensure_ascii=False)
+    check("lol_kled_q_" not in skill2_serialized, "Kled E must not contain Q tether state")
+    check("lol_kled_violent_" not in skill2_serialized, "Kled E must not contain retired W state")
+
+    projectile_views = {
+        view.get("name"): view for view in champion.get("view_projectiles", [])
+    }
+    check(
+        projectile_views.get("lol_kled_q_beartrap_projectile")
+        == {
+            "type": "Animated",
+            "name": "lol_kled_q_beartrap_projectile",
+            "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+            "tag": "projectile",
+            "z": 2,
+            "repeat": True,
+        },
+        "Kled Q projectile view must use the independent projectile tag",
+    )
+    effect_views = {view.get("name"): view for view in champion.get("view_effects", [])}
+    for name, asset, tag in (
+        ("lol_kled_q_latch_visual", "asset/lol_mod/aseprite_resources/effects/kled_q_tether", "latch"),
+        ("lol_kled_q_pull_visual", "asset/lol_mod/aseprite_resources/effects/kled_q_tether", "pull"),
+        ("lol_kled_e_dash_visual", "asset/lol_mod/aseprite_resources/effects/kled_e_joust", "dash"),
+        ("lol_kled_e_impact_visual", "asset/lol_mod/aseprite_resources/effects/kled_e_joust", "impact"),
+    ):
+        view = effect_views.get(name, {})
+        check(
+            (view.get("anim"), view.get("tag"), view.get("is_follow"))
+            == (asset, tag, True),
+            f"Kled view {name} must use {asset}#{tag} as a following effect",
+        )
+    buff_views = {view.get("name"): view for view in champion.get("view_buffs", [])}
+    tether_view = buff_views.get("lol_kled_q_tethered", {})
+    check(
+        (
+            tether_view.get("anim"),
+            tether_view.get("pre_tag"),
+            tether_view.get("loop_tag"),
+            tether_view.get("remove_tag"),
+        )
+        == (
+            "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+            "tether_pre",
+            "tether_loop",
+            "tether_remove",
+        ),
+        "Kled Q tether buff must bind the independent three-phase rope tags",
+    )
 
     ult = champion.get("ult", {})
     check(
@@ -3431,14 +3403,58 @@ def validate_kled_localization_style_and_surfaces() -> None:
         check(description.get("name") == expected_name, f"{locale} Kled encyclopedia name must be {expected_name}")
         for key, letter in (("skill", "Q"), ("skill2", "E"), ("ult", "R")):
             check(str(description.get(key, "")).startswith(letter), f"{locale} Kled {key} must be labeled {letter}")
-        check("W" in str(description.get("skill2", "")), f"{locale} Kled E-slot text must disclose that it carries W")
+        combined = " ".join(str(description.get(key, "")) for key in ("attack", "skill", "skill2"))
+        check("Q+E" not in combined and "Q + E" not in combined, f"{locale} Kled text must not merge Q and E")
+        check("W mapping" not in combined and "承载W" not in combined, f"{locale} Kled text must not expose the retired W mapping")
 
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("cavalry_knight", {})
     check(style.get("center") == {"x": 0, "y": -12}, "Kled center camera must start at (0,-12)")
-    face = style.get("face", {})
-    check(set(face) == {"x", "y"}, "Kled must have an independent compact face camera")
-    check(all(isinstance(face.get(axis), int) for axis in ("x", "y")), "Kled face offsets must be integers")
-    check(face != style.get("center"), "Kled face and center cameras must be independently tuned")
+    check(
+        style.get("face") == style.get("center") == {"x": 0, "y": -12},
+        "Kled compact rows must use the full mounted center camera at (0,-12), not native Cavalry face (1,-44)",
+    )
+
+    actor_path = MOD_ROOT / "aseprite_resources/champions/kled#sheet.png"
+    anim_path = MOD_ROOT / "aseprite_resources/champions/kled#anim.fanim"
+    if actor_path.is_file() and anim_path.is_file():
+        actor = Image.open(actor_path).convert("RGBA")
+        idle_frames = (
+            load_json("aseprite_resources/champions/kled#anim.fanim")
+            .get("anims", {})
+            .get("idle", {})
+            .get("frames", [])
+        )
+        check(bool(idle_frames), "Kled compact portrait source must expose an idle frame")
+        if idle_frames:
+            data = idle_frames[0].get("data", {})
+            x, y, width, height = (int(data.get(key, 0)) for key in ("x", "y", "w", "h"))
+            in_bounds = (
+                x >= 0
+                and y >= 0
+                and width > 0
+                and height > 0
+                and x + width <= actor.width
+                and y + height <= actor.height
+            )
+            check(in_bounds, "Kled compact portrait idle frame is outside the actor sheet")
+            if in_bounds:
+                bbox = actor.crop((x, y, x + width, y + height)).getchannel("A").getbbox()
+                check(bbox is not None, "Kled compact portrait idle frame is empty")
+                if bbox is not None:
+                    visible_width = bbox[2] - bbox[0]
+                    visible_height = bbox[3] - bbox[1]
+                    check(
+                        36 <= visible_width <= 44,
+                        "Kled compact portrait mounted width left the accepted 36-44px class",
+                    )
+                    check(
+                        36 <= visible_height <= 44,
+                        "Kled compact portrait mounted height left the accepted 36-44px class",
+                    )
+                    check(
+                        bbox[1] <= 6 and bbox[3] <= 46,
+                        "Kled compact portrait body no longer fits the center-camera vertical window",
+                    )
 
     builder_path = MOD_ROOT / "tools/build_lol_mod.py"
     builder = builder_path.read_text(encoding="utf-8") if builder_path.is_file() else ""
@@ -5476,7 +5492,7 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
     check(map_qa_path.is_file(), "quality-map ImageGen QA record is missing")
     if map_qa_path.is_file():
         map_qa = load_json("qa/quality_map_imagegen_pack.json")
-        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v3", "quality-map QA schema changed")
+        check(map_qa.get("schema") == "lol_mod.quality_map_imagegen_pack.v4", "quality-map QA schema changed")
         static_checks = map_qa.get("static_checks", {})
         check(bool(static_checks) and all(static_checks.values()), "quality-map QA contains a failed check")
         check(all(map_qa.get("mask_checks", {}).values()), "quality-map native alpha footprint changed")
@@ -5527,11 +5543,75 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
             ),
             "quality-map ImageGen source must not copy terrain semantics",
         )
-        for palette_name in ("wall_palette", "wall_front_palette", "bush_palette"):
+        surface_strength_caps = {
+            "wall_main_masonry": 0.08,
+            "wall_outer_cliff": 0.10,
+            "wall_front_masonry": 0.08,
+            "bush_microdetail": 0.08,
+        }
+        for surface_name, strength_cap in surface_strength_caps.items():
+            record = source_usage.get(surface_name, {})
             check(
-                not source_usage.get(palette_name, {}).get("spatial_pixels_copied", True),
-                f"quality-map {palette_name} must be a global palette reference only",
+                record.get("operation") == "high-frequency-luminance-only"
+                and record.get("direct_source_pixels_copied") is False,
+                f"quality-map {surface_name} must use isolated high-frequency luminance only",
             )
+            check(
+                0 < record.get("strength", 1.0) <= strength_cap,
+                f"quality-map {surface_name} strength exceeds its audited cap",
+            )
+            check(
+                record.get("changed_pixels", 0) > 0
+                and record.get("alpha_byte_identical") is True
+                and record.get("transparent_rgba_byte_identical") is True,
+                f"quality-map {surface_name} changed no visible pixels or escaped native alpha",
+            )
+
+        surface_detail = map_qa.get("surface_detail", {})
+        surface_layers = surface_detail.get("layers", {})
+        for surface_name in ("wall_5v5", "wall_5v5_front", "bush_5v5"):
+            record = surface_layers.get(surface_name, {})
+            check(
+                record.get("dimensions_1280") is True
+                and record.get("alpha_byte_identical") is True
+                and record.get("transparent_rgba_byte_identical") is True
+                and record.get("nontransparent_count_identical") is True
+                and record.get("nontransparent_bbox_identical") is True
+                and record.get("native_footprint") == record.get("runtime_footprint"),
+                f"quality-map {surface_name} geometry or transparent RGBA changed",
+            )
+            mean_delta = record.get("visible_mean_abs_rgb_from_official", [])
+            check(
+                record.get("changed_pixels_from_official", 0) > 0
+                and isinstance(mean_delta, list)
+                and len(mean_delta) == 3
+                and 0 < max(mean_delta) <= 1.0,
+                f"quality-map {surface_name} microdetail is missing or too strong",
+            )
+
+        shadow_records = surface_detail.get("shadow_rgba_sha256", {})
+        for shadow_name in (
+            "wall_shadow_5v5",
+            "bush_shadow_5v5",
+            "tower_shadow",
+            "nexus_shadow",
+        ):
+            record = shadow_records.get(shadow_name, {})
+            check(
+                record.get("byte_identical") is True
+                and record.get("official") == record.get("runtime"),
+                f"quality-map {shadow_name} must remain official RGBA byte-for-byte",
+            )
+
+        preview = surface_detail.get("preview", {})
+        check(
+            preview.get("scale") == "1:1"
+            and preview.get("resampling") == "none"
+            and set(preview.get("crops", {}))
+            == {"left_outer_cliff", "bush", "bottom_front_wall"},
+            "quality-map surface preview must retain the three audited 1:1 crops",
+        )
+        validate_recorded_file(preview.get("image", {}), "quality-map surface-detail preview")
         rejected_map_path = MOD_ROOT / "source/imagegen/map/rift_background_5v5_v2_source.png"
         check(
             not rejected_map_path.exists(),
@@ -5793,7 +5873,7 @@ def main() -> int:
     kled = load_json("champion/cavalry_knight.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.8.0", "lol_mod version must be 0.8.0")
+    check(mod_info.get("version") == "0.8.1", "lol_mod version must be 0.8.1")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.8.0"
+    assert load_json("mod.mod_info")["version"] == "0.8.1"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"
@@ -186,67 +186,20 @@ def test_kled_stats_and_action_slots_match_the_approved_006_contract() -> None:
             assert required in action, f"{letter} is missing {required}"
 
 
-def test_kled_w_four_hit_state_machine_advances_once_and_cleans_every_marker() -> None:
-    attack = load_json("champion/cavalry_knight.data_champion")["attack"]
-    haste_switch = attack["effect"]
-    assert (haste_switch["type"], haste_switch["buff_name"]) == (
-        "SwitchByBuff",
-        "lol_kled_violent_haste",
-    )
-    assert not find_effect(haste_switch["effect_none"], "Attack", target_hp_ratio=4)
-
-    stage4_switch = haste_switch["effect_buff"]
-    stage3_switch = stage4_switch["effect_none"]
-    stage2_switch = stage3_switch["effect_none"]
-    stage1_switch = stage2_switch["effect_none"]
-    switches = [stage1_switch, stage2_switch, stage3_switch, stage4_switch]
-    assert [switch["type"] for switch in switches] == ["SwitchByBuff"] * 4
-    assert [switch["buff_name"] for switch in switches] == [
-        "lol_kled_violent_stage1",
-        "lol_kled_violent_stage2",
-        "lol_kled_violent_stage3",
-        "lol_kled_violent_stage4",
+def test_kled_basic_attack_is_plain_and_has_no_retired_w_state_machine() -> None:
+    kled = load_json("champion/cavalry_knight.data_champion")
+    attack = kled["attack"]
+    assert attack["effect"]["type"] == "Combine"
+    assert direct_effects(attack["effect"], "Attack") == [
+        {"type": "Attack", "damage": 0, "attack_ratio": 100}
     ]
-
-    first_three = [switch["effect_buff"] for switch in switches[:3]]
-    for index, branch in enumerate(first_three, start=1):
-        attacks = direct_effects(branch, "Attack")
-        assert [(effect["damage"], effect["attack_ratio"]) for effect in attacks] == [(0, 100)]
-        assert not find_effect(branch, "Attack", target_hp_ratio=4)
-        assert [effect["name"] for effect in direct_effects(branch, "RemoveCasterBuff")] == [
-            f"lol_kled_violent_stage{index}"
-        ]
-        assert direct_buff_states(branch, "AddCasterBuff") == [
-            {
-                "name": f"lol_kled_violent_stage{index + 1}",
-                "duration": {"Time": {"tick": 240}},
-            }
-        ]
-        assert not find_effect(branch, "RemoveCasterBuff", name="lol_kled_violent_haste")
-
-    fourth = stage4_switch["effect_buff"]
-    attacks = direct_effects(fourth, "Attack")
-    assert attacks == [
-        {"type": "Attack", "damage": 0, "attack_ratio": 100},
-        {
-            "type": "Attack",
-            "damage": 20,
-            "attack_ratio": 35,
-            "target_hp_ratio": 4,
-        },
-    ]
-    assert len(find_effect(attack, "Attack", target_hp_ratio=4)) == 1
-    assert {effect["name"] for effect in direct_effects(fourth, "RemoveCasterBuff")} == {
-        "lol_kled_violent_haste",
-        "lol_kled_violent_stage1",
-        "lol_kled_violent_stage2",
-        "lol_kled_violent_stage3",
-        "lol_kled_violent_stage4",
-    }
-    assert not direct_effects(fourth, "AddCasterBuff")
+    assert not find_effect(kled, "SwitchByBuff")
+    serialized = json.dumps(kled, ensure_ascii=False)
+    assert "lol_kled_violent_" not in serialized
+    assert "kled_w_" not in serialized
 
 
-def test_kled_skill_merges_q_tether_with_one_nonpenetrating_e_rush() -> None:
+def test_kled_q_is_one_nonpenetrating_beartrap_projectile_with_delayed_tether() -> None:
     skill = load_json("champion/cavalry_knight.data_champion")["skill"]
     assert (
         skill["action_name"],
@@ -257,18 +210,20 @@ def test_kled_skill_merges_q_tether_with_one_nonpenetrating_e_rush() -> None:
         skill["casting_type"],
         skill["casting_target"],
     ) == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion")
-    rushes = find_effect(skill, "Rush")
-    assert len(rushes) == 1
-    rush = rushes[0]
+    assert not find_effect(skill, "Rush")
+    projectiles = find_effect(skill, "LinearProjectile", name="lol_kled_q_beartrap_projectile")
+    assert len(projectiles) == 1
+    projectile = projectiles[0]
     assert (
-        rush["speed"],
-        rush["move_speed_ratio"],
-        rush["range"],
-        rush["casting_target"],
-        rush["penetrate"],
-    ) == (3200, 100, 12000, "EnemyChampion", False)
-    assert len(rush["applied_effects"]) == 1
-    hit = rush["applied_effects"][0]
+        projectile["penetrate"],
+        projectile["speed"],
+        projectile["range"],
+        projectile["shape"],
+        projectile["applied_target"],
+    ) == (False, 3600, 65000, {"Circle": {"radius": 8000}}, "EnemyChampion")
+    assert len(projectile["applied_effects"]) == 1
+    assert projectile["end_effects"] == []
+    hit = projectile["applied_effects"][0]
     assert hit["casting_type"] == "Targeting"
     hit_effect = hit["effect"]
     assert direct_effects(hit_effect, "Attack") == [
@@ -281,13 +236,7 @@ def test_kled_skill_merges_q_tether_with_one_nonpenetrating_e_rush() -> None:
             "move_speed_mult": -20,
         }
     ]
-    assert direct_buff_states(hit_effect, "AddCasterBuff") == [
-        {
-            "name": "lol_kled_q_hit_speed",
-            "duration": {"Time": {"tick": 60}},
-            "move_speed_mult": 20,
-        }
-    ]
+    assert not direct_buff_states(hit_effect, "AddCasterBuff")
     delayed = direct_effects(hit_effect, "Delayed")
     assert len(delayed) == 1 and delayed[0]["tick"] == 45
     assert direct_effects(delayed[0], "Attack") == [
@@ -297,15 +246,49 @@ def test_kled_skill_merges_q_tether_with_one_nonpenetrating_e_rush() -> None:
         {"type": "Grab", "speed": 2200, "tick": 8}
     ]
     assert direct_effects(delayed[0], "Bind") == [{"type": "Bind", "duration": 30}]
-    assert [(effect["damage"], effect["attack_ratio"]) for effect in find_effect(rush, "Attack")] == [
+    assert [(effect["damage"], effect["attack_ratio"]) for effect in find_effect(projectile, "Attack")] == [
         (30, 80),
         (20, 40),
     ]
     assert len(find_effect(skill, "Sfx", name="lol_kled_q_cast")) == 1
-    assert len(find_effect(skill, "Sfx", name="lol_kled_e_cast")) == 1
+    assert not find_effect(skill, "Sfx", name="lol_kled_e_cast")
+
+    kled = load_json("champion/cavalry_knight.data_champion")
+    projectile_view = {
+        view["name"]: view for view in kled["view_projectiles"]
+    }["lol_kled_q_beartrap_projectile"]
+    assert projectile_view == {
+        "type": "Animated",
+        "name": "lol_kled_q_beartrap_projectile",
+        "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+        "tag": "projectile",
+        "z": 2,
+        "repeat": True,
+    }
+    q_effects = {
+        view["name"]: view
+        for view in kled["view_effects"]
+        if view["name"].startswith("lol_kled_q_")
+    }
+    assert {name: view["tag"] for name, view in q_effects.items()} == {
+        "lol_kled_q_latch_visual": "latch",
+        "lol_kled_q_pull_visual": "pull",
+    }
+    q_buff = {view["name"]: view for view in kled["view_buffs"]}["lol_kled_q_tethered"]
+    assert (
+        q_buff["anim"],
+        q_buff["pre_tag"],
+        q_buff["loop_tag"],
+        q_buff["remove_tag"],
+    ) == (
+        "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+        "tether_pre",
+        "tether_loop",
+        "tether_remove",
+    )
 
 
-def test_kled_skill2_uses_the_e_ui_slot_for_w_haste_and_timeout_cleanup() -> None:
+def test_kled_e_is_an_independent_nonpenetrating_joust_rush() -> None:
     skill2 = load_json("champion/cavalry_knight.data_champion")["skill2"]
     assert (
         skill2["action_name"],
@@ -313,35 +296,59 @@ def test_kled_skill2_uses_the_e_ui_slot_for_w_haste_and_timeout_cleanup() -> Non
         skill2["duration"],
         skill2["start_timing"],
         skill2["range"],
+        skill2["casting_type"],
         skill2["casting_target"],
-    ) == ("skill2", 480, 13, 11, 35000, "EnemyChampion")
-    root = skill2["effect"]
-    marker_names = {
-        "lol_kled_violent_haste",
-        "lol_kled_violent_stage1",
-        "lol_kled_violent_stage2",
-        "lol_kled_violent_stage3",
-        "lol_kled_violent_stage4",
-    }
-    preclean = [effect["name"] for effect in direct_effects(root, "RemoveCasterBuff")]
-    assert len(preclean) == 5 and set(preclean) == marker_names
-    added = direct_buff_states(root, "AddCasterBuff")
-    assert added == [
-        {
-            "name": "lol_kled_violent_haste",
-            "duration": {"Time": {"tick": 240}},
-            "attack_speed_mult": 60,
-        },
-        {
-            "name": "lol_kled_violent_stage1",
-            "duration": {"Time": {"tick": 240}},
-        },
+    ) == ("skill2", 480, 13, 11, 55000, "Direction", "EnemyChampion")
+    rushes = find_effect(skill2, "Rush")
+    assert len(rushes) == 1
+    rush = rushes[0]
+    assert (
+        rush["speed"],
+        rush["move_speed_ratio"],
+        rush["range"],
+        rush["casting_target"],
+        rush["penetrate"],
+    ) == (3200, 100, 12000, "EnemyChampion", False)
+    assert len(rush["applied_effects"]) == 1
+    hit = rush["applied_effects"][0]
+    assert hit["casting_type"] == "Targeting"
+    payload = hit["effect"]
+    assert direct_effects(payload, "Attack") == [
+        {"type": "Attack", "damage": 30, "attack_ratio": 80}
     ]
-    delayed = direct_effects(root, "Delayed")
-    assert len(delayed) == 1 and delayed[0]["tick"] == 240
-    timeout_cleanup = [effect["name"] for effect in direct_effects(delayed[0], "RemoveCasterBuff")]
-    assert len(timeout_cleanup) == 5 and set(timeout_cleanup) == marker_names
-    assert not find_effect(skill2, "Attack")
+    assert direct_buff_states(payload, "AddCasterBuff") == [
+        {
+            "name": "lol_kled_e_hit_speed",
+            "duration": {"Time": {"tick": 60}},
+            "move_speed_mult": 20,
+        }
+    ]
+    assert not find_effect(skill2, "LinearProjectile")
+    assert not find_effect(skill2, "Delayed")
+    assert not find_effect(skill2, "Grab")
+    assert not find_effect(skill2, "Bind")
+    assert len(find_effect(skill2, "Sfx", name="lol_kled_e_cast")) == 1
+    assert len(find_effect(skill2, "TargetSfx", name="lol_kled_e_hit")) == 1
+    serialized = json.dumps(skill2, ensure_ascii=False)
+    assert "lol_kled_q_" not in serialized
+    assert "lol_kled_violent_" not in serialized
+
+    kled = load_json("champion/cavalry_knight.data_champion")
+    e_effects = {
+        view["name"]: view
+        for view in kled["view_effects"]
+        if view["name"].startswith("lol_kled_e_")
+    }
+    assert {name: (view["anim"], view["tag"]) for name, view in e_effects.items()} == {
+        "lol_kled_e_dash_visual": (
+            "asset/lol_mod/aseprite_resources/effects/kled_e_joust",
+            "dash",
+        ),
+        "lol_kled_e_impact_visual": (
+            "asset/lol_mod/aseprite_resources/effects/kled_e_joust",
+            "impact",
+        ),
+    }
 
 
 def test_kled_r_has_one_ally_only_route_one_self_package_and_one_first_hit_rush() -> None:
@@ -478,14 +485,27 @@ def test_kled_localization_compact_style_encyclopedia_and_bp_are_registered() ->
         assert description["name"] == expected_name
         assert description["skill"].startswith("Q")
         assert description["skill2"].startswith("E")
-        assert "W" in description["skill2"]
         assert description["ult"].startswith("R")
+        combined = " ".join(description[key] for key in ("attack", "skill", "skill2"))
+        assert "Q+E" not in combined and "Q + E" not in combined
+        assert "W mapping" not in combined and "承载W" not in combined
 
     style = load_json("style/champion_view.champion_view")["entries"]["cavalry_knight"]
     assert style["center"] == {"x": 0, "y": -12}
-    assert set(style["face"]) == {"x", "y"}
-    assert all(isinstance(style["face"][axis], int) for axis in ("x", "y"))
-    assert style["face"] != style["center"]
+    assert style["face"] == style["center"] == {"x": 0, "y": -12}
+
+    # Native Cavalry used a rider-head crop at face=(1,-44).  Kled's accepted
+    # idle is one compact 40px mounted silhouette, so compact rows need the
+    # same whole-body camera used by cards instead of the inherited head crop.
+    anim = load_json("aseprite_resources/champions/kled#anim.fanim")["anims"]
+    sheet = Image.open(MOD / "aseprite_resources/champions/kled#sheet.png").convert("RGBA")
+    first_idle = frame_crop(sheet, anim["idle"]["frames"][0])
+    compact_bbox = first_idle.getchannel("A").getbbox()
+    assert compact_bbox is not None
+    assert 36 <= compact_bbox[2] - compact_bbox[0] <= 44
+    assert 36 <= compact_bbox[3] - compact_bbox[1] <= 44
+    assert compact_bbox[1] <= 6
+    assert compact_bbox[3] <= 46
 
     builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
     assert '"cavalry_knight": ACTOR_DIR / "kled#sheet.png"' in builder

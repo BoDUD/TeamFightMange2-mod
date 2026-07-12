@@ -38,9 +38,9 @@
       },
       "cavalry_knight": {
         "name": "Kled",
-        "attack": "Halberd Thrust / Violent Tendencies: Deals 100% Attack physical damage. The E-slot frenzy grants 60% Attack Speed for 4 seconds and counts four completed attacks; the fourth adds 20 + 35% Attack plus 4% of the target's maximum Health, then ends the frenzy.",
-        "skill": "Q — Jousting Bear Trap (Q + E): Charges in the chosen direction and stops on the first enemy champion. The hit deals 30 + 80% Attack physical damage, slows by 20%, and grants Kled 20% Move Speed. After 0.75 seconds the tether deals another 20 + 40% Attack, pulls the target toward Kled, and roots for 0.5 seconds. The data version does not recheck tether distance.",
-        "skill2": "E — Violent Tendencies (W mapping): When an enemy champion is within 350 range, Kled gains 60% Attack Speed for 4 seconds and prepares four attacks. The fourth attack deals 20 + 35% Attack plus 4% target maximum-Health physical damage and immediately clears the state. Cooldown: 8 seconds.",
+        "attack": "Halberd Thrust: Deals 100% Attack physical damage with Kled's halberd.",
+        "skill": "Q — Bear Trap on a Rope: Fires a non-piercing bear trap in the chosen direction. The first enemy champion hit takes 30 + 80% Attack physical damage and is slowed by 20% for 0.75 seconds. After 0.75 seconds the tether deals another 20 + 40% Attack physical damage, pulls the same target toward Kled, and roots for 0.5 seconds. This data version does not recheck tether distance before the delayed pull. Cooldown: 6 seconds.",
+        "skill2": "E — Jousting: Dashes in the chosen direction and stops on the first enemy champion hit, dealing 30 + 80% Attack physical damage. A successful hit grants Kled 20% Move Speed for 1 second. This data version has one dash and no second recast. Cooldown: 8 seconds.",
         "ult": "R — Chaaaaaaaarge!!!: Charges up to 1200 range, gaining 50% Move Speed, a 200 + 80% Attack shield, and brief crowd-control immunity. A straight trail lasts 4 seconds and grants other allied champions 25% Move Speed. The first enemy champion struck takes 80 + 100% Attack plus 2% maximum-Health physical damage and is knocked back and airborne. The data trail is straight and does not check ally travel direction."
       }
     }
@@ -84,9 +84,9 @@
       },
       "cavalry_knight": {
         "name": "克烈",
-        "attack": "长戟突刺／暴烈秉性：造成100%攻击力的物理伤害。E槽狂暴状态持续4秒，攻击速度提高60%并记录四次实际完成的普攻；第四击额外造成20 + 35%攻击力 + 目标4%最大生命值的物理伤害，随后立即结束状态。",
-        "skill": "Q—比武·飞索捕熊器（Q+E合并）：向指定方向冲锋并在首名敌方英雄处停止。命中造成30 + 80%攻击力的物理伤害，使目标减速20%，并使克烈移速提高20%。0.75秒后飞索再次造成20 + 40%攻击力的伤害，将目标拉向克烈并定身0.5秒。数据版本不会重新检查飞索距离。",
-        "skill2": "E—暴烈秉性（承载W）：350距离内存在敌方英雄时开启4秒狂暴，攻击速度提高60%，并准备四次攻击。第四击额外造成20 + 35%攻击力 + 目标4%最大生命值的物理伤害并立即清除状态。冷却8秒。",
+        "attack": "长戟突刺：克烈挥动长戟，造成100%攻击力的物理伤害。",
+        "skill": "Q—飞索捕熊器：向指定方向发射一枚不可穿透的捕熊器。命中的首名敌方英雄受到30 + 80%攻击力的物理伤害，并减速20%，持续0.75秒。0.75秒后，飞索对同一目标再次造成20 + 40%攻击力的物理伤害，将其拉向克烈并定身0.5秒。数据版本在延迟拉回前不会重新检查飞索距离。冷却6秒。",
+        "skill2": "E—比武：向指定方向冲刺，在命中的首名敌方英雄处停止并造成30 + 80%攻击力的物理伤害。命中后克烈的移动速度提高20%，持续1秒。数据版本只有一次冲刺，没有第二段重施。冷却8秒。",
         "ult": "R—冲啊——！！！：最远冲锋1200距离，获得50%移动速度、200 + 80%攻击力的护盾和短暂控制免疫。身后留下持续4秒的直线路线，使路线上的其他友方英雄移速提高25%。撞到首名敌方英雄时造成80 + 100%攻击力 + 目标2%最大生命值的物理伤害，并将其小幅击退和击飞。数据路线不会转弯，也不检查友军移动方向。"
       }
     }
@@ -130,9 +130,9 @@
       },
       "cavalry_knight": {
         "name": "克烈",
-        "attack": "長戟突刺／暴烈秉性：造成100%攻擊力的物理傷害。E槽狂暴狀態持續4秒，攻擊速度提高60%並記錄四次實際完成的普攻；第四擊額外造成20 + 35%攻擊力 + 目標4%最大生命值的物理傷害，隨後立即結束狀態。",
-        "skill": "Q—比武・飛索捕熊器（Q+E合併）：向指定方向衝鋒並在首名敵方英雄處停止。命中造成30 + 80%攻擊力的物理傷害，使目標減速20%，並使克烈移速提高20%。0.75秒後飛索再次造成20 + 40%攻擊力的傷害，將目標拉向克烈並定身0.5秒。資料版本不會重新檢查飛索距離。",
-        "skill2": "E—暴烈秉性（承載W）：350距離內存在敵方英雄時開啟4秒狂暴，攻擊速度提高60%，並準備四次攻擊。第四擊額外造成20 + 35%攻擊力 + 目標4%最大生命值的物理傷害並立即清除狀態。冷卻8秒。",
+        "attack": "長戟突刺：克烈揮動長戟，造成100%攻擊力的物理傷害。",
+        "skill": "Q—飛索捕熊器：向指定方向發射一枚不可穿透的捕熊器。命中的首名敵方英雄受到30 + 80%攻擊力的物理傷害，並減速20%，持續0.75秒。0.75秒後，飛索對同一目標再次造成20 + 40%攻擊力的物理傷害，將其拉向克烈並定身0.5秒。資料版本在延遲拉回前不會重新檢查飛索距離。冷卻6秒。",
+        "skill2": "E—比武：向指定方向衝刺，在命中的首名敵方英雄處停止並造成30 + 80%攻擊力的物理傷害。命中後克烈的移動速度提高20%，持續1秒。資料版本只有一次衝刺，沒有第二段重施。冷卻8秒。",
         "ult": "R—衝啊——！！！：最遠衝鋒1200距離，獲得50%移動速度、200 + 80%攻擊力的護盾和短暫控制免疫。身後留下持續4秒的直線路線，使路線上的其他友方英雄移速提高25%。撞到首名敵方英雄時造成80 + 100%攻擊力 + 目標2%最大生命值的物理傷害，並將其小幅擊退和擊飛。資料路線不會轉彎，也不檢查友軍移動方向。"
       }
     }
@@ -162,9 +162,9 @@
       },
       "cavalry_knight": {
         "name": "クレッド",
-        "attack": "ハルバード突き／狂暴の宴：攻撃力100%の物理ダメージ。E枠の狂暴は4秒間攻撃速度を60%上げ、完了した4回の通常攻撃を数える。4撃目は20 + 攻撃力35% + 対象最大体力4%の追加物理ダメージを与えて終了する。",
-        "skill": "Q—馬上試合・トラバサミ（Q+E統合）：指定方向へ突進し、最初の敵チャンピオンで停止する。30 + 攻撃力80%の物理ダメージ、20%スロー、自身に20%移動速度を与える。0.75秒後に20 + 攻撃力40%の追加ダメージを与え、対象を引き寄せて0.5秒間拘束する。データ版は距離を再判定しない。",
-        "skill2": "E—狂暴の宴（W割り当て）：敵チャンピオンが350以内にいる時、4秒間攻撃速度が60%上がり4回の攻撃を準備する。4撃目は20 + 攻撃力35% + 対象最大体力4%の追加物理ダメージを与え、状態を即座に解除する。クールダウン8秒。",
+        "attack": "ハルバード突き：クレッドがハルバードで攻撃し、攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—トラバサミロープ：指定方向へ貫通しないトラバサミを投げる。最初に命中した敵チャンピオンへ30 + 攻撃力80%の物理ダメージを与え、0.75秒間20%スロウにする。0.75秒後、同じ対象へ20 + 攻撃力40%の追加物理ダメージを与え、クレッドへ引き寄せて0.5秒間拘束する。データ版は遅延プルの前に距離を再判定しない。クールダウン6秒。",
+        "skill2": "E—ジャウスト：指定方向へダッシュし、最初に命中した敵チャンピオンで停止して30 + 攻撃力80%の物理ダメージを与える。命中時、クレッドの移動速度が1秒間20%上昇する。データ版は1回のダッシュのみで再発動はない。クールダウン8秒。",
         "ult": "R—チャァァァァァァジ！！！：最大1200まで突進し、移動速度50%、200 + 攻撃力80%のシールド、短い妨害無効を得る。4秒間の直線軌跡は他の味方の移動速度を25%上げる。最初に衝突した敵チャンピオンへ80 + 攻撃力100% + 最大体力2%の物理ダメージを与え、ノックバックとノックアップを行う。軌跡は曲がらず、味方の移動方向も判定しない。"
       }
     }
@@ -194,9 +194,9 @@
       },
       "cavalry_knight": {
         "name": "클레드",
-        "attack": "미늘창 찌르기/버럭버럭: 공격력의 100%만큼 물리 피해를 입힙니다. E 슬롯 광분은 4초 동안 공격 속도를 60% 높이고 완료된 기본 공격 4회를 셉니다. 네 번째 공격은 20 + 공격력의 35% + 대상 최대 체력의 4%만큼 추가 물리 피해를 입히고 종료됩니다.",
-        "skill": "Q—마상시합·덫날리기(Q+E 통합): 지정 방향으로 돌진해 첫 적 챔피언에게 멈춥니다. 30 + 공격력의 80%만큼 물리 피해를 입히고 20% 둔화시키며 클레드의 이동 속도를 20% 높입니다. 0.75초 후 20 + 공격력의 40%만큼 다시 피해를 입히고 대상을 끌어당겨 0.5초 속박합니다. 데이터 버전은 줄의 거리를 다시 확인하지 않습니다.",
-        "skill2": "E—버럭버럭(W 배치): 적 챔피언이 350 안에 있을 때 4초 동안 공격 속도가 60% 증가하고 공격 4회를 준비합니다. 네 번째 공격은 20 + 공격력의 35% + 대상 최대 체력의 4%만큼 추가 물리 피해를 입히고 상태를 즉시 제거합니다. 재사용 대기시간 8초입니다.",
+        "attack": "미늘창 찌르기: 클레드가 미늘창을 휘둘러 공격력의 100%만큼 물리 피해를 입힙니다.",
+        "skill": "Q—덫날리기: 지정 방향으로 관통하지 않는 덫을 발사합니다. 처음 적중한 적 챔피언에게 30 + 공격력의 80%만큼 물리 피해를 입히고 0.75초 동안 20% 둔화시킵니다. 0.75초 후 같은 대상에게 20 + 공격력의 40%만큼 추가 물리 피해를 입히고 클레드 쪽으로 끌어당겨 0.5초 속박합니다. 데이터 버전은 지연 끌어당기기 전에 줄 거리를 다시 확인하지 않습니다. 재사용 대기시간은 6초입니다.",
+        "skill2": "E—이랴!: 지정 방향으로 돌진해 처음 적중한 적 챔피언에게 멈추며 30 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 클레드의 이동 속도가 1초 동안 20% 증가합니다. 데이터 버전은 한 번만 돌진하며 재사용할 수 없습니다. 재사용 대기시간은 8초입니다.",
         "ult": "R—돌겨어어억!!!: 최대 1200까지 돌진하며 이동 속도 50%, 200 + 공격력의 80%만큼 보호막, 짧은 군중 제어 면역을 얻습니다. 4초 동안 남는 직선 경로는 다른 아군의 이동 속도를 25% 높입니다. 처음 충돌한 적 챔피언에게 80 + 공격력의 100% + 최대 체력의 2%만큼 물리 피해를 입히고 밀쳐내며 공중에 띄웁니다. 경로는 휘지 않고 아군 이동 방향도 판정하지 않습니다."
       }
     }

@@ -236,66 +236,6 @@ SOUNDS = (
         "the event has one official media source",
     ),
     KledSound(
-        "kled_w_cast",
-        327_874_843,
-        "Play_sfx_Kled_KledW_buffactivate",
-        1_347_896_783,
-        (327_874_843, 102_031_052, 320_011_124),
-        "b1eb3e2c8ac7a5cefdf5d8e6773dac2da0d51ecd9db58bddc529cd1181685929",
-        1.457596372,
-        "f3cf2e44e22a4988f3eef0495a593429bff95846420ecc41d6fea86e1d10b4f7",
-        "top-level Sfx once when Violent Tendencies begins",
-        "first bank-order activation variant; avoids the 5.365-second WActive pool",
-    ),
-    KledSound(
-        "kled_w_hit1",
-        894_039_159,
-        "Play_sfx_Kled_KledWAttack1_OnHit",
-        949_027_770,
-        (894_039_159,),
-        "9fcc13b3670a025cf575f72b106df91f9275aee12cea28bfcd18fe97b70a9bb2",
-        0.488435374,
-        "6a93be9cf03bed74f883294f6b2961c78589e899c50cda95abbb07f28669d098",
-        "TargetSfx after W stage 1 successfully hits",
-        "the event has one official media source",
-    ),
-    KledSound(
-        "kled_w_hit2",
-        381_568_259,
-        "Play_sfx_Kled_KledWAttack2_OnHit",
-        1_924_585_905,
-        (381_568_259,),
-        "74a3ba7995c5b68e745920b4a1193f3841739c99914963cace0712cab24fb220",
-        0.591496599,
-        "abd31f0bdcc64ded167672ebd259417e7458cbd71b70b6d3e10fcd02c3480251",
-        "TargetSfx after W stage 2 successfully hits",
-        "the event has one official media source",
-    ),
-    KledSound(
-        "kled_w_hit3",
-        501_236_275,
-        "Play_sfx_Kled_KledWAttack3_OnHit",
-        1_343_519_304,
-        (501_236_275,),
-        "2c37917bf79aedabc2b148be9d81149324025d6c415f06be4dd0c638871f3a68",
-        0.535510204,
-        "9101d4972dd2c05369a5094c23c3d1819b26812f5743cbc94cb9936ad6c93c20",
-        "TargetSfx after W stage 3 successfully hits",
-        "the event has one official media source",
-    ),
-    KledSound(
-        "kled_w_hit4",
-        134_941_698,
-        "Play_sfx_Kled_KledWAttack4_OnHit",
-        275_959_663,
-        (134_941_698, 68_645_024),
-        "bd19bd4c9b8e97a65c23c7511f46df61804d9172c06dda249dde8517028ffb88",
-        1.930022676,
-        "d766c6942f8093a9cf5501db40bea2c543a6e01721193f3fb5166d5490f60a81",
-        "TargetSfx after the one legal W fourth-hit proc",
-        "first verified official fourth-hit random variant",
-    ),
-    KledSound(
         "kled_r_cast",
         784_135_814,
         "Play_sfx_Kled_KledRDash_cast",
@@ -648,14 +588,14 @@ def main() -> int:
         "selection_policy": (
             "One verified official mono base-skin media variant per runtime event. "
             "Q uses one missile-launch event plus mark attach/release; E uses its dash "
-            "cast/hit events; W uses one short activation and four ordered hit events; "
-            "R uses deterministic one-shot dash cast/hit events and deliberately omits "
+            "cast/hit events; R uses deterministic one-shot dash cast/hit events and "
+            "deliberately omits "
             "all continuous or stereo sequence events."
         ),
         "native_audio_isolation": {
             "reason": (
                 "The same-ID native Cavalry action layer can auto-dispatch its original "
-                "attack/Q/W/R audio in addition to explicit Kled effects."
+                "attack/Q/E/R audio in addition to explicit Kled effects."
             ),
             "strategy": (
                 "Remap all four native events and all four source clips to one deterministic "

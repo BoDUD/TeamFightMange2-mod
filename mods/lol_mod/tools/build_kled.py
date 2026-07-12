@@ -33,11 +33,11 @@ QA_DIR = MOD_ROOT / "qa"
 ACTOR_SOURCE = PROCESSED_ROOT / "kled_actor_contact_alpha.png"
 RUN_SOURCE = PROCESSED_ROOT / "kled_run_contact_alpha.png"
 DEFEAT_SOURCE = PROCESSED_ROOT / "kled_defeat_contact_alpha.png"
-Q_VFX_SOURCE = PROCESSED_ROOT / "kled_q_vfx_contact_alpha.png"
-W_VFX_SOURCE = PROCESSED_ROOT / "kled_w_vfx_contact_alpha.png"
-R_VFX_SOURCE = PROCESSED_ROOT / "kled_r_vfx_contact_alpha.png"
-Q_ICON_SOURCE = IMAGEGEN_ROOT / "kled_q_icon_source.png"
-W_ICON_SOURCE = IMAGEGEN_ROOT / "kled_w_icon_source.png"
+Q_VFX_SOURCE = PROCESSED_ROOT / "kled_q_vfx_contact_v2_alpha.png"
+E_VFX_SOURCE = PROCESSED_ROOT / "kled_e_vfx_contact_alpha.png"
+R_VFX_SOURCE = PROCESSED_ROOT / "kled_r_vfx_contact_v2_alpha.png"
+Q_ICON_SOURCE = IMAGEGEN_ROOT / "kled_q_icon_source_v2.png"
+E_ICON_SOURCE = IMAGEGEN_ROOT / "kled_e_icon_source.png"
 R_ICON_SOURCE = IMAGEGEN_ROOT / "kled_r_icon_source.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "cavalry_knight.png"
 
@@ -395,7 +395,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     run_cells = split_grid(Image.open(RUN_SOURCE).convert("RGBA"), 3, 3)
     defeat_cells = split_grid(Image.open(DEFEAT_SOURCE).convert("RGBA"), 2, 2)
     q_cells = split_grid(Image.open(Q_VFX_SOURCE).convert("RGBA"), 4, 2)
-    w_cells = split_grid(Image.open(W_VFX_SOURCE).convert("RGBA"), 4, 2)
+    e_cells = split_grid(Image.open(E_VFX_SOURCE).convert("RGBA"), 4, 2)
     r_cells = split_grid(Image.open(R_VFX_SOURCE).convert("RGBA"), 4, 2)
 
     sheet = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
@@ -483,7 +483,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
             _paste_unique(sheet, placements, rect, frame)
 
     place_effect_sequence("skill1_effect", [q_cells[index] for index in (1, 2, 3, 5)])
-    place_effect_sequence("fire_skill1_effect", [w_cells[index] for index in (0, 1, 2, 3)])
+    place_effect_sequence("fire_skill1_effect", [e_cells[index] for index in (0, 1, 2, 3)])
     place_effect_sequence("ult_road_effect", [r_cells[index] for index in (0, 1, 2, 3, 4, 5, 6, 7, 6)])
     place_effect_sequence(
         "ult_self_effect",
@@ -536,39 +536,29 @@ def _effect_anim(
 EFFECT_SPECS: dict[str, dict[str, Any]] = {
     "kled_q_tether": {
         "source": Q_VFX_SOURCE,
-        "frame_size": (128, 96),
+        "frame_size": (96, 48),
         "source_indexes": list(range(8)),
         "tags": {
-            "dash": ([0, 1, 2], [0.05, 0.06, 0.08]),
-            "tether": ([2, 3, 4], [0.08, 0.10, 0.14]),
-            "pull": ([4, 5, 6, 7], [0.05, 0.06, 0.08, 0.12]),
-            "tether_pre": ([1, 2], [0.07, 0.09]),
-            "tether_loop": ([2, 3, 4, 3], [0.16, 0.16, 0.16, 0.16]),
-            "tether_remove": ([4, 5, 7], [0.07, 0.09, 0.13]),
+            "projectile": ([1, 2, 3], [0.05, 0.06, 0.08]),
+            "latch": ([3, 4], [0.07, 0.11]),
+            "pull": ([5, 6, 7], [0.05, 0.07, 0.12]),
+            "tether_pre": ([3, 4], [0.07, 0.09]),
+            "tether_loop": ([4, 5, 4, 5], [0.16, 0.16, 0.16, 0.16]),
+            "tether_remove": ([5, 6, 7], [0.07, 0.09, 0.13]),
         },
     },
-    "kled_w_frenzy": {
-        "source": W_VFX_SOURCE,
-        "frame_size": (96, 96),
+    "kled_e_joust": {
+        "source": E_VFX_SOURCE,
+        "frame_size": (96, 48),
         "source_indexes": list(range(8)),
         "tags": {
-            "pre": ([0, 1], [0.06, 0.08]),
-            "hit1": ([1, 2], [0.05, 0.10]),
-            "hit2": ([2, 3], [0.05, 0.10]),
-            "hit3": ([3, 4], [0.05, 0.11]),
-            "loop": ([1, 2, 3, 4], [0.12, 0.12, 0.12, 0.12]),
-            "remove": ([5, 6, 7], [0.07, 0.09, 0.13]),
+            "dash": ([0, 1, 2, 3], [0.05, 0.06, 0.07, 0.09]),
+            "impact": ([4, 5, 6, 7], [0.04, 0.06, 0.08, 0.12]),
         },
-    },
-    "kled_w_fourth": {
-        "source": W_VFX_SOURCE,
-        "frame_size": (128, 96),
-        "source_indexes": [2, 3, 4, 5, 6, 7],
-        "tags": {"impact": (list(range(6)), [0.04, 0.05, 0.06, 0.07, 0.09, 0.14])},
     },
     "kled_r_trail": {
         "source": R_VFX_SOURCE,
-        "frame_size": (128, 96),
+        "frame_size": (96, 64),
         "source_indexes": list(range(8)),
         "tags": {
             "trail": ([0, 1, 2, 3], [0.08, 0.08, 0.08, 0.08]),
@@ -583,7 +573,7 @@ EFFECT_SPECS: dict[str, dict[str, Any]] = {
     },
     "kled_r_impact": {
         "source": R_VFX_SOURCE,
-        "frame_size": (128, 128),
+        "frame_size": (96, 64),
         "source_indexes": list(range(8)),
         "tags": {"impact": (list(range(8)), [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.11, 0.16])},
     },
@@ -631,7 +621,7 @@ def build_icons() -> list[Path]:
     outputs: list[Path] = []
     for output_name, source_path in (
         ("kled_skill.png", Q_ICON_SOURCE),
-        ("kled_skill2.png", W_ICON_SOURCE),
+        ("kled_skill2.png", E_ICON_SOURCE),
         ("kled_ult.png", R_ICON_SOURCE),
     ):
         icon = cover_crop(Image.open(source_path).convert("RGBA"), (64, 64))
@@ -724,8 +714,8 @@ def build_qa_contacts(
 
     icon_contact = _contact_background((640, 220))
     draw = ImageDraw.Draw(icon_contact)
-    draw.text((16, 12), "KLED Q / W / R ICONS", fill=draw_color)
-    for index, (label, path) in enumerate(zip(("Q", "W", "R"), icon_paths, strict=True)):
+    draw.text((16, 12), "KLED Q / E / R ICONS", fill=draw_color)
+    for index, (label, path) in enumerate(zip(("Q", "E", "R"), icon_paths, strict=True)):
         icon = Image.open(path).convert("RGBA").resize((144, 144), Image.Resampling.NEAREST)
         x = 40 + index * 200
         icon_contact.alpha_composite(icon, (x, 48))
@@ -736,7 +726,7 @@ def build_qa_contacts(
 
     vfx_contact = _contact_background((1080, 720))
     draw = ImageDraw.Draw(vfx_contact)
-    draw.text((16, 10), "KLED INDEPENDENT Q / W / R EFFECT SHEETS", fill=draw_color)
+    draw.text((16, 10), "KLED INDEPENDENT Q / E / R EFFECT SHEETS", fill=draw_color)
     for row_index, (name, frames) in enumerate(effect_frames.items()):
         y = 48 + row_index * 132
         draw.text((16, y + 50), name, fill=draw_color)
@@ -843,10 +833,10 @@ def build_audit(outputs: list[Path]) -> Path:
         RUN_SOURCE,
         DEFEAT_SOURCE,
         Q_VFX_SOURCE,
-        W_VFX_SOURCE,
+        E_VFX_SOURCE,
         R_VFX_SOURCE,
         Q_ICON_SOURCE,
-        W_ICON_SOURCE,
+        E_ICON_SOURCE,
         R_ICON_SOURCE,
         SPLASH_SOURCE,
     ]
@@ -910,10 +900,10 @@ def build_all() -> list[Path]:
         RUN_SOURCE,
         DEFEAT_SOURCE,
         Q_VFX_SOURCE,
-        W_VFX_SOURCE,
+        E_VFX_SOURCE,
         R_VFX_SOURCE,
         Q_ICON_SOURCE,
-        W_ICON_SOURCE,
+        E_ICON_SOURCE,
         R_ICON_SOURCE,
         SPLASH_SOURCE,
     ):

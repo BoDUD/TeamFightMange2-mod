@@ -1078,45 +1078,45 @@
       ]
     },
     {
-      "path": "source/processed/kled_q_vfx_contact_alpha.png",
-      "size_bytes": 662308,
-      "sha256": "6aa1047c0652991f03722a9277b06da08d3471aad747ed41d6a6ae368da8e9be",
+      "path": "source/processed/kled_q_vfx_contact_v2_alpha.png",
+      "size_bytes": 154220,
+      "sha256": "fbce9ebf5d6ba6372bfce425e3b54c845f8b1491e1f4230e0f7b2070880f9b4e",
       "image_size": [
         1774,
         887
       ]
     },
     {
-      "path": "source/processed/kled_w_vfx_contact_alpha.png",
-      "size_bytes": 615393,
-      "sha256": "bc1403bc7f7a566eea4acfcc0a95dacd2d21ea047822509b1f486bc547abcd6d",
+      "path": "source/processed/kled_e_vfx_contact_alpha.png",
+      "size_bytes": 177728,
+      "sha256": "b9b3448d13249f5786a4d0c430611f539115e167279357442b63ea86b0becfff",
       "image_size": [
-        1774,
-        887
+        1672,
+        941
       ]
     },
     {
-      "path": "source/processed/kled_r_vfx_contact_alpha.png",
-      "size_bytes": 801702,
-      "sha256": "06101e8e7538d91ff9e13a0877de1005e0a2b12bf4dee364a2dce2512459d75e",
+      "path": "source/processed/kled_r_vfx_contact_v2_alpha.png",
+      "size_bytes": 211874,
+      "sha256": "bbf3f2ce847d84b35b9bb044243e7087730d30217a6251a96f8e11abcb7a7a6f",
       "image_size": [
-        1774,
-        887
+        1717,
+        916
       ]
     },
     {
-      "path": "source/imagegen/kled_q_icon_source.png",
-      "size_bytes": 2369624,
-      "sha256": "57a3f7cff3b31491118df7b3e3ea6940ee552a214d5eefcb1c48226ef9d8055f",
+      "path": "source/imagegen/kled_q_icon_source_v2.png",
+      "size_bytes": 1836049,
+      "sha256": "cd33333e2d82e964c8cf04d3039ab81c73d99c84308da13aab7e6e19ac7101d9",
       "image_size": [
         1254,
         1254
       ]
     },
     {
-      "path": "source/imagegen/kled_w_icon_source.png",
-      "size_bytes": 2630196,
-      "sha256": "206c230d2ac89985d25b575eae4fb2c90a9d8fbd61fe1b783cce6d96a8c2dca9",
+      "path": "source/imagegen/kled_e_icon_source.png",
+      "size_bytes": 1557219,
+      "sha256": "99b945642cad909d6638dfd2586c0128ae807669f849ea7cb34b4b8ae6c0af20",
       "image_size": [
         1254,
         1254
@@ -1145,7 +1145,7 @@
     {
       "path": "aseprite_resources/champions/kled#sheet.png",
       "size_bytes": 3097068,
-      "sha256": "454061b76a1ba0372b43f31861fd6984e30d9acc184bc60f4b49ad64a24df854",
+      "sha256": "f13f22cc17807267f79a19221e0f744849b3e8bb5bc9917ff36dd48a1938e782",
       "image_size": [
         4096,
         189
@@ -1158,78 +1158,64 @@
     },
     {
       "path": "aseprite_resources/effects/kled_q_tether#sheet.png",
-      "size_bytes": 393410,
-      "sha256": "e857cd3b98f1ac7e0c9483cb9f10c8fd60212088c10243cb5cef5d2389fc6322",
+      "size_bytes": 147582,
+      "sha256": "000668ffc83f4bbfbc9782d2981d5ba3140eb21824ade1bd684a5455c646aa13",
       "image_size": [
-        1024,
-        96
+        768,
+        48
       ]
     },
     {
       "path": "aseprite_resources/effects/kled_q_tether#anim.fanim",
-      "size_bytes": 3651,
-      "sha256": "ef7c9595da328d3ab40b01c360b2844479706c9f7ae118ef164a7c3ca73d2204"
+      "size_bytes": 3293,
+      "sha256": "03cbc2fc626414058cc69e57433f3ca73747d36bacd372ce96f17f47dcc3c98f"
     },
     {
-      "path": "aseprite_resources/effects/kled_w_frenzy#sheet.png",
-      "size_bytes": 295096,
-      "sha256": "0960149cb45f28a356f028557ea6140861bd3de3cfea1bb15e40b1b0cc341f13",
+      "path": "aseprite_resources/effects/kled_e_joust#sheet.png",
+      "size_bytes": 147582,
+      "sha256": "f727f195e2c626e082980fa7e19aac2ac3f34d86c795fd941f0ac2e82a0b5b2b",
       "image_size": [
         768,
-        96
+        48
       ]
     },
     {
-      "path": "aseprite_resources/effects/kled_w_frenzy#anim.fanim",
-      "size_bytes": 2913,
-      "sha256": "6d1b090e6d1b0ad97ba99f54f0f92d6291c0dcbafe303cfd327cbac0f6e49b4e"
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_fourth#sheet.png",
-      "size_bytes": 295096,
-      "sha256": "539088afd80d843905968fd8e9a88544943f1ca623cc0934da2a99a554489b11",
-      "image_size": [
-        768,
-        96
-      ]
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_fourth#anim.fanim",
-      "size_bytes": 1118,
-      "sha256": "513829e7d033757f6091a74d3b536ea3b5eaf42667e459d91a089733009c14de"
+      "path": "aseprite_resources/effects/kled_e_joust#anim.fanim",
+      "size_bytes": 1507,
+      "sha256": "a12a51d48b0d5127061c4de20ef170dbd729ef5eb1bc9acfb4d495f687580295"
     },
     {
       "path": "aseprite_resources/effects/kled_r_trail#sheet.png",
-      "size_bytes": 393410,
-      "sha256": "3be3f586af03156892933239afd7b8b66290d3618bd04ce204059608f5dcc1b5",
+      "size_bytes": 196755,
+      "sha256": "a196b7b47425f578a0001ac49f9734b5a9ebf6a6d9f8ecaf0f646bbc593ec1df",
       "image_size": [
-        1024,
-        96
+        768,
+        64
       ]
     },
     {
       "path": "aseprite_resources/effects/kled_r_trail#anim.fanim",
-      "size_bytes": 4976,
-      "sha256": "dc2b4d8629aaed9c9a20194ba1964a6fc152c3211720b1d0a4e0bc404fae0b61"
+      "size_bytes": 4947,
+      "sha256": "483eec0c3b35558435d7a55771574b0e77f82ec092497402e55f30a59cedc161"
     },
     {
       "path": "aseprite_resources/effects/kled_r_impact#sheet.png",
-      "size_bytes": 524524,
-      "sha256": "8a580b943349811f8796dd27aa53b3f4a8b15b9e9e1291baf58768a10239f65c",
+      "size_bytes": 196755,
+      "sha256": "add418a76b3d59a42cf40326e32df4557c60e4ef40546a86b71a475f6d7379cc",
       "image_size": [
-        1024,
-        128
+        768,
+        64
       ]
     },
     {
       "path": "aseprite_resources/effects/kled_r_impact#anim.fanim",
-      "size_bytes": 1474,
-      "sha256": "05b659f277f85fd62c5824d2f5c01c75afeb81893b2d392c41edb8d84830af34"
+      "size_bytes": 1457,
+      "sha256": "51e71259f10b6ec3be1874e3edbd684682610b4fc711678a329493d2b4c922c7"
     },
     {
       "path": "icons/kled_skill.png",
       "size_bytes": 16516,
-      "sha256": "0056ffe39c0ba8bf2a727c3f350e5517fb790a65f24884e8d055ab31c97c060f",
+      "sha256": "c46b2034802e1b855222605b490dc68d228d1febbc1f7aac24ffa84ec960b89c",
       "image_size": [
         64,
         64
@@ -1238,7 +1224,7 @@
     {
       "path": "icons/kled_skill2.png",
       "size_bytes": 16516,
-      "sha256": "b8d2e0bcd4dc6aa7d78ccfc181fd73d07d5b04a19df6d7756be32d925d0638f3",
+      "sha256": "00fecd250135452f0f7d3c975c78875223e464a8a1dc32d17ee7b7c70875aac7",
       "image_size": [
         64,
         64
@@ -1283,7 +1269,7 @@
     {
       "path": "qa/kled_skill_icons_final.png",
       "size_bytes": 563528,
-      "sha256": "3706ea924a47131f53badfce011e29d2483042d2d3011efe2601df07c56a4fbd",
+      "sha256": "03d89bc5dd98802c3ea15a0b0b729cd36ba62a9aa5ad641cfbac1d33c6b58044",
       "image_size": [
         640,
         220
@@ -1292,7 +1278,7 @@
     {
       "path": "qa/kled_vfx_contact_final.png",
       "size_bytes": 3111423,
-      "sha256": "05719b22376222d65fe18d1f56c91ae01db8445c0703cb1c0ab8ca65a98f3aed",
+      "sha256": "a24f7e320a9076b9e02cc020f2e170de7a5d3ca5906b813519073add40593a09",
       "image_size": [
         1080,
         720
@@ -1302,45 +1288,32 @@
   "independent_effects": {
     "kled_q_tether": {
       "frame_size": [
-        128,
-        96
+        96,
+        48
       ],
       "tags": [
-        "dash",
-        "tether",
+        "projectile",
+        "latch",
         "pull",
         "tether_pre",
         "tether_loop",
         "tether_remove"
       ]
     },
-    "kled_w_frenzy": {
+    "kled_e_joust": {
       "frame_size": [
         96,
-        96
+        48
       ],
       "tags": [
-        "pre",
-        "hit1",
-        "hit2",
-        "hit3",
-        "loop",
-        "remove"
-      ]
-    },
-    "kled_w_fourth": {
-      "frame_size": [
-        128,
-        96
-      ],
-      "tags": [
+        "dash",
         "impact"
       ]
     },
     "kled_r_trail": {
       "frame_size": [
-        128,
-        96
+        96,
+        64
       ],
       "tags": [
         "trail",
@@ -1355,8 +1328,8 @@
     },
     "kled_r_impact": {
       "frame_size": [
-        128,
-        128
+        96,
+        64
       ],
       "tags": [
         "impact"

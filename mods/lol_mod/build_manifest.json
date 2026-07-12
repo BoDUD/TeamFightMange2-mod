@@ -20,7 +20,7 @@
     {
       "path": "aseprite_resources/champions/kled#sheet.png",
       "size": 3097068,
-      "sha256": "454061b76a1ba0372b43f31861fd6984e30d9acc184bc60f4b49ad64a24df854"
+      "sha256": "f13f22cc17807267f79a19221e0f744849b3e8bb5bc9917ff36dd48a1938e782"
     },
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
@@ -133,54 +133,44 @@
       "sha256": "d8e84c14e55f35543809bd05f35630acd32f159c7b15b0db6a59cd746c8c1c82"
     },
     {
+      "path": "aseprite_resources/effects/kled_e_joust#anim.fanim",
+      "size": 1507,
+      "sha256": "a12a51d48b0d5127061c4de20ef170dbd729ef5eb1bc9acfb4d495f687580295"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_e_joust#sheet.png",
+      "size": 147582,
+      "sha256": "f727f195e2c626e082980fa7e19aac2ac3f34d86c795fd941f0ac2e82a0b5b2b"
+    },
+    {
       "path": "aseprite_resources/effects/kled_q_tether#anim.fanim",
-      "size": 3651,
-      "sha256": "ef7c9595da328d3ab40b01c360b2844479706c9f7ae118ef164a7c3ca73d2204"
+      "size": 3293,
+      "sha256": "03cbc2fc626414058cc69e57433f3ca73747d36bacd372ce96f17f47dcc3c98f"
     },
     {
       "path": "aseprite_resources/effects/kled_q_tether#sheet.png",
-      "size": 393410,
-      "sha256": "e857cd3b98f1ac7e0c9483cb9f10c8fd60212088c10243cb5cef5d2389fc6322"
+      "size": 147582,
+      "sha256": "000668ffc83f4bbfbc9782d2981d5ba3140eb21824ade1bd684a5455c646aa13"
     },
     {
       "path": "aseprite_resources/effects/kled_r_impact#anim.fanim",
-      "size": 1474,
-      "sha256": "05b659f277f85fd62c5824d2f5c01c75afeb81893b2d392c41edb8d84830af34"
+      "size": 1457,
+      "sha256": "51e71259f10b6ec3be1874e3edbd684682610b4fc711678a329493d2b4c922c7"
     },
     {
       "path": "aseprite_resources/effects/kled_r_impact#sheet.png",
-      "size": 524524,
-      "sha256": "8a580b943349811f8796dd27aa53b3f4a8b15b9e9e1291baf58768a10239f65c"
+      "size": 196755,
+      "sha256": "add418a76b3d59a42cf40326e32df4557c60e4ef40546a86b71a475f6d7379cc"
     },
     {
       "path": "aseprite_resources/effects/kled_r_trail#anim.fanim",
-      "size": 4976,
-      "sha256": "dc2b4d8629aaed9c9a20194ba1964a6fc152c3211720b1d0a4e0bc404fae0b61"
+      "size": 4947,
+      "sha256": "483eec0c3b35558435d7a55771574b0e77f82ec092497402e55f30a59cedc161"
     },
     {
       "path": "aseprite_resources/effects/kled_r_trail#sheet.png",
-      "size": 393410,
-      "sha256": "3be3f586af03156892933239afd7b8b66290d3618bd04ce204059608f5dcc1b5"
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_fourth#anim.fanim",
-      "size": 1118,
-      "sha256": "513829e7d033757f6091a74d3b536ea3b5eaf42667e459d91a089733009c14de"
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_fourth#sheet.png",
-      "size": 295096,
-      "sha256": "539088afd80d843905968fd8e9a88544943f1ca623cc0934da2a99a554489b11"
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_frenzy#anim.fanim",
-      "size": 2913,
-      "sha256": "6d1b090e6d1b0ad97ba99f54f0f92d6291c0dcbafe303cfd327cbac0f6e49b4e"
-    },
-    {
-      "path": "aseprite_resources/effects/kled_w_frenzy#sheet.png",
-      "size": 295096,
-      "sha256": "0960149cb45f28a356f028557ea6140861bd3de3cfea1bb15e40b1b0cc341f13"
+      "size": 196755,
+      "sha256": "a196b7b47425f578a0001ac49f9734b5a9ebf6a6d9f8ecaf0f646bbc593ec1df"
     },
     {
       "path": "aseprite_resources/effects/lucian_attack#anim.fanim",
@@ -349,8 +339,8 @@
     },
     {
       "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
-      "size": 47293,
-      "sha256": "d46d109cb4be9c1899367804aa982aee3c791d75bed90eb3130834b14b56b29d"
+      "size": 90117,
+      "sha256": "94d8a386d271ea48036a7ea42aa9ed7c6f1e331e6124e711f9d6bf4adeaa8c2f"
     },
     {
       "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
@@ -374,13 +364,13 @@
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
-      "size": 109616,
-      "sha256": "7bb6439c0235da4fd75e4b2bcfea1f833fa52c5900232b75f63d0b02374a8de7"
+      "size": 252950,
+      "sha256": "50ebd7da44dddeb8cd9fc5c7bbea136dfac7db9082fe4a66b1e2479b001eeff8"
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
-      "size": 9642,
-      "sha256": "d2a929c6c9adb33cc74cfd3a5deca643a03c1e5af14e682e6dbeaa24a32d30bf"
+      "size": 30442,
+      "sha256": "653f0f2c0c7d18077cbdeccea7badea8ac99652e1fbe4a2adb1af806525e705b"
     },
     {
       "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
@@ -699,8 +689,8 @@
     },
     {
       "path": "champion/cavalry_knight.data_champion",
-      "size": 21035,
-      "sha256": "30a46013f62f4bdc1c301e9c04c2c1ef785eedca653e74b9164ea8982514b144"
+      "size": 12598,
+      "sha256": "8b1bb3fcfd312cd4b9494f9d078261784e2213064e8c2fc1ab0942b3371dce5b"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -725,12 +715,12 @@
     {
       "path": "icons/kled_skill.png",
       "size": 16516,
-      "sha256": "0056ffe39c0ba8bf2a727c3f350e5517fb790a65f24884e8d055ab31c97c060f"
+      "sha256": "c46b2034802e1b855222605b490dc68d228d1febbc1f7aac24ffa84ec960b89c"
     },
     {
       "path": "icons/kled_skill2.png",
       "size": 16516,
-      "sha256": "b8d2e0bcd4dc6aa7d78ccfc181fd73d07d5b04a19df6d7756be32d925d0638f3"
+      "sha256": "00fecd250135452f0f7d3c975c78875223e464a8a1dc32d17ee7b7c70875aac7"
     },
     {
       "path": "icons/kled_ult.png",
@@ -800,17 +790,17 @@
     {
       "path": "lol_mod.dll",
       "size": 424448,
-      "sha256": "1f0622862d81018db58426dadbd7e97f4d092d3a52424295b1f917849658efa1"
+      "sha256": "661d17f68190b4e3545f9e6a8f14faf8bdff452980614fb9ede3d52002544d3e"
     },
     {
       "path": "mod.mod_info",
-      "size": 804,
-      "sha256": "786ba7d8e342bd3fbba0e3e3bb276293796357482c019351d4b728c571cb25e9"
+      "size": 984,
+      "sha256": "896c2ba947c75f19fb36cf337b50b35c9648e9d4cbe8a3c4afb32fb3aea086af"
     },
     {
       "path": "mod.override_info",
-      "size": 36652,
-      "sha256": "c8056305e8287d2434420b44d0f9a0031327995bef36dd356553972879f441a1"
+      "size": 35342,
+      "sha256": "d77a51a50ea5257364c7ed62c6fe9fe33420e2a839512d4b163710b7a47cb330"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -1061,56 +1051,6 @@
       "path": "sound/sfx/kled_r_impact_clip.wav",
       "size": 224622,
       "sha256": "f73a745601d5498223b1db2aa6a5c165a6574567fcc5b02ec6fbbe5064a21081"
-    },
-    {
-      "path": "sound/sfx/kled_w_cast.sound_info",
-      "size": 65,
-      "sha256": "b5f2c020cd1da9b0742471cc14ac7311fce15214683b60cd3a266e161f9300c6"
-    },
-    {
-      "path": "sound/sfx/kled_w_cast_clip.wav",
-      "size": 128604,
-      "sha256": "f3cf2e44e22a4988f3eef0495a593429bff95846420ecc41d6fea86e1d10b4f7"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit1.sound_info",
-      "size": 65,
-      "sha256": "d00d067454826facae53ef515da5d569ca65f48fbee99096554e52cf01ec6f0b"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit1_clip.wav",
-      "size": 43124,
-      "sha256": "6a93be9cf03bed74f883294f6b2961c78589e899c50cda95abbb07f28669d098"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit2.sound_info",
-      "size": 65,
-      "sha256": "c9779c22746dd42eb3172e494b4939dae9f0522851c5a48a0238e2223901790d"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit2_clip.wav",
-      "size": 52214,
-      "sha256": "abd31f0bdcc64ded167672ebd259417e7458cbd71b70b6d3e10fcd02c3480251"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit3.sound_info",
-      "size": 65,
-      "sha256": "96805a99f9bbda7df6be7216bbcc1a08a3f05ee63e9c177c18c4d0f89163a21f"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit3_clip.wav",
-      "size": 47276,
-      "sha256": "9101d4972dd2c05369a5094c23c3d1819b26812f5743cbc94cb9936ad6c93c20"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit4.sound_info",
-      "size": 65,
-      "sha256": "eb2e2a0d52be26d50a815b863fa9143381f1ddf803bfb78bac9a50e47bfaf7ed"
-    },
-    {
-      "path": "sound/sfx/kled_w_hit4_clip.wav",
-      "size": 170272,
-      "sha256": "d766c6942f8093a9cf5501db40bea2c543a6e01721193f3fb5166d5490f60a81"
     },
     {
       "path": "sound/sfx/lol_announcer_double_kill.wav",
@@ -1455,12 +1395,12 @@
     {
       "path": "style/champion_view.champion_view",
       "size": 895,
-      "sha256": "bde2ddf67e664facc186797f856121556cebdd431896e2f222a80e4c45de6282"
+      "sha256": "29787221f14f6e48d78d7810c6bc48c7f3776faeb1bfa63403eb5f7d889b4344"
     },
     {
       "path": "text/champion.i18n",
-      "size": 33837,
-      "sha256": "a08bd90d8541087355b7ec420f60d7a7ca9aedf88223e74e26fdf9ef57d5dbd4"
+      "size": 33163,
+      "sha256": "9cb5745c0d874582c1981962c12273cde0b396d762bfa8a92bb6b0d569b3f6fa"
     },
     {
       "path": "text/item.i18n",

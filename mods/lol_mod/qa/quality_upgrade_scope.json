@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.8.0",
+  "release": "0.8.1",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -8,7 +8,8 @@
       "archer",
       "barrier_magician",
       "berserker",
-      "boomerang_hunter"
+      "boomerang_hunter",
+      "cavalry_knight"
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
@@ -84,7 +85,8 @@
       "archer",
       "barrier_magician",
       "berserker",
-      "boomerang_hunter"
+      "boomerang_hunter",
+      "cavalry_knight"
     ],
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -150,8 +152,9 @@
     "map_skin": {
       "imagegen_sources": [
         "semantics_free_microtexture",
-        "wall_global_palette_reference",
-        "bush_global_palette_reference"
+        "wall_masonry_high_frequency_microdetail",
+        "outer_cliff_high_frequency_microdetail",
+        "bush_high_frequency_microdetail"
       ],
       "runtime_visual_layers": [
         "background_5v5",
@@ -166,6 +169,10 @@
       ],
       "native_bundle_is_only_spatial_geometry_source": true,
       "native_alpha_masks_exact_for_all_nine_layers": true,
+      "wall_bush_and_front_wall_transparent_rgba_exact": true,
+      "wall_bush_and_front_wall_footprints_exact": true,
+      "wall_bush_and_front_wall_imagegen_detail_is_high_frequency_luminance_only": true,
+      "wall_bush_tower_and_nexus_shadow_rgba_exact": true,
       "generated_whole_map_with_shifted_water_deleted": true,
       "official_mask_landmark_instances": {
         "baron_and_dragon_pits": 2,
