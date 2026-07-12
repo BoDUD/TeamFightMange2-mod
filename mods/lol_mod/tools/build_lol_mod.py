@@ -3476,6 +3476,42 @@ def build_sivir_imagegen_audit() -> Path:
     return path
 
 
+MANIFEST_TEXT_SUFFIXES = {
+    ".champion_view",
+    ".data_champion",
+    ".fanim",
+    ".i18n",
+    ".json",
+    ".md",
+    ".mod_info",
+    ".override_info",
+    ".sound_info",
+    ".sprite_sheet",
+    ".style",
+    ".svg",
+    ".txt",
+    ".ui",
+}
+
+
+def normalize_manifest_text_lf(path: Path) -> None:
+    """Make generated/runtime text hashes independent of Windows checkout EOLs.
+
+    Git stores these files as LF, while Python generators on Windows can leave
+    CRLF bytes in the working tree.  The manifest hashes installed bytes, so a
+    CRLF-only local hash would drift after GitHub checks out the same blob as
+    LF.  Canonicalize every manifest-owned text file before hashing/copying.
+    """
+    if path.suffix.lower() not in MANIFEST_TEXT_SUFFIXES:
+        return
+    raw = path.read_bytes()
+    if b"\0" in raw:
+        raise ValueError(f"manifest text candidate contains NUL bytes: {path}")
+    normalized = raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    if normalized != raw:
+        path.write_bytes(normalized)
+
+
 def build_manifest() -> Path:
     runtime_roots = [
         MOD_ROOT / "mod.mod_info",
@@ -3493,6 +3529,8 @@ def build_manifest() -> Path:
         # Riot-audio inputs shipped with the Xayah replacement.
         QA_DIR / "xayah_imagegen_sources.json",
         QA_DIR / "xayah_official_audio_sources.json",
+        QA_DIR / "xayah_ui_scale_qa.json",
+        QA_DIR / "xayah_portrait_surface_final.png",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -3500,6 +3538,8 @@ def build_manifest() -> Path:
             files.append(root)
         elif root.is_dir():
             files.extend(path for path in root.rglob("*") if path.is_file())
+    for path in files:
+        normalize_manifest_text_lf(path)
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",

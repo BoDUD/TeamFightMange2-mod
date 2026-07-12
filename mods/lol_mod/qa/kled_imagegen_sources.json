@@ -1251,10 +1251,28 @@
     {
       "path": "ui/champion_fullbody/cavalry_knight.png",
       "size_bytes": 16516,
-      "sha256": "fac44bcc59dcb1f909b7088c6b838e864ef4be9d949e20f1102deb3b16821ea3",
+      "sha256": "21ff28efff4d9b01ee3f010a851b94e873d20779c29ccc198f8dada40448cb2d",
       "image_size": [
         64,
         64
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/cavalry_knight_compact.png",
+      "size_bytes": 16516,
+      "sha256": "06e661d9ddf4caff0416c291b2c37d5cc74134050cb925f92a9216d2ec6e17da",
+      "image_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/cavalry_knight_grid.png",
+      "size_bytes": 44110,
+      "sha256": "1552543c7ee84986086d0a8784b8b815dfbd27508ad85bde92d638138ba69762",
+      "image_size": [
+        90,
+        122
       ]
     },
     {
@@ -1264,6 +1282,15 @@
       "image_size": [
         960,
         560
+      ]
+    },
+    {
+      "path": "qa/kled_portrait_surface_final.png",
+      "size_bytes": 915593,
+      "sha256": "ff966506231996fd2c6b69ab222988ea9477450a0e98bd4de1150b99b765034c",
+      "image_size": [
+        880,
+        260
       ]
     },
     {

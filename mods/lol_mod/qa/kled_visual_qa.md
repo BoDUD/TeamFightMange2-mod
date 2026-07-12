@@ -28,13 +28,14 @@ Status: generated-source, packed-atlas, icon, VFX, and card-art inspection passe
 ## UI assets
 
 - [x] The normalized BP source follows the 284:172 card composition and the runtime illustration is 1420x860.
-- [x] A non-empty 64x64 full-body encyclopedia portrait is generated from the accepted mounted idle model.
-- [x] Static contact review shows the mounted body and feet are present, but it does not prove any UI camera, crop, scale, or draw-order behavior in game.
+- [x] The 64x64 full-body encyclopedia portrait is sampled directly from the accepted high-resolution mounted source rather than enlarged from the 40px battle atlas.
+- [x] A dedicated source-direct rider portrait serves 18/26/34/46px compact commands, while a separate 90x122 full-mount texture serves the telemetry-proven BP hero grid.
+- [x] `qa/kled_portrait_surface_final.png` proves the compact, BP-grid, and encyclopedia assets are distinct and non-empty; it does not claim a live UI pass.
 
 ## Pending target-visible checks
 
 - [ ] BP illustration appears only in Kled's intended side-card slot, clears immediately after the pick state changes, and does not cover adjacent UI.
-- [ ] Encyclopedia, draft card, scoreboard, side row, report, and battle HUD show a readable complete mounted body with no head/feet/weapon crop.
+- [ ] Encyclopedia and BP grid show the readable complete mount; compact scoreboard, side-row, report, and battle-HUD surfaces show the rider-focused face portrait.
 - [ ] Run, attack, Q, E, R, hit, and death remain in one stable scale class during a live match.
 - [ ] The mounted run has no sliding, abrupt forward jump, frame shake, terrain intersection, or HP/name-label collision.
 - [ ] Q projectile/latch/tether/pull, E dash/impact, and R trail/impact remain centered on the intended actor/target in both facing directions.

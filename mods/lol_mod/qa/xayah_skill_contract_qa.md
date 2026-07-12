@@ -21,22 +21,28 @@
 - [x] The second projectile is inside one `Delayed(tick=6)` block.
 - [x] Each projectile has 720 range, speed 8000, radius 70, excludes towers, and deals `25 + 45% Attack` physical damage.
 - [x] Q advances the singular Feather counter by two and caps it at five.
+- [x] Each Q projectile endpoint creates one damage-free `lol_xayah_ground_single` marker. The marker has a hard 180-tick TTL, no applied/end effect, a non-repeating animation, and a transparent terminal frame; it is visual-only and is not an E target.
+- [x] Q still contains no `BackToCasterLinearProjectile`, Bind, E/R sound, or E/R damage.
 
 ## E / Bladecaller
 
-- [x] E chooses one of five mutually exclusive Feather-count branches.
+- [x] E is the separate native `skill2` action and chooses one of five mutually exclusive Feather-count branches only when E itself is cast.
 - [x] Each branch launches a speed-30000 invisible `lol_xayah_e_anchor`; damage is not attached to the outbound anchor.
-- [x] The anchor's `end_effects` launches a penetrating `BackToCasterLinearProjectile` at speed 12000, preserving a visibly outbound-then-returning recall sequence.
+- [x] The anchor's `end_effects` launches a penetrating `BackToCasterLinearProjectile` at speed 12000. One Feather uses the small single-feather silhouette, two use the double-feather silhouette, and three or more use the Bladecaller cluster silhouette.
 - [x] Return damage scales by stored count: `(20 + 25% AD)`, `(35 + 35% AD)`, `(50 + 45% AD)`, `(65 + 55% AD)`, `(80 + 65% AD)`.
-- [x] Only the three-, four-, and five-Feather branches add the separate radius-65 root line, and every root lasts 45 ticks.
+- [x] Only the three-, four-, and five-Feather branches add `lol_xayah_e_third_feather_root`; the separate radius-65 center line lasts 45 ticks and owns the root visual/audio.
 - [x] E consumes every Feather-count state after branch selection and does not leave an attached or persistent fake ground Feather entity.
 - [x] Audio dispatch is split into cast, launch, hit, catch, and three-plus-Feather root events.
+- [x] Mod API 0.8 has no data-action buff predicate, so `lol_xayah_ai_feather_add_1`, `_add_2`, `_set_5`, and `_clear` mirror the caster count with a 600-tick TTL. `XayahFeatherInputGate` intercepts only built-in-AI `Skill2` and admits E at two or more mirrored Feathers; a one-/zero-Feather AI E is replaced before cooldown/SFX/action dispatch.
+- [x] Native state is keyed by `EntityHandle` and records player/team/position. The AI context lacks running id and unit handle, so strict cross-simulation running-id isolation is explicitly not claimed; expiry and E clear bound stale state.
 
 ## R / Featherstorm
 
 - [x] R is outbound only: one delayed, wide, penetrating `lol_xayah_r_fan` projectile for `80 + 70% Attack` physical damage.
+- [x] R release has two independently wired visual cues: the cast immediately follows Xayah with `lol_xayah_r_guard_visual`, while the non-repeating fan projectile starts from the single `Delayed(tick=12)` block. The actor atlas itself keeps the five-frame rise/apex/descent motion, so the ground ring is not the only cast cue.
 - [x] R contains no `BackToCasterLinearProjectile`, no Bind, and no E audio/event; it cannot automatically recall Feathers.
 - [x] R clears the old Feather count, sets `lol_xayah_feathers_5`, and prepares three Clean Cuts.
+- [x] The R fan endpoint creates one aggregate `lol_xayah_ground_fan` visual representing five Feathers. It has the same 180-tick, no-damage, non-repeating, transparent-terminal lifecycle and does not call E, return, root, or create five addressable entities.
 - [x] A 60-tick `lol_xayah_r_safety_window` grants 100% basic/skill damage reduction and crowd-control immunity. This is a documented data-only approximation of LoL untargetability: Xayah is not removed from the battlefield and can still be selected by systems that ignore those reductions.
 
 ## Audio isolation
@@ -48,4 +54,4 @@
 
 ## Automated proof
 
-`tests/test_xayah_mod.py` statically verifies replacement uniqueness, strict Q/E/R mapping, all passive/Feather state transitions, the two-shot Q delay, E recall/root thresholds, outbound-only R behavior, localization, compact style, encyclopedia UI registration, VFX identity, and native-audio isolation.
+`tests/test_xayah_mod.py` statically verifies replacement uniqueness, strict Q/E/R mapping, passive/Feather transitions, the two-shot Q delay, bounded Q/R endpoint visuals, E recall/root thresholds, the Mod API 0.8 AI input gate, outbound-only R behavior, localization, compact style, encyclopedia UI registration, VFX identity, and native-audio isolation. `qa/xayah_ground_feather_api_limitations.md` records the exact marker, AI-gate, cleanup, and public-API limits.

@@ -172,6 +172,7 @@ def test_clean_cuts_is_a_three_attack_state_machine_and_leaves_one_feather() -> 
         assert [(hit["damage"], hit["attack_ratio"]) for hit in find_effect(projectile, "Attack")] == [
             (0, 35)
         ]
+        assert projectile["end_effects"] == []
 
     added = added_caster_buff_names(attack)
     removed = removed_caster_buff_names(attack)
@@ -207,16 +208,40 @@ def test_q_is_exactly_two_penetrating_feathers_and_second_is_delayed_six_ticks()
         assert [(hit["damage"], hit["attack_ratio"]) for hit in find_effect(projectile, "Attack")] == [
             (25, 45)
         ]
+        ground = find_effect(projectile.get("end_effects", []), "RangePeriodProjectile")
+        assert len(ground) == 1
+        assert ground[0] == {
+            "type": "RangePeriodProjectile",
+            "name": "lol_xayah_ground_single",
+            "tick": 180,
+            "period": 180,
+            "first_delay": 0,
+            "shape": {"Circle": {"radius": 1000}},
+            "applied_target": "EnemyWithoutTower",
+            "applied_effects": [],
+            "end_effects": [],
+        }
     delayed = find_effect(q, "Delayed")
     assert len(delayed) == 1 and delayed[0]["tick"] == 6
     assert len(find_effect(delayed[0], "LinearProjectile", name="lol_xayah_q_feather")) == 1
+    # Q ground markers are visual-only and bounded. Q itself must never contain
+    # E's recall/root primitives or dispatch any E/R sound event.
+    assert not find_effect(q, "BackToCasterLinearProjectile")
+    assert not find_effect(q, "Bind")
+    q_named_effects = {
+        effect.get("name")
+        for effect in walk_effects(q)
+        if isinstance(effect.get("name"), str)
+    }
+    assert not {name for name in q_named_effects if name.startswith("lol_xayah_e_")}
+    assert not {name for name in q_named_effects if name.startswith("lol_xayah_r_")}
     assert "lol_xayah_clean_cuts_3" in added_caster_buff_names(q)
     assert {f"lol_xayah_feathers_{count}" for count in range(1, 6)}.issubset(
         added_caster_buff_names(q) | removed_caster_buff_names(q)
     )
 
 
-def test_e_uses_five_feather_branches_and_roots_only_at_three_or_more() -> None:
+def test_e_is_its_own_slot_with_five_branches_and_roots_only_at_three_or_more() -> None:
     e = load_json("champion/dancer.data_champion")["skill2"]
     assert (
         e["action_name"],
@@ -235,27 +260,51 @@ def test_e_uses_five_feather_branches_and_roots_only_at_three_or_more() -> None:
     anchors = find_effect(e, "LinearProjectile", name="lol_xayah_e_anchor")
     assert len(anchors) == 5
     assert all(anchor["speed"] == 30000 and anchor["applied_effects"] == [] for anchor in anchors)
-    recalls = find_effect(e, "BackToCasterLinearProjectile", name="lol_xayah_e_recall")
-    roots = find_effect(e, "BackToCasterLinearProjectile", name="lol_xayah_e_root")
+    recalls = [
+        projectile
+        for projectile in find_effect(e, "BackToCasterLinearProjectile")
+        if str(projectile.get("name", "")).startswith("lol_xayah_e_recall_")
+    ]
+    roots = find_effect(e, "BackToCasterLinearProjectile", name="lol_xayah_e_third_feather_root")
     assert len(recalls) == 5
     assert len(roots) == 3
+    assert [projectile["name"] for projectile in recalls] == [
+        "lol_xayah_e_recall_cluster",
+        "lol_xayah_e_recall_cluster",
+        "lol_xayah_e_recall_cluster",
+        "lol_xayah_e_recall_double",
+        "lol_xayah_e_recall_single",
+    ]
     assert [
         (find_effect(recall, "Attack")[0]["damage"], find_effect(recall, "Attack")[0]["attack_ratio"])
         for recall in recalls
     ] == [(80, 65), (65, 55), (50, 45), (35, 35), (20, 25)]
     assert all(root["shape"] == {"Circle": {"radius": 6500}} for root in roots)
+    assert all(root["applied_target"] == "EnemyWithoutTower" for root in roots)
     assert [bind["duration"] for root in roots for bind in find_effect(root, "Bind")] == [45, 45, 45]
     assert len(find_effect(e, "Sfx", name="lol_xayah_e_cast")) == 1
     assert len(find_effect(e, "Sfx", name="lol_xayah_e_launch")) == 1
     assert len(find_effect(e, "Sfx", name="lol_xayah_e_catch")) == 5
     assert len(find_effect(e, "TargetSfx", name="lol_xayah_e_root")) == 3
+    assert len(find_effect(e, "CasterViewEffect", name="lol_xayah_e_call_visual")) == 1
+    # E has no Q projectile or R fan. It only recalls after this separate
+    # skill2 action is selected.
+    assert not find_effect(e, "LinearProjectile", name="lol_xayah_q_feather")
+    assert not find_effect(e, "LinearProjectile", name="lol_xayah_r_fan")
+    assert not find_effect(e, "Sfx", name="lol_xayah_q_cast")
+    assert not find_effect(e, "Sfx", name="lol_xayah_r_cast")
+    assert not find_effect(e, "RangePeriodProjectile")
+    assert not find_effect(e, "Native", effect_ref="lol_xayah_ai_feather_add_1")
+    assert not find_effect(e, "Native", effect_ref="lol_xayah_ai_feather_add_2")
+    assert not find_effect(e, "Native", effect_ref="lol_xayah_ai_feather_set_5")
+    assert len(find_effect(e, "Native", effect_ref="lol_xayah_ai_feather_clear")) == 1
     assert {f"lol_xayah_feathers_{count}" for count in range(1, 6)}.issubset(
         removed_caster_buff_names(e)
     )
     assert "lol_xayah_clean_cuts_3" in added_caster_buff_names(e)
 
 
-def test_r_is_outbound_only_sets_five_feathers_and_never_auto_recalls() -> None:
+def test_r_is_outbound_only_sets_five_feathers_leaves_bounded_fan_and_never_auto_recalls() -> None:
     r = load_json("champion/dancer.data_champion")["ult"]
     assert (
         r["action_name"],
@@ -264,6 +313,13 @@ def test_r_is_outbound_only_sets_five_feathers_and_never_auto_recalls() -> None:
         r["range"],
         r["casting_type"],
     ) == ("ult", 3000, 60, 80000, "Direction")
+    cast_visuals = find_effect(r, "CasterViewEffect", name="lol_xayah_r_guard_visual")
+    assert cast_visuals == [
+        {"type": "CasterViewEffect", "name": "lol_xayah_r_guard_visual"}
+    ]
+    delayed = find_effect(r, "Delayed")
+    assert len(delayed) == 1 and delayed[0]["tick"] == 12
+    assert len(find_effect(delayed[0], "LinearProjectile", name="lol_xayah_r_fan")) == 1
     fans = find_effect(r, "LinearProjectile", name="lol_xayah_r_fan")
     assert len(fans) == 1
     assert (fans[0]["penetrate"], fans[0]["shape"], fans[0]["applied_target"]) == (
@@ -273,6 +329,20 @@ def test_r_is_outbound_only_sets_five_feathers_and_never_auto_recalls() -> None:
     )
     assert [(hit["damage"], hit["attack_ratio"]) for hit in find_effect(fans[0], "Attack")] == [
         (80, 70)
+    ]
+    ground = find_effect(fans[0].get("end_effects", []), "RangePeriodProjectile")
+    assert ground == [
+        {
+            "type": "RangePeriodProjectile",
+            "name": "lol_xayah_ground_fan",
+            "tick": 180,
+            "period": 180,
+            "first_delay": 0,
+            "shape": {"Circle": {"radius": 1000}},
+            "applied_target": "EnemyWithoutTower",
+            "applied_effects": [],
+            "end_effects": [],
+        }
     ]
     guards = [
         effect["buff_state"]
@@ -296,6 +366,55 @@ def test_r_is_outbound_only_sets_five_feathers_and_never_auto_recalls() -> None:
     assert not find_effect(r, "Sfx", name="lol_xayah_e_launch")
     assert len(find_effect(r, "Sfx", name="lol_xayah_r_cast")) == 1
     assert not find_effect(r, "TargetSfx", name="lol_xayah_r_hit")
+    assert len(find_effect(r, "Native", effect_ref="lol_xayah_ai_feather_set_5")) == 1
+
+
+def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller() -> None:
+    xayah = load_json("champion/dancer.data_champion")
+    assert len(find_effect(xayah["attack"], "Native", effect_ref="lol_xayah_ai_feather_add_1")) == 3
+    assert len(find_effect(xayah["skill"], "Native", effect_ref="lol_xayah_ai_feather_add_2")) == 1
+    assert len(find_effect(xayah["ult"], "Native", effect_ref="lol_xayah_ai_feather_set_5")) == 1
+    assert len(find_effect(xayah["skill2"], "Native", effect_ref="lol_xayah_ai_feather_clear")) == 1
+
+    runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    for native_event in (
+        "lol_xayah_ai_feather_add_1",
+        "lol_xayah_ai_feather_add_2",
+        "lol_xayah_ai_feather_set_5",
+        "lol_xayah_ai_feather_clear",
+    ):
+        assert f'registration.add_native_effect(\n        "{native_event}"' in runtime
+    assert "const XAYAH_FEATHER_STATE_TTL_TICKS: usize = 600;" in runtime
+    assert "const XAYAH_AI_MIN_RECALL_FEATHERS: u8 = 2;" in runtime
+    assert "struct XayahFeatherUnitState" in runtime
+    assert "unit: EntityHandle" in runtime
+    assert "count: u8" in runtime and "expiry_tick: usize" in runtime
+    assert "state.count.saturating_add(amount).min(5)" in runtime
+    assert "if state.expiry_tick <= now" in runtime
+    assert "states.retain(|state| state.expiry_tick > now);" in runtime
+    assert '"lol_xayah_feather_input_gate"' in runtime
+    assert "let Some(Input::Skill2 { target }) = base_input else" in runtime
+    assert "if feather_count >= XAYAH_AI_MIN_RECALL_FEATHERS" in runtime
+    assert "PlayerInputDecision::Replace(attack)" in runtime
+    assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
+
+    qa = load_json("qa/xayah_replacement_qa.json")
+    assert qa["ground_feather_limit"] == {
+        "visual_markers_shipped": True,
+        "independently_addressable": False,
+        "q_endpoint_markers": 2,
+        "r_endpoint_fan_markers": 1,
+        "ttl_ticks": 180,
+        "non_repeating": True,
+        "terminal_frame_transparent": True,
+        "removed_immediately_by_e": False,
+        "reason": qa["ground_feather_limit"]["reason"],
+        "audit": "qa/xayah_ground_feather_api_limitations.md",
+    }
+    assert qa["ai_bladecaller_gate"]["minimum_feathers"] == 2
+    assert qa["ai_bladecaller_gate"]["state_ttl_ticks"] == 600
+    assert qa["ai_bladecaller_gate"]["running_id_available"] is False
+    assert "does not claim strict running-id isolation" in qa["ai_bladecaller_gate"]["limitation"]
 
 
 def test_xayah_visual_registry_is_distinct_for_attack_q_e_and_r() -> None:
@@ -303,14 +422,52 @@ def test_xayah_visual_registry_is_distinct_for_attack_q_e_and_r() -> None:
     projectiles = {view["name"]: view for view in xayah["view_projectiles"]}
     assert projectiles["lol_xayah_attack_feather"]["anim"].endswith("/xayah_attack")
     assert projectiles["lol_xayah_q_feather"]["anim"].endswith("/xayah_q")
-    assert projectiles["lol_xayah_e_recall"]["tag"] == "return"
-    assert projectiles["lol_xayah_e_root"]["tag"] == "root"
-    assert projectiles["lol_xayah_r_fan"]["tag"] == "fan"
+    for name, tag in {
+        "lol_xayah_e_recall_single": "return_single",
+        "lol_xayah_e_recall_double": "return_double",
+        "lol_xayah_e_recall_cluster": "return_cluster",
+    }.items():
+        assert projectiles[name]["anim"].endswith("/xayah_e")
+        assert projectiles[name]["tag"] == tag
+    assert projectiles["lol_xayah_e_third_feather_root"]["tag"] == "root"
+    assert projectiles["lol_xayah_r_fan"] == {
+        "type": "Animated",
+        "name": "lol_xayah_r_fan",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_r",
+        "tag": "fan",
+        "z": 3,
+        "repeat": False,
+    }
+    assert projectiles["lol_xayah_ground_single"] == {
+        "type": "Animated",
+        "name": "lol_xayah_ground_single",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_ground_feather",
+        "tag": "ground_single",
+        "z": 1,
+        "repeat": False,
+    }
+    assert projectiles["lol_xayah_ground_fan"] == {
+        "type": "Animated",
+        "name": "lol_xayah_ground_fan",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_ground_feather",
+        "tag": "ground_fan",
+        "z": 1,
+        "repeat": False,
+    }
     views = {view["name"]: view for view in xayah["view_effects"]}
     assert views["lol_xayah_attack_hit_visual"]["tag"] == "hit"
     assert views["lol_xayah_q_hit_visual"]["anim"].endswith("/xayah_q")
     assert views["lol_xayah_e_hit_visual"]["anim"].endswith("/xayah_e")
-    assert views["lol_xayah_r_guard_visual"]["tag"] == "guard"
+    assert views["lol_xayah_e_call_visual"]["tag"] == "root"
+    assert views["lol_xayah_e_root_visual"]["tag"] == "root"
+    assert views["lol_xayah_r_guard_visual"] == {
+        "type": "Animation",
+        "name": "lol_xayah_r_guard_visual",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_r",
+        "tag": "guard",
+        "z": 1,
+        "is_follow": True,
+    }
     assert views["lol_xayah_r_hit_visual"]["tag"] == "hit"
 
 
@@ -425,24 +582,143 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
     expected_tags = {
         "xayah_attack": {"projectile": 4, "hit": 4},
         "xayah_q": {"projectile": 4, "hit": 4},
-        "xayah_e": {"return": 4, "root": 4, "hit": 4},
+        "xayah_e": {
+            "return_single": 4,
+            "return_double": 4,
+            "return_cluster": 4,
+            "root": 4,
+            "hit": 4,
+        },
         "xayah_r": {"fan": 4, "hit": 4, "guard": 4},
+        "xayah_ground_feather": {"ground_single": 4, "ground_fan": 4},
+    }
+    expected_frame_sizes = {
+        "xayah_e": {
+            "return_single": (64, 32),
+            "return_double": (72, 36),
+            "return_cluster": (80, 44),
+            "root": (72, 72),
+            "hit": (48, 48),
+        },
+        "xayah_r": {"fan": (104, 72), "hit": (96, 72), "guard": (72, 72)},
+        "xayah_ground_feather": {
+            "ground_single": (48, 40),
+            "ground_fan": (72, 48),
+        },
     }
     for name, tags in expected_tags.items():
         sheet = Image.open(MOD / f"aseprite_resources/effects/{name}#sheet.png").convert("RGBA")
         anims = load_json(f"aseprite_resources/effects/{name}#anim.fanim")["anims"]
         assert {tag: len(value["frames"]) for tag, value in anims.items()} == tags
         for tag, value in anims.items():
-            for frame in value["frames"]:
+            if name in expected_frame_sizes:
+                assert {
+                    (frame["data"]["w"], frame["data"]["h"])
+                    for frame in value["frames"]
+                } == {expected_frame_sizes[name][tag]}
+            for frame_index, frame in enumerate(value["frames"]):
                 data = frame["data"]
                 crop = sheet.crop((data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"]))
-                assert crop.getchannel("A").getbbox() is not None, (name, tag)
+                bbox = crop.getchannel("A").getbbox()
+                if name == "xayah_ground_feather" and frame_index == len(value["frames"]) - 1:
+                    assert bbox is None, (name, tag, "terminal frame must hide bounded-TTL ghosts")
+                else:
+                    assert bbox is not None, (name, tag, frame_index)
 
     builder = (MOD / "tools/build_xayah.py").read_text(encoding="utf-8")
-    assert 'crop_top_half_tags=frozenset({"projectile"})' in builder
+    assert 'IDLE_BODY_SOURCE = PROCESSED_ROOT / "xayah_idle_contact_v3_alpha.png"' in builder
+    assert 'IDLE_BODY_SOURCE = PROCESSED_ROOT / "xayah_idle_contact_v2_alpha.png"' not in builder
+    assert 'xayah_q_vfx_contact_v2_alpha.png' in builder
+    assert 'xayah_e_vfx_contact_v3_alpha.png' in builder
+    assert "crop_top_half_tags" not in builder
     assert Image.open(MOD / "BanPickIllust/dancer.png").size == (1420, 860)
     portrait = Image.open(MOD / "ui/champion_fullbody/dancer.png").convert("RGBA")
     assert portrait.size == (64, 64) and portrait.getchannel("A").getbbox() is not None
+    compact = Image.open(MOD / "ui/champion_portrait/dancer_compact.png").convert("RGBA")
+    grid = Image.open(MOD / "ui/champion_portrait/dancer_grid.png").convert("RGBA")
+    assert compact.size == (64, 64)
+    assert grid.size == (90, 122)
+    compact_bbox = compact.getchannel("A").getbbox()
+    grid_bbox = grid.getchannel("A").getbbox()
+    assert compact_bbox is not None
+    assert compact_bbox[2] - compact_bbox[0] <= 50
+    assert compact_bbox[3] - compact_bbox[1] <= 50
+    assert min(compact_bbox[0], compact_bbox[1], 64 - compact_bbox[2], 64 - compact_bbox[3]) >= 6
+    assert grid_bbox is not None and grid_bbox[1] <= 8 and grid_bbox[3] <= 86
+    assert compact.getchannel("A").getextrema() == (0, 255)
+    assert grid.getchannel("A").getextrema() == (0, 255)
+    assert (MOD / "qa/xayah_portrait_surface_final.png").is_file()
+
+    provenance = load_json("qa/xayah_imagegen_sources.json")
+    assert len(provenance["sources"]) == 16
+    assert len(provenance["processed"]) == 12
+    assert all("xayah_idle_contact_v2" not in row["path"] for row in provenance["sources"])
+    assert all("xayah_idle_contact_v2" not in row["path"] for row in provenance["processed"])
+    assert provenance["additional_generated_images"] == [
+        {
+            "role": "idle_body_contact_v3_two_eyes",
+            "execution_id": "exec-14c8a307-6e2b-4821-859a-9f62c5e391ef",
+        },
+        {
+            "role": "ground_feather_vfx_v1",
+            "execution_id": "exec-178182ff-7735-4228-b339-62352f37295c",
+        },
+    ]
+    active_idle = next(row for row in provenance["processed"] if row["role"] == "idle_body_contact_v3_alpha_two_eyes")
+    assert active_idle["path"] == "source/processed/xayah_idle_contact_v3_alpha.png"
+
+
+def test_xayah_actor_is_uniformly_about_fourteen_percent_larger_with_foot_clearance() -> None:
+    qa = load_json("qa/xayah_ui_scale_qa.json")
+    actor = qa["actor_scale"]
+    assert 1.12 <= actor["mean_height_scale_ratio"] <= 1.15
+    assert 1.12 <= actor["median_height_scale_ratio"] <= 1.16
+    assert actor["minimum_bottom_clearance"] >= 4
+    assert "no x-only compression" in actor["policy"]
+    assert actor["q_e_r_sources"] == {
+        "Q": "source/processed/xayah_q_body_contact_v2_alpha.png",
+        "E": "source/processed/xayah_e_body_contact_v2_alpha.png",
+        "R": "source/processed/xayah_r_body_contact_v2_alpha.png",
+    }
+    assert set(actor["actions"]) == {"idle", "run", "attack", "hit", "skill1", "skill2", "ult"}
+    assert all(
+        row["bottom_clearance"] >= 4
+        and row["visible_size"][0] <= row["native_rect"][0]
+        and row["visible_size"][1] <= row["native_rect"][1]
+        for rows in actor["actions"].values()
+        for row in rows
+    )
+    assert qa["accepted_idle_and_portrait_source"].endswith("xayah_idle_contact_v3_alpha.png")
+    assert qa["bp_geometry"]["side_card_stable"] == [81, 141]
+    assert qa["bp_geometry"]["center_grid_native_geometry"] == [54, 94]
+
+
+def test_xayah_v3_compact_and_grid_portraits_are_source_direct_and_name_safe() -> None:
+    builder = (MOD / "tools/build_xayah.py").read_text(encoding="utf-8")
+    assert 'IDLE_BODY_SOURCE = PROCESSED_ROOT / "xayah_idle_contact_v3_alpha.png"' in builder
+    assert 'IDLE_BODY_SOURCE = PROCESSED_ROOT / "xayah_idle_contact_v2_alpha.png"' not in builder
+    assert not (MOD / "source/imagegen/xayah_idle_contact_v2.png").exists()
+    assert not (MOD / "source/processed/xayah_idle_contact_v2_alpha.png").exists()
+
+    compact = Image.open(MOD / "ui/champion_portrait/dancer_compact.png").convert("RGBA")
+    grid = Image.open(MOD / "ui/champion_portrait/dancer_grid.png").convert("RGBA")
+    compact_bbox = compact.getchannel("A").getbbox()
+    grid_bbox = grid.getchannel("A").getbbox()
+    assert compact.size == (64, 64) and compact_bbox is not None
+    assert compact_bbox[2] - compact_bbox[0] <= 50
+    assert compact_bbox[3] - compact_bbox[1] <= 50
+    assert min(compact_bbox[0], compact_bbox[1], 64 - compact_bbox[2], 64 - compact_bbox[3]) >= 6
+    assert grid.size == (90, 122) and grid_bbox is not None
+    assert grid_bbox[3] <= 86
+
+    provenance = load_json("qa/xayah_imagegen_sources.json")
+    assert len(provenance["sources"]) == 16
+    assert len(provenance["processed"]) == 12
+    assert all("xayah_idle_contact_v2" not in row["path"] for row in provenance["sources"])
+    assert all("xayah_idle_contact_v2" not in row["path"] for row in provenance["processed"])
+    assert provenance["additional_generated_images"][0]["execution_id"] == (
+        "exec-14c8a307-6e2b-4821-859a-9f62c5e391ef"
+    )
 
 
 def test_xayah_official_audio_is_pinned_mono_pcm16_and_full_volume() -> None:
@@ -475,6 +751,9 @@ def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
     assert '("dancer", "asset/lol_mod/BanPickIllust/dancer")' in runtime
     assert '("dancer", "lol_fullbody_xayah")' in " ".join(runtime.split())
     assert '"xayah" | "dancer" => Some("dancer")' in runtime
+    assert "rewrite_xayah_portrait_render_commands(state);" in runtime
+    assert "XAYAH_COMPACT_PORTRAIT_TEXTURE" in runtime
+    assert "XAYAH_BP_GRID_PORTRAIT_TEXTURE" in runtime
     builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
     assert 'from build_xayah import build_all as build_xayah_assets' in builder
     assert '"dancer": ACTOR_DIR / "xayah#sheet.png"' in builder
@@ -490,8 +769,10 @@ def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
         "aseprite_resources/champions/xayah#anim.fanim",
         "icons/xayah_skill.png", "icons/xayah_skill2.png", "icons/xayah_ult.png",
         "BanPickIllust/dancer.png", "ui/champion_fullbody/dancer.png",
+        "ui/champion_portrait/dancer_compact.png", "ui/champion_portrait/dancer_grid.png",
+        "qa/xayah_ui_scale_qa.json", "qa/xayah_portrait_surface_final.png",
         "qa/xayah_imagegen_sources.json", "qa/xayah_official_audio_sources.json",
     }
-    for name in ("xayah_attack", "xayah_q", "xayah_e", "xayah_r"):
+    for name in ("xayah_attack", "xayah_q", "xayah_e", "xayah_r", "xayah_ground_feather"):
         required.update({f"aseprite_resources/effects/{name}#sheet.png", f"aseprite_resources/effects/{name}#anim.fanim"})
     assert required <= manifest_paths

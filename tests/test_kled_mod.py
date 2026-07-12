@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.9.0"
+    assert load_json("mod.mod_info")["version"] == "0.9.1"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"
@@ -495,8 +495,9 @@ def test_kled_localization_compact_style_encyclopedia_and_bp_are_registered() ->
     assert style["face"] == {"x": 1, "y": -36}
     assert style["face"] != style["center"]
 
-    # Compact rows need a Kled-only rider crop. Native Cavalry's (1,-44) clips
-    # too high, while center=(0,-12) compresses the whole mount into the icon.
+    # Keep the Kled-only camera as a fallback.  The runtime portrait router
+    # below supplies source-direct art because an offset cannot add face
+    # pixels to an 18px full-mounted icon.
     anim = load_json("aseprite_resources/champions/kled#anim.fanim")["anims"]
     sheet = Image.open(MOD / "aseprite_resources/champions/kled#sheet.png").convert("RGBA")
     first_idle = frame_crop(sheet, anim["idle"]["frames"][0])
@@ -520,10 +521,43 @@ def test_kled_localization_compact_style_encyclopedia_and_bp_are_registered() ->
     assert '"asset/lol_mod/BanPickIllust/cavalry_knight"' in runtime
     assert '("cavalry_knight", "lol_fullbody_kled")' in runtime
     assert '"kled" | "cavalry_knight" => Some("cavalry_knight")' in runtime
+    assert "rewrite_kled_portrait_render_commands(state);" in runtime
+    assert "KLED_COMPACT_PORTRAIT_TEXTURE" in runtime
+    assert "KLED_BP_GRID_PORTRAIT_TEXTURE" in runtime
+    assert '"asset/base/aseprite_resources/champions/cavalry_knight#sheet"' in runtime
+    assert '"asset/lol_mod/aseprite_resources/champions/kled#sheet"' in runtime
+    assert "let is_compact_square" in runtime
+    assert "let is_bp_grid" in runtime
+    assert "texture_rect.w = 1.0" in runtime
+    assert "*sample_nearest = true" in runtime
 
     fullbody = Image.open(MOD / "ui/champion_fullbody/cavalry_knight.png").convert("RGBA")
     assert fullbody.size == (64, 64)
     assert fullbody.getchannel("A").getbbox() is not None
+    compact = Image.open(MOD / "ui/champion_portrait/cavalry_knight_compact.png").convert("RGBA")
+    grid = Image.open(MOD / "ui/champion_portrait/cavalry_knight_grid.png").convert("RGBA")
+    assert compact.size == (64, 64)
+    assert grid.size == (90, 122)
+    compact_ui_bbox = compact.getchannel("A").getbbox()
+    assert compact_ui_bbox is not None
+    assert compact_ui_bbox[2] - compact_ui_bbox[0] <= 50
+    assert compact_ui_bbox[3] - compact_ui_bbox[1] <= 50
+    assert min(
+        compact_ui_bbox[0],
+        compact_ui_bbox[1],
+        64 - compact_ui_bbox[2],
+        64 - compact_ui_bbox[3],
+    ) >= 6
+    grid_bbox = grid.getchannel("A").getbbox()
+    assert grid_bbox is not None
+    assert grid_bbox[3] <= 86
+    assert grid_bbox[1] <= 20
+    assert compact.getchannel("A").getextrema() == (0, 255)
+    assert grid.getchannel("A").getextrema() == (0, 255)
+    assert sha256(MOD / "ui/champion_portrait/cavalry_knight_compact.png") != sha256(
+        MOD / "ui/champion_fullbody/cavalry_knight.png"
+    )
+    assert (MOD / "qa/kled_portrait_surface_final.png").is_file()
 
     source_splash = MOD / "source/imagegen/bp_splash/cavalry_knight.png"
     runtime_splash = MOD / "BanPickIllust/cavalry_knight.png"
@@ -603,6 +637,8 @@ def test_kled_runtime_assets_are_current_in_the_build_manifest() -> None:
         "icons/kled_ult.png",
         "BanPickIllust/cavalry_knight.png",
         "ui/champion_fullbody/cavalry_knight.png",
+        "ui/champion_portrait/cavalry_knight_compact.png",
+        "ui/champion_portrait/cavalry_knight_grid.png",
         "sound/sfx/kled_native_silence.sound_info",
         "sound/sfx/kled_native_silence_clip.wav",
     }

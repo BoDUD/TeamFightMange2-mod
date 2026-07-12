@@ -47,6 +47,11 @@
     "outbound_anchor_visible": false,
     "anchor_speed": 30000,
     "return_type": "BackToCasterLinearProjectile",
+    "return_visuals_by_feather_count": {
+      "1": "lol_xayah_e_recall_single",
+      "2": "lol_xayah_e_recall_double",
+      "3_to_5": "lol_xayah_e_recall_cluster"
+    },
     "return_speed": 12000,
     "root_threshold": 3,
     "root_duration_ticks": 45,
@@ -57,7 +62,8 @@
       "4": [65, 55],
       "5": [80, 65]
     },
-    "data_only_approximation": "All stored ground feathers are compressed into one chosen-direction return line."
+    "root_projectile": "lol_xayah_e_third_feather_root",
+    "data_only_approximation": "All stored Feather count is compressed into one chosen-direction return line; persistent map entities are not claimed."
   },
   "r": {
     "outbound_only": true,
@@ -71,6 +77,33 @@
     "safety_window_ticks": 60,
     "untargetability_approximation": "100% basic/skill damage reduction plus crowd-control immunity; the entity remains present."
   },
+  "ground_feather_limit": {
+    "visual_markers_shipped": true,
+    "independently_addressable": false,
+    "q_endpoint_markers": 2,
+    "r_endpoint_fan_markers": 1,
+    "ttl_ticks": 180,
+    "non_repeating": true,
+    "terminal_frame_transparent": true,
+    "removed_immediately_by_e": false,
+    "reason": "Mod API 0.8 cannot name-address or remove a projectile from another action. Q and R therefore leave bounded, damage-free endpoint visuals; E still uses the caster Feather counter and never recalls the marker entities themselves.",
+    "audit": "qa/xayah_ground_feather_api_limitations.md"
+  },
+  "ai_bladecaller_gate": {
+    "minimum_feathers": 2,
+    "state_ttl_ticks": 600,
+    "native_events": [
+      "lol_xayah_ai_feather_add_1",
+      "lol_xayah_ai_feather_add_2",
+      "lol_xayah_ai_feather_set_5",
+      "lol_xayah_ai_feather_clear"
+    ],
+    "blocked_input": "built-in AI Skill2 only; manual input is outside ModPlayerInputAi",
+    "unit_key": "EntityHandle plus player id, team and position",
+    "running_id_available": false,
+    "cleanup": "expired unit states are removed on Native-effect updates and AI reads; E clear removes the matching unit state",
+    "limitation": "Mod API 0.8 exposes neither running_id nor the current EntityHandle on PlayerAiContext, so the AI lookup uses player/team/position plus current tick to select the newest live unit state and does not claim strict running-id isolation."
+  },
   "compact_style": {
     "face": {
       "x": 2,
@@ -80,6 +113,46 @@
       "x": 0,
       "y": -12
     }
+  },
+  "portrait_assets": {
+    "source": "source/processed/xayah_idle_contact_v3_alpha.png",
+    "compact": "ui/champion_portrait/dancer_compact.png",
+    "compact_subject_max": [50, 50],
+    "compact_minimum_canvas_margin": 6,
+    "bp_grid": "ui/champion_portrait/dancer_grid.png",
+    "bp_grid_dimensions": [
+      90,
+      122
+    ],
+    "bp_grid_alpha_bottom_max": 86,
+    "bp_grid_name_band_clearance": 10,
+    "audit": "qa/xayah_ui_scale_qa.json"
+  },
+  "actor_scale": {
+    "requested": "approximately 12-15% larger",
+    "policy": "uniform per-frame scaling only; no horizontal compression; native-width-limited poses keep the complete silhouette",
+    "minimum_bottom_clearance": 4,
+    "q_e_r_body_sources_remain_independent": true,
+    "audit": "qa/xayah_ui_scale_qa.json"
+  },
+  "bp_presentation": {
+    "native_idle_rect": [
+      27,
+      47
+    ],
+    "rendered_side_actor_rect": [
+      81,
+      141
+    ],
+    "rendered_side_transition": {
+      "width": [80, 82],
+      "height": [124, 142]
+    },
+    "center_grid_actor_rect": [54, 94],
+    "illustration_route": "post-render NinePatch replacement using the dancer-specific side-card geometry contract",
+    "grid_safety": "The 54x94 center-grid actor is rejected by the side-card 81x125-141 contract and edge gate, then center-preservingly expanded to the dedicated 90x122 portrait so the texture is not horizontally squeezed.",
+    "center_alignment": "The stable 81x141 side actor shares the standard 137x184 actor center, so candidate scoring locks the splash to the same card slot.",
+    "label_safety": "center.y=-12 keeps the rebuilt native-height full-body preview clear of the name band; face.y=-32 gives compact rows a head-focused crop without a second upward over-shift."
   },
   "native_audio_isolation": {
     "events": [

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import statistics
 import struct
 import wave
 import zlib
@@ -18,7 +19,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -30,22 +31,44 @@ EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 SPLASH_DIR = MOD_ROOT / "BanPickIllust"
 FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
+PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 SOUND_DIR = MOD_ROOT / "sound" / "sfx"
 QA_DIR = MOD_ROOT / "qa"
 
-ACTOR_SOURCE = PROCESSED_ROOT / "xayah_actor_contact_alpha.png"
-RUN_SOURCE = PROCESSED_ROOT / "xayah_run_contact_alpha.png"
-DEFEAT_SOURCE = PROCESSED_ROOT / "xayah_defeat_contact_alpha.png"
+CORE_BODY_SOURCE = PROCESSED_ROOT / "xayah_core_body_contact_v2_alpha.png"
+# The v3 idle is the accepted two-visible-eye source.  It is the single source
+# of truth for idle frames and all Xayah portrait surfaces; v2 remains only as
+# superseded provenance and must never be packed into runtime art again.
+IDLE_BODY_SOURCE = PROCESSED_ROOT / "xayah_idle_contact_v3_alpha.png"
+RUN_SOURCE = PROCESSED_ROOT / "xayah_run_contact_v2_alpha.png"
+Q_BODY_SOURCE = PROCESSED_ROOT / "xayah_q_body_contact_v2_alpha.png"
+E_BODY_SOURCE = PROCESSED_ROOT / "xayah_e_body_contact_v2_alpha.png"
+R_BODY_SOURCE = PROCESSED_ROOT / "xayah_r_body_contact_v2_alpha.png"
+DEFEAT_SOURCE = PROCESSED_ROOT / "xayah_defeat_contact_v2_alpha.png"
 ATTACK_VFX_SOURCE = PROCESSED_ROOT / "xayah_attack_vfx_contact_alpha.png"
-Q_VFX_SOURCE = PROCESSED_ROOT / "xayah_q_vfx_contact_alpha.png"
-E_VFX_SOURCE = PROCESSED_ROOT / "xayah_e_vfx_contact_alpha.png"
-R_VFX_SOURCE = PROCESSED_ROOT / "xayah_r_vfx_contact_alpha.png"
+Q_VFX_SOURCE = PROCESSED_ROOT / "xayah_q_vfx_contact_v2_alpha.png"
+E_VFX_SOURCE = PROCESSED_ROOT / "xayah_e_vfx_contact_v3_alpha.png"
+R_VFX_SOURCE = PROCESSED_ROOT / "xayah_r_vfx_contact_v2_alpha.png"
+GROUND_FEATHER_VFX_SOURCE = PROCESSED_ROOT / "xayah_ground_feather_contact_v1_alpha.png"
 Q_ICON_SOURCE = IMAGEGEN_ROOT / "xayah_q_icon_source.png"
 E_ICON_SOURCE = IMAGEGEN_ROOT / "xayah_e_icon_source.png"
 R_ICON_SOURCE = IMAGEGEN_ROOT / "xayah_r_icon_source.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "dancer.png"
 
 ACTOR_SHEET_SIZE = (1594, 90)
+
+# Accepted pre-enlargement body heights from the 2026-07-12 v2 runtime build.
+# They are retained only as a deterministic QA baseline.  Runtime frames use
+# BODY_TARGET_HEIGHTS below, whose median enlargement is approximately 14%.
+BASELINE_BODY_HEIGHTS: dict[str, list[int]] = {
+    "idle": [34, 33, 32, 33],
+    "run": [32, 28, 26, 28, 31, 30, 28, 30],
+    "attack": [33, 33, 34, 30, 32],
+    "hit": [33],
+    "skill1": [34, 34, 34, 34, 34],
+    "skill2": [34, 34, 34],
+    "ult": [29, 33, 31, 33, 34],
+}
 
 
 # Exact tag order, frame counts, durations and rectangles from native champion
@@ -124,6 +147,40 @@ NATIVE_CONTRACT: dict[str, dict[str, Any]] = {
         "rects": [(1110, 0, 35, 61), (1146, 0, 33, 63), (1180, 0, 33, 67)],
     },
 }
+
+
+# Final-scale actor placement follows the visible native 007/Dancer motion
+# profile instead of pinning every replacement pose to the bottom edge.  The
+# values are measured from the bundled native sheet at alpha >= 64.
+BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
+    "idle": [39, 38, 36, 38],
+    "run": [36, 32, 30, 32, 35, 34, 32, 34],
+    "attack": [38, 38, 39, 34, 36],
+    "hit": [38],
+    "skill1": [39, 39, 39, 39, 39],
+    "skill2": [39, 39, 39],
+    # Preserve the crouch/rise/apex/descent/recovery proportions from the
+    # dedicated R body contact instead of stretching every pose to one height.
+    "ult": [33, 38, 35, 38, 39],
+}
+
+BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
+    # The larger body expands mostly upward.  Tight native frames also spend
+    # part of their old 10-22px blank footer, but every frame retains at least
+    # four transparent pixels below the feet.
+    "idle": [7, 6, 6, 6],
+    "run": [8, 14, 18, 14, 9, 12, 16, 12],
+    "attack": [6, 6, 7, 10, 6],
+    "hit": [6],
+    "skill1": [5, 7, 22, 10, 17],
+    "skill2": [19, 20, 21],
+    # Distance above the native frame bottom rises to a clear airborne apex,
+    # then descends to the landing recovery.  The actor itself proves the
+    # jump; the separate guard ring is only supplementary feedback.
+    "ult": [4, 6, 26, 18, 4],
+}
+
+DEAD_BOTTOM_MARGINS = [10, 9, 8, 7, 5, 5, 5, 5, 5]
 
 
 def write_json(path: Path, value: Any, *, compact: bool = False) -> None:
@@ -210,6 +267,45 @@ def hard_alpha(image: Image.Image, threshold: int = 56) -> Image.Image:
     return rgba
 
 
+def remove_small_border_fragments(image: Image.Image, max_pixels: int = 256) -> Image.Image:
+    """Drop isolated contact-sheet bleed without cropping the real silhouette."""
+    rgba = image.convert("RGBA").copy()
+    alpha = rgba.getchannel("A")
+    alpha_pixels = alpha.load()
+    width, height = rgba.size
+    boundary = [
+        *((x, 0) for x in range(width)),
+        *((x, height - 1) for x in range(width)),
+        *((0, y) for y in range(1, height - 1)),
+        *((width - 1, y) for y in range(1, height - 1)),
+    ]
+    visited: set[tuple[int, int]] = set()
+    remove: list[tuple[int, int]] = []
+    for seed in boundary:
+        if seed in visited or alpha_pixels[seed] == 0:
+            continue
+        component: list[tuple[int, int]] = []
+        stack = [seed]
+        visited.add(seed)
+        while stack:
+            x, y = stack.pop()
+            component.append((x, y))
+            for next_y in range(max(0, y - 1), min(height, y + 2)):
+                for next_x in range(max(0, x - 1), min(width, x + 2)):
+                    point = (next_x, next_y)
+                    if point not in visited and alpha_pixels[point] != 0:
+                        visited.add(point)
+                        stack.append(point)
+        if len(component) <= max_pixels:
+            remove.extend(component)
+    if not remove:
+        return rgba
+    pixels = rgba.load()
+    for point in remove:
+        pixels[point] = (0, 0, 0, 0)
+    return rgba
+
+
 def palette_finish(image: Image.Image, colors: int = 48) -> Image.Image:
     opaque = hard_alpha(image)
     quantized = opaque.quantize(colors=colors, method=Image.Quantize.FASTOCTREE).convert("RGBA")
@@ -229,28 +325,40 @@ def fit_actor(
     frame_size: tuple[int, int],
     *,
     target_height: int,
-    baseline: int | None = None,
-    preserve_aspect: bool = False,
+    bottom_margin: int,
 ) -> Image.Image:
-    """Fit one full-body pose at a stable actor height inside native 007 boxes."""
-    source = hard_alpha(source)
+    """Uniformly fit one final-scale pose onto the native 007 body anchor.
+
+    Xayah v1 independently clamped the resized width after choosing height.
+    Wide run/attack poses therefore lost up to 44% of their horizontal scale
+    and collapsed into a cape-shaped blob.  Body art must now remain uniform:
+    if a pose is too wide, the entire pose gets smaller or the visual gate
+    rejects the source; x-only compression is never allowed.
+    """
+    source = remove_small_border_fragments(hard_alpha(source))
     subject = source.crop(alpha_bbox(source))
-    target_height = min(target_height, frame_size[1] - 2)
-    width = max(1, round(subject.width * target_height / subject.height))
-    max_width = max(1, frame_size[0] - 2)
-    if preserve_aspect and width > max_width:
-        scale = max_width / subject.width
-        target_height = max(1, min(target_height, round(subject.height * scale)))
-        width = max_width
-    else:
-        # Long cape/stride poses need x-only compression to preserve battle scale.
-        width = min(width, max_width)
-    resized = subject.resize((width, target_height), Image.Resampling.LANCZOS)
+    # Use the complete native width when a wide run/throw pose needs it.  This
+    # is still a hard native-frame cap (no spill or crop), and the one uniform
+    # scale below means a narrow rect can reduce the whole pose but can never
+    # squeeze only its x axis.  Most frames keep 1px+ side clearance; the few
+    # stride extremes that exactly fill their native rect are recorded in the
+    # scale QA instead of being horizontally compressed.
+    max_width = max(1, frame_size[0])
+    max_height = max(1, frame_size[1] - bottom_margin - 1)
+    scale = min(target_height / subject.height, max_width / subject.width, max_height / subject.height)
+    width = max(1, round(subject.width * scale))
+    height = max(1, round(subject.height * scale))
+    resized = subject.resize((width, height), Image.Resampling.NEAREST)
     resized = palette_finish(resized, 48)
+    resized = resized.crop(alpha_bbox(resized))
     output = Image.new("RGBA", frame_size, (0, 0, 0, 0))
     x = (frame_size[0] - resized.width) // 2
-    anchor = frame_size[1] - 1 if baseline is None else min(baseline, frame_size[1] - 1)
-    y = max(0, min(frame_size[1] - resized.height, anchor - resized.height))
+    y = frame_size[1] - bottom_margin - resized.height
+    if y < 0:
+        raise ValueError(
+            f"Xayah body {resized.size} cannot preserve bottom margin {bottom_margin} "
+            f"inside native frame {frame_size}"
+        )
     output.alpha_composite(resized, (x, y))
     return output
 
@@ -263,7 +371,7 @@ def fit_effect(source: Image.Image, frame_size: tuple[int, int], *, padding: int
     scale = min(max_width / subject.width, max_height / subject.height)
     resized = subject.resize(
         (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-        Image.Resampling.LANCZOS,
+        Image.Resampling.NEAREST,
     )
     resized = palette_finish(resized, 64)
     output = Image.new("RGBA", frame_size, (0, 0, 0, 0))
@@ -293,8 +401,12 @@ def _paste_unique(
 
 
 def build_actor() -> tuple[Path, Path, list[Image.Image]]:
-    actor_cells = split_grid(Image.open(ACTOR_SOURCE).convert("RGBA"), 4, 3)
+    core_cells = split_grid(Image.open(CORE_BODY_SOURCE).convert("RGBA"), 5, 2)
+    idle_cells = split_grid(Image.open(IDLE_BODY_SOURCE).convert("RGBA"), 4, 1)
     run_cells = split_grid(Image.open(RUN_SOURCE).convert("RGBA"), 4, 2)
+    q_body_cells = split_grid(Image.open(Q_BODY_SOURCE).convert("RGBA"), 5, 1)
+    e_body_cells = split_grid(Image.open(E_BODY_SOURCE).convert("RGBA"), 3, 1)
+    r_body_cells = split_grid(Image.open(R_BODY_SOURCE).convert("RGBA"), 5, 1)
     defeat_cells = split_grid(Image.open(DEFEAT_SOURCE).convert("RGBA"), 3, 3)
     attack_vfx = split_grid(Image.open(ATTACK_VFX_SOURCE).convert("RGBA"), 4, 2)
     q_vfx = split_grid(Image.open(Q_VFX_SOURCE).convert("RGBA"), 4, 2)
@@ -304,23 +416,32 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     representative: list[Image.Image] = []
 
     sequences = {
-        "idle": actor_cells[0:4],
+        "idle": idle_cells,
         "run": run_cells,
-        "attack": [actor_cells[index] for index in (0, 4, 5, 5, 0)],
-        "hit": [actor_cells[11]],
-        "skill1": [actor_cells[index] for index in (4, 5, 6, 7, 7)],
-        "skill2": [actor_cells[index] for index in (8, 9, 8)],
-        # R keeps the same compact actor scale; the large fan lives in xayah_r.
-        "ult": [actor_cells[index] for index in (8, 8, 9, 8, 0)],
+        "attack": core_cells[5:10],
+        "hit": [core_cells[4]],
+        "skill1": q_body_cells,
+        "skill2": e_body_cells,
+        # Q, E and R have disjoint body contacts.  Large effects remain in the
+        # independent xayah_q/xayah_e/xayah_r sheets.
+        "ult": r_body_cells,
     }
-    target_heights = {"idle": 44, "run": 39, "attack": 39, "hit": 38, "skill1": 40, "skill2": 40, "ult": 40}
     for tag in ("ult", "idle", "run", "hit", "attack", "skill1", "skill2"):
         sources = sequences[tag]
         rects = NATIVE_CONTRACT[tag]["rects"]
-        if len(sources) != len(rects):
+        heights = BODY_TARGET_HEIGHTS[tag]
+        bottoms = BODY_BOTTOM_MARGINS[tag]
+        if not (len(sources) == len(rects) == len(heights) == len(bottoms)):
             raise ValueError(f"{tag}: {len(sources)} sources for {len(rects)} native frames")
-        for rect, source in zip(rects, sources, strict=True):
-            frame = fit_actor(source, (rect[2], rect[3]), target_height=target_heights[tag])
+        for rect, source, target_height, bottom_margin in zip(
+            rects, sources, heights, bottoms, strict=True
+        ):
+            frame = fit_actor(
+                source,
+                (rect[2], rect[3]),
+                target_height=target_height,
+                bottom_margin=bottom_margin,
+            )
             _paste_unique(sheet, placements, rect, frame)
             representative.append(frame)
 
@@ -333,17 +454,22 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         projectile_rect,
         fit_effect(attack_vfx[1], (projectile_rect[2], projectile_rect[3]), padding=1),
     )
-    for rect, source in zip(NATIVE_CONTRACT["skill1_projectile"]["rects"], q_vfx[1:3], strict=True):
+    for rect, source in zip(NATIVE_CONTRACT["skill1_projectile"]["rects"], q_vfx[0:2], strict=True):
         _paste_unique(sheet, placements, rect, fit_effect(source, (rect[2], rect[3]), padding=1))
 
     # Nine generated fall/grounded poses exactly fill the nine visible native
     # frames; the mandatory final 3x3 terminal frame remains transparent.
-    for rect, source in zip(NATIVE_CONTRACT["dead"]["rects"][:-1], defeat_cells, strict=True):
+    for rect, source, bottom_margin in zip(
+        NATIVE_CONTRACT["dead"]["rects"][:-1],
+        defeat_cells,
+        DEAD_BOTTOM_MARGINS,
+        strict=True,
+    ):
         frame = fit_actor(
             source,
             (rect[2], rect[3]),
-            target_height=max(18, rect[3] - 4),
-            preserve_aspect=True,
+            target_height=max(1, rect[3] - bottom_margin - 1),
+            bottom_margin=bottom_margin,
         )
         _paste_unique(sheet, placements, rect, frame)
         representative.append(frame)
@@ -373,9 +499,10 @@ def _build_effect(
     source_path: Path,
     tag_specs: list[tuple[str, list[int], tuple[int, int], float]],
     *,
-    crop_top_half_tags: frozenset[str] = frozenset(),
+    grid: tuple[int, int] = (4, 2),
+    transparent_terminal_tags: frozenset[str] = frozenset(),
 ) -> list[Path]:
-    cells = split_grid(Image.open(source_path).convert("RGBA"), 4, 2)
+    cells = split_grid(Image.open(source_path).convert("RGBA"), *grid)
     sheet_width = max(len(indexes) * size[0] for _, indexes, size, _ in tag_specs)
     sheet_height = sum(size[1] for _, _, size, _ in tag_specs)
     sheet = Image.new("RGBA", (sheet_width, sheet_height), (0, 0, 0, 0))
@@ -385,12 +512,14 @@ def _build_effect(
         frames: list[dict[str, Any]] = []
         for frame_index, source_index in enumerate(indexes):
             source = cells[source_index]
-            if tag in crop_top_half_tags:
-                # Q's generated contact cell contains a display pair.  The
-                # gameplay data launches two separate projectiles, so each
-                # runtime projectile frame must contain exactly one feather.
-                source = source.crop((0, 0, source.width, source.height // 2))
-            frame = fit_effect(source, frame_size)
+            if tag in transparent_terminal_tags and frame_index == len(indexes) - 1:
+                # RangePeriodProjectile cannot be removed early through API
+                # 0.8.  Ending on a truly transparent frame bounds any
+                # visible post-E ghost even while the harmless entity waits
+                # for its fixed TTL to expire.
+                frame = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+            else:
+                frame = fit_effect(source, frame_size)
             x = frame_index * frame_size[0]
             sheet.alpha_composite(frame, (x, y))
             frames.append(
@@ -419,7 +548,6 @@ def build_vfx() -> list[Path]:
             "xayah_q",
             Q_VFX_SOURCE,
             [("projectile", [0, 1, 2, 3], (96, 48), 0.06), ("hit", [4, 5, 6, 7], (96, 64), 0.06)],
-            crop_top_half_tags=frozenset({"projectile"}),
         )
     )
     outputs.extend(
@@ -427,10 +555,16 @@ def build_vfx() -> list[Path]:
             "xayah_e",
             E_VFX_SOURCE,
             [
-                ("return", [0, 1, 2, 3], (96, 48), 0.06),
-                ("root", [4, 5, 6, 7], (96, 96), 0.07),
-                ("hit", [4, 5, 6, 7], (64, 64), 0.06),
+                # Live review found the original recall art body-sized.  The
+                # smaller native footprints keep the feathers readable as
+                # thin return streaks without enclosing the champion.
+                ("return_single", [0, 1, 2, 3], (64, 32), 0.06),
+                ("return_double", [4, 5, 6, 7], (72, 36), 0.06),
+                ("return_cluster", [8, 9, 10, 11], (80, 44), 0.06),
+                ("root", [12, 13, 14, 15], (72, 72), 0.07),
+                ("hit", [12, 13, 14, 15], (48, 48), 0.06),
             ],
+            grid=(4, 4),
         )
     )
     outputs.extend(
@@ -438,10 +572,22 @@ def build_vfx() -> list[Path]:
             "xayah_r",
             R_VFX_SOURCE,
             [
-                ("fan", [0, 1, 2, 3], (128, 96), 0.07),
-                ("hit", [4, 5, 6, 7], (128, 96), 0.07),
-                ("guard", [4, 5, 6, 7], (96, 96), 0.07),
+                ("fan", [0, 1, 2, 3], (104, 72), 0.07),
+                ("hit", [4, 5, 6, 7], (96, 72), 0.07),
+                ("guard", [8, 9, 10, 11], (72, 72), 0.07),
             ],
+            grid=(4, 3),
+        )
+    )
+    outputs.extend(
+        _build_effect(
+            "xayah_ground_feather",
+            GROUND_FEATHER_VFX_SOURCE,
+            [
+                ("ground_single", [0, 1, 2, 3], (48, 40), 0.55),
+                ("ground_fan", [4, 5, 6, 7], (72, 48), 0.55),
+            ],
+            transparent_terminal_tags=frozenset({"ground_single", "ground_fan"}),
         )
     )
     return outputs
@@ -473,26 +619,91 @@ def build_icons() -> list[Path]:
     return outputs
 
 
-def build_splash_and_fullbody(actor_sheet: Path) -> list[Path]:
+def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
     splash = cover_crop(Image.open(SPLASH_SOURCE).convert("RGBA"), (1420, 860))
     splash_path = SPLASH_DIR / "dancer.png"
     save_png(splash_path, splash)
 
-    idle_rect = NATIVE_CONTRACT["idle"]["rects"][0]
-    actor = Image.open(actor_sheet).convert("RGBA")
-    x, y, width, height = idle_rect
-    idle = actor.crop((x, y, x + width, y + height))
-    idle = idle.crop(alpha_bbox(idle))
-    scale = min(58 / idle.width, 60 / idle.height)
-    idle = idle.resize(
-        (max(1, round(idle.width * scale)), max(1, round(idle.height * scale))),
-        Image.Resampling.NEAREST,
+    # UI portraits are independent surfaces.  Enlarging the already packed
+    # 39px actor would only magnify final-scale pixels and recreate the cropped
+    # one-eye avatar.  Derive full-body, compact, and BP-grid art directly from
+    # the accepted high-resolution v3 idle source instead.
+    idle_source = split_grid(Image.open(IDLE_BODY_SOURCE).convert("RGBA"), 4, 1)[0]
+    idle_source = hard_alpha(idle_source)
+    full_body = idle_source.crop(alpha_bbox(idle_source))
+
+    def render_subject(
+        source: Image.Image,
+        size: tuple[int, int],
+        *,
+        max_subject: tuple[int, int],
+        bottom: int,
+        colors: int,
+    ) -> Image.Image:
+        source = hard_alpha(source)
+        subject = source.crop(alpha_bbox(source))
+        scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
+        subject = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        subject = palette_finish(subject, colors)
+        subject = subject.crop(alpha_bbox(subject))
+        output = Image.new("RGBA", size, (0, 0, 0, 0))
+        x = (size[0] - subject.width) // 2
+        y = min(size[1] - subject.height, bottom - subject.height)
+        if x < 0 or y < 0:
+            raise ValueError(f"Xayah UI subject {subject.size} does not fit {size}")
+        output.alpha_composite(subject, (x, y))
+        return output
+
+    portrait = render_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 56),
+        bottom=60,
+        colors=96,
     )
-    portrait = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    portrait.alpha_composite(idle, ((64 - idle.width) // 2, 63 - idle.height))
     portrait_path = FULLBODY_DIR / "dancer.png"
     save_png(portrait_path, portrait)
-    return [splash_path, portrait_path]
+
+    # Compact report/scoreboard/HUD portrait: preserve both visible eyes,
+    # feather ears, shoulders, and the upper torso while giving the square
+    # surface a transparent border for 18/26/34/46px runtime downscales.
+    body_width, body_height = full_body.size
+    face_focus = full_body.crop(
+        (
+            round(body_width * 0.02),
+            0,
+            round(body_width * 0.98),
+            round(body_height * 0.60),
+        )
+    )
+    compact = render_subject(
+        face_focus,
+        (64, 64),
+        max_subject=(50, 50),
+        bottom=58,
+        colors=96,
+    )
+    compact_path = PORTRAIT_DIR / "dancer_compact.png"
+    save_png(compact_path, compact)
+
+    # The lower 26px of the standard 90x122 BP texture are reserved for the
+    # hero-name band.  Live review proved that merely ending at y=96 still lets
+    # the feet visually merge into the dark band.  Reserve another 10px of
+    # transparent breathing room so the complete silhouette clearly floats
+    # above the label after the native 54x94 command is expanded to 90x122.
+    grid = render_subject(
+        full_body,
+        (90, 122),
+        max_subject=(72, 82),
+        bottom=86,
+        colors=128,
+    )
+    grid_path = PORTRAIT_DIR / "dancer_grid.png"
+    save_png(grid_path, grid)
+    return [splash_path, portrait_path, compact_path, grid_path]
 
 
 AUDIO_SPECS: tuple[dict[str, Any], ...] = (
@@ -652,28 +863,199 @@ def _image_record(role: str, path: Path) -> dict[str, Any]:
         }
 
 
+def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
+    """Record the accepted actor enlargement and source-direct UI surfaces."""
+    sheet = Image.open(actor_sheet).convert("RGBA")
+    anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
+    ratios: list[float] = []
+    action_records: dict[str, list[dict[str, Any]]] = {}
+    for tag, baseline_heights in BASELINE_BODY_HEIGHTS.items():
+        action_records[tag] = []
+        for index, (frame_row, baseline_height, target_height) in enumerate(
+            zip(anims[tag]["frames"], baseline_heights, BODY_TARGET_HEIGHTS[tag], strict=True)
+        ):
+            data = frame_row["data"]
+            frame = sheet.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            bbox = frame.getchannel("A").getbbox()
+            if bbox is None:
+                raise ValueError(f"Xayah {tag}[{index}] is empty during scale QA")
+            visible_width = bbox[2] - bbox[0]
+            visible_height = bbox[3] - bbox[1]
+            ratio = visible_height / baseline_height
+            ratios.append(ratio)
+            action_records[tag].append(
+                {
+                    "frame": index,
+                    "native_rect": [data[key] for key in ("w", "h")],
+                    "visible_bbox": list(bbox),
+                    "visible_size": [visible_width, visible_height],
+                    "baseline_height": baseline_height,
+                    "target_height": target_height,
+                    "height_scale_ratio": round(ratio, 4),
+                    "bottom_clearance": data["h"] - bbox[3],
+                    "left_clearance": bbox[0],
+                    "right_clearance": data["w"] - bbox[2],
+                    "native_width_limited": visible_height + 1 < target_height,
+                }
+            )
+
+    median_ratio = statistics.median(ratios)
+    mean_ratio = statistics.fmean(ratios)
+    min_bottom = min(
+        row["bottom_clearance"] for records in action_records.values() for row in records
+    )
+    if not 1.12 <= median_ratio <= 1.16 or not 1.12 <= mean_ratio <= 1.15:
+        raise ValueError(
+            f"Xayah actor enlargement left the 12-15% class: median={median_ratio:.4f}, mean={mean_ratio:.4f}"
+        )
+    if min_bottom < 4:
+        raise ValueError(f"Xayah enlarged actor lost foot clearance: {min_bottom}px")
+
+    portrait_specs = {
+        "encyclopedia": (FULLBODY_DIR / "dancer.png", [64, 64]),
+        "compact": (PORTRAIT_DIR / "dancer_compact.png", [64, 64]),
+        "bp_grid": (PORTRAIT_DIR / "dancer_grid.png", [90, 122]),
+    }
+    portrait_records: dict[str, dict[str, Any]] = {}
+    for surface, (path, expected_size) in portrait_specs.items():
+        image = Image.open(path).convert("RGBA")
+        bbox = image.getchannel("A").getbbox()
+        if list(image.size) != expected_size or bbox is None:
+            raise ValueError(f"Xayah {surface} portrait is invalid: size={image.size}, bbox={bbox}")
+        portrait_records[surface] = {
+            "path": path.relative_to(MOD_ROOT).as_posix(),
+            "dimensions": list(image.size),
+            "alpha_bbox": list(bbox),
+            "hard_alpha": image.getchannel("A").getextrema() == (0, 255),
+        }
+    if portrait_records["bp_grid"]["alpha_bbox"][3] > 86:
+        raise ValueError("Xayah BP-grid portrait overlaps its bottom name band")
+    compact_bbox = portrait_records["compact"]["alpha_bbox"]
+    if (
+        compact_bbox[2] - compact_bbox[0] > 50
+        or compact_bbox[3] - compact_bbox[1] > 50
+        or min(
+            compact_bbox[0],
+            compact_bbox[1],
+            64 - compact_bbox[2],
+            64 - compact_bbox[3],
+        ) < 6
+    ):
+        raise ValueError(f"Xayah compact portrait lacks 6px safety margins: {compact_bbox}")
+
+    qa_path = QA_DIR / "xayah_ui_scale_qa.json"
+    write_json(
+        qa_path,
+        {
+            "schema_version": 1,
+            "champion": "Xayah",
+            "accepted_idle_and_portrait_source": "source/processed/xayah_idle_contact_v3_alpha.png",
+            "actor_scale": {
+                "policy": "one uniform nearest-neighbor resize per frame; native width may cap the whole pose; no x-only compression, crop, or atlas spill",
+                "requested_scale_class": "approximately 12-15 percent larger",
+                "mean_height_scale_ratio": round(mean_ratio, 4),
+                "median_height_scale_ratio": round(median_ratio, 4),
+                "minimum_bottom_clearance": min_bottom,
+                "actions": action_records,
+                "q_e_r_sources": {
+                    "Q": Q_BODY_SOURCE.relative_to(MOD_ROOT).as_posix(),
+                    "E": E_BODY_SOURCE.relative_to(MOD_ROOT).as_posix(),
+                    "R": R_BODY_SOURCE.relative_to(MOD_ROOT).as_posix(),
+                },
+            },
+            "portraits": portrait_records,
+            "bp_geometry": {
+                "side_card_stable": [81, 141],
+                "side_card_transition": {"width": [80, 82], "height": [124, 142]},
+                "stable_center_matches_standard_actor": True,
+                "center_grid_native_geometry": [54, 94],
+                "center_grid_isolation": "54x94 is routed only to dancer_grid; side-card replacement requires the left/right edge gate and 81x125-141 geometry",
+                "name_band": {
+                    "texture_y_start": 96,
+                    "texture_height": 26,
+                    "minimum_subject_clearance": 10,
+                },
+            },
+        },
+    )
+
+    # One compact visual audit makes the 18/26/34/46px avatar and the reserved
+    # BP name strip reviewable without launching a match.
+    contact = Image.new("RGBA", (880, 260), (10, 18, 31, 255))
+    draw = ImageDraw.Draw(contact)
+    label = (212, 226, 238, 255)
+    draw.text((16, 10), "XAYAH UI PORTRAIT SURFACES / IDLE V3 SOURCE", fill=label)
+    compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")
+    for index, runtime_size in enumerate((18, 26, 34, 46)):
+        tile_x = 16 + index * 130
+        draw.text((tile_x, 42), f"compact {runtime_size}px", fill=label)
+        tile = Image.new("RGBA", (112, 112), (7, 13, 23, 255))
+        runtime = compact.resize((runtime_size, runtime_size), Image.Resampling.NEAREST)
+        tile.alpha_composite(runtime, ((112 - runtime_size) // 2, (112 - runtime_size) // 2))
+        zoom = runtime.resize((runtime_size * 2, runtime_size * 2), Image.Resampling.NEAREST)
+        tile.alpha_composite(zoom, ((112 - zoom.width) // 2, 112 - zoom.height))
+        contact.alpha_composite(tile, (tile_x, 62))
+
+    grid = Image.open(PORTRAIT_DIR / "dancer_grid.png").convert("RGBA")
+    grid_tile = Image.new("RGBA", (110, 142), (7, 13, 23, 255))
+    grid_tile.alpha_composite(grid, (10, 10))
+    grid_draw = ImageDraw.Draw(grid_tile)
+    grid_draw.rectangle((10, 106, 99, 131), fill=(34, 46, 64, 255))
+    grid_draw.text((31, 111), "NAME", fill=(166, 181, 196, 255))
+    draw.text((548, 42), "BP grid 90x122", fill=label)
+    contact.alpha_composite(grid_tile, (548, 62))
+
+    fullbody = Image.open(FULLBODY_DIR / "dancer.png").convert("RGBA")
+    fullbody_tile = Image.new("RGBA", (142, 142), (7, 13, 23, 255))
+    fullbody_zoom = fullbody.resize((128, 128), Image.Resampling.NEAREST)
+    fullbody_tile.alpha_composite(fullbody_zoom, (7, 7))
+    draw.text((700, 42), "encyclopedia 64", fill=label)
+    contact.alpha_composite(fullbody_tile, (700, 62))
+    draw.text((16, 226), "Compact = face focus; BP grid / encyclopedia = complete body.", fill=label)
+    contact_path = QA_DIR / "xayah_portrait_surface_final.png"
+    save_png(contact_path, contact)
+    return [qa_path, contact_path]
+
+
 def build_imagegen_provenance(runtime_paths: Iterable[Path]) -> Path:
     source_specs = [
-        ("actor_contact", IMAGEGEN_ROOT / "xayah_actor_contact.png"),
-        ("run_contact", IMAGEGEN_ROOT / "xayah_run_contact.png"),
-        ("defeat_contact", IMAGEGEN_ROOT / "xayah_defeat_contact.png"),
+        ("core_body_contact_v2", IMAGEGEN_ROOT / "xayah_core_body_contact_v2.png"),
+        ("idle_body_contact_v3_two_eyes", IMAGEGEN_ROOT / "xayah_idle_contact_v3.png"),
+        ("run_contact_v2", IMAGEGEN_ROOT / "xayah_run_contact_v2.png"),
+        ("q_body_contact_v2", IMAGEGEN_ROOT / "xayah_q_body_contact_v2.png"),
+        ("e_body_contact_v2", IMAGEGEN_ROOT / "xayah_e_body_contact_v2.png"),
+        ("r_body_contact_v2", IMAGEGEN_ROOT / "xayah_r_body_contact_v2.png"),
+        ("defeat_contact_v2", IMAGEGEN_ROOT / "xayah_defeat_contact_v2.png"),
         ("q_icon", Q_ICON_SOURCE),
         ("e_icon", E_ICON_SOURCE),
         ("r_icon", R_ICON_SOURCE),
         ("attack_vfx", IMAGEGEN_ROOT / "xayah_attack_vfx_contact.png"),
-        ("q_vfx", IMAGEGEN_ROOT / "xayah_q_vfx_contact.png"),
-        ("e_vfx", IMAGEGEN_ROOT / "xayah_e_vfx_contact.png"),
-        ("r_vfx", IMAGEGEN_ROOT / "xayah_r_vfx_contact.png"),
+        ("q_vfx_v2", IMAGEGEN_ROOT / "xayah_q_vfx_contact_v2.png"),
+        ("e_vfx_v3", IMAGEGEN_ROOT / "xayah_e_vfx_contact_v3.png"),
+        ("r_vfx_v2", IMAGEGEN_ROOT / "xayah_r_vfx_contact_v2.png"),
+        ("ground_feather_vfx_v1", IMAGEGEN_ROOT / "xayah_ground_feather_contact_v1.png"),
         ("bp_splash", SPLASH_SOURCE),
     ]
     processed_specs = [
-        ("actor_contact_alpha", ACTOR_SOURCE),
-        ("run_contact_alpha", RUN_SOURCE),
-        ("defeat_contact_alpha", DEFEAT_SOURCE),
+        ("core_body_contact_v2_alpha", CORE_BODY_SOURCE),
+        ("idle_body_contact_v3_alpha_two_eyes", IDLE_BODY_SOURCE),
+        ("run_contact_v2_alpha", RUN_SOURCE),
+        ("q_body_contact_v2_alpha", Q_BODY_SOURCE),
+        ("e_body_contact_v2_alpha", E_BODY_SOURCE),
+        ("r_body_contact_v2_alpha", R_BODY_SOURCE),
+        ("defeat_contact_v2_alpha", DEFEAT_SOURCE),
         ("attack_vfx_alpha", ATTACK_VFX_SOURCE),
-        ("q_vfx_alpha", Q_VFX_SOURCE),
-        ("e_vfx_alpha", E_VFX_SOURCE),
-        ("r_vfx_alpha", R_VFX_SOURCE),
+        ("q_vfx_v2_alpha", Q_VFX_SOURCE),
+        ("e_vfx_v3_alpha", E_VFX_SOURCE),
+        ("r_vfx_v2_alpha", R_VFX_SOURCE),
+        ("ground_feather_vfx_v1_alpha", GROUND_FEATHER_VFX_SOURCE),
     ]
     path = QA_DIR / "xayah_imagegen_sources.json"
     write_json(
@@ -682,7 +1064,17 @@ def build_imagegen_provenance(runtime_paths: Iterable[Path]) -> Path:
             "schema_version": 1,
             "champion": "Xayah",
             "generator": "built-in image_gen",
-            "generated_images_batch": "019f4bd8-30d3-7b60-98fa-58403cf263c7",
+            "generated_images_batch": "019f560d-2e11-70e1-a2b8-60cdebabc3ba",
+            "additional_generated_images": [
+                {
+                    "role": "idle_body_contact_v3_two_eyes",
+                    "execution_id": "exec-14c8a307-6e2b-4821-859a-9f62c5e391ef",
+                },
+                {
+                    "role": "ground_feather_vfx_v1",
+                    "execution_id": "exec-178182ff-7735-4228-b339-62352f37295c",
+                }
+            ],
             "generated_on": "2026-07-12",
             "prompt_record": "source/imagegen/PROMPTS.md#xayah-image-gen-prompts",
             "background_removal": "remove_chroma_key.py border auto-key, soft matte, thresholds 12/220, despill; builder hardens final actor/VFX alpha",
@@ -691,8 +1083,33 @@ def build_imagegen_provenance(runtime_paths: Iterable[Path]) -> Path:
                 "sheet_size": list(ACTOR_SHEET_SIZE),
                 "tag_order": list(NATIVE_CONTRACT),
                 "frame_counts": {tag: len(spec["rects"]) for tag, spec in NATIVE_CONTRACT.items()},
-                "large_vfx_policy": "xayah_attack, xayah_q, xayah_e and xayah_r are separate effect sheets",
+                "body_source_policy": "idle and all portrait surfaces use the accepted two-eye v3 contact; attack/hit, run, Q, E, R and dead use independent locked-model contacts; Q/E/R source sets are disjoint",
+                "placement_policy": "approximately 12-15% larger uniform nearest-neighbor scale plus per-frame foot-safe bottom margins; x-only compression is forbidden",
+                "large_vfx_policy": "xayah_attack, xayah_q, xayah_e, xayah_r and bounded xayah_ground_feather markers are separate effect sheets; E/R runtime footprints are reduced after live scale review",
             },
+            "rejected_runtime_sources": [
+                {
+                    "path": "source/processed/xayah_idle_contact_v2_alpha.png",
+                    "status": "removed",
+                    "reason": "superseded by the accepted v3 idle because the old compact face did not keep both eyes readable; both v2 source and alpha derivative were deleted",
+                },
+                {
+                    "path": "source/processed/xayah_actor_contact_alpha.png",
+                    "reason": "high-detail 320px bodies became unreadable at native size and reused E poses for R",
+                },
+                {
+                    "path": "source/processed/xayah_run_contact_alpha.png",
+                    "reason": "wide cape poses required 9.6%-43.7% horizontal compression and deformed in motion",
+                },
+                {
+                    "path": "source/processed/xayah_q_vfx_contact_alpha.png",
+                    "reason": "each projectile cell contained a pair and required unsafe half-cell cropping",
+                },
+                {
+                    "path": "source/processed/xayah_r_vfx_contact_alpha.png",
+                    "reason": "guard reused the landing row and did not provide a distinct empty-center afterimage ring",
+                },
+            ],
             "sources": [_image_record(role, item) for role, item in source_specs],
             "processed": [_image_record(role, item) for role, item in processed_specs],
             "runtime_files": [
@@ -800,15 +1217,149 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         if actual_rects != spec["rects"]:
             raise ValueError(f"Xayah {tag} frame rectangles changed")
     sheet = Image.open(actor_sheet).convert("RGBA")
+    visible_records: dict[str, list[dict[str, Any]]] = {}
+    for tag, target_heights in BODY_TARGET_HEIGHTS.items():
+        visible_records[tag] = []
+        for index, (frame_data, target_height, expected_bottom) in enumerate(
+            zip(
+                payload["anims"][tag]["frames"],
+                target_heights,
+                BODY_BOTTOM_MARGINS[tag],
+                strict=True,
+            )
+        ):
+            rect = frame_data["data"]
+            frame = sheet.crop(
+                (
+                    rect["x"],
+                    rect["y"],
+                    rect["x"] + rect["w"],
+                    rect["y"] + rect["h"],
+                )
+            )
+            bbox = frame.getchannel("A").point(lambda value: 255 if value >= 64 else 0).getbbox()
+            if bbox is None:
+                raise ValueError(f"Xayah {tag}[{index}] body frame is empty")
+            visible_height = bbox[3] - bbox[1]
+            bottom = rect["h"] - bbox[3]
+            native_width_limited = (
+                visible_height < target_height
+                and bbox[0] <= 1
+                and rect["w"] - bbox[2] <= 1
+            )
+            if abs(visible_height - target_height) > 2 and not native_width_limited:
+                raise ValueError(
+                    f"Xayah {tag}[{index}] changed scale class: {visible_height}px vs {target_height}px"
+                )
+            if bottom != expected_bottom:
+                raise ValueError(
+                    f"Xayah {tag}[{index}] bottom anchor {bottom}px != native profile {expected_bottom}px"
+                )
+            if bottom < 4:
+                raise ValueError(f"Xayah {tag}[{index}] touches the label/ground edge")
+            visible_records[tag].append(
+                {
+                    "bbox": list(bbox),
+                    "visible_size": [bbox[2] - bbox[0], visible_height],
+                    "bottom_margin": bottom,
+                    "frame_sha256": hashlib.sha256(frame.tobytes()).hexdigest(),
+                }
+            )
+
+    if len({row["frame_sha256"] for row in visible_records["run"]}) != 8:
+        raise ValueError("Xayah run must keep eight distinct final-scale gait phases")
+
+    # R must visibly rise, reach an apex and descend in the actor sheet itself;
+    # the independent guard ring cannot be the only airborne cue.
+    r_altitudes = []
+    for frame_data, record in zip(payload["anims"]["ult"]["frames"], visible_records["ult"], strict=True):
+        bbox = record["bbox"]
+        r_altitudes.append(frame_data["data"]["h"] - (bbox[1] + bbox[3]) / 2)
+    if not (r_altitudes[0] < r_altitudes[1] < r_altitudes[2] > r_altitudes[3] > r_altitudes[4]):
+        raise ValueError(f"Xayah R actor does not rise/apex/descend: {r_altitudes}")
+
+    if len({Q_BODY_SOURCE, E_BODY_SOURCE, R_BODY_SOURCE}) != 3:
+        raise ValueError("Xayah Q, E and R body contacts must be disjoint")
+
     idle_rect = NATIVE_CONTRACT["idle"]["rects"][0]
     x, y, width, height = idle_rect
-    idle_bbox = sheet.crop((x, y, x + width, y + height)).getchannel("A").getbbox()
-    if idle_bbox is None or idle_bbox[1] > 5 or idle_bbox[3] < height - 2:
-        raise ValueError(f"Xayah first idle frame is not full head-to-feet: {idle_bbox}")
+    idle_frame = sheet.crop((x, y, x + width, y + height))
+    idle_bbox = idle_frame.getchannel("A").point(lambda value: 255 if value >= 64 else 0).getbbox()
+    if idle_bbox is None or height - idle_bbox[3] < 4:
+        raise ValueError(f"Xayah first idle frame lacks bottom-label clearance: {idle_bbox}")
+
+    # Coarse skin-color proxy inside the upper body verifies that the final
+    # sprite retained a readable face opening instead of a two-pixel blur.
+    skin_points: list[tuple[int, int]] = []
+    max_face_y = idle_bbox[1] + round((idle_bbox[3] - idle_bbox[1]) * 0.55)
+    for pixel_y in range(idle_bbox[1], max_face_y):
+        for pixel_x in range(idle_bbox[0], idle_bbox[2]):
+            red, green, blue, alpha = idle_frame.getpixel((pixel_x, pixel_y))
+            if alpha >= 64 and red >= 150 and green >= 80 and blue >= 45 and red > green:
+                skin_points.append((pixel_x, pixel_y))
+    if not skin_points:
+        raise ValueError("Xayah first idle frame lost its face colors")
+    face_bbox = (
+        min(point[0] for point in skin_points),
+        min(point[1] for point in skin_points),
+        max(point[0] for point in skin_points) + 1,
+        max(point[1] for point in skin_points) + 1,
+    )
+    if face_bbox[2] - face_bbox[0] < 6 or face_bbox[3] - face_bbox[1] < 6:
+        raise ValueError(f"Xayah final face opening is below 6x6 pixels: {face_bbox}")
+
+    e_anim = json.loads((EFFECT_DIR / "xayah_e#anim.fanim").read_text(encoding="utf-8"))["anims"]
+    if list(e_anim) != ["return_single", "return_double", "return_cluster", "root", "hit"]:
+        raise ValueError(f"Xayah E VFX tags are not independently packed: {list(e_anim)}")
+    r_anim = json.loads((EFFECT_DIR / "xayah_r#anim.fanim").read_text(encoding="utf-8"))["anims"]
+    if list(r_anim) != ["fan", "hit", "guard"]:
+        raise ValueError(f"Xayah R guard tag is missing: {list(r_anim)}")
+    ground_sheet = Image.open(EFFECT_DIR / "xayah_ground_feather#sheet.png").convert("RGBA")
+    ground_anim = json.loads(
+        (EFFECT_DIR / "xayah_ground_feather#anim.fanim").read_text(encoding="utf-8")
+    )["anims"]
+    if list(ground_anim) != ["ground_single", "ground_fan"]:
+        raise ValueError(f"Xayah ground Feather tags changed: {list(ground_anim)}")
+    for tag, animation in ground_anim.items():
+        terminal_data = animation["frames"][-1]["data"]
+        terminal = ground_sheet.crop(
+            (
+                terminal_data["x"],
+                terminal_data["y"],
+                terminal_data["x"] + terminal_data["w"],
+                terminal_data["y"] + terminal_data["h"],
+            )
+        )
+        if terminal.getchannel("A").getbbox() is not None:
+            raise ValueError(f"Xayah {tag} marker must end on a transparent frame")
+
     if Image.open(SPLASH_DIR / "dancer.png").size != (1420, 860):
         raise ValueError("Xayah BP splash size changed")
-    if Image.open(FULLBODY_DIR / "dancer.png").size != (64, 64):
+    portrait = Image.open(FULLBODY_DIR / "dancer.png").convert("RGBA")
+    if portrait.size != (64, 64):
         raise ValueError("Xayah encyclopedia portrait size changed")
+    portrait_bbox = portrait.getchannel("A").point(lambda value: 255 if value >= 64 else 0).getbbox()
+    if portrait_bbox is None or portrait_bbox[3] != 60 or portrait_bbox[3] - portrait_bbox[1] > 56:
+        raise ValueError(f"Xayah full-body portrait lost its 4px bottom safety margin: {portrait_bbox}")
+    compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")
+    compact_bbox = compact.getchannel("A").getbbox()
+    if (
+        compact.size != (64, 64)
+        or compact_bbox is None
+        or compact_bbox[2] - compact_bbox[0] > 50
+        or compact_bbox[3] - compact_bbox[1] > 50
+        or min(
+            compact_bbox[0],
+            compact_bbox[1],
+            64 - compact_bbox[2],
+            64 - compact_bbox[3],
+        ) < 6
+    ):
+        raise ValueError(f"Xayah compact portrait is invalid: size={compact.size}, bbox={compact_bbox}")
+    grid = Image.open(PORTRAIT_DIR / "dancer_grid.png").convert("RGBA")
+    grid_bbox = grid.getchannel("A").getbbox()
+    if grid.size != (90, 122) or grid_bbox is None or grid_bbox[3] > 86:
+        raise ValueError(f"Xayah BP-grid portrait overlaps the name band: size={grid.size}, bbox={grid_bbox}")
     missing = [path for path in outputs if not path.is_file()]
     if missing:
         raise FileNotFoundError("Missing Xayah outputs:\n" + "\n".join(str(path) for path in missing))
@@ -816,7 +1367,7 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
 
 def build_all() -> list[Path]:
     required = [
-        ACTOR_SOURCE, RUN_SOURCE, DEFEAT_SOURCE,
+        CORE_BODY_SOURCE, IDLE_BODY_SOURCE, RUN_SOURCE, Q_BODY_SOURCE, E_BODY_SOURCE, R_BODY_SOURCE, DEFEAT_SOURCE,
         ATTACK_VFX_SOURCE, Q_VFX_SOURCE, E_VFX_SOURCE, R_VFX_SOURCE,
         Q_ICON_SOURCE, E_ICON_SOURCE, R_ICON_SOURCE, SPLASH_SOURCE,
         *(SOUND_DIR / f"{spec['stem']}_clip.wav" for spec in AUDIO_SPECS),
@@ -830,9 +1381,16 @@ def build_all() -> list[Path]:
     splash = build_splash_and_fullbody(actor_sheet)
     audio = build_audio_assets()
     runtime_visuals = [actor_sheet, actor_anim, *icons, *vfx, *splash]
+    ui_scale_qa = build_ui_scale_qa(actor_sheet, actor_anim)
     imagegen_provenance = build_imagegen_provenance(runtime_visuals)
     audio_provenance = build_audio_provenance()
-    outputs = [*runtime_visuals, *audio, imagegen_provenance, audio_provenance]
+    outputs = [
+        *runtime_visuals,
+        *audio,
+        *ui_scale_qa,
+        imagegen_provenance,
+        audio_provenance,
+    ]
     validate_outputs(actor_sheet, actor_anim, outputs)
     return outputs
 
