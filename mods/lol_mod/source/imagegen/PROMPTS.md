@@ -301,3 +301,77 @@ Accepted source: `sivir_r_cast_vfx_contact.png` (default generated original `exe
 Use case: stylized-concept. Asset type: pixel-art ally movement-speed buff VFX contact sheet for Sivir R On The Hunt. Input images: Image 1 establishes the Shuriman gold and teal wind language of the cast pulse. Create a smaller persistent ally buff that belongs to the same ability. Primary request: create eight sequential frames of a low-profile speed aura that sits just behind and beneath an allied champion's feet: two activation frames, four looping wind-streak frames, and two clean fade frames. Use two thin backward-swept teal-gold speed arcs, tiny sand sparks, and a very small open ring segment; keep the center and foot area mostly empty. Frame order, left-to-right then top-to-bottom: activation streak; aura forms; loop A; loop B; loop C; loop D; fade A; fade B. Style/medium: clean hand-authored 2D pixel-art game VFX, crisp alpha-ready edges, limited teal/gold/white palette, subtle and readable around a 56x24 footprint. Composition/framing: exact 4 columns by 2 rows grid on a 2048x1024 canvas, evenly spaced cells, one centered low horizontal effect per cell, stable dimensions, generous empty padding. Scene/backdrop: perfectly flat solid `#00ff00` chroma-key background. Constraints: effect only; no character, feet, face, body, weapon, text, labels, numbers, panel borders, floor texture, cast shadow, explosion, vertical light column, opaque disk, or watermark; never cover the actor's foot center; no large circle; do not use `#00ff00` in the effect.
 
 Accepted source: `sivir_hunt_buff_vfx_contact.png` (default generated original `exec-997d2847-f965-4c78-a9f0-5af86aa548d3.png`).
+
+# Kled image-gen source records
+
+All ten Kled sources were generated with the built-in `image_gen` tool on 2026-07-12. The actor, run, defeat, and effect contacts were requested as hard-edged pixel art on a perfectly flat `#00ff00` chroma-key background, with no text, labels, panel borders, logo, or watermark. Character contacts required the same always-mounted Kled/Skaarl model, complete head/body/mount legs and feet, and generous safe margins so native-frame packing would not crop the weapon or mount. Icons and the BP illustration are independent original art and do not use the chroma-key route. Generated-images batch: `019f4bd8-30d3-7b60-98fa-58403cf263c7`.
+
+## Kled mounted actor contact sheet
+
+- Execution ID: `exec-9d525097-f1a2-48af-a356-ae42c4e68297`.
+- Imported target: `source/imagegen/kled_actor_contact.png`; accepted alpha source: `source/processed/kled_actor_contact_alpha.png`.
+- Purpose: locked always-mounted Kled/Skaarl body model for idle, attack, skill, ult, and hit actions.
+- Generation requirements: one coherent 4x4 action grid; crisp final-scale chibi pixel art; the same orange-haired yordle rider, compact axe/pistol silhouette, and purple reptilian mount in every cell; full head, mounted torso, Skaarl legs and feet visible; consistent body scale and foot baseline; generous cell padding; flat `#00ff00`; no unmounted variant, second rider/mount, large detached spell effect, text, grid lines, scenery, logo, or watermark.
+
+## Kled mounted run contact sheet
+
+- Execution ID: `exec-eb603299-95a9-420d-8540-3c32018b20ae`.
+- Imported target: `source/imagegen/kled_run_contact.png`; accepted alpha source: `source/processed/kled_run_contact_alpha.png`.
+- Purpose: distinct mounted gait phases for the native eight-frame run action.
+- Generation requirements: exact 3x3 chronological run cycle of the locked actor; clear alternating Skaarl leg contacts, forward momentum, restrained vertical bounce, stable rider/weapon/mount proportions, full feet and tail inside safe margins; crisp pixel art on flat `#00ff00`; no walking-in-place clone, sliding, duplicated limbs, attack VFX, labels, borders, scenery, logo, or watermark.
+
+## Kled Q/E composite VFX contact sheet
+
+- Execution ID: `exec-14e0a1e1-38cc-4df3-962d-5a7566b67f01`.
+- Imported target: `source/imagegen/kled_q_vfx_contact.png`; accepted alpha source: `source/processed/kled_q_vfx_contact_alpha.png`.
+- Purpose: independent dash, spear-hook, rope/trap, tether, and delayed-pull effects for the combined Q+E slot.
+- Generation requirements: exact 4x2 sequential effect grid; compact bronze/red spear-hook and rope/trap silhouettes with hollow centers where the target remains readable; fixed origins, generous padding, crisp hard-edged pixel art, flat `#00ff00`; effect only, no Kled/Skaarl body, character portrait, text, UI frame, giant opaque explosion, green effect pixels, logo, or watermark.
+
+## Kled W four-hit VFX contact sheet
+
+- Execution ID: `exec-ad51b92f-1be0-48f5-bd29-0be2b161a7c1`.
+- Imported target: `source/imagegen/kled_w_vfx_contact.png`; accepted alpha source: `source/processed/kled_w_vfx_contact_alpha.png`.
+- Purpose: W activation, the first three compact hit streaks, the stronger fourth-hit burst, loop, and cleanup phases.
+- Generation requirements: exact 4x2 effect grid; escalating crimson/orange claw and axe-like slashes with a clearly stronger but still compact fourth impact; readable at native size, stable center, generous padding, crisp pixel art on flat `#00ff00`; no character body, text, numbers, borders, blood/gore, opaque screen-filling flash, logo, or watermark.
+
+## Kled R charge/trail VFX contact sheet
+
+- Execution ID: `exec-10d2b838-97f7-4cf7-aa16-383d8d18424d`.
+- Imported target: `source/imagegen/kled_r_vfx_contact.png`; accepted alpha source: `source/processed/kled_r_vfx_contact_alpha.png`.
+- Purpose: R charge start, straight ground trail, allied speed aura, terminal collision, and clean fade phases.
+- Generation requirements: exact 4x2 effect grid; gold/ivory charge arcs, directional chevrons, low dust and ground streaks with mostly hollow actor space; fixed ground origin and generous padding; hard-edged pixel art on flat `#00ff00`; effect only, no mounted body, words, numbers, UI border, tall beam, opaque disk, scenery, logo, or watermark.
+
+## Kled Q icon
+
+- Execution ID: `exec-5a1ea3c6-19d0-4305-ac74-ef9c9fee7c04`.
+- Imported target: `source/imagegen/kled_q_icon_source.png`.
+- Purpose: original Q-slot icon communicating the spear-hook, rope, and trap latch.
+- Generation requirements: square full-bleed game icon with a compact central silhouette, safe margin for 64x64 downscale, dark vignette and bronze/red highlights; crisp pixel-art finish; no character portrait, letter Q, words, numbers, external UI frame, logo, or watermark.
+
+## Kled W-mapped second-slot icon
+
+- Execution ID: `exec-e1a2db38-2650-40bb-913c-f278763198dc`.
+- Imported target: `source/imagegen/kled_w_icon_source.png`.
+- Purpose: original second-slot icon for the mapped Violent Tendencies four-hit sequence.
+- Generation requirements: square full-bleed icon with several escalating red-orange slashes and one bright final impact, strong silhouette at 64x64, safe border margin and crisp pixel-art edges; no face, letter W/E, words, numbers, external frame, logo, or watermark.
+
+## Kled R icon
+
+- Execution ID: `exec-1ac83133-29d1-4fe1-9e33-8d609c1edeb2`.
+- Imported target: `source/imagegen/kled_r_icon_source.png`.
+- Purpose: original ultimate icon communicating a fast straight mounted charge and collision.
+- Generation requirements: square full-bleed icon with gold directional chevrons, dust, and a compact mounted-charge silhouette; safe margins and immediate readability at 64x64; crisp pixel-art finish; no letter R, words, numbers, external UI frame, logo, or watermark.
+
+## Kled BP illustration
+
+- Execution ID: `exec-45370931-aff3-4094-bf76-d6411fc38df8`.
+- Imported target: `source/imagegen/bp_splash/cavalry_knight.png`.
+- Purpose: Kled-only ban/pick side-card illustration, normalized to the runtime 284:172 card composition.
+- Generation requirements: polished original League-like fantasy illustration of the locked mounted Kled/Skaarl identity in a dynamic charge; complete rider, mount head/body, and weapon kept inside generous crop-safe margins; a readable focal subject under wide-card cropping; no text, champion name, UI panel, official logo, watermark, duplicated rider/mount, or severed/cropped feet.
+
+## Kled mounted defeat contact sheet
+
+- Execution ID: `exec-094d104e-d2a7-4509-986c-04265cf98424`.
+- Imported target: `source/imagegen/kled_defeat_contact.png`; accepted alpha source: `source/processed/kled_defeat_contact_alpha.png`.
+- Purpose: mounted fall, settle, and defeated poses for the native `dead` and `fire_dead` frame counts.
+- Generation requirements: exact 2x2 chronological contact sheet using the same locked Kled/Skaarl model and scale; full rider, mount, weapon, and fallen silhouette within large safe margins; crisp pixel art on flat `#00ff00`; no dismount/remount transformation, duplicate body or weapon, gore, spell explosion, text, borders, scenery, logo, or watermark.

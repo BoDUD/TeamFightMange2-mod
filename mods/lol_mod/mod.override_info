@@ -854,5 +854,153 @@
   "asset/base/aseprite_resources/ingame/5v5/minimap_5v5_bg": {
     "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/minimap_5v5_bg",
     "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_e_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_e_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_q_tether_on": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_tether_on",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_q_pull": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_pull",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_w_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_w_hit1": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit1",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_w_hit2": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit2",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_w_hit3": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit3",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_w_hit4": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit4",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_kled_r_impact": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_r_impact",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_e_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_e_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_q_tether_on_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_tether_on_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_q_pull_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_q_pull_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_w_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_w_hit1_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit1_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_w_hit2_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit2_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_w_hit3_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit3_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_w_hit4_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_w_hit4_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_r_impact_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_r_impact_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_attack": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_skill1": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_skill2": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_ult": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_attack_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_skill_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_skill2_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/cavalry_knight_ult_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/kled_native_silence_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+    "type": "override"
   }
 }

@@ -39,7 +39,7 @@ const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;
 const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;
-const SPLASH_SPECS: [(&str, &str); 5] = [
+const SPLASH_SPECS: [(&str, &str); 6] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -50,6 +50,10 @@ const SPLASH_SPECS: [(&str, &str); 5] = [
     (
         "boomerang_hunter",
         "asset/lol_mod/BanPickIllust/boomerang_hunter",
+    ),
+    (
+        "cavalry_knight",
+        "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
 ];
 
@@ -392,6 +396,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("barrier_magician", "lol_fullbody_orianna"),
         ("berserker", "lol_fullbody_briar"),
         ("boomerang_hunter", "lol_fullbody_sivir"),
+        ("cavalry_knight", "lol_fullbody_kled"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -472,7 +477,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.7.11;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.8.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -787,6 +792,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "orianna" | "barrier_magician" => Some("barrier_magician"),
         "briar" | "berserker" => Some("berserker"),
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
+        "kled" | "cavalry_knight" => Some("cavalry_knight"),
         _ => None,
     }
 }

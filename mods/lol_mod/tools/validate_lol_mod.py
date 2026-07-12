@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for Shen and same-id Lucian/002 through Sivir/005."""
+"""Static validation for Shen and same-id Lucian/002 through Kled/006."""
 
 from __future__ import annotations
 
@@ -384,6 +384,47 @@ SIVIR_NATIVE_AUDIO_CLIPS = {
 }
 SIVIR_NATIVE_SILENCE_SHA256 = "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
 
+KLED_NATIVE_ANIMATION: dict[str, list[float]] = {
+    "fire_skill1_pre": [0.080000006] * 2,
+    "ult_self_effect_back": [0.040000003] * 14,
+    "skill1_dash": [0.080000006],
+    "ult_road_effect": [0.080000006] * 9,
+    "fire_skill1": [0.080000006] * 3,
+    "skill1": [0.080000006] * 3,
+    "skill2": [0.080000006] * 3,
+    "fire_attack": [0.080000006] * 4,
+    "fire_run": [0.060000002] * 8,
+    "fire_skill1_end": [0.080000006],
+    "fire_skill1_effect": [0.080000006] * 4,
+    "run": [0.060000002] * 8,
+    "idle": [0.14] * 4,
+    "attack": [0.080000006] * 4,
+    "dead": [0.1] * 10,
+    "fire_skill1_dash": [0.080000006],
+    "skill1_effect": [0.080000006] * 4,
+    "fire_dead": [0.1] * 11,
+    "ult_self_effect": [0.040000003] * 14,
+    "ult": [0.080000006] * 4,
+    "hit": [0.1],
+    "skill1_end": [0.080000006],
+    "fire_idle": [0.14] * 4,
+    "skill1_pre": [0.080000006] * 2,
+}
+
+KLED_NATIVE_AUDIO_EVENTS = {
+    "cavalry_knight_attack",
+    "cavalry_knight_skill1",
+    "cavalry_knight_skill2",
+    "cavalry_knight_ult",
+}
+KLED_NATIVE_AUDIO_CLIPS = {
+    "cavalry_knight_attack_resource",
+    "cavalry_knight_skill_resource",
+    "cavalry_knight_skill2_resource",
+    "cavalry_knight_ult_resource",
+}
+KLED_NATIVE_SILENCE_SHA256 = "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+
 
 def check(condition: bool, message: str) -> None:
     if not condition:
@@ -454,6 +495,23 @@ def find_effect(root: Any, effect_type: str, **fields: Any) -> list[dict[str, An
         effect
         for effect in walk_effects(root)
         if effect.get("type") == effect_type and all(effect.get(key) == value for key, value in fields.items())
+    ]
+
+
+def direct_effects(effect: Any, effect_type: str) -> list[dict[str, Any]]:
+    if not isinstance(effect, dict):
+        return []
+    return [
+        child
+        for child in effect.get("effects", [])
+        if isinstance(child, dict) and child.get("type") == effect_type
+    ]
+
+
+def direct_buff_states(effect: Any, effect_type: str) -> list[dict[str, Any]]:
+    return [
+        child.get("buff_state", {})
+        for child in direct_effects(effect, effect_type)
     ]
 
 
@@ -2790,6 +2848,767 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
     check(not missing, "Sivir runtime resources are missing from build_manifest.json: " + ", ".join(missing))
 
 
+def validate_kled_replacement_uniqueness() -> None:
+    ids: list[tuple[str, str]] = []
+    for path in sorted((MOD_ROOT / "champion").glob("*.data_champion")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as error:  # pragma: no cover - diagnostic path
+            ERRORS.append(f"{path.relative_to(MOD_ROOT).as_posix()}: cannot parse JSON: {error}")
+            continue
+        champion_id = payload.get("id")
+        if isinstance(champion_id, str):
+            ids.append((champion_id, path.name))
+
+    files = [filename for champion_id, filename in ids if champion_id == "cavalry_knight"]
+    check(
+        files == ["cavalry_knight.data_champion"],
+        "Kled must replace official 006 exactly once through champion/cavalry_knight.data_champion",
+    )
+    check(
+        all(champion_id != "lol_kled" for champion_id, _ in ids),
+        "lol_kled must not be registered as an additive duplicate champion",
+    )
+    check(
+        not (MOD_ROOT / "champion/lol_kled.data_champion").exists(),
+        "champion/lol_kled.data_champion must be absent in same-ID replacement mode",
+    )
+
+
+def validate_kled_data_contract(champion: dict[str, Any]) -> None:
+    check(champion.get("id") == "cavalry_knight", "Kled must retain native id cavalry_knight")
+    check(
+        champion.get("sprite") == "asset/lol_mod/aseprite_resources/champions/kled",
+        "same-ID Kled must bind the custom Kled actor",
+    )
+    check(champion.get("anim_prefix") == "", "Kled must preserve native Cavalry animation tags")
+    check(champion.get("category") == "Melee", "Kled category must be Melee")
+    check(set(champion.get("tags", [])) == {"AD", "Melee", "CC"}, "Kled tags must be AD/Melee/CC")
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/kled_skill",
+            "asset/lol_mod/icons/kled_skill2",
+            "asset/lol_mod/icons/kled_ult",
+        ],
+        "Kled active icon order must be Q/E/R",
+    )
+    check(len(champion.get("skill_icons", [])) == 3, "Kled must expose exactly three active icons")
+    for unsupported_slot in ("w", "skill3", "skill4"):
+        check(unsupported_slot not in champion, f"Kled must not add unsupported active slot {unsupported_slot}")
+
+    check(
+        champion.get("stat")
+        == {
+            "attack": 90,
+            "magic_power": 0,
+            "hp": 950,
+            "defence": 25,
+            "magic_resistance": 18,
+            "move_speed": 1200,
+            "hp_regen": 3,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Kled base stats do not match the approved 006 design",
+    )
+    check(
+        champion.get("growth")
+        == {
+            "attack": 18,
+            "magic_power": 0,
+            "hp": 95,
+            "defence": 7,
+            "magic_resistance": 3,
+            "move_speed": 15,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Kled growth stats do not match the approved 006 design",
+    )
+
+    action_names = {
+        "attack": "attack",
+        "skill": "skill1",
+        "skill2": "skill2",
+        "ult": "ult",
+    }
+    required_fields = {
+        "action_name",
+        "description",
+        "duration",
+        "cooltime",
+        "start_timing",
+        "cancelable",
+        "range",
+        "casting_type",
+        "casting_target",
+        "attack_type",
+        "effect",
+    }
+    for slot, expected_action in action_names.items():
+        action = champion.get(slot, {})
+        check(action.get("action_name") == expected_action, f"Kled {slot} must use native action {expected_action}")
+        missing = sorted(required_fields - set(action))
+        check(not missing, f"Kled {slot} is missing required data fields: {', '.join(missing)}")
+        check(
+            action.get("description") == f"#asset/base/text/champion?description.cavalry_knight.{slot}",
+            f"Kled {slot} must use the cavalry_knight localization key",
+        )
+    attack = champion.get("attack", {})
+    check((attack.get("range"), attack.get("cooltime")) == (27000, 50), "Kled basic attack must retain the 006 range/cooldown")
+
+    haste_switch = attack.get("effect", {})
+    check(
+        (haste_switch.get("type"), haste_switch.get("buff_name"))
+        == ("SwitchByBuff", "lol_kled_violent_haste"),
+        "Kled attack must branch first on the Violent Tendencies haste marker",
+    )
+    check(
+        not find_effect(haste_switch.get("effect_none", {}), "Attack", target_hp_ratio=4),
+        "Kled attacks outside W must not deal maximum-health damage",
+    )
+    stage4_switch = haste_switch.get("effect_buff", {})
+    stage3_switch = stage4_switch.get("effect_none", {})
+    stage2_switch = stage3_switch.get("effect_none", {})
+    stage1_switch = stage2_switch.get("effect_none", {})
+    stage_switches = [stage1_switch, stage2_switch, stage3_switch, stage4_switch]
+    check(
+        [switch.get("type") for switch in stage_switches] == ["SwitchByBuff"] * 4,
+        "Kled attack must contain four nested W stage switches",
+    )
+    check(
+        [switch.get("buff_name") for switch in stage_switches]
+        == [f"lol_kled_violent_stage{index}" for index in range(1, 5)],
+        "Kled W stage switches must be ordered stage1 through stage4",
+    )
+    for index, switch in enumerate(stage_switches[:3], start=1):
+        branch = switch.get("effect_buff", {})
+        attacks = direct_effects(branch, "Attack")
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in attacks]
+            == [(0, 100)],
+            f"Kled W attack {index} must deal exactly one normal 100% Attack hit",
+        )
+        check(
+            not find_effect(branch, "Attack", target_hp_ratio=4),
+            f"Kled W attack {index} must not deal fourth-hit maximum-health damage",
+        )
+        check(
+            [effect.get("name") for effect in direct_effects(branch, "RemoveCasterBuff")]
+            == [f"lol_kled_violent_stage{index}"],
+            f"Kled W attack {index} must remove only its current stage",
+        )
+        check(
+            direct_buff_states(branch, "AddCasterBuff")
+            == [
+                {
+                    "name": f"lol_kled_violent_stage{index + 1}",
+                    "duration": {"Time": {"tick": 240}},
+                }
+            ],
+            f"Kled W attack {index} must advance exactly one stage",
+        )
+        check(
+            not find_effect(branch, "RemoveCasterBuff", name="lol_kled_violent_haste"),
+            f"Kled W attack {index} must retain the haste marker",
+        )
+    fourth = stage4_switch.get("effect_buff", {})
+    check(
+        direct_effects(fourth, "Attack")
+        == [
+            {"type": "Attack", "damage": 0, "attack_ratio": 100},
+            {
+                "type": "Attack",
+                "damage": 20,
+                "attack_ratio": 35,
+                "target_hp_ratio": 4,
+            },
+        ],
+        "Kled W fourth attack must deal one normal hit plus exactly 20 + 35% Attack + 4% max-health damage",
+    )
+    check(
+        len(find_effect(attack, "Attack", target_hp_ratio=4)) == 1,
+        "Kled W maximum-health damage must occur exactly once",
+    )
+    check(
+        {effect.get("name") for effect in direct_effects(fourth, "RemoveCasterBuff")}
+        == {
+            "lol_kled_violent_haste",
+            "lol_kled_violent_stage1",
+            "lol_kled_violent_stage2",
+            "lol_kled_violent_stage3",
+            "lol_kled_violent_stage4",
+        },
+        "Kled W fourth attack must clear haste and every stage marker",
+    )
+    check(
+        not direct_effects(fourth, "AddCasterBuff"),
+        "Kled W fourth attack must not advance or recreate a stage",
+    )
+
+    skill = champion.get("skill", {})
+    check(
+        (
+            skill.get("action_name"),
+            skill.get("range"),
+            skill.get("cooltime"),
+            skill.get("duration"),
+            skill.get("start_timing"),
+            skill.get("casting_type"),
+            skill.get("casting_target"),
+        )
+        == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion"),
+        "Kled combined Q/E action timing or targeting changed",
+    )
+    rushes = find_effect(skill, "Rush")
+    check(len(rushes) == 1, "Kled combined Q/E must contain exactly one Rush")
+    if rushes:
+        rush = rushes[0]
+        check(
+            (
+                rush.get("speed"),
+                rush.get("move_speed_ratio"),
+                rush.get("range"),
+                rush.get("casting_target"),
+                rush.get("penetrate"),
+            )
+            == (3200, 100, 12000, "EnemyChampion", False),
+            "Kled combined Q/E Rush speed/range/target/non-penetration contract changed",
+        )
+        applied = rush.get("applied_effects", [])
+        check(len(applied) == 1, "Kled combined Q/E Rush must have one first-hit payload")
+        hit = applied[0] if applied else {}
+        check(hit.get("casting_type") == "Targeting", "Kled combined Q/E hit payload must target the first enemy")
+        hit_effect = hit.get("effect", {})
+        check(
+            direct_effects(hit_effect, "Attack")
+            == [{"type": "Attack", "damage": 30, "attack_ratio": 80}],
+            "Kled combined Q/E first hit must deal 30 + 80% Attack exactly once",
+        )
+        check(
+            direct_buff_states(hit_effect, "AddBuff")
+            == [
+                {
+                    "name": "lol_kled_q_tethered",
+                    "duration": {"Time": {"tick": 45}},
+                    "move_speed_mult": -20,
+                }
+            ],
+            "Kled Q tether must slow the target by 20% for 45 ticks",
+        )
+        check(
+            direct_buff_states(hit_effect, "AddCasterBuff")
+            == [
+                {
+                    "name": "lol_kled_q_hit_speed",
+                    "duration": {"Time": {"tick": 60}},
+                    "move_speed_mult": 20,
+                }
+            ],
+            "Kled combined Q/E hit must grant 20% self speed for 60 ticks",
+        )
+        delayed = direct_effects(hit_effect, "Delayed")
+        check(len(delayed) == 1 and delayed[0].get("tick") == 45, "Kled Q pull must resolve after exactly 45 ticks")
+        if delayed:
+            pull = delayed[0]
+            check(
+                direct_effects(pull, "Attack")
+                == [{"type": "Attack", "damage": 20, "attack_ratio": 40}],
+                "Kled Q pull must deal 20 + 40% Attack exactly once",
+            )
+            check(
+                direct_effects(pull, "Grab")
+                == [{"type": "Grab", "speed": 2200, "tick": 8}],
+                "Kled Q pull must use Grab 2200 for 8 ticks",
+            )
+            check(
+                direct_effects(pull, "Bind")
+                == [{"type": "Bind", "duration": 30}],
+                "Kled Q pull must bind for 30 ticks",
+            )
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
+            == [(30, 80), (20, 40)],
+            "Kled combined Q/E Rush must resolve exactly two damage instances",
+        )
+    check(len(find_effect(skill, "Sfx", name="lol_kled_q_cast")) == 1, "Kled Q cast audio must play once")
+    check(len(find_effect(skill, "Sfx", name="lol_kled_e_cast")) == 1, "Kled merged E dash audio must play once")
+
+    skill2 = champion.get("skill2", {})
+    check(
+        (
+            skill2.get("action_name"),
+            skill2.get("cooltime"),
+            skill2.get("duration"),
+            skill2.get("start_timing"),
+            skill2.get("range"),
+            skill2.get("casting_target"),
+        )
+        == ("skill2", 480, 13, 11, 35000, "EnemyChampion"),
+        "Kled W-in-E-slot action timing or combat trigger changed",
+    )
+    skill2_root = skill2.get("effect", {})
+    marker_names = {
+        "lol_kled_violent_haste",
+        "lol_kled_violent_stage1",
+        "lol_kled_violent_stage2",
+        "lol_kled_violent_stage3",
+        "lol_kled_violent_stage4",
+    }
+    preclean = [effect.get("name") for effect in direct_effects(skill2_root, "RemoveCasterBuff")]
+    check(len(preclean) == 5 and set(preclean) == marker_names, "Kled W cast must clear every stale marker before arming")
+    check(
+        direct_buff_states(skill2_root, "AddCasterBuff")
+        == [
+            {
+                "name": "lol_kled_violent_haste",
+                "duration": {"Time": {"tick": 240}},
+                "attack_speed_mult": 60,
+            },
+            {
+                "name": "lol_kled_violent_stage1",
+                "duration": {"Time": {"tick": 240}},
+            },
+        ],
+        "Kled W cast must arm 60% Attack Speed and stage1 for 240 ticks",
+    )
+    timeout = direct_effects(skill2_root, "Delayed")
+    check(len(timeout) == 1 and timeout[0].get("tick") == 240, "Kled W timeout cleanup must run at 240 ticks")
+    if timeout:
+        timeout_names = [effect.get("name") for effect in direct_effects(timeout[0], "RemoveCasterBuff")]
+        check(
+            len(timeout_names) == 5 and set(timeout_names) == marker_names,
+            "Kled W timeout must clear haste and all four stages",
+        )
+    check(not find_effect(skill2, "Attack"), "Kled W activation must not deal direct damage")
+
+    ult = champion.get("ult", {})
+    check(
+        (
+            ult.get("action_name"),
+            ult.get("range"),
+            ult.get("cooltime"),
+            ult.get("duration"),
+            ult.get("start_timing"),
+            ult.get("casting_type"),
+            ult.get("casting_target"),
+        )
+        == ("ult", 120000, 3600, 120, 1, "Position", "EnemyChampion"),
+        "Kled R action timing, range, or targeting changed",
+    )
+    routes = find_effect(ult, "LineRangeProjectile")
+    check(len(routes) == 1, "Kled R must create exactly one ally route")
+    if routes:
+        route = routes[0]
+        check(
+            (
+                route.get("width"),
+                route.get("length"),
+                route.get("delay"),
+                route.get("apply"),
+                route.get("applied_target"),
+            )
+            == (22000, 120000, 0, 240, "AllyNotSelf"),
+            "Kled R route width/length/lifetime/ally-only contract changed",
+        )
+        route_buffs = [effect.get("buff_state", {}) for effect in find_effect(route.get("applied_effects", []), "AddBuff")]
+        check(
+            route_buffs
+            == [
+                {
+                    "name": "lol_kled_r_trail_speed",
+                    "duration": {"Time": {"tick": 30}},
+                    "move_speed_mult": 25,
+                }
+            ],
+            "Kled R route must grant other allies 25% speed",
+        )
+        check(not find_effect(route, "Attack") and not find_effect(route, "Shield"), "Kled R route must not damage or shield allies")
+    self_packages = find_effect(ult, "WithSelf")
+    check(len(self_packages) == 1, "Kled R must contain one self-only defensive package")
+    if self_packages:
+        self_package = self_packages[0]
+        check(
+            len(find_effect(self_package, "Shield", amount=200, attack_ratio=80, ap_ratio=0, tick=180)) == 1,
+            "Kled R self shield must be 200 + 80% Attack for 180 ticks",
+        )
+        self_buffs = {
+            state.get("name"): state
+            for state in direct_buff_states(self_package, "AddCasterBuff")
+        }
+        check(
+            self_buffs
+            == {
+                "lol_kled_r_charge_speed": {
+                    "name": "lol_kled_r_charge_speed",
+                    "duration": {"Time": {"tick": 120}},
+                    "move_speed_mult": 50,
+                },
+                "lol_kled_r_cc_immune": {
+                    "name": "lol_kled_r_cc_immune",
+                    "duration": {"Time": {"tick": 90}},
+                    "cc_immune": True,
+                },
+            },
+            "Kled R self package must grant only +50% speed and 90-tick CC immunity",
+        )
+        check("lol_kled_r_trail_speed" not in self_buffs, "Kled must not receive the ally route buff")
+    route_self_buffs = [
+        effect
+        for effect in find_effect(ult, "AddCasterBuff")
+        if effect.get("buff_state", {}).get("name") == "lol_kled_r_trail_speed"
+    ]
+    check(not route_self_buffs, "Kled R route speed must never be added to the caster")
+    ult_rushes = find_effect(ult, "Rush")
+    check(len(ult_rushes) == 1, "Kled R must contain exactly one first-hit Rush")
+    if ult_rushes:
+        rush = ult_rushes[0]
+        check(
+            (
+                rush.get("speed"),
+                rush.get("move_speed_ratio"),
+                rush.get("range"),
+                rush.get("casting_target"),
+                rush.get("penetrate"),
+            )
+            == (4200, 150, 14000, "EnemyChampion", False),
+            "Kled R Rush speed/scaling/hit radius/non-penetration contract changed",
+        )
+        applied = rush.get("applied_effects", [])
+        check(len(applied) == 1, "Kled R Rush must resolve one first-hit payload")
+        impact = applied[0].get("effect", {}) if applied else {}
+        check(
+            direct_effects(impact, "Attack")
+            == [
+                {
+                    "type": "Attack",
+                    "damage": 80,
+                    "attack_ratio": 100,
+                    "target_hp_ratio": 2,
+                }
+            ],
+            "Kled R first hit must deal 80 + 100% Attack + 2% max-health exactly once",
+        )
+        check(
+            direct_effects(impact, "Knockback")
+            == [{"type": "Knockback", "speed": 2400, "tick": 8}],
+            "Kled R impact Knockback contract changed",
+        )
+        check(
+            direct_effects(impact, "Airborne")
+            == [{"type": "Airborne", "duration": 18}],
+            "Kled R impact Airborne contract changed",
+        )
+        check(len(find_effect(rush, "Attack")) == 1, "Kled R Rush must damage only the first enemy once")
+
+
+def validate_kled_native_animation_and_resources(champion: dict[str, Any]) -> None:
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/kled#sheet.png"
+    anim_path = MOD_ROOT / "aseprite_resources/champions/kled#anim.fanim"
+    check(sheet_path.is_file(), "Kled actor sheet is missing")
+    check(anim_path.is_file(), "Kled actor animation is missing")
+    if not sheet_path.is_file() or not anim_path.is_file():
+        return
+
+    sheet = Image.open(sheet_path).convert("RGBA")
+    anim = load_json("aseprite_resources/champions/kled#anim.fanim").get("anims", {})
+    check(
+        list(anim) == list(KLED_NATIVE_ANIMATION),
+        "Kled must preserve the exact ordered 24-tag native Cavalry animation contract",
+    )
+    forbidden_tags = {"attack_w1", "attack_w2", "attack_w3", "attack_w4", "skill", "run_fast"}
+    check(not forbidden_tags.intersection(anim), "Kled must not add design-only animation tags outside the native 006 contract")
+
+    run_hashes: list[str] = []
+    first_idle_bbox: tuple[int, int, int, int] | None = None
+    for tag, expected_durations in KLED_NATIVE_ANIMATION.items():
+        frames = anim.get(tag, {}).get("frames", [])
+        check(len(frames) == len(expected_durations), f"Kled native tag {tag} frame count changed")
+        for index, (frame, expected_duration) in enumerate(zip(frames, expected_durations)):
+            check(
+                math.isclose(
+                    float(frame.get("duration", -1)),
+                    expected_duration,
+                    rel_tol=0.0,
+                    abs_tol=1e-9,
+                ),
+                f"Kled native tag {tag} frame {index} duration changed",
+            )
+            data = frame.get("data", {})
+            x, y, width, height = (
+                int(data.get("x", -1)),
+                int(data.get("y", -1)),
+                int(data.get("w", 0)),
+                int(data.get("h", 0)),
+            )
+            in_bounds = (
+                x >= 0
+                and y >= 0
+                and width > 0
+                and height > 0
+                and x + width <= sheet.width
+                and y + height <= sheet.height
+            )
+            check(in_bounds, f"Kled native tag {tag} frame {index} is out of bounds")
+            if not in_bounds:
+                continue
+            image = sheet.crop((x, y, x + width, y + height))
+            bbox = image.getchannel("A").getbbox()
+            if tag in {"dead", "fire_dead"} and index == len(frames) - 1:
+                check(bbox is None, f"Kled {tag} final frame must remain transparent")
+                continue
+            if tag in {"idle", "run", "attack", "skill1", "skill2", "ult", "hit"}:
+                check(bbox is not None, f"Kled core {tag} frame {index} is empty")
+            if tag == "idle" and index == 0:
+                first_idle_bbox = bbox
+            if tag == "run" and bbox is not None:
+                run_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
+
+    check(first_idle_bbox is not None, "Kled first idle frame must show the mounted full body")
+    if first_idle_bbox is not None:
+        visible_width = first_idle_bbox[2] - first_idle_bbox[0]
+        visible_height = first_idle_bbox[3] - first_idle_bbox[1]
+        check(visible_width <= 58, "Kled first idle frame exceeds the 58px battle-safe width")
+        check(36 <= visible_height <= 44, "Kled first idle frame must remain in the 36-44px mounted scale class")
+        check(first_idle_bbox[3] <= 46, "Kled first idle frame is below the accepted y=45/46 foot baseline")
+    check(len(set(run_hashes)) >= 6, "Kled must keep at least six distinct native-timed run phases")
+
+    required_manifest_paths = {
+        "champion/cavalry_knight.data_champion",
+        "aseprite_resources/champions/kled#sheet.png",
+        "aseprite_resources/champions/kled#anim.fanim",
+        "style/champion_view.champion_view",
+        "text/champion.i18n",
+        "BanPickIllust/cavalry_knight.png",
+        "ui/champion_fullbody/cavalry_knight.png",
+        "sound/sfx/kled_native_silence.sound_info",
+        "sound/sfx/kled_native_silence_clip.wav",
+    }
+    icon_paths: list[Path] = []
+    for asset in champion.get("skill_icons", []):
+        relative = asset.removeprefix("asset/lol_mod/") + ".png"
+        required_manifest_paths.add(relative)
+        path = MOD_ROOT / relative
+        icon_paths.append(path)
+        check(path.is_file(), f"missing Kled icon: {relative}")
+        if path.is_file():
+            check(Image.open(path).size == (64, 64), f"{relative} must be 64x64")
+    if all(path.is_file() for path in icon_paths) and len(icon_paths) == 3:
+        check(len({sha256(path) for path in icon_paths}) == 3, "Kled Q/E/R icons must be distinct")
+
+    for view_key in ("view_projectiles", "view_effects", "view_buffs"):
+        for view in champion.get(view_key, []):
+            asset = view.get("anim")
+            check(isinstance(asset, str) and asset.startswith("asset/lol_mod/"), f"Kled {view_key} has an invalid anim binding")
+            if not isinstance(asset, str) or not asset.startswith("asset/lol_mod/"):
+                continue
+            relative = asset.removeprefix("asset/lol_mod/")
+            for suffix in ("#sheet.png", "#anim.fanim"):
+                runtime_path = f"{relative}{suffix}"
+                required_manifest_paths.add(runtime_path)
+                check((MOD_ROOT / runtime_path).is_file(), f"missing Kled view resource: {runtime_path}")
+
+    manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
+    missing = sorted(required_manifest_paths - manifest_paths)
+    check(not missing, "Kled runtime resources are missing from build_manifest.json: " + ", ".join(missing))
+
+
+def validate_kled_localization_style_and_surfaces() -> None:
+    text = load_json("text/champion.i18n")
+    expected_names = {
+        "en": "Kled",
+        "zh-hans": "克烈",
+        "zh-hant": "克烈",
+        "ja": "クレッド",
+        "ko": "클레드",
+    }
+    for locale, expected_name in expected_names.items():
+        descriptions = text.get(locale, {}).get("description", {})
+        check("lol_kled" not in descriptions, f"{locale} must not register an additive lol_kled entry")
+        description = descriptions.get("cavalry_knight", {})
+        check(description.get("name") == expected_name, f"{locale} Kled encyclopedia name must be {expected_name}")
+        for key, letter in (("skill", "Q"), ("skill2", "E"), ("ult", "R")):
+            check(str(description.get(key, "")).startswith(letter), f"{locale} Kled {key} must be labeled {letter}")
+        check("W" in str(description.get("skill2", "")), f"{locale} Kled E-slot text must disclose that it carries W")
+
+    style = load_json("style/champion_view.champion_view").get("entries", {}).get("cavalry_knight", {})
+    check(style.get("center") == {"x": 0, "y": -12}, "Kled center camera must start at (0,-12)")
+    face = style.get("face", {})
+    check(set(face) == {"x", "y"}, "Kled must have an independent compact face camera")
+    check(all(isinstance(face.get(axis), int) for axis in ("x", "y")), "Kled face offsets must be integers")
+    check(face != style.get("center"), "Kled face and center cameras must be independently tuned")
+
+    builder_path = MOD_ROOT / "tools/build_lol_mod.py"
+    builder = builder_path.read_text(encoding="utf-8") if builder_path.is_file() else ""
+    check(
+        '"cavalry_knight": ACTOR_DIR / "kled#sheet.png"' in builder,
+        "Kled must be registered in CHAMPION_FULLBODY_SHEETS",
+    )
+
+    slot_path = MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui"
+    slot = slot_path.read_text(encoding="utf-8") if slot_path.is_file() else ""
+    check("#lol_fullbody_kled:image" in slot, "Kled encyclopedia full-body node is missing")
+    check(
+        'source: "asset/lol_mod/ui/champion_fullbody/cavalry_knight";' in slot,
+        "Kled encyclopedia node must use the stable cavalry_knight portrait asset",
+    )
+
+    rust_path = MOD_ROOT / "src/lib.rs"
+    rust = rust_path.read_text(encoding="utf-8") if rust_path.is_file() else ""
+    rust_compact = " ".join(rust.split())
+    check(
+        '"asset/lol_mod/BanPickIllust/cavalry_knight"' in rust,
+        "Kled BP splash is missing from the runtime splash list",
+    )
+    check(
+        '("cavalry_knight", "lol_fullbody_kled")' in rust_compact,
+        "Kled is missing from runtime encyclopedia portrait synchronization",
+    )
+    check(
+        '"kled" | "cavalry_knight" => Some("cavalry_knight")' in rust,
+        "Kled actor/native-id BP alias is missing",
+    )
+
+    fullbody_path = MOD_ROOT / "ui/champion_fullbody/cavalry_knight.png"
+    check(fullbody_path.is_file(), "Kled encyclopedia full-body portrait is missing")
+    if fullbody_path.is_file():
+        fullbody = Image.open(fullbody_path).convert("RGBA")
+        check(fullbody.size == (64, 64), f"Kled full-body portrait must be 64x64, got {fullbody.size}")
+        check(fullbody.getchannel("A").getbbox() is not None, "Kled full-body portrait is empty")
+
+    source_splash_path = MOD_ROOT / "source/imagegen/bp_splash/cavalry_knight.png"
+    runtime_splash_path = MOD_ROOT / "BanPickIllust/cavalry_knight.png"
+    check(source_splash_path.is_file(), "Kled generated BP source illustration is missing")
+    if source_splash_path.is_file():
+        with Image.open(source_splash_path) as source_splash:
+            ratio_error = abs(source_splash.width / source_splash.height - 284 / 172)
+            check(ratio_error <= 0.02, "Kled generated BP source must use the 284:172 card composition")
+    check(runtime_splash_path.is_file(), "Kled runtime BP illustration is missing")
+    if runtime_splash_path.is_file():
+        with Image.open(runtime_splash_path) as runtime_splash:
+            check(runtime_splash.size == (1420, 860), f"Kled runtime BP illustration must be 1420x860, got {runtime_splash.size}")
+
+    required_qa = {
+        "qa/kled_actor_contact_final.png",
+        "qa/kled_skill_icons_final.png",
+        "qa/kled_vfx_contact_final.png",
+        "qa/kled_imagegen_sources.json",
+        "qa/kled_official_audio_sources.json",
+        "qa/kled_skill_contract_qa.md",
+        "qa/kled_visual_qa.md",
+        "qa/kled_live_qa.md",
+        "qa/kled_q_tether_qa.md",
+        "qa/kled_e_joust_qa.md",
+        "qa/kled_r_trail_qa.md",
+    }
+    missing_qa = sorted(relative for relative in required_qa if not (MOD_ROOT / relative).is_file())
+    check(not missing_qa, "Kled QA evidence is incomplete: " + ", ".join(missing_qa))
+
+
+def validate_kled_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    required_manifest_paths = {
+        "sound/sfx/kled_native_silence.sound_info",
+        "sound/sfx/kled_native_silence_clip.wav",
+    }
+    events = {
+        effect.get("name")
+        for effect in walk_effects(champion)
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+        and isinstance(effect.get("name"), str)
+    }
+    check(
+        {"lol_kled_q_cast", "lol_kled_e_cast", "lol_kled_r_cast"}.issubset(events),
+        "Kled Q/E/R cast audio events are incomplete",
+    )
+    check(len(events) >= 4, "Kled must declare at least four custom combat audio events")
+    check(all(event.startswith("lol_kled_") for event in events), "Kled data must not call native Cavalry audio events")
+
+    for event in sorted(events):
+        source_key = f"asset/base/sound/sfx/{event}"
+        mapping = override.get(source_key, {})
+        check(mapping.get("type") == "override", f"missing Kled sound override: {source_key}")
+        remapping = mapping.get("remapping", "")
+        check(remapping.startswith("asset/lol_mod/sound/sfx/kled_"), f"Kled event {event} has the wrong local mapping")
+        if not remapping.startswith("asset/lol_mod/sound/sfx/"):
+            continue
+        local = remapping.removeprefix("asset/lol_mod/sound/sfx/")
+        info_path = MOD_ROOT / f"sound/sfx/{local}.sound_info"
+        required_manifest_paths.add(f"sound/sfx/{local}.sound_info")
+        check(info_path.is_file(), f"missing Kled sound_info: {info_path.name}")
+        if not info_path.is_file():
+            continue
+        sound_info = load_json(f"sound/sfx/{local}.sound_info")
+        plays = sound_info.get("plays", [])
+        check(bool(plays), f"{local}.sound_info must contain at least one play")
+        for play in plays:
+            check(float(play.get("volume", 0.0)) >= 0.85, f"{local} volume must be at least 0.85")
+            clip = play.get("clip")
+            check(isinstance(clip, str) and bool(clip), f"{local} has an invalid clip")
+            if not isinstance(clip, str) or not clip:
+                continue
+            check(
+                override.get(f"asset/base/sound/sfx/{clip}")
+                == {
+                    "remapping": f"asset/lol_mod/sound/sfx/{clip}",
+                    "type": "override",
+                },
+                f"Kled clip override is missing: {clip}",
+            )
+            wav_path = MOD_ROOT / f"sound/sfx/{clip}.wav"
+            required_manifest_paths.add(f"sound/sfx/{clip}.wav")
+            check(wav_path.is_file(), f"missing Kled WAV: {clip}.wav")
+            if wav_path.is_file():
+                try:
+                    with wave.open(str(wav_path), "rb") as decoded:
+                        check(
+                            (decoded.getnchannels(), decoded.getsampwidth(), decoded.getframerate())
+                            == (1, 2, 44100),
+                            f"{clip}.wav must be mono 16-bit 44.1kHz",
+                        )
+                except wave.Error as error:
+                    check(False, f"{clip}.wav cannot be decoded: {error}")
+
+    for event in KLED_NATIVE_AUDIO_EVENTS:
+        check(
+            override.get(f"asset/base/sound/sfx/{event}")
+            == {
+                "remapping": "asset/lol_mod/sound/sfx/kled_native_silence",
+                "type": "override",
+            },
+            f"native Cavalry event must be isolated: {event}",
+        )
+    for clip in KLED_NATIVE_AUDIO_CLIPS:
+        check(
+            override.get(f"asset/base/sound/sfx/{clip}")
+            == {
+                "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
+                "type": "override",
+            },
+            f"native Cavalry clip must be isolated: {clip}",
+        )
+    silence_info_path = MOD_ROOT / "sound/sfx/kled_native_silence.sound_info"
+    silence_clip_path = MOD_ROOT / "sound/sfx/kled_native_silence_clip.wav"
+    check(silence_info_path.is_file(), "Kled native silence sound_info is missing")
+    if silence_info_path.is_file():
+        check(
+            load_json("sound/sfx/kled_native_silence.sound_info")
+            == {"plays": [{"delay": 0.0, "clip": "kled_native_silence_clip", "volume": 1.0}]},
+            "Kled native silence sound_info changed",
+        )
+    check(silence_clip_path.is_file(), "Kled native silence clip is missing")
+    if silence_clip_path.is_file():
+        check(silence_clip_path.stat().st_size == 4454, "Kled native silence clip size changed")
+        check(sha256(silence_clip_path) == KLED_NATIVE_SILENCE_SHA256, "Kled native silence clip hash changed")
+    manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
+    missing_manifest_paths = sorted(required_manifest_paths - manifest_paths)
+    check(
+        not missing_manifest_paths,
+        "Kled audio resources are missing from build_manifest.json: " + ", ".join(missing_manifest_paths),
+    )
+
+
 def validate_archer_skill_icon_atlas() -> None:
     atlas = Image.open(MOD_ROOT / "aseprite_resources/UI_aseprite/skill_icon#sheet.png").convert("RGBA")
     check(atlas.size == (4096, 49), f"patched native skill icon atlas must remain 4096x49, got {atlas.size}")
@@ -3903,9 +4722,10 @@ def validate_imagegen_sources() -> None:
                     )
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
     # Shen/Lucian/Orianna contribute 25 active alpha sources. Briar adds six;
-    # Sivir adds actor, run, and five distinct VFX contacts. Opaque icons do
-    # not need alpha derivatives.
-    expected_processed = 38
+    # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
+    # run, defeat, and three independent VFX contacts. Opaque icons and the
+    # BP illustration do not need alpha derivatives.
+    expected_processed = 44
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -4970,9 +5790,10 @@ def main() -> int:
     orianna = load_json("champion/barrier_magician.data_champion")
     briar = load_json("champion/berserker.data_champion")
     sivir = load_json("champion/boomerang_hunter.data_champion")
+    kled = load_json("champion/cavalry_knight.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.11", "lol_mod version must be 0.7.11")
+    check(mod_info.get("version") == "0.8.0", "lol_mod version must be 0.8.0")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()
@@ -4992,6 +5813,10 @@ def main() -> int:
     validate_sivir_replacement_uniqueness()
     validate_sivir_data_contract(sivir)
     validate_sivir_native_animation_and_resources(sivir)
+    validate_kled_replacement_uniqueness()
+    validate_kled_data_contract(kled)
+    validate_kled_native_animation_and_resources(kled)
+    validate_kled_localization_style_and_surfaces()
     validate_animation(
         "aseprite_resources/champions/shen#sheet.png",
         "aseprite_resources/champions/shen#anim.fanim",
@@ -5050,6 +5875,7 @@ def main() -> int:
     validate_orianna_audio(orianna, override)
     validate_briar_audio(briar, override)
     validate_sivir_audio(sivir, override)
+    validate_kled_audio(kled, override)
     validate_briar_imagegen_and_qa_files()
     validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()
