@@ -567,7 +567,15 @@ def native_water_likeness_mask(background: Image.Image) -> Image.Image:
     """Conservative detector used only to prove both objective masks avoid adjacent blue water."""
 
     water = Image.new("L", background.size, 0)
-    pixels = background.convert("RGB").get_flattened_data()
+    rgb = background.convert("RGB")
+    # Pillow 12 introduced get_flattened_data(); GitHub's pinned Pillow 11
+    # still exposes the long-standing getdata() iterator.  Keep this pure
+    # compositor helper importable and testable on both runtimes.
+    pixels = (
+        rgb.get_flattened_data()
+        if hasattr(rgb, "get_flattened_data")
+        else rgb.getdata()
+    )
     water.putdata(
         [
             255 if blue >= green + 8 and blue >= red + 20 and blue >= 45 else 0

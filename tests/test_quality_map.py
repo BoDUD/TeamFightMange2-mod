@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import warnings
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageOps
@@ -199,6 +200,23 @@ def test_quality_map_packer_import_does_not_discover_the_local_bundle() -> None:
     source = (MOD / "tools" / "pack_quality_map.py").read_text(encoding="utf-8")
     assert "BUNDLE_PATH = find_bundle_path()" not in source
     assert "bundle_path = require_sources()" in source
+
+
+def test_quality_map_water_detector_supports_pillow_11(monkeypatch) -> None:
+    packer_path = MOD / "tools" / "pack_quality_map.py"
+    spec = importlib.util.spec_from_file_location("quality_map_pillow11_test", packer_path)
+    assert spec and spec.loader
+    packer = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(packer)
+
+    # Pillow 11 has getdata() but not the Pillow 12 get_flattened_data() alias.
+    monkeypatch.delattr(Image.Image, "get_flattened_data", raising=False)
+    source = Image.new("RGBA", (2, 1), (20, 30, 70, 255))
+    source.putpixel((1, 0), (70, 70, 70, 255))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        water = packer.native_water_likeness_mask(source)
+    assert water.tobytes() == bytes((255, 0))
 
 
 def test_gromp_is_reduced_without_moving_its_runtime_frame_anchor() -> None:
