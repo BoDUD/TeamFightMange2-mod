@@ -1,0 +1,112 @@
+{
+  "en": {
+    "match": {
+      "log": {
+        "red_epic": "<#f7b1b8ff>Red Team<> has slain Baron Nashor!",
+        "blue_epic": "<#adb9ffff>Blue Team<> has slain Baron Nashor!",
+        "red_serpen": "<#f7b1b8ff>Red Team<> has slain the Infernal Drake!",
+        "blue_serpen": "<#adb9ffff>Blue Team<> has slain the Infernal Drake!"
+      }
+    },
+    "ingame": {
+      "epic": "Baron Nashor Slain",
+      "serpen": "Infernal Drake Slain"
+    },
+    "set_result": {
+      "epic": "Baron Nashor",
+      "serpen": "Infernal Drake",
+      "graph_blue_epic": "Blue Team Baron Nashor Kill",
+      "graph_red_epic": "Red Team Baron Nashor Kill",
+      "graph_blue_serpen": "Blue Team Infernal Drake Kill",
+      "graph_red_serpen": "Red Team Infernal Drake Kill"
+    }
+  },
+  "ko": {
+    "match": {
+      "log": {
+        "red_epic": "<#f7b1b8ff>레드 팀<>이 내셔 남작을 처치했습니다!",
+        "blue_epic": "<#adb9ffff>블루 팀<>이 내셔 남작을 처치했습니다!",
+        "red_serpen": "<#f7b1b8ff>레드 팀<>이 화염의 드래곤을 처치했습니다!",
+        "blue_serpen": "<#adb9ffff>블루 팀<>이 화염의 드래곤을 처치했습니다!"
+      }
+    },
+    "ingame": {
+      "epic": "내셔 남작 처치",
+      "serpen": "화염의 드래곤 처치"
+    },
+    "set_result": {
+      "epic": "내셔 남작",
+      "serpen": "화염의 드래곤",
+      "graph_blue_epic": "블루 팀 내셔 남작 처치",
+      "graph_red_epic": "레드 팀 내셔 남작 처치",
+      "graph_blue_serpen": "블루 팀 화염의 드래곤 처치",
+      "graph_red_serpen": "레드 팀 화염의 드래곤 처치"
+    }
+  },
+  "ja": {
+    "match": {
+      "log": {
+        "red_epic": "<#f7b1b8ff>レッドチーム<>がバロンナッシャーを倒しました！",
+        "blue_epic": "<#adb9ffff>ブルーチーム<>がバロンナッシャーを倒しました！",
+        "red_serpen": "<#f7b1b8ff>レッドチーム<>がインファーナルドレイクを倒しました！",
+        "blue_serpen": "<#adb9ffff>ブルーチーム<>がインファーナルドレイクを倒しました！"
+      }
+    },
+    "ingame": {
+      "epic": "バロンナッシャー撃破",
+      "serpen": "インファーナルドレイク撃破"
+    },
+    "set_result": {
+      "epic": "バロンナッシャー",
+      "serpen": "インファーナルドレイク",
+      "graph_blue_epic": "ブルーチーム バロンナッシャー討伐",
+      "graph_red_epic": "レッドチーム バロンナッシャー討伐",
+      "graph_blue_serpen": "ブルーチーム インファーナルドレイク討伐",
+      "graph_red_serpen": "レッドチーム インファーナルドレイク討伐"
+    }
+  },
+  "zh-hans": {
+    "match": {
+      "log": {
+        "red_epic": "<#f7b1b8ff>红方<>击杀了纳什男爵！",
+        "blue_epic": "<#adb9ffff>蓝方<>击杀了纳什男爵！",
+        "red_serpen": "<#f7b1b8ff>红方<>击杀了炼狱亚龙！",
+        "blue_serpen": "<#adb9ffff>蓝方<>击杀了炼狱亚龙！"
+      }
+    },
+    "ingame": {
+      "epic": "纳什男爵击杀",
+      "serpen": "炼狱亚龙击杀"
+    },
+    "set_result": {
+      "epic": "纳什男爵",
+      "serpen": "炼狱亚龙",
+      "graph_blue_epic": "蓝方击杀纳什男爵",
+      "graph_red_epic": "红方击杀纳什男爵",
+      "graph_blue_serpen": "蓝方击杀炼狱亚龙",
+      "graph_red_serpen": "红方击杀炼狱亚龙"
+    }
+  },
+  "zh-hant": {
+    "match": {
+      "log": {
+        "red_epic": "<#f7b1b8ff>紅方<>擊殺了巴龍納什！",
+        "blue_epic": "<#adb9ffff>藍方<>擊殺了巴龍納什！",
+        "red_serpen": "<#f7b1b8ff>紅方<>擊殺了赤燄飛龍！",
+        "blue_serpen": "<#adb9ffff>藍方<>擊殺了赤燄飛龍！"
+      }
+    },
+    "ingame": {
+      "epic": "巴龍納什擊殺",
+      "serpen": "赤燄飛龍擊殺"
+    },
+    "set_result": {
+      "epic": "巴龍納什",
+      "serpen": "赤燄飛龍",
+      "graph_blue_epic": "藍方擊殺巴龍納什",
+      "graph_red_epic": "紅方擊殺巴龍納什",
+      "graph_blue_serpen": "藍方擊殺赤燄飛龍",
+      "graph_red_serpen": "紅方擊殺赤燄飛龍"
+    }
+  }
+}

@@ -689,8 +689,8 @@
     },
     {
       "path": "champion/cavalry_knight.data_champion",
-      "size": 12598,
-      "sha256": "8b1bb3fcfd312cd4b9494f9d078261784e2213064e8c2fc1ab0942b3371dce5b"
+      "size": 12599,
+      "sha256": "a97cef9bce207b09a6d0f843f9ff4b3034910731030de66f107bd584049fba46"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -789,18 +789,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 424448,
-      "sha256": "661d17f68190b4e3545f9e6a8f14faf8bdff452980614fb9ede3d52002544d3e"
+      "size": 432128,
+      "sha256": "520d8c76ead78b0f49bc524add8f56f752a8c24dd0a03e7cbe9c52f1866872ab"
     },
     {
       "path": "mod.mod_info",
-      "size": 984,
-      "sha256": "896c2ba947c75f19fb36cf337b50b35c9648e9d4cbe8a3c4afb32fb3aea086af"
+      "size": 966,
+      "sha256": "288ae506ce4ff5b2741fb671688674182bfe644aa771d5479cbbc107fa167a45"
     },
     {
       "path": "mod.override_info",
-      "size": 35342,
-      "sha256": "d77a51a50ea5257364c7ed62c6fe9fe33420e2a839512d4b163710b7a47cb330"
+      "size": 35435,
+      "sha256": "1f8cb05b32bdb2a9d97d7ced556be8c60b9f0b55063624a86d16537c7fdca971"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -1395,7 +1395,7 @@
     {
       "path": "style/champion_view.champion_view",
       "size": 895,
-      "sha256": "29787221f14f6e48d78d7810c6bc48c7f3776faeb1bfa63403eb5f7d889b4344"
+      "sha256": "63983c419f824b940c505296c126357b6be7a4fd5f995d8cca4ea7024af15628"
     },
     {
       "path": "text/champion.i18n",
@@ -1410,7 +1410,12 @@
     {
       "path": "text/object.i18n",
       "size": 3817,
-      "sha256": "15472165d0a7db9f76281085e677691d278dfa79147b9c53d572399ea7c9c87a"
+      "sha256": "01ae4fdfa0ecd35ce23506202ba212c74373bae8c20ae20038c1d6c242fe25e8"
+    },
+    {
+      "path": "text/ui.i18n",
+      "size": 4199,
+      "sha256": "19d3764c3b742d40a03b75f9033d0eb80c0fba9cebb718b1933440095ecd3cc6"
     },
     {
       "path": "ui/banpick/lol_bp_background.png",

@@ -19,7 +19,7 @@ Status: the independent Q/E/R data contract is statically defined; fresh install
 ## Q: Bear Trap on a Rope
 
 - [x] `skill.action_name=skill1` is a 65000-range directional cast with a 360-tick cooldown.
-- [x] Q launches one non-penetrating `LinearProjectile` at speed 3600, range 65000, and collision radius 8000, targeting enemy champions.
+- [x] Q launches one non-penetrating `LinearProjectile` at speed 6500, projectile range 72000, and collision radius 10000, targeting enemy champions; action range remains 65000.
 - [x] Q never uses `Rush`; the cast cannot drag Kled forward.
 - [x] The first champion hit takes `30 + 80% AD`, is slowed by 20% for 45 ticks, and receives the named tether state.
 - [x] One 45-tick delayed payload deals `20 + 40% AD`, then applies `Grab` at speed 2200 for 8 ticks and `Bind` for 30 ticks.

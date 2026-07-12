@@ -440,6 +440,79 @@ def load_json(relative: str) -> Any:
         return {}
 
 
+def validate_objective_killfeed_names(override: dict[str, Any]) -> None:
+    text = load_json("text/ui.i18n")
+    expected = {
+        "en": ("Baron Nashor", "Infernal Drake"),
+        "ko": ("내셔 남작", "화염의 드래곤"),
+        "ja": ("バロンナッシャー", "インファーナルドレイク"),
+        "zh-hans": ("纳什男爵", "炼狱亚龙"),
+        "zh-hant": ("巴龍納什", "赤燄飛龍"),
+    }
+    for locale, (baron, dragon) in expected.items():
+        section = text.get(locale, {})
+        match_log = section.get("match", {}).get("log", {})
+        ingame = section.get("ingame", {})
+        result = section.get("set_result", {})
+        values = [
+            match_log.get(key, "")
+            for key in ("red_epic", "blue_epic", "red_serpen", "blue_serpen")
+        ]
+        values += [ingame.get(key, "") for key in ("epic", "serpen")]
+        values += [
+            result.get(key, "")
+            for key in (
+                "epic",
+                "serpen",
+                "graph_blue_epic",
+                "graph_red_epic",
+                "graph_blue_serpen",
+                "graph_red_serpen",
+            )
+        ]
+        check(
+            len(values) == 12 and all(values),
+            f"{locale} objective UI text must define all 12 kill/result labels",
+        )
+        check(
+            sum(baron in value for value in values) == 6,
+            f"{locale} objective UI text must use {baron} for every Baron label",
+        )
+        check(
+            sum(dragon in value for value in values) == 6,
+            f"{locale} objective UI text must use {dragon} as the safe dragon fallback",
+        )
+        check(
+            not any(
+                legacy in value
+                for value in values
+                for legacy in ("Morgard", "Serpen", "莫尔加德", "双角巨蛇")
+            ),
+            f"{locale} objective UI text must not retain native Morgard/Serpen names",
+        )
+
+    check(
+        override.get("asset/base/text/ui")
+        == {"remapping": "asset/lol_mod/text/ui", "type": "merge"},
+        "objective kill/result labels must merge through asset/base/text/ui",
+    )
+    source = (MOD_ROOT / "src" / "lib.rs").read_text(encoding="utf-8")
+    for token in (
+        "rewrite_objective_render_text(ui, state)",
+        "RenderCommand::Text { text, .. }",
+        "ui_tree_has_match_runner(&ui.root)",
+        "current_dragon_variant_index",
+        ".last_applied",
+        "dragon_variant_index(selection.seed)",
+        "炼狱亚龙",
+        "海洋亚龙",
+        "山脉亚龙",
+        "云端亚龙",
+        "海克斯科技亚龙",
+    ):
+        check(token in source, f"objective render-name runtime is missing {token}")
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -2995,7 +3068,7 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
                 projectile.get("shape"),
                 projectile.get("applied_target"),
             )
-            == (False, 3600, 65000, {"Circle": {"radius": 8000}}, "EnemyChampion"),
+            == (False, 6500, 72000, {"Circle": {"radius": 10000}}, "EnemyChampion"),
             "Kled Q projectile speed/range/shape/target/non-penetration contract changed",
         )
         check(projectile.get("end_effects") == [], "Kled Q projectile must not launch a second end projectile")
@@ -3410,9 +3483,10 @@ def validate_kled_localization_style_and_surfaces() -> None:
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("cavalry_knight", {})
     check(style.get("center") == {"x": 0, "y": -12}, "Kled center camera must start at (0,-12)")
     check(
-        style.get("face") == style.get("center") == {"x": 0, "y": -12},
-        "Kled compact rows must use the full mounted center camera at (0,-12), not native Cavalry face (1,-44)",
+        style.get("face") == {"x": 1, "y": -36},
+        "Kled compact rows must use the rider-focused camera at (1,-36)",
     )
+    check(style.get("face") != style.get("center"), "Kled compact face and full-body center cameras must remain independent")
 
     actor_path = MOD_ROOT / "aseprite_resources/champions/kled#sheet.png"
     anim_path = MOD_ROOT / "aseprite_resources/champions/kled#anim.fanim"
@@ -5873,7 +5947,8 @@ def main() -> int:
     kled = load_json("champion/cavalry_knight.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.8.1", "lol_mod version must be 0.8.1")
+    check(mod_info.get("version") == "0.8.2", "lol_mod version must be 0.8.2")
+    validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

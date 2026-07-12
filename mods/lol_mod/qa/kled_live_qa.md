@@ -12,6 +12,7 @@ Required identity: `LOL_QA_FORCE_CHAMPION_ID=17` (`cavalry_knight`). Project ord
 - [ ] Normal attacks use Kled's intended cast/hit audio and do not leak Cavalry Knight native audio.
 - [ ] Q visibly fires a non-piercing trap from Kled in the selected direction; it does not move Kled or emerge as a body-sized aura.
 - [ ] Q stops on the first enemy champion, creates the visible tether, waits for the intended delay, then damages and pulls/binds the same target once.
+- [ ] Q remains practical against moving champions at close, medium, and the 65000 action-range edge; the faster projectile still behaves as a direction skill rather than a lock-on.
 - [ ] The Q delayed pull follows the documented data limitation: it does not cancel because the target moved beyond a second distance threshold.
 - [ ] E independently dashes in the selected direction, stops on the first enemy champion, deals one hit, and grants Kled the short Move Speed buff.
 - [ ] A missed E ends without damage, hit audio, speed buff, Q rope, pull, bind, or lingering dash VFX.

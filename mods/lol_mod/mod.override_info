@@ -3,6 +3,10 @@
     "remapping": "asset/lol_mod/text/champion",
     "type": "merge"
   },
+  "asset/base/text/ui": {
+    "remapping": "asset/lol_mod/text/ui",
+    "type": "merge"
+  },
   "asset/base/style/champion_view": {
     "remapping": "asset/lol_mod/style/champion_view",
     "type": "merge"

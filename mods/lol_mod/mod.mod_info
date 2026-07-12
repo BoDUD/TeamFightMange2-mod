@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.8.1",
-  "description": "Adds Shen and reworks official champions 002-006 as Lucian, Orianna, Briar, Sivir, and Kled. Version 0.8.1 rebuilds Cavalry Knight (cavalry_knight, official 006) as an always-mounted Kled with three independent active slots: Q throws a Bear Trap on a Rope projectile and performs a delayed yank, E is a standalone Jousting dash, and R charges along its selected route. It also fixes Kled's compact portrait and refines the existing map rocks, bushes, and wall surfaces without changing map structure, paths, or collision. Includes ImageGen actor, VFX, icons, Ban/Pick art, and auditable Kled audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.8.2",
+  "description": "Adds Shen and reworks official champions 002-006 as Lucian, Orianna, Briar, Sivir, and Kled. Version 0.8.2 gives Kled a rider-focused compact portrait, improves his independent non-locking Q projectile's practical hit rate without changing damage or cooldown, and makes Baron/elemental-dragon kill labels follow Baron Nashor and the seed-selected drake model. Kled remains an always-mounted three-skill Q/E/R replacement for Cavalry Knight (cavalry_knight, official 006). Includes the existing ImageGen actor, VFX, icons, Ban/Pick art, map surface refinement, and auditable audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-12",
   "dependencies": [
     {

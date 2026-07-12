@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.8.1"
+    assert load_json("mod.mod_info")["version"] == "0.8.2"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"
@@ -220,7 +220,7 @@ def test_kled_q_is_one_nonpenetrating_beartrap_projectile_with_delayed_tether() 
         projectile["range"],
         projectile["shape"],
         projectile["applied_target"],
-    ) == (False, 3600, 65000, {"Circle": {"radius": 8000}}, "EnemyChampion")
+    ) == (False, 6500, 72000, {"Circle": {"radius": 10000}}, "EnemyChampion")
     assert len(projectile["applied_effects"]) == 1
     assert projectile["end_effects"] == []
     hit = projectile["applied_effects"][0]
@@ -492,11 +492,11 @@ def test_kled_localization_compact_style_encyclopedia_and_bp_are_registered() ->
 
     style = load_json("style/champion_view.champion_view")["entries"]["cavalry_knight"]
     assert style["center"] == {"x": 0, "y": -12}
-    assert style["face"] == style["center"] == {"x": 0, "y": -12}
+    assert style["face"] == {"x": 1, "y": -36}
+    assert style["face"] != style["center"]
 
-    # Native Cavalry used a rider-head crop at face=(1,-44).  Kled's accepted
-    # idle is one compact 40px mounted silhouette, so compact rows need the
-    # same whole-body camera used by cards instead of the inherited head crop.
+    # Compact rows need a Kled-only rider crop. Native Cavalry's (1,-44) clips
+    # too high, while center=(0,-12) compresses the whole mount into the icon.
     anim = load_json("aseprite_resources/champions/kled#anim.fanim")["anims"]
     sheet = Image.open(MOD / "aseprite_resources/champions/kled#sheet.png").convert("RGBA")
     first_idle = frame_crop(sheet, anim["idle"]["frames"][0])

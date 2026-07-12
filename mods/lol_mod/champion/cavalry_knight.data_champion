@@ -95,12 +95,12 @@
         {
           "type": "LinearProjectile",
           "penetrate": false,
-          "speed": 3600,
-          "range": 65000,
+          "speed": 6500,
+          "range": 72000,
           "name": "lol_kled_q_beartrap_projectile",
           "shape": {
             "Circle": {
-              "radius": 8000
+              "radius": 10000
             }
           },
           "applied_target": "EnemyChampion",

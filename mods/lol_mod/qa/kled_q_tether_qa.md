@@ -5,7 +5,7 @@ Bear Trap on a Rope is an independent directional projectile. Q never moves Kled
 ## Static contract
 
 - [x] `skill.action_name=skill1` is directional, enemy-champion-targeted, 65000 range, 360-tick cooldown, and 36-tick duration.
-- [x] Q launches exactly one `LinearProjectile` named `lol_kled_q_beartrap_projectile` at speed 3600 over 65000 range with an 8000-radius circle.
+- [x] Q launches exactly one `LinearProjectile` named `lol_kled_q_beartrap_projectile` at speed 6500 over 72000 projectile range with a 10000-radius circle; the AI/action range stays 65000.
 - [x] `penetrate=false` and `applied_target=EnemyChampion` make the trap stop on the first valid enemy champion; Q contains no `Rush`.
 - [x] The first hit deals `30 + 80% AD` and applies `lol_kled_q_tethered` for 45 ticks with -20% Move Speed.
 - [x] The travelling trap, latch, and pull use independent `projectile`, `latch`, and `pull` tags from `kled_q_tether`.
@@ -22,6 +22,7 @@ The public data layer schedules the delayed payload on the initially hit target.
 
 - [ ] The trap visibly leaves Kled's weapon and travels in the selected direction instead of emerging as a body-sized aura.
 - [ ] It stops on the intended first enemy champion and cannot pass through into another target.
+- [ ] Moving enemy champions remain hittable at close, medium, and the 65000 action-range edge without changing Q into a lock-on cast.
 - [ ] A miss ends cleanly without latch, damage, slow, delayed pull, or hit audio.
 - [ ] The rope/trap visual remains readable without covering Kled or the target and removes cleanly.
 - [ ] The delayed damage, pull, and bind occur once and do not duplicate under repeated ticks.
