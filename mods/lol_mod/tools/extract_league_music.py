@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Extract the pinned League BP and Summoner's Rift music from a local install.
+"""Extract pinned League draft and Summoner's Rift music from a local install.
 
-The script intentionally accepts only the audited Riot WAD build below.  It
-extracts chunks by their WAD path hashes, verifies every bank/package/WEM
-fingerprint, resolves the Map11 music event through wwiser, decodes through
-vgmstream, and writes deterministic PCM16 WAV assets for the mod.
+The draft source is the real League Client champ-select plug-in, not the
+in-game ``mus_client_pregameui_default`` bank.  Its shipped JavaScript is
+fingerprinted and used as the authority for the representative pick-layer
+mix.  The match source is the base/master layer reached by Map11's official
+``phase_01`` Wwise state.  TFM2 only exposes one looping BGM key per surface,
+so dynamic client pick progression and Map11 accent layers are deliberately
+not flattened into a fabricated full-state cycle.
 """
 
 from __future__ import annotations
@@ -15,7 +18,6 @@ import hashlib
 import json
 import math
 import os
-import shutil
 import struct
 import subprocess
 import sys
@@ -28,6 +30,9 @@ from pathlib import Path
 MOD_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RIOT_GAME = Path(
     os.environ.get("LOL_GAME_ROOT", r"D:\Riot Games\League of Legends\Game")
+)
+DEFAULT_RIOT_INSTALL = Path(
+    os.environ.get("LOL_INSTALL_ROOT", str(DEFAULT_RIOT_GAME.parent))
 )
 DEFAULT_WADTOOLS = Path(
     os.environ.get(
@@ -90,28 +95,46 @@ class Wad:
     chunks: tuple[Chunk, ...]
 
 
-PREGAME_WAD = Wad(
-    "pregame_ui_default",
-    "DATA/FINAL/UI.wad.client",
-    "613ddbacA45c4dc2c578f46e9e929754acfa49393fa20c7e55be2b9ba1f1d156".lower(),
+CHAMPSELECT_WAD = Wad(
+    "league_client_champ_select",
+    "Plugins/rcp-fe-lol-champ-select/assets.wad",
+    "be5fef5b37c7293c1eceababcac7a57d8ce4a00894d5ee22f16963a0815066b7",
     (
         Chunk(
-            "audio_bank",
-            "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.bnk",
-            "7da9bd7a2f87a1e7",
-            "d6c4453c1b48690686b32f503a7cc430acc4ba6c2f4b80b55bf01832db4dac53",
+            "client_javascript",
+            "plugins/rcp-fe-lol-champ-select/global/default/rcp-fe-lol-champ-select.js",
+            "3e2f7f1cfed3f682",
+            "495d75811e30ba475aae75df3f16ec5e84e2f68cdd47e9d5fe58cb3813bb5a16",
         ),
         Chunk(
-            "audio_package",
-            "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.wpk",
-            "f4e176db72e53676",
-            "f068f68df6d579bb1b242d4ce84c45144dc8f1d4b794c979fce6bd5ed254e5a8",
+            "pick_base",
+            "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-base-layer-01.ogg",
+            "15d77cee38650431",
+            "1ce657ca416cb534e60a4b99a224db8de682e4daa13539f5a68d7cf8d5dbb1e9",
         ),
         Chunk(
-            "events_bank",
-            "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_events.bnk",
-            "63fed30d9a9310a6",
-            "ae9af6b8934ba93d17892c21041b1321d478bdb98c97d871b263f8eb15dcff3e",
+            "pick_intensity_01",
+            "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-01.ogg",
+            "0acf0acbb18f901f",
+            "1a11b56b207bd52710943f92d2f2f3fda41f7dd0882d1b55db67723a629af957",
+        ),
+        Chunk(
+            "pick_intensity_02",
+            "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-02.ogg",
+            "0eeebf0e2203459a",
+            "ec2455d34173c0b589fe9b75d20281b568f4f86f9c6560d43388305f9fa3029b",
+        ),
+        Chunk(
+            "pick_intensity_03",
+            "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-03.ogg",
+            "0709724782099009",
+            "cfcc8efae2d86d472c4e847b3c72dddf900eec05621e94f97138b1104011ab31",
+        ),
+        Chunk(
+            "pick_intensity_04",
+            "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-04.ogg",
+            "92220d0be54b807a",
+            "9b2510d5d0051a63326976df3a63c0cab7c16109ddf0afcc0bf6ecf9f3125beb",
         ),
     ),
 )
@@ -142,32 +165,92 @@ MAP11_WAD = Wad(
     ),
 )
 
-PREGAME_EVENT_ID = 3_696_965_764
-PREGAME_MEDIA_ID = 888_629_231
-PREGAME_WEM_SHA256 = "426dcf4fda8e8f1d8bd7cbf76e6f94f566b11daa30572330e358a0a89a5b98e9"
-PREGAME_TXTP_TOKEN = f"event-{PREGAME_EVENT_ID} {{m}}.txtp"
+PICK_REPRESENTATIVE_COMPLETED_PICKS = 6
+PICK_REPRESENTATIVE_MIX = (
+    ("pick_base", 0.37),
+    ("pick_intensity_01", 0.37),
+    ("pick_intensity_02", 0.37),
+    ("pick_intensity_03", 0.2775),
+    ("pick_intensity_04", 0.185),
+)
+CLIENT_DRAFT_RULE = {
+    "duplicate_path_resolution": (
+        "later completed-action thresholds replace earlier volume entries for "
+        "the same synchronized layer"
+    ),
+    "planning": {"pickintent": 0.37},
+    "ban_completed_actions": {
+        "0": {"base": 0.37},
+        "1": {"base": 0.37, "intensity_01": 0.185},
+        "2": {"base": 0.37, "intensity_01": 0.2775, "intensity_02": 0.185},
+        "3": {"base": 0.37, "intensity_01": 0.37, "intensity_02": 0.2775},
+        "4": {"base": 0.37, "intensity_01": 0.37, "intensity_02": 0.37},
+    },
+    "pick_completed_actions": {
+        "0": {"base": 0.37},
+        "1": {"base": 0.37, "intensity_01": 0.185},
+        "2": {"base": 0.37, "intensity_01": 0.185, "intensity_02": 0.185},
+        "3": {"base": 0.37, "intensity_01": 0.2775, "intensity_02": 0.185},
+        "4": {
+            "base": 0.37,
+            "intensity_01": 0.2775,
+            "intensity_02": 0.2775,
+            "intensity_03": 0.185,
+        },
+        "5": {
+            "base": 0.37,
+            "intensity_01": 0.37,
+            "intensity_02": 0.2775,
+            "intensity_03": 0.185,
+        },
+        "6": {
+            "base": 0.37,
+            "intensity_01": 0.37,
+            "intensity_02": 0.37,
+            "intensity_03": 0.2775,
+            "intensity_04": 0.185,
+        },
+        "7": {
+            "base": 0.37,
+            "intensity_01": 0.37,
+            "intensity_02": 0.37,
+            "intensity_03": 0.37,
+            "intensity_04": 0.2775,
+        },
+        "8": {
+            "base": 0.37,
+            "intensity_01": 0.37,
+            "intensity_02": 0.37,
+            "intensity_03": 0.37,
+            "intensity_04": 0.37,
+        },
+    },
+    "finalization": {"finalization_60sec": 0.37, "loop": False},
+}
 
 MAP11_EVENT_ID = 3_832_820_115
 MAP11_STATE_GROUP_ID = 3_133_338_805
-MAP11_STATE_VALUE_ID = 1_129_718_747
+MAP11_STATE_VALUE_ID = 2_002_117_580  # Wwise hash of phase_01
+MAP11_SECONDARY_STATE_GROUP_ID = 3_007_119_416
+MAP11_SECONDARY_STATE_VALUE_ID = 3_024_907_506
 MAP11_TXTP_TOKEN = (
-    f"event-{MAP11_EVENT_ID} ({MAP11_STATE_GROUP_ID}={MAP11_STATE_VALUE_ID})"
+    f"event-{MAP11_EVENT_ID} ({MAP11_STATE_GROUP_ID}={MAP11_STATE_VALUE_ID}) "
+    f"({MAP11_SECONDARY_STATE_GROUP_ID}={MAP11_SECONDARY_STATE_VALUE_ID})"
 )
 MAP11_MEDIA = {
-    15_424_654: "163a69376a87e91bf9c89078be1db556ca8822d2774f41ff8df7bd2ceaec3b7a",
-    141_256_618: "459ad3f086831f98b249a3f17dbafa483d85649de2c823da494e49fd80f91696",
-    177_267_501: "f6742b04729e26932a11dabb61edfbDC1e8e9eb599239319692a594d32733dfb".lower(),
-    204_917_839: "f42a1578244bc720b455049ba7f405d846f5c9c641f62b2c209093eb26b038b7",
-    834_478_730: "2aeac5b31416eabc1189562340ec9bfd36e6d570cbf140fb6591b9e54c5d54a0",
+    54_102_751: "c99fd163baadd85cb6497d66703eb262378e38e6074466c67ff4e0eacc24c4db",
+    133_573_449: "f1400c12d10cc38807533c5b4a6b2de08f1ef935f6966dd5f7b2b376e8705f0d",
+    729_866_822: "8c1be087f0f9110beb963e8b9e5f6e0a264c4f2bdfa0960ddabb6c1719a8649c",
+    877_430_847: "fb007cef4772c4221f983f1b4c336e22658e25d6ff3a1199e0f91d2aaa5ed694",
 }
-MAP11_LOOP_START_FRAME = 817_151
-MAP11_LOOP_END_FRAME = 13_268_915
+MAP11_MASTER_MEDIA_ID = 54_102_751
+MAP11_MASTER_FRAME_COUNT = 13_230_000
 
 OUTPUT_SPECS = {
     "lol_banpick": {
-        "frame_count": 5_700_928,
-        "duration_seconds": 129.27274376417233,
-        "sha256": "5e021cd71bb998f32d2ae39580d84f387a296d250f10b3d1b7963799b79cba0f",
+        "frame_count": 8_077_263,
+        "duration_seconds": 8_077_263 / 44_100,
+        "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57",
         "runtime_keys": (
             "asset/base/sound/bgm/banpick",
             "asset/base/sound/bgm/banpick2",
@@ -175,9 +258,9 @@ OUTPUT_SPECS = {
         ),
     },
     "lol_match": {
-        "frame_count": MAP11_LOOP_END_FRAME - MAP11_LOOP_START_FRAME,
-        "duration_seconds": (MAP11_LOOP_END_FRAME - MAP11_LOOP_START_FRAME) / 44_100,
-        "sha256": "4de34d2a92da90086b2d563c6b38f14c0cc6d2f112e3c4a1da3a318ab1b6db85",
+        "frame_count": MAP11_MASTER_FRAME_COUNT,
+        "duration_seconds": MAP11_MASTER_FRAME_COUNT / 44_100,
+        "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2",
         "runtime_keys": (
             "asset/base/sound/bgm/match",
             "asset/base/sound/bgm/match2",
@@ -372,6 +455,88 @@ def apply_runtime_gain(
                 writer.writeframesraw(samples.tobytes())
 
 
+def mix_pcm16(
+    sources: tuple[tuple[Path, float], ...],
+    destination: Path,
+) -> None:
+    """Mix synchronized League Client layers using their shipped JS weights."""
+
+    readers = [wave.open(str(path), "rb") for path, _weight in sources]
+    try:
+        expected = (2, 2, 44_100, "NONE")
+        frame_count: int | None = None
+        for (path, _weight), reader in zip(sources, readers):
+            params = (
+                reader.getnchannels(),
+                reader.getsampwidth(),
+                reader.getframerate(),
+                reader.getcomptype(),
+            )
+            if params != expected:
+                raise RuntimeError(f"Unexpected layer WAV format for {path.name}: {params}")
+            if frame_count is None:
+                frame_count = reader.getnframes()
+            elif reader.getnframes() != frame_count:
+                raise RuntimeError("Champ-select music layers are not sample-aligned.")
+        if frame_count is None:
+            raise RuntimeError("No champ-select music layers were provided.")
+
+        remaining = frame_count
+        with wave.open(str(destination), "wb") as writer:
+            writer.setnchannels(2)
+            writer.setsampwidth(2)
+            writer.setframerate(44_100)
+            while remaining:
+                block_frames = min(44_100, remaining)
+                decoded: list[array.array[int]] = []
+                for reader in readers:
+                    payload = reader.readframes(block_frames)
+                    samples = array.array("h")
+                    samples.frombytes(payload)
+                    if sys.byteorder != "little":
+                        samples.byteswap()
+                    if len(samples) != block_frames * 2:
+                        raise RuntimeError("Truncated champ-select PCM layer.")
+                    decoded.append(samples)
+
+                mixed = array.array("h")
+                weights = [weight for _path, weight in sources]
+                for values in zip(*decoded):
+                    sample = round(
+                        sum(value * weight for value, weight in zip(values, weights))
+                        * RUNTIME_GAIN
+                    )
+                    if not -32_768 <= sample <= 32_767:
+                        raise RuntimeError(
+                            "Audited champ-select mix clipped; re-audit source weights."
+                        )
+                    mixed.append(sample)
+                if sys.byteorder != "little":
+                    mixed.byteswap()
+                writer.writeframesraw(mixed.tobytes())
+                remaining -= block_frames
+    finally:
+        for reader in readers:
+            reader.close()
+
+
+def verify_champselect_javascript(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    required = (
+        'music-cs-draft-ban-base-layer-01.ogg",volume:.37,delay:1578,isMasterTrack:!0',
+        'music-cs-draft-pick-base-layer-01.ogg",volume:.37,isMasterTrack:!0',
+        's>=5&&c.push({path:"/fe/lol-champ-select/sounds/music-cs-draft-pick-intensity-layer-01.ogg",volume:.37})',
+        'music-cs-draft-pick-intensity-layer-02.ogg",volume:.37}),c.push({path:"/fe/lol-champ-select/sounds/music-cs-draft-pick-intensity-layer-03.ogg",volume:.27749999999999997}),c.push({path:"/fe/lol-champ-select/sounds/music-cs-draft-pick-intensity-layer-04.ogg",volume:.185}))',
+        'music-cs-draft-finalization-60sec-01.ogg',
+        'c.push({path:t,volume:.37,loop:!1,offset:e,isMasterTrack:!0})',
+    )
+    missing = [token for token in required if token not in text]
+    if missing:
+        raise RuntimeError(
+            "Pinned League Client draft-music rules changed; re-audit assets.wad."
+        )
+
+
 def inspect_wav(path: Path) -> dict[str, int | float | str]:
     with wave.open(str(path), "rb") as audio:
         channels = audio.getnchannels()
@@ -428,6 +593,7 @@ def generate_map11_txtp(
             str(wem_dir),
             "-gnw",
             "-gxni",
+            "-gd",
         ],
         "wwiser Map11 event resolution",
     )
@@ -449,49 +615,8 @@ def generate_map11_txtp(
     return txtp
 
 
-def generate_pregame_txtp(
-    wwiser: Path,
-    audio_bank: Path,
-    events_bank: Path,
-    wem_dir: Path,
-    output_dir: Path,
-) -> Path:
-    # This event references one tiny internal-bank layer as well as the WPK
-    # music source, so wwiser's generated TXTP expects the bank beside WEMs.
-    shutil.copy2(audio_bank, wem_dir / audio_bank.name)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    run(
-        [
-            sys.executable,
-            str(wwiser),
-            str(audio_bank),
-            str(events_bank),
-            "-g",
-            "-gu",
-            "-go",
-            str(output_dir),
-            "-gw",
-            str(wem_dir),
-            "-gnw",
-            "-gxni",
-        ],
-        "wwiser PregameUI event resolution",
-    )
-    matches = [
-        path for path in output_dir.rglob("*.txtp") if path.name.endswith(PREGAME_TXTP_TOKEN)
-    ]
-    if len(matches) != 1:
-        raise RuntimeError(
-            f"Expected one default PregameUI TXTP ending in "
-            f"{PREGAME_TXTP_TOKEN!r}, found {len(matches)}."
-        )
-    text = matches[0].read_text(encoding="utf-8").replace("\\", "/")
-    if f"/{PREGAME_MEDIA_ID}.wem" not in text or audio_bank.name not in text:
-        raise RuntimeError("Resolved PregameUI TXTP omits a pinned source layer.")
-    return matches[0]
-
-
 def build_music(
+    riot_install: Path,
     riot_game: Path,
     wadtools: Path,
     vgmstream: Path,
@@ -501,29 +626,20 @@ def build_music(
     output_dir.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".league_music_", dir=output_dir) as name:
         temp = Path(name)
-        pregame_chunks = extract_wad(PREGAME_WAD, riot_game, wadtools, temp)
+        champselect_chunks = extract_wad(
+            CHAMPSELECT_WAD, riot_install, wadtools, temp
+        )
+        verify_champselect_javascript(champselect_chunks["client_javascript"])
         map_chunks = extract_wad(MAP11_WAD, riot_game, wadtools, temp)
 
-        pregame_media = extract_wpk(
-            pregame_chunks["audio_package"], temp / "pregame_wems"
-        )
-        verify_media(
-            pregame_media,
-            {PREGAME_MEDIA_ID: PREGAME_WEM_SHA256},
-            "PregameUI",
-        )
         map_media = extract_wpk(map_chunks["audio_package"], temp / "map11_wems")
         verify_media(map_media, MAP11_MEDIA, "Map11")
 
-        pregame_txtp = generate_pregame_txtp(
-            wwiser,
-            pregame_chunks["audio_bank"],
-            pregame_chunks["events_bank"],
-            temp / "pregame_wems",
-            temp / "pregame_txtp",
-        )
-        raw_banpick = temp / "lol_banpick_raw.wav"
-        decode(vgmstream, pregame_txtp, raw_banpick)
+        decoded_pick_layers: dict[str, Path] = {}
+        for logical_name, _weight in PICK_REPRESENTATIVE_MIX:
+            decoded = temp / f"{logical_name}.wav"
+            decode(vgmstream, champselect_chunks[logical_name], decoded)
+            decoded_pick_layers[logical_name] = decoded
 
         map_txtp = generate_map11_txtp(
             wwiser,
@@ -532,26 +648,30 @@ def build_music(
             temp / "map11_wems",
             temp / "map11_txtp",
         )
+        if f"/{MAP11_MASTER_MEDIA_ID}.wem" not in map_txtp.read_text(
+            encoding="utf-8"
+        ).replace("\\", "/"):
+            raise RuntimeError("Resolved phase_01 event omits the base gameplay layer.")
         raw_match = temp / "lol_match_raw.wav"
-        decode(vgmstream, map_txtp, raw_match)
+        decode(vgmstream, map_media[MAP11_MASTER_MEDIA_ID], raw_match)
 
         outputs: dict[str, object] = {}
-        for stem, raw, frame_window in (
-            ("lol_banpick", raw_banpick, (0, None)),
-            (
-                "lol_match",
-                raw_match,
-                (MAP11_LOOP_START_FRAME, MAP11_LOOP_END_FRAME),
+        staged_banpick = temp / "lol_banpick.wav"
+        mix_pcm16(
+            tuple(
+                (decoded_pick_layers[logical_name], weight)
+                for logical_name, weight in PICK_REPRESENTATIVE_MIX
             ),
+            staged_banpick,
+        )
+        staged_match = temp / "lol_match.wav"
+        apply_runtime_gain(raw_match, staged_match)
+
+        for stem, staged in (
+            ("lol_banpick", staged_banpick),
+            ("lol_match", staged_match),
         ):
             destination = output_dir / f"{stem}.wav"
-            staged = temp / f"{stem}.wav"
-            apply_runtime_gain(
-                raw,
-                staged,
-                start_frame=frame_window[0],
-                end_frame=frame_window[1],
-            )
             info = inspect_wav(staged)
             expected = OUTPUT_SPECS[stem]
             if info["frame_count"] != expected["frame_count"]:
@@ -559,7 +679,7 @@ def build_music(
                     f"{stem} frame count mismatch: expected "
                     f"{expected['frame_count']}, got {info['frame_count']}."
                 )
-            if info["sha256"] != expected["sha256"]:
+            if expected["sha256"] and info["sha256"] != expected["sha256"]:
                 raise RuntimeError(
                     f"{stem} deterministic hash mismatch: expected "
                     f"{expected['sha256']}, got {info['sha256']}."
@@ -574,15 +694,16 @@ def build_music(
             }
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "policy": {
             "source": "local official League of Legends installation only",
             "network_downloads": False,
             "image_generation": False,
             "edit": (
-                f"PCM decode plus a fixed {RUNTIME_GAIN_DB:.1f} dB runtime gain; "
-                "Map11 is bounded by its official Wwise loop markers; no EQ, "
-                "compression, arbitrary cut, or remix"
+                "League Client draft layers are sample-aligned with their exact "
+                f"shipped weights, then both outputs receive a fixed {RUNTIME_GAIN_DB:.1f} "
+                "dB TFM2 playback gain; no EQ, compression, arbitrary timeline, "
+                "or unrelated source remix"
             ),
         },
         "tools": {
@@ -590,14 +711,20 @@ def build_music(
             "vgmstream": {"sha256": VGMSTREAM_SHA256, "version": "r2117-116-g4021c853"},
             "wwiser": {"sha256": WWISER_SHA256, "version": "v20250928"},
         },
-        "pregame": {
-            "wad": PREGAME_WAD.relative_path,
-            "wad_sha256": PREGAME_WAD.sha256,
-            "chunks": [chunk.__dict__ for chunk in PREGAME_WAD.chunks],
-            "event_id": PREGAME_EVENT_ID,
-            "media_id": PREGAME_MEDIA_ID,
-            "wem_sha256": PREGAME_WEM_SHA256,
-            "selection": "resolved default PregameUI event cycle used when no mode state is supplied",
+        "champselect": {
+            "wad": CHAMPSELECT_WAD.relative_path,
+            "wad_sha256": CHAMPSELECT_WAD.sha256,
+            "chunks": [chunk.__dict__ for chunk in CHAMPSELECT_WAD.chunks],
+            "client_rule": CLIENT_DRAFT_RULE,
+            "representative_completed_picks": PICK_REPRESENTATIVE_COMPLETED_PICKS,
+            "representative_mix": [
+                {"logical_name": logical_name, "volume": volume}
+                for logical_name, volume in PICK_REPRESENTATIVE_MIX
+            ],
+            "selection": (
+                "the exact completed-pick-count 6 stack from the shipped client "
+                "rule; TFM2 exposes one BP loop and cannot switch layers per pick"
+            ),
         },
         "match": {
             "wad": MAP11_WAD.relative_path,
@@ -606,11 +733,17 @@ def build_music(
             "event_id": MAP11_EVENT_ID,
             "state_group_id": MAP11_STATE_GROUP_ID,
             "state_value_id": MAP11_STATE_VALUE_ID,
+            "state_value_name": "phase_01",
+            "secondary_state_group_id": MAP11_SECONDARY_STATE_GROUP_ID,
+            "secondary_state_value_id": MAP11_SECONDARY_STATE_VALUE_ID,
             "media": {str(key): value for key, value in MAP11_MEDIA.items()},
-            "resolved_cycle_frames": 13_268_915,
-            "official_loop_start_frame": MAP11_LOOP_START_FRAME,
-            "official_loop_end_frame": MAP11_LOOP_END_FRAME,
-            "selection": "official loop body from one resolved Summoner's Rift Map11 music cycle",
+            "selected_master_media_id": MAP11_MASTER_MEDIA_ID,
+            "selected_master_frames": MAP11_MASTER_FRAME_COUNT,
+            "selection": (
+                "official phase_01 base/master gameplay layer; the 105-second "
+                "side intro and minute accent layers remain event-driven in LoL "
+                "and are omitted from TFM2's single static match loop"
+            ),
         },
         "outputs": outputs,
     }
@@ -618,6 +751,7 @@ def build_music(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--riot-install", type=Path, default=DEFAULT_RIOT_INSTALL)
     parser.add_argument("--riot-game", type=Path, default=DEFAULT_RIOT_GAME)
     parser.add_argument("--wadtools", type=Path, default=DEFAULT_WADTOOLS)
     parser.add_argument("--vgmstream", type=Path, default=DEFAULT_VGMSTREAM)
@@ -629,6 +763,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    riot_install = args.riot_install.resolve()
     riot_game = args.riot_game.resolve()
     wadtools = args.wadtools.resolve()
     vgmstream = args.vgmstream.resolve()
@@ -639,7 +774,9 @@ def main() -> int:
     verify_file(wadtools, WADTOOLS_SHA256, "wadtools")
     verify_file(vgmstream, VGMSTREAM_SHA256, "vgmstream")
     verify_file(wwiser, WWISER_SHA256, "wwiser")
-    report = build_music(riot_game, wadtools, vgmstream, wwiser, output)
+    report = build_music(
+        riot_install, riot_game, wadtools, vgmstream, wwiser, output
+    )
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

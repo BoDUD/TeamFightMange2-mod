@@ -92,12 +92,38 @@ def test_all_native_bp_and_match_music_keys_use_two_audited_league_tracks() -> N
     assert unrelated.isdisjoint(overrides)
 
     report = load_json(MOD / "qa" / "league_music_source_qa.json")
+    assert report["schema_version"] == 2
     assert report["policy"]["source"] == "local official League of Legends installation only"
     assert report["policy"]["network_downloads"] is False
-    assert report["pregame"]["event_id"] == 3_696_965_764
+    assert report["champselect"]["wad"] == (
+        "Plugins/rcp-fe-lol-champ-select/assets.wad"
+    )
+    assert report["champselect"]["representative_completed_picks"] == 6
+    assert report["champselect"]["client_rule"]["pick_completed_actions"]["6"] == {
+        "base": 0.37,
+        "intensity_01": 0.37,
+        "intensity_02": 0.37,
+        "intensity_03": 0.2775,
+        "intensity_04": 0.185,
+    }
+    assert report["champselect"]["representative_mix"] == [
+        {"logical_name": "pick_base", "volume": 0.37},
+        {"logical_name": "pick_intensity_01", "volume": 0.37},
+        {"logical_name": "pick_intensity_02", "volume": 0.37},
+        {"logical_name": "pick_intensity_03", "volume": 0.2775},
+        {"logical_name": "pick_intensity_04", "volume": 0.185},
+    ]
+    assert any(
+        chunk["logical_name"] == "client_javascript"
+        for chunk in report["champselect"]["chunks"]
+    )
+    assert "mus_client_pregameui_default" not in json.dumps(report)
     assert report["match"]["event_id"] == 3_832_820_115
     assert report["match"]["state_group_id"] == 3_133_338_805
-    assert report["match"]["state_value_id"] == 1_129_718_747
+    assert report["match"]["state_value_id"] == 2_002_117_580
+    assert report["match"]["state_value_name"] == "phase_01"
+    assert report["match"]["selected_master_media_id"] == 54_102_751
+    assert report["match"]["selected_master_frames"] == 13_230_000
 
     expected_keys = set(MUSIC_KEYS)
     reported_keys = {

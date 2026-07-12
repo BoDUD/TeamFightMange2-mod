@@ -106,7 +106,7 @@ def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
     assert 'asset/lol_mod/style/bp_controls#dropdown' in layout
     assert 'asset/lol_mod/style/bp_controls#text_edit' in layout
     assert "width: 119px;\n  height: 130px;" in champion_slot
-    assert "width: 118px;\n    height: 88px;" in champion_slot
+    assert "width: 118px;\n    height: 88px;\n    y: 4px;" in champion_slot
     assert "normal: #29475cff;" in champion_slot
     assert "hover: #c8aa6eff;" in champion_slot
     for token in ("text_edit:", "tertiary_button:", "primary_button:", "secondary_button:", "dropdown:"):
@@ -155,7 +155,54 @@ def test_bp_imagegen_component_chrome_is_sized_and_noninteractive() -> None:
         assert "ignore_event: true;" in block
     frame = champion_slot.split("#lol_bp_champion_card_frame:image", 1)[1].split("}", 1)[0]
     assert "ignore_event: true;" in frame
+    assert "z: 2;" in frame
     assert qa["components"]["contact_sheet"]["dimensions"] == [1200, 800]
+
+
+def test_bp_champion_preview_has_a_safe_top_inset_without_changing_card_input() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    champion_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(
+        encoding="utf-8"
+    )
+    safe = qa["components"]["champion_slot"]["preview_safe_area"]
+
+    assert safe == {
+        "root_dimensions": [119, 130],
+        "icon_canvas_dimensions": [118, 88],
+        "top_inset_px": 4,
+        "name_band_height_px": 38,
+        "icon_bottom_px": 92,
+        "name_band_top_px": 92,
+        "icon_stops_before_name_band": True,
+        "frame_overlay_z": 2,
+        "icon_z": 0,
+        "frame_overlays_actor": True,
+        "root_and_click_geometry_unchanged": True,
+        "render_camera_and_actor_contract_unchanged": True,
+        "purpose": (
+            "keep tall weapons and head silhouettes below the ornate top rim without "
+            "changing the 119x130 card hit target or actor animation"
+        ),
+    }
+    assert champion_slot.startswith(
+        "champion_slot:banpick_champion_slot {\n  width: 119px;\n  height: 130px;"
+    )
+    icon = champion_slot.split("#icon:canvas", 1)[1].split("}", 1)[0]
+    assert "width: 118px;" in icon
+    assert "height: 88px;" in icon
+    assert "y: 4px;" in icon
+    assert "ignore_event: true;" in icon
+    assert safe["top_inset_px"] + safe["icon_canvas_dimensions"][1] <= (
+        safe["root_dimensions"][1] - safe["name_band_height_px"]
+    )
+    frame = champion_slot.split("#lol_bp_champion_card_frame:image", 1)[1].split(
+        "}", 1
+    )[0]
+    assert "ignore_event: true;" in frame
+    assert safe["frame_overlay_z"] > safe["icon_z"]
+    assert f'z: {safe["frame_overlay_z"]};' in frame
 
 
 def test_bp_pick_card_skin_preserves_geometry_and_uses_noninteractive_frame() -> None:

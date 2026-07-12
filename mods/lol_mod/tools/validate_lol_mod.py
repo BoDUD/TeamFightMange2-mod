@@ -4516,10 +4516,31 @@ def validate_objective_and_wolf_motion_qa() -> None:
     )
     check(wolf.get("pack", {}).get("native_sheet_height_preserved") is True, "Murk Wolf native sheet height is not preserved")
     check(wolf.get("pack", {}).get("native_frame_rectangles_safely_expanded") is True, "Murk Wolf widened frame contract is missing")
-    check(wolf.get("pack", {}).get("native_anchor_reference_preserved") is True, "Murk Wolf native placement reference is missing")
+    check(
+        wolf.get("pack", {}).get("ground_anchor_policy")
+        == "fixed_runtime_bottom_padding",
+        "Murk Wolf fixed-ground anchor policy is missing",
+    )
+    check(
+        wolf.get("pack", {}).get("fixed_ground_padding_px") == 2,
+        "Murk Wolf ground padding must stay at two pixels",
+    )
     runtime = wolf.get("runtime", {})
     sheet_path = validate_recorded_file(runtime.get("sheet", {}), "Murk Wolf sheet")
     anim_path = validate_recorded_file(runtime.get("animation", {}), "Murk Wolf animation")
+    contact_path = validate_recorded_file(
+        runtime.get("motion_contact", {}),
+        "Murk Wolf motion contact",
+    )
+    check(
+        runtime.get("motion_contact", {}).get("dimensions") == [832, 240],
+        "Murk Wolf motion contact dimensions changed",
+    )
+    check(
+        runtime.get("motion_contact_tag_order") == ["idle", "attack", "dead", "run"],
+        "Murk Wolf motion contact tag order changed",
+    )
+    check(contact_path is not None, "Murk Wolf motion contact is unavailable")
     if sheet_path is None or anim_path is None:
         return
     with Image.open(sheet_path) as opened:
@@ -4530,16 +4551,37 @@ def validate_objective_and_wolf_motion_qa() -> None:
     maximum_visible_width = motion.get("maximum_visible_width_px")
     check(maximum_visible_width == 40, f"Murk Wolf QA visible-width target changed: {maximum_visible_width}")
     actual_widths: list[int] = []
+    actual_ground_paddings: list[int] = []
     for tag in document.get("anims", {}):
         widths, _ = tag_motion_metrics(sheet, document, tag)
         actual_widths.extend(widths)
+        for frame in document["anims"][tag]["frames"]:
+            data = frame["data"]
+            x = int(data["x"])
+            y = int(data["y"])
+            width = int(data["w"])
+            height = int(data["h"])
+            bbox = sheet.crop((x, y, x + width, y + height)).getchannel("A").getbbox()
+            if bbox is not None:
+                actual_ground_paddings.append(height - bbox[3])
     check(bool(actual_widths), "Murk Wolf runtime animation has no visible frames")
     if actual_widths:
         check(max(actual_widths) <= 40, f"Murk Wolf visible width regressed to {max(actual_widths)}px")
         check(max(actual_widths) >= 39, f"Murk Wolf is undersized at {max(actual_widths)}px")
     check(motion.get("maximum_idle_run_center_offset_px", 99) <= 1.0, "Murk Wolf idle/run body is off-centre")
     check(motion.get("maximum_anchor_delta_to_target_px", 99) <= 1.0, "Murk Wolf placement anchor drifted")
-    check(motion.get("maximum_bottom_delta_to_native_px") == 0, "Murk Wolf native landing line drifted")
+    check(
+        motion.get("ground_padding_values_px") == [2],
+        "Murk Wolf QA contains more than one ground padding",
+    )
+    check(
+        motion.get("maximum_ground_padding_delta_px") == 0,
+        "Murk Wolf fixed-ground placement drifted",
+    )
+    check(
+        bool(actual_ground_paddings) and set(actual_ground_paddings) == {2},
+        f"Murk Wolf runtime frames do not share the 2px ground anchor: {sorted(set(actual_ground_paddings))}",
+    )
     for tag in ("idle", "run"):
         _, actual_span = tag_motion_metrics(sheet, document, tag)
         recorded_span = motion.get(f"{tag}_horizontal_centroid_span_px")
@@ -4878,7 +4920,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.9", "lol_mod version must be 0.7.9")
+    check(mod_info.get("version") == "0.7.10", "lol_mod version must be 0.7.10")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

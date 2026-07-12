@@ -422,9 +422,30 @@
     },
     "champion_slot": {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "sha256": "92754923518425b69fa004b86c287e80c5c694a3292f52c74772a991c886b6bc",
+      "sha256": "49fa69d27b35650e7b60f99cf59a462eb72f718fc9703e59c1cf5699ce279ed0",
       "native_baseline_normalized_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
-      "restored_native_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a"
+      "restored_native_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
+      "preview_safe_area": {
+        "root_dimensions": [
+          119,
+          130
+        ],
+        "icon_canvas_dimensions": [
+          118,
+          88
+        ],
+        "top_inset_px": 4,
+        "name_band_height_px": 38,
+        "icon_bottom_px": 92,
+        "name_band_top_px": 92,
+        "icon_stops_before_name_band": true,
+        "frame_overlay_z": 2,
+        "icon_z": 0,
+        "frame_overlays_actor": true,
+        "root_and_click_geometry_unchanged": true,
+        "render_camera_and_actor_contract_unchanged": true,
+        "purpose": "keep tall weapons and head silhouettes below the ornate top rim without changing the 119x130 card hit target or actor animation"
+      }
     },
     "blue_pick_slot": {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
@@ -556,6 +577,9 @@
     "timer_runtime_has_alpha": true,
     "bp_controls_use_local_style_only": true,
     "champion_slot_override_registered": true,
+    "champion_preview_uses_safe_top_inset": true,
+    "champion_preview_stops_before_name_band": true,
+    "champion_frame_overlays_actor_without_capturing_input": true,
     "component_palette_is_lol_style": true,
     "component_imagegen_runtime_dimensions": true,
     "component_imagegen_runtime_has_alpha": true,

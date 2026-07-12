@@ -42,12 +42,14 @@ champion_slot:banpick_champion_slot {
     ignore_event: true;
     width: 100%;
     height: 100%;
+    z: 2;
     source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame";
   }
 
   #icon:canvas {
     width: 118px;
     height: 88px;
+    y: 4px;
 
     anchor_x: 0.5;
     pivot_x: 0.5;

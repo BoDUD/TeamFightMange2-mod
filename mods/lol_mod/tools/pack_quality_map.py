@@ -285,9 +285,6 @@ def find_bundle_path() -> Path:
     )
 
 
-BUNDLE_PATH = find_bundle_path()
-
-
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -335,14 +332,21 @@ def read_u32(handle: Any) -> int:
     return struct.unpack("<I", raw)[0]
 
 
-def load_native_layers() -> tuple[dict[str, Image.Image], dict[str, dict[str, Any]]]:
+def load_native_layers(
+    bundle_path: Path | None = None,
+) -> tuple[dict[str, Image.Image], dict[str, dict[str, Any]]]:
+    # Keep bundle discovery lazy.  Pure compositor helpers are imported by CI
+    # on runners that intentionally do not ship the proprietary game bundle.
+    # A real pack/rebuild still resolves and verifies the local bundle here.
+    if bundle_path is None:
+        bundle_path = find_bundle_path()
     keys = {
         f"asset/base/aseprite_resources/ingame/5v5/{name}": name
         for name in NATIVE_LAYER_NAMES
     }
     images: dict[str, Image.Image] = {}
     records: dict[str, dict[str, Any]] = {}
-    with BUNDLE_PATH.open("rb") as handle:
+    with bundle_path.open("rb") as handle:
         entry_count = read_u32(handle)
         for _index in range(entry_count):
             type_length = read_u32(handle)
@@ -360,7 +364,7 @@ def load_native_layers() -> tuple[dict[str, Image.Image], dict[str, dict[str, An
             with Image.open(io.BytesIO(payload)) as opened:
                 images[name] = opened.convert("RGBA")
             records[name] = {
-                "bundle_file": BUNDLE_PATH.name,
+                "bundle_file": bundle_path.name,
                 "asset_key": key,
                 "asset_type": asset_type,
                 "entry_size_bytes": data_length,
@@ -376,8 +380,10 @@ def load_native_layers() -> tuple[dict[str, Image.Image], dict[str, dict[str, An
     return images, records
 
 
-def require_sources() -> None:
-    required = [MICROTEXTURE_SOURCE, WALL_PALETTE_SOURCE, BUSH_PALETTE_SOURCE, BUNDLE_PATH]
+def require_sources(bundle_path: Path | None = None) -> Path:
+    if bundle_path is None:
+        bundle_path = find_bundle_path()
+    required = [MICROTEXTURE_SOURCE, WALL_PALETTE_SOURCE, BUSH_PALETTE_SOURCE, bundle_path]
     required.extend(MASK_ROOT / filename for filename in MASK_SPECS.values())
     missing = [path for path in required if not path.is_file()]
     if missing:
@@ -387,6 +393,7 @@ def require_sources() -> None:
             "Rejected whole-map ImageGen source still exists and could reintroduce shifted terrain: "
             f"{REJECTED_WHOLE_MAP_SOURCE}"
         )
+    return bundle_path
 
 
 def load_mask(name: str) -> Image.Image:
@@ -855,9 +862,9 @@ def save_landmark_detail_preview(background: Image.Image) -> None:
 
 
 def main() -> int:
-    require_sources()
+    bundle_path = require_sources()
 
-    native, native_records = load_native_layers()
+    native, native_records = load_native_layers(bundle_path)
     native_layer_masks = {name: load_mask(name) for name in MASK_SPECS}
 
     # Native bundle layers are the only geometry source.  The uniform

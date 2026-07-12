@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.7.9",
-  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.9 adds ImageGen terrain decals for the two objective pits, eight neutral-camp pads, sixteen tower foundations, both Nexus plinths, and both spawn platforms, all clipped to audited official masks without changing roads, water, walls, brush, collision, pathing, or spawn geometry. It fixes Baron attack-frame clipping and replaces Briar Q's body-enclosing box with a short target-following overhead impact marker while preserving gameplay timing. Ban/Pick now uses generated top and bottom chrome, champion-card frames, filters, grids, stat and skill panels, and side-pick cards; the in-game HUD receives matching non-interactive frames without changing native events or layout. All three Ban/Pick and six match BGM keys use locally extracted official League music, and the native double, triple, quadra, and penta kill keys use verified EN-US Female1 announcer takes. The official First Blood source is audited, but Mod API 0.8 exposes no safe global first-kill audio dispatch, so no guessed callback is shipped. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.7.10",
+  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.10 keeps the 0.7.9 Rift, objective, Ban/Pick and HUD quality upgrade while fixing three focused regressions: champion-card actors now stop exactly above the name band and render behind the ornate frame; Ban/Pick uses the verified League Client draft-layer mix and matches use the stable Summoner's Rift Map11 phase_01 master layer; Murk Wolf frames share one two-pixel ground anchor without changing action keys, frame counts, durations or model scale. The native double, triple, quadra, and penta kill keys continue to use verified EN-US Female1 announcer takes. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-12",
   "dependencies": [
     {

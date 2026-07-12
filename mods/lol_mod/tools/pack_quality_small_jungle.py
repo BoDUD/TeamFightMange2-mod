@@ -16,6 +16,7 @@ SOURCE_ROOT = MOD_ROOT / "source" / "imagegen" / "jungle"
 PROCESSED_ROOT = MOD_ROOT / "source" / "processed" / "jungle"
 RUNTIME_ROOT = MOD_ROOT / "aseprite_resources" / "ingame"
 QA_PATH = MOD_ROOT / "qa" / "quality_small_jungle_imagegen_pack.json"
+MURK_WOLF_CONTACT_PATH = MOD_ROOT / "qa" / "quality_murk_wolf_motion_contact.png"
 
 GRID_COLUMNS = 4
 GRID_ROWS = 4
@@ -54,6 +55,7 @@ class PackSpec:
     preserve_native_rects: bool = False
     native_frame_min_width: int = 0
     native_frame_min_height: int = 0
+    ground_padding: int | None = None
 
 
 SPECS = (
@@ -145,6 +147,12 @@ SPECS = (
         preserve_native_rects=True,
         native_frame_min_width=46,
         native_frame_min_height=31,
+        # The occupied native `bee` actor is airborne: its alpha-bottom gap
+        # deliberately cycles through 2/5/10px at 0.03s per frame.  A ground
+        # monster must not inherit that hover motion.  Keep the expanded frame
+        # rectangles and the single 40px scale, but land every wolf frame on
+        # one deterministic two-pixel bottom padding.
+        ground_padding=2,
         attack_vfx_note=(
             "The cyan claw burst stays in source attack cell 10 and begins at the leading paw; "
             "the final native frame returns to the stable idle body instead of holding a displaced recovery pose."
@@ -361,6 +369,7 @@ def render_native_rect_frame(
     scale: float,
     anchor_mode: str,
     center_on_frame: bool = False,
+    target_alpha_bottom: int | None = None,
 ) -> Image.Image:
     output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
     source_bbox = alpha_bbox(source)
@@ -376,10 +385,8 @@ def render_native_rect_frame(
     subject = normalize_transparent_rgb(subject)
     subject = subject.crop(alpha_bbox(subject))
     if native_bbox is None:
-        target_bottom = native_frame.height - 2
         target_anchor = (native_frame.width - 1) / 2
     else:
-        target_bottom = native_bbox[3]
         target_anchor = (
             (native_frame.width - 1) / 2
             if center_on_frame
@@ -389,6 +396,13 @@ def render_native_rect_frame(
                 else weighted_alpha_centroid_x(native_frame)
             )
         )
+    target_bottom = (
+        target_alpha_bottom
+        if target_alpha_bottom is not None
+        else native_frame.height - 2
+        if native_bbox is None
+        else native_bbox[3]
+    )
     subject_anchor = (
         ground_anchor_x(subject)
         if anchor_mode == "ground"
@@ -472,6 +486,44 @@ def place_native_frame(
             f"native frame image {frame_image.size} != rectangle {(width, height)}"
         )
     sheet.alpha_composite(frame_image, (x, y))
+
+
+def write_motion_contact(
+    sheet: Image.Image,
+    document: dict[str, Any],
+    path: Path,
+) -> list[str]:
+    """Write a deterministic, bottom-aligned runtime-frame contact sheet."""
+    tag_order = list(document["anims"])
+    slot_width = 52
+    slot_height = 60
+    maximum_frames = max(
+        len(animation["frames"])
+        for animation in document["anims"].values()
+    )
+    contact = Image.new(
+        "RGBA",
+        (maximum_frames * slot_width, len(tag_order) * slot_height),
+        (5, 11, 18, 255),
+    )
+    row_colors = (
+        (35, 181, 211, 255),
+        (218, 159, 51, 255),
+        (194, 73, 86, 255),
+        (116, 145, 226, 255),
+    )
+    for row, tag_name in enumerate(tag_order):
+        row_top = row * slot_height
+        color = row_colors[row % len(row_colors)]
+        contact.paste(color, (0, row_top, contact.width, row_top + 1))
+        for column, frame in enumerate(document["anims"][tag_name]["frames"]):
+            crop = frame_crop(sheet, frame)
+            x = column * slot_width + (slot_width - crop.width) // 2
+            y = row_top + slot_height - 4 - crop.height
+            contact.alpha_composite(crop, (x, y))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    contact.save(path, format="PNG", compress_level=9)
+    return tag_order
 
 
 def centroid_span(sheet: Image.Image, document: dict[str, Any], tag: str) -> float:
@@ -719,6 +771,11 @@ def pack_native_rect_one(
                 scale=scale,
                 anchor_mode=anchor_mode,
                 center_on_frame=tag_name in {"idle", "run"},
+                target_alpha_bottom=(
+                    generated_height - spec.ground_padding
+                    if spec.ground_padding is not None
+                    else None
+                ),
             )
             place_native_frame(sheet, rendered, generated_frame_spec)
             bbox = alpha_bbox(rendered)
@@ -742,6 +799,24 @@ def pack_native_rect_one(
                     and bbox[3] == native_bbox[3],
                     "bottom_delta_to_native_px": (
                         bbox[3] - native_bbox[3] if native_bbox else None
+                    ),
+                    "ground_padding_px": generated_height - bbox[3],
+                    "target_ground_padding_px": (
+                        spec.ground_padding
+                        if spec.ground_padding is not None
+                        else generated_height - native_bbox[3]
+                        if native_bbox
+                        else 2
+                    ),
+                    "ground_padding_matches_target": (
+                        generated_height - bbox[3]
+                        == (
+                            spec.ground_padding
+                            if spec.ground_padding is not None
+                            else generated_height - native_bbox[3]
+                            if native_bbox
+                            else 2
+                        )
                     ),
                     "body_centroid_offset_from_rect_center_px": round(
                         rendered_centroid - (width - 1) / 2,
@@ -768,6 +843,15 @@ def pack_native_rect_one(
         encoding="utf-8",
         newline="\n",
     )
+    motion_contact = None
+    motion_contact_tag_order = None
+    if spec.runtime_name == "bee":
+        motion_contact_tag_order = write_motion_contact(
+            sheet,
+            generated_document,
+            MURK_WOLF_CONTACT_PATH,
+        )
+        motion_contact = image_record(MURK_WOLF_CONTACT_PATH)
     if expanded_layout:
         validate_native_animation_contract(
             spec.runtime_name,
@@ -805,6 +889,11 @@ def pack_native_rect_one(
         abs(frame["bottom_delta_to_native_px"] or 0)
         for frame in all_frames
     )
+    ground_padding_values = [frame["ground_padding_px"] for frame in all_frames]
+    maximum_ground_padding_delta = max(
+        abs(frame["ground_padding_px"] - frame["target_ground_padding_px"])
+        for frame in all_frames
+    )
     native_idle_run_share_rectangles = [
         frame_rect(frame) for frame in native_anims["idle"]["frames"]
     ] == [
@@ -818,8 +907,15 @@ def pack_native_rect_one(
         raise ValueError(
             f"{spec.runtime_name}: visible width {maximum_visible_width} exceeds {spec.max_visible_width}"
         )
-    if any(not frame["bottom_matches_native"] for frame in all_frames):
+    if spec.ground_padding is None and any(
+        not frame["bottom_matches_native"] for frame in all_frames
+    ):
         raise ValueError(f"{spec.runtime_name}: frame bottom differs from native anchor")
+    if maximum_ground_padding_delta != 0:
+        raise ValueError(
+            f"{spec.runtime_name}: ground padding drifted by "
+            f"{maximum_ground_padding_delta}px"
+        )
     if idle_centroid_span > 2.0 or run_centroid_span > 2.0:
         raise ValueError(
             f"{spec.runtime_name}: shared idle/run centroid span is unstable: "
@@ -830,7 +926,9 @@ def pack_native_rect_one(
             f"{spec.runtime_name}: idle/run body centroid is off-centre by "
             f"{maximum_idle_run_center_offset}px"
         )
-    if maximum_anchor_delta > 1.0 or maximum_bottom_delta != 0:
+    if maximum_anchor_delta > 1.0 or (
+        spec.ground_padding is None and maximum_bottom_delta != 0
+    ):
         raise ValueError(
             f"{spec.runtime_name}: native placement drifted; "
             f"anchor={maximum_anchor_delta}, bottom={maximum_bottom_delta}"
@@ -870,11 +968,22 @@ def pack_native_rect_one(
                 spec.native_frame_min_width,
                 spec.native_frame_min_height,
             ],
-            "native_anchor_reference_preserved": True,
-            "native_alpha_bottoms_preserved": True,
+            "native_anchor_reference_preserved": spec.ground_padding is None,
+            "native_alpha_bottoms_preserved": spec.ground_padding is None,
+            "ground_anchor_policy": (
+                "fixed_runtime_bottom_padding"
+                if spec.ground_padding is not None
+                else "native_alpha_bottom"
+            ),
+            "fixed_ground_padding_px": spec.ground_padding,
             "anchor": (
                 "idle/run visible alpha centroid at frame centre; other actions at "
-                "native alpha centroid; every frame retains native alpha bottom"
+                + (
+                    f"native alpha centroid; every frame uses a fixed "
+                    f"{spec.ground_padding}px bottom padding"
+                    if spec.ground_padding is not None
+                    else "native alpha centroid; every frame retains native alpha bottom"
+                )
             ),
             "source_cells": source_cell_records,
             "attack_vfx_static_review": {
@@ -885,6 +994,8 @@ def pack_native_rect_one(
         "runtime": {
             "sheet": image_record(sheet_path),
             "animation": binary_record(anim_path),
+            "motion_contact": motion_contact,
+            "motion_contact_tag_order": motion_contact_tag_order,
             "tags": tag_records,
             "motion_metrics": {
                 "maximum_visible_width_px": maximum_visible_width,
@@ -899,6 +1010,8 @@ def pack_native_rect_one(
                     6,
                 ),
                 "maximum_bottom_delta_to_native_px": maximum_bottom_delta,
+                "ground_padding_values_px": sorted(set(ground_padding_values)),
+                "maximum_ground_padding_delta_px": maximum_ground_padding_delta,
             },
         },
         "static_checks": {
@@ -909,7 +1022,9 @@ def pack_native_rect_one(
             ),
             "native_frame_rectangles_exact_or_safely_expanded": True,
             "native_animation_contract_exact": True,
-            "all_frame_bottoms_match_native": True,
+            "all_frame_ground_anchors_match_policy": (
+                maximum_ground_padding_delta == 0
+            ),
             "visible_width_tuned_envelope": maximum_visible_width
             <= spec.max_visible_width,
             "visible_width_target_reached": maximum_visible_width
@@ -1151,8 +1266,10 @@ def main() -> int:
             ),
             "wolf_scale_fix": (
                 "Murk Wolf visible width is raised from the previous 32px cap to "
-                "40px, while native action counts/durations and a <=2px centroid "
-                "stability gate remain enforced."
+                "40px. Native action counts/durations remain exact, while the "
+                "airborne bee contract's 2/5/10px hover gaps are replaced with "
+                "one deterministic 2px ground padding and a <=2px horizontal "
+                "centroid stability gate."
             ),
         },
         "chroma_key_processing": {

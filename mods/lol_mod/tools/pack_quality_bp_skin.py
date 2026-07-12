@@ -46,6 +46,11 @@ TIMER_ICON_SIZE = (20, 20)
 HEADER_CHROME_SIZE = (1920, 85)
 BOTTOM_CHROME_SIZE = (1920, 150)
 CHAMPION_FRAME_SIZE = (119, 130)
+CHAMPION_ICON_CANVAS_SIZE = (118, 88)
+CHAMPION_ICON_SAFE_TOP_PX = 4
+CHAMPION_NAME_BAND_HEIGHT_PX = 38
+CHAMPION_FRAME_OVERLAY_Z = 2
+CHAMPION_ICON_DEFAULT_Z = 0
 FILTER_TOOLBAR_SIZE = (1260, 50)
 CHAMPION_GRID_SIZE = (1250, 377)
 STAT_FRAME_SIZE = (549, 371)
@@ -148,8 +153,22 @@ LOL_CHAMPION_FRAME_BLOCK = """\
     ignore_event: true;
     width: 100%;
     height: 100%;
+    z: 2;
     source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame";
   }
+"""
+
+LOL_CHAMPION_ICON_SAFE_OFFSET = """\
+  #icon:canvas {
+    width: 118px;
+    height: 88px;
+    y: 4px;
+"""
+
+NATIVE_CHAMPION_ICON_BLOCK_START = """\
+  #icon:canvas {
+    width: 118px;
+    height: 88px;
 """
 
 LOL_FILTER_TOOLBAR_BLOCK = """\
@@ -466,6 +485,10 @@ CHAMPION_SLOT_COLOR_RESTORES = {
 
 def restored_native_champion_slot_hash(layout: str) -> str:
     restored = layout.replace(LOL_CHAMPION_FRAME_BLOCK, "")
+    restored = restored.replace(
+        LOL_CHAMPION_ICON_SAFE_OFFSET,
+        NATIVE_CHAMPION_ICON_BLOCK_START,
+    )
     for styled, native in CHAMPION_SLOT_COLOR_RESTORES.items():
         restored = restored.replace(styled, native)
     restored = restored.replace(
@@ -761,7 +784,8 @@ def main() -> int:
         ),
         "champion_slot_native": (
             "width: 119px;\n  height: 130px;" in champion_slot
-            and "#icon:canvas {\n    width: 118px;\n    height: 88px;" in champion_slot
+            and "#icon:canvas {\n    width: 118px;\n    height: 88px;\n    y: 4px;"
+            in champion_slot
             and "down_height: 38;" in champion_slot
         ),
         "pick_slots_native": all(
@@ -828,6 +852,25 @@ def main() -> int:
             "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
             "type": "override",
         },
+        "champion_preview_uses_safe_top_inset": (
+            f"width: {CHAMPION_ICON_CANVAS_SIZE[0]}px;\n"
+            f"    height: {CHAMPION_ICON_CANVAS_SIZE[1]}px;\n"
+            f"    y: {CHAMPION_ICON_SAFE_TOP_PX}px;"
+            in champion_slot
+        ),
+        "champion_preview_stops_before_name_band": (
+            CHAMPION_ICON_SAFE_TOP_PX + CHAMPION_ICON_CANVAS_SIZE[1]
+            <= CHAMPION_FRAME_SIZE[1] - CHAMPION_NAME_BAND_HEIGHT_PX
+        ),
+        "champion_frame_overlays_actor_without_capturing_input": (
+            CHAMPION_FRAME_OVERLAY_Z > CHAMPION_ICON_DEFAULT_Z
+            and f"z: {CHAMPION_FRAME_OVERLAY_Z};" in champion_slot.split(
+                "#lol_bp_champion_card_frame:image", 1
+            )[1].split("}", 1)[0]
+            and "ignore_event: true;" in champion_slot.split(
+                "#lol_bp_champion_card_frame:image", 1
+            )[1].split("}", 1)[0]
+        ),
         "component_palette_is_lol_style": (
             "normal: #29475cff;" in champion_slot
             and "hover: #c8aa6eff;" in champion_slot
@@ -934,6 +977,33 @@ def main() -> int:
                 "sha256": sha256(CHAMPION_SLOT_PATH),
                 "native_baseline_normalized_sha256": NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256,
                 "restored_native_sha256": restored_native_champion_slot_hash(champion_slot),
+                "preview_safe_area": {
+                    "root_dimensions": list(CHAMPION_FRAME_SIZE),
+                    "icon_canvas_dimensions": list(CHAMPION_ICON_CANVAS_SIZE),
+                    "top_inset_px": CHAMPION_ICON_SAFE_TOP_PX,
+                    "name_band_height_px": CHAMPION_NAME_BAND_HEIGHT_PX,
+                    "icon_bottom_px": (
+                        CHAMPION_ICON_SAFE_TOP_PX + CHAMPION_ICON_CANVAS_SIZE[1]
+                    ),
+                    "name_band_top_px": (
+                        CHAMPION_FRAME_SIZE[1] - CHAMPION_NAME_BAND_HEIGHT_PX
+                    ),
+                    "icon_stops_before_name_band": (
+                        CHAMPION_ICON_SAFE_TOP_PX + CHAMPION_ICON_CANVAS_SIZE[1]
+                        <= CHAMPION_FRAME_SIZE[1] - CHAMPION_NAME_BAND_HEIGHT_PX
+                    ),
+                    "frame_overlay_z": CHAMPION_FRAME_OVERLAY_Z,
+                    "icon_z": CHAMPION_ICON_DEFAULT_Z,
+                    "frame_overlays_actor": (
+                        CHAMPION_FRAME_OVERLAY_Z > CHAMPION_ICON_DEFAULT_Z
+                    ),
+                    "root_and_click_geometry_unchanged": True,
+                    "render_camera_and_actor_contract_unchanged": True,
+                    "purpose": (
+                        "keep tall weapons and head silhouettes below the ornate top rim "
+                        "without changing the 119x130 card hit target or actor animation"
+                    ),
+                },
             },
             "blue_pick_slot": {
                 "path": BLUE_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),

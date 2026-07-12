@@ -334,8 +334,8 @@
     },
     {
       "path": "aseprite_resources/ingame/bee#sheet.png",
-      "size": 22845,
-      "sha256": "39b69a4976921790b553039318cff1b1af7574f778375199d381c8d74b4741a7"
+      "size": 23946,
+      "sha256": "f6821bb8ad877f9f16cdce80d8e34466ea2db08c10ae6d01c6524ad424d5c260"
     },
     {
       "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
@@ -715,12 +715,12 @@
     {
       "path": "lol_mod.dll",
       "size": 424448,
-      "sha256": "9c1f4fe4e90f77f85c6de94f2aeb45be47a9a812939165f3600b1e4668e324dd"
+      "sha256": "75f58c5f9b5095a7375faf10d74bb32a4aabbf9b17985a34d7e6d0c96fe9ec6c"
     },
     {
       "path": "mod.mod_info",
-      "size": 1496,
-      "sha256": "6f56d56e4f7a125f8ed448f1625576e206079fc56b299240935aef069a82979f"
+      "size": 1049,
+      "sha256": "2908186235ed35eb001dcbc20ca72ea81fae839f9f5e32a97ebb5eff93efbfa1"
     },
     {
       "path": "mod.override_info",
@@ -729,13 +729,13 @@
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
-      "size": 22803756,
-      "sha256": "5e021cd71bb998f32d2ae39580d84f387a296d250f10b3d1b7963799b79cba0f"
+      "size": 32309096,
+      "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57"
     },
     {
       "path": "sound/bgm/lol_match.wav",
-      "size": 49807100,
-      "sha256": "4de34d2a92da90086b2d563c6b38f14c0cc6d2f112e3c4a1da3a318ab1b6db85"
+      "size": 52920044,
+      "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2"
     },
     {
       "path": "sound/sfx/baron_attack_left.sound_info",
@@ -1439,8 +1439,8 @@
     },
     {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "size": 5490,
-      "sha256": "92754923518425b69fa004b86c287e80c5c694a3292f52c74772a991c886b6bc"
+      "size": 5512,
+      "sha256": "49fa69d27b35650e7b60f99cf59a462eb72f718fc9703e59c1cf5699ce279ed0"
     },
     {
       "path": "ui/layout/banpick/layout.ui",

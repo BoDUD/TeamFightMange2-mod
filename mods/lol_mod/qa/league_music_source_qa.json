@@ -1,10 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "policy": {
     "source": "local official League of Legends installation only",
     "network_downloads": false,
     "image_generation": false,
-    "edit": "PCM decode plus a fixed 4.0 dB runtime gain; Map11 is bounded by its official Wwise loop markers; no EQ, compression, arbitrary cut, or remix"
+    "edit": "League Client draft layers are sample-aligned with their exact shipped weights, then both outputs receive a fixed 4.0 dB TFM2 playback gain; no EQ, compression, arbitrary timeline, or unrelated source remix"
   },
   "tools": {
     "wadtools": {
@@ -20,33 +20,157 @@
       "version": "v20250928"
     }
   },
-  "pregame": {
-    "wad": "DATA/FINAL/UI.wad.client",
-    "wad_sha256": "613ddbaca45c4dc2c578f46e9e929754acfa49393fa20c7e55be2b9ba1f1d156",
+  "champselect": {
+    "wad": "Plugins/rcp-fe-lol-champ-select/assets.wad",
+    "wad_sha256": "be5fef5b37c7293c1eceababcac7a57d8ce4a00894d5ee22f16963a0815066b7",
     "chunks": [
       {
-        "logical_name": "audio_bank",
-        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.bnk",
-        "path_hash": "7da9bd7a2f87a1e7",
-        "sha256": "d6c4453c1b48690686b32f503a7cc430acc4ba6c2f4b80b55bf01832db4dac53"
+        "logical_name": "client_javascript",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/rcp-fe-lol-champ-select.js",
+        "path_hash": "3e2f7f1cfed3f682",
+        "sha256": "495d75811e30ba475aae75df3f16ec5e84e2f68cdd47e9d5fe58cb3813bb5a16"
       },
       {
-        "logical_name": "audio_package",
-        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_audio.wpk",
-        "path_hash": "f4e176db72e53676",
-        "sha256": "f068f68df6d579bb1b242d4ce84c45144dc8f1d4b794c979fce6bd5ed254e5a8"
+        "logical_name": "pick_base",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-base-layer-01.ogg",
+        "path_hash": "15d77cee38650431",
+        "sha256": "1ce657ca416cb534e60a4b99a224db8de682e4daa13539f5a68d7cf8d5dbb1e9"
       },
       {
-        "logical_name": "events_bank",
-        "internal_path": "assets/sounds/wwise2016/sfx/shared/mus_client_pregameui_default_events.bnk",
-        "path_hash": "63fed30d9a9310a6",
-        "sha256": "ae9af6b8934ba93d17892c21041b1321d478bdb98c97d871b263f8eb15dcff3e"
+        "logical_name": "pick_intensity_01",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-01.ogg",
+        "path_hash": "0acf0acbb18f901f",
+        "sha256": "1a11b56b207bd52710943f92d2f2f3fda41f7dd0882d1b55db67723a629af957"
+      },
+      {
+        "logical_name": "pick_intensity_02",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-02.ogg",
+        "path_hash": "0eeebf0e2203459a",
+        "sha256": "ec2455d34173c0b589fe9b75d20281b568f4f86f9c6560d43388305f9fa3029b"
+      },
+      {
+        "logical_name": "pick_intensity_03",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-03.ogg",
+        "path_hash": "0709724782099009",
+        "sha256": "cfcc8efae2d86d472c4e847b3c72dddf900eec05621e94f97138b1104011ab31"
+      },
+      {
+        "logical_name": "pick_intensity_04",
+        "internal_path": "plugins/rcp-fe-lol-champ-select/global/default/sounds/music-cs-draft-pick-intensity-layer-04.ogg",
+        "path_hash": "92220d0be54b807a",
+        "sha256": "9b2510d5d0051a63326976df3a63c0cab7c16109ddf0afcc0bf6ecf9f3125beb"
       }
     ],
-    "event_id": 3696965764,
-    "media_id": 888629231,
-    "wem_sha256": "426dcf4fda8e8f1d8bd7cbf76e6f94f566b11daa30572330e358a0a89a5b98e9",
-    "selection": "resolved default PregameUI event cycle used when no mode state is supplied"
+    "client_rule": {
+      "duplicate_path_resolution": "later completed-action thresholds replace earlier volume entries for the same synchronized layer",
+      "planning": {
+        "pickintent": 0.37
+      },
+      "ban_completed_actions": {
+        "0": {
+          "base": 0.37
+        },
+        "1": {
+          "base": 0.37,
+          "intensity_01": 0.185
+        },
+        "2": {
+          "base": 0.37,
+          "intensity_01": 0.2775,
+          "intensity_02": 0.185
+        },
+        "3": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.2775
+        },
+        "4": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.37
+        }
+      },
+      "pick_completed_actions": {
+        "0": {
+          "base": 0.37
+        },
+        "1": {
+          "base": 0.37,
+          "intensity_01": 0.185
+        },
+        "2": {
+          "base": 0.37,
+          "intensity_01": 0.185,
+          "intensity_02": 0.185
+        },
+        "3": {
+          "base": 0.37,
+          "intensity_01": 0.2775,
+          "intensity_02": 0.185
+        },
+        "4": {
+          "base": 0.37,
+          "intensity_01": 0.2775,
+          "intensity_02": 0.2775,
+          "intensity_03": 0.185
+        },
+        "5": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.2775,
+          "intensity_03": 0.185
+        },
+        "6": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.37,
+          "intensity_03": 0.2775,
+          "intensity_04": 0.185
+        },
+        "7": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.37,
+          "intensity_03": 0.37,
+          "intensity_04": 0.2775
+        },
+        "8": {
+          "base": 0.37,
+          "intensity_01": 0.37,
+          "intensity_02": 0.37,
+          "intensity_03": 0.37,
+          "intensity_04": 0.37
+        }
+      },
+      "finalization": {
+        "finalization_60sec": 0.37,
+        "loop": false
+      }
+    },
+    "representative_completed_picks": 6,
+    "representative_mix": [
+      {
+        "logical_name": "pick_base",
+        "volume": 0.37
+      },
+      {
+        "logical_name": "pick_intensity_01",
+        "volume": 0.37
+      },
+      {
+        "logical_name": "pick_intensity_02",
+        "volume": 0.37
+      },
+      {
+        "logical_name": "pick_intensity_03",
+        "volume": 0.2775
+      },
+      {
+        "logical_name": "pick_intensity_04",
+        "volume": 0.185
+      }
+    ],
+    "selection": "the exact completed-pick-count 6 stack from the shipped client rule; TFM2 exposes one BP loop and cannot switch layers per pick"
   },
   "match": {
     "wad": "DATA/FINAL/Maps/Shipping/Map11.wad.client",
@@ -73,18 +197,19 @@
     ],
     "event_id": 3832820115,
     "state_group_id": 3133338805,
-    "state_value_id": 1129718747,
+    "state_value_id": 2002117580,
+    "state_value_name": "phase_01",
+    "secondary_state_group_id": 3007119416,
+    "secondary_state_value_id": 3024907506,
     "media": {
-      "15424654": "163a69376a87e91bf9c89078be1db556ca8822d2774f41ff8df7bd2ceaec3b7a",
-      "141256618": "459ad3f086831f98b249a3f17dbafa483d85649de2c823da494e49fd80f91696",
-      "177267501": "f6742b04729e26932a11dabb61edfbdc1e8e9eb599239319692a594d32733dfb",
-      "204917839": "f42a1578244bc720b455049ba7f405d846f5c9c641f62b2c209093eb26b038b7",
-      "834478730": "2aeac5b31416eabc1189562340ec9bfd36e6d570cbf140fb6591b9e54c5d54a0"
+      "54102751": "c99fd163baadd85cb6497d66703eb262378e38e6074466c67ff4e0eacc24c4db",
+      "133573449": "f1400c12d10cc38807533c5b4a6b2de08f1ef935f6966dd5f7b2b376e8705f0d",
+      "729866822": "8c1be087f0f9110beb963e8b9e5f6e0a264c4f2bdfa0960ddabb6c1719a8649c",
+      "877430847": "fb007cef4772c4221f983f1b4c336e22658e25d6ff3a1199e0f91d2aaa5ed694"
     },
-    "resolved_cycle_frames": 13268915,
-    "official_loop_start_frame": 817151,
-    "official_loop_end_frame": 13268915,
-    "selection": "official loop body from one resolved Summoner's Rift Map11 music cycle"
+    "selected_master_media_id": 54102751,
+    "selected_master_frames": 13230000,
+    "selection": "official phase_01 base/master gameplay layer; the 105-second side intro and minute accent layers remain event-driven in LoL and are omitted from TFM2's single static match loop"
   },
   "outputs": {
     "lol_banpick": {
@@ -98,13 +223,13 @@
       "channels": 2,
       "sample_width_bytes": 2,
       "sample_rate_hz": 44100,
-      "frame_count": 5700928,
-      "duration_seconds": 129.27274376417233,
+      "frame_count": 8077263,
+      "duration_seconds": 183.1578911564626,
       "compression": "NONE",
-      "size_bytes": 22803756,
-      "sha256": "5e021cd71bb998f32d2ae39580d84f387a296d250f10b3d1b7963799b79cba0f",
-      "loop_boundary_max_delta": 10,
-      "loop_boundary_max_delta_dbfs": -70.30899869919436
+      "size_bytes": 32309096,
+      "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57",
+      "loop_boundary_max_delta": 74,
+      "loop_boundary_max_delta_dbfs": -52.92436430457484
     },
     "lol_match": {
       "path": "sound/bgm/lol_match.wav",
@@ -120,13 +245,13 @@
       "channels": 2,
       "sample_width_bytes": 2,
       "sample_rate_hz": 44100,
-      "frame_count": 12451764,
-      "duration_seconds": 282.35292517006803,
+      "frame_count": 13230000,
+      "duration_seconds": 300.0,
       "compression": "NONE",
-      "size_bytes": 49807100,
-      "sha256": "4de34d2a92da90086b2d563c6b38f14c0cc6d2f112e3c4a1da3a318ab1b6db85",
-      "loop_boundary_max_delta": 808,
-      "loop_boundary_max_delta_dbfs": -32.16077148370263
+      "size_bytes": 52920044,
+      "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2",
+      "loop_boundary_max_delta": 555,
+      "loop_boundary_max_delta_dbfs": -35.423139036740835
     }
   }
 }

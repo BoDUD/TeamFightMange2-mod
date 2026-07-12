@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.9",
+  "release": "0.7.10",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -42,6 +42,13 @@
       "blue_red_card_palette_refined": true,
       "page_local_controls_style": "style/bp_controls.style",
       "champion_list_stat_and_skill_panels_refined": true,
+      "champion_card_actor_safe_area": {
+        "canvas": "118x88 at y=4",
+        "canvas_bottom_px": 92,
+        "name_band_top_px": 92,
+        "ornate_frame_z": 2,
+        "click_geometry_unchanged": true
+      },
       "bvp_runtime_controls_copied": false
     },
     "ingame_hud_skin": {
@@ -78,7 +85,7 @@
       "rhino": "Red Brambleback",
       "stump": "Blue Sentinel",
       "mushroom": "Gromp, reduced to a 72x50 visible envelope while retaining the 97px frame and baseline",
-      "bee": "Murk Wolf"
+      "bee": "Murk Wolf, 40px envelope with every frame fixed to a 2px ground padding; native action keys, counts and durations preserved"
     },
     "baron": {
       "actor_and_attack_vfx": true,
@@ -166,6 +173,9 @@
       "network_downloads": false,
       "banpick_bgm_override_keys": 3,
       "match_bgm_override_keys": 6,
+      "banpick_music_source": "League Client rcp-fe-lol-champ-select completed-picks=6 official layer stack",
+      "match_music_source": "Summoner's Rift Map11 phase_01 base/master layer",
+      "pcm16_44100_stereo_and_no_clipping": true,
       "runtime_music_assets": [
         "sound/bgm/lol_banpick.wav",
         "sound/bgm/lol_match.wav"
