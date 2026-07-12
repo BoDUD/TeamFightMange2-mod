@@ -1,0 +1,356 @@
+champion_slot:banpick_champion_slot {
+  width: 119px;
+  height: 130px;
+
+  base: {
+    back_color: #07131ff2;
+    down_color: #06101aff;
+    text_color: #f0e6d2ff;
+  }
+
+  blue_picked: {
+    back_color: #0b2742ff;
+    down_color: #061424ff;
+    text_color: #9ed8ffff;
+  }
+
+  red_picked: {
+    back_color: #34141dff;
+    down_color: #19080dff;
+    text_color: #ffbbc1ff;
+  }
+
+  banned: {
+    back_color: #30343bff;
+    down_color: #171a1fff;
+    text_color: #68717aff;
+  }
+
+  line_width: 1;
+  rounding: 6;
+  down_height: 38;
+
+  line_color: {
+    normal: #29475cff;
+    hover: #c8aa6eff;
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  #lol_bp_champion_card_frame:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame";
+  }
+
+  #icon:canvas {
+    width: 118px;
+    height: 88px;
+    y: 4px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    ignore_event: true;
+  }
+
+  #name:label {
+    @"asset/base/style/main#label";
+    width: 118px;
+    height: 37px;
+    ignore_event: true;
+
+    anchor_y: 1;
+    pivot_y: 1;
+
+    align_x: Center;
+    align_y: Center;
+
+    size: 14;
+  }
+
+  #ban:image {
+    width: 18px;
+    height: 18px;
+
+    source: "asset/base/ui/icons/ban";
+
+    x: -6px;
+    y: 6px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    visible: false;
+    ignore_event: true;
+  }
+
+  #blue:color {
+    visible: false;
+    ignore_event: true;
+
+    x: -4px;
+    y: 4px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    width: 26px;
+    height: 26px;
+
+    color: #2376a7ff;
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 100%;
+      size: 14;
+
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+
+  #red:color {
+    visible: false;
+    ignore_event: true;
+
+    x: -4px;
+    y: 4px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    width: 26px;
+    height: 26px;
+
+    color: #b33b4bff;
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 100%;
+      size: 14;
+
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+
+  #fearless_icon:color {
+    visible: false;
+    ignore_event: true;
+
+    x: -4px;
+    y: 4px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    width: 22px;
+    height: 22px;
+
+    back_color: #00000000;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 11;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 100%;
+      size: 14;
+
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+
+  #fearless_x:image {
+    visible: false;
+    ignore_event: true;
+
+    width: 12px;
+    height: 12px;
+
+    source: "asset/base/ui/icons/cross";
+
+    x: -6px;
+    y: 6px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+  }
+
+  #fearless_tooltip:color {
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+    anchor_y: 1;
+    pivot_y: 0;
+    y: 6px;
+    height: 34px;
+    width: 350px;
+    visible: false;
+    ignore_event: true;
+
+    back_color: #07131ff2;
+    color: #39566eff;
+
+    stroke: 1;
+    z: 101;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 100%;
+      x: 8px;
+      z: 101;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      size: 14;
+
+      align_y: Center;
+    }
+  }
+
+  #tier:label {
+    @"asset/base/style/main#label";
+    width: 30px;
+    height: 18px;
+    x: 6px;
+    y: 68px;
+    size: 16;
+
+    align_x: Left;
+    align_y: Center;
+
+    visible: false;
+    ignore_event: true;
+  }
+
+  #pos1:image {
+    width: 18px;
+    height: 18px;
+    source: "asset/base/ui/icons/mid";
+    x: 77px;
+    y: 66px;
+    ignore_event: true;
+    visible: false;
+  }
+
+  #pos2:image {
+    width: 18px;
+    height: 18px;
+    source: "asset/base/ui/icons/mid";
+    x: 98px;
+    y: 66px;
+    ignore_event: true;
+    visible: false;
+  }
+
+  #pos_tooltip:color {
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+    anchor_y: 1;
+    pivot_y: 0;
+    y: 6px;
+    visible: false;
+    ignore_event: true;
+    z: 101;
+
+    back_color: #07131ff2;
+    color: #39566eff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #header:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 20px;
+      x: 8px;
+      y: 4px;
+      z: 101;
+      size: 12;
+      color: #8090a0ff;
+      align_y: Center;
+    }
+
+    #row1:empty {
+      width: 100%;
+      height: 22px;
+      y: 24px;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        z: 101;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        z: 101;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+
+    #row2:empty {
+      width: 100%;
+      height: 22px;
+      y: 46px;
+      visible: false;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        z: 101;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        z: 101;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+  }
+
+}

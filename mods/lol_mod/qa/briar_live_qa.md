@@ -35,7 +35,7 @@ Passive and basic attacks:
 Q / Blood Frenzy and one Snack:
 
 - [ ] Q is unavailable without an enemy champion inside 45,000 and becomes available with one in range; casting it does not force target lock or spawn a follow-up tracking skill.
-- [x] Q's corrected 96x96 restraint aura was accepted after live review: it is visibly larger, grows mainly downward around chest/feet, and no longer crowds Briar's hair/name/health bar. Its numerical state remains covered by static validation; duration/removal behavior remains part of the unchecked full combat pass.
+- [ ] Q shows one short scarlet impact/stun marker above the selected target's head. No yellow/orange square remains on Briar's `skill1` pose, no 96x96 ring encloses Briar, no white contact-sheet gutter appears, and the marker follows a moving target for its eight-frame 0.46-second burst without covering the model or health bar.
 - [ ] Every successful Q prepares exactly one Snack: the next basic attack uses the bite pose, extra maximum-health damage, self-heal and frenzy audio, consumes `lol_briar_snack_ready`, and the following attack is normal.
 - [ ] Casting Q again replaces/refreshes the one pending Snack rather than queuing two empowered bites.
 - [ ] Casting Q during `lol_briar_certain_death_frenzy` refreshes one Snack without removing or downgrading the R-enhanced frenzy.
@@ -61,4 +61,4 @@ Audio and final evidence:
 - [ ] Bleed ticks do not dispatch a guessed repeating sound, and the excluded stereo three-second Snack source is not accidentally mapped.
 - [ ] Final evidence includes the forced-index-12 write, complete startup log, encyclopedia search, disabled/enabled pool state, selection screen, compact HUD/face/feet screenshots, nine-phase run capture, passive/Q/E/R combat captures and both R target-death cases.
 
-2026-07-11 correction evidence is stored outside the active mod at `briar_evidence/after_fix_avatar.png`, `briar_evidence/after_fix_card.png`, and the user-supplied live Q screenshot in this task. The user explicitly accepted both corrections before PR publication. No complete all-surface/all-mechanic live pass is claimed; every unrelated box remains unchecked.
+2026-07-11 avatar correction evidence is stored outside the active mod at `briar_evidence/after_fix_avatar.png` and `briar_evidence/after_fix_card.png`. The previous 96x96 Q-ring screenshot is superseded by the 2026-07-12 overhead-marker rebuild and is not acceptance evidence for the current asset. No complete all-surface/all-mechanic live pass is claimed; every unrelated box remains unchecked.

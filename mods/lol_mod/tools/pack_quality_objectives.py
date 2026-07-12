@@ -1,0 +1,2099 @@
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import math
+import shutil
+import struct
+from pathlib import Path
+from typing import Any
+
+from PIL import Image, ImageDraw
+
+
+MOD_ROOT = Path(__file__).resolve().parents[1]
+SOURCE_DIR = MOD_ROOT / "source" / "imagegen" / "jungle"
+PROCESSED_DIR = MOD_ROOT / "source" / "processed" / "jungle"
+INGAME_DIR = MOD_ROOT / "aseprite_resources" / "ingame"
+VARIANT_DIR = INGAME_DIR / "dragon_variants"
+QA_PATH = MOD_ROOT / "qa" / "quality_objectives_imagegen_pack.json"
+BARON_ATTACK_CONTACT_PATH = MOD_ROOT / "qa" / "quality_baron_attack_contact.png"
+
+GRID_COLS = 4
+GRID_ROWS = 4
+# Runtime actors are positioned against the native animation rectangles, not
+# against an arbitrary replacement canvas.  The old quality pack used 218px
+# and 115px square cells, which made Baron roughly twice as wide as the native
+# actor and made Drake idle frames slide more than twelve pixels side-to-side.
+# Baron's base/idle body stays inside the bundled native envelope; only the
+# attack canvas is widened below so its cast cannot be cut. Dragons use a
+# measured middle scale: larger than the over-conservative 54px pass, far below
+# the rejected oversized atlas, with widened frames only where the native body
+# rect was too narrow for the League silhouette.
+BARON_NATIVE_VISIBLE_WIDTH = 106
+# The generated attack poses are wider than the bundled 109/113px actor
+# rectangles because the mouth cast is authored on the actor frames.  Keep the
+# native centre/bottom pivot but give only attack_left/attack_right enough
+# symmetric canvas to retain every source pixel.  The fifth source is a clean
+# recovery pose; source cell 8 is itself cut by the ImageGen panel boundary.
+BARON_ATTACK_SOURCE_INDICES = (4, 5, 6, 7, 10)
+BARON_ATTACK_FRAME_WIDTHS = (141, 127, 187, 215, 139)
+BARON_ATTACK_SIDE_CLEARANCE = 2
+BARON_SOURCE_TOP_SPILL_MAX_DEPTH = 12
+BARON_SOURCE_SIDE_FRAGMENT_MAX_PIXELS = 256
+BARON_SOURCE_SIDE_FRAGMENT_MAX_WIDTH = 24
+DRAGON_TUNED_BODY_WIDTH = 68
+DRAGON_MAX_VISIBLE_WIDTH = 80
+DRAGON_MIN_FRAME_WIDTH = 88
+DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER = 35.0
+CHROMA_KEY = (255, 0, 255)
+CHROMA_CLEAR_DISTANCE = 82.0
+CHROMA_EDGE_BAND_DEPTH = 3
+
+DRAGON_VARIANTS = (
+    "infernal",
+    "ocean",
+    "mountain",
+    "cloud",
+    "hextech",
+    "elder",
+)
+OBJECTIVE_FACING_VARIANTS = ("epic", *DRAGON_VARIANTS)
+
+NATIVE_GAME_SETTING_KEY = "asset/base/setting/game_setting"
+EPIC_RUNTIME_ATTACK_ACTION = "attack_left"
+SERPEN_RUNTIME_ATTACK_ACTION = "attack"
+
+
+def find_bundle_path() -> Path:
+    candidates = (
+        MOD_ROOT.parents[1] / "bundle.game_data",
+        MOD_ROOT.parents[2] / "bundle.game_data",
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(
+        "Could not locate Teamfight Manager 2 bundle.game_data from the mod tree: "
+        + ", ".join(str(candidate) for candidate in candidates)
+    )
+
+
+BUNDLE_PATH = find_bundle_path()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def read_u32(handle: Any) -> int:
+    raw = handle.read(4)
+    if len(raw) != 4:
+        raise EOFError("Unexpected end of bundle.game_data while reading u32")
+    return struct.unpack("<I", raw)[0]
+
+
+def load_native_animation_contracts(
+    runtime_names: tuple[str, ...],
+) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    keys = {
+        f"asset/base/aseprite_resources/ingame/{name}#anim": name
+        for name in runtime_names
+    }
+    documents: dict[str, dict[str, Any]] = {}
+    records: dict[str, dict[str, Any]] = {}
+    with BUNDLE_PATH.open("rb") as handle:
+        entry_count = read_u32(handle)
+        for _index in range(entry_count):
+            type_length = read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = read_u32(handle)
+            if key not in keys:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            runtime_name = keys[key]
+            document = json.loads(payload.decode("utf-8"))
+            documents[runtime_name] = document
+            records[runtime_name] = {
+                "bundle_file": BUNDLE_PATH.name,
+                "bundle_size_bytes": BUNDLE_PATH.stat().st_size,
+                "asset_key": key,
+                "asset_type": asset_type,
+                "entry_size_bytes": data_length,
+                "entry_sha256": hashlib.sha256(payload).hexdigest(),
+                "tag_order": list(document["anims"]),
+                "tags": animation_contract_signature(document),
+            }
+            if len(documents) == len(keys):
+                break
+    missing = sorted(set(runtime_names) - set(documents))
+    if missing:
+        raise KeyError(f"Missing native animation contracts in bundle.game_data: {missing}")
+    return documents, records
+
+
+def load_native_sheets(
+    runtime_names: tuple[str, ...],
+) -> tuple[dict[str, Image.Image], dict[str, dict[str, Any]]]:
+    keys = {
+        f"asset/base/aseprite_resources/ingame/{name}#sheet": name
+        for name in runtime_names
+    }
+    images: dict[str, Image.Image] = {}
+    records: dict[str, dict[str, Any]] = {}
+    with BUNDLE_PATH.open("rb") as handle:
+        entry_count = read_u32(handle)
+        for _index in range(entry_count):
+            type_length = read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = read_u32(handle)
+            if key not in keys:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            runtime_name = keys[key]
+            with Image.open(io.BytesIO(payload)) as opened:
+                images[runtime_name] = opened.convert("RGBA")
+            records[runtime_name] = {
+                "bundle_file": BUNDLE_PATH.name,
+                "bundle_size_bytes": BUNDLE_PATH.stat().st_size,
+                "asset_key": key,
+                "asset_type": asset_type,
+                "entry_size_bytes": data_length,
+                "entry_sha256": hashlib.sha256(payload).hexdigest(),
+                "dimensions": list(images[runtime_name].size),
+            }
+            if len(images) == len(keys):
+                break
+    missing = sorted(set(runtime_names) - set(images))
+    if missing:
+        raise KeyError(f"Missing native sheets in bundle.game_data: {missing}")
+    return images, records
+
+
+def load_native_objective_attack_contract() -> dict[str, Any]:
+    """Read the actual simulation action keys that can reach objective art."""
+    with BUNDLE_PATH.open("rb") as handle:
+        entry_count = read_u32(handle)
+        for _index in range(entry_count):
+            type_length = read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = read_u32(handle)
+            if key != NATIVE_GAME_SETTING_KEY:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            document = json.loads(payload.decode("utf-8"))
+            epic_action = document["epic_jungle"]["attack"]["action_name"]
+            serpen_action = document["serpen_jungle"]["attack"]["action_name"]
+            if epic_action != EPIC_RUNTIME_ATTACK_ACTION:
+                raise ValueError(
+                    "Bundled Epic attack action changed: "
+                    f"{epic_action!r} != {EPIC_RUNTIME_ATTACK_ACTION!r}"
+                )
+            if serpen_action != SERPEN_RUNTIME_ATTACK_ACTION:
+                raise ValueError(
+                    "Bundled Serpen attack action changed: "
+                    f"{serpen_action!r} != {SERPEN_RUNTIME_ATTACK_ACTION!r}"
+                )
+            return {
+                "bundle_file": BUNDLE_PATH.name,
+                "bundle_size_bytes": BUNDLE_PATH.stat().st_size,
+                "asset_key": key,
+                "asset_type": asset_type,
+                "entry_size_bytes": data_length,
+                "entry_sha256": hashlib.sha256(payload).hexdigest(),
+                "epic_action_name": epic_action,
+                "serpen_action_name": serpen_action,
+                "epic_attack_right_reachable_from_game_setting": False,
+            }
+    raise KeyError(f"Missing native game setting in bundle.game_data: {NATIVE_GAME_SETTING_KEY}")
+
+
+def animation_contract_signature(document: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        tag_name: {
+            "frame_count": len(tag["frames"]),
+            "durations": [frame["duration"] for frame in tag["frames"]],
+        }
+        for tag_name, tag in document["anims"].items()
+    }
+
+
+def validate_native_animation_contract(
+    runtime_name: str,
+    generated: dict[str, Any],
+    native: dict[str, Any],
+) -> None:
+    generated_order = list(generated["anims"])
+    native_order = list(native["anims"])
+    if generated_order != native_order:
+        raise ValueError(
+            f"{runtime_name}: tag order/name mismatch; "
+            f"generated={generated_order}, native={native_order}"
+        )
+    generated_signature = animation_contract_signature(generated)
+    native_signature = animation_contract_signature(native)
+    if generated_signature != native_signature:
+        raise ValueError(
+            f"{runtime_name}: frame-count/duration contract mismatch; "
+            f"generated={generated_signature}, native={native_signature}"
+        )
+
+
+def validate_native_frame_rect_contract(
+    runtime_name: str,
+    generated: dict[str, Any],
+    native: dict[str, Any],
+) -> None:
+    validate_native_animation_contract(runtime_name, generated, native)
+    if generated != native:
+        raise ValueError(
+            f"{runtime_name}: native frame rectangles changed; replacements must "
+            "keep every bundled x/y/w/h value exactly"
+        )
+
+
+def frame_rect(frame: dict[str, Any]) -> tuple[int, int, int, int]:
+    data = frame["data"]
+    return (
+        int(data["x"]),
+        int(data["y"]),
+        int(data["w"]),
+        int(data["h"]),
+    )
+
+
+def frame_crop(sheet: Image.Image, frame: dict[str, Any]) -> Image.Image:
+    x, y, width, height = frame_rect(frame)
+    return sheet.crop((x, y, x + width, y + height))
+
+
+def weighted_alpha_centroid_x(image: Image.Image) -> float:
+    alpha = image.getchannel("A")
+    total = 0
+    weighted_x = 0
+    for y in range(alpha.height):
+        for x in range(alpha.width):
+            value = alpha.getpixel((x, y))
+            total += value
+            weighted_x += x * value
+    if total <= 0:
+        return (image.width - 1) / 2
+    return weighted_x / total
+
+
+def ground_anchor_x(image: Image.Image) -> float:
+    alpha = image.getchannel("A")
+    bbox = alpha.getbbox()
+    if bbox is None:
+        return (image.width - 1) / 2
+    band_height = max(2, round((bbox[3] - bbox[1]) * 0.12))
+    band_top = max(bbox[1], bbox[3] - band_height)
+    total = 0
+    weighted_x = 0
+    for y in range(band_top, bbox[3]):
+        for x in range(bbox[0], bbox[2]):
+            value = alpha.getpixel((x, y))
+            total += value
+            weighted_x += x * value
+    if total <= 0:
+        return weighted_alpha_centroid_x(image)
+    return weighted_x / total
+
+
+def normalize_hard_alpha(image: Image.Image) -> Image.Image:
+    rgba = image.convert("RGBA")
+    output = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    output.putdata(
+        [
+            (0, 0, 0, 0) if alpha == 0 else (red, green, blue, 255)
+            for red, green, blue, alpha in getattr(
+                rgba, "get_flattened_data", rgba.getdata
+            )()
+        ]
+    )
+    return output
+
+
+def clean_baron_attack_contact_cell(
+    image: Image.Image,
+) -> tuple[Image.Image, dict[str, Any]]:
+    """Remove only panel-boundary spill, never the main Baron silhouette.
+
+    The accepted ImageGen contact sheet has no gutters.  A thin strip from the
+    preceding row therefore lands at y=0 in each attack cell, and a handful of
+    severed particles land on the left/right panel edges.  Those fragments
+    enlarge the trim box and make the native-frame packer clip the real model.
+    Components are removed only when they are shallow top spill or tiny side
+    fragments; the connected actor/cast component is always retained.
+    """
+
+    output = normalize_hard_alpha(image)
+    pixels = output.load()
+    visited: set[tuple[int, int]] = set()
+    removed_top = 0
+    removed_side = 0
+
+    for start_y in range(output.height):
+        for start_x in range(output.width):
+            if pixels[start_x, start_y][3] == 0 or (start_x, start_y) in visited:
+                continue
+            stack = [(start_x, start_y)]
+            visited.add((start_x, start_y))
+            component: list[tuple[int, int]] = []
+            min_x = output.width
+            min_y = output.height
+            max_x = -1
+            max_y = -1
+            while stack:
+                x, y = stack.pop()
+                component.append((x, y))
+                min_x = min(min_x, x)
+                min_y = min(min_y, y)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
+                for next_x, next_y in (
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x, y - 1),
+                    (x, y + 1),
+                ):
+                    if (
+                        0 <= next_x < output.width
+                        and 0 <= next_y < output.height
+                        and pixels[next_x, next_y][3] != 0
+                        and (next_x, next_y) not in visited
+                    ):
+                        visited.add((next_x, next_y))
+                        stack.append((next_x, next_y))
+
+            touches_top = min_y == 0
+            touches_side = min_x == 0 or max_x == output.width - 1
+            component_width = max_x - min_x + 1
+            shallow_top_spill = (
+                touches_top and max_y + 1 <= BARON_SOURCE_TOP_SPILL_MAX_DEPTH
+            )
+            tiny_side_fragment = (
+                touches_side
+                and len(component) <= BARON_SOURCE_SIDE_FRAGMENT_MAX_PIXELS
+                and component_width <= BARON_SOURCE_SIDE_FRAGMENT_MAX_WIDTH
+            )
+            if not shallow_top_spill and not tiny_side_fragment:
+                continue
+            for x, y in component:
+                pixels[x, y] = (0, 0, 0, 0)
+            if shallow_top_spill:
+                removed_top += len(component)
+            else:
+                removed_side += len(component)
+
+    return normalize_hard_alpha(output), {
+        "removed_top_spill_pixels": removed_top,
+        "removed_side_fragment_pixels": removed_side,
+        "retained_alpha_bbox": alpha_bbox(output),
+    }
+
+
+def magenta_score(red: int, green: int, blue: int) -> float:
+    return min(red, blue) - green - abs(red - blue) * 0.65
+
+
+def chroma_distance(red: int, green: int, blue: int) -> float:
+    return math.sqrt(
+        (red - CHROMA_KEY[0]) ** 2
+        + (green - CHROMA_KEY[1]) ** 2
+        + (blue - CHROMA_KEY[2]) ** 2
+    )
+
+
+def clean_edge_connected_magenta(image: Image.Image) -> Image.Image:
+    """Remove opaque magenta-key fringe without globally erasing purple art.
+
+    The image-gen sources intentionally used a #ff00ff plate.  The first hard
+    key removed the plate but left an opaque one-to-three-pixel pink outline.
+    Limit the cleanup to the alpha boundary band, clear only pixels still very
+    close to the key, and replace the remaining spill with the nearest opaque
+    non-magenta interior colour.
+    """
+
+    rgba = normalize_hard_alpha(image)
+    pixels = rgba.load()
+    width, height = rgba.size
+    opaque = {
+        (x, y)
+        for y in range(height)
+        for x in range(width)
+        if pixels[x, y][3] != 0
+    }
+    boundary = {
+        (x, y)
+        for x, y in opaque
+        if any(
+            nx < 0
+            or ny < 0
+            or nx >= width
+            or ny >= height
+            or pixels[nx, ny][3] == 0
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+        )
+    }
+    band = set(boundary)
+    frontier = set(boundary)
+    for _depth in range(1, CHROMA_EDGE_BAND_DEPTH):
+        expanded = {
+            (nx, ny)
+            for x, y in frontier
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+            if (nx, ny) in opaque and (nx, ny) not in band
+        }
+        band.update(expanded)
+        frontier = expanded
+
+    clear: set[tuple[int, int]] = set()
+    spill: set[tuple[int, int]] = set()
+    for x, y in band:
+        red, green, blue, _alpha = pixels[x, y]
+        score = magenta_score(red, green, blue)
+        distance = chroma_distance(red, green, blue)
+        if distance <= CHROMA_CLEAR_DISTANCE:
+            clear.add((x, y))
+        elif score >= 42 and red >= 70 and blue >= 65:
+            spill.add((x, y))
+
+    for x, y in clear:
+        pixels[x, y] = (0, 0, 0, 0)
+
+    searchable = opaque - clear - spill
+    for x, y in spill:
+        replacement: tuple[int, int, int] | None = None
+        for radius in range(1, 7):
+            candidates: list[tuple[int, int, int, int]] = []
+            for ny in range(max(0, y - radius), min(height, y + radius + 1)):
+                for nx in range(max(0, x - radius), min(width, x + radius + 1)):
+                    if (nx, ny) not in searchable:
+                        continue
+                    red, green, blue, alpha = pixels[nx, ny]
+                    if alpha == 0 or magenta_score(red, green, blue) >= 32:
+                        continue
+                    candidates.append(
+                        (abs(nx - x) + abs(ny - y), red, green, blue)
+                    )
+            if candidates:
+                _distance, red, green, blue = min(candidates)
+                replacement = (red, green, blue)
+                break
+        if replacement is None:
+            red, green, blue, _alpha = pixels[x, y]
+            neutral = max(green, min(red, blue) // 3)
+            replacement = (red, neutral, min(blue, max(neutral, red // 2)))
+        pixels[x, y] = (*replacement, 255)
+    return normalize_hard_alpha(rgba)
+
+
+def expanded_native_reference(
+    native_frame: Image.Image,
+    width: int,
+    height: int,
+) -> Image.Image:
+    if width < native_frame.width or height < native_frame.height:
+        raise ValueError("Expanded objective frame cannot shrink a native frame")
+    output = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    output.alpha_composite(
+        native_frame,
+        ((width - native_frame.width) // 2, height - native_frame.height),
+    )
+    return output
+
+
+def build_native_anchored_layout(
+    native_document: dict[str, Any],
+    native_sheet: Image.Image,
+    *,
+    minimum_width: int,
+) -> tuple[dict[str, Any], tuple[int, int]]:
+    """Widen narrow body frames without changing actions or durations."""
+    rect_map: dict[tuple[int, int, int, int], tuple[int, int, int, int]] = {}
+    cursor_x = 0
+    generated_anims: dict[str, Any] = {}
+    for tag_name, native_tag in native_document["anims"].items():
+        generated_frames: list[dict[str, Any]] = []
+        for native_frame_spec in native_tag["frames"]:
+            native_rect = frame_rect(native_frame_spec)
+            if native_rect not in rect_map:
+                native_frame = frame_crop(native_sheet, native_frame_spec)
+                visible = native_frame.getchannel("A").getbbox() is not None
+                width = max(native_rect[2], minimum_width) if visible else native_rect[2]
+                rect_map[native_rect] = (cursor_x, 0, width, native_rect[3])
+                cursor_x += width
+            x, y, width, height = rect_map[native_rect]
+            generated_frames.append(
+                {
+                    "duration": native_frame_spec["duration"],
+                    "data": {
+                        "x": float(x),
+                        "y": float(y),
+                        "w": float(width),
+                        "h": float(height),
+                    },
+                }
+            )
+        generated_anims[tag_name] = {"frames": generated_frames}
+    return {"anims": generated_anims}, (cursor_x, native_sheet.height)
+
+
+def build_epic_attack_safe_layout(
+    native_document: dict[str, Any],
+    native_sheet: Image.Image,
+) -> tuple[dict[str, Any], tuple[int, int]]:
+    """Repack Epic frames with symmetric width added only to body attacks."""
+
+    width_overrides: dict[tuple[int, int, int, int], int] = {}
+    for tag_name in ("attack_left", "attack_right"):
+        frames = native_document["anims"][tag_name]["frames"]
+        if len(frames) != len(BARON_ATTACK_FRAME_WIDTHS):
+            raise ValueError(
+                f"epic.{tag_name}: expected {len(BARON_ATTACK_FRAME_WIDTHS)} "
+                f"frames, got {len(frames)}"
+            )
+        for frame, runtime_width in zip(
+            frames,
+            BARON_ATTACK_FRAME_WIDTHS,
+            strict=True,
+        ):
+            native_rect = frame_rect(frame)
+            if runtime_width < native_rect[2]:
+                raise ValueError(
+                    f"epic.{tag_name}: runtime width {runtime_width} cannot "
+                    f"shrink native width {native_rect[2]}"
+                )
+            if (runtime_width - native_rect[2]) % 2 != 0:
+                raise ValueError(
+                    f"epic.{tag_name}: width expansion must be symmetric; "
+                    f"native={native_rect[2]} runtime={runtime_width}"
+                )
+            width_overrides[native_rect] = runtime_width
+
+    native_rects = sorted(
+        {
+            frame_rect(frame)
+            for tag in native_document["anims"].values()
+            for frame in tag["frames"]
+        },
+        key=lambda rect: (rect[1], rect[0]),
+    )
+    rect_map: dict[tuple[int, int, int, int], tuple[int, int, int, int]] = {}
+    cursor_x = 0
+    for native_rect in native_rects:
+        width = width_overrides.get(native_rect, native_rect[2])
+        rect_map[native_rect] = (cursor_x, 0, width, native_rect[3])
+        # Retain the bundled one-pixel gutter and final transparent column.
+        cursor_x += width + 1
+
+    generated_anims: dict[str, Any] = {}
+    for tag_name, native_tag in native_document["anims"].items():
+        generated_frames: list[dict[str, Any]] = []
+        for native_frame in native_tag["frames"]:
+            x, y, width, height = rect_map[frame_rect(native_frame)]
+            generated_frames.append(
+                {
+                    "duration": native_frame["duration"],
+                    "data": {
+                        "x": float(x),
+                        "y": float(y),
+                        "w": float(width),
+                        "h": float(height),
+                    },
+                }
+            )
+        generated_anims[tag_name] = {"frames": generated_frames}
+    return {"anims": generated_anims}, (cursor_x, native_sheet.height)
+
+
+def validate_epic_attack_safe_rect_contract(
+    generated: dict[str, Any],
+    native: dict[str, Any],
+) -> None:
+    validate_native_animation_contract("epic", generated, native)
+    for tag_name, generated_tag in generated["anims"].items():
+        native_frames = native["anims"][tag_name]["frames"]
+        for index, (generated_frame, native_frame) in enumerate(
+            zip(generated_tag["frames"], native_frames, strict=True)
+        ):
+            _generated_x, _generated_y, generated_width, generated_height = frame_rect(
+                generated_frame
+            )
+            _native_x, _native_y, native_width, native_height = frame_rect(native_frame)
+            if generated_height != native_height:
+                raise ValueError(
+                    f"epic.{tag_name}[{index}]: frame height changed from "
+                    f"{native_height} to {generated_height}"
+                )
+            if tag_name in {"attack_left", "attack_right"}:
+                expected_width = BARON_ATTACK_FRAME_WIDTHS[index]
+                if generated_width != expected_width or generated_width < native_width:
+                    raise ValueError(
+                        f"epic.{tag_name}[{index}]: unsafe attack width "
+                        f"{generated_width}; expected {expected_width}, native {native_width}"
+                    )
+            elif generated_width != native_width:
+                raise ValueError(
+                    f"epic.{tag_name}[{index}]: non-attack width changed from "
+                    f"{native_width} to {generated_width}"
+                )
+
+
+def prepare_actor_sprite(
+    source_cell: Image.Image,
+    *,
+    scale: float,
+    opacity: int = 255,
+    mirror: bool = False,
+) -> Image.Image | None:
+    source_bbox = source_cell.getchannel("A").getbbox()
+    if source_bbox is None or opacity <= 0:
+        return None
+    source = source_cell.crop(source_bbox)
+    source = source.resize(
+        (
+            max(1, round(source.width * scale)),
+            max(1, round(source.height * scale)),
+        ),
+        Image.Resampling.NEAREST,
+    )
+    source = normalize_hard_alpha(source)
+    if mirror:
+        source = source.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    if opacity < 255:
+        source.putalpha(
+            source.getchannel("A").point(lambda value: value * opacity // 255)
+        )
+    return source
+
+
+def render_native_actor_frame(
+    source_cell: Image.Image,
+    native_frame: Image.Image,
+    *,
+    scale: float,
+    opacity: int = 255,
+    mirror: bool = False,
+    anchor_mode: str = "centroid",
+    center_on_frame: bool = False,
+    bottom_from_frame_center: float | None = None,
+) -> Image.Image:
+    output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
+    source = prepare_actor_sprite(
+        source_cell,
+        scale=scale,
+        opacity=opacity,
+        mirror=mirror,
+    )
+    native_bbox = native_frame.getchannel("A").getbbox()
+    if source is None:
+        return output
+
+    if bottom_from_frame_center is not None:
+        target_bottom = round(
+            (native_frame.height + 1) / 2 + bottom_from_frame_center
+        )
+        target_anchor = (native_frame.width - 1) / 2
+    elif native_bbox is None:
+        target_bottom = native_frame.height - 2
+        target_anchor = (native_frame.width - 1) / 2
+    else:
+        target_bottom = native_bbox[3]
+        if center_on_frame:
+            target_anchor = (native_frame.width - 1) / 2
+        elif anchor_mode == "ground":
+            target_anchor = ground_anchor_x(native_frame)
+        else:
+            target_anchor = weighted_alpha_centroid_x(native_frame)
+    if anchor_mode == "ground":
+        source_anchor = ground_anchor_x(source)
+    else:
+        source_anchor = weighted_alpha_centroid_x(source)
+    x = round(target_anchor - source_anchor)
+    y = target_bottom - source.height
+    paste_clipped(output, source, x, y)
+    return output
+
+
+def render_native_effect_frame(
+    source_cell: Image.Image,
+    native_frame: Image.Image,
+) -> Image.Image:
+    output = Image.new("RGBA", native_frame.size, (0, 0, 0, 0))
+    source_bbox = source_cell.getchannel("A").getbbox()
+    native_bbox = native_frame.getchannel("A").getbbox()
+    if source_bbox is None:
+        return output
+    source = normalize_hard_alpha(source_cell.crop(source_bbox))
+    if native_bbox is None:
+        target_width = max(1, native_frame.width - 2)
+        target_height = max(1, native_frame.height - 2)
+        target_center = ((native_frame.width - 1) / 2, (native_frame.height - 1) / 2)
+    else:
+        target_width = native_bbox[2] - native_bbox[0]
+        target_height = native_bbox[3] - native_bbox[1]
+        target_center = (
+            (native_bbox[0] + native_bbox[2] - 1) / 2,
+            (native_bbox[1] + native_bbox[3] - 1) / 2,
+        )
+    scale = min(target_width / source.width, target_height / source.height)
+    source = source.resize(
+        (
+            max(1, round(source.width * scale)),
+            max(1, round(source.height * scale)),
+        ),
+        Image.Resampling.NEAREST,
+    )
+    source = normalize_hard_alpha(source)
+    x = round(target_center[0] - (source.width - 1) / 2)
+    y = round(target_center[1] - (source.height - 1) / 2)
+    paste_clipped(output, source, x, y)
+    return output
+
+
+def place_frame(
+    sheet: Image.Image,
+    frame_image: Image.Image,
+    frame: dict[str, Any],
+) -> None:
+    x, y, width, height = frame_rect(frame)
+    if frame_image.size != (width, height):
+        raise ValueError(
+            f"Frame image {frame_image.size} does not match native rect {(width, height)}"
+        )
+    sheet.alpha_composite(frame_image, (x, y))
+
+
+def native_reference_scale(
+    source_cell: Image.Image,
+    native_frame: Image.Image,
+    *,
+    visible_width_cap: int,
+) -> float:
+    source_bbox = source_cell.getchannel("A").getbbox()
+    native_bbox = native_frame.getchannel("A").getbbox()
+    if source_bbox is None or native_bbox is None:
+        raise ValueError("Reference source/native frame must both be visible")
+    source_width = source_bbox[2] - source_bbox[0]
+    source_height = source_bbox[3] - source_bbox[1]
+    native_width = min(visible_width_cap, native_bbox[2] - native_bbox[0])
+    native_height = native_bbox[3] - native_bbox[1]
+    return min(native_width / source_width, native_height / source_height)
+
+
+def horizontal_centroid_span(
+    sheet: Image.Image,
+    document: dict[str, Any],
+    tag: str,
+) -> float:
+    values = [
+        weighted_alpha_centroid_x(frame_crop(sheet, frame))
+        - int(frame["data"]["w"]) / 2
+        for frame in document["anims"][tag]["frames"]
+        if frame_crop(sheet, frame).getchannel("A").getbbox() is not None
+    ]
+    return max(values) - min(values) if values else 0.0
+
+
+def hot_magenta_edge_stats(image: Image.Image) -> dict[str, Any]:
+    rgba = image.convert("RGBA")
+    pixels = rgba.load()
+    edge_count = 0
+    hot_count = 0
+    for y in range(rgba.height):
+        for x in range(rgba.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0:
+                continue
+            if not any(
+                nx < 0
+                or ny < 0
+                or nx >= rgba.width
+                or ny >= rgba.height
+                or pixels[nx, ny][3] == 0
+                for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+            ):
+                continue
+            edge_count += 1
+            if (
+                red > 150
+                and blue > 100
+                and green < 0.45 * min(red, blue)
+                and abs(red - blue) < 100
+            ):
+                hot_count += 1
+    return {
+        "edge_pixels": edge_count,
+        "hot_magenta_edge_pixels": hot_count,
+        "hot_magenta_edge_ratio": round(hot_count / edge_count, 6)
+        if edge_count
+        else 0.0,
+    }
+
+
+def alpha_bbox(image: Image.Image) -> list[int] | None:
+    bbox = image.getchannel("A").getbbox()
+    return list(bbox) if bbox else None
+
+
+def artifact_record(path: Path) -> dict[str, Any]:
+    with Image.open(path) as opened:
+        image = opened.convert("RGBA")
+        mode = opened.mode
+    return {
+        "path": path.relative_to(MOD_ROOT).as_posix(),
+        "sha256": sha256_file(path),
+        "bytes": path.stat().st_size,
+        "mode": mode,
+        "size": list(image.size),
+        "alpha_bbox": alpha_bbox(image),
+        "transparent_corners": all(
+            image.getpixel(point)[3] == 0
+            for point in (
+                (0, 0),
+                (image.width - 1, 0),
+                (0, image.height - 1),
+                (image.width - 1, image.height - 1),
+            )
+        ),
+    }
+
+
+def file_record(path: Path) -> dict[str, Any]:
+    return {
+        "path": path.relative_to(MOD_ROOT).as_posix(),
+        "sha256": sha256_file(path),
+        "bytes": path.stat().st_size,
+    }
+
+
+def has_hard_alpha(path: Path) -> bool:
+    image = load_rgba(path)
+    histogram = image.getchannel("A").histogram()
+    return sum(histogram[1:255]) == 0
+
+
+def stable_tag_bottoms(
+    tag_bboxes: dict[str, list[list[int] | None]],
+    tags: tuple[str, ...],
+    expected_bottom: int,
+) -> bool:
+    for tag in tags:
+        boxes = tag_bboxes[tag]
+        for index, bbox in enumerate(boxes):
+            if tag == "dead" and index == len(boxes) - 1 and bbox is None:
+                continue
+            if bbox is None or bbox[3] != expected_bottom:
+                return False
+    return True
+
+
+def tag_bottoms_match_native(
+    generated_sheet: Image.Image,
+    native_sheet: Image.Image,
+    document: dict[str, Any],
+    tags: tuple[str, ...],
+) -> bool:
+    for tag_name in tags:
+        frames = document["anims"][tag_name]["frames"]
+        for index, frame in enumerate(frames):
+            generated_bbox = frame_crop(generated_sheet, frame).getchannel("A").getbbox()
+            native_bbox = frame_crop(native_sheet, frame).getchannel("A").getbbox()
+            if generated_bbox is None:
+                if tag_name == "dead" and index == len(frames) - 1:
+                    continue
+                return False
+            if native_bbox is None or generated_bbox[3] != native_bbox[3]:
+                return False
+    return True
+
+
+def paired_tag_bottoms_match_native(
+    generated_sheet: Image.Image,
+    generated_document: dict[str, Any],
+    native_sheet: Image.Image,
+    native_document: dict[str, Any],
+    tags: tuple[str, ...],
+) -> bool:
+    for tag_name in tags:
+        generated_frames = generated_document["anims"][tag_name]["frames"]
+        native_frames = native_document["anims"][tag_name]["frames"]
+        for index, (generated_frame, native_frame) in enumerate(
+            zip(generated_frames, native_frames, strict=True)
+        ):
+            generated_bbox = frame_crop(
+                generated_sheet,
+                generated_frame,
+            ).getchannel("A").getbbox()
+            native_bbox = frame_crop(native_sheet, native_frame).getchannel("A").getbbox()
+            if generated_bbox is None:
+                if tag_name == "dead" and index == len(generated_frames) - 1:
+                    continue
+                return False
+            if native_bbox is None or generated_bbox[3] != native_bbox[3]:
+                return False
+    return True
+
+
+def tag_visible_widths_at_most(
+    sheet: Image.Image,
+    document: dict[str, Any],
+    tags: tuple[str, ...],
+    maximum: int,
+) -> bool:
+    for tag_name in tags:
+        for frame in document["anims"][tag_name]["frames"]:
+            bbox = frame_crop(sheet, frame).getchannel("A").getbbox()
+            if bbox is not None and bbox[2] - bbox[0] > maximum:
+                return False
+    return True
+
+
+def non_dead_tags_have_hard_alpha(sheet_path: Path, anim_path: Path) -> bool:
+    sheet = load_rgba(sheet_path)
+    document = json.loads(anim_path.read_text(encoding="utf-8"))
+    for tag_name, tag in document["anims"].items():
+        if tag_name == "dead":
+            continue
+        for frame in tag["frames"]:
+            data = frame["data"]
+            left = int(data["x"])
+            top = int(data["y"])
+            crop = sheet.crop(
+                (
+                    left,
+                    top,
+                    left + int(data["w"]),
+                    top + int(data["h"]),
+                )
+            )
+            if sum(crop.getchannel("A").histogram()[1:255]) != 0:
+                return False
+    return True
+
+
+def load_rgba(path: Path) -> Image.Image:
+    with Image.open(path) as opened:
+        return opened.convert("RGBA")
+
+
+def grid_cell(
+    image: Image.Image,
+    index: int,
+    *,
+    cols: int = GRID_COLS,
+    rows: int = GRID_ROWS,
+) -> Image.Image:
+    if index < 0 or index >= cols * rows:
+        raise ValueError(f"grid index out of range: {index}")
+    col = index % cols
+    row = index // cols
+    left = col * image.width // cols
+    right = (col + 1) * image.width // cols
+    top = row * image.height // rows
+    bottom = (row + 1) * image.height // rows
+    cell = image.crop((left, top, right, bottom))
+    # Chroma-key outputs are hard alpha. Clear hidden RGB so nearest-neighbor
+    # downsampling cannot revive keyed pixels around a frame edge.
+    pixels = cell.load()
+    for y in range(cell.height):
+        for x in range(cell.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha == 0:
+                pixels[x, y] = (0, 0, 0, 0)
+            else:
+                pixels[x, y] = (red, green, blue, 255)
+    return cell
+
+
+def paste_clipped(canvas: Image.Image, sprite: Image.Image, x: int, y: int) -> None:
+    left = max(0, x)
+    top = max(0, y)
+    right = min(canvas.width, x + sprite.width)
+    bottom = min(canvas.height, y + sprite.height)
+    if right <= left or bottom <= top:
+        return
+    crop = sprite.crop((left - x, top - y, right - x, bottom - y))
+    canvas.alpha_composite(crop, (left, top))
+
+
+def write_anim(path: Path, anims: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+    document = {
+        "anims": {
+            name: {"frames": frames}
+            for name, frames in anims.items()
+        }
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(document, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return document
+
+
+def tag_frame_alpha_bboxes(sheet: Image.Image, document: dict[str, Any]) -> dict[str, list[list[int] | None]]:
+    result: dict[str, list[list[int] | None]] = {}
+    for name, tag in document["anims"].items():
+        result[name] = []
+        for frame in tag["frames"]:
+            data = frame["data"]
+            left = int(data["x"])
+            top = int(data["y"])
+            right = left + int(data["w"])
+            bottom = top + int(data["h"])
+            result[name].append(alpha_bbox(sheet.crop((left, top, right, bottom))))
+    return result
+
+
+def validate_required_nonempty(
+    name: str,
+    frame_bboxes: dict[str, list[list[int] | None]],
+    *,
+    allow_last_dead_empty: bool,
+) -> None:
+    for tag, boxes in frame_bboxes.items():
+        for index, bbox in enumerate(boxes):
+            if allow_last_dead_empty and tag == "dead" and index == len(boxes) - 1:
+                continue
+            if bbox is None:
+                raise ValueError(f"{name}: empty required frame {tag}[{index}]")
+
+
+def write_baron_attack_contact_sheet(
+    sheet: Image.Image,
+    document: dict[str, Any],
+    path: Path,
+) -> None:
+    tags = ("attack_right", "attack_left", "attack_target_effect")
+    columns = 7
+    cell_width = 230
+    cell_height = 180
+    canvas = Image.new(
+        "RGBA",
+        (columns * cell_width, len(tags) * cell_height),
+        (27, 31, 42, 255),
+    )
+    draw = ImageDraw.Draw(canvas)
+    for row, tag_name in enumerate(tags):
+        frames = document["anims"][tag_name]["frames"]
+        for index, frame in enumerate(frames):
+            crop = frame_crop(sheet, frame)
+            x = index * cell_width + (cell_width - crop.width) // 2
+            y = row * cell_height + 28 + (cell_height - 34 - crop.height) // 2
+            canvas.alpha_composite(crop, (x, y))
+            draw.rectangle(
+                (x, y, x + crop.width - 1, y + crop.height - 1),
+                outline=(255, 88, 88, 255),
+                width=1,
+            )
+            bbox = crop.getchannel("A").getbbox()
+            if bbox is not None:
+                draw.rectangle(
+                    (
+                        x + bbox[0],
+                        y + bbox[1],
+                        x + bbox[2] - 1,
+                        y + bbox[3] - 1,
+                    ),
+                    outline=(86, 224, 255, 255),
+                    width=1,
+                )
+            draw.text(
+                (index * cell_width + 5, row * cell_height + 5),
+                f"{tag_name}[{index}] {crop.width}x{crop.height}",
+                fill=(255, 255, 255, 255),
+            )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(path, format="PNG", optimize=False, compress_level=9)
+
+
+def pack_epic(
+    native_document: dict[str, Any],
+    native_record: dict[str, Any],
+    native_sheet: Image.Image,
+    native_sheet_record: dict[str, Any],
+) -> dict[str, Any]:
+    body_path = PROCESSED_DIR / "baron_action_contact_alpha.png"
+    impact_path = PROCESSED_DIR / "baron_target_impact_contact_alpha.png"
+    body_source = load_rgba(body_path)
+    impact_source = load_rgba(impact_path)
+
+    body_cells = [normalize_hard_alpha(grid_cell(body_source, index)) for index in range(16)]
+    attack_body_cells: dict[int, Image.Image] = {}
+    attack_source_cleanup: dict[str, dict[str, Any]] = {}
+    for source_index in BARON_ATTACK_SOURCE_INDICES:
+        cleaned, cleanup = clean_baron_attack_contact_cell(body_cells[source_index])
+        attack_body_cells[source_index] = cleaned
+        attack_source_cleanup[str(source_index)] = cleanup
+    impact_cells = [
+        normalize_hard_alpha(grid_cell(impact_source, index, cols=4, rows=2))
+        for index in range(7)
+    ]
+    native_anims = native_document["anims"]
+    layout_document, runtime_sheet_size = build_epic_attack_safe_layout(
+        native_document,
+        native_sheet,
+    )
+    native_base = frame_crop(native_sheet, native_anims["base"]["frames"][0])
+    body_scale = native_reference_scale(
+        body_cells[0],
+        native_base,
+        visible_width_cap=BARON_NATIVE_VISIBLE_WIDTH,
+    )
+
+    dead_spec = [
+        (12, 255),
+        (12, 255),
+        (13, 255),
+        (13, 255),
+        (13, 255),
+        (14, 255),
+        (14, 255),
+        (14, 255),
+        (15, 255),
+        (15, 192),
+        (15, 128),
+        (15, 64),
+        (15, 0),
+    ]
+    source_by_tag: dict[str, list[tuple[int, int, bool, str]]] = {
+        "base": [(0, 255, False, "centroid")],
+        "idle": [
+            (index, 255, False, "centroid")
+            for index in (0, 1, 2, 3)
+        ],
+        "attack_left": [
+            (index, 255, False, "ground")
+            for index in BARON_ATTACK_SOURCE_INDICES
+        ],
+        "attack_right": [
+            (index, 255, False, "ground")
+            for index in BARON_ATTACK_SOURCE_INDICES
+        ],
+        "dead": [
+            (source_index, opacity, False, "centroid")
+            for source_index, opacity in dead_spec
+        ],
+    }
+    sheet = Image.new("RGBA", runtime_sheet_size, (0, 0, 0, 0))
+    attack_frame_metrics: list[dict[str, Any]] = []
+    for tag_name, specs in source_by_tag.items():
+        native_frames = native_anims[tag_name]["frames"]
+        runtime_frames = layout_document["anims"][tag_name]["frames"]
+        if len(specs) != len(native_frames):
+            raise ValueError(
+                f"epic.{tag_name}: {len(specs)} sources for {len(native_frames)} native frames"
+            )
+        for frame_index, (
+            native_frame_spec,
+            runtime_frame_spec,
+            (source_index, opacity, mirror, anchor_mode),
+        ) in enumerate(zip(
+            native_frames,
+            runtime_frames,
+            specs,
+            strict=True,
+        )):
+            native_frame = frame_crop(native_sheet, native_frame_spec)
+            source_cell = (
+                attack_body_cells[source_index]
+                if tag_name in {"attack_left", "attack_right"}
+                else body_cells[source_index]
+            )
+            if tag_name in {"attack_left", "attack_right"}:
+                _x, _y, runtime_width, runtime_height = frame_rect(runtime_frame_spec)
+                runtime_reference = expanded_native_reference(
+                    native_frame,
+                    runtime_width,
+                    runtime_height,
+                )
+            else:
+                runtime_reference = native_frame
+            rendered = render_native_actor_frame(
+                source_cell,
+                runtime_reference,
+                scale=body_scale,
+                opacity=opacity,
+                mirror=mirror,
+                anchor_mode=anchor_mode,
+            )
+            if tag_name in {"attack_left", "attack_right"}:
+                prepared = prepare_actor_sprite(
+                    source_cell,
+                    scale=body_scale,
+                    opacity=opacity,
+                    mirror=mirror,
+                )
+                if prepared is None:
+                    raise ValueError(f"epic.{tag_name}[{frame_index}] is empty")
+                expected_alpha_pixels = sum(
+                    prepared.getchannel("A").histogram()[1:]
+                )
+                rendered_alpha_pixels = sum(
+                    rendered.getchannel("A").histogram()[1:]
+                )
+                rendered_bbox = rendered.getchannel("A").getbbox()
+                native_bbox = native_frame.getchannel("A").getbbox()
+                if rendered_bbox is None or native_bbox is None:
+                    raise ValueError(
+                        f"epic.{tag_name}[{frame_index}] lacks an actor/native bbox"
+                    )
+                runtime_anchor_offset = ground_anchor_x(rendered) - (
+                    rendered.width - 1
+                ) / 2
+                native_anchor_offset = ground_anchor_x(native_frame) - (
+                    native_frame.width - 1
+                ) / 2
+                attack_frame_metrics.append(
+                    {
+                        "tag": tag_name,
+                        "frame_index": frame_index,
+                        "source_index": source_index,
+                        "native_rect": list(frame_rect(native_frame_spec)),
+                        "runtime_rect": list(frame_rect(runtime_frame_spec)),
+                        "alpha_bbox": list(rendered_bbox),
+                        "expected_alpha_pixels": expected_alpha_pixels,
+                        "rendered_alpha_pixels": rendered_alpha_pixels,
+                        "alpha_clip_loss_pixels": expected_alpha_pixels
+                        - rendered_alpha_pixels,
+                        "left_clearance_px": rendered_bbox[0],
+                        "right_clearance_px": rendered.width - rendered_bbox[2],
+                        "native_ground_anchor_offset_from_frame_center_px": round(
+                            native_anchor_offset,
+                            6,
+                        ),
+                        "runtime_ground_anchor_offset_from_frame_center_px": round(
+                            runtime_anchor_offset,
+                            6,
+                        ),
+                        "ground_anchor_offset_delta_px": round(
+                            abs(runtime_anchor_offset - native_anchor_offset),
+                            6,
+                        ),
+                        "bottom_delta_to_native_px": rendered_bbox[3]
+                        - native_bbox[3],
+                    }
+                )
+            place_frame(sheet, rendered, runtime_frame_spec)
+
+    impact_scales: list[float] = []
+    for source_cell, native_frame_spec, runtime_frame_spec in zip(
+        impact_cells,
+        native_anims["attack_target_effect"]["frames"],
+        layout_document["anims"]["attack_target_effect"]["frames"],
+        strict=True,
+    ):
+        native_frame = frame_crop(native_sheet, native_frame_spec)
+        source_bbox = source_cell.getchannel("A").getbbox()
+        native_bbox = native_frame.getchannel("A").getbbox()
+        if source_bbox is None:
+            raise ValueError("Baron target-impact source contains an empty required cell")
+        target_width = (
+            native_bbox[2] - native_bbox[0]
+            if native_bbox
+            else native_frame.width - 2
+        )
+        target_height = (
+            native_bbox[3] - native_bbox[1]
+            if native_bbox
+            else native_frame.height - 2
+        )
+        impact_scales.append(
+            min(
+                target_width / (source_bbox[2] - source_bbox[0]),
+                target_height / (source_bbox[3] - source_bbox[1]),
+            )
+        )
+        place_frame(
+            sheet,
+            render_native_effect_frame(source_cell, native_frame),
+            runtime_frame_spec,
+        )
+
+    sheet_path = INGAME_DIR / "epic#sheet.png"
+    anim_path = INGAME_DIR / "epic#anim.fanim"
+    sheet_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(sheet_path, format="PNG", optimize=False, compress_level=9)
+    document = write_anim(
+        anim_path,
+        {
+            tag_name: runtime_tag["frames"]
+            for tag_name, runtime_tag in layout_document["anims"].items()
+        },
+    )
+    validate_epic_attack_safe_rect_contract(document, native_document)
+    bboxes = tag_frame_alpha_bboxes(sheet, document)
+    validate_required_nonempty("epic", bboxes, allow_last_dead_empty=True)
+    idle_centroid_span = horizontal_centroid_span(sheet, document, "idle")
+    write_baron_attack_contact_sheet(sheet, document, BARON_ATTACK_CONTACT_PATH)
+
+    non_attack_frame_sizes_match_native = all(
+        frame_rect(runtime_frame)[2:] == frame_rect(native_frame)[2:]
+        for tag_name, runtime_tag in document["anims"].items()
+        if tag_name not in {"attack_left", "attack_right"}
+        for runtime_frame, native_frame in zip(
+            runtime_tag["frames"],
+            native_anims[tag_name]["frames"],
+            strict=True,
+        )
+    )
+    minimum_attack_side_clearance = min(
+        min(metric["left_clearance_px"], metric["right_clearance_px"])
+        for metric in attack_frame_metrics
+    )
+    target_effect_clearances = [
+        min(
+            bbox[0],
+            bbox[1],
+            frame_rect(frame)[2] - bbox[2],
+            frame_rect(frame)[3] - bbox[3],
+        )
+        for frame, bbox in zip(
+            document["anims"]["attack_target_effect"]["frames"],
+            bboxes["attack_target_effect"],
+            strict=True,
+        )
+        if bbox is not None
+    ]
+    return {
+        "body_scale": body_scale,
+        "impact_scales": impact_scales,
+        "visible_width_cap": BARON_NATIVE_VISIBLE_WIDTH,
+        "attack_source_indices": list(BARON_ATTACK_SOURCE_INDICES),
+        "attack_frame_widths": list(BARON_ATTACK_FRAME_WIDTHS),
+        "attack_side_clearance_target_px": BARON_ATTACK_SIDE_CLEARANCE,
+        "attack_source_cleanup": attack_source_cleanup,
+        "attack_frame_metrics": attack_frame_metrics,
+        "maximum_attack_alpha_clip_loss_pixels": max(
+            metric["alpha_clip_loss_pixels"] for metric in attack_frame_metrics
+        ),
+        "minimum_attack_side_clearance_px": minimum_attack_side_clearance,
+        "maximum_attack_anchor_offset_delta_px": round(
+            max(
+                metric["ground_anchor_offset_delta_px"]
+                for metric in attack_frame_metrics
+            ),
+            6,
+        ),
+        "maximum_attack_bottom_delta_to_native_px": max(
+            abs(metric["bottom_delta_to_native_px"])
+            for metric in attack_frame_metrics
+        ),
+        "native_sheet_contract": native_sheet_record,
+        "native_animation_contract": native_record,
+        "native_animation_contract_exact": True,
+        "native_frame_rect_contract_exact": False,
+        "native_frame_rect_contract_attack_safe_expanded": True,
+        "non_attack_frame_sizes_match_native": non_attack_frame_sizes_match_native,
+        "target_effect_frame_sizes_match_native": all(
+            frame_rect(runtime_frame)[2:] == frame_rect(native_frame)[2:]
+            for runtime_frame, native_frame in zip(
+                document["anims"]["attack_target_effect"]["frames"],
+                native_anims["attack_target_effect"]["frames"],
+                strict=True,
+            )
+        ),
+        "minimum_target_effect_frame_clearance_px": min(
+            target_effect_clearances
+        ),
+        "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
+        "attack_tags_use_canonical_right_facing_art": True,
+        "runtime_direction_owned_by_native_action_flip_x": True,
+        "sheet": artifact_record(sheet_path),
+        "animation": file_record(anim_path),
+        "attack_contact_sheet": artifact_record(BARON_ATTACK_CONTACT_PATH),
+        "tag_frame_counts": {
+            name: len(tag["frames"])
+            for name, tag in document["anims"].items()
+        },
+        "tag_frame_alpha_bboxes": bboxes,
+    }
+
+
+def pack_dragon(
+    variant: str,
+    native_document: dict[str, Any],
+    native_record: dict[str, Any],
+    native_sheet: Image.Image,
+    native_sheet_record: dict[str, Any],
+) -> dict[str, Any]:
+    processed_path = PROCESSED_DIR / f"dragon_{variant}_action_contact_alpha.png"
+    source = load_rgba(processed_path)
+    source_cells = [
+        clean_edge_connected_magenta(grid_cell(source, index))
+        for index in range(16)
+    ]
+    native_anims = native_document["anims"]
+    idle_source_widths = sorted(
+        source_cells[index].getchannel("A").getbbox()[2]
+        - source_cells[index].getchannel("A").getbbox()[0]
+        for index in range(4)
+    )
+    representative_idle_width = (
+        idle_source_widths[1] + idle_source_widths[2]
+    ) / 2
+    body_scale = DRAGON_TUNED_BODY_WIDTH / representative_idle_width
+
+    dead_spec = [
+            (12, 255),
+            (13, 255),
+            (14, 255),
+            (15, 255),
+            (15, 192),
+            (15, 128),
+            (15, 64),
+            (15, 0),
+    ]
+    source_by_tag: dict[str, list[tuple[int, int, str]]] = {
+        "base": [(0, 255, "centroid")],
+        "idle": [
+            (index, 255, "centroid")
+            for index in (0, 1, 2, 3)
+        ],
+        "attack": [
+            (index, 255, "ground")
+            for index in (4, 5, 6, 7, 7)
+        ],
+        "dead": [
+            (source_index, opacity, "centroid")
+            for source_index, opacity in dead_spec
+        ],
+    }
+    document, sheet_size = build_native_anchored_layout(
+        native_document,
+        native_sheet,
+        minimum_width=DRAGON_MIN_FRAME_WIDTH,
+    )
+    sheet = Image.new("RGBA", sheet_size, (0, 0, 0, 0))
+    placement_records: dict[str, list[dict[str, Any]]] = {}
+    for tag_name, specs in source_by_tag.items():
+        native_frames = native_anims[tag_name]["frames"]
+        generated_frames = document["anims"][tag_name]["frames"]
+        if len(specs) != len(native_frames):
+            raise ValueError(
+                f"serpen.{tag_name}: {len(specs)} sources for {len(native_frames)} native frames"
+            )
+        tag_placements: list[dict[str, Any]] = []
+        for native_frame_spec, generated_frame_spec, (source_index, opacity, anchor_mode) in zip(
+            native_frames,
+            generated_frames,
+            specs,
+            strict=True,
+        ):
+            native_frame = frame_crop(native_sheet, native_frame_spec)
+            _x, _y, generated_width, generated_height = frame_rect(
+                generated_frame_spec
+            )
+            native_reference = expanded_native_reference(
+                native_frame,
+                generated_width,
+                generated_height,
+            )
+            rendered = render_native_actor_frame(
+                source_cells[source_index],
+                native_reference,
+                scale=body_scale,
+                opacity=opacity,
+                anchor_mode=anchor_mode,
+                center_on_frame=tag_name in {"base", "idle", "attack"},
+                bottom_from_frame_center=(
+                    DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER
+                    if tag_name == "attack"
+                    else None
+                ),
+            )
+            place_frame(
+                sheet,
+                rendered,
+                generated_frame_spec,
+            )
+            rendered_bbox = rendered.getchannel("A").getbbox()
+            native_bbox = native_reference.getchannel("A").getbbox()
+            if rendered_bbox is None:
+                anchor_delta = None
+                bottom_delta = None
+                center_offset = None
+                bottom_offset_from_frame_center = None
+                bbox_center_y_offset = None
+            else:
+                if tag_name in {"base", "idle"}:
+                    target_anchor = (generated_width - 1) / 2
+                    rendered_anchor = weighted_alpha_centroid_x(rendered)
+                elif tag_name == "attack":
+                    # The custom dragon must stay on the entity centre while
+                    # the native attack rectangles widen for breath VFX. Using
+                    # the native frame's shifting ground anchor made every
+                    # successive attack pose visibly walk forward.
+                    target_anchor = (generated_width - 1) / 2
+                    rendered_anchor = ground_anchor_x(rendered)
+                elif anchor_mode == "ground":
+                    target_anchor = ground_anchor_x(native_reference)
+                    rendered_anchor = ground_anchor_x(rendered)
+                else:
+                    target_anchor = weighted_alpha_centroid_x(native_reference)
+                    rendered_anchor = weighted_alpha_centroid_x(rendered)
+                anchor_delta = round(rendered_anchor - target_anchor, 6)
+                bottom_delta = (
+                    rendered_bbox[3] - native_bbox[3]
+                    if native_bbox is not None
+                    else None
+                )
+                center_offset = round(
+                    weighted_alpha_centroid_x(rendered)
+                    - (generated_width - 1) / 2,
+                    6,
+                )
+                bottom_offset_from_frame_center = round(
+                    (rendered_bbox[3] - 1) - (generated_height - 1) / 2,
+                    6,
+                )
+                bbox_center_y_offset = round(
+                    (rendered_bbox[1] + rendered_bbox[3] - 1) / 2
+                    - (generated_height - 1) / 2,
+                    6,
+                )
+            tag_placements.append(
+                {
+                    "source_cell": source_index,
+                    "native_rect": list(frame_rect(native_frame_spec)),
+                    "runtime_rect": list(frame_rect(generated_frame_spec)),
+                    "bottom_delta_to_native_px": bottom_delta,
+                    "anchor_delta_to_target_px": anchor_delta,
+                    "body_centroid_offset_from_rect_center_px": center_offset,
+                    "bottom_offset_from_frame_center_px": bottom_offset_from_frame_center,
+                    "bbox_center_y_offset_from_rect_center_px": bbox_center_y_offset,
+                }
+            )
+        placement_records[tag_name] = tag_placements
+
+    sheet_path = VARIANT_DIR / f"{variant}#sheet.png"
+    anim_path = VARIANT_DIR / f"{variant}#anim.fanim"
+    sheet_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(sheet_path, format="PNG", optimize=False, compress_level=9)
+    document = write_anim(
+        anim_path,
+        {
+            tag_name: generated_tag["frames"]
+            for tag_name, generated_tag in document["anims"].items()
+        },
+    )
+    validate_native_animation_contract("serpen", document, native_document)
+    bboxes = tag_frame_alpha_bboxes(sheet, document)
+    validate_required_nonempty(variant, bboxes, allow_last_dead_empty=True)
+    idle_centroid_span = horizontal_centroid_span(sheet, document, "idle")
+    body_placements = [
+        placement
+        for tag_name, placements in placement_records.items()
+        for placement in placements
+        if not (tag_name == "dead" and placement["bottom_delta_to_native_px"] is None)
+    ]
+    native_bottom_placements = [
+        placement
+        for tag_name, placements in placement_records.items()
+        for placement in placements
+        if tag_name != "attack"
+        and not (tag_name == "dead" and placement["bottom_delta_to_native_px"] is None)
+    ]
+    maximum_anchor_delta = max(
+        abs(placement["anchor_delta_to_target_px"])
+        for placement in body_placements
+    )
+    maximum_bottom_delta = max(
+        abs(placement["bottom_delta_to_native_px"])
+        for placement in native_bottom_placements
+    )
+    maximum_idle_center_offset = max(
+        abs(placement["body_centroid_offset_from_rect_center_px"])
+        for placement in placement_records["idle"]
+    )
+    maximum_attack_ground_anchor_offset = max(
+        abs(placement["anchor_delta_to_target_px"])
+        for placement in placement_records["attack"]
+    )
+    attack_bottom_offsets = [
+        placement["bottom_offset_from_frame_center_px"]
+        for placement in placement_records["attack"]
+    ]
+    maximum_attack_bottom_offset_error = max(
+        abs(offset - DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER)
+        for offset in attack_bottom_offsets
+    )
+    attack_bbox_center_y_offsets = [
+        placement["bbox_center_y_offset_from_rect_center_px"]
+        for placement in placement_records["attack"]
+    ]
+    attack_bbox_center_y_span = (
+        max(attack_bbox_center_y_offsets) - min(attack_bbox_center_y_offsets)
+    )
+    base_idle_widths = [
+        bbox[2] - bbox[0]
+        for tag_name in ("base", "idle")
+        for bbox in bboxes[tag_name]
+        if bbox is not None
+    ]
+    maximum_base_idle_width = max(base_idle_widths)
+    if maximum_base_idle_width < DRAGON_TUNED_BODY_WIDTH - 1:
+        raise ValueError(
+            f"{variant}: tuned dragon is still undersized at "
+            f"{maximum_base_idle_width}px"
+        )
+    if maximum_base_idle_width > DRAGON_MAX_VISIBLE_WIDTH:
+        raise ValueError(
+            f"{variant}: tuned dragon exceeds its {DRAGON_MAX_VISIBLE_WIDTH}px cap"
+        )
+    if idle_centroid_span > 2.0 or maximum_idle_center_offset > 1.0:
+        raise ValueError(
+            f"{variant}: idle placement is unstable; span={idle_centroid_span}, "
+            f"centre={maximum_idle_center_offset}"
+        )
+    if maximum_anchor_delta > 1.0 or maximum_bottom_delta != 0:
+        raise ValueError(
+            f"{variant}: native placement drifted; anchor={maximum_anchor_delta}, "
+            f"bottom={maximum_bottom_delta}"
+        )
+    fringe_stats = hot_magenta_edge_stats(sheet)
+    return {
+        "body_scale": body_scale,
+        "representative_body_width_target": DRAGON_TUNED_BODY_WIDTH,
+        "visible_width_cap": DRAGON_MAX_VISIBLE_WIDTH,
+        "minimum_runtime_frame_width": DRAGON_MIN_FRAME_WIDTH,
+        "native_sheet_contract": native_sheet_record,
+        "native_animation_contract": native_record,
+        "native_animation_contract_exact": True,
+        "native_frame_rect_contract_safely_expanded": True,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": True,
+        "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
+        "maximum_base_idle_visible_width_px": maximum_base_idle_width,
+        "maximum_idle_center_offset_px": round(maximum_idle_center_offset, 6),
+        "maximum_attack_ground_anchor_offset_px": round(
+            maximum_attack_ground_anchor_offset,
+            6,
+        ),
+        "attack_ground_offset_from_frame_center_target_px": (
+            DRAGON_ATTACK_GROUND_OFFSET_FROM_FRAME_CENTER
+        ),
+        "maximum_attack_ground_offset_error_px": round(
+            maximum_attack_bottom_offset_error,
+            6,
+        ),
+        "attack_body_bbox_center_y_span_px": round(
+            attack_bbox_center_y_span,
+            6,
+        ),
+        "maximum_anchor_delta_to_target_px": round(maximum_anchor_delta, 6),
+        "maximum_bottom_delta_to_native_px": maximum_bottom_delta,
+        "placement": placement_records,
+        "edge_connected_magenta_cleanup": {
+            "edge_band_depth_px": CHROMA_EDGE_BAND_DEPTH,
+            "clear_distance": CHROMA_CLEAR_DISTANCE,
+            **fringe_stats,
+        },
+        "sheet": artifact_record(sheet_path),
+        "animation": file_record(anim_path),
+        "tag_frame_counts": {
+            name: len(tag["frames"])
+            for name, tag in document["anims"].items()
+        },
+        "tag_frame_alpha_bboxes": bboxes,
+    }
+
+
+def source_pair_record(source_name: str, processed_name: str) -> dict[str, Any]:
+    return {
+        "source": artifact_record(SOURCE_DIR / source_name),
+        "processed": artifact_record(PROCESSED_DIR / processed_name),
+    }
+
+
+def main() -> int:
+    INGAME_DIR.mkdir(parents=True, exist_ok=True)
+    VARIANT_DIR.mkdir(parents=True, exist_ok=True)
+    QA_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    native_documents, native_records = load_native_animation_contracts(("epic", "serpen"))
+    native_sheets, native_sheet_records = load_native_sheets(("epic", "serpen"))
+    native_objective_attack_contract = load_native_objective_attack_contract()
+    epic = pack_epic(
+        native_documents["epic"],
+        native_records["epic"],
+        native_sheets["epic"],
+        native_sheet_records["epic"],
+    )
+    dragons = {
+        variant: pack_dragon(
+            variant,
+            native_documents["serpen"],
+            native_records["serpen"],
+            native_sheets["serpen"],
+            native_sheet_records["serpen"],
+        )
+        for variant in DRAGON_VARIANTS
+    }
+
+    infernal_sheet = VARIANT_DIR / "infernal#sheet.png"
+    infernal_anim = VARIANT_DIR / "infernal#anim.fanim"
+    serpen_sheet = INGAME_DIR / "serpen#sheet.png"
+    serpen_anim = INGAME_DIR / "serpen#anim.fanim"
+    shutil.copyfile(infernal_sheet, serpen_sheet)
+    shutil.copyfile(infernal_anim, serpen_anim)
+    epic_runtime_sheet = Image.open(INGAME_DIR / "epic#sheet.png").convert("RGBA")
+    epic_runtime_document = json.loads(
+        (INGAME_DIR / "epic#anim.fanim").read_text(encoding="utf-8")
+    )
+
+    qa = {
+        "schema": "lol_mod.quality_objectives_imagegen_pack.v3",
+        "processing": {
+            "chroma_key_helper": "$CODEX_HOME/skills/.system/imagegen/scripts/remove_chroma_key.py",
+            "chroma_key_mode": "auto-key border, hard tolerance 40",
+            "edge_connected_dragon_cleanup": {
+                "band_depth_px": CHROMA_EDGE_BAND_DEPTH,
+                "clear_distance": CHROMA_CLEAR_DISTANCE,
+                "despill": "nearest non-magenta opaque interior colour",
+            },
+            "action_source_grid": [4, 4],
+            "baron_target_impact_source_grid": [4, 2],
+            "alpha_trim_before_resize": True,
+            "resampling": "Pillow Image.Resampling.NEAREST",
+            "non_uniform_stretching": False,
+            "body_anchor": "runtime frame centre for dragon base/idle and attack ground contact; Baron attack canvases expand symmetrically around the native centre while retaining the native per-frame ground anchor and alpha bottom; native alpha centroid for death",
+            "baron_native_action_timing_preserved_and_attack_frames_safely_expanded": True,
+            "baron_contact_boundary_cleanup": {
+                "top_spill_max_depth_px": BARON_SOURCE_TOP_SPILL_MAX_DEPTH,
+                "side_fragment_max_pixels": BARON_SOURCE_SIDE_FRAGMENT_MAX_PIXELS,
+                "side_fragment_max_width_px": BARON_SOURCE_SIDE_FRAGMENT_MAX_WIDTH,
+            },
+            "dragon_native_timing_and_stable_attack_pivot": True,
+            "dragon_narrow_body_frames_safely_expanded": True,
+            "objective_attack_facing": {
+                "canonical_art_direction": "right",
+                "runtime_owner": "game_view::GameView::get_action_flip_x",
+                "target_source": "actual simulation action target entity/position/direction",
+                "render_consumer": "game_view::EntityView::render reads EntityView.flip_x",
+                "mod_flip_override": False,
+                "non_attack_policy": "native renderer remains the sole owner; the mod never writes EntityView.flip_x",
+                "variant_coverage": list(OBJECTIVE_FACING_VARIANTS),
+            },
+            "dragon_scale_calibration": {
+                "previous_visible_width_cap_px": 54,
+                "representative_body_width_target_px": DRAGON_TUNED_BODY_WIDTH,
+                "maximum_pose_width_px": DRAGON_MAX_VISIBLE_WIDTH,
+                "reason": (
+                    "Restore readable in-game size without returning to the old "
+                    "oversized atlas; every idle frame is re-centred and retains "
+                    "the native alpha-bottom landing line."
+                ),
+            },
+        },
+        "sources": {
+            "baron_action": source_pair_record(
+                "baron_action_contact.png",
+                "baron_action_contact_alpha.png",
+            ),
+            "baron_target_impact": source_pair_record(
+                "baron_target_impact_contact.png",
+                "baron_target_impact_contact_alpha.png",
+            ),
+            "dragons": {
+                variant: source_pair_record(
+                    f"dragon_{variant}_action_contact.png",
+                    f"dragon_{variant}_action_contact_alpha.png",
+                )
+                for variant in DRAGON_VARIANTS
+            },
+        },
+        "runtime": {
+            "objective_attack_facing": {
+                "native_game_setting": native_objective_attack_contract,
+                "epic_entity_name": "epic",
+                "epic_attack_anim": EPIC_RUNTIME_ATTACK_ACTION,
+                "serpen_entity_name": "serpen",
+                "serpen_attack_anim": SERPEN_RUNTIME_ATTACK_ACTION,
+                "canonical_art_direction": "right",
+                "native_action_flip_method": "game_view::GameView::get_action_flip_x",
+                "native_render_consumer": "game_view::EntityView::render",
+                "actual_action_target_drives_flip_x": True,
+                "mod_writes_entity_flip_x": False,
+                "variants": list(OBJECTIVE_FACING_VARIANTS),
+            },
+            "epic": epic,
+            "dragon_variants": dragons,
+            "serpen_infernal_default": {
+                "dynamic_rotation_owned_by": "main objective runtime task",
+                "sheet": artifact_record(serpen_sheet),
+                "animation": file_record(serpen_anim),
+                "matches_infernal_sheet_sha256": sha256_file(serpen_sheet) == sha256_file(infernal_sheet),
+                "matches_infernal_anim_sha256": sha256_file(serpen_anim) == sha256_file(infernal_anim),
+                "tag_frame_counts": dragons["infernal"]["tag_frame_counts"],
+                "tag_frame_alpha_bboxes": dragons["infernal"]["tag_frame_alpha_bboxes"],
+            },
+        },
+        "static_checks": {
+            "epic_runtime_height_matches_native": epic["sheet"]["size"][1]
+            == epic["native_sheet_contract"]["dimensions"][1],
+            "epic_runtime_width_only_expands_for_attack_canvas": epic["sheet"]["size"]
+            == [4050, 150],
+            "epic_tag_counts": epic["tag_frame_counts"]
+            == {
+                "base": 1,
+                "idle": 4,
+                "attack_target_effect": 7,
+                "attack_right": 5,
+                "dead": 13,
+                "attack_left": 5,
+            },
+            "epic_native_animation_contract_exact": epic[
+                "native_animation_contract_exact"
+            ],
+            "epic_attack_safe_frame_rect_contract": epic[
+                "native_frame_rect_contract_attack_safe_expanded"
+            ],
+            "epic_non_attack_frame_sizes_match_native": epic[
+                "non_attack_frame_sizes_match_native"
+            ],
+            "epic_target_effect_frame_sizes_match_native": epic[
+                "target_effect_frame_sizes_match_native"
+            ],
+            "epic_attack_source_sequence_uses_clean_recovery": epic[
+                "attack_source_indices"
+            ]
+            == list(BARON_ATTACK_SOURCE_INDICES),
+            "native_objective_attack_actions_match_runtime_hook": (
+                native_objective_attack_contract["epic_action_name"]
+                == EPIC_RUNTIME_ATTACK_ACTION
+                and native_objective_attack_contract["serpen_action_name"]
+                == SERPEN_RUNTIME_ATTACK_ACTION
+                and native_objective_attack_contract[
+                    "epic_attack_right_reachable_from_game_setting"
+                ]
+                is False
+            ),
+            "epic_attack_art_uses_one_runtime_flippable_direction": (
+                epic["attack_tags_use_canonical_right_facing_art"] is True
+                and epic["runtime_direction_owned_by_native_action_flip_x"] is True
+            ),
+            "epic_attack_frame_widths_are_symmetric_safe_canvases": epic[
+                "attack_frame_widths"
+            ]
+            == list(BARON_ATTACK_FRAME_WIDTHS),
+            "epic_attack_alpha_is_not_clipped": epic[
+                "maximum_attack_alpha_clip_loss_pixels"
+            ]
+            == 0,
+            "epic_attack_has_side_clearance": epic[
+                "minimum_attack_side_clearance_px"
+            ]
+            >= BARON_ATTACK_SIDE_CLEARANCE,
+            "epic_attack_ground_anchor_offset_matches_native": epic[
+                "maximum_attack_anchor_offset_delta_px"
+            ]
+            <= 0.75,
+            "epic_attack_bottom_matches_native": epic[
+                "maximum_attack_bottom_delta_to_native_px"
+            ]
+            == 0,
+            "dragon_runtime_sheet_heights_match_native": all(
+                record["sheet"]["size"][1]
+                == record["native_sheet_contract"]["dimensions"][1]
+                for record in dragons.values()
+            ),
+            "dragon_tag_counts": all(
+                record["tag_frame_counts"]
+                == {"base": 1, "idle": 4, "attack": 5, "dead": 8}
+                for record in dragons.values()
+            ),
+            "dragon_native_animation_contracts_exact": all(
+                record["native_animation_contract_exact"]
+                for record in dragons.values()
+            ),
+            "dragon_native_frame_rect_contracts_safely_expanded": all(
+                record["native_frame_rect_contract_safely_expanded"]
+                for record in dragons.values()
+            ),
+            "dragon_attack_art_uses_one_runtime_flippable_direction": all(
+                record["attack_art_canonical_direction"] == "right"
+                and record["runtime_direction_owned_by_native_action_flip_x"] is True
+                for record in dragons.values()
+            ),
+            "objective_runtime_facing_covers_epic_and_all_dragon_variants": (
+                set(OBJECTIVE_FACING_VARIANTS)
+                == {"epic", "infernal", "ocean", "mountain", "cloud", "hextech", "elder"}
+            ),
+            "epic_body_bottoms_match_native": paired_tag_bottoms_match_native(
+                epic_runtime_sheet,
+                epic_runtime_document,
+                native_sheets["epic"],
+                native_documents["epic"],
+                ("base", "idle", "attack_left", "attack_right", "dead"),
+            ),
+            "dragon_body_bottoms_match_native": all(
+                record["maximum_bottom_delta_to_native_px"] == 0
+                for record in dragons.values()
+            ),
+            "epic_idle_centroid_stable": epic[
+                "idle_horizontal_centroid_span_px"
+            ]
+            <= 2.0,
+            "dragon_idle_centroids_stable": all(
+                record["idle_horizontal_centroid_span_px"] <= 2.0
+                for record in dragons.values()
+            ),
+            "epic_base_idle_visible_width_native_class": tag_visible_widths_at_most(
+                epic_runtime_sheet,
+                epic_runtime_document,
+                ("base", "idle"),
+                BARON_NATIVE_VISIBLE_WIDTH,
+            ),
+            "dragon_base_idle_visible_width_tuned_envelope": all(
+                tag_visible_widths_at_most(
+                    Image.open(VARIANT_DIR / f"{variant}#sheet.png").convert("RGBA"),
+                    json.loads(
+                        (VARIANT_DIR / f"{variant}#anim.fanim").read_text(
+                            encoding="utf-8"
+                        )
+                    ),
+                    ("base", "idle"),
+                    DRAGON_MAX_VISIBLE_WIDTH,
+                )
+                for variant in DRAGON_VARIANTS
+            ),
+            "dragon_base_idle_size_target_reached": all(
+                record["maximum_base_idle_visible_width_px"]
+                >= DRAGON_TUNED_BODY_WIDTH - 1
+                for record in dragons.values()
+            ),
+            "dragon_idle_centres_match_runtime_frame_centres": all(
+                record["maximum_idle_center_offset_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_anchor_deltas_bounded": all(
+                record["maximum_anchor_delta_to_target_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_attack_ground_anchors_centered": all(
+                record["maximum_attack_ground_anchor_offset_px"] <= 1.0
+                for record in dragons.values()
+            ),
+            "dragon_attack_ground_offsets_stable": all(
+                record["maximum_attack_ground_offset_error_px"] <= 0.5
+                for record in dragons.values()
+            ),
+            "dragon_attack_body_vertical_span_bounded": all(
+                record["attack_body_bbox_center_y_span_px"] <= 5.0
+                for record in dragons.values()
+            ),
+            "dragon_hot_magenta_edge_removed": all(
+                record["edge_connected_magenta_cleanup"][
+                    "hot_magenta_edge_ratio"
+                ]
+                <= 0.05
+                for record in dragons.values()
+            ),
+            "dragon_breath_frames_extend_right": all(
+                record["tag_frame_alpha_bboxes"]["attack"][-1][2]
+                >= record["tag_frame_alpha_bboxes"]["attack"][0][2]
+                for record in dragons.values()
+            ),
+            "epic_target_effect_frames_nonempty": all(
+                bbox is not None
+                for bbox in epic["tag_frame_alpha_bboxes"]["attack_target_effect"]
+            ),
+            "epic_target_effect_frames_do_not_touch_canvas_edges": epic[
+                "minimum_target_effect_frame_clearance_px"
+            ]
+            >= 1,
+            "all_processed_corners_transparent": all(
+                pair["processed"]["transparent_corners"]
+                for pair in (
+                    [
+                        source_pair_record(
+                            "baron_action_contact.png",
+                            "baron_action_contact_alpha.png",
+                        ),
+                        source_pair_record(
+                            "baron_target_impact_contact.png",
+                            "baron_target_impact_contact_alpha.png",
+                        ),
+                    ]
+                    + [
+                        source_pair_record(
+                            f"dragon_{variant}_action_contact.png",
+                            f"dragon_{variant}_action_contact_alpha.png",
+                        )
+                        for variant in DRAGON_VARIANTS
+                    ]
+                )
+            ),
+            "all_processed_alpha_is_hard": all(
+                has_hard_alpha(PROCESSED_DIR / name)
+                for name in (
+                    "baron_action_contact_alpha.png",
+                    "baron_target_impact_contact_alpha.png",
+                    *(
+                        f"dragon_{variant}_action_contact_alpha.png"
+                        for variant in DRAGON_VARIANTS
+                    ),
+                )
+            ),
+            "non_dead_runtime_alpha_is_hard": non_dead_tags_have_hard_alpha(
+                INGAME_DIR / "epic#sheet.png",
+                INGAME_DIR / "epic#anim.fanim",
+            )
+            and non_dead_tags_have_hard_alpha(
+                INGAME_DIR / "serpen#sheet.png",
+                INGAME_DIR / "serpen#anim.fanim",
+            )
+            and all(
+                non_dead_tags_have_hard_alpha(
+                    VARIANT_DIR / f"{variant}#sheet.png",
+                    VARIANT_DIR / f"{variant}#anim.fanim",
+                )
+                for variant in DRAGON_VARIANTS
+            ),
+            "serpen_matches_infernal": sha256_file(serpen_sheet) == sha256_file(infernal_sheet)
+            and sha256_file(serpen_anim) == sha256_file(infernal_anim),
+        },
+    }
+    if not all(qa["static_checks"].values()):
+        failed = [name for name, value in qa["static_checks"].items() if not value]
+        raise ValueError(f"quality objective static checks failed: {failed}")
+
+    QA_PATH.write_text(
+        json.dumps(qa, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    print(f"Wrote {QA_PATH.relative_to(MOD_ROOT)}")
+    print(f"Epic sheet: {epic['sheet']['size']} {epic['sheet']['sha256']}")
+    for variant, record in dragons.items():
+        print(f"Dragon {variant}: {record['sheet']['size']} {record['sheet']['sha256']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

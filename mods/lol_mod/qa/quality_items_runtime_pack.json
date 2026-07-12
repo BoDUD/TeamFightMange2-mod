@@ -1,0 +1,1557 @@
+{
+  "schema_version": 1,
+  "scope": "30 native item IDs reskinned and renamed without changing item_setting, stats, or upgrade graph",
+  "native_contract": {
+    "bundle_path": "D:/steam/steamapps/common/Teamfight Manager2/bundle.game_data",
+    "item_setting_asset": "asset/base/setting/item_setting",
+    "item_setting_sha256": "a90941dab6682f090d895257af5c2157ed0d6ff2b2b88ea0187a327378be37fb",
+    "sprite_data_asset": "asset/base/aseprite_resources/ingame/item_icons_18x18#data",
+    "sprite_data_sha256": "9c02eedff1946d589cef23d2915e22eb4f7b2e99cdf6b991832982ae565dc4ea"
+  },
+  "runtime_assets": {
+    "atlas_path": "mods/lol_mod/aseprite_resources/ingame/item_icons_18x18#sheet.png",
+    "atlas_sha256": "ebea8ebbdc3e65025c1220ef2e92a1c060085ed966e4745a6c67873194ed1547",
+    "atlas_size": [
+      570,
+      19
+    ],
+    "cell_size": [
+      18,
+      18
+    ],
+    "gutter": [
+      1,
+      1
+    ],
+    "sprite_data_path": "mods/lol_mod/aseprite_resources/ingame/item_icons_18x18#data.sprite_data",
+    "sprite_data_sha256": "055e6e0b012379c67ef41a4d373b8718db1bd5bf64f2800320c60bce51df3182",
+    "item_text_path": "mods/lol_mod/text/item.i18n",
+    "item_text_sha256": "19536efabe505d1214146da5bb103123ced315a5adbecb8dcdda20a0361d3f13"
+  },
+  "downsample": {
+    "crop": "source alpha bounding box",
+    "fit_within_px": [
+      14,
+      14
+    ],
+    "filter": "Pillow LANCZOS",
+    "outline": "one-pixel MaxFilter(3) expansion from alpha threshold 24",
+    "outline_rgba": [
+      10,
+      12,
+      18,
+      255
+    ],
+    "placement": "centered in 18x18 with transparent border"
+  },
+  "localization": {
+    "base_locale_mapping": {
+      "en": "en_US",
+      "ko": "ko_KR",
+      "zh-hans": "zh_CN",
+      "zh-hant": "zh_TW"
+    },
+    "official_name_source": "Riot Data Dragon 16.13.1 item.json",
+    "official_name_base_url": "https://ddragon.leagueoflegends.com/cdn/16.13.1/data/{locale}/item.json",
+    "fields_overridden": [
+      "name"
+    ],
+    "option_preserved_as_empty_base_value": true,
+    "native_stat_and_description_generation_unchanged": true
+  },
+  "checks": {
+    "item_count": 30,
+    "atlas_key_count": 30,
+    "slots_exact_0_to_29": true,
+    "sprite_key_rect_contract_equal_to_native": true,
+    "pixel_hash_unique_count": 30,
+    "alpha_silhouette_hash_unique_count": 30,
+    "outline_signature_hash_unique_count": 30,
+    "all_cell_borders_transparent": true,
+    "all_cells_have_dark_outline": true,
+    "vertical_gutter_alpha_max": 0,
+    "bottom_gutter_alpha_max": 0,
+    "localized_name_count_per_locale": {
+      "en": 30,
+      "ko": 30,
+      "zh-hans": 30,
+      "zh-hant": 30
+    },
+    "item_setting_override_created": false,
+    "upgrade_tree_modified": false,
+    "game_launched": false,
+    "tests_run": false
+  },
+  "items": [
+    {
+      "slot": 0,
+      "native_id": "iron_blade",
+      "native_text_key": "ironsword",
+      "native_category": "AD",
+      "lol_item": {
+        "id": "1036",
+        "name": "Long Sword",
+        "localized_names": {
+          "en": "Long Sword",
+          "ko": "롱소드",
+          "zh-hans": "长剑",
+          "zh-hant": "長劍"
+        }
+      },
+      "atlas": {
+        "key": "t1_0",
+        "normalized_rect": [
+          0.0,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          0,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/iron_blade.png",
+        "sha256": "6274e09bf668671e31d209df263f9db145c5e0d2e8981e4d915085c97dd67364"
+      },
+      "runtime": {
+        "pixel_sha256": "e594ed854800b648eb7e8ec3e96925bd1ee8f7cdf7a13fe26d1785393ee6e345",
+        "alpha_sha256": "64d050f332b897f16d61ce4cd1bcc3756dd8d00c30daeed837a73db6b24fdd80",
+        "outline_signature_sha256": "67e1239bca75c1c796db80735bed9f9df84c1015e03290df9344026d1ff45036",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 109,
+        "exact_dark_outline_pixels": 53
+      }
+    },
+    {
+      "slot": 1,
+      "native_id": "soldiers_longsword",
+      "native_text_key": "soldiers_longsword",
+      "native_category": "AD",
+      "lol_item": {
+        "id": "1037",
+        "name": "Pickaxe",
+        "localized_names": {
+          "en": "Pickaxe",
+          "ko": "곡괭이",
+          "zh-hans": "十字镐",
+          "zh-hant": "十字鎬"
+        }
+      },
+      "atlas": {
+        "key": "t2_0",
+        "normalized_rect": [
+          0.033333335,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          19,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/soldiers_longsword.png",
+        "sha256": "7a6608183cc4fd047a2989fc5a6d6f50fd92cfb89fce5abccb00ac047478934b"
+      },
+      "runtime": {
+        "pixel_sha256": "2e24f5ffe7eab7e490ccdd087e5619355b99890f1e3532d0814d8c6ce47cb989",
+        "alpha_sha256": "7c61ea50f77415135eda060688063a4675ea125ed2eb19c4b148108a9dd7afe7",
+        "outline_signature_sha256": "95bad0f12be6fdf41616f1366e494822cc92bd2a49a4b93b31edee78437daea7",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 149,
+        "exact_dark_outline_pixels": 63
+      }
+    },
+    {
+      "slot": 2,
+      "native_id": "ruinous_blade",
+      "native_text_key": "ruinous_blade",
+      "native_category": "AD",
+      "lol_item": {
+        "id": "1053",
+        "name": "Vampiric Scepter",
+        "localized_names": {
+          "en": "Vampiric Scepter",
+          "ko": "흡혈의 낫",
+          "zh-hans": "吸血鬼节杖",
+          "zh-hant": "吸血鬼權杖"
+        }
+      },
+      "atlas": {
+        "key": "t3_0",
+        "normalized_rect": [
+          0.06666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          38,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/ruinous_blade.png",
+        "sha256": "2584e8da1ee26bd415e39a7b741467c89b57f91b75c735757879e272cbc90f93"
+      },
+      "runtime": {
+        "pixel_sha256": "716fb052885acd3c24f8a53cc892bf9c91474bc22cdd3a7e8b1cba0ee2fbc7f6",
+        "alpha_sha256": "537e6959bd677853a80ba352aba099876f65100c92f27e78c98ba5a6c61fffc9",
+        "outline_signature_sha256": "f01bec919d6e071b4600e415a89a9e4cbf4e9d7ee72138edc06063d847819afb",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 131,
+        "exact_dark_outline_pixels": 55
+      }
+    },
+    {
+      "slot": 3,
+      "native_id": "conquerors_greatsword",
+      "native_text_key": "conquerors_greatsword",
+      "native_category": "AD",
+      "lol_item": {
+        "id": "3072",
+        "name": "Bloodthirster",
+        "localized_names": {
+          "en": "Bloodthirster",
+          "ko": "피바라기",
+          "zh-hans": "饮血剑",
+          "zh-hant": "嗜血者"
+        }
+      },
+      "atlas": {
+        "key": "t4_0",
+        "normalized_rect": [
+          0.1,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          57,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/conquerors_greatsword.png",
+        "sha256": "f659f06421e745ec1ffaa6e3649a3738750d329f961a1a95e4256c759fd2615c"
+      },
+      "runtime": {
+        "pixel_sha256": "9787c412113b8d9ab77db02f34af1aead6685e3f7e08ec34a09ff6f53a091987",
+        "alpha_sha256": "3c11ac867367b576d609645041796a10789e3561d156cebe6cc21d462e8f1604",
+        "outline_signature_sha256": "9e3cdd8789bd4a84519ac3ac022f4ddce59074e3c3c0b0f185aaf4e12038af71",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 124,
+        "exact_dark_outline_pixels": 57
+      }
+    },
+    {
+      "slot": 4,
+      "native_id": "warlords_final_judgement",
+      "native_text_key": "warlords_final_judgement",
+      "native_category": "AD",
+      "lol_item": {
+        "id": "6692",
+        "name": "Eclipse",
+        "localized_names": {
+          "en": "Eclipse",
+          "ko": "월식",
+          "zh-hans": "星蚀",
+          "zh-hant": "星蝕"
+        }
+      },
+      "atlas": {
+        "key": "t5_0",
+        "normalized_rect": [
+          0.13333334,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          76,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/warlords_final_judgement.png",
+        "sha256": "37b093456fa56f9cc1bac484d8317cc8eb0516950e5bb3183cc629170c4765ef"
+      },
+      "runtime": {
+        "pixel_sha256": "f91b922f92574564d7c9d5c6c69b0384961dbe3292645ae88cc52bb7649a43ce",
+        "alpha_sha256": "c885eca7e50c1c237397bbf843bc8666acdbfc3fb8004e8d59ca3ba1aaf7a82e",
+        "outline_signature_sha256": "84862782674c09fc06d5419bcca8e75ee5812d6b8b0f02aad4e018071af88b64",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 185,
+        "exact_dark_outline_pixels": 69
+      }
+    },
+    {
+      "slot": 5,
+      "native_id": "dagger",
+      "native_text_key": "dagger",
+      "native_category": "AttackSpeed",
+      "lol_item": {
+        "id": "1042",
+        "name": "Dagger",
+        "localized_names": {
+          "en": "Dagger",
+          "ko": "단검",
+          "zh-hans": "短剑",
+          "zh-hant": "短劍"
+        }
+      },
+      "atlas": {
+        "key": "t1_1",
+        "normalized_rect": [
+          0.16666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          95,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/dagger.png",
+        "sha256": "8015061f5b22ea160fdc1fb56243c419ae2c59efeba076f91381d440d64f2ba1"
+      },
+      "runtime": {
+        "pixel_sha256": "e8693a16161970ebd992979864b8d093614bcc00caccfcd29a12e8ea3bc7efb6",
+        "alpha_sha256": "ce3bc56807c127b80d8425738cc21f450f8283874337f4c46194d74e1d249530",
+        "outline_signature_sha256": "92af70e3a20994f042b5ac69175d5dd925f8c066b793d9054d3608c1375dfecf",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 126,
+        "exact_dark_outline_pixels": 55
+      }
+    },
+    {
+      "slot": 6,
+      "native_id": "wind_dagger",
+      "native_text_key": "wind_dagger",
+      "native_category": "AttackSpeed",
+      "lol_item": {
+        "id": "1043",
+        "name": "Recurve Bow",
+        "localized_names": {
+          "en": "Recurve Bow",
+          "ko": "곡궁",
+          "zh-hans": "反曲之弓",
+          "zh-hant": "反曲弓"
+        }
+      },
+      "atlas": {
+        "key": "t2_1",
+        "normalized_rect": [
+          0.2,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          114,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/wind_dagger.png",
+        "sha256": "e6bb93f41489252d9a13afc7ceb896078015d93c8ad5f130d35d87b7b4e35662"
+      },
+      "runtime": {
+        "pixel_sha256": "2f318b4d8b6ed5c68ba13443eff57ea76300928297479b6eea554aeb02b42b6a",
+        "alpha_sha256": "1d5fefd457459d2c04ec0bd2313c9ea0409df1bc8524d0ff4172d71d3b1958e3",
+        "outline_signature_sha256": "5e4e059f90fb20220d1b2ac7e784b15e41b6e11b34be49feb0a7b036d26c4e9b",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 123,
+        "exact_dark_outline_pixels": 62
+      }
+    },
+    {
+      "slot": 7,
+      "native_id": "twin_stormblade",
+      "native_text_key": "twin_stormblade",
+      "native_category": "AttackSpeed",
+      "lol_item": {
+        "id": "3086",
+        "name": "Zeal",
+        "localized_names": {
+          "en": "Zeal",
+          "ko": "열정의 검",
+          "zh-hans": "狂热",
+          "zh-hant": "狂熱雙刀"
+        }
+      },
+      "atlas": {
+        "key": "t3_1",
+        "normalized_rect": [
+          0.23333333,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          133,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/twin_stormblade.png",
+        "sha256": "43acfcbe7292397294c5aebcc4f7b4dbe86e0c4c63e731e741e28ace5bb0268d"
+      },
+      "runtime": {
+        "pixel_sha256": "e3a92907b44825a454b4f84da17c403eb202172e0b509a2fd2282056fbccd52c",
+        "alpha_sha256": "c35a51af8e0ba7d34c827ec209042a204eed27ea2091685eaacfbf9f8b86fc0c",
+        "outline_signature_sha256": "0960aac209b3c6bba2edd8ab58dad966f70d0d6d7e49b6b2caf0823c1bd96c6d",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 145,
+        "exact_dark_outline_pixels": 62
+      }
+    },
+    {
+      "slot": 8,
+      "native_id": "thunderclaw",
+      "native_text_key": "thunderclaw",
+      "native_category": "AttackSpeed",
+      "lol_item": {
+        "id": "3085",
+        "name": "Runaan's Hurricane",
+        "localized_names": {
+          "en": "Runaan's Hurricane",
+          "ko": "루난의 허리케인",
+          "zh-hans": "卢安娜的飓风",
+          "zh-hant": "芮蘭颶風箭"
+        }
+      },
+      "atlas": {
+        "key": "t4_1",
+        "normalized_rect": [
+          0.26666668,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          152,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/thunderclaw.png",
+        "sha256": "240ba4e00cd7a53fcdd70a6d8a591fb0378283a6255d608276cebbc135e67ce1"
+      },
+      "runtime": {
+        "pixel_sha256": "1f1fec7bcf102342141f1f64daa93e2ca7eabfb44b924b736299ca99d59b6291",
+        "alpha_sha256": "cfcbd7b8acdc8067351dc51fc95ed6f8b3c13cbca19d913accda48513ff92ceb",
+        "outline_signature_sha256": "76529d654b13ee788d413efdad1b19c4c16c14b03740fa430ca5a23230aaf517",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 229,
+        "exact_dark_outline_pixels": 100
+      }
+    },
+    {
+      "slot": 9,
+      "native_id": "storm_sovereign",
+      "native_text_key": "storm_sovereign",
+      "native_category": "AttackSpeed",
+      "lol_item": {
+        "id": "3046",
+        "name": "Phantom Dancer",
+        "localized_names": {
+          "en": "Phantom Dancer",
+          "ko": "유령 무희",
+          "zh-hans": "幻影之舞",
+          "zh-hant": "幻影之舞"
+        }
+      },
+      "atlas": {
+        "key": "t5_1",
+        "normalized_rect": [
+          0.3,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          171,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/storm_sovereign.png",
+        "sha256": "5ce66c6140c1077299fd3b26f94860dbe013dfb349c214d058278c8c7e959865"
+      },
+      "runtime": {
+        "pixel_sha256": "ae5dd737ebc0af4597d9d453ef737cd34ea7197fec978cda79e7b8f1c8e5133a",
+        "alpha_sha256": "61e07d311e7c6e73145fc336c37e095e8b5b2773c02b485b924978a5c0b6163d",
+        "outline_signature_sha256": "0d03dbe0983e94214a22ea7a960fa85ecbec4fcb067317aea575c1d5bac20c8f",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 117,
+        "exact_dark_outline_pixels": 56
+      }
+    },
+    {
+      "slot": 10,
+      "native_id": "steel_armor",
+      "native_text_key": "steel_armor",
+      "native_category": "Defense",
+      "lol_item": {
+        "id": "1029",
+        "name": "Cloth Armor",
+        "localized_names": {
+          "en": "Cloth Armor",
+          "ko": "천 갑옷",
+          "zh-hans": "布甲",
+          "zh-hant": "布甲"
+        }
+      },
+      "atlas": {
+        "key": "t1_2",
+        "normalized_rect": [
+          0.33333334,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          190,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/steel_armor.png",
+        "sha256": "6301cea38b088b3e3d5909d307eceabd18c566ff62f48ce776fd8a40c1c7c393"
+      },
+      "runtime": {
+        "pixel_sha256": "c064275b32d47e9849b4a1c1218fc567a217bf4739868ef20d31b244b5c7b38f",
+        "alpha_sha256": "6f99e770279fa717ffac57a90638d3f912b627f711ef8199add0bd965db4ee65",
+        "outline_signature_sha256": "66674332c14b961e83b4605b4ad1c544166bec27e1d327bdf8585a855c10ba4a",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 207,
+        "exact_dark_outline_pixels": 53
+      }
+    },
+    {
+      "slot": 11,
+      "native_id": "gatekeepers_armor",
+      "native_text_key": "gatekeepers_armor",
+      "native_category": "Defense",
+      "lol_item": {
+        "id": "1031",
+        "name": "Chain Vest",
+        "localized_names": {
+          "en": "Chain Vest",
+          "ko": "쇠사슬 조끼",
+          "zh-hans": "锁子甲",
+          "zh-hant": "鎖子甲"
+        }
+      },
+      "atlas": {
+        "key": "t2_2",
+        "normalized_rect": [
+          0.36666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          209,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/gatekeepers_armor.png",
+        "sha256": "e06f9ae4634e0cf858ace8f5a7281233b1a488b5c8dca374183bb1230495bc61"
+      },
+      "runtime": {
+        "pixel_sha256": "4f391e670ac1729e6b7b733a0e28f74d56b345185b40e51980220fabd6ca2868",
+        "alpha_sha256": "cf58372af8f74fbb685ad0d7974673a58061fb923af8f3fd67919978c986876d",
+        "outline_signature_sha256": "4c4321f552500894fbd5da4ad76cfdad83b8623023d95e84b111ab59fe492ce4",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 202,
+        "exact_dark_outline_pixels": 54
+      }
+    },
+    {
+      "slot": 12,
+      "native_id": "black_knights_heavy_plate",
+      "native_text_key": "black_knights_heavy_plate",
+      "native_category": "Defense",
+      "lol_item": {
+        "id": "3082",
+        "name": "Warden's Mail",
+        "localized_names": {
+          "en": "Warden's Mail",
+          "ko": "파수꾼의 갑옷",
+          "zh-hans": "守望者铠甲",
+          "zh-hant": "守望者鎧甲"
+        }
+      },
+      "atlas": {
+        "key": "t3_2",
+        "normalized_rect": [
+          0.4,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          228,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/black_knights_heavy_plate.png",
+        "sha256": "ca149652803d96a2ea1ae71b0e29bbbb63c7ef9b32f11f332656ae04f20f1967"
+      },
+      "runtime": {
+        "pixel_sha256": "5b650e241ea9abc957924bd8b77c103aa4d643847029a437f834614045ef8c77",
+        "alpha_sha256": "67a4d7e4b9f09ee6aa8bbe84cf25b6278089b470802ea53954f80ca6a9f6fc38",
+        "outline_signature_sha256": "4095cf292f1ad836d3fe03cfe0c75decbdf3b7b55103d5d44cd5fd74e177de55",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          16
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 195,
+        "exact_dark_outline_pixels": 57
+      }
+    },
+    {
+      "slot": 13,
+      "native_id": "eternal_iron_plate",
+      "native_text_key": "eternal_iron_plate",
+      "native_category": "Defense",
+      "lol_item": {
+        "id": "3143",
+        "name": "Randuin's Omen",
+        "localized_names": {
+          "en": "Randuin's Omen",
+          "ko": "란두인의 예언",
+          "zh-hans": "兰顿之兆",
+          "zh-hant": "蘭頓之兆"
+        }
+      },
+      "atlas": {
+        "key": "t4_2",
+        "normalized_rect": [
+          0.43333334,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          247,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/eternal_iron_plate.png",
+        "sha256": "db9dcfc81bf609b0b5788e3243116301d6fadbd630f77c849f8dc52d2f03213b"
+      },
+      "runtime": {
+        "pixel_sha256": "79c4d3b1997174b0f8f3bb02cfaafc3b93147b1da3eeebbebf09a8bac7f83a74",
+        "alpha_sha256": "46be9bd4165133f6a2954f5978d8ebf48a9fa1945184611b391f21b8747f1ba5",
+        "outline_signature_sha256": "d1e0fa56dcc311fad0980499a2baf617f8aedf7c4eb1032fcedfe33777717947",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 231,
+        "exact_dark_outline_pixels": 62
+      }
+    },
+    {
+      "slot": 14,
+      "native_id": "impregnable_fortress",
+      "native_text_key": "impregnable_fortress",
+      "native_category": "Defense",
+      "lol_item": {
+        "id": "3075",
+        "name": "Thornmail",
+        "localized_names": {
+          "en": "Thornmail",
+          "ko": "가시 갑옷",
+          "zh-hans": "荆棘之甲",
+          "zh-hant": "荊棘之甲"
+        }
+      },
+      "atlas": {
+        "key": "t5_2",
+        "normalized_rect": [
+          0.46666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          266,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/impregnable_fortress.png",
+        "sha256": "16ea16ad7a8a66ff5202b5b5a83766c139a4616796f001d9675a1054f42f90bc"
+      },
+      "runtime": {
+        "pixel_sha256": "0d218d870b8c5c61c243eacbdc11a65862624560cbfb0e378b9cc1f6ef7033be",
+        "alpha_sha256": "dfa3985017a218d7606e5d325099ca25252f490ff24e9cc9ee964ccbf36c85ef",
+        "outline_signature_sha256": "bb239009e2b2a5ed1223eb0935f0ec8812cda464bbe9b162134a9a7f4c12c937",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 228,
+        "exact_dark_outline_pixels": 62
+      }
+    },
+    {
+      "slot": 15,
+      "native_id": "mystic_cloak",
+      "native_text_key": "mystic_cloak",
+      "native_category": "MagicResistance",
+      "lol_item": {
+        "id": "1033",
+        "name": "Null-Magic Mantle",
+        "localized_names": {
+          "en": "Null-Magic Mantle",
+          "ko": "마법무효화의 망토",
+          "zh-hans": "抗魔斗篷",
+          "zh-hant": "抗魔斗篷"
+        }
+      },
+      "atlas": {
+        "key": "t1_3",
+        "normalized_rect": [
+          0.5,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          285,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/mystic_cloak.png",
+        "sha256": "db4b53599845aa71be1695bf1779066df879b5d1c2c4fdb0a80894fdc7d00c45"
+      },
+      "runtime": {
+        "pixel_sha256": "697a11ba023d7435c0e5dad6c0e4909d87a634f784091c874bebaf4ab51f1b17",
+        "alpha_sha256": "41cb4a208e0004412a9793277d44c2b57b39c7ae320446a8ee43184bddabf5f9",
+        "outline_signature_sha256": "0feab60ba3acd5b08c3eca446194ac2890b09e3248ad3266b43b3f471b29ecee",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          16
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 207,
+        "exact_dark_outline_pixels": 60
+      }
+    },
+    {
+      "slot": 16,
+      "native_id": "night_hood",
+      "native_text_key": "night_hood",
+      "native_category": "MagicResistance",
+      "lol_item": {
+        "id": "1057",
+        "name": "Negatron Cloak",
+        "localized_names": {
+          "en": "Negatron Cloak",
+          "ko": "음전자 망토",
+          "zh-hans": "负极斗篷",
+          "zh-hant": "負極斗篷"
+        }
+      },
+      "atlas": {
+        "key": "t2_3",
+        "normalized_rect": [
+          0.53333336,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          304,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/night_hood.png",
+        "sha256": "ccf20102e9ebac7f420d9928449d584ebf596b4d48ca1f87973e6450c4207f03"
+      },
+      "runtime": {
+        "pixel_sha256": "3d9ccadaf7eb6a437ecbb47807fc2e82aeb592fb0311e4e85ec9b56ba5ce42a1",
+        "alpha_sha256": "f9029dd3111720090a8742701da193fe9c2bb90895c33277565777fa82db3f04",
+        "outline_signature_sha256": "7d19fa18afdb0fb7767c0d05fd7868739d52583eb0e3a117d1d408b13037b056",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 203,
+        "exact_dark_outline_pixels": 56
+      }
+    },
+    {
+      "slot": 17,
+      "native_id": "dusk_raven",
+      "native_text_key": "dusk_raven",
+      "native_category": "MagicResistance",
+      "lol_item": {
+        "id": "3211",
+        "name": "Spectre's Cowl",
+        "localized_names": {
+          "en": "Spectre's Cowl",
+          "ko": "망령의 두건",
+          "zh-hans": "幽魂斗篷",
+          "zh-hant": "亡靈斗篷"
+        }
+      },
+      "atlas": {
+        "key": "t3_3",
+        "normalized_rect": [
+          0.56666666,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          323,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/dusk_raven.png",
+        "sha256": "0d1ddf143c3f566a5c13fd4f2ed6453d7a6b094c58a44bd518c2abef56b3f945"
+      },
+      "runtime": {
+        "pixel_sha256": "1547c0bfd900ebdb4dc9d7ecd1550ed76a47f128f69ca98b17c91648dc75e2ce",
+        "alpha_sha256": "6dabe20761442376d74bbe814c916a74aff669491e0dc3256a67e3c17d90f74e",
+        "outline_signature_sha256": "a4a170f4daa6fee082c7f3436ca1732215db7e4ec1ce932e41b53429af418e23",
+        "alpha_bbox": [
+          2,
+          1,
+          15,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 179,
+        "exact_dark_outline_pixels": 52
+      }
+    },
+    {
+      "slot": 18,
+      "native_id": "souls_edge",
+      "native_text_key": "souls_edge",
+      "native_category": "MagicResistance",
+      "lol_item": {
+        "id": "2504",
+        "name": "Kaenic Rookern",
+        "localized_names": {
+          "en": "Kaenic Rookern",
+          "ko": "케이닉 루컨",
+          "zh-hans": "败魔",
+          "zh-hant": "凱尼克欺瞞者"
+        }
+      },
+      "atlas": {
+        "key": "t4_3",
+        "normalized_rect": [
+          0.6,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          342,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/souls_edge.png",
+        "sha256": "05575c13a89ba71cb1d2b63e44794f73d0195785c22b3ce7b314b39b583b0fd6"
+      },
+      "runtime": {
+        "pixel_sha256": "22dd40883d8dd28f4eb12f2014b0e130d1523b32243d82e0a31825219948df81",
+        "alpha_sha256": "0dbeb7d8e151c4b668cb927d7cab083aad1d953c35650396930e9d73c37808e7",
+        "outline_signature_sha256": "d6f34402f8e65eae25f2f374afdc9f17d431bb706903ea7bd14e19f0ebde03d6",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          16
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 221,
+        "exact_dark_outline_pixels": 60
+      }
+    },
+    {
+      "slot": 19,
+      "native_id": "veil_of_annihilation",
+      "native_text_key": "veil_of_annihilation",
+      "native_category": "MagicResistance",
+      "lol_item": {
+        "id": "4401",
+        "name": "Force of Nature",
+        "localized_names": {
+          "en": "Force of Nature",
+          "ko": "대자연의 힘",
+          "zh-hans": "自然之力",
+          "zh-hant": "自然之力"
+        }
+      },
+      "atlas": {
+        "key": "t5_3",
+        "normalized_rect": [
+          0.6333333,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          361,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/veil_of_annihilation.png",
+        "sha256": "2d0e968fe1dd3f3366341ece70dbc7f0579b29ea07fc631615d5e06549302ee0"
+      },
+      "runtime": {
+        "pixel_sha256": "1b1684c4bc8cfadfde6b05d70a576e7b1805b04b0486938e3d10b0af3423d04c",
+        "alpha_sha256": "32515204ef4527c27e5c700dba5bbef07e4a5bec54fc1c6da91323949accf9a0",
+        "outline_signature_sha256": "4484ac8306d34ef2accf21602eebee3d0ce3f722f9675fe2771f9a627f4e2309",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 196,
+        "exact_dark_outline_pixels": 54
+      }
+    },
+    {
+      "slot": 20,
+      "native_id": "arcane_crystal",
+      "native_text_key": "arcane_crystal",
+      "native_category": "Magic",
+      "lol_item": {
+        "id": "1052",
+        "name": "Amplifying Tome",
+        "localized_names": {
+          "en": "Amplifying Tome",
+          "ko": "증폭의 고서",
+          "zh-hans": "增幅典籍",
+          "zh-hant": "增幅典籍"
+        }
+      },
+      "atlas": {
+        "key": "t1_4",
+        "normalized_rect": [
+          0.6666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          380,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/arcane_crystal.png",
+        "sha256": "46d00bd1f4e7d9835ab5954cec6c9f9f825f4214c3e9a43dc3485e5a3ce97daf"
+      },
+      "runtime": {
+        "pixel_sha256": "1274b5c0f9b6f36165a7b70b8a48a4f73a878543081dce4c6ca17f05626e6543",
+        "alpha_sha256": "ba832b223b4c28ac176a4aaecf2004138848e56ab4b39631769ac32c29223a4f",
+        "outline_signature_sha256": "11b22b8c1bfd322dee8625ec6ea35009f556e37f5d5cb43b98dbef4686a42fcc",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 218,
+        "exact_dark_outline_pixels": 56
+      }
+    },
+    {
+      "slot": 21,
+      "native_id": "spirit_crystal",
+      "native_text_key": "spirit_crystal",
+      "native_category": "Magic",
+      "lol_item": {
+        "id": "1026",
+        "name": "Blasting Wand",
+        "localized_names": {
+          "en": "Blasting Wand",
+          "ko": "방출의 마법봉",
+          "zh-hans": "爆裂魔杖",
+          "zh-hant": "爆裂魔杖"
+        }
+      },
+      "atlas": {
+        "key": "t2_4",
+        "normalized_rect": [
+          0.7,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          399,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/spirit_crystal.png",
+        "sha256": "e74ac072cf68086cb210c6b8203f9b1356b2cd60baab7f7d2f4c0e828a3af426"
+      },
+      "runtime": {
+        "pixel_sha256": "ede0ef239d314ff86d73a9043200808bc56ee431fdf80bb097f828791ec35d78",
+        "alpha_sha256": "205b4ddcce6f8a4cabe5faa5adba239ac5a7bf32cefeae08371439ac05bc39ab",
+        "outline_signature_sha256": "81eb57f0687dc9f04c0fceaeb0b80f1101413e5fcd348ddaa04a5a1635a039b0",
+        "alpha_bbox": [
+          2,
+          1,
+          15,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 121,
+        "exact_dark_outline_pixels": 48
+      }
+    },
+    {
+      "slot": 22,
+      "native_id": "staff_of_rapture",
+      "native_text_key": "staff_of_rapture",
+      "native_category": "Magic",
+      "lol_item": {
+        "id": "3108",
+        "name": "Fiendish Codex",
+        "localized_names": {
+          "en": "Fiendish Codex",
+          "ko": "악마의 마법서",
+          "zh-hans": "恶魔法典",
+          "zh-hant": "惡魔法典"
+        }
+      },
+      "atlas": {
+        "key": "t3_4",
+        "normalized_rect": [
+          0.73333335,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          418,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/staff_of_rapture.png",
+        "sha256": "d57b6a743911da3ec9807243524b607d835d37846072c18cadce6969f897155f"
+      },
+      "runtime": {
+        "pixel_sha256": "15a9707fcf47639f0d3647cfd33754f4b0f3cbf445ac3ccaa2d811c664bc34e9",
+        "alpha_sha256": "dc6cc971e5bfd5e98f493de61f3699f7d170a4e2d0c69658f50f5d6e5e5b4f74",
+        "outline_signature_sha256": "ec7eb269f741c9cea6986d2dab55e7be623b6461e91939365f245d2cb8729377",
+        "alpha_bbox": [
+          1,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 209,
+        "exact_dark_outline_pixels": 50
+      }
+    },
+    {
+      "slot": 23,
+      "native_id": "angels_fang",
+      "native_text_key": "angels_fang",
+      "native_category": "Magic",
+      "lol_item": {
+        "id": "6655",
+        "name": "Luden's Echo",
+        "localized_names": {
+          "en": "Luden's Echo",
+          "ko": "루덴의 메아리",
+          "zh-hans": "卢登的回声",
+          "zh-hant": "盧登回音"
+        }
+      },
+      "atlas": {
+        "key": "t4_4",
+        "normalized_rect": [
+          0.76666665,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          437,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/angels_fang.png",
+        "sha256": "d2e94c841567f106f340e94d4d7f2a3b39b41c80448bb1a65181eb7da15bf386"
+      },
+      "runtime": {
+        "pixel_sha256": "fd5958b329f1e1e64517f88a1e622dc3895b5d3bf14e7e22b708ba8ce8fa31d0",
+        "alpha_sha256": "bb5f93a47b4943af2ba7cc092a0c5d196e746b699dfb29045c884348cd92db02",
+        "outline_signature_sha256": "b80102c761ea0400241b2a7ae96ad8999e4ad7750a4d4604e6c3380fbdaf2632",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 145,
+        "exact_dark_outline_pixels": 51
+      }
+    },
+    {
+      "slot": 24,
+      "native_id": "prophet_of_the_abyss",
+      "native_text_key": "prophet_of_the_abyss",
+      "native_category": "Magic",
+      "lol_item": {
+        "id": "3137",
+        "name": "Cryptbloom",
+        "localized_names": {
+          "en": "Cryptbloom",
+          "ko": "무덤꽃",
+          "zh-hans": "蜕生",
+          "zh-hant": "死墓之花"
+        }
+      },
+      "atlas": {
+        "key": "t5_4",
+        "normalized_rect": [
+          0.8,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          456,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/prophet_of_the_abyss.png",
+        "sha256": "68ac7531e6cb0d6575927899177d54a3461fbfa6bbac7dabc3772543d181475b"
+      },
+      "runtime": {
+        "pixel_sha256": "b71f99b69b0f67ec0f855b016ec0772fd065da4bd6e5d33a627d1a4f1cbc3d27",
+        "alpha_sha256": "7b1c8f1084c709bbd58e3bb98f7c8e3b57da95149b0b5f2b0c6754745e86e503",
+        "outline_signature_sha256": "d855b43ad9dcf881bfcc1c5c9721db834fa67407afaade5966ae57708ae52843",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 206,
+        "exact_dark_outline_pixels": 62
+      }
+    },
+    {
+      "slot": 25,
+      "native_id": "vital_orb",
+      "native_text_key": "vital_orb",
+      "native_category": "Hp",
+      "lol_item": {
+        "id": "1028",
+        "name": "Ruby Crystal",
+        "localized_names": {
+          "en": "Ruby Crystal",
+          "ko": "루비 수정",
+          "zh-hans": "红水晶",
+          "zh-hant": "紅水晶"
+        }
+      },
+      "atlas": {
+        "key": "t1_5",
+        "normalized_rect": [
+          0.8333333,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          475,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/vital_orb.png",
+        "sha256": "fcd5d9851b8a254ae39b915a6af232f997176b8b8575d0ae8d2315658fcb700b"
+      },
+      "runtime": {
+        "pixel_sha256": "cede4014e51a50aacce000844174dbaff8d1525f531bdedc836e0f8783402f8e",
+        "alpha_sha256": "a05734697d3ca50f9eaff37f7f8fde057298b35d580cb91a22ac41f0e2704200",
+        "outline_signature_sha256": "7ae2cff44822a746a8c1450ad23387de3a38d06412b328cacedf9056381a5baf",
+        "alpha_bbox": [
+          3,
+          1,
+          15,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 163,
+        "exact_dark_outline_pixels": 51
+      }
+    },
+    {
+      "slot": 26,
+      "native_id": "hardened_heart",
+      "native_text_key": "hardened_heart",
+      "native_category": "Hp",
+      "lol_item": {
+        "id": "1011",
+        "name": "Giant's Belt",
+        "localized_names": {
+          "en": "Giant's Belt",
+          "ko": "거인의 허리띠",
+          "zh-hans": "巨人腰带",
+          "zh-hant": "巨人腰帶"
+        }
+      },
+      "atlas": {
+        "key": "t2_5",
+        "normalized_rect": [
+          0.8666667,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          494,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/hardened_heart.png",
+        "sha256": "b8f1da5fc4eb7947b9a6a3424d68639709935078093ca40306c27c312415b109"
+      },
+      "runtime": {
+        "pixel_sha256": "2f8a5b43830382992a2f43840b0b782e5defa540d8ea94d1e6ca4ca0d126f59c",
+        "alpha_sha256": "8c198f04faddce27a1c07bcff76c068d4f816fd96e027814fd502b9d45a72953",
+        "outline_signature_sha256": "8ab93a98e39490e058adb673d1c95aef93706f6581e915f9230900a320c11e8f",
+        "alpha_bbox": [
+          1,
+          2,
+          17,
+          15
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 199,
+        "exact_dark_outline_pixels": 53
+      }
+    },
+    {
+      "slot": 27,
+      "native_id": "ring_of_reincarnation",
+      "native_text_key": "ring_of_reincarnation",
+      "native_category": "Hp",
+      "lol_item": {
+        "id": "3801",
+        "name": "Crystalline Bracer",
+        "localized_names": {
+          "en": "Crystalline Bracer",
+          "ko": "수정 팔 보호구",
+          "zh-hans": "晶体护腕",
+          "zh-hant": "水晶護腕"
+        }
+      },
+      "atlas": {
+        "key": "t3_5",
+        "normalized_rect": [
+          0.9,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          513,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/ring_of_reincarnation.png",
+        "sha256": "675ca813f1b68bbccab9ebe4ab4378d2c51e99cc6b6e96c9e26b250ae190ca0a"
+      },
+      "runtime": {
+        "pixel_sha256": "f114e64a5690d31f515b30812aaa31c0eb73a302ed6c5af236edd74ef9518463",
+        "alpha_sha256": "1c589370e62d16943ebbd3e069a1d0a4abf4f4b8223e3e50174928b5cd6d6be7",
+        "outline_signature_sha256": "83675985db0cd61a7e013c2e3ff3c8ed2de35d4191c2eedaa7697f6c49a7be9d",
+        "alpha_bbox": [
+          2,
+          1,
+          16,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 204,
+        "exact_dark_outline_pixels": 54
+      }
+    },
+    {
+      "slot": 28,
+      "native_id": "hourglass_of_eternity",
+      "native_text_key": "hourglass_of_eternity",
+      "native_category": "Hp",
+      "lol_item": {
+        "id": "3083",
+        "name": "Warmog's Armor",
+        "localized_names": {
+          "en": "Warmog's Armor",
+          "ko": "워모그의 갑옷",
+          "zh-hans": "狂徒铠甲",
+          "zh-hant": "好戰者鎧甲"
+        }
+      },
+      "atlas": {
+        "key": "t4_5",
+        "normalized_rect": [
+          0.93333334,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          532,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/hourglass_of_eternity.png",
+        "sha256": "318884d47afe36af1138275572339348370cefe708164bdbdcc1f80256459e53"
+      },
+      "runtime": {
+        "pixel_sha256": "88550fcf90e508d194e6391a7f904d96fdd4f01790042bb6f37d0b451d011492",
+        "alpha_sha256": "7330f6ba04cd6d6e8c5be140186b36a3786c5185dbe5212226923505cf463cc5",
+        "outline_signature_sha256": "eb1fa1f3c0bf35c5840e03b7a8c2fa997732885bfcc494221cb68c2ef89506a0",
+        "alpha_bbox": [
+          1,
+          1,
+          17,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 216,
+        "exact_dark_outline_pixels": 66
+      }
+    },
+    {
+      "slot": 29,
+      "native_id": "giants_horn_shard",
+      "native_text_key": "giants_horn_shard",
+      "native_category": "Hp",
+      "lol_item": {
+        "id": "3068",
+        "name": "Sunfire Aegis",
+        "localized_names": {
+          "en": "Sunfire Aegis",
+          "ko": "태양불꽃 방패",
+          "zh-hans": "日炎圣盾",
+          "zh-hant": "日炎聖盾"
+        }
+      },
+      "atlas": {
+        "key": "t5_5",
+        "normalized_rect": [
+          0.96666664,
+          0.0,
+          0.031578947,
+          0.94736844
+        ],
+        "pixel_rect": [
+          551,
+          0,
+          18,
+          18
+        ]
+      },
+      "source": {
+        "path": "mods/lol_mod/source/processed/items/giants_horn_shard.png",
+        "sha256": "884fa44f3068236e2d27399bff0ee8ea404d26293a5baacb53395eeb682fa409"
+      },
+      "runtime": {
+        "pixel_sha256": "7b0938469b0fe74fcd8f5bf3b277864fc079ee1b17363fedbce5c321f818c3e5",
+        "alpha_sha256": "cafdc7514b53f385c87dc38d0ceff0a48580d84b1fa19235c1f0bc8bda822107",
+        "outline_signature_sha256": "d5a80f41c7bdda131579ab4c21db5c06b93df71750a3e11cdd9e0dc37aba0d73",
+        "alpha_bbox": [
+          2,
+          1,
+          15,
+          17
+        ],
+        "border_alpha_max": 0,
+        "visible_pixels": 178,
+        "exact_dark_outline_pixels": 48
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+message:empty {
+  width: 600px;
+  height: 45px;
+
+  anchor_x: 0.5;
+  pivot_x: 0.5;
+  y: 150px;
+
+  #lol_hud_center_kill:image {
+    ignore_event: true;
+    width: 100%;
+    height: 100%;
+    source: "asset/lol_mod/ui/ingame/lol_hud_center_kill";
+  }
+
+  #kills:empty {
+    width: 66px;
+    height: 17px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    anchor_y: 1;
+    pivot_y: 0;
+
+    child_type: LeftToRight {
+      spacing: 3px;
+    }
+
+    #icon1:image {
+      source: "asset/base/ui/icons/kill_count";
+      width: 20px;
+      height: 19px;
+    }
+
+    #icon2:image {
+      source: "asset/base/ui/icons/kill_count";
+      width: 20px;
+      height: 19px;
+    }
+
+    #icon3:image {
+      source: "asset/base/ui/icons/kill_count";
+      width: 20px;
+      height: 19px;
+    }
+
+    #icon4:image {
+      source: "asset/base/ui/icons/kill_count";
+      width: 20px;
+      height: 19px;
+    }
+
+    #icon5:image {
+      source: "asset/base/ui/icons/kill_count";
+      width: 20px;
+      height: 19px;
+    }
+  }
+
+
+  #text:label {
+    @"asset/base/style/main#bold_label";
+    size: 30;
+    outline: 1;
+    color: #adb9ffff;
+    outline_color: #000000ff;
+
+    align_x: Center;
+    align_y: Center;
+
+    width: 504px;
+    height: 45px;
+
+    anchor_x: 0.5;
+    anchor_y: 0.5;
+    pivot_x: 0.5;
+    pivot_y: 0.5;
+
+    align_x: Center;
+    align_y: Center;
+
+    text: "";
+
+    #killer:image {
+      width: 40px;
+      height: 40px;
+
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      anchor_x: 0;
+      pivot_x: 1;
+
+      source: "asset/base/ui/circle";
+
+      color: #5b73ffff;
+
+      #inner:image {
+        width: 38px;
+        height: 38px;
+
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+
+        source: "asset/base/ui/circle";
+
+        color: #161721ff;
+
+        #champion:image {
+          width: 38px;
+          height: 38px;
+
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          rounding: Uniform {
+            rounding: 19;
+          }
+        }
+      }
+    }
+
+    #killed:image {
+      anchor_x: 1;
+      pivot_x: 0;
+      width: 40px;
+      height: 40px;
+
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      source: "asset/base/ui/circle";
+
+      color: #ef6471ff;
+
+      #inner:image {
+        width: 38px;
+        height: 38px;
+
+        source: "asset/base/ui/circle";
+
+        color: #161721ff;
+
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+
+        #champion:image {
+          width: 38px;
+          height: 38px;
+
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          rounding: Uniform {
+            rounding: 19;
+          }
+        }
+      }
+    }
+  }
+}

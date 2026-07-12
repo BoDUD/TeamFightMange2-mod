@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shen, Lucian, Orianna, Briar, and Sivir assets from accepted sources."""
+"""Build champion assets and optionally rebuild the quality-upgrade runtime pack."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ import hashlib
 import json
 from pathlib import Path
 import struct
+import subprocess
+import sys
 import wave
 
 from PIL import Image, ImageDraw
@@ -20,9 +22,22 @@ ACTOR_DIR = MOD_ROOT / "aseprite_resources" / "champions"
 EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
+CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
+QUALITY_BUILDERS = (
+    "pack_quality_items.py",
+    "pack_quality_objectives.py",
+    "pack_quality_small_jungle.py",
+    "pack_quality_missing_lol_camps.py",
+    "pack_quality_objective_ui.py",
+    "pack_quality_towers.py",
+    "pack_quality_nexus.py",
+    "pack_quality_map.py",
+    "pack_quality_bp_skin.py",
+    "pack_quality_ingame_hud.py",
+)
 
 ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
@@ -87,6 +102,10 @@ BRIAR_ICON_SOURCES = {
 }
 BRIAR_VFX_SOURCES = {
     "briar_bleed": SOURCE / "briar_bleed_vfx_contact_alpha.png",
+    "briar_q_overhead": SOURCE
+    / "champions"
+    / "004_briar"
+    / "briar_q_overhead_v1_alpha.png",
     "briar_frenzy": SOURCE / "briar_frenzy_vfx_contact_alpha.png",
     "briar_e_scream": SOURCE / "briar_e_vfx_contact_alpha.png",
     "briar_r": SOURCE / "briar_r_vfx_contact_alpha.png",
@@ -124,6 +143,13 @@ SIVIR_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int]] = [
     (640, 915, 875, 1160),
     (885, 925, 1175, 1160),
 ]
+CHAMPION_FULLBODY_SHEETS = {
+    "lol_shen": ACTOR_DIR / "shen#sheet.png",
+    "archer": ACTOR_DIR / "lucian#sheet.png",
+    "barrier_magician": ACTOR_DIR / "orianna#sheet.png",
+    "berserker": ACTOR_DIR / "briar#sheet.png",
+    "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
+}
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
 ARCHER_SKILL_ICON_BOXES = {
@@ -213,6 +239,30 @@ def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]
         for row in range(rows)
         for column in range(columns)
     ]
+
+
+def build_champion_fullbody_portraits() -> list[Path]:
+    """Export the complete first idle frame for encyclopedia-only portraits."""
+    CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
+        with Image.open(sheet_path) as opened:
+            sheet = opened.convert("RGBA")
+            if sheet.width < 64 or sheet.height < 64:
+                raise ValueError(f"Champion sheet is smaller than one 64px frame: {sheet_path}")
+            idle_frame = sheet.crop((0, 0, 64, 64))
+            subject = idle_frame.crop(alpha_bbox(idle_frame))
+            scale = min(54 / subject.width, 58 / subject.height)
+            subject = subject.resize(
+                (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+                Image.Resampling.NEAREST,
+            )
+            portrait = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+            portrait.alpha_composite(subject, ((64 - subject.width) // 2, 62 - subject.height))
+        output = CHAMPION_FULLBODY_DIR / f"{champion_id}.png"
+        save_png(output, portrait)
+        outputs.append(output)
+    return outputs
 
 
 def hard_alpha(image: Image.Image, threshold: int = 56) -> Image.Image:
@@ -644,6 +694,26 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
         return frame
 
     base_frames = [actor_frame(subject) for subject in actor_subjects]
+
+    # The accepted Q-break pose contains a handful of generated yellow/orange
+    # pixels outside Briar's body. At runtime those isolated pixels read as a
+    # square bracket around the actor. Keep the exact pose and 64x64 frame, but
+    # remove only that generated VFX color family; Q's feedback now lives in a
+    # separate target-following overhead effect.
+    q_break = base_frames[6].copy()
+    q_pixels = q_break.load()
+    for y in range(q_break.height):
+        for x in range(q_break.width):
+            red, green, blue, alpha = q_pixels[x, y]
+            if (
+                alpha
+                and red >= 110
+                and green >= 55
+                and blue <= 80
+                and green * 100 >= red * 35
+            ):
+                q_pixels[x, y] = (0, 0, 0, 0)
+    base_frames[6] = q_break
     run_cells = [
         hard_alpha(cell)
         for cell in split_grid(Image.open(BRIAR_RUN_SOURCE).convert("RGBA"), 3, 3)
@@ -1216,7 +1286,7 @@ def build_orianna_vfx() -> list[Path]:
 
 
 def build_briar_vfx() -> list[Path]:
-    """Build Briar's curse, frenzy, scream, mark, trail, and arrival VFX."""
+    """Build Briar's curse, Q overhead hit, frenzy, scream, and R VFX."""
 
     EFFECT_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
@@ -1252,6 +1322,55 @@ def build_briar_vfx() -> list[Path]:
                 48,
                 list(range(8)),
                 [0.04, 0.05, 0.06, 0.07, 0.06, 0.06, 0.08, 0.10],
+            )
+        },
+    )
+
+    q_overhead_cells = []
+    for cell in split_grid(
+        Image.open(BRIAR_VFX_SOURCES["briar_q_overhead"]).convert("RGBA"), 4, 2
+    ):
+        # The accepted ImageGen contact sheet has white gutters between cells.
+        # Remove the per-cell edge band before alpha bounding so no separator
+        # can survive as a visible square/line in the runtime effect.
+        inset = min(18, (min(cell.size) - 1) // 4)
+        q_overhead_cells.append(
+            hard_alpha(cell.crop((inset, inset, cell.width - inset, cell.height - inset)))
+        )
+    q_overhead_subjects = [cell.crop(alpha_bbox(cell)) for cell in q_overhead_cells]
+    q_overhead_scale = min(
+        30 / max(subject.width for subject in q_overhead_subjects),
+        22 / max(subject.height for subject in q_overhead_subjects),
+    )
+    q_overhead_frames: list[Image.Image] = []
+    for subject in q_overhead_subjects:
+        resized = subject.resize(
+            (
+                max(1, round(subject.width * q_overhead_scale)),
+                max(1, round(subject.height * q_overhead_scale)),
+            ),
+            Image.Resampling.LANCZOS,
+        )
+        resized = palette_finish(resized, 32)
+        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+        # The entity-following effect shares the actor's 64x64 screen anchor.
+        # Reserve the lower 40 pixels so the sigil stays above the target's
+        # hair/health-bar region rather than enclosing the body.
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, 2 + (22 - resized.height) // 2),
+        )
+        q_overhead_frames.append(frame)
+    write_effect(
+        "briar_q_overhead",
+        q_overhead_frames,
+        (64, 64),
+        {
+            "impact": effect_anim(
+                64,
+                64,
+                list(range(8)),
+                [0.04, 0.04, 0.05, 0.05, 0.06, 0.06, 0.07, 0.09],
             )
         },
     )
@@ -2384,6 +2503,10 @@ def build_briar_data() -> Path:
                     {"type": "Sfx", "name": "lol_briar_q_cast"},
                     {"type": "CasterAnimation", "name": "skill1", "tick": 20},
                     {
+                        "type": "ViewEffect",
+                        "name": "lol_briar_q_overhead_visual",
+                    },
+                    {
                         "type": "SwitchByBuff",
                         "buff_name": "lol_briar_certain_death_frenzy",
                         "effect_none": {
@@ -2592,6 +2715,14 @@ def build_briar_data() -> Path:
             },
             {
                 "type": "Animation",
+                "name": "lol_briar_q_overhead_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/briar_q_overhead",
+                "tag": "impact",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
                 "name": "lol_briar_r_mark_visual",
                 "anim": "asset/lol_mod/aseprite_resources/effects/briar_r_mark",
                 "tag": "mark",
@@ -2616,15 +2747,6 @@ def build_briar_data() -> Path:
             },
         ],
         "view_buffs": [
-            {
-                "type": "ThreePhase",
-                "name": "lol_briar_blood_frenzy",
-                "anim": "asset/lol_mod/aseprite_resources/effects/briar_frenzy",
-                "pre_tag": "pre",
-                "loop_tag": "loop",
-                "remove_tag": "remove",
-                "z": 1,
-            },
             {
                 "type": "ThreePhase",
                 "name": "lol_briar_certain_death_frenzy",
@@ -3154,13 +3276,16 @@ def build_briar_qa_contacts(
 
     panels = [
         ("briar_bleed", (48, 48), 8, "passive bleed tick"),
-        ("briar_frenzy", (96, 96), 8, "Q/R frenzy aura"),
+        ("briar_q_overhead", (64, 64), 8, "Q target-follow overhead impact"),
+        ("briar_frenzy", (96, 96), 8, "R frenzy aura"),
         ("briar_e_scream", (112, 64), 8, "E forward scream"),
         ("briar_r_mark", (64, 64), 4, "R target mark"),
         ("briar_r_trail", (96, 48), 4, "R chase trail"),
         ("briar_r_arrival", (96, 96), 4, "R arrival/fear"),
     ]
-    vfx_contact = Image.new("RGBA", (8 * 128, 6 * 148), (20, 18, 28, 255))
+    vfx_contact = Image.new(
+        "RGBA", (8 * 128, len(panels) * 148), (20, 18, 28, 255)
+    )
     draw = ImageDraw.Draw(vfx_contact)
     for row, (name, frame_size, count, label) in enumerate(panels):
         sheet = Image.open(EFFECT_DIR / f"{name}#sheet.png").convert("RGBA")
@@ -3348,9 +3473,12 @@ def build_manifest() -> Path:
         MOD_ROOT / "champion",
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
+        MOD_ROOT / "BanPickIllust",
+        MOD_ROOT / "ui",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
+        MOD_ROOT / "lol_mod.dll",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -3375,10 +3503,25 @@ def build_manifest() -> Path:
     return path
 
 
+def rebuild_quality_upgrade() -> None:
+    for script_name in QUALITY_BUILDERS:
+        script = MOD_ROOT / "tools" / script_name
+        if not script.is_file():
+            raise FileNotFoundError(f"Missing quality-upgrade builder: {script}")
+        subprocess.run([sys.executable, str(script)], cwd=MOD_ROOT, check=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--skip-manifest", action="store_true", help="Build art only")
+    parser.add_argument(
+        "--rebuild-quality",
+        action="store_true",
+        help="rebuild item, objective, jungle, tower, and auxiliary UI outputs",
+    )
     args = parser.parse_args()
+    if args.rebuild_quality:
+        rebuild_quality_upgrade()
     required_sources = [
         ACTOR_SOURCE,
         RUN_SOURCE,
@@ -3430,6 +3573,7 @@ def main() -> int:
     sivir_silence = build_sivir_native_silence()
     sivir_qa = build_sivir_qa_contacts(sivir_frames, sivir_icons)
     sivir_imagegen_audit = build_sivir_imagegen_audit()
+    champion_fullbody_portraits = build_champion_fullbody_portraits()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -3463,6 +3607,7 @@ def main() -> int:
         *sivir_silence,
         *sivir_qa,
         sivir_imagegen_audit,
+        *champion_fullbody_portraits,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

@@ -10,7 +10,7 @@
     {
       "path": "aseprite_resources/champions/briar#sheet.png",
       "size": 458919,
-      "sha256": "0fe184628d0ce3b380c127f3b09b3507608ec94705c68b285366a0ab45a31fbc"
+      "sha256": "54c535a61b94b2d5ad8dca3d2dc2293ebd413d89686cd8066f943ffccaee433d"
     },
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
@@ -81,6 +81,16 @@
       "path": "aseprite_resources/effects/briar_frenzy#sheet.png",
       "size": 295096,
       "sha256": "f585cdaf30781c81a475fb8c3ba6ba91ab4f51b38e4b96b902d5e819702f796c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_q_overhead#anim.fanim",
+      "size": 1377,
+      "sha256": "754cabd4d14e6311c4a304540318f6b3d636af64a592a4a0e553ee97926dfca9"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_q_overhead#sheet.png",
+      "size": 131214,
+      "sha256": "9dd9118392c4e4512a4a28867dd2278642c05e9b613eebb0d9b1679282fb6f3f"
     },
     {
       "path": "aseprite_resources/effects/briar_r_arrival#anim.fanim",
@@ -273,6 +283,336 @@
       "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
     },
     {
+      "path": "aseprite_resources/ingame/5v5/background_5v5.png",
+      "size": 1302686,
+      "sha256": "f7b7f746c1b2ea6d4182d2024fcb96c8e7774f0b17d06c26cbadc780111d995e"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
+      "size": 47293,
+      "sha256": "d46d109cb4be9c1899367804aa982aee3c791d75bed90eb3130834b14b56b29d"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
+      "size": 13609,
+      "sha256": "3a62848b6beb27610786ef94b21c244f5a67f3f97e6e146662b6abf4f9ef8df4"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+      "size": 18500,
+      "sha256": "0cd847afcbed5b52e1e63cc0c4595fe1ddde67688b389a4e249da77ead528cfa"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
+      "size": 257,
+      "sha256": "128d9471215f5510e4e39f340b01ec439b0d94759fd4dfbe4dcb504eac7e1dea"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
+      "size": 130,
+      "sha256": "a648a107fc724bc9a6ddcec305009491881dfa7ba0c97621cbaef33f4b465bd0"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
+      "size": 109616,
+      "sha256": "7bb6439c0235da4fd75e4b2bcfea1f833fa52c5900232b75f63d0b02374a8de7"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
+      "size": 9642,
+      "sha256": "d2a929c6c9adb33cc74cfd3a5deca643a03c1e5af14e682e6dbeaa24a32d30bf"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
+      "size": 16264,
+      "sha256": "cc74a72a9128df6219f1ee062365e92fb126915a800534cc09bb68a516d1bd10"
+    },
+    {
+      "path": "aseprite_resources/ingame/bee#anim.fanim",
+      "size": 7511,
+      "sha256": "5136841cb8707d2dd9511dc9b688c5cafd028bdf9aea5755358ff6e494b8739e"
+    },
+    {
+      "path": "aseprite_resources/ingame/bee#sheet.png",
+      "size": 23946,
+      "sha256": "f6821bb8ad877f9f16cdce80d8e34466ea2db08c10ae6d01c6524ad424d5c260"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
+      "size": 3790,
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus#sheet.png",
+      "size": 7742,
+      "sha256": "ca5a9b0dc2dccb3ee99c4e694e5c652efbd02078dfc52ba2fd3f5ef4390d4680"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#anim.fanim",
+      "size": 3788,
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#sheet.png",
+      "size": 2657,
+      "sha256": "07deffbfc36eee1afb29bbb3048e6fa9fbd43489f019d383e9649f7ce7422eb8"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#sheet.png",
+      "size": 45051,
+      "sha256": "aec3d327f62f6b83ecb6a145a25162fbd3b8b412fc1f0c9c13c2c823580ede20"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#sheet.png",
+      "size": 13595,
+      "sha256": "afe8e0955c51ca0c40229b2f29eea7910689933e5e9a0c9859b279c914a0b1ca"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
+      "size": 99018,
+      "sha256": "2f6a67a61e0d3dd737b9f831e1f02b054131aefa309a8a3ceda1fde7ced93a2d"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
+      "size": 102821,
+      "sha256": "371b3611992f8369161f6d561ecb1e2d4d03a53c10768bfd66c69dd6d98a311a"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
+      "size": 96185,
+      "sha256": "2a531dd21507651c7fdb7b9cacef87bdddad84fc2797e0cd86c28d09dc2c9f8e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
+      "size": 97128,
+      "sha256": "1ae405c9c556b7f845cad4a01565d4a8c00ccb297312675bcbf2b429a8f64e41"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
+      "size": 95851,
+      "sha256": "7b59816613bd14ff183f9589938bb5d3565d7d4508a6cf5add238129cc5b0625"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#anim.fanim",
+      "size": 6660,
+      "sha256": "60e939aaf77653d069c77aad837187acecfdfb92bfe9213d32c248890bb5dbaa"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#sheet.png",
+      "size": 418759,
+      "sha256": "6ff966c279ff649d3cc3dc634d1efc3c6b65a4a588f50d7257d3965fd56d728a"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#anim.fanim",
+      "size": 1073,
+      "sha256": "6625dbbe4034d22a4107dfcbf02339d02c9761dbe92d8249f7c54226ec55d1a0"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#sheet.png",
+      "size": 420,
+      "sha256": "7873bd1de70922b838c79290a5dd21e93f92574cba31317990a29c37f36361f3"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_sheet",
+      "size": 181,
+      "sha256": "27af66281b79951bcaebca5ea50dcdd6481dabeef0917716f1f45629797469ba"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#sheet.png",
+      "size": 215,
+      "sha256": "ac2e1d7d0f44557c9a70e5dbf8c13ac0116621e2c5370a9f528270116c8b33ce"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#data.sprite_sheet",
+      "size": 1830,
+      "sha256": "055e6e0b012379c67ef41a4d373b8718db1bd5bf64f2800320c60bce51df3182"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#sheet.png",
+      "size": 15264,
+      "sha256": "ebea8ebbdc3e65025c1220ef2e92a1c060085ed966e4745a6c67873194ed1547"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#anim.fanim",
+      "size": 3915,
+      "sha256": "58d0665f5b609df098c2bdc64b072fa9c32e727ef8e0671e4d827e9f0d4fc7b7"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#sheet.png",
+      "size": 126087,
+      "sha256": "49f568c2082d8754abbc6a1b502997a92ddc12af4dd3a09a123a7a12c642df4b"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#anim.fanim",
+      "size": 3912,
+      "sha256": "cae68aa3d9416f6f68ba26cb5a5fcad47fe78d0803fb74b08c306a8011d1a6aa"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#sheet.png",
+      "size": 62997,
+      "sha256": "942ec241e9f28526c5a1c73bc932ad11adfd5bf6a801afa96bb95ef7a1ab0e92"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#anim.fanim",
+      "size": 3915,
+      "sha256": "78c35736869ff9c6ddaebd58215dd0ff59a15cdb503b1a7c69c24895455ad4a7"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#sheet.png",
+      "size": 80579,
+      "sha256": "222067444c6513b882d39f86b9f240a660d5de7eb4f6dd6c77a686ab4b9e2614"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus#anim.fanim",
+      "size": 3790,
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus#sheet.png",
+      "size": 8089,
+      "sha256": "2c5844d3a866f6eccd1f2530ea7125fec770b03fb4be0c2c19e4e5dbb1b1bb86"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus_orb#anim.fanim",
+      "size": 3788,
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus_orb#sheet.png",
+      "size": 2693,
+      "sha256": "c4d1c70ed8adaf540b89455f323470bed68a687a847330c2290a18b98354bf88"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#sheet.png",
+      "size": 45122,
+      "sha256": "4f4e30dbb81561dd7776c835c78316d2a6268655f150aa4d0e38a36267cc527b"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#sheet.png",
+      "size": 13645,
+      "sha256": "9db77f580219b7d6a93245bd764a98e3f3d56126bf51c223f416b0ff0f180c49"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#anim.fanim",
+      "size": 3911,
+      "sha256": "00156cb830fc38c8ee5b3f02c962e9d6575c4c7b043eb6b41107a63d0b8fbf9f"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#sheet.png",
+      "size": 87188,
+      "sha256": "a25830974a2eaf96a58e3e6c3b4fde36cf091115c5b69a87903a03e2c04fd818"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#sheet.png",
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#anim.fanim",
+      "size": 3909,
+      "sha256": "1690487058c0dd1c6766ab8f850ac84aa9e78cfc957736ea161a3b91c7381c4c"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#sheet.png",
+      "size": 64741,
+      "sha256": "4663a131eeea7b5c38969b2e7aee772428b979984969a36142d70e42b49d364a"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
+      "size": 103,
+      "sha256": "7a8ff254fe17697029bb5fcd8f83bd479ead7022cc7b373cbd1f8d93b6099c41"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/red_tower_projectile.png",
+      "size": 96,
+      "sha256": "488fc1f708cf967e60546837e94136301c589917c910c4b0b0925221df94d3f5"
+    },
+    {
+      "path": "BanPickIllust/archer.png",
+      "size": 2932996,
+      "sha256": "faf74bff3129e3afd5019c7939fe973a54b2dd3a167aca41445978131dccad84"
+    },
+    {
+      "path": "BanPickIllust/barrier_magician.png",
+      "size": 3302521,
+      "sha256": "93ee86a0c3f3588157216675702e562c0b80ba845420cf99d8c58dea26de171e"
+    },
+    {
+      "path": "BanPickIllust/berserker.png",
+      "size": 2769095,
+      "sha256": "30a6aa3eb4e842d49bb7e149e4275ae0f44563955212ab0fb0f1d7ca6bc0c408"
+    },
+    {
+      "path": "BanPickIllust/boomerang_hunter.png",
+      "size": 3232858,
+      "sha256": "8f2890914892aeb1f446a28fa5d4e6e71738907533e72df4c62515db9c38b431"
+    },
+    {
+      "path": "BanPickIllust/lol_shen.png",
+      "size": 2742594,
+      "sha256": "a2c3893a42b3c3f2af3772a7267b19966f22cf1f2a2842dabbf4cb97ded89a35"
+    },
+    {
       "path": "champion/archer.data_champion",
       "size": 21588,
       "sha256": "866afddedefc76de57d43b91c2f48043ea4e5a942392ac5f4c13b48ed7707412"
@@ -284,8 +624,8 @@
     },
     {
       "path": "champion/berserker.data_champion",
-      "size": 18380,
-      "sha256": "fab626129496b0797ff46fca9dd22da4854e9a18bc468d8a8cd79b0cbf28079d"
+      "size": 18457,
+      "sha256": "ae2ad36abadc38fcea672b2dd58d98c9af23b254c9d62fc300b234a896028c19"
     },
     {
       "path": "champion/boomerang_hunter.data_champion",
@@ -373,14 +713,79 @@
       "sha256": "106b51aadae466c81370ee59ab640efd3d266cc7419f936458655d4c70e4cec7"
     },
     {
+      "path": "lol_mod.dll",
+      "size": 424448,
+      "sha256": "2f2fc67efea545ed0ffea67a1fe7cd4489a1cc805f6c99be323e90576a12a9a1"
+    },
+    {
       "path": "mod.mod_info",
-      "size": 746,
-      "sha256": "79ac62828e239c539896635ca130c6940cfc2a869dd00e88c5a7ab5feabe93f9"
+      "size": 1141,
+      "sha256": "48970987ee23bc463211dd13fd90522f943957163455a129f5d03e04fa00dee8"
     },
     {
       "path": "mod.override_info",
-      "size": 15069,
-      "sha256": "c44b25df46f2f6b8b5946a6ac98ed0e8652e7801778a8bd2ce1f07ae19e73217"
+      "size": 31589,
+      "sha256": "c4168e6f55db3f6b0e69f2b00449babe09b258305ec35680a747093cfcb9fa6e"
+    },
+    {
+      "path": "sound/bgm/lol_banpick.wav",
+      "size": 32309096,
+      "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57"
+    },
+    {
+      "path": "sound/bgm/lol_match.wav",
+      "size": 52920044,
+      "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left.sound_info",
+      "size": 142,
+      "sha256": "1b52371185d76056d51326763a41f1e6bcbb82fc1fd2db80505ccd49af4352da"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_hit_clip.wav",
+      "size": 57638,
+      "sha256": "0038c1c0770422f65630ff2a0457af144943192458695877791e8f8bfcb06397"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_launch_clip.wav",
+      "size": 161958,
+      "sha256": "c5c932ef3ec3fa940a74f51d07d9ab458bebc896a4da77b3cfed918ea6d6dede"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right.sound_info",
+      "size": 144,
+      "sha256": "ae639f5efe0a8fe3796dca8a403c7094494b07c69bbbdb6e3bb924ecfc3b2319"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_hit_clip.wav",
+      "size": 64696,
+      "sha256": "0164ae502b74e84812745cdc20b81b52ca13accc92b9723e61a07c841d7b6bc2"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_launch_clip.wav",
+      "size": 157514,
+      "sha256": "15eb7f2e5fbcc1c1a89180e658bc3753dcb8cb23a3c6195f3866cd59e0025977"
+    },
+    {
+      "path": "sound/sfx/baron_death.sound_info",
+      "size": 134,
+      "sha256": "3d333d7d0be2577b6cf06e1b6111b7316e0091d3349bae86d60a25bd2422ef21"
+    },
+    {
+      "path": "sound/sfx/baron_death_body_clip.wav",
+      "size": 687694,
+      "sha256": "773fd6e72c3e66cde5dc1846aaa783de008681226c5947b5134371a9fde6fff7"
+    },
+    {
+      "path": "sound/sfx/baron_death_mix_clip.wav",
+      "size": 687694,
+      "sha256": "b81a1122b36e3965fa45643d566e2520cc8b7ab36ac8a0f6fa4455a85763791a"
+    },
+    {
+      "path": "sound/sfx/baron_death_void_clip.wav",
+      "size": 483582,
+      "sha256": "6164007ed45b7a20780aafddcdf87b7e7a4f1ac70e8ab4b30a0352fe9fb9ef8d"
     },
     {
       "path": "sound/sfx/briar_attack_cast.sound_info",
@@ -471,6 +876,26 @@
       "path": "sound/sfx/briar_r_hit_clip.wav",
       "size": 206696,
       "sha256": "7ca8d4fca59221e2e0b8b717d26c764b893cfc9cb52c4d9f71349a5ce83d4189"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_double_kill.wav",
+      "size": 266624,
+      "sha256": "33ded903792be89b2ba9ccb5b265f490f1e828955019b1bbf95a42cf91451bbb"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_penta_kill.wav",
+      "size": 390508,
+      "sha256": "4ac46721472862f4007116a58d7a96fbde11291b9298d70e207d9340d293e383"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_quadra_kill.wav",
+      "size": 351128,
+      "sha256": "b139bdb76b5f3a678d053b4bce96c1b32dcafd0e754fd3acb2bb6353226b3365"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_triple_kill.wav",
+      "size": 325620,
+      "sha256": "654b67b6ee94f218286f60d06948f0f9c0360fc26e28d1998927c603f8558e3e"
     },
     {
       "path": "sound/sfx/lucian_attack_cast.sound_info",
@@ -788,6 +1213,11 @@
       "sha256": "50599bc5874670fcfb09e2687b58e7d053bc30f510e87255c3521b7da5f4ba62"
     },
     {
+      "path": "style/bp_controls.style",
+      "size": 3937,
+      "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d"
+    },
+    {
       "path": "style/champion_view.champion_view",
       "size": 747,
       "sha256": "76900f1442e1917b1e0e0212944b0f717dc44d3a3e54219f92303d967f9fa513"
@@ -796,6 +1226,286 @@
       "path": "text/champion.i18n",
       "size": 26311,
       "sha256": "ddc6999d3add82dc0e54774d09cfcaab0398a4c67e2dcd508de1f1163994ed01"
+    },
+    {
+      "path": "text/item.i18n",
+      "size": 8761,
+      "sha256": "19536efabe505d1214146da5bb103123ced315a5adbecb8dcdda20a0361d3f13"
+    },
+    {
+      "path": "text/object.i18n",
+      "size": 3817,
+      "sha256": "15472165d0a7db9f76281085e677691d278dfa79147b9c53d572399ea7c9c87a"
+    },
+    {
+      "path": "ui/banpick/lol_bp_background.png",
+      "size": 2397738,
+      "sha256": "84b81761a1b30bed11bcad6e3972ac6807ff4015e3dfe6754f83b09c28ee921d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_bottom_chrome.png",
+      "size": 222368,
+      "sha256": "8805fa3c928fb0c0abeed80ae5fa7baa34312ea356673c7d32832a8970623557"
+    },
+    {
+      "path": "ui/banpick/lol_bp_champion_card_frame.png",
+      "size": 9111,
+      "sha256": "1be7c3e742c5fb3bce5ff38722a0706524971b0c5e1548150db82e28ad61cd4a"
+    },
+    {
+      "path": "ui/banpick/lol_bp_champion_grid_frame.png",
+      "size": 183484,
+      "sha256": "3849533bff2d3f0b48ac7093e9231618040401350e88b13ca02618c8d49e08d1"
+    },
+    {
+      "path": "ui/banpick/lol_bp_filter_toolbar.png",
+      "size": 34255,
+      "sha256": "a22173d171cb65cd1d4146eff41b2a350c2698f57ced2571582d42609e4b0d14"
+    },
+    {
+      "path": "ui/banpick/lol_bp_header_chrome.png",
+      "size": 159218,
+      "sha256": "53abac7b478367442e7b6bd05525a3e1b78d6030d1d0dbc2b301fbffdf03003f"
+    },
+    {
+      "path": "ui/banpick/lol_bp_side_pick_frame.png",
+      "size": 51300,
+      "sha256": "a094577b76e0b1bd1b52834396be49a4bd6a859b62018ab18432b17d3bc1edc9"
+    },
+    {
+      "path": "ui/banpick/lol_bp_skill_frame.png",
+      "size": 56601,
+      "sha256": "80727bb739778f06151227cf6a48f01f71914ddf2598c5b3f9c73330233b3b44"
+    },
+    {
+      "path": "ui/banpick/lol_bp_stat_frame.png",
+      "size": 100793,
+      "sha256": "741508ff478eef71b5803eb8549fb1cf60aec2917ff3a4a749c56d0ac87729cf"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_icon.png",
+      "size": 898,
+      "sha256": "012c5a096c9c5d63c60c3e9430eb3ba49f5fdc890b08ef7822e2f24599f6b64d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_plate.png",
+      "size": 3673,
+      "sha256": "528bfc4606486d13f10aa6d02830087b9e0558fe724de3c11195e7a2d35c2071"
+    },
+    {
+      "path": "ui/champion_fullbody/archer.png",
+      "size": 16516,
+      "sha256": "ac58c44215938bcb6021ad83682312404d05c5fb5c8e65b5abe4fb4e30db5681"
+    },
+    {
+      "path": "ui/champion_fullbody/barrier_magician.png",
+      "size": 16516,
+      "sha256": "829241a25442d73bae69836d52d07561bf36bedc160cf7171cb28bd42693678c"
+    },
+    {
+      "path": "ui/champion_fullbody/berserker.png",
+      "size": 16516,
+      "sha256": "226b7eabb00ece5b611950ceba5f42ac44331f6a763ceb91448de5daba0be175"
+    },
+    {
+      "path": "ui/champion_fullbody/boomerang_hunter.png",
+      "size": 16516,
+      "sha256": "25c3bb530b4aac5420443d957452489bf9f5c9caabc6b7d358b7c899f4f82779"
+    },
+    {
+      "path": "ui/champion_fullbody/lol_shen.png",
+      "size": 16516,
+      "sha256": "b4408edfda39fd4756a46754b91560e6d437cc46542940947863681a037427e0"
+    },
+    {
+      "path": "ui/icons/morgard.svg",
+      "size": 9216,
+      "sha256": "cedf62ccde1ed663a412583f3211b87b28861c565345a71a5e97cc77584029de"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_blue.svg",
+      "size": 6411,
+      "sha256": "006d48e04753cae1427c66c5e0152ed6c1a087627f138f6d97f09e47a91012f5"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_red.svg",
+      "size": 6411,
+      "sha256": "db30eed179885393aaeca8ffb61bdd32dbe85c7896b94460856576c2e8ca6e25"
+    },
+    {
+      "path": "ui/icons/serpen.svg",
+      "size": 8802,
+      "sha256": "c1e6db5a11dffbe8cad540e36710bd3f3a2a5288cdea83a144f944778a441e82"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_blue.svg",
+      "size": 7544,
+      "sha256": "edfaa454442fc6a1c8edb6344d6fec01257a4bd2ec0772d547af455e8e8d21c2"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_red.svg",
+      "size": 7544,
+      "sha256": "a7e79222e0d166e99a8e2a701da67f0b5cc38f0e6945f556ef7e3e0b4c51a13d"
+    },
+    {
+      "path": "ui/icons/tower.svg",
+      "size": 7501,
+      "sha256": "3fed940159675ae03bdbdc09a103f46e62191df6d78e9c4bdf3b36f7439d86b0"
+    },
+    {
+      "path": "ui/ingame/epic.png",
+      "size": 479,
+      "sha256": "a2ba9eccdb15f7cbf12283bd098d024133dd6240fa37b11254081fcfe1560810"
+    },
+    {
+      "path": "ui/ingame/lol_hud_camera_info_blue.png",
+      "size": 19536,
+      "sha256": "9ac110d032b7da181ad9881ca734223ee285fd0f7a738f3cdac2142c027be3ae"
+    },
+    {
+      "path": "ui/ingame/lol_hud_camera_info_red.png",
+      "size": 18520,
+      "sha256": "874ff02ed0e7e0fe96add6ac6a201319c55560d5952cb77e20e88945eed8708c"
+    },
+    {
+      "path": "ui/ingame/lol_hud_center_kill.png",
+      "size": 15507,
+      "sha256": "500066d63e085ffd072a6d50c9710d62f1149aba0d31909131d7349e48c6b702"
+    },
+    {
+      "path": "ui/ingame/lol_hud_center_notify.png",
+      "size": 18368,
+      "sha256": "1488c0a5f48fcefc536683ace0c213521bb1827553e8e7c9e8cb31e6da633396"
+    },
+    {
+      "path": "ui/ingame/lol_hud_chat_icon.png",
+      "size": 929,
+      "sha256": "209598bc8c55cccbd35565c681feeafa3130fc633165d043e6d6d05ad943149a"
+    },
+    {
+      "path": "ui/ingame/lol_hud_detail_slot.png",
+      "size": 1201,
+      "sha256": "d2dd830581a8e769fd978184a1b9b58f81187a82fcbf5d49aefc8e1edb8e9664"
+    },
+    {
+      "path": "ui/ingame/lol_hud_kill_log.png",
+      "size": 5067,
+      "sha256": "25a95c02e8fc93a4edb8110d01710460aa5b27c084ae68760876be8e34cb444b"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_detail_blue.png",
+      "size": 10709,
+      "sha256": "95186f53f6f0d729b9697d4b16199ccaf70ad525747a8740b98128609f7f2e2a"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_detail_red.png",
+      "size": 9569,
+      "sha256": "dbc3e83daae5326fa46400b8eee876b6d0b312e16c98cf48d37b37ae5a1e08d0"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_info_blue.png",
+      "size": 8159,
+      "sha256": "b45e3f3517afdf61874a87256a4b8589e15e88db02e5e8bf74128a05530e5c16"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_info_red.png",
+      "size": 8355,
+      "sha256": "9aabe62bc54361d4cb798102fe918f62f2aba67e8a3479149e9ce5a31a671ff5"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_camera_info_blue.png",
+      "size": 13403,
+      "sha256": "61e71477acd2be8e05cf700781f443047c9d6cd81cc25cf3945bcfb586b9412f"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_camera_info_red.png",
+      "size": 12988,
+      "sha256": "92e54e8b30c28669b08bd5525ad9c0ba75223518fd528ae994e265f7e6862481"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_player_info_blue.png",
+      "size": 4179,
+      "sha256": "eaf6c2052702ad0671fd80fa7cb368d1b3a397bdb5098df8a1a00a0cc243eb96"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_player_info_red.png",
+      "size": 4731,
+      "sha256": "3cc4fdc14ed500b23cf02fe524122b4882e2302ae09a8962caed377a6238e785"
+    },
+    {
+      "path": "ui/layout/banpick/blue_pick_slot.ui",
+      "size": 10690,
+      "sha256": "3d7644b288784ed8d4c1585b10ad39bdd018ef5a8d33f412552ad82c4716805f"
+    },
+    {
+      "path": "ui/layout/banpick/champion_slot.ui",
+      "size": 5502,
+      "sha256": "346f9152e84c86705f39df0d8926f83fc62ccf40d7086dcd408a791827c478a6"
+    },
+    {
+      "path": "ui/layout/banpick/layout.ui",
+      "size": 66084,
+      "sha256": "d62cff711c1c5c3bebbf0fcded689bd1f13e140de910ef8dad2ec265e32e5258"
+    },
+    {
+      "path": "ui/layout/banpick/red_pick_slot.ui",
+      "size": 10788,
+      "sha256": "a342d2077d5aa512a8e852bb6d0227c154db14965c9c87609c446a06236e0f31"
+    },
+    {
+      "path": "ui/layout/champion_info_component/champion_slot.ui",
+      "size": 3032,
+      "sha256": "59b348feb7c4b7889d26a317e1699de49e504e460e0ffdafa741516c72e0fe43"
+    },
+    {
+      "path": "ui/layout/ingame_component/camera_info.ui",
+      "size": 2969,
+      "sha256": "206db71f6dffeb48cd475e1bd2ddd372e5f5b5413bcbdefae1d6257eefa913ab"
+    },
+    {
+      "path": "ui/layout/ingame_component/center_kill.ui",
+      "size": 2745,
+      "sha256": "a3d721a3141878f3f306dfca146e2e73f90220459e0ca56e866fd60f89d5649d"
+    },
+    {
+      "path": "ui/layout/ingame_component/center_notify.ui",
+      "size": 613,
+      "sha256": "db4d59cf93ef684bb32ae27489b601f7b3d2fbcbe12cced1e72538800e4cf0c4"
+    },
+    {
+      "path": "ui/layout/ingame_component/chat.ui",
+      "size": 765,
+      "sha256": "ee7d553de22be05821235c84ceb71b0b353d60e1721e7b69bda94421491498fd"
+    },
+    {
+      "path": "ui/layout/ingame_component/detail_slot.ui",
+      "size": 823,
+      "sha256": "f6e4a1d712a853881dc14d453e6cc56557acec80ec2fdd733a5ebe2a27c0173f"
+    },
+    {
+      "path": "ui/layout/ingame_component/kill_log.ui",
+      "size": 1161,
+      "sha256": "680e49681fc22ae42056f045191314474cbbda1192cc2f555ff7e4b748c13951"
+    },
+    {
+      "path": "ui/layout/ingame_component/player_detail.ui",
+      "size": 2860,
+      "sha256": "0d67a717d490e847fa7a0e3ac803eb40049bebf1f12b81205b60f05a893ce709"
+    },
+    {
+      "path": "ui/layout/ingame_component/player_info.ui",
+      "size": 8005,
+      "sha256": "82072fceebbd8f117b09be31af7eb5eb399417711df4e708f5333d3c0c9cae01"
+    },
+    {
+      "path": "ui/layout/ingame_component/wide_camera_info.ui",
+      "size": 2989,
+      "sha256": "8953608f183b3eedf933ff8c43fb27af6693fbed83dc476b9e62f1f35e359fa2"
+    },
+    {
+      "path": "ui/layout/ingame_component/wide_player_info.ui",
+      "size": 7999,
+      "sha256": "763ba133ae4fc39a10b8035f8f3635db24679ee9f72d2406189a9b79990b843c"
     }
   ]
 }

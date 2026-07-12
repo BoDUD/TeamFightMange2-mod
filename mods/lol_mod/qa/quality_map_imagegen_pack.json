@@ -1,0 +1,2477 @@
+{
+  "schema": "lol_mod.quality_map_imagegen_pack.v3",
+  "generator": "mods/lol_mod/tools/pack_quality_map.py",
+  "imagegen_mode": "built-in image generation; palette/microdetail plus official-mask landmark decals",
+  "prompts": {
+    "microtexture": "Uniform seamless top-down microtexture only: tiny moss, soil grain and restrained cyan mineral flecks. No roads, rivers, pools, pits, walls, buildings, camps, lanes, landmarks, borders, symbols, lighting gradients or other terrain semantics.",
+    "wall_palette": "Seamless orthographic top-down blue-gray slate cliff masonry with moss, roots, and restrained cyan mineral glints; original hand-painted MOBA environment texture.",
+    "bush_palette": "Seamless orthographic top-down dense dark emerald brush with fine grass, ferns, blue-violet flowers, and controlled shadow pockets; original hand-painted MOBA texture.",
+    "landmark_common": "One isolated square orthographic top-down hand-painted MOBA terrain decal, League-inspired but original, crisp readable stonework at small game scale, restrained cyan or team-color magic, no characters, monsters, buildings, text, logos, UI, roads, rivers, pools, walls, grass, perspective, or photographic lighting. Transparent outside the decal if possible; otherwise use one uniform #18382f background."
+  },
+  "sources": {
+    "microdetail": {
+      "path": "source/imagegen/map/rift_microtexture_v3_source.png",
+      "size_bytes": 3091218,
+      "sha256": "c78f863eaeb8775e4a9e02be2a92b0ef253e0b92b7c2e3560e1067f5e0b62b36",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    },
+    "wall_palette": {
+      "path": "source/imagegen/map/rift_wall_texture_v2_source.png",
+      "size_bytes": 2801178,
+      "sha256": "0b77fc2892e09c00802adf36bb0e5348e8b8878acef5a9b11a5861aef7b9bf23",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    },
+    "bush_palette": {
+      "path": "source/imagegen/map/rift_bush_texture_v2_source.png",
+      "size_bytes": 3063525,
+      "sha256": "c8e51c00debaf20c87b78efbfd029665aa00c83773b669ec4302d41cf01d38ad",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      }
+    }
+  },
+  "source_usage": {
+    "microdetail": {
+      "operation": "high-frequency luminance soft-light only",
+      "strength": 0.05,
+      "spatial_terrain_semantics_copied": false
+    },
+    "wall_palette": {
+      "source_mean_rgb": [
+        50.7293,
+        67.4028,
+        75.1463
+      ],
+      "strength": 0.1,
+      "channel_factors": [
+        0.978751,
+        1.004635,
+        1.016656
+      ],
+      "spatial_pixels_copied": false
+    },
+    "wall_front_palette": {
+      "source_mean_rgb": [
+        50.7293,
+        67.4028,
+        75.1463
+      ],
+      "strength": 0.1,
+      "channel_factors": [
+        0.978751,
+        1.004635,
+        1.016656
+      ],
+      "spatial_pixels_copied": false
+    },
+    "bush_palette": {
+      "source_mean_rgb": [
+        9.5441,
+        49.7758,
+        48.3316
+      ],
+      "strength": 0.08,
+      "channel_factors": [
+        0.938569,
+        1.016844,
+        1.014034
+      ],
+      "spatial_pixels_copied": false
+    }
+  },
+  "rejected_routes": [
+    {
+      "path": "source/imagegen/map/rift_background_5v5_v2_source.png",
+      "status": "deleted",
+      "reason": "Whole-map generation added/shifted water and terrain semantics and caused visual-pathing mismatch; it is forbidden from runtime packing."
+    }
+  ],
+  "native_bundle_layers": {
+    "wall_shadow_5v5": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/wall_shadow_5v5",
+      "asset_type": "png",
+      "entry_size_bytes": 20087,
+      "entry_sha256": "7a637acdd6409c8fe95e15b0d83c1d988dfa6d7992c2a63140b7a31fba57790e",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "wall_5v5": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/wall_5v5",
+      "asset_type": "png",
+      "entry_size_bytes": 116035,
+      "entry_sha256": "8c6d1e8411f4033ecc1be7eb06172dc2f91d9490be31e0ea8d7afb76e41e2821",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "bush_shadow_5v5": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/bush_shadow_5v5",
+      "asset_type": "png",
+      "entry_size_bytes": 15437,
+      "entry_sha256": "24599fa2d719ede67c4fc0eee03de50ebc1501c7ec485ddc3f072b3c23245909",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "tower_shadow": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/tower_shadow",
+      "asset_type": "png",
+      "entry_size_bytes": 141,
+      "entry_sha256": "64cf1f686af7990bbcaa4d26082d5a1e0b837df22c1396e8ce5f94a04263505d",
+      "dimensions": [
+        23,
+        24
+      ],
+      "mode": "RGBA"
+    },
+    "background_5v5": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/background_5v5",
+      "asset_type": "png",
+      "entry_size_bytes": 330596,
+      "entry_sha256": "6f263bbfb81a7d869c8514f4407be63cc6d9d1abeb47a619f4d0fa2f8920151c",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "wall_5v5_front": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/wall_5v5_front",
+      "asset_type": "png",
+      "entry_size_bytes": 10452,
+      "entry_sha256": "7f827df955b02ded817c6d602902501821a8272028e58256912bc04660137da6",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "minimap_5v5_bg": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/minimap_5v5_bg",
+      "asset_type": "png",
+      "entry_size_bytes": 19467,
+      "entry_sha256": "d14bb58ce5bab68a2ce747efe6e07b7978049e669201fdb2698e1d0cc77d12b1",
+      "dimensions": [
+        320,
+        320
+      ],
+      "mode": "RGBA"
+    },
+    "bush_5v5": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/bush_5v5",
+      "asset_type": "png",
+      "entry_size_bytes": 50011,
+      "entry_sha256": "7f956914c69d68e14494406f91d93df921205d2322b4b0cc283fe1aa09860267",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA"
+    },
+    "nexus_shadow": {
+      "bundle_file": "bundle.game_data",
+      "asset_key": "asset/base/aseprite_resources/ingame/5v5/nexus_shadow",
+      "asset_type": "png",
+      "entry_size_bytes": 283,
+      "entry_sha256": "e2a3b35a8c81156a558e211fee9621f356d85b3615968ca6843a12f335f6944e",
+      "dimensions": [
+        54,
+        30
+      ],
+      "mode": "RGBA"
+    }
+  },
+  "native_alpha_masks": {
+    "wall_5v5": {
+      "path": "source/native/map_masks/native_wall_5v5_alpha_reference.png",
+      "size_bytes": 16420,
+      "sha256": "d8d17a3a1dd32723892e5cf585518f6cb6bf3d4de0a4b0ff77a030e0858b4869",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "L",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1347126,
+        "partial_pixels": 0,
+        "opaque_pixels": 291274
+      }
+    },
+    "wall_5v5_front": {
+      "path": "source/native/map_masks/native_wall_5v5_front_alpha_reference.png",
+      "size_bytes": 9964,
+      "sha256": "ba86100316133dab98f00247330b8fa4f40e71a67089c6cd5ecb2c17e1987436",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1582378,
+        "partial_pixels": 0,
+        "opaque_pixels": 56022
+      }
+    },
+    "wall_shadow_5v5": {
+      "path": "source/native/map_masks/native_wall_shadow_5v5_alpha_reference.png",
+      "size_bytes": 20409,
+      "sha256": "5378cd19824b507a5dcde811d081e2bf2838280a7941f0efa4e33254710c6a51",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1493669,
+        "partial_pixels": 144731,
+        "opaque_pixels": 0
+      }
+    },
+    "bush_5v5": {
+      "path": "source/native/map_masks/native_bush_5v5_alpha_reference.png",
+      "size_bytes": 9216,
+      "sha256": "dfd053132bee8f3fa77b999535cc5136f77842491c3bfab6e1bcefdc920b715b",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "L",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1576113,
+        "partial_pixels": 0,
+        "opaque_pixels": 62287
+      }
+    },
+    "bush_shadow_5v5": {
+      "path": "source/native/map_masks/native_bush_shadow_5v5_alpha_reference.png",
+      "size_bytes": 16774,
+      "sha256": "17ba9c054b5a294e77cb0b140b4284ece974bcc3ece0030d0bce3eefb0099b02",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1607657,
+        "partial_pixels": 30743,
+        "opaque_pixels": 0
+      }
+    },
+    "tower_shadow": {
+      "path": "source/native/map_masks/native_tower_shadow_alpha_reference.png",
+      "size_bytes": 154,
+      "sha256": "b34ad0eb0776c3b33cf25c8ec65f4a6ff5cccc14e9d6846b8a5766f37b68c79d",
+      "dimensions": [
+        23,
+        24
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 197,
+        "partial_pixels": 0,
+        "opaque_pixels": 355
+      }
+    },
+    "nexus_shadow": {
+      "path": "source/native/map_masks/native_nexus_shadow_alpha_reference.png",
+      "size_bytes": 298,
+      "sha256": "187a02c58fd7e59238ebaa12507005ab2ed6bf31dc102b3c56d2a9c9b40bfbe2",
+      "dimensions": [
+        54,
+        30
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 894,
+        "partial_pixels": 0,
+        "opaque_pixels": 726
+      }
+    }
+  },
+  "landmarks": {
+    "mask_audit": {
+      "coordinate_space": "background_5v5 1280x1280; xyxy bounds are half-open",
+      "mask_derivation": "official 32px-grid landmark rectangles plus conservative native contours; 2px native rim retained and feather is inward-only",
+      "wall_and_bush_exclusion_layers": [
+        "wall_5v5",
+        "wall_5v5_front",
+        "bush_5v5"
+      ],
+      "union_mask_path": "source/native/map_masks/landmarks/native_landmarks_union_allowed_mask.png",
+      "landmark_type_count": 9,
+      "landmark_instance_count": 30,
+      "union_nonzero_pixels": 233397,
+      "inter_landmark_overlap_pixels": 0,
+      "wall_or_bush_overlap_pixels_after_exclusion": 0,
+      "objective_pit_water_like_overlap_pixels": {
+        "baron_pit": 0,
+        "dragon_pit": 0
+      },
+      "inventory": {
+        "baron_pit": {
+          "source_requirement": "source/imagegen/map/landmarks/baron_pit_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            192,
+            192
+          ],
+          "art_direction": "northwest Baron pit; dark violet obsidian and ancient runic stone",
+          "mask_shape": {
+            "kind": "polygon",
+            "points": [
+              [
+                46,
+                10
+              ],
+              [
+                112,
+                8
+              ],
+              [
+                157,
+                22
+              ],
+              [
+                183,
+                57
+              ],
+              [
+                187,
+                112
+              ],
+              [
+                171,
+                153
+              ],
+              [
+                137,
+                178
+              ],
+              [
+                82,
+                183
+              ],
+              [
+                37,
+                169
+              ],
+              [
+                10,
+                135
+              ],
+              [
+                7,
+                83
+              ],
+              [
+                24,
+                42
+              ]
+            ],
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.25
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_baron_pit_allowed_mask.png",
+          "allowed_nonzero_pixels": 24524,
+          "partial_feather_pixels": 1809,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                336,
+                352,
+                528,
+                544
+              ],
+              "dimensions": [
+                192,
+                192
+              ],
+              "center_xy": [
+                432,
+                448
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        },
+        "dragon_pit": {
+          "source_requirement": "source/imagegen/map/landmarks/dragon_pit_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            192,
+            192
+          ],
+          "art_direction": "southeast Dragon pit; aged bronze and blue-gray stone dragon ring",
+          "mask_shape": {
+            "kind": "polygon",
+            "points": [
+              [
+                52,
+                13
+              ],
+              [
+                116,
+                8
+              ],
+              [
+                161,
+                30
+              ],
+              [
+                184,
+                66
+              ],
+              [
+                184,
+                118
+              ],
+              [
+                162,
+                161
+              ],
+              [
+                126,
+                180
+              ],
+              [
+                70,
+                180
+              ],
+              [
+                27,
+                160
+              ],
+              [
+                8,
+                124
+              ],
+              [
+                8,
+                74
+              ],
+              [
+                28,
+                37
+              ]
+            ],
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.25
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_dragon_pit_allowed_mask.png",
+          "allowed_nonzero_pixels": 23772,
+          "partial_feather_pixels": 1770,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                736,
+                736,
+                928,
+                928
+              ],
+              "dimensions": [
+                192,
+                192
+              ],
+              "center_xy": [
+                832,
+                832
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        },
+        "jungle_camp_large": {
+          "source_requirement": "source/imagegen/map/landmarks/jungle_camp_large_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            96,
+            96
+          ],
+          "art_direction": "large square neutral-monster camp stone pad; empty clean center",
+          "mask_shape": {
+            "kind": "rectangle",
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_jungle_camp_large_allowed_mask.png",
+          "allowed_nonzero_pixels": 33856,
+          "partial_feather_pixels": 4272,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                704,
+                288,
+                800,
+                384
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                752,
+                336
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                864,
+                608,
+                960,
+                704
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                912,
+                656
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                288,
+                688,
+                384,
+                784
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                336,
+                736
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                608,
+                864,
+                704,
+                960
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                656,
+                912
+              ],
+              "source_transform": "rotate_270"
+            }
+          ]
+        },
+        "jungle_camp_small": {
+          "source_requirement": "source/imagegen/map/landmarks/jungle_camp_small_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "art_direction": "small square neutral-monster camp stone pad; empty clean center",
+          "mask_shape": {
+            "kind": "rectangle",
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_jungle_camp_small_allowed_mask.png",
+          "allowed_nonzero_pixels": 14400,
+          "partial_feather_pixels": 2736,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                576,
+                384,
+                640,
+                448
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                608,
+                416
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                928,
+                448,
+                992,
+                512
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                960,
+                480
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                384,
+                576,
+                448,
+                640
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                416,
+                608
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                480,
+                928,
+                544,
+                992
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                512,
+                960
+              ],
+              "source_transform": "rotate_270"
+            }
+          ]
+        },
+        "tower_pad": {
+          "source_requirement": "source/imagegen/map/landmarks/tower_pad_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            96,
+            96
+          ],
+          "art_direction": "team-neutral circular layered tower foundation; no tower or team color",
+          "mask_shape": {
+            "kind": "ellipse",
+            "bounds": [
+              1,
+              1,
+              94,
+              94
+            ],
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_tower_pad_allowed_mask.png",
+          "allowed_nonzero_pixels": 99264,
+          "partial_feather_pixels": 12288,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                384,
+                160,
+                480,
+                256
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                432,
+                208
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                640,
+                160,
+                736,
+                256
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                688,
+                208
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                896,
+                224,
+                992,
+                320
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                944,
+                272
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                960,
+                288,
+                1056,
+                384
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                1008,
+                336
+              ],
+              "source_transform": "rotate_270"
+            },
+            {
+              "index": 4,
+              "bbox_xyxy_half_open": [
+                832,
+                352,
+                928,
+                448
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                880,
+                400
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 5,
+              "bbox_xyxy_half_open": [
+                160,
+                384,
+                256,
+                480
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                208,
+                432
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 6,
+              "bbox_xyxy_half_open": [
+                704,
+                480,
+                800,
+                576
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                752,
+                528
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 7,
+              "bbox_xyxy_half_open": [
+                1024,
+                544,
+                1120,
+                640
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                1072,
+                592
+              ],
+              "source_transform": "rotate_270"
+            },
+            {
+              "index": 8,
+              "bbox_xyxy_half_open": [
+                160,
+                640,
+                256,
+                736
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                208,
+                688
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 9,
+              "bbox_xyxy_half_open": [
+                480,
+                704,
+                576,
+                800
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                528,
+                752
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 10,
+              "bbox_xyxy_half_open": [
+                1024,
+                800,
+                1120,
+                896
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                1072,
+                848
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 11,
+              "bbox_xyxy_half_open": [
+                352,
+                832,
+                448,
+                928
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                400,
+                880
+              ],
+              "source_transform": "rotate_270"
+            },
+            {
+              "index": 12,
+              "bbox_xyxy_half_open": [
+                224,
+                896,
+                320,
+                992
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                272,
+                944
+              ],
+              "source_transform": "identity"
+            },
+            {
+              "index": 13,
+              "bbox_xyxy_half_open": [
+                288,
+                960,
+                384,
+                1056
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                336,
+                1008
+              ],
+              "source_transform": "rotate_90"
+            },
+            {
+              "index": 14,
+              "bbox_xyxy_half_open": [
+                544,
+                1024,
+                640,
+                1120
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                592,
+                1072
+              ],
+              "source_transform": "rotate_180"
+            },
+            {
+              "index": 15,
+              "bbox_xyxy_half_open": [
+                800,
+                1024,
+                896,
+                1120
+              ],
+              "dimensions": [
+                96,
+                96
+              ],
+              "center_xy": [
+                848,
+                1072
+              ],
+              "source_transform": "rotate_270"
+            }
+          ]
+        },
+        "blue_nexus_pad": {
+          "source_requirement": "source/imagegen/map/landmarks/blue_nexus_pad_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "art_direction": "square blue-team nexus foundation; no nexus crystal or building",
+          "mask_shape": {
+            "kind": "rectangle",
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_blue_nexus_pad_allowed_mask.png",
+          "allowed_nonzero_pixels": 3600,
+          "partial_feather_pixels": 684,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                224,
+                992,
+                288,
+                1056
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                256,
+                1024
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        },
+        "red_nexus_pad": {
+          "source_requirement": "source/imagegen/map/landmarks/red_nexus_pad_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "art_direction": "square red-team nexus foundation; no nexus crystal or building",
+          "mask_shape": {
+            "kind": "rectangle",
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_red_nexus_pad_allowed_mask.png",
+          "allowed_nonzero_pixels": 3600,
+          "partial_feather_pixels": 684,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                992,
+                224,
+                1056,
+                288
+              ],
+              "dimensions": [
+                64,
+                64
+              ],
+              "center_xy": [
+                1024,
+                256
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        },
+        "blue_spawn_platform": {
+          "source_requirement": "source/imagegen/map/landmarks/blue_spawn_platform_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            160,
+            160
+          ],
+          "art_direction": "blue fountain/spawn L-platform with a readable diamond plus marker",
+          "mask_shape": {
+            "kind": "polygon",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                64,
+                0
+              ],
+              [
+                64,
+                96
+              ],
+              [
+                160,
+                96
+              ],
+              [
+                160,
+                160
+              ],
+              [
+                0,
+                160
+              ]
+            ],
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_blue_spawn_platform_allowed_mask.png",
+          "allowed_nonzero_pixels": 15165,
+          "partial_feather_pixels": 1791,
+          "removed_for_wall_or_bush_pixels": 51,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                160,
+                960,
+                320,
+                1120
+              ],
+              "dimensions": [
+                160,
+                160
+              ],
+              "center_xy": [
+                240,
+                1040
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        },
+        "red_spawn_platform": {
+          "source_requirement": "source/imagegen/map/landmarks/red_spawn_platform_source.png",
+          "required_source_aspect_ratio": "1:1",
+          "recommended_source_dimensions": [
+            1024,
+            1024
+          ],
+          "packed_dimensions": [
+            160,
+            160
+          ],
+          "art_direction": "red fountain/spawn L-platform with a readable diamond plus marker",
+          "mask_shape": {
+            "kind": "polygon",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                160,
+                0
+              ],
+              [
+                160,
+                160
+              ],
+              [
+                96,
+                160
+              ],
+              [
+                96,
+                64
+              ],
+              [
+                0,
+                64
+              ]
+            ],
+            "native_border_inset_px": 2,
+            "inward_feather_px": 1.0
+          },
+          "mask_path": "source/native/map_masks/landmarks/native_red_spawn_platform_allowed_mask.png",
+          "allowed_nonzero_pixels": 15216,
+          "partial_feather_pixels": 1831,
+          "removed_for_wall_or_bush_pixels": 0,
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                960,
+                160,
+                1120,
+                320
+              ],
+              "dimensions": [
+                160,
+                160
+              ],
+              "center_xy": [
+                1040,
+                240
+              ],
+              "source_transform": "identity"
+            }
+          ]
+        }
+      }
+    },
+    "mask_files": {
+      "baron_pit": {
+        "path": "source/native/map_masks/landmarks/native_baron_pit_allowed_mask.png",
+        "size_bytes": 3457,
+        "sha256": "495852c0bcd9bb334715ca1dbb8fb514d1c097fce654d61bbdb0255a5d73fe32",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1613876,
+          "partial_pixels": 1809,
+          "opaque_pixels": 22715
+        }
+      },
+      "dragon_pit": {
+        "path": "source/native/map_masks/landmarks/native_dragon_pit_allowed_mask.png",
+        "size_bytes": 3043,
+        "sha256": "bf42644367969f4911f4b3262dcb42d5a53d66885b233812bef122911d0c9f3e",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1614628,
+          "partial_pixels": 1770,
+          "opaque_pixels": 22002
+        }
+      },
+      "jungle_camp_large": {
+        "path": "source/native/map_masks/landmarks/native_jungle_camp_large_allowed_mask.png",
+        "size_bytes": 2386,
+        "sha256": "d90f454b7d74d4db9c288e95f7f6b5a2bc847141a9fe77839a25d479bf804708",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1604544,
+          "partial_pixels": 4272,
+          "opaque_pixels": 29584
+        }
+      },
+      "jungle_camp_small": {
+        "path": "source/native/map_masks/landmarks/native_jungle_camp_small_allowed_mask.png",
+        "size_bytes": 2234,
+        "sha256": "7a78d4b61364068f1751f0bc35c491c2d69e677c2042b6ecd1e9b546f01729bd",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1624000,
+          "partial_pixels": 2736,
+          "opaque_pixels": 11664
+        }
+      },
+      "tower_pad": {
+        "path": "source/native/map_masks/landmarks/native_tower_pad_allowed_mask.png",
+        "size_bytes": 15914,
+        "sha256": "a0fcebaa35bcdd569ba63813528e381fc6cc933829fb7c9ba8b45a502d1c1428",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1539136,
+          "partial_pixels": 12288,
+          "opaque_pixels": 86976
+        }
+      },
+      "blue_nexus_pad": {
+        "path": "source/native/map_masks/landmarks/native_blue_nexus_pad_allowed_mask.png",
+        "size_bytes": 1830,
+        "sha256": "567c44eeb8a9bae83842bbc4ef034e3f4c9f4e7624379c5a20c790451a058698",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1634800,
+          "partial_pixels": 684,
+          "opaque_pixels": 2916
+        }
+      },
+      "red_nexus_pad": {
+        "path": "source/native/map_masks/landmarks/native_red_nexus_pad_allowed_mask.png",
+        "size_bytes": 1827,
+        "sha256": "aed636c313a3615f88c363166564f3fddbfd973c67aa33223a48d7035930cb8f",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1634800,
+          "partial_pixels": 684,
+          "opaque_pixels": 2916
+        }
+      },
+      "blue_spawn_platform": {
+        "path": "source/native/map_masks/landmarks/native_blue_spawn_platform_allowed_mask.png",
+        "size_bytes": 2050,
+        "sha256": "19f81adda10f6f55d6f64da9b8adbf40c10adbf02a416cc62524ceefa5fb50b4",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1623235,
+          "partial_pixels": 1791,
+          "opaque_pixels": 13374
+        }
+      },
+      "red_spawn_platform": {
+        "path": "source/native/map_masks/landmarks/native_red_spawn_platform_allowed_mask.png",
+        "size_bytes": 2008,
+        "sha256": "9c703a9a0fe2efa8d464e42ec5234802f185e1a703943b66713887fe7be4c19e",
+        "dimensions": [
+          1280,
+          1280
+        ],
+        "mode": "L",
+        "alpha": {
+          "min": 0,
+          "max": 255,
+          "transparent_pixels": 1623184,
+          "partial_pixels": 1831,
+          "opaque_pixels": 13385
+        }
+      }
+    },
+    "union_mask": {
+      "path": "source/native/map_masks/landmarks/native_landmarks_union_allowed_mask.png",
+      "size_bytes": 21177,
+      "sha256": "e8f9d95a74145e1f6883682690c6e782cd7832042884bce497098f75cd35bcda",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "L",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1405003,
+        "partial_pixels": 27865,
+        "opaque_pixels": 205532
+      }
+    },
+    "application": {
+      "sources_available": 9,
+      "sources_expected": 9,
+      "fallback_is_safe_with_missing_sources": true,
+      "source_records": {
+        "baron_pit": {
+          "path": "source/imagegen/map/landmarks/baron_pit_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            192,
+            192
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                336,
+                352,
+                528,
+                544
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 24524,
+              "changed_pixels": 24524
+            }
+          ],
+          "size_bytes": 2473373,
+          "sha256": "a60faa435fd865bbe0aaa77d94a9c8ea6a4025421fb3318613d6d4a8dbdb3026",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "dragon_pit": {
+          "path": "source/imagegen/map/landmarks/dragon_pit_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            192,
+            192
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                736,
+                736,
+                928,
+                928
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 23772,
+              "changed_pixels": 23772
+            }
+          ],
+          "size_bytes": 2692434,
+          "sha256": "12cf3bcb5f9b26291526ef8611666ca17efe85824a6054b747bdd470575e4bc2",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "jungle_camp_large": {
+          "path": "source/imagegen/map/landmarks/jungle_camp_large_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            96,
+            96
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                704,
+                288,
+                800,
+                384
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 8464,
+              "changed_pixels": 8464
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                864,
+                608,
+                960,
+                704
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 8464,
+              "changed_pixels": 8464
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                288,
+                688,
+                384,
+                784
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 8464,
+              "changed_pixels": 8464
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                608,
+                864,
+                704,
+                960
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 8464,
+              "changed_pixels": 8464
+            }
+          ],
+          "size_bytes": 2050012,
+          "sha256": "a4f86f9a227698b88a75223a4cf95e3bf88e0fab083d19ddc7473588a80601ef",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "jungle_camp_small": {
+          "path": "source/imagegen/map/landmarks/jungle_camp_small_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                576,
+                384,
+                640,
+                448
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                928,
+                448,
+                992,
+                512
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                384,
+                576,
+                448,
+                640
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                480,
+                928,
+                544,
+                992
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            }
+          ],
+          "size_bytes": 2469068,
+          "sha256": "5df63e4208d243769f346983bf55b59b62b80c79f292c38aadc56abe978ccddc",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "tower_pad": {
+          "path": "source/imagegen/map/landmarks/tower_pad_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            96,
+            96
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                384,
+                160,
+                480,
+                256
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 1,
+              "bbox_xyxy_half_open": [
+                640,
+                160,
+                736,
+                256
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 2,
+              "bbox_xyxy_half_open": [
+                896,
+                224,
+                992,
+                320
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 6611,
+              "changed_pixels": 6611
+            },
+            {
+              "index": 3,
+              "bbox_xyxy_half_open": [
+                960,
+                288,
+                1056,
+                384
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 6611,
+              "changed_pixels": 6611
+            },
+            {
+              "index": 4,
+              "bbox_xyxy_half_open": [
+                832,
+                352,
+                928,
+                448
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 5,
+              "bbox_xyxy_half_open": [
+                160,
+                384,
+                256,
+                480
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 6,
+              "bbox_xyxy_half_open": [
+                704,
+                480,
+                800,
+                576
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 7,
+              "bbox_xyxy_half_open": [
+                1024,
+                544,
+                1120,
+                640
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 8,
+              "bbox_xyxy_half_open": [
+                160,
+                640,
+                256,
+                736
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 9,
+              "bbox_xyxy_half_open": [
+                480,
+                704,
+                576,
+                800
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 10,
+              "bbox_xyxy_half_open": [
+                1024,
+                800,
+                1120,
+                896
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 11,
+              "bbox_xyxy_half_open": [
+                352,
+                832,
+                448,
+                928
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 12,
+              "bbox_xyxy_half_open": [
+                224,
+                896,
+                320,
+                992
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 6611,
+              "changed_pixels": 6611
+            },
+            {
+              "index": 13,
+              "bbox_xyxy_half_open": [
+                288,
+                960,
+                384,
+                1056
+              ],
+              "source_transform": "rotate_90",
+              "effective_mask_nonzero_pixels": 6611,
+              "changed_pixels": 6611
+            },
+            {
+              "index": 14,
+              "bbox_xyxy_half_open": [
+                544,
+                1024,
+                640,
+                1120
+              ],
+              "source_transform": "rotate_180",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            },
+            {
+              "index": 15,
+              "bbox_xyxy_half_open": [
+                800,
+                1024,
+                896,
+                1120
+              ],
+              "source_transform": "rotate_270",
+              "effective_mask_nonzero_pixels": 6204,
+              "changed_pixels": 6204
+            }
+          ],
+          "size_bytes": 2493568,
+          "sha256": "f9afa7f8cc1f31be5e0a4f2a437d26543da7fe40bf4a5c926391f56a6b715a67",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "blue_nexus_pad": {
+          "path": "source/imagegen/map/landmarks/blue_nexus_pad_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                224,
+                992,
+                288,
+                1056
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            }
+          ],
+          "size_bytes": 2952134,
+          "sha256": "70cf1211ff7764f2c73c6750b70d7202cb3562b36efb2220dde98c3db8035d18",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "red_nexus_pad": {
+          "path": "source/imagegen/map/landmarks/red_nexus_pad_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            64,
+            64
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                992,
+                224,
+                1056,
+                288
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 3600,
+              "changed_pixels": 3600
+            }
+          ],
+          "size_bytes": 2552039,
+          "sha256": "bc4dc40cf8a58ea49dd16de57c809e9a689331fd87bca2de62418bdd6254252d",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "blue_spawn_platform": {
+          "path": "source/imagegen/map/landmarks/blue_spawn_platform_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            160,
+            160
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                160,
+                960,
+                320,
+                1120
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 15165,
+              "changed_pixels": 15165
+            }
+          ],
+          "size_bytes": 2250957,
+          "sha256": "923cfd4bdf96a58448ee809aa56db8a060a3da75828cd30683a82c0f76353189",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        },
+        "red_spawn_platform": {
+          "path": "source/imagegen/map/landmarks/red_spawn_platform_source.png",
+          "required_for_landmark_upgrade": true,
+          "required_for_safe_build": false,
+          "fallback": "retain the refined native landmark byte-for-byte",
+          "packed_dimensions": [
+            160,
+            160
+          ],
+          "instances": [
+            {
+              "index": 0,
+              "bbox_xyxy_half_open": [
+                960,
+                160,
+                1120,
+                320
+              ],
+              "source_transform": "identity",
+              "effective_mask_nonzero_pixels": 15216,
+              "changed_pixels": 15216
+            }
+          ],
+          "size_bytes": 2556064,
+          "sha256": "7b4c89bbc7ce583bb731a3ec23554afec028909694bfd9cfd9a09f0c3ed5accb",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB",
+          "alpha": {
+            "min": 255,
+            "max": 255,
+            "transparent_pixels": 0,
+            "partial_pixels": 0,
+            "opaque_pixels": 1572516
+          },
+          "status": "applied"
+        }
+      },
+      "changed_pixels": 233397,
+      "changed_pixels_outside_allowed_union": 0,
+      "size_before": [
+        1280,
+        1280
+      ],
+      "size_after": [
+        1280,
+        1280
+      ],
+      "alpha_preserved": true,
+      "size_preserved": true
+    },
+    "preview": {
+      "path": "qa/quality_map_landmark_masks_preview.png",
+      "size_bytes": 527780,
+      "sha256": "513efd4b391037596571ecd9b88b0ed927d9e065bc751a5693419d413f9905a9",
+      "dimensions": [
+        1536,
+        540
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 829440
+      }
+    },
+    "detail_preview": {
+      "path": "qa/quality_map_landmark_detail_preview.png",
+      "size_bytes": 358607,
+      "sha256": "f481f00f1f492ab51b7efe3c120315d465a747876953f6e1daff2dcfd37d1162",
+      "dimensions": [
+        864,
+        768
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 663552
+      }
+    }
+  },
+  "runtime": {
+    "background_5v5": {
+      "path": "aseprite_resources/ingame/5v5/background_5v5.png",
+      "size_bytes": 1302686,
+      "sha256": "f7b7f746c1b2ea6d4182d2024fcb96c8e7774f0b17d06c26cbadc780111d995e",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1638400
+      }
+    },
+    "wall_5v5": {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
+      "size_bytes": 109616,
+      "sha256": "7bb6439c0235da4fd75e4b2bcfea1f833fa52c5900232b75f63d0b02374a8de7",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1347126,
+        "partial_pixels": 0,
+        "opaque_pixels": 291274
+      }
+    },
+    "wall_5v5_front": {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
+      "size_bytes": 9642,
+      "sha256": "d2a929c6c9adb33cc74cfd3a5deca643a03c1e5af14e682e6dbeaa24a32d30bf",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1582378,
+        "partial_pixels": 0,
+        "opaque_pixels": 56022
+      }
+    },
+    "wall_shadow_5v5": {
+      "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
+      "size_bytes": 16264,
+      "sha256": "cc74a72a9128df6219f1ee062365e92fb126915a800534cc09bb68a516d1bd10",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1493669,
+        "partial_pixels": 144731,
+        "opaque_pixels": 0
+      }
+    },
+    "bush_5v5": {
+      "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
+      "size_bytes": 47293,
+      "sha256": "d46d109cb4be9c1899367804aa982aee3c791d75bed90eb3130834b14b56b29d",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1576113,
+        "partial_pixels": 0,
+        "opaque_pixels": 62287
+      }
+    },
+    "bush_shadow_5v5": {
+      "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
+      "size_bytes": 13609,
+      "sha256": "3a62848b6beb27610786ef94b21c244f5a67f3f97e6e146662b6abf4f9ef8df4",
+      "dimensions": [
+        1280,
+        1280
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 102,
+        "transparent_pixels": 1607657,
+        "partial_pixels": 30743,
+        "opaque_pixels": 0
+      }
+    },
+    "tower_shadow": {
+      "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
+      "size_bytes": 130,
+      "sha256": "a648a107fc724bc9a6ddcec305009491881dfa7ba0c97621cbaef33f4b465bd0",
+      "dimensions": [
+        23,
+        24
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 197,
+        "partial_pixels": 0,
+        "opaque_pixels": 355
+      }
+    },
+    "nexus_shadow": {
+      "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
+      "size_bytes": 257,
+      "sha256": "128d9471215f5510e4e39f340b01ec439b0d94759fd4dfbe4dcb504eac7e1dea",
+      "dimensions": [
+        54,
+        30
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 894,
+        "partial_pixels": 0,
+        "opaque_pixels": 726
+      }
+    },
+    "minimap_5v5_bg": {
+      "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+      "size_bytes": 18500,
+      "sha256": "0cd847afcbed5b52e1e63cc0c4595fe1ddde67688b389a4e249da77ead528cfa",
+      "dimensions": [
+        320,
+        320
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 102400
+      }
+    }
+  },
+  "preview": {
+    "path": "qa/quality_map_composite_preview.png",
+    "size_bytes": 826443,
+    "sha256": "358b8b7faa453ccc33f83e5f73228159c208292a39dc7ba38cb8eb023158b43a",
+    "dimensions": [
+      1536,
+      512
+    ],
+    "mode": "RGBA",
+    "alpha": {
+      "min": 255,
+      "max": 255,
+      "transparent_pixels": 0,
+      "partial_pixels": 0,
+      "opaque_pixels": 786432
+    }
+  },
+  "contracts": {
+    "background_size": [
+      1280,
+      1280
+    ],
+    "minimap_size": [
+      320,
+      320
+    ],
+    "runtime_structure_source": "native bundle 5v5 layers only",
+    "background_geometry": "native background with global grade, 5% semantics-free luminance microdetail, and optional decals confined to audited native landmark masks",
+    "wall_and_bush_geometry": "native RGBA contours; ImageGen supplies global palette only",
+    "tower_circles_and_camp_markers": "official background coordinates and silhouettes; a native 2px rim is retained",
+    "roads_water_and_non_landmark_ground": "byte-identical to the refined native input outside the landmark union mask",
+    "minimap_source": "native minimap background with global color grade only",
+    "collision_and_spawns": "unchanged asset/base/setting/map_setting"
+  },
+  "mask_checks": {
+    "wall_5v5": true,
+    "wall_5v5_front": true,
+    "wall_shadow_5v5": true,
+    "bush_5v5": true,
+    "bush_shadow_5v5": true,
+    "tower_shadow": true,
+    "nexus_shadow": true
+  },
+  "native_alpha_checks": {
+    "background_5v5": true,
+    "wall_5v5": true,
+    "wall_5v5_front": true,
+    "wall_shadow_5v5": true,
+    "bush_5v5": true,
+    "bush_shadow_5v5": true,
+    "tower_shadow": true,
+    "nexus_shadow": true,
+    "minimap_5v5_bg": true
+  },
+  "rgb_deltas_from_native": {
+    "background_5v5": {
+      "mean_abs_rgb": [
+        6.7391,
+        5.0919,
+        5.5946
+      ],
+      "max_abs_rgb": [
+        190,
+        129,
+        179
+      ]
+    },
+    "wall_5v5": {
+      "mean_abs_rgb": [
+        3.1272,
+        1.5725,
+        0.3049
+      ],
+      "max_abs_rgb": [
+        11,
+        5,
+        5
+      ]
+    },
+    "wall_5v5_front": {
+      "mean_abs_rgb": [
+        4.3579,
+        2.3335,
+        1.3957
+      ],
+      "max_abs_rgb": [
+        16,
+        10,
+        7
+      ]
+    },
+    "wall_shadow_5v5": {
+      "mean_abs_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max_abs_rgb": [
+        0,
+        0,
+        0
+      ]
+    },
+    "bush_5v5": {
+      "mean_abs_rgb": [
+        4.208,
+        1.4453,
+        0.322
+      ],
+      "max_abs_rgb": [
+        7,
+        2,
+        1
+      ]
+    },
+    "bush_shadow_5v5": {
+      "mean_abs_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max_abs_rgb": [
+        0,
+        0,
+        0
+      ]
+    },
+    "tower_shadow": {
+      "mean_abs_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max_abs_rgb": [
+        0,
+        0,
+        0
+      ]
+    },
+    "nexus_shadow": {
+      "mean_abs_rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max_abs_rgb": [
+        0,
+        0,
+        0
+      ]
+    },
+    "minimap_5v5_bg": {
+      "mean_abs_rgb": [
+        1.7517,
+        2.4826,
+        6.0955
+      ],
+      "max_abs_rgb": [
+        7,
+        6,
+        7
+      ]
+    }
+  },
+  "rgb_delta_limits": {
+    "background_5v5": 32.0,
+    "wall_5v5": 10.0,
+    "wall_5v5_front": 10.0,
+    "wall_shadow_5v5": 0.0,
+    "bush_5v5": 10.0,
+    "bush_shadow_5v5": 0.0,
+    "tower_shadow": 0.0,
+    "nexus_shadow": 0.0,
+    "minimap_5v5_bg": 10.0
+  },
+  "rgb_delta_checks": {
+    "background_5v5": true,
+    "wall_5v5": true,
+    "wall_5v5_front": true,
+    "wall_shadow_5v5": true,
+    "bush_5v5": true,
+    "bush_shadow_5v5": true,
+    "tower_shadow": true,
+    "nexus_shadow": true,
+    "minimap_5v5_bg": true
+  },
+  "static_checks": {
+    "background_native_dimensions": true,
+    "minimap_native_dimensions": true,
+    "all_native_alpha_masks_exact": true,
+    "all_runtime_alpha_matches_native_bundle": true,
+    "all_runtime_rgb_deltas_are_low": true,
+    "rejected_whole_map_source_removed": true,
+    "generated_spatial_wall_and_bush_tiling_removed": true,
+    "runtime_geometry_comes_only_from_native_bundle": true,
+    "dynamic_minimap_marker_sheet_untouched": true,
+    "map_setting_untouched": true,
+    "landmark_union_mask_is_nonempty": true,
+    "landmark_masks_do_not_overlap": true,
+    "landmark_masks_exclude_every_wall_and_bush_pixel": true,
+    "objective_pit_masks_exclude_adjacent_water": true,
+    "landmark_composite_size_preserved": true,
+    "landmark_composite_alpha_preserved": true,
+    "landmark_mask_exterior_pixels_are_byte_identical": true,
+    "missing_landmark_sources_have_native_fallback": true
+  }
+}

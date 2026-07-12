@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "source": "local League of Legends Map11 WAD",
+  "wad": "D:\\Riot Games\\League of Legends\\Game\\DATA\\FINAL\\Maps\\Shipping\\Map11.wad.client",
+  "wad_sha256": "e4bdd4d26294c16fd520a17ec9dcb6eb7425564d60a4890a58313a0cd24d6868",
+  "audio_bank": "assets/sounds/wwise2016/sfx/shared/npc_map11_baron_sfx_audio.bnk",
+  "audio_bank_path_hash": "ab0b5d792a5bf2f9",
+  "audio_bank_sha256": "28f37899a0e84a18884c5503aca3ce819aa71baa3b562af2dc879ccd60c29fc0",
+  "event_bank": "assets/sounds/wwise2016/sfx/shared/npc_map11_baron_sfx_events.bnk",
+  "event_bank_path_hash": "b861f66123020abf",
+  "event_bank_sha256": "cf47d1ec6fcb9bb38748094b644b3bce7f16ff6de2e7a7b8b974111ff4cbb1ba",
+  "sounds": [
+    {
+      "output": "baron_attack_left_launch_clip.wav",
+      "output_sha256": "c5c932ef3ec3fa940a74f51d07d9ab458bebc896a4da77b3cfed918ea6d6dede",
+      "output_size_bytes": 161958,
+      "media_id": 183644790,
+      "wem_sha256": "5076d8750ab1f57d832ac44d4f6d55750dd21e85c1c78ae6864e6807497d63cc",
+      "event": "Play_sfx_SRU_Baron_BaronBasicAttack_OnMissileLaunch",
+      "event_id": 1130521025,
+      "event_media_pool": [
+        183644790,
+        218574885
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 80957,
+      "duration_seconds": 1.8357596371882086,
+      "compression": "NONE"
+    },
+    {
+      "output": "baron_attack_right_launch_clip.wav",
+      "output_sha256": "15eb7f2e5fbcc1c1a89180e658bc3753dcb8cb23a3c6195f3866cd59e0025977",
+      "output_size_bytes": 157514,
+      "media_id": 218574885,
+      "wem_sha256": "a189f2cdf28c9d69a3c73b29d22358e9c0b690b1b96fb10b5c97d4b70daf47d4",
+      "event": "Play_sfx_SRU_Baron_BaronBasicAttack_OnMissileLaunch",
+      "event_id": 1130521025,
+      "event_media_pool": [
+        183644790,
+        218574885
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 78735,
+      "duration_seconds": 1.7853741496598639,
+      "compression": "NONE"
+    },
+    {
+      "output": "baron_attack_left_hit_clip.wav",
+      "output_sha256": "0038c1c0770422f65630ff2a0457af144943192458695877791e8f8bfcb06397",
+      "output_size_bytes": 57638,
+      "media_id": 354923442,
+      "wem_sha256": "d936b0852f57cb56fbc1064b378bcbbadee25a3e60a73f433c1ee5e7f023f966",
+      "event": "Play_sfx_SRU_Baron_BaronBasicAttack_OnHit",
+      "event_id": 4168404463,
+      "event_media_pool": [
+        354923442,
+        159616409
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 28797,
+      "duration_seconds": 0.6529931972789116,
+      "compression": "NONE"
+    },
+    {
+      "output": "baron_attack_right_hit_clip.wav",
+      "output_sha256": "0164ae502b74e84812745cdc20b81b52ca13accc92b9723e61a07c841d7b6bc2",
+      "output_size_bytes": 64696,
+      "media_id": 159616409,
+      "wem_sha256": "90e97e571ce1621ab617055b9aa4bc7f8a7f700ca128b0c8f9427924faa923d6",
+      "event": "Play_sfx_SRU_Baron_BaronBasicAttack_OnHit",
+      "event_id": 4168404463,
+      "event_media_pool": [
+        354923442,
+        159616409
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 32326,
+      "duration_seconds": 0.733015873015873,
+      "compression": "NONE"
+    },
+    {
+      "output": "baron_death_body_clip.wav",
+      "output_sha256": "773fd6e72c3e66cde5dc1846aaa783de008681226c5947b5134371a9fde6fff7",
+      "output_size_bytes": 687694,
+      "media_id": 805446954,
+      "wem_sha256": "a34b171250dda77c789a325347a2053802736c63166cef63a718a4224ef96793",
+      "event": "Play_sfx_SRU_Baron_Death_cast",
+      "event_id": 3912207834,
+      "event_media_pool": [
+        805446954,
+        869424594
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 343825,
+      "duration_seconds": 7.796485260770975,
+      "compression": "NONE"
+    },
+    {
+      "output": "baron_death_void_clip.wav",
+      "output_sha256": "6164007ed45b7a20780aafddcdf87b7e7a4f1ac70e8ab4b30a0352fe9fb9ef8d",
+      "output_size_bytes": 483582,
+      "media_id": 869424594,
+      "wem_sha256": "16af78460312736644c458bc73ee093634afd2d55a3b3978f768137ea99ead2e",
+      "event": "Play_sfx_SRU_Baron_Death_cast",
+      "event_id": 3912207834,
+      "event_media_pool": [
+        805446954,
+        869424594
+      ],
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 241769,
+      "duration_seconds": 5.482290249433107,
+      "compression": "NONE"
+    }
+  ],
+  "death_mix": {
+    "output": "baron_death_mix_clip.wav",
+    "output_sha256": "b81a1122b36e3965fa45643d566e2520cc8b7ab36ac8a0f6fa4455a85763791a",
+    "output_size_bytes": 687694,
+    "event": "Play_sfx_SRU_Baron_Death_cast",
+    "event_id": 3912207834,
+    "mix": [
+      {
+        "media_id": 805446954,
+        "gain_db": -2.0,
+        "gain_linear": 0.7943282347242815
+      },
+      {
+        "media_id": 869424594,
+        "gain_db": 0.0,
+        "gain_linear": 1.0
+      }
+    ],
+    "channels": 1,
+    "sample_width_bytes": 2,
+    "sample_rate_hz": 44100,
+    "frame_count": 343825,
+    "duration_seconds": 7.796485260770975,
+    "compression": "NONE"
+  }
+}

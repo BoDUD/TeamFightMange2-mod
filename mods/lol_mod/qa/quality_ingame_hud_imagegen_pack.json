@@ -1,0 +1,824 @@
+{
+  "schema": "lol_mod.quality_ingame_hud_imagegen_pack.v1",
+  "generator": "mods/lol_mod/tools/pack_quality_ingame_hud.py",
+  "imagegen_mode": "reuse of existing built-in image generation sources",
+  "contracts": {
+    "scope": "decorative visual-only overlays in audited ingame_component layouts",
+    "official_payload_source": "bundle.game_data",
+    "native_contract_preserved": [
+      "node IDs and counts",
+      "widths, heights, anchors, pivots, and positions",
+      "events, hover/active definitions, visibility, text, and icon sources",
+      "gameplay, camera, scoreboard, kill, notification, and minimap logic"
+    ],
+    "runtime_source_rule": "UI layouts reference asset/lol_mod runtime PNGs only; source/imagegen is never referenced by runtime UI"
+  },
+  "imagegen_sources": {
+    "panel": {
+      "path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
+      "size_bytes": 902419,
+      "sha256": "c3d5da64703ef343d9a9c127014e30d1b35ec35c6fad3a280c78e415877c68eb",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      },
+      "chroma_key": {
+        "sampled_key": [
+          249,
+          3,
+          247
+        ],
+        "source_bbox": [
+          51,
+          433,
+          1202,
+          809
+        ],
+        "transparent_pixels": 1140057,
+        "partial_alpha_pixels": 1534
+      }
+    },
+    "control": {
+      "path": "source/imagegen/ui/lol_bp_control_frame_v1_source.png",
+      "size_bytes": 915086,
+      "sha256": "0a56d30c0b45d1c25d1aebacb8e3e3cf369cd798dee8a0fc9c0f63fc8b38d93f",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516
+      },
+      "chroma_key": {
+        "sampled_key": [
+          251,
+          3,
+          248
+        ],
+        "source_bbox": [
+          99,
+          524,
+          1154,
+          730
+        ],
+        "transparent_pixels": 1356703,
+        "partial_alpha_pixels": 1066
+      }
+    }
+  },
+  "runtime_assets": {
+    "player_info_blue": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        28,
+        92,
+        145
+      ],
+      "tint_strength": 0.18,
+      "opacity": 0.78,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_player_info_blue.png",
+        "size_bytes": 8159,
+        "sha256": "b45e3f3517afdf61874a87256a4b8589e15e88db02e5e8bf74128a05530e5c16",
+        "dimensions": [
+          412,
+          40
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 16,
+          "max": 199,
+          "transparent_pixels": 0,
+          "partial_pixels": 16480,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "player_info_red": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        132,
+        42,
+        55
+      ],
+      "tint_strength": 0.18,
+      "opacity": 0.78,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_player_info_red.png",
+        "size_bytes": 8355,
+        "sha256": "9aabe62bc54361d4cb798102fe918f62f2aba67e8a3479149e9ce5a31a671ff5",
+        "dimensions": [
+          352,
+          40
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 16,
+          "max": 199,
+          "transparent_pixels": 0,
+          "partial_pixels": 14080,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "wide_player_info_blue": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        28,
+        92,
+        145
+      ],
+      "tint_strength": 0.18,
+      "opacity": 0.76,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_wide_player_info_blue.png",
+        "size_bytes": 4179,
+        "sha256": "eaf6c2052702ad0671fd80fa7cb368d1b3a397bdb5098df8a1a00a0cc243eb96",
+        "dimensions": [
+          272,
+          30
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 28,
+          "max": 194,
+          "transparent_pixels": 0,
+          "partial_pixels": 8160,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "wide_player_info_red": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        132,
+        42,
+        55
+      ],
+      "tint_strength": 0.18,
+      "opacity": 0.76,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_wide_player_info_red.png",
+        "size_bytes": 4731,
+        "sha256": "3cc4fdc14ed500b23cf02fe524122b4882e2302ae09a8962caed377a6238e785",
+        "dimensions": [
+          272,
+          30
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 28,
+          "max": 194,
+          "transparent_pixels": 0,
+          "partial_pixels": 8160,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "camera_info_blue": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        28,
+        92,
+        145
+      ],
+      "tint_strength": 0.16,
+      "opacity": 0.72,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_camera_info_blue.png",
+        "size_bytes": 19536,
+        "sha256": "9ac110d032b7da181ad9881ca734223ee285fd0f7a738f3cdac2142c027be3ae",
+        "dimensions": [
+          449,
+          60
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 15,
+          "max": 184,
+          "transparent_pixels": 0,
+          "partial_pixels": 26940,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "camera_info_red": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        132,
+        42,
+        55
+      ],
+      "tint_strength": 0.16,
+      "opacity": 0.72,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_camera_info_red.png",
+        "size_bytes": 18520,
+        "sha256": "874ff02ed0e7e0fe96add6ac6a201319c55560d5952cb77e20e88945eed8708c",
+        "dimensions": [
+          449,
+          60
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 15,
+          "max": 184,
+          "transparent_pixels": 0,
+          "partial_pixels": 26940,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "wide_camera_info_blue": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        28,
+        92,
+        145
+      ],
+      "tint_strength": 0.16,
+      "opacity": 0.72,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_wide_camera_info_blue.png",
+        "size_bytes": 13403,
+        "sha256": "61e71477acd2be8e05cf700781f443047c9d6cd81cc25cf3945bcfb586b9412f",
+        "dimensions": [
+          300,
+          60
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 15,
+          "max": 184,
+          "transparent_pixels": 0,
+          "partial_pixels": 18000,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "wide_camera_info_red": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        132,
+        42,
+        55
+      ],
+      "tint_strength": 0.16,
+      "opacity": 0.72,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_wide_camera_info_red.png",
+        "size_bytes": 12988,
+        "sha256": "92e54e8b30c28669b08bd5525ad9c0ba75223518fd528ae994e265f7e6862481",
+        "dimensions": [
+          300,
+          60
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 15,
+          "max": 184,
+          "transparent_pixels": 0,
+          "partial_pixels": 18000,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "player_detail_blue": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        28,
+        92,
+        145
+      ],
+      "tint_strength": 0.17,
+      "opacity": 0.75,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_player_detail_blue.png",
+        "size_bytes": 10709,
+        "sha256": "95186f53f6f0d729b9697d4b16199ccaf70ad525747a8740b98128609f7f2e2a",
+        "dimensions": [
+          393,
+          40
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 16,
+          "max": 191,
+          "transparent_pixels": 0,
+          "partial_pixels": 15720,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "player_detail_red": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        132,
+        42,
+        55
+      ],
+      "tint_strength": 0.17,
+      "opacity": 0.75,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_player_detail_red.png",
+        "size_bytes": 9569,
+        "sha256": "dbc3e83daae5326fa46400b8eee876b6d0b312e16c98cf48d37b37ae5a1e08d0",
+        "dimensions": [
+          393,
+          40
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 16,
+          "max": 191,
+          "transparent_pixels": 0,
+          "partial_pixels": 15720,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "kill_log": {
+      "source_id": "control",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        63,
+        73,
+        88
+      ],
+      "tint_strength": 0.08,
+      "opacity": 0.68,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_kill_log.png",
+        "size_bytes": 5067,
+        "sha256": "25a95c02e8fc93a4edb8110d01710460aa5b27c084ae68760876be8e34cb444b",
+        "dimensions": [
+          130,
+          48
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 0,
+          "max": 173,
+          "transparent_pixels": 8,
+          "partial_pixels": 6232,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "center_kill": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        78,
+        69,
+        89
+      ],
+      "tint_strength": 0.07,
+      "opacity": 0.68,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_center_kill.png",
+        "size_bytes": 15507,
+        "sha256": "500066d63e085ffd072a6d50c9710d62f1149aba0d31909131d7349e48c6b702",
+        "dimensions": [
+          600,
+          45
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 14,
+          "max": 173,
+          "transparent_pixels": 0,
+          "partial_pixels": 27000,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "center_notify": {
+      "source_id": "panel",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        45,
+        78,
+        103
+      ],
+      "tint_strength": 0.08,
+      "opacity": 0.66,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_center_notify.png",
+        "size_bytes": 18368,
+        "sha256": "1488c0a5f48fcefc536683ace0c213521bb1827553e8e7c9e8cb31e6da633396",
+        "dimensions": [
+          600,
+          45
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 14,
+          "max": 168,
+          "transparent_pixels": 0,
+          "partial_pixels": 27000,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "detail_slot": {
+      "source_id": "control",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        56,
+        83,
+        112
+      ],
+      "tint_strength": 0.1,
+      "opacity": 0.62,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_detail_slot.png",
+        "size_bytes": 1201,
+        "sha256": "d2dd830581a8e769fd978184a1b9b58f81187a82fcbf5d49aefc8e1edb8e9664",
+        "dimensions": [
+          36,
+          36
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 0,
+          "max": 158,
+          "transparent_pixels": 5,
+          "partial_pixels": 1291,
+          "opaque_pixels": 0
+        }
+      }
+    },
+    "chat_icon": {
+      "source_id": "control",
+      "packing_method": "alpha_bbox_nine_slice_tint",
+      "tint_rgb": [
+        42,
+        67,
+        88
+      ],
+      "tint_strength": 0.08,
+      "opacity": 0.62,
+      "runtime": {
+        "path": "ui/ingame/lol_hud_chat_icon.png",
+        "size_bytes": 929,
+        "sha256": "209598bc8c55cccbd35565c681feeafa3130fc633165d043e6d6d05ad943149a",
+        "dimensions": [
+          30,
+          30
+        ],
+        "mode": "RGBA",
+        "alpha": {
+          "min": 0,
+          "max": 158,
+          "transparent_pixels": 4,
+          "partial_pixels": 896,
+          "opaque_pixels": 0
+        }
+      }
+    }
+  },
+  "layouts": {
+    "player_info": {
+      "asset_key": "asset/base/ui/layout/ingame_component/player_info",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 8167,
+        "entry_sha256": "3c2428bdcd11f4f6280e7dbf6eee9f562852a876bf8f6233ada2762bb105a734"
+      },
+      "path": "ui/layout/ingame_component/player_info.ui",
+      "size_bytes": 8005,
+      "sha256": "82072fceebbd8f117b09be31af7eb5eb399417711df4e708f5333d3c0c9cae01",
+      "native_baseline_normalized_sha256": "6fcf57347f83aa2ad77af4ace26ee256c92ac04f7f0bb1ebfe74a6d24df1f4c8",
+      "restored_native_sha256": "6fcf57347f83aa2ad77af4ace26ee256c92ac04f7f0bb1ebfe74a6d24df1f4c8",
+      "native_node_count": 39,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_player_info_blue",
+        "lol_hud_player_info_red"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "wide_player_info": {
+      "asset_key": "asset/base/ui/layout/ingame_component/wide_player_info",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 8138,
+        "entry_sha256": "fa37fadc6cc4f21e0d4016a3be8d7a854fa132e2219bdfdf5ab38767cb5bda9f"
+      },
+      "path": "ui/layout/ingame_component/wide_player_info.ui",
+      "size_bytes": 7999,
+      "sha256": "763ba133ae4fc39a10b8035f8f3635db24679ee9f72d2406189a9b79990b843c",
+      "native_baseline_normalized_sha256": "88fbb857e54cf5316bc7d64571ab0e8bf57bd2647db7ac1158676e718f14b487",
+      "restored_native_sha256": "88fbb857e54cf5316bc7d64571ab0e8bf57bd2647db7ac1158676e718f14b487",
+      "native_node_count": 38,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_wide_player_info_blue",
+        "lol_hud_wide_player_info_red"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "camera_info": {
+      "asset_key": "asset/base/ui/layout/ingame_component/camera_info",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 2788,
+        "entry_sha256": "222f0b8cb8923cf0bd4cf2fc93c33725f72570c0b0b1a55ca002e1e2ad205342"
+      },
+      "path": "ui/layout/ingame_component/camera_info.ui",
+      "size_bytes": 2969,
+      "sha256": "206db71f6dffeb48cd475e1bd2ddd372e5f5b5413bcbdefae1d6257eefa913ab",
+      "native_baseline_normalized_sha256": "6035c9262b95c04c287d3d1935492c5e3138d2a5ae1f4619cc286b6574bcda17",
+      "restored_native_sha256": "6035c9262b95c04c287d3d1935492c5e3138d2a5ae1f4619cc286b6574bcda17",
+      "native_node_count": 14,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_camera_info_blue",
+        "lol_hud_camera_info_red"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "wide_camera_info": {
+      "asset_key": "asset/base/ui/layout/ingame_component/wide_camera_info",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 2788,
+        "entry_sha256": "e34129def3083db5a5b948e4eefa1df0482e597a1e212ddd6912c147403db782"
+      },
+      "path": "ui/layout/ingame_component/wide_camera_info.ui",
+      "size_bytes": 2989,
+      "sha256": "8953608f183b3eedf933ff8c43fb27af6693fbed83dc476b9e62f1f35e359fa2",
+      "native_baseline_normalized_sha256": "a849c91393b7d5b1e9b30764e2a9d08b043ce0a6ec9c483cf90fe1dc0081d4aa",
+      "restored_native_sha256": "a849c91393b7d5b1e9b30764e2a9d08b043ce0a6ec9c483cf90fe1dc0081d4aa",
+      "native_node_count": 14,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_wide_camera_info_blue",
+        "lol_hud_wide_camera_info_red"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "kill_log": {
+      "asset_key": "asset/base/ui/layout/ingame_component/kill_log",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 1086,
+        "entry_sha256": "de23d1f6b2deb8509fbccb65533f179626e241574f25daa29b1eb5e0d7bfa4d8"
+      },
+      "path": "ui/layout/ingame_component/kill_log.ui",
+      "size_bytes": 1161,
+      "sha256": "680e49681fc22ae42056f045191314474cbbda1192cc2f555ff7e4b748c13951",
+      "native_baseline_normalized_sha256": "1beacccdf867347345ae804d1366c055ce67fc4b1d4254cb3f358ef9c6adc08a",
+      "restored_native_sha256": "1beacccdf867347345ae804d1366c055ce67fc4b1d4254cb3f358ef9c6adc08a",
+      "native_node_count": 6,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_kill_log"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "center_kill": {
+      "asset_key": "asset/base/ui/layout/ingame_component/center_kill",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 2753,
+        "entry_sha256": "6891dec4346b67f37d3a6a2e25265502b1e06775df282c938eb015b4c82b87f6"
+      },
+      "path": "ui/layout/ingame_component/center_kill.ui",
+      "size_bytes": 2745,
+      "sha256": "a3d721a3141878f3f306dfca146e2e73f90220459e0ca56e866fd60f89d5649d",
+      "native_baseline_normalized_sha256": "b0e24825f1aa1127b4e86efafcd73d957260304ae3288133f1d5ac165f72fcca",
+      "restored_native_sha256": "b0e24825f1aa1127b4e86efafcd73d957260304ae3288133f1d5ac165f72fcca",
+      "native_node_count": 13,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_center_kill"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "center_notify": {
+      "asset_key": "asset/base/ui/layout/ingame_component/center_notify",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 484,
+        "entry_sha256": "b5c0504adb61d9f49a5d9e9a5735f57c1d10e6ad430bf2d172af044b6a6b6c5b"
+      },
+      "path": "ui/layout/ingame_component/center_notify.ui",
+      "size_bytes": 613,
+      "sha256": "db4d59cf93ef684bb32ae27489b601f7b3d2fbcbe12cced1e72538800e4cf0c4",
+      "native_baseline_normalized_sha256": "25c6bb08caf5a0b94c7eef73b3b31135664d8c95ff40008609ba0974ad60d6a9",
+      "restored_native_sha256": "25c6bb08caf5a0b94c7eef73b3b31135664d8c95ff40008609ba0974ad60d6a9",
+      "native_node_count": 1,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_center_notify"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "player_detail": {
+      "asset_key": "asset/base/ui/layout/ingame_component/player_detail",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 2675,
+        "entry_sha256": "53a99e8684c4e2ac5781a4c1802b547c73332db4e29e54c13a54a30bcc3348aa"
+      },
+      "path": "ui/layout/ingame_component/player_detail.ui",
+      "size_bytes": 2860,
+      "sha256": "0d67a717d490e847fa7a0e3ac803eb40049bebf1f12b81205b60f05a893ce709",
+      "native_baseline_normalized_sha256": "e858b738b1361ffea2f6b713e4740be77c625ebdf70d86b47e9a76622bcd59d2",
+      "restored_native_sha256": "e858b738b1361ffea2f6b713e4740be77c625ebdf70d86b47e9a76622bcd59d2",
+      "native_node_count": 15,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_player_detail_blue",
+        "lol_hud_player_detail_red"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "detail_slot": {
+      "asset_key": "asset/base/ui/layout/ingame_component/detail_slot",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 705,
+        "entry_sha256": "e64a207a18e01b2b0c425e1aea87b89a074a63a0ad342d500b1d941ab5c2eb53"
+      },
+      "path": "ui/layout/ingame_component/detail_slot.ui",
+      "size_bytes": 823,
+      "sha256": "f6e4a1d712a853881dc14d453e6cc56557acec80ec2fdd733a5ebe2a27c0173f",
+      "native_baseline_normalized_sha256": "6b30aefdeac1c506ee8c3af4ab46430fbd336a047db53066fa6a6989c37f2e63",
+      "restored_native_sha256": "6b30aefdeac1c506ee8c3af4ab46430fbd336a047db53066fa6a6989c37f2e63",
+      "native_node_count": 3,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_detail_slot"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    },
+    "chat": {
+      "asset_key": "asset/base/ui/layout/ingame_component/chat",
+      "official_bundle": {
+        "file": "bundle.game_data",
+        "asset_type": "ui",
+        "entry_size_bytes": 650,
+        "entry_sha256": "f3b3175531b2af87c140c4ad69fd44277ea0db678411a75f6258c9a64479d973"
+      },
+      "path": "ui/layout/ingame_component/chat.ui",
+      "size_bytes": 765,
+      "sha256": "ee7d553de22be05821235c84ceb71b0b353d60e1721e7b69bda94421491498fd",
+      "native_baseline_normalized_sha256": "7ceb5d9cb0d36ee0d4d65119c470ccdc40decfd83e496d1469b2f21ee304c015",
+      "restored_native_sha256": "7ceb5d9cb0d36ee0d4d65119c470ccdc40decfd83e496d1469b2f21ee304c015",
+      "native_node_count": 3,
+      "native_node_ids_preserved": true,
+      "overlay_nodes": [
+        "lol_hud_chat_icon"
+      ],
+      "allowed_changes": [
+        "ignore_event decorative image child insertion"
+      ]
+    }
+  },
+  "overrides": {
+    "asset/base/ui/layout/ingame_component/player_info": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/player_info",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/wide_player_info": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_player_info",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/camera_info": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/camera_info",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/wide_camera_info": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_camera_info",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/kill_log": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/kill_log",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/center_kill": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/center_kill",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/center_notify": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/center_notify",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/player_detail": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/player_detail",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/detail_slot": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/detail_slot",
+      "type": "override"
+    },
+    "asset/base/ui/layout/ingame_component/chat": {
+      "remapping": "asset/lol_mod/ui/layout/ingame_component/chat",
+      "type": "override"
+    }
+  },
+  "skipped_contracts": [
+    {
+      "asset_key": "asset/base/ui/layout/ingame",
+      "reason": "large dynamic battle root; replacing it would risk camera, scoreboard, replay, and minimap logic"
+    },
+    {
+      "asset_key": "asset/base/aseprite_resources/ingame/minimap_5v5#sheet",
+      "reason": "atlas contains dynamic semantic markers rather than decorative chrome"
+    },
+    {
+      "asset_key": "asset/base/aseprite_resources/ingame/minimap_5v5#data",
+      "reason": "animation/atlas data controls marker semantics and frame addressing"
+    },
+    {
+      "asset_key": "asset/base/ui/ingame/icon_atlases",
+      "reason": "small icons carry gameplay meaning and event feedback"
+    },
+    {
+      "asset_key": "runtime/kill_and_notification_logic",
+      "reason": "gameplay and timing logic is outside the visual-only contract"
+    }
+  ],
+  "contact_sheet": {
+    "path": "qa/quality_ingame_hud_contact.png",
+    "size_bytes": 121799,
+    "sha256": "eab2fe072a5cae073a94debb037fa397ea60615ec18363a617bc81f99ce02d55",
+    "dimensions": [
+      1200,
+      700
+    ],
+    "mode": "RGBA",
+    "alpha": {
+      "min": 220,
+      "max": 255,
+      "transparent_pixels": 0,
+      "partial_pixels": 13840,
+      "opaque_pixels": 826160
+    }
+  },
+  "static_checks": {
+    "all_safe_component_overrides_registered": true,
+    "all_official_layouts_restore_exactly": true,
+    "all_native_node_ids_preserved": true,
+    "all_overlays_ignore_events": true,
+    "all_layout_sources_are_packed_runtime_assets": true,
+    "runtime_dimensions_match_native_containers": true,
+    "runtime_assets_are_translucent": true,
+    "dynamic_ingame_root_not_overridden": true,
+    "dynamic_minimap_contract_not_overridden": true,
+    "qa_contact_generated": true
+  }
+}

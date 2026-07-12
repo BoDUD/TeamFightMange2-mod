@@ -7,6 +7,118 @@
     "remapping": "asset/lol_mod/style/champion_view",
     "type": "merge"
   },
+  "asset/base/ui/layout/banpick/blue_pick_slot": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/blue_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/red_pick_slot": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/red_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/champion_slot": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/layout": {
+    "remapping": "asset/lol_mod/ui/layout/banpick/layout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/champion_info_component/champion_slot": {
+    "remapping": "asset/lol_mod/ui/layout/champion_info_component/champion_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/player_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/player_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/wide_player_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_player_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/camera_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/camera_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/wide_camera_info": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/wide_camera_info",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/kill_log": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/kill_log",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/center_kill": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/center_kill",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/center_notify": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/center_notify",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/player_detail": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/player_detail",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/detail_slot": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/detail_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/ingame_component/chat": {
+    "remapping": "asset/lol_mod/ui/layout/ingame_component/chat",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick2": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/banpick_match5_lastgame": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_banpick",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match2": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match3": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match4": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match5": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/bgm/match6": {
+    "remapping": "asset/lol_mod/sound/bgm/lol_match",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_takedown": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_double_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/triple_takedown": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_triple_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/devastation": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_quadra_kill",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/annihilation": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_announcer_penta_kill",
+    "type": "override"
+  },
   "asset/base/sound/sfx/lol_shen_attack_cast": {
     "remapping": "asset/lol_mod/sound/sfx/shen_attack_cast",
     "type": "override"
@@ -429,6 +541,318 @@
   },
   "asset/base/sound/sfx/sivir_native_silence_clip": {
     "remapping": "asset/lol_mod/sound/sfx/sivir_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/serpen#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/serpen#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/serpen#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/serpen#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/infernal#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/infernal#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/ocean#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/ocean#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/mountain#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/mountain#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/cloud#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/cloud#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/hextech#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/dragon_variants/hextech#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/rhino#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/rhino#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/rhino#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/rhino#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/stump#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/stump#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/stump#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/stump#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/mushroom#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/mushroom#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/mushroom#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/mushroom#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/bee#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/bee#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/bee#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/bee#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/item_icons_18x18#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/item_icons_18x18#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/item_icons_18x18#data": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/item_icons_18x18#data",
+    "type": "override"
+  },
+  "asset/base/text/item": {
+    "remapping": "asset/lol_mod/text/item",
+    "type": "merge"
+  },
+  "asset/base/text/object": {
+    "remapping": "asset/lol_mod/text/object",
+    "type": "merge"
+  },
+  "asset/base/sound/sfx/epic_monster_attack_left": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_left",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/epic_monster_attack_right": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_right",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/morgard_attack_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_left_launch_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/morgard_death_remix": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_mix_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/morgard_death_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_body_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/morgard_death_resource2": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_void_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_attack_left_launch_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_left_launch_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_attack_left_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_left_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_attack_right_launch_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_right_launch_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_attack_right_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_attack_right_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_death_body_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_body_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_death_void_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_void_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/baron_death_mix_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/baron_death_mix_clip",
+    "type": "override"
+  },
+  "asset/base/ui/ingame/epic": {
+    "remapping": "asset/lol_mod/ui/ingame/epic",
+    "type": "override"
+  },
+  "asset/base/ui/icons/morgard": {
+    "remapping": "asset/lol_mod/ui/icons/morgard",
+    "type": "override"
+  },
+  "asset/base/ui/icons/morgard_sticker_blue": {
+    "remapping": "asset/lol_mod/ui/icons/morgard_sticker_blue",
+    "type": "override"
+  },
+  "asset/base/ui/icons/morgard_sticker_red": {
+    "remapping": "asset/lol_mod/ui/icons/morgard_sticker_red",
+    "type": "override"
+  },
+  "asset/base/ui/icons/serpen": {
+    "remapping": "asset/lol_mod/ui/icons/serpen",
+    "type": "override"
+  },
+  "asset/base/ui/icons/serpen_sticker_blue": {
+    "remapping": "asset/lol_mod/ui/icons/serpen_sticker_blue",
+    "type": "override"
+  },
+  "asset/base/ui/icons/serpen_sticker_red": {
+    "remapping": "asset/lol_mod/ui/icons/serpen_sticker_red",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic_buff_animation#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic_buff_animation#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic_buff_animation#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic_buff_animation#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/epic_monster_hp_guage#data": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/epic_monster_hp_guage#data",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_nexus_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_nexus_orb#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_nexus_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_nexus_orb#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_tower#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_tower#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_tower#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_tower#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_tower#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_tower#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_tower#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_tower#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_tower_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_tower_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/blue_tower_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/blue_tower_orb#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_tower_orb#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_tower_orb#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/red_tower_orb#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/red_tower_orb#anim",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/skill_effect/blue_tower_projectile": {
+    "remapping": "asset/lol_mod/aseprite_resources/skill_effect/blue_tower_projectile",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/skill_effect/red_tower_projectile": {
+    "remapping": "asset/lol_mod/aseprite_resources/skill_effect/red_tower_projectile",
+    "type": "override"
+  },
+  "asset/base/ui/icons/tower": {
+    "remapping": "asset/lol_mod/ui/icons/tower",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/background_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/background_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_5v5_front": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_5v5_front",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/wall_shadow_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/wall_shadow_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/bush_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/bush_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/bush_shadow_5v5": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/bush_shadow_5v5",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/tower_shadow": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/tower_shadow",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/nexus_shadow": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/nexus_shadow",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/ingame/5v5/minimap_5v5_bg": {
+    "remapping": "asset/lol_mod/aseprite_resources/ingame/5v5/minimap_5v5_bg",
     "type": "override"
   }
 }
