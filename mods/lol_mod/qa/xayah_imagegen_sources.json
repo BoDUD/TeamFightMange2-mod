@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "champion": "Xayah",
+  "generator": "built-in image_gen",
+  "generated_images_batch": "019f4bd8-30d3-7b60-98fa-58403cf263c7",
+  "generated_on": "2026-07-12",
+  "prompt_record": "source/imagegen/PROMPTS.md#xayah-image-gen-prompts",
+  "background_removal": "remove_chroma_key.py border auto-key, soft matte, thresholds 12/220, despill; builder hardens final actor/VFX alpha",
+  "native_actor_contract": {
+    "base_champion": "dancer",
+    "sheet_size": [
+      1594,
+      90
+    ],
+    "tag_order": [
+      "ult",
+      "idle",
+      "run",
+      "projectile",
+      "hit",
+      "attack",
+      "skill1_projectile",
+      "dead",
+      "skill1",
+      "skill2"
+    ],
+    "frame_counts": {
+      "ult": 5,
+      "idle": 4,
+      "run": 8,
+      "projectile": 1,
+      "hit": 1,
+      "attack": 5,
+      "skill1_projectile": 2,
+      "dead": 10,
+      "skill1": 5,
+      "skill2": 3
+    },
+    "large_vfx_policy": "xayah_attack, xayah_q, xayah_e and xayah_r are separate effect sheets"
+  },
+  "sources": [
+    {
+      "role": "actor_contact",
+      "path": "source/imagegen/xayah_actor_contact.png",
+      "size_bytes": 1747267,
+      "sha256": "330d01bddaad06080f0186986a63de62ebf0788740978fa96732972cdc4a92c2",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572528,
+        "nonzero_bbox": [
+          0,
+          0,
+          1448,
+          1086
+        ]
+      }
+    },
+    {
+      "role": "run_contact",
+      "path": "source/imagegen/xayah_run_contact.png",
+      "size_bytes": 1434884,
+      "sha256": "7791cb08c3237c65efeea9d510229a3f174de98eda851dccbf9ec63a710dea49",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572528,
+        "nonzero_bbox": [
+          0,
+          0,
+          1448,
+          1086
+        ]
+      }
+    },
+    {
+      "role": "defeat_contact",
+      "path": "source/imagegen/xayah_defeat_contact.png",
+      "size_bytes": 1435070,
+      "sha256": "cf7cff9e21366562e92841d207d5805c28f755b12240155523f2186370adf69c",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "q_icon",
+      "path": "source/imagegen/xayah_q_icon_source.png",
+      "size_bytes": 1963300,
+      "sha256": "d86ffd246c597916beda2fbabb5ef1e7a7ef1d85c8b2aa46a5a51bd1d60c6cab",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "e_icon",
+      "path": "source/imagegen/xayah_e_icon_source.png",
+      "size_bytes": 2283808,
+      "sha256": "b338189c008d2a480c40662114859eadf69b3fd6e61e37ded8e94252e88e9c8e",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "r_icon",
+      "path": "source/imagegen/xayah_r_icon_source.png",
+      "size_bytes": 2650462,
+      "sha256": "55221508adca44f75935f6dac59dda54a46d11d2deb80df39fc19e223e368cd2",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572516,
+        "nonzero_bbox": [
+          0,
+          0,
+          1254,
+          1254
+        ]
+      }
+    },
+    {
+      "role": "attack_vfx",
+      "path": "source/imagegen/xayah_attack_vfx_contact.png",
+      "size_bytes": 1160654,
+      "sha256": "1d241fd4e3cdc377a86f58fa053c178d7946f60a0dda4bc83bdfb1e3f3281094",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "q_vfx",
+      "path": "source/imagegen/xayah_q_vfx_contact.png",
+      "size_bytes": 1334654,
+      "sha256": "7d57f87ea290a03d3f83314c1d376a82b9f23e9fc7ab5dfa82c318bf86d82b86",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573538,
+        "nonzero_bbox": [
+          0,
+          0,
+          1774,
+          887
+        ]
+      }
+    },
+    {
+      "role": "e_vfx",
+      "path": "source/imagegen/xayah_e_vfx_contact.png",
+      "size_bytes": 1368249,
+      "sha256": "e19741383707472b9f8e3501ac44cfbee456e4248b694022a8f7ebb7ce801c0c",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1573352,
+        "nonzero_bbox": [
+          0,
+          0,
+          1672,
+          941
+        ]
+      }
+    },
+    {
+      "role": "r_vfx",
+      "path": "source/imagegen/xayah_r_vfx_contact.png",
+      "size_bytes": 1582331,
+      "sha256": "863f2d54c6e5b27b34ccb9435ef059957503125365ed9aa4febe9157add763cc",
+      "dimensions": [
+        1717,
+        916
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572772,
+        "nonzero_bbox": [
+          0,
+          0,
+          1717,
+          916
+        ]
+      }
+    },
+    {
+      "role": "bp_splash",
+      "path": "source/imagegen/bp_splash/dancer.png",
+      "size_bytes": 2428082,
+      "sha256": "b71c28c2eb629ca5a5c076b8b9b8052d722c1c2efb764a36327e36c658a380da",
+      "dimensions": [
+        1611,
+        976
+      ],
+      "mode": "RGB",
+      "alpha": {
+        "min": 255,
+        "max": 255,
+        "transparent_pixels": 0,
+        "partial_pixels": 0,
+        "opaque_pixels": 1572336,
+        "nonzero_bbox": [
+          0,
+          0,
+          1611,
+          976
+        ]
+      }
+    }
+  ],
+  "processed": [
+    {
+      "role": "actor_contact_alpha",
+      "path": "source/processed/xayah_actor_contact_alpha.png",
+      "size_bytes": 1076659,
+      "sha256": "c488a9750d76aabc2ae2fcdb14e763bc0b78e557832bdf27f98018ca15b10030",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1197118,
+        "partial_pixels": 24703,
+        "opaque_pixels": 350707,
+        "nonzero_bbox": [
+          90,
+          22,
+          1354,
+          1030
+        ]
+      }
+    },
+    {
+      "role": "run_contact_alpha",
+      "path": "source/processed/xayah_run_contact_alpha.png",
+      "size_bytes": 671314,
+      "sha256": "11103d641257851f258fa69b3e766f48d38a4f3b608e07e7708ce09ca1658941",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1339008,
+        "partial_pixels": 13730,
+        "opaque_pixels": 219790,
+        "nonzero_bbox": [
+          68,
+          168,
+          1358,
+          901
+        ]
+      }
+    },
+    {
+      "role": "defeat_contact_alpha",
+      "path": "source/processed/xayah_defeat_contact_alpha.png",
+      "size_bytes": 694775,
+      "sha256": "5d3d1d82813c2d8f42ca0ecd3adb5df3c9017dfc58531802243233652e60b716",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1325878,
+        "partial_pixels": 13518,
+        "opaque_pixels": 233120,
+        "nonzero_bbox": [
+          78,
+          82,
+          1159,
+          1149
+        ]
+      }
+    },
+    {
+      "role": "attack_vfx_alpha",
+      "path": "source/processed/xayah_attack_vfx_contact_alpha.png",
+      "size_bytes": 311819,
+      "sha256": "3584dde268f13f29a4cfe85b2d5ccc010d038929ae12c7a157aaf93e24e4e287",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1478397,
+        "partial_pixels": 15767,
+        "opaque_pixels": 79374,
+        "nonzero_bbox": [
+          89,
+          188,
+          1685,
+          754
+        ]
+      }
+    },
+    {
+      "role": "q_vfx_alpha",
+      "path": "source/processed/xayah_q_vfx_contact_alpha.png",
+      "size_bytes": 513352,
+      "sha256": "6c28abcffc2dfabf32c1a4253e4a5ed5902dd1fee2e05b81cf8f87037b451fcf",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1409109,
+        "partial_pixels": 22419,
+        "opaque_pixels": 142010,
+        "nonzero_bbox": [
+          69,
+          136,
+          1742,
+          782
+        ]
+      }
+    },
+    {
+      "role": "e_vfx_alpha",
+      "path": "source/processed/xayah_e_vfx_contact_alpha.png",
+      "size_bytes": 557700,
+      "sha256": "ac448006948d46a73b326c87dd9837190c8f2f58fc276ecabab458d1fe7c25c4",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1399379,
+        "partial_pixels": 35620,
+        "opaque_pixels": 138353,
+        "nonzero_bbox": [
+          73,
+          147,
+          1627,
+          807
+        ]
+      }
+    },
+    {
+      "role": "r_vfx_alpha",
+      "path": "source/processed/xayah_r_vfx_contact_alpha.png",
+      "size_bytes": 854080,
+      "sha256": "b512c3671964077bcee71756f7621caca852ba3f492edf4e9fd0462e8fa69b00",
+      "dimensions": [
+        1717,
+        916
+      ],
+      "mode": "RGBA",
+      "alpha": {
+        "min": 0,
+        "max": 255,
+        "transparent_pixels": 1322011,
+        "partial_pixels": 78525,
+        "opaque_pixels": 172236,
+        "nonzero_bbox": [
+          45,
+          130,
+          1689,
+          775
+        ]
+      }
+    }
+  ],
+  "runtime_files": [
+    {
+      "path": "aseprite_resources/champions/xayah#sheet.png",
+      "size_bytes": 574038,
+      "sha256": "7eb621f815d87e3063b71ec54c8fdf209f6ecd63279652b35dd393779efbdeb2"
+    },
+    {
+      "path": "aseprite_resources/champions/xayah#anim.fanim",
+      "size_bytes": 8349,
+      "sha256": "9eac5511d3bf7898665c1fba3d2fd090b999d233edcca9d7df87ff6db1965043"
+    },
+    {
+      "path": "icons/xayah_skill.png",
+      "size_bytes": 16516,
+      "sha256": "d5cefadf1afec42edb14505ea202a771078666afa1a1e44fef1aa71800011886"
+    },
+    {
+      "path": "icons/xayah_skill2.png",
+      "size_bytes": 16516,
+      "sha256": "d9c15587c427753aadf4c91a1c0496b1f9e85232007dfe9d2bb0822f86e1f560"
+    },
+    {
+      "path": "icons/xayah_ult.png",
+      "size_bytes": 16516,
+      "sha256": "fe053b6915d9fe389a34aad2d678779430a3a1dc6c0e5edf6b5409669b58a943"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_attack#sheet.png",
+      "size_bytes": 82073,
+      "sha256": "4db7618d55d5294e0e7cbe16b04a4b7fb4d2358ddc319b2a0d9bd069430e7f1e"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_attack#anim.fanim",
+      "size_bytes": 1511,
+      "sha256": "30d93b3b087c8bb8b2936e525bac371471d0dce7aab7e4b19b8482e46d7c1774"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_q#sheet.png",
+      "size_bytes": 172222,
+      "sha256": "9d4d9a3bbd98e1903a6ae1d3c4cf6cf1f36cc58adc7b0481c829ad886482795a"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_q#anim.fanim",
+      "size_bytes": 1511,
+      "sha256": "66bdbf4a6a82164116fee263fcdc00a64d40b2717ae77a7aa56323591f7bd2b4"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_e#sheet.png",
+      "size_bytes": 319784,
+      "sha256": "30f9ba918ff55053562b4a02517e53d9b7076ec786ced68e9bb6af19c8bf113c"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_e#anim.fanim",
+      "size_bytes": 2254,
+      "sha256": "7bf029c05930d999b3c9751c50dc94e5ea011b71060fbd8da2282e28ccbc269e"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_r#sheet.png",
+      "size_bytes": 590225,
+      "sha256": "cf1b19750dc24f08b04d407c8eab55a4fb87d92cdacaf80e58cd19df9818caf0"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_r#anim.fanim",
+      "size_bytes": 2262,
+      "sha256": "35373972d9df7813bf7094973ec6b4e58585e0ad9285ddbe170dac6b3fec2be3"
+    },
+    {
+      "path": "BanPickIllust/dancer.png",
+      "size_bytes": 4886098,
+      "sha256": "9d403f69cb0b00f278cd4d4f78a12afebf608ed70e5a510e1d278ed0cd659159"
+    },
+    {
+      "path": "ui/champion_fullbody/dancer.png",
+      "size_bytes": 16516,
+      "sha256": "7d986d89b3a37c3b142bb431aee900851ad8d8da1b8110d88d7261cdb0e6ff76"
+    }
+  ]
+}

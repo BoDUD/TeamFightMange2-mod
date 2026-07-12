@@ -89,6 +89,21 @@ foreach ($entry in $runtimeEntries) {
     Copy-Item -LiteralPath $source -Destination $targetMod -Recurse -Force
 }
 
+# A release may deliberately publish a small provenance file outside the
+# standard runtime directories (for example the pinned Xayah ImageGen/audio
+# audits). Copy any such manifest-owned file to its exact relative path rather
+# than widening the install to the entire development-only qa directory.
+foreach ($row in $manifest.files) {
+    $relative = $row.path -replace '/', [System.IO.Path]::DirectorySeparatorChar
+    $source = Join-Path $sourceMod $relative
+    $installed = Join-Path $targetMod $relative
+    if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) {
+        $installedParent = Split-Path -Parent $installed
+        New-Item -ItemType Directory -Force -Path $installedParent | Out-Null
+        Copy-Item -LiteralPath $source -Destination $installed -Force
+    }
+}
+
 foreach ($row in $manifest.files) {
     $installed = Join-Path $targetMod ($row.path -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) {

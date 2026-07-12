@@ -502,7 +502,8 @@ def validate_objective_killfeed_names(override: dict[str, Any]) -> None:
         "RenderCommand::Text { text, .. }",
         "ui_tree_has_match_runner(&ui.root)",
         "current_dragon_variant_index",
-        ".last_applied",
+        ".active_selection",
+        "current_dragon_selection()",
         "dragon_variant_index(selection.seed)",
         "炼狱亚龙",
         "海洋亚龙",
@@ -4813,9 +4814,10 @@ def validate_imagegen_sources() -> None:
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
     # Shen/Lucian/Orianna contribute 25 active alpha sources. Briar adds six;
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
-    # run, defeat, and three independent VFX contacts. Opaque icons and the
-    # BP illustration do not need alpha derivatives.
-    expected_processed = 44
+    # run, defeat, and three independent VFX contacts. Xayah adds actor, run,
+    # defeat, and four independent VFX contacts. Opaque icons and BP
+    # illustrations do not need alpha derivatives.
+    expected_processed = 51
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -5938,6 +5940,200 @@ def validate_native_dll() -> None:
     )
 
 
+def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    check(champion.get("id") == "dancer", "Xayah must retain official 007 id dancer")
+    check(
+        champion.get("sprite") == "asset/lol_mod/aseprite_resources/champions/xayah",
+        "same-ID Xayah must bind the custom actor",
+    )
+    check(champion.get("anim_prefix") == "", "Xayah must preserve native Dancer animation tags")
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/xayah_skill",
+            "asset/lol_mod/icons/xayah_skill2",
+            "asset/lol_mod/icons/xayah_ult",
+        ],
+        "Xayah active icon order must be Q/E/R",
+    )
+    check(
+        [champion.get(slot, {}).get("action_name") for slot in ("attack", "skill", "skill2", "ult")]
+        == ["attack", "skill1", "skill2", "ult"],
+        "Xayah must map only attack/Q/E/R to native Dancer actions",
+    )
+    for unsupported in ("w", "skill3", "skill4"):
+        check(unsupported not in champion, f"Xayah must not expose unsupported slot {unsupported}")
+    check(not (MOD_ROOT / "champion/lol_xayah.data_champion").exists(), "Xayah must not register an additive duplicate")
+
+    q = champion.get("skill", {})
+    q_projectiles = find_effect(q, "LinearProjectile", name="lol_xayah_q_feather")
+    check(len(q_projectiles) == 2, "Xayah Q must launch exactly two feather projectiles")
+    for projectile in q_projectiles:
+        check(
+            (
+                projectile.get("penetrate"),
+                projectile.get("speed"),
+                projectile.get("range"),
+                projectile.get("shape"),
+                projectile.get("applied_target"),
+            )
+            == (True, 8000, 72000, {"Circle": {"radius": 7000}}, "EnemyWithoutTower"),
+            "Xayah Q projectile contract changed",
+        )
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
+            == [(25, 45)],
+            "each Xayah Q feather must deal 25 + 45% Attack once",
+        )
+    delayed = find_effect(q, "Delayed")
+    check(len(delayed) == 1 and delayed[0].get("tick") == 6, "Xayah Q second feather must be delayed 6 ticks")
+
+    e = champion.get("skill2", {})
+    anchors = find_effect(e, "LinearProjectile", name="lol_xayah_e_anchor")
+    recalls = find_effect(e, "BackToCasterLinearProjectile", name="lol_xayah_e_recall")
+    roots = find_effect(e, "BackToCasterLinearProjectile", name="lol_xayah_e_root")
+    check(len(anchors) == 5 and all(anchor.get("applied_effects") == [] for anchor in anchors), "Xayah E must use five invisible no-damage anchors")
+    check(len(recalls) == 5, "Xayah E must expose one recall branch for each feather tier")
+    check(len(roots) == 3, "Xayah E must root only the 3/4/5-feather branches")
+    check(
+        [bind.get("duration") for root in roots for bind in find_effect(root, "Bind")]
+        == [45, 45, 45],
+        "Xayah E center roots must last 45 ticks",
+    )
+
+    ult = champion.get("ult", {})
+    fans = find_effect(ult, "LinearProjectile", name="lol_xayah_r_fan")
+    check(len(fans) == 1, "Xayah R must contain exactly one outbound fan collision")
+    check(not find_effect(ult, "BackToCasterLinearProjectile") and not find_effect(ult, "Bind"), "Xayah R must not auto-cast Bladecaller")
+    safety = [
+        effect.get("buff_state", {})
+        for effect in find_effect(ult, "AddCasterBuff")
+        if effect.get("buff_state", {}).get("name") == "lol_xayah_r_safety_window"
+    ]
+    check(
+        safety
+        == [{
+            "name": "lol_xayah_r_safety_window",
+            "duration": {"Time": {"tick": 60}},
+            "damaged_reduce": 100,
+            "skill_damaged_reduce": 100,
+            "cc_immune": True,
+        }],
+        "Xayah R safety-window approximation changed",
+    )
+
+    actor_path = MOD_ROOT / "aseprite_resources/champions/xayah#sheet.png"
+    anim_path = MOD_ROOT / "aseprite_resources/champions/xayah#anim.fanim"
+    check(actor_path.is_file() and anim_path.is_file(), "Xayah actor resources are missing")
+    if actor_path.is_file() and anim_path.is_file():
+        actor = Image.open(actor_path).convert("RGBA")
+        anims = load_json("aseprite_resources/champions/xayah#anim.fanim").get("anims", {})
+        expected_counts = {
+            "ult": 5, "idle": 4, "run": 8, "projectile": 1, "hit": 1,
+            "attack": 5, "skill1_projectile": 2, "dead": 10, "skill1": 5, "skill2": 3,
+        }
+        check(actor.size == (1594, 90), f"Xayah actor must preserve native 1594x90 canvas, got {actor.size}")
+        check(list(anims) == list(expected_counts), "Xayah actor tag order changed native Dancer contract")
+        run_hashes: set[str] = set()
+        for tag, expected_count in expected_counts.items():
+            frames = anims.get(tag, {}).get("frames", [])
+            check(len(frames) == expected_count, f"Xayah native tag {tag} frame count changed")
+            for index, frame in enumerate(frames):
+                data = frame.get("data", {})
+                x, y, width, height = (int(data.get(key, 0)) for key in ("x", "y", "w", "h"))
+                in_bounds = width > 0 and height > 0 and x >= 0 and y >= 0 and x + width <= actor.width and y + height <= actor.height
+                check(in_bounds, f"Xayah {tag} frame {index} is out of bounds")
+                if not in_bounds:
+                    continue
+                frame_image = actor.crop((x, y, x + width, y + height))
+                bbox = frame_image.getchannel("A").getbbox()
+                if tag == "dead" and index == expected_count - 1:
+                    check(bbox is None, "Xayah dead terminal frame must remain transparent")
+                else:
+                    check(bbox is not None, f"Xayah {tag} frame {index} is empty")
+                if tag == "run":
+                    run_hashes.add(hashlib.sha256(frame_image.tobytes()).hexdigest())
+        check(len(run_hashes) >= 6, "Xayah run must retain at least six distinct phases")
+
+    for relative in ("icons/xayah_skill.png", "icons/xayah_skill2.png", "icons/xayah_ult.png"):
+        path = MOD_ROOT / relative
+        check(path.is_file() and Image.open(path).size == (64, 64), f"{relative} must be a 64x64 icon")
+    for effect_name, tags in {
+        "xayah_attack": {"projectile": 4, "hit": 4},
+        "xayah_q": {"projectile": 4, "hit": 4},
+        "xayah_e": {"return": 4, "root": 4, "hit": 4},
+        "xayah_r": {"fan": 4, "hit": 4, "guard": 4},
+    }.items():
+        check((MOD_ROOT / f"aseprite_resources/effects/{effect_name}#sheet.png").is_file(), f"missing {effect_name} VFX sheet")
+        fanim = MOD_ROOT / f"aseprite_resources/effects/{effect_name}#anim.fanim"
+        check(fanim.is_file(), f"missing {effect_name} VFX animation")
+        if fanim.is_file():
+            actual = {tag: len(value.get("frames", [])) for tag, value in load_json(f"aseprite_resources/effects/{effect_name}#anim.fanim").get("anims", {}).items()}
+            check(actual == tags, f"{effect_name} VFX tag/frame contract changed")
+
+    text = load_json("text/champion.i18n")
+    for locale, name in {"en": "Xayah", "zh-hans": "霞", "zh-hant": "剎雅", "ja": "ザヤ", "ko": "자야"}.items():
+        description = text.get(locale, {}).get("description", {}).get("dancer", {})
+        check(description.get("name") == name, f"{locale} Xayah name is missing")
+        for key, letter in (("skill", "Q"), ("skill2", "E"), ("ult", "R")):
+            check(str(description.get(key, "")).startswith(letter), f"{locale} Xayah {key} must be labeled {letter}")
+    style = load_json("style/champion_view.champion_view").get("entries", {}).get("dancer", {})
+    check(style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}, "Xayah compact/fullbody camera contract changed")
+    check(Image.open(MOD_ROOT / "BanPickIllust/dancer.png").size == (1420, 860), "Xayah BP splash must be 1420x860")
+    check(Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").size == (64, 64), "Xayah encyclopedia portrait must be 64x64")
+
+    audit = load_json("qa/xayah_official_audio_sources.json")
+    outputs = audit.get("outputs", [])
+    check(len(outputs) == 10, "Xayah official audio audit must pin ten events")
+    required_manifest_paths = {
+        "champion/dancer.data_champion", "aseprite_resources/champions/xayah#sheet.png",
+        "aseprite_resources/champions/xayah#anim.fanim", "icons/xayah_skill.png",
+        "icons/xayah_skill2.png", "icons/xayah_ult.png", "BanPickIllust/dancer.png",
+        "ui/champion_fullbody/dancer.png", "qa/xayah_imagegen_sources.json",
+        "qa/xayah_official_audio_sources.json", "sound/sfx/xayah_native_silence.sound_info",
+        "sound/sfx/xayah_native_silence_clip.wav",
+    }
+    for row in outputs:
+        event_key = row.get("event_key", "")
+        check(float(row.get("volume", 0.0)) == 1.0, f"{event_key} must use the audited full volume")
+        check(row.get("media_id") in row.get("event_media_pool", []), f"{event_key} selected media is outside its event pool")
+        sound_info = MOD_ROOT / row.get("sound_info", "missing")
+        wav_info = row.get("wav", {})
+        wav_path = MOD_ROOT / wav_info.get("path", "missing")
+        check(sound_info.is_file() and wav_path.is_file(), f"missing Xayah audio output for {event_key}")
+        required_manifest_paths.update({row.get("sound_info", ""), wav_info.get("path", "")})
+        if wav_path.is_file():
+            check(sha256(wav_path) == wav_info.get("sha256"), f"{event_key} WAV hash changed")
+            try:
+                with wave.open(str(wav_path), "rb") as decoded:
+                    check((decoded.getnchannels(), decoded.getsampwidth(), decoded.getframerate()) == (1, 2, 44100), f"{event_key} WAV must be mono PCM16 44.1kHz")
+            except wave.Error as error:
+                check(False, f"{event_key} WAV cannot be decoded: {error}")
+        runtime_event = row.get("runtime_event", "")
+        if runtime_event:
+            check(f"asset/base/sound/sfx/{runtime_event}" in override, f"missing Xayah event override {runtime_event}")
+    for native in ("dancer_attack", "dancer_skill1", "dancer_skill2", "dancer_ult"):
+        check(override.get(f"asset/base/sound/sfx/{native}", {}).get("remapping") == "asset/lol_mod/sound/sfx/xayah_native_silence", f"native Dancer event is not isolated: {native}")
+    for native in ("dancer_attack0", "dancer_skill_resource", "dancer_skill2_resource", "dancer_ult_resource"):
+        check(override.get(f"asset/base/sound/sfx/{native}", {}).get("remapping") == "asset/lol_mod/sound/sfx/xayah_native_silence_clip", f"native Dancer clip is not isolated: {native}")
+
+    imagegen = load_json("qa/xayah_imagegen_sources.json")
+    check(imagegen.get("generator") == "built-in image_gen", "Xayah ImageGen provenance is missing")
+    check(imagegen.get("prompt_record") == "source/imagegen/PROMPTS.md#xayah-image-gen-prompts", "Xayah prompt record is missing")
+    check(len(imagegen.get("sources", [])) == 11 and len(imagegen.get("processed", [])) == 7, "Xayah ImageGen source set is incomplete")
+    for row in [*imagegen.get("sources", []), *imagegen.get("processed", [])]:
+        path = MOD_ROOT / row.get("path", "missing")
+        check(path.is_file(), f"missing Xayah ImageGen source: {row.get('path')}")
+        if path.is_file():
+            check(sha256(path) == row.get("sha256"), f"Xayah ImageGen source hash changed: {row.get('path')}")
+
+    for effect_name in ("xayah_attack", "xayah_q", "xayah_e", "xayah_r"):
+        required_manifest_paths.update({f"aseprite_resources/effects/{effect_name}#sheet.png", f"aseprite_resources/effects/{effect_name}#anim.fanim"})
+    manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
+    missing = sorted(path for path in required_manifest_paths if path and path not in manifest_paths)
+    check(not missing, "Xayah runtime resources are missing from build_manifest.json: " + ", ".join(missing))
+
+
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     lucian = load_json("champion/archer.data_champion")
@@ -5945,9 +6141,10 @@ def main() -> int:
     briar = load_json("champion/berserker.data_champion")
     sivir = load_json("champion/boomerang_hunter.data_champion")
     kled = load_json("champion/cavalry_knight.data_champion")
+    xayah = load_json("champion/dancer.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.8.2", "lol_mod version must be 0.8.2")
+    check(mod_info.get("version") == "0.9.0", "lol_mod version must be 0.9.0")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
@@ -6031,6 +6228,7 @@ def main() -> int:
     validate_briar_audio(briar, override)
     validate_sivir_audio(sivir, override)
     validate_kled_audio(kled, override)
+    validate_xayah_release(xayah, override)
     validate_briar_imagegen_and_qa_files()
     validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()

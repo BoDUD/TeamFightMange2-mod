@@ -39,7 +39,7 @@ const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;
 const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;
-const SPLASH_SPECS: [(&str, &str); 6] = [
+const SPLASH_SPECS: [(&str, &str); 7] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -55,17 +55,30 @@ const SPLASH_SPECS: [(&str, &str); 6] = [
         "cavalry_knight",
         "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
+    ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
 ];
 
-// EntityView::view_name is relative to
-// asset/base/aseprite_resources/ingame/. Elder is intentionally excluded:
-// this feature selects one base elemental drake for the whole match.
+// Elder is intentionally excluded: this feature selects one base elemental
+// drake for the whole match.  The relative names are retained for telemetry;
+// the renderer uses the direct mod sheet keys below so it does not depend on
+// EntityView's neutral-monster asset routing.
 const DRAGON_VIEW_NAMES: [&str; 5] = [
     "dragon_variants/infernal",
     "dragon_variants/ocean",
     "dragon_variants/mountain",
     "dragon_variants/cloud",
     "dragon_variants/hextech",
+];
+const DRAGON_SOURCE_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/ingame/serpen#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/serpen#sheet",
+];
+const DRAGON_VARIANT_SHEET_TEXTURES: [&str; 5] = [
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#sheet",
 ];
 
 // UI kill notifications are sourced from asset/base/text/ui rather than
@@ -94,11 +107,22 @@ const DRAGON_RENDER_NAMES: [[&str; 5]; 5] = [
         "クラウドドレイク",
         "ヘクステックドレイク",
     ],
-    ["炼狱亚龙", "海洋亚龙", "山脉亚龙", "云端亚龙", "海克斯科技亚龙"],
-    ["赤燄飛龍", "癒水飛龍", "裂地飛龍", "疾風飛龍", "海克斯科技飛龍"],
+    [
+        "炼狱亚龙",
+        "海洋亚龙",
+        "山脉亚龙",
+        "云端亚龙",
+        "海克斯科技亚龙",
+    ],
+    [
+        "赤燄飛龍",
+        "癒水飛龍",
+        "裂地飛龍",
+        "疾風飛龍",
+        "海克斯科技飛龍",
+    ],
 ];
-const DRAGON_RENDER_LEGACY_NAMES: [&str; 5] =
-    ["Serpen", "세르펜", "セルペン", "双角巨蛇", "蛇彭"];
+const DRAGON_RENDER_LEGACY_NAMES: [&str; 5] = ["Serpen", "세르펜", "セルペン", "双角巨蛇", "蛇彭"];
 const BARON_RENDER_NAMES: [(&str, &str); 5] = [
     ("Morgard", "Baron Nashor"),
     ("모르가드", "내셔 남작"),
@@ -126,7 +150,8 @@ struct ClientDragonState {
     database: Option<Rc<RefCell<ClientDatabase>>>,
     live_selection: Option<DragonSelection>,
     seen_payloads: HashSet<Vec<u8>>,
-    last_applied: Option<DragonSelection>,
+    active_selection: Option<DragonSelection>,
+    last_rendered: Option<DragonSelection>,
     fallback_logged: bool,
 }
 
@@ -156,6 +181,7 @@ impl ModExtension for LolModExtension {
     }
 
     fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        rewrite_dragon_render_commands(ui, state);
         rewrite_objective_render_text(ui, state);
         rewrite_bp_render_commands(ui, state);
     }
@@ -195,7 +221,8 @@ fn remember_database(database: Rc<RefCell<ClientDatabase>>) {
             state.database = Some(database);
             state.live_selection = None;
             state.seen_payloads.clear();
-            state.last_applied = None;
+            state.active_selection = None;
+            state.last_rendered = None;
             state.fallback_logged = false;
         }
     });
@@ -211,7 +238,7 @@ fn sync_deterministic_dragon() {
             return;
         };
 
-        let mut database = database.borrow_mut();
+        let database = database.borrow();
         let events = database.mod_events(MOD_ID);
 
         {
@@ -250,37 +277,21 @@ fn sync_deterministic_dragon() {
         } else {
             state.borrow().live_selection
         };
-        let view_name = selection
-            .map(|selected| DRAGON_VIEW_NAMES[dragon_variant_index(selected.seed)])
-            .unwrap_or("serpen");
-
-        if let Some(game) = database.game_view.as_mut() {
-            for entity in game.client.view.entity_view.values_mut() {
-                if entity.name == "serpen" && entity.view_name != view_name {
-                    entity.view_name.clear();
-                    entity.view_name.push_str(view_name);
-                }
-            }
-        }
-
         let mut state = state.borrow_mut();
         if let Some(selection) = selection {
-            if state.last_applied != Some(selection) {
-                let detail = format!(
-                    "view_name={}",
-                    DRAGON_VIEW_NAMES[dragon_variant_index(selection.seed)]
-                );
-                write_dragon_telemetry("entity_apply", selection, &detail);
-                state.last_applied = Some(selection);
-                state.fallback_logged = false;
+            if state.active_selection != Some(selection) {
+                state.active_selection = Some(selection);
+                state.last_rendered = None;
             }
+            state.fallback_logged = false;
         } else if !state.fallback_logged {
             write_dragon_fallback_telemetry(if replay_mode {
                 "replay seed unavailable; retained default serpen"
             } else {
                 "server seed event unavailable; retained default serpen"
             });
-            state.last_applied = None;
+            state.active_selection = None;
+            state.last_rendered = None;
             state.fallback_logged = true;
         }
     });
@@ -320,17 +331,72 @@ fn dragon_variant_index(seed: u64) -> usize {
 }
 
 fn current_dragon_variant_index() -> usize {
-    CLIENT_DRAGON_STATE.with(|state| {
-        state
-            .borrow()
-            .last_applied
-            .map(|selection| dragon_variant_index(selection.seed))
-            .unwrap_or(0)
-    })
+    current_dragon_selection()
+        .map(|selection| dragon_variant_index(selection.seed))
+        .unwrap_or(0)
+}
+
+fn current_dragon_selection() -> Option<DragonSelection> {
+    CLIENT_DRAGON_STATE.with(|state| state.borrow().active_selection)
+}
+
+fn rewrite_dragon_render_commands(ui: &GameUI, state: &mut RenderState) {
+    // EntityView::view_name is applied too late for the already-produced
+    // Sprite command and is overwritten again by the next server refresh.
+    // Rewrite the final command instead, inside the same MatchUIRunner gate as
+    // the objective-name pass, so model and text use one seed in one frame.
+    if !ui_tree_has_match_runner(&ui.root) {
+        return;
+    }
+
+    let selection = current_dragon_selection();
+    let selected_dragon = selection
+        .map(|selection| dragon_variant_index(selection.seed))
+        .unwrap_or(0);
+    let replacement = DRAGON_VARIANT_SHEET_TEXTURES[selected_dragon];
+    let mut rewrite_count = 0usize;
+    let mut first_source = None;
+
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::Sprite { texture, .. } = command else {
+                continue;
+            };
+            let Some(source) = DRAGON_SOURCE_SHEET_TEXTURES
+                .iter()
+                .copied()
+                .find(|source| texture.as_str() == *source)
+            else {
+                continue;
+            };
+            first_source.get_or_insert(source);
+            texture.clear();
+            texture.push_str(replacement);
+            rewrite_count += 1;
+        }
+    }
+
+    let Some(selection) = selection.filter(|_| rewrite_count > 0) else {
+        return;
+    };
+    CLIENT_DRAGON_STATE.with(|dragon_state| {
+        let mut dragon_state = dragon_state.borrow_mut();
+        if dragon_state.last_rendered == Some(selection) {
+            return;
+        }
+        let detail = format!(
+            "old={} new={} rewrite_count={}",
+            first_source.unwrap_or(DRAGON_SOURCE_SHEET_TEXTURES[0]),
+            replacement,
+            rewrite_count
+        );
+        write_dragon_telemetry("render_apply", selection, &detail);
+        dragon_state.last_rendered = Some(selection);
+    });
 }
 
 fn rewrite_objective_render_text(ui: &GameUI, state: &mut RenderState) {
-    // last_applied intentionally survives through the match result view, but
+    // active_selection intentionally survives through the match result view, but
     // must never recolor encyclopedia/management text with a previous match's
     // element. Limit the dynamic pass to a live/replay MatchUIRunner tree.
     if !ui_tree_has_match_runner(&ui.root) {
@@ -369,8 +435,7 @@ fn rewrite_objective_render_text(ui: &GameUI, state: &mut RenderState) {
 }
 
 fn ui_tree_has_match_runner(root: &Node) -> bool {
-    root.runner_as::<MatchUIRunner>().is_some()
-        || root.child.iter().any(ui_tree_has_match_runner)
+    root.runner_as::<MatchUIRunner>().is_some() || root.child.iter().any(ui_tree_has_match_runner)
 }
 
 struct LolDragonServerExtension {
@@ -491,6 +556,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("berserker", "lol_fullbody_briar"),
         ("boomerang_hunter", "lol_fullbody_sivir"),
         ("cavalry_knight", "lol_fullbody_kled"),
+        ("dancer", "lol_fullbody_xayah"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -571,7 +637,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.8.2;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.9.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -887,6 +953,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "briar" | "berserker" => Some("berserker"),
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
+        "xayah" | "dancer" => Some("dancer"),
         _ => None,
     }
 }

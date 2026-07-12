@@ -42,6 +42,13 @@
         "skill": "Q — Bear Trap on a Rope: Fires a non-piercing bear trap in the chosen direction. The first enemy champion hit takes 30 + 80% Attack physical damage and is slowed by 20% for 0.75 seconds. After 0.75 seconds the tether deals another 20 + 40% Attack physical damage, pulls the same target toward Kled, and roots for 0.5 seconds. This data version does not recheck tether distance before the delayed pull. Cooldown: 6 seconds.",
         "skill2": "E — Jousting: Dashes in the chosen direction and stops on the first enemy champion hit, dealing 30 + 80% Attack physical damage. A successful hit grants Kled 20% Move Speed for 1 second. This data version has one dash and no second recast. Cooldown: 8 seconds.",
         "ult": "R — Chaaaaaaaarge!!!: Charges up to 1200 range, gaining 50% Move Speed, a 200 + 80% Attack shield, and brief crowd-control immunity. A straight trail lasts 4 seconds and grants other allied champions 25% Move Speed. The first enemy champion struck takes 80 + 100% Attack plus 2% maximum-Health physical damage and is knocked back and airborne. The data trail is straight and does not check ally travel direction."
+      },
+      "dancer": {
+        "name": "Xayah",
+        "attack": "Clean Cuts: A normal feather deals 100% Attack physical damage. After Q, E, or R, Xayah's next three attacks become piercing feathers: the selected target takes 65% Attack and the piercing line deals 35% Attack to non-tower enemies. Each empowered attack leaves one Feather, up to five.",
+        "skill": "Q — Double Daggers: Throws two piercing feathers along the chosen direction, with the second launched 0.1 seconds later. Each feather deals 25 + 45% Attack physical damage and both together add two stored Feathers, up to five. Casting prepares three Clean Cuts. Cooldown: 6 seconds.",
+        "skill2": "E — Bladecaller: Sends a fast invisible direction anchor, then recalls every stored Feather along that line. The return deals 20 + 25% Attack at one Feather, scaling to 80 + 65% Attack at five. With at least three Feathers, the narrow center line also roots enemy champions for 0.75 seconds. Casting consumes all Feathers and prepares three Clean Cuts. This data version compresses all ground Feathers into one return line. Cooldown: 12 seconds.",
+        "ult": "R — Featherstorm: Xayah gains a 1-second damage and crowd-control safety window, then sends one wide, piercing fan forward for 80 + 70% Attack physical damage. It sets the stored Feather count to five and prepares three Clean Cuts; it never recalls Feathers or triggers E automatically. Cooldown: 50 seconds. The safety window approximates LoL untargetability without removing Xayah from the battlefield."
       }
     }
   },
@@ -88,6 +95,13 @@
         "skill": "Q—飞索捕熊器：向指定方向发射一枚不可穿透的捕熊器。命中的首名敌方英雄受到30 + 80%攻击力的物理伤害，并减速20%，持续0.75秒。0.75秒后，飞索对同一目标再次造成20 + 40%攻击力的物理伤害，将其拉向克烈并定身0.5秒。数据版本在延迟拉回前不会重新检查飞索距离。冷却6秒。",
         "skill2": "E—比武：向指定方向冲刺，在命中的首名敌方英雄处停止并造成30 + 80%攻击力的物理伤害。命中后克烈的移动速度提高20%，持续1秒。数据版本只有一次冲刺，没有第二段重施。冷却8秒。",
         "ult": "R—冲啊——！！！：最远冲锋1200距离，获得50%移动速度、200 + 80%攻击力的护盾和短暂控制免疫。身后留下持续4秒的直线路线，使路线上的其他友方英雄移速提高25%。撞到首名敌方英雄时造成80 + 100%攻击力 + 目标2%最大生命值的物理伤害，并将其小幅击退和击飞。数据路线不会转弯，也不检查友军移动方向。"
+      },
+      "dancer": {
+        "name": "霞",
+        "attack": "锐切：普通羽刃造成100%攻击力的物理伤害。施放Q、E或R后，霞的下三次普攻变为穿透羽刃：选中目标受到65%攻击力伤害，直线上的非防御塔敌人受到35%攻击力伤害。每次强化普攻留下一枚羽毛，最多5枚。",
+        "skill": "Q—双刃：朝指定方向投出两枚可穿透的羽刃，第二枚在0.1秒后发射。每枚造成25 + 45%攻击力的物理伤害，并使储存羽毛增加2枚，最多5枚。施放后准备三次锐切。冷却6秒。",
+        "skill2": "E—倒钩：先朝指定方向放出一枚高速不可见定位投射物，再让所有储存羽毛沿该直线返回。1枚羽毛造成20 + 25%攻击力伤害，5枚时提高至80 + 65%攻击力；至少3枚羽毛时，较窄的中心路径还会使敌方英雄定身0.75秒。施放会消耗全部羽毛并准备三次锐切。数据版本把所有地面羽毛压缩为一条返回路径。冷却12秒。",
+        "ult": "R—暴风羽刃：霞获得1秒的伤害与控制防护窗口，随后向前发射一片宽阔且可穿透的羽刃扇形，造成80 + 70%攻击力的物理伤害。技能把储存羽毛设为5枚并准备三次锐切，绝不会自动召回羽毛或自动触发E。冷却50秒。防护窗口是数据系统对《英雄联盟》不可被选取效果的近似实现，霞仍留在战场上。"
       }
     }
   },
@@ -134,6 +148,13 @@
         "skill": "Q—飛索捕熊器：向指定方向發射一枚不可穿透的捕熊器。命中的首名敵方英雄受到30 + 80%攻擊力的物理傷害，並減速20%，持續0.75秒。0.75秒後，飛索對同一目標再次造成20 + 40%攻擊力的物理傷害，將其拉向克烈並定身0.5秒。資料版本在延遲拉回前不會重新檢查飛索距離。冷卻6秒。",
         "skill2": "E—比武：向指定方向衝刺，在命中的首名敵方英雄處停止並造成30 + 80%攻擊力的物理傷害。命中後克烈的移動速度提高20%，持續1秒。資料版本只有一次衝刺，沒有第二段重施。冷卻8秒。",
         "ult": "R—衝啊——！！！：最遠衝鋒1200距離，獲得50%移動速度、200 + 80%攻擊力的護盾和短暫控制免疫。身後留下持續4秒的直線路線，使路線上的其他友方英雄移速提高25%。撞到首名敵方英雄時造成80 + 100%攻擊力 + 目標2%最大生命值的物理傷害，並將其小幅擊退和擊飛。資料路線不會轉彎，也不檢查友軍移動方向。"
+      },
+      "dancer": {
+        "name": "剎雅",
+        "attack": "銳切：普通羽刃造成100%攻擊力的物理傷害。施放Q、E或R後，剎雅的下三次普攻變為穿透羽刃：選中目標受到65%攻擊力傷害，直線上的非防禦塔敵人受到35%攻擊力傷害。每次強化普攻留下一枚羽毛，最多5枚。",
+        "skill": "Q—雙刃：朝指定方向投出兩枚可穿透的羽刃，第二枚在0.1秒後發射。每枚造成25 + 45%攻擊力的物理傷害，並使儲存羽毛增加2枚，最多5枚。施放後準備三次銳切。冷卻6秒。",
+        "skill2": "E—倒鉤：先朝指定方向放出一枚高速不可見定位投射物，再讓所有儲存羽毛沿該直線返回。1枚羽毛造成20 + 25%攻擊力傷害，5枚時提高至80 + 65%攻擊力；至少3枚羽毛時，較窄的中心路徑還會使敵方英雄定身0.75秒。施放會消耗全部羽毛並準備三次銳切。資料版本把所有地面羽毛壓縮為一條返回路徑。冷卻12秒。",
+        "ult": "R—暴風羽刃：剎雅獲得1秒的傷害與控制防護窗口，隨後向前發射一片寬闊且可穿透的羽刃扇形，造成80 + 70%攻擊力的物理傷害。技能把儲存羽毛設為5枚並準備三次銳切，絕不會自動召回羽毛或自動觸發E。冷卻50秒。防護窗口是資料系統對《英雄聯盟》不可被選取效果的近似實作，剎雅仍留在戰場上。"
       }
     }
   },
@@ -166,6 +187,13 @@
         "skill": "Q—トラバサミロープ：指定方向へ貫通しないトラバサミを投げる。最初に命中した敵チャンピオンへ30 + 攻撃力80%の物理ダメージを与え、0.75秒間20%スロウにする。0.75秒後、同じ対象へ20 + 攻撃力40%の追加物理ダメージを与え、クレッドへ引き寄せて0.5秒間拘束する。データ版は遅延プルの前に距離を再判定しない。クールダウン6秒。",
         "skill2": "E—ジャウスト：指定方向へダッシュし、最初に命中した敵チャンピオンで停止して30 + 攻撃力80%の物理ダメージを与える。命中時、クレッドの移動速度が1秒間20%上昇する。データ版は1回のダッシュのみで再発動はない。クールダウン8秒。",
         "ult": "R—チャァァァァァァジ！！！：最大1200まで突進し、移動速度50%、200 + 攻撃力80%のシールド、短い妨害無効を得る。4秒間の直線軌跡は他の味方の移動速度を25%上げる。最初に衝突した敵チャンピオンへ80 + 攻撃力100% + 最大体力2%の物理ダメージを与え、ノックバックとノックアップを行う。軌跡は曲がらず、味方の移動方向も判定しない。"
+      },
+      "dancer": {
+        "name": "ザヤ",
+        "attack": "クリーンカット：通常の羽根は攻撃力100%の物理ダメージを与える。Q、E、Rの後、次の3回の通常攻撃は貫通羽根となり、対象へ攻撃力65%、直線上のタワー以外の敵へ攻撃力35%のダメージを与える。強化攻撃ごとに羽根を1枚残し、最大5枚。",
+        "skill": "Q—ダブルダガー：指定方向へ貫通する羽根を2枚投げ、2枚目は0.1秒後に発射する。各羽根は25 + 攻撃力45%の物理ダメージを与え、保存羽根を2枚増やして最大5枚にする。発動後はクリーンカットを3回準備する。クールダウン6秒。",
+        "skill2": "E—ブレードコーラー：高速で不可視の方向アンカーを出した後、保存した羽根を同じ直線で呼び戻す。1枚で20 + 攻撃力25%、5枚で80 + 攻撃力65%まで増加する。3枚以上なら狭い中心線の敵チャンピオンを0.75秒拘束する。全羽根を消費してクリーンカットを3回準備する。データ版では地面の羽根を1本の帰還線にまとめる。クールダウン12秒。",
+        "ult": "R—フェザーストーム：1秒間ダメージと妨害に対する防護を得た後、幅広い貫通羽根の扇を前方へ放ち、80 + 攻撃力70%の物理ダメージを与える。保存羽根を5枚にし、クリーンカットを3回準備する。羽根の呼び戻しやEの自動発動は行わない。クールダウン50秒。防護はLoLの対象指定不可を近似したもので、ザヤは戦場から消えない。"
       }
     }
   },
@@ -198,6 +226,13 @@
         "skill": "Q—덫날리기: 지정 방향으로 관통하지 않는 덫을 발사합니다. 처음 적중한 적 챔피언에게 30 + 공격력의 80%만큼 물리 피해를 입히고 0.75초 동안 20% 둔화시킵니다. 0.75초 후 같은 대상에게 20 + 공격력의 40%만큼 추가 물리 피해를 입히고 클레드 쪽으로 끌어당겨 0.5초 속박합니다. 데이터 버전은 지연 끌어당기기 전에 줄 거리를 다시 확인하지 않습니다. 재사용 대기시간은 6초입니다.",
         "skill2": "E—이랴!: 지정 방향으로 돌진해 처음 적중한 적 챔피언에게 멈추며 30 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 클레드의 이동 속도가 1초 동안 20% 증가합니다. 데이터 버전은 한 번만 돌진하며 재사용할 수 없습니다. 재사용 대기시간은 8초입니다.",
         "ult": "R—돌겨어어억!!!: 최대 1200까지 돌진하며 이동 속도 50%, 200 + 공격력의 80%만큼 보호막, 짧은 군중 제어 면역을 얻습니다. 4초 동안 남는 직선 경로는 다른 아군의 이동 속도를 25% 높입니다. 처음 충돌한 적 챔피언에게 80 + 공격력의 100% + 최대 체력의 2%만큼 물리 피해를 입히고 밀쳐내며 공중에 띄웁니다. 경로는 휘지 않고 아군 이동 방향도 판정하지 않습니다."
+      },
+      "dancer": {
+        "name": "자야",
+        "attack": "관통상: 일반 깃털은 공격력의 100%만큼 물리 피해를 입힙니다. Q, E, R 사용 후 다음 3회의 기본 공격은 관통 깃털이 되어 대상에게 공격력의 65%, 직선상의 포탑이 아닌 적에게 공격력의 35%만큼 피해를 입힙니다. 강화 공격마다 깃털 1개를 남기며 최대 5개입니다.",
+        "skill": "Q—깃털 연타: 지정 방향으로 관통 깃털 2개를 던지며 두 번째 깃털은 0.1초 뒤 발사됩니다. 각 깃털은 25 + 공격력의 45%만큼 물리 피해를 입히고 저장된 깃털을 2개 늘려 최대 5개로 만듭니다. 사용 후 관통상 3회를 준비합니다. 재사용 대기시간은 6초입니다.",
+        "skill2": "E—깃부르미: 빠르고 보이지 않는 방향 기준점을 보낸 뒤 저장된 깃털을 같은 직선으로 회수합니다. 깃털 1개는 20 + 공격력의 25%, 5개는 80 + 공격력의 65%만큼 피해를 입힙니다. 깃털이 3개 이상이면 좁은 중심선의 적 챔피언을 0.75초 속박합니다. 모든 깃털을 소모하고 관통상 3회를 준비합니다. 데이터 버전은 바닥 깃털을 한 귀환 경로로 압축합니다. 재사용 대기시간은 12초입니다.",
+        "ult": "R—저항의 비상: 1초 동안 피해와 군중 제어 방호를 얻은 뒤 넓고 관통하는 깃털 부채를 전방으로 발사해 80 + 공격력의 70%만큼 물리 피해를 입힙니다. 저장 깃털을 5개로 만들고 관통상 3회를 준비하며, 깃털 회수나 E를 자동으로 발동하지 않습니다. 재사용 대기시간은 50초입니다. 방호 창은 LoL의 대상 지정 불가를 근사하며 자야는 전장에서 사라지지 않습니다."
       }
     }
   }

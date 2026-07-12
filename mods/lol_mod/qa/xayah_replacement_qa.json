@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "champion": "Xayah",
+  "replacement_id": "dancer",
+  "official_slot": 7,
+  "native_zero_based_index": 37,
+  "mode": "same-id replacement",
+  "active_slots": {
+    "skill": "Q / Double Daggers / skill1",
+    "skill2": "E / Bladecaller / skill2",
+    "ult": "R / Featherstorm / ult"
+  },
+  "excluded_active_slots": [
+    "W",
+    "skill3",
+    "skill4"
+  ],
+  "state_machines": {
+    "clean_cuts": [
+      "lol_xayah_clean_cuts_3",
+      "lol_xayah_clean_cuts_2",
+      "lol_xayah_clean_cuts_1"
+    ],
+    "feather_count": [
+      "lol_xayah_feathers_1",
+      "lol_xayah_feathers_2",
+      "lol_xayah_feathers_3",
+      "lol_xayah_feathers_4",
+      "lol_xayah_feathers_5"
+    ],
+    "feather_cap": 5,
+    "feather_duration_ticks": 600
+  },
+  "q": {
+    "projectile_count": 2,
+    "penetrating": true,
+    "second_delay_ticks": 6,
+    "range": 72000,
+    "radius": 7000,
+    "per_feather_damage": {
+      "flat": 25,
+      "attack_ratio": 45
+    },
+    "feathers_added": 2
+  },
+  "e": {
+    "outbound_anchor_visible": false,
+    "anchor_speed": 30000,
+    "return_type": "BackToCasterLinearProjectile",
+    "return_speed": 12000,
+    "root_threshold": 3,
+    "root_duration_ticks": 45,
+    "return_damage_by_feather_count": {
+      "1": [20, 25],
+      "2": [35, 35],
+      "3": [50, 45],
+      "4": [65, 55],
+      "5": [80, 65]
+    },
+    "data_only_approximation": "All stored ground feathers are compressed into one chosen-direction return line."
+  },
+  "r": {
+    "outbound_only": true,
+    "automatic_e": false,
+    "automatic_recall": false,
+    "damage": {
+      "flat": 80,
+      "attack_ratio": 70
+    },
+    "sets_feather_count": 5,
+    "safety_window_ticks": 60,
+    "untargetability_approximation": "100% basic/skill damage reduction plus crowd-control immunity; the entity remains present."
+  },
+  "compact_style": {
+    "face": {
+      "x": 2,
+      "y": -32
+    },
+    "center": {
+      "x": 0,
+      "y": -12
+    }
+  },
+  "native_audio_isolation": {
+    "events": [
+      "dancer_attack",
+      "dancer_skill1",
+      "dancer_skill2",
+      "dancer_ult"
+    ],
+    "clips": [
+      "dancer_attack0",
+      "dancer_skill_resource",
+      "dancer_skill2_resource",
+      "dancer_ult_resource"
+    ],
+    "silence_event": "xayah_native_silence",
+    "silence_clip": "xayah_native_silence_clip"
+  },
+  "automated_test": "tests/test_xayah_mod.py"
+}

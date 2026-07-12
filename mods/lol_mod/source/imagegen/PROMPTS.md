@@ -435,3 +435,73 @@ These three sources were generated with the built-in `image_gen` tool on 2026-07
 - Imported target: `source/imagegen/map/rift_bush_microdetail_v3_source.png`.
 - Runtime use: high-frequency-luminance-only detail, capped at 0.08, only through the official `bush_5v5` alpha.
 - Generation requirements: seamless orthographic top-down dense dark emerald rift brush texture; fine leaves, ferns, thin vines, and sparse blue-violet flowers; original hand-painted MOBA environment feel; no paths, clearings, water, stone walls, terrain layout, buildings, camps, landmarks, symbols, text, logo, watermark, lighting gradient, or perspective scene.
+
+# Xayah image-gen prompts
+
+All Xayah sources were generated with the built-in `image_gen` tool on 2026-07-12 in batch `019f4bd8-30d3-7b60-98fa-58403cf263c7`. Character and VFX contacts use a flat `#00ff00` chroma-key background for the local alpha-removal workflow. Icons and the BP splash are opaque original illustrations. Every prompt required original art with no text, letters, numbers, logo, watermark, panel border, or unrelated character.
+
+## Xayah actor contact
+
+- Execution ID: `exec-7701ed50-84bb-4c42-bc50-f2cf2f86072b`.
+- Imported target: `source/imagegen/xayah_actor_contact.png`; accepted alpha source: `source/processed/xayah_actor_contact_alpha.png`.
+- Key prompt: exact 4x3 pixel-art action contact sheet of one consistent full-body Xayah model; magenta hair, violet feather hood/cape, dark plum armor, gold trim and crystal feather daggers; four idle/ready poses, four attack/throw poses, then four Q/E/R/hit-safe cast poses; stable body proportions, clear head, torso, legs and clawed feet, compact weapons and generous padding on perfectly flat `#00ff00`; no scenery, detached giant VFX, duplicate body, cropped feet, grid lines, text, logo, or watermark.
+
+## Xayah run contact
+
+- Execution ID: `exec-de545759-00d3-4e35-942e-44c3b3e41912`.
+- Imported target: `source/imagegen/xayah_run_contact.png`; accepted alpha source: `source/processed/xayah_run_contact_alpha.png`.
+- Key prompt: exact 4x2 chronological eight-frame side-running cycle using the locked actor identity and scale; alternating leg contacts, restrained cape bounce and forward momentum, complete feet and hood in every cell, stable baseline and compact silhouette on flat `#00ff00`; no sliding clone, extra limbs, attack effect, labels, border, scenery, logo, or watermark.
+
+## Xayah defeat contact
+
+- Execution ID: `exec-23dae259-50cf-441f-b2f1-0e02644dc296`.
+- Imported target: `source/imagegen/xayah_defeat_contact.png`; accepted alpha source: `source/processed/xayah_defeat_contact_alpha.png`.
+- Key prompt: exact 3x3 chronological fall-and-defeat sheet of the same locked Xayah actor: stagger, fall, kneel, collapse, grounded and settled phases; intact non-gory body, cape and one compact dagger fully inside each cell on flat `#00ff00`; no revival, duplicate body, severed limbs, explosion, text, border, scenery, logo, or watermark.
+
+## Xayah Q icon
+
+- Execution ID: `exec-6b94dadd-7846-4d8d-b35e-1f5bde124d8c`.
+- Imported target: `source/imagegen/xayah_q_icon_source.png`.
+- Key prompt: square full-bleed original MOBA icon for Double Daggers, exactly two parallel violet-magenta crystal feather blades flying diagonally across a dark indigo background, bright readable edges and safe margin for 64x64 downscale; no face, hand, letter Q, text, external UI frame, logo, or watermark.
+
+## Xayah E icon
+
+- Execution ID: `exec-3f657323-3644-4485-980c-8729ea1c318f`.
+- Imported target: `source/imagegen/xayah_e_icon_source.png`.
+- Key prompt: square full-bleed original MOBA icon for Bladecaller, several violet-magenta feather blades converging toward one center with curved return trails, strong radial silhouette on dark indigo, readable at 64x64; no character portrait, letter E, text, frame, logo, or watermark.
+
+## Xayah R icon
+
+- Execution ID: `exec-496337cc-de5f-4d21-a34f-3cc68c1f7e02`.
+- Imported target: `source/imagegen/xayah_r_icon_source.png`.
+- Key prompt: square full-bleed original MOBA icon for Featherstorm, airborne dark feathered huntress silhouette above a broad magenta-violet fan of crystal feathers, moonlit indigo background and strong 64px silhouette; no letter R, text, external frame, logo, or watermark.
+
+## Xayah basic-attack VFX
+
+- Execution ID: `exec-2a5b5154-eb36-46f7-9b02-9af21f0ee3ad`.
+- Imported target: `source/imagegen/xayah_attack_vfx_contact.png`; accepted alpha source: `source/processed/xayah_attack_vfx_contact_alpha.png`.
+- Key prompt: exact 4x2 pixel-art effect contact: top row four phases of one compact violet feather projectile traveling right; bottom row four phases of its small star-shaped feather impact and clean dissolve; stable center, generous padding and flat `#00ff00`; effect only, no actor, second projectile, giant explosion, text, border, logo, or watermark.
+
+## Xayah Q VFX
+
+- Execution ID: `exec-7de3674c-1147-4f64-8995-b22ed24b39cb`.
+- Imported target: `source/imagegen/xayah_q_vfx_contact.png`; accepted alpha source: `source/processed/xayah_q_vfx_contact_alpha.png`.
+- Key prompt: exact 4x2 pixel-art Double Daggers contact: top row four travel phases of the paired long magenta crystal feathers, bottom row four sharp feather impacts and dissolve phases, fixed direction and size on flat `#00ff00`; effect only, no character, text, border, logo, or watermark. The runtime builder deliberately crops one feather from each top-row cell because gameplay launches two independently timed projectiles.
+
+## Xayah E VFX
+
+- Execution ID: `exec-46c0fb68-6656-43a6-89a6-dc4632134d2d`.
+- Imported target: `source/imagegen/xayah_e_vfx_contact.png`; accepted alpha source: `source/processed/xayah_e_vfx_contact_alpha.png`.
+- Key prompt: exact 4x2 pixel-art Bladecaller contact: top row four phases of three feathers curving back toward the caster; bottom row four crossed-feather root sigils with an open center, thin magenta ring and clean fade; stable anchor, generous padding and flat `#00ff00`; no actor, opaque body-covering disk, text, border, logo, or watermark.
+
+## Xayah R VFX
+
+- Execution ID: `exec-4766b1bd-0dc1-43f1-9359-ef27b0c17c48`.
+- Imported target: `source/imagegen/xayah_r_vfx_contact.png`; accepted alpha source: `source/processed/xayah_r_vfx_contact_alpha.png`.
+- Key prompt: exact 4x2 pixel-art Featherstorm contact: top row four phases of a broad five-feather fan opening outward; bottom row four landing/guard bursts with an open actor center and clean dissolve, vivid magenta-violet on flat `#00ff00`; effect only, no character, opaque screen-filling flash, text, border, logo, or watermark.
+
+## Xayah BP splash
+
+- Execution ID: `exec-6d731110-576e-4f43-8510-0d21c5d8382b`.
+- Imported target: `source/imagegen/bp_splash/dancer.png`.
+- Key prompt: polished original wide fantasy illustration of Xayah in a moonlit Ionian forest, complete dynamic full body, magenta hair, feather hood/cape and crystal feather daggers, readable subject with generous crop-safe margins for the 1420x860 ban/pick card; no text, champion name, UI panel, official logo, watermark, duplicate body, or cropped feet.

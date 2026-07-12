@@ -966,5 +966,129 @@
   "asset/base/sound/sfx/kled_native_silence_clip": {
     "remapping": "asset/lol_mod/sound/sfx/kled_native_silence_clip",
     "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/dancer#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/xayah#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/dancer#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/xayah#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_attack_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_attack_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_attack_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_attack_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_q_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_q_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_e_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_e_launch": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_launch",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_e_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_e_root": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_root",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_e_catch": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_catch",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_xayah_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_attack_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_attack_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_attack_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_attack_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_q_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_q_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_e_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_e_launch_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_launch_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_e_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_e_root_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_root_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_e_catch_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_e_catch_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_attack": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_skill1": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_skill2": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_ult": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_attack0": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_skill_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_skill2_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dancer_ult_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/xayah_native_silence_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
+    "type": "override"
   }
 }

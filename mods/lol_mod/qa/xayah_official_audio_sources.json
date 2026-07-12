@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "champion": "Xayah",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Xayah.wad.client (local League install)",
+    "size_bytes": 145872939,
+    "sha256": "58a4f5cf7ba3ec2ef525d41c8c017a1f255d11ea8f2c82d05ed0a20c16df069e"
+  },
+  "internal_sources": {
+    "audio_bank": {
+      "virtual_path": "assets/sounds/wwise2016/sfx/characters/xayah/skins/base/xayah_base_sfx_audio.bnk",
+      "path_hash": "6125bc30b3eb7ab2",
+      "wad_offset": 99072831,
+      "size_bytes": 1553257,
+      "media_count": 124,
+      "sha256": "df185383564d23bf47d5821c5ad137be772274ef00187edd2e78a7127e028c36"
+    },
+    "event_bank": {
+      "virtual_path": "assets/sounds/wwise2016/sfx/characters/xayah/skins/base/xayah_base_sfx_events.bnk",
+      "path_hash": "c3a1b9da425b1491",
+      "size_bytes": 21207,
+      "sha256": "ce3d5980de2e6ef1a095eb76e39ada1f1211ab8d3df6a665cffcd56950823c70"
+    },
+    "base_registry": {
+      "virtual_path": "data/characters/xayah/skins/skin0.bin",
+      "path_hash": "3c1cb7d7ef7cff09",
+      "size_bytes": 188359,
+      "sha256": "234180ef61de94d91e8e064e7390ea6e3c5b64414ecc0fbb094733d176a6b93a"
+    }
+  },
+  "event_mapping_audit": {
+    "resolver": "base registry Riot event strings + lowercase FNV-1 IDs + wwiser v20250928 event-bank media pools",
+    "selection_policy": "One verified official base-skin media variant per event; material-specific attack-hit pools are excluded."
+  },
+  "tools": {
+    "wadtools": {
+      "version": "0.5.6",
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866"
+    },
+    "wwiser": {
+      "version": "v20250928",
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53"
+    },
+    "vgmstream_cli": {
+      "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07"
+    },
+    "game_hashtable": {
+      "size_bytes": 207968174,
+      "sha256": "f7d5e73ff1c4b7b4630cef6d4bafe3d1b7a80a2f51e3bf9d4db4e018954d041b"
+    }
+  },
+  "decoder": {
+    "name": "vgmstream-cli",
+    "arguments": [
+      "-i",
+      "-W",
+      "1"
+    ],
+    "output_contract": "mono PCM16 44100 Hz"
+  },
+  "native_audio_isolation": {
+    "strategy": "same-ID Dancer native events/clips are remapped by mod.override_info to one deterministic physical-silence asset",
+    "silence_sound_info": "sound/sfx/xayah_native_silence.sound_info",
+    "silence_wav": {
+      "path": "sound/sfx/xayah_native_silence_clip.wav",
+      "size_bytes": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2",
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 2205,
+      "duration_seconds": 0.05,
+      "compression": "NONE",
+      "pcm_contract": "all-zero samples"
+    }
+  },
+  "outputs": [
+    {
+      "event_key": "xayah_attack_cast",
+      "runtime_event": "lol_xayah_attack_cast",
+      "riot_event": "Play_sfx_Xayah_XayahBasicAttack_OnCast",
+      "riot_event_id": 2399062020,
+      "event_media_pool": [
+        11873463,
+        259875172,
+        886609448,
+        961904137,
+        1013698442
+      ],
+      "media_id": 1013698442,
+      "source_wem_size_bytes": 11225,
+      "source_wem_sha256": "2b8bd1524f7cb1ec531c024d65e5e184d6b0ecb881ff8bef0d7d1ca94e1fda8e",
+      "sound_info": "sound/sfx/xayah_attack_cast.sound_info",
+      "clip": "xayah_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_attack_cast_clip.wav",
+        "size_bytes": 116760,
+        "sha256": "77696dc22aaf76d5650c4df249d437ae555b2db8f55ae46808ce8c687b44c6d6",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 58358,
+        "duration_seconds": 1.3233106575963718,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_attack_hit",
+      "runtime_event": "lol_xayah_attack_hit",
+      "riot_event": "Play_sfx_Xayah_XayahBasicAttack_OnHit",
+      "riot_event_id": 2111622188,
+      "event_media_pool": [
+        9507949,
+        10841184,
+        263171907,
+        277551594,
+        283971483
+      ],
+      "media_id": 10841184,
+      "source_wem_size_bytes": 3704,
+      "source_wem_sha256": "1a96d050ec75239fe265a6b33be3fdb35e290f650d3ff13a31d8921cb4b8f37e",
+      "sound_info": "sound/sfx/xayah_attack_hit.sound_info",
+      "clip": "xayah_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_attack_hit_clip.wav",
+        "size_bytes": 27718,
+        "sha256": "a303e3afaeab139b25275ba3122985c0f737cfe4944a60f4ca7145aff4f37a22",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 13837,
+        "duration_seconds": 0.3137641723356009,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_q_cast",
+      "runtime_event": "lol_xayah_q_cast",
+      "riot_event": "Play_sfx_Xayah_XayahQ_OnCast",
+      "riot_event_id": 768036005,
+      "event_media_pool": [
+        947407279
+      ],
+      "media_id": 947407279,
+      "source_wem_size_bytes": 14724,
+      "source_wem_sha256": "66a406dadb5a47b32ce9c5ceb8877a24e12aef283379d9c6f416e705a5bb78bf",
+      "sound_info": "sound/sfx/xayah_q_cast.sound_info",
+      "clip": "xayah_q_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_q_cast_clip.wav",
+        "size_bytes": 169110,
+        "sha256": "1beab97f7dc53df3586e33765081a7e235bf60c05c5c94b29d5ae6e51fe0e22f",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 84533,
+        "duration_seconds": 1.9168480725623582,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_q_hit",
+      "runtime_event": "lol_xayah_q_hit",
+      "riot_event": "Play_sfx_Xayah_XayahQMissile1_OnHitLocation",
+      "riot_event_id": 3218441131,
+      "event_media_pool": [
+        34093138,
+        115312720,
+        195416324,
+        308882689,
+        775008110
+      ],
+      "media_id": 115312720,
+      "source_wem_size_bytes": 8405,
+      "source_wem_sha256": "2d6340908946af56359f1dab2511670aed023748f42242fd21d2d5e44080c443",
+      "sound_info": "sound/sfx/xayah_q_hit.sound_info",
+      "clip": "xayah_q_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_q_hit_clip.wav",
+        "size_bytes": 97062,
+        "sha256": "f4e1de7d4233c9d1a160867820fcc8977cc24e158859440aa1391317427da52f",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 48509,
+        "duration_seconds": 1.0999773242630386,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_e_cast",
+      "runtime_event": "lol_xayah_e_cast",
+      "riot_event": "Play_sfx_Xayah_XayahE_cast",
+      "riot_event_id": 2427398726,
+      "event_media_pool": [
+        482031824
+      ],
+      "media_id": 482031824,
+      "source_wem_size_bytes": 10307,
+      "source_wem_sha256": "6b12fca9dd80d5d810dfdfcd0bef83537b11581ccf8e6912527bb491b7aa8a79",
+      "sound_info": "sound/sfx/xayah_e_cast.sound_info",
+      "clip": "xayah_e_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_e_cast_clip.wav",
+        "size_bytes": 125030,
+        "sha256": "a8158ae96d4db5fdab5a7f13b901bc1ea422d0644bfa874867267b4b10f1b2a3",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 62493,
+        "duration_seconds": 1.4170748299319729,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_e_launch",
+      "runtime_event": "lol_xayah_e_launch",
+      "riot_event": "Play_sfx_Xayah_XayahE_feather_launch",
+      "riot_event_id": 3072767302,
+      "event_media_pool": [
+        193591456
+      ],
+      "media_id": 193591456,
+      "source_wem_size_bytes": 5157,
+      "source_wem_sha256": "9a238f6595de3a52a567516d4d94800ac449b542d5f6b11323bb317c1355134c",
+      "sound_info": "sound/sfx/xayah_e_launch.sound_info",
+      "clip": "xayah_e_launch_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_e_launch_clip.wav",
+        "size_bytes": 50596,
+        "sha256": "4e8d581dbc8d4d26c91576afcb3ce009ac2cab147e5657aed071051165d107e6",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 25276,
+        "duration_seconds": 0.5731519274376418,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_e_hit",
+      "runtime_event": "lol_xayah_e_hit",
+      "riot_event": "Play_sfx_Xayah_XayahE_feather_hit",
+      "riot_event_id": 2766149514,
+      "event_media_pool": [
+        11416379,
+        24169822,
+        453799481,
+        494387490,
+        613451275
+      ],
+      "media_id": 11416379,
+      "source_wem_size_bytes": 2834,
+      "source_wem_sha256": "033c9af80ae903f541ebb9b9d5904c9e2e0d87fb7dd3f27c4bc5738b2c4bcdb1",
+      "sound_info": "sound/sfx/xayah_e_hit.sound_info",
+      "clip": "xayah_e_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_e_hit_clip.wav",
+        "size_bytes": 25446,
+        "sha256": "01db1a38dd4d99f009e753a4015c121dec32995da0d427ba7d54b9465fb107b7",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 12701,
+        "duration_seconds": 0.28800453514739227,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_e_catch",
+      "runtime_event": "lol_xayah_e_catch",
+      "riot_event": "Play_sfx_Xayah_XayahE_feather_catch",
+      "riot_event_id": 3517893168,
+      "event_media_pool": [
+        720384227
+      ],
+      "media_id": 720384227,
+      "source_wem_size_bytes": 1928,
+      "source_wem_sha256": "576621f64b7313facdacba661c5d1576144751b0dbae5e0788d06914dba93175",
+      "sound_info": "sound/sfx/xayah_e_catch.sound_info",
+      "clip": "xayah_e_catch_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_e_catch_clip.wav",
+        "size_bytes": 13570,
+        "sha256": "6bee83ed149d2abfc317ceef37dba4add77efece6ac4bab41c9b07c34a32a7ad",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 6763,
+        "duration_seconds": 0.15335600907029479,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_e_root",
+      "runtime_event": "lol_xayah_e_root",
+      "riot_event": "Play_sfx_Xayah_XayahE_root_hit",
+      "riot_event_id": 1913447281,
+      "event_media_pool": [
+        66955044,
+        425209492,
+        731834587,
+        863365552,
+        958966887
+      ],
+      "media_id": 425209492,
+      "source_wem_size_bytes": 19137,
+      "source_wem_sha256": "2942a08bcdf8f1c250b78d46099d1f3e66875da9b00184fcf4f75ef3850d4ba3",
+      "sound_info": "sound/sfx/xayah_e_root.sound_info",
+      "clip": "xayah_e_root_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_e_root_clip.wav",
+        "size_bytes": 215248,
+        "sha256": "eb611f7d83157bb216f684bbaadfed9c282ff4bddb4aa2ee820aff7c61d6f377",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 107602,
+        "duration_seconds": 2.439954648526077,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "xayah_r_cast",
+      "runtime_event": "lol_xayah_r_cast",
+      "riot_event": "Play_sfx_Xayah_XayahR_OnCast",
+      "riot_event_id": 3899263444,
+      "event_media_pool": [
+        979219185
+      ],
+      "media_id": 979219185,
+      "source_wem_size_bytes": 23088,
+      "source_wem_sha256": "b1745b2d6cbe7d7e069210e1dac3dd580c2bb07b2032be40ae088521638f2d8d",
+      "sound_info": "sound/sfx/xayah_r_cast.sound_info",
+      "clip": "xayah_r_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/xayah_r_cast_clip.wav",
+        "size_bytes": 259386,
+        "sha256": "342decee02b53317a7bd81384bf67b70ab0d669ce7de38d7eb3be11032980f56",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 129671,
+        "duration_seconds": 2.940385487528345,
+        "compression": "NONE"
+      }
+    }
+  ]
+}
