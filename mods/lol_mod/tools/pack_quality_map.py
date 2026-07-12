@@ -28,13 +28,42 @@ QA_PATH = MOD_ROOT / "qa" / "quality_map_imagegen_pack.json"
 PREVIEW_PATH = MOD_ROOT / "qa" / "quality_map_composite_preview.png"
 LANDMARK_PREVIEW_PATH = MOD_ROOT / "qa" / "quality_map_landmark_masks_preview.png"
 LANDMARK_DETAIL_PREVIEW_PATH = MOD_ROOT / "qa" / "quality_map_landmark_detail_preview.png"
+SURFACE_DETAIL_PREVIEW_PATH = MOD_ROOT / "qa" / "quality_map_surface_detail_preview.png"
 
 MAP_SIZE = (1280, 1280)
 MINIMAP_SIZE = (320, 320)
 
 MICROTEXTURE_SOURCE = SOURCE_ROOT / "rift_microtexture_v3_source.png"
-WALL_PALETTE_SOURCE = SOURCE_ROOT / "rift_wall_texture_v2_source.png"
-BUSH_PALETTE_SOURCE = SOURCE_ROOT / "rift_bush_texture_v2_source.png"
+WALL_MASONRY_SOURCE = SOURCE_ROOT / "rift_wall_masonry_v3_source.png"
+CLIFF_MICRODETAIL_SOURCE = SOURCE_ROOT / "rift_cliff_microdetail_v4_source.png"
+BUSH_MICRODETAIL_SOURCE = SOURCE_ROOT / "rift_bush_microdetail_v3_source.png"
+
+SURFACE_SOURCE_EXEC_IDS = {
+    "wall_masonry": "exec-b126d077-ca6f-4580-845c-85e54c299ad7",
+    "cliff_microdetail": "exec-314b7938-4a24-46ba-aea4-fb476c3c8329",
+    "bush_microdetail": "exec-d8c82ac3-7568-41bb-973a-304bb910f23b",
+}
+
+SURFACE_DETAIL_STRENGTHS = {
+    "wall_main_masonry": 0.08,
+    "wall_outer_cliff": 0.10,
+    "wall_front_masonry": 0.08,
+    "bush_microdetail": 0.08,
+}
+
+# Half-open rectangles measured in the official 1280x1280 layer coordinate
+# space.  They select only the tall left/right exterior cliff faces; every
+# other wall pixel receives the subtler masonry microdetail.
+OUTER_CLIFF_REGIONS = (
+    (0, 160, 192, 1280),
+    (1088, 160, 1280, 1280),
+)
+
+SURFACE_PREVIEW_CROPS = {
+    "left_outer_cliff": (32, 160, 160, 544),
+    "bush": (160, 160, 256, 256),
+    "bottom_front_wall": (384, 1113, 896, 1170),
+}
 
 # This earlier whole-map generation added water and shifted terrain semantics.
 # It is deliberately rejected: no runtime build may depend on it or silently
@@ -69,13 +98,17 @@ IMAGEGEN_PROMPTS = {
         "cyan mineral flecks. No roads, rivers, pools, pits, walls, buildings, camps, lanes, "
         "landmarks, borders, symbols, lighting gradients or other terrain semantics."
     ),
-    "wall_palette": (
-        "Seamless orthographic top-down blue-gray slate cliff masonry with moss, roots, and "
-        "restrained cyan mineral glints; original hand-painted MOBA environment texture."
+    "wall_masonry_microdetail_v3": (
+        "Seamless orthographic top-down blue-gray rift masonry microdetail with restrained moss, "
+        "fine cracks and tiny cyan mineral glints; original hand-painted MOBA environment texture."
     ),
-    "bush_palette": (
-        "Seamless orthographic top-down dense dark emerald brush with fine grass, ferns, "
-        "blue-violet flowers, and controlled shadow pockets; original hand-painted MOBA texture."
+    "cliff_microdetail_v4": (
+        "Seamless orthographic top-down dark slate rift cliff microdetail with layered rock faces, "
+        "fine roots, restrained moss and tiny cyan mineral glints; no map layout or landmarks."
+    ),
+    "bush_microdetail_v3": (
+        "Seamless orthographic top-down dense dark emerald rift brush microdetail with fine leaves, "
+        "ferns and sparse blue-violet flowers; no paths, clearings, walls or terrain landmarks."
     ),
     "landmark_common": (
         "One isolated square orthographic top-down hand-painted MOBA terrain decal, "
@@ -383,7 +416,13 @@ def load_native_layers(
 def require_sources(bundle_path: Path | None = None) -> Path:
     if bundle_path is None:
         bundle_path = find_bundle_path()
-    required = [MICROTEXTURE_SOURCE, WALL_PALETTE_SOURCE, BUSH_PALETTE_SOURCE, bundle_path]
+    required = [
+        MICROTEXTURE_SOURCE,
+        WALL_MASONRY_SOURCE,
+        CLIFF_MICRODETAIL_SOURCE,
+        BUSH_MICRODETAIL_SOURCE,
+        bundle_path,
+    ]
     required.extend(MASK_ROOT / filename for filename in MASK_SPECS.values())
     missing = [path for path in required if not path.is_file()]
     if missing:
@@ -422,36 +461,107 @@ def preserve_alpha_grade(
     return output
 
 
-def palette_mean(path: Path) -> tuple[float, float, float]:
-    with Image.open(path) as opened:
-        return tuple(float(value) for value in ImageStat.Stat(opened.convert("RGB")).mean[:3])
+def rgba_sha256(image: Image.Image) -> str:
+    return hashlib.sha256(image.convert("RGBA").tobytes()).hexdigest()
 
 
-def apply_palette_balance(
+def alpha_footprint(image: Image.Image) -> dict[str, Any]:
+    alpha = image.convert("RGBA").getchannel("A")
+    histogram = alpha.histogram()
+    return {
+        "dimensions": list(image.size),
+        "nontransparent_pixels": int(sum(histogram[1:])),
+        "bbox_xyxy_half_open": list(alpha.getbbox()) if alpha.getbbox() else None,
+        "alpha_sha256": hashlib.sha256(alpha.tobytes()).hexdigest(),
+    }
+
+
+def transparent_rgba_is_identical(before: Image.Image, after: Image.Image) -> bool:
+    """Prove that fully transparent native pixels are unchanged in all RGBA bytes."""
+
+    native = before.convert("RGBA")
+    output = after.convert("RGBA")
+    transparent = native.getchannel("A").point(lambda value: 255 if value == 0 else 0)
+    difference = ImageChops.difference(native.convert("RGB"), output.convert("RGB"))
+    transparent_rgb = Image.merge("RGB", (transparent, transparent, transparent))
+    return ImageChops.multiply(difference, transparent_rgb).getbbox() is None
+
+
+def region_mask(
+    size: tuple[int, int],
+    regions: tuple[tuple[int, int, int, int], ...],
+) -> Image.Image:
+    """Build a binary mask from audited half-open native-coordinate rectangles."""
+
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    for left, top, right, bottom in regions:
+        draw.rectangle((left, top, right - 1, bottom - 1), fill=255)
+    return mask
+
+
+def apply_contour_microdetail(
     image: Image.Image,
-    palette_path: Path,
+    source_path: Path,
     *,
     strength: float,
+    coverage_mask: Image.Image | None = None,
+    gaussian_radius: float = 18.0,
+    high_frequency_scale: float = 0.85,
 ) -> tuple[Image.Image, dict[str, Any]]:
-    """Use only a source's global hue balance; never copy its spatial pixels."""
+    """Transfer only high-frequency luminance inside the official alpha contour.
 
-    target = palette_mean(palette_path)
-    target_luma = max(1.0, 0.2126 * target[0] + 0.7152 * target[1] + 0.0722 * target[2])
-    factors = tuple(1.0 + strength * ((channel / target_luma) - 1.0) for channel in target)
-    alpha = image.getchannel("A")
-    channels = image.convert("RGB").split()
-    balanced_channels = []
-    for channel, factor in zip(channels, factors):
-        lut = [max(0, min(255, round(value * factor))) for value in range(256)]
-        balanced_channels.append(channel.point(lut))
-    output = Image.merge("RGB", tuple(balanced_channels)).convert("RGBA")
-    output.putalpha(alpha)
-    return output, {
-        "source_mean_rgb": [round(value, 4) for value in target],
+    The generated source is never pasted as terrain.  A Gaussian low-frequency
+    estimate is removed, the neutralized luminance residual is soft-lighted at
+    low strength, and ``Image.composite`` restores every pixel outside the
+    official contour from the untouched native RGBA layer.
+    """
+
+    native = image.convert("RGBA")
+    with Image.open(source_path) as opened:
+        source_gray = opened.convert("L").resize(native.size, Image.Resampling.LANCZOS)
+    low_frequency = source_gray.filter(ImageFilter.GaussianBlur(radius=gaussian_radius))
+    high_frequency = ImageChops.subtract(source_gray, low_frequency, scale=1.0, offset=128)
+    high_frequency = high_frequency.point(
+        [
+            max(0, min(255, round(128 + (value - 128) * high_frequency_scale)))
+            for value in range(256)
+        ]
+    )
+    detail_rgb = Image.merge("RGB", (high_frequency, high_frequency, high_frequency))
+    native_rgb = native.convert("RGB")
+    soft_lit_rgb = ImageChops.soft_light(native_rgb, detail_rgb)
+    candidate = Image.blend(native_rgb, soft_lit_rgb, strength).convert("RGBA")
+    candidate.putalpha(native.getchannel("A"))
+
+    contour = native.getchannel("A")
+    if coverage_mask is not None:
+        if coverage_mask.size != native.size:
+            raise ValueError(
+                f"Microdetail coverage mask size mismatch: {coverage_mask.size} != {native.size}"
+            )
+        contour = ImageChops.multiply(contour, coverage_mask.convert("L"))
+    output = Image.composite(candidate, native, contour)
+
+    changed = change_mask(native, output)
+    changed_histogram = changed.histogram()
+    audit = {
+        "operation": "high-frequency-luminance-only",
+        "source_path": source_path.relative_to(MOD_ROOT).as_posix(),
+        "source_sha256": sha256(source_path),
         "strength": strength,
-        "channel_factors": [round(value, 6) for value in factors],
-        "spatial_pixels_copied": False,
+        "gaussian_low_frequency_radius": gaussian_radius,
+        "high_frequency_scale": high_frequency_scale,
+        "blend_mode": "soft-light then low-strength linear blend",
+        "contour_restore": "Image.composite with official native alpha",
+        "direct_source_pixels_copied": False,
+        "changed_pixels": int(sum(changed_histogram[1:])),
+        "alpha_byte_identical": (
+            output.getchannel("A").tobytes() == native.getchannel("A").tobytes()
+        ),
+        "transparent_rgba_byte_identical": transparent_rgba_is_identical(native, output),
     }
+    return output, audit
 
 
 def apply_microdetail(
@@ -869,6 +979,61 @@ def save_landmark_detail_preview(background: Image.Image) -> None:
     save_png(preview, LANDMARK_DETAIL_PREVIEW_PATH)
 
 
+def save_surface_detail_preview(
+    native_composite: Image.Image,
+    refined_composite: Image.Image,
+) -> dict[str, Any]:
+    """Save audited before/after crops at exact 1:1 runtime pixel scale."""
+
+    max_width = max(right - left for left, _top, right, _bottom in SURFACE_PREVIEW_CROPS.values())
+    header_height = 34
+    row_gap = 12
+    side_padding = 12
+    column_gap = 16
+    canvas_width = side_padding * 2 + max_width * 2 + column_gap
+    canvas_height = side_padding + sum(
+        header_height + (bottom - top) + row_gap
+        for left, top, right, bottom in SURFACE_PREVIEW_CROPS.values()
+    )
+    preview = Image.new("RGBA", (canvas_width, canvas_height), (10, 15, 21, 255))
+    draw = ImageDraw.Draw(preview)
+    y = side_padding
+    records: dict[str, Any] = {}
+    for name, bbox in SURFACE_PREVIEW_CROPS.items():
+        before = native_composite.crop(bbox)
+        after = refined_composite.crop(bbox)
+        width, height = before.size
+        draw.text((side_padding, y), f"{name}  OFFICIAL  bbox={bbox}", fill=(205, 215, 225, 255))
+        draw.text(
+            (side_padding + max_width + column_gap, y),
+            "V4 HIGH-FREQUENCY DETAIL  1:1",
+            fill=(107, 221, 207, 255),
+        )
+        paste_y = y + header_height
+        preview.alpha_composite(before, (side_padding, paste_y))
+        preview.alpha_composite(
+            after,
+            (side_padding + max_width + column_gap, paste_y),
+        )
+        records[name] = {
+            "bbox_xyxy_half_open": list(bbox),
+            "dimensions": [width, height],
+            "scale": "1:1",
+            "resampling": "none",
+            "official_rgba_sha256": rgba_sha256(before),
+            "v4_rgba_sha256": rgba_sha256(after),
+        }
+        y = paste_y + height + row_gap
+    save_png(preview, SURFACE_DETAIL_PREVIEW_PATH)
+    return {
+        "path": SURFACE_DETAIL_PREVIEW_PATH.relative_to(MOD_ROOT).as_posix(),
+        "dimensions": list(preview.size),
+        "scale": "1:1",
+        "resampling": "none",
+        "crops": records,
+    }
+
+
 def main() -> int:
     bundle_path = require_sources()
 
@@ -876,9 +1041,9 @@ def main() -> int:
     native_layer_masks = {name: load_mask(name) for name in MASK_SPECS}
 
     # Native bundle layers are the only geometry source.  The uniform
-    # ImageGen microtexture contributes high-frequency luminance at 5%, while
-    # the wall/brush generations contribute global palette ratios only.  No
-    # generated road, water, wall, or brush pixel can enter the runtime map.
+    # ImageGen sources contribute high-frequency luminance only after Gaussian
+    # low-frequency removal.  No generated road, water, wall, brush outline,
+    # collision, or pathing semantic can enter the runtime map.
     # Independent landmark decals are the sole spatial exception and are
     # clipped below to audited native-coordinate masks.
     background = preserve_alpha_grade(
@@ -898,24 +1063,62 @@ def main() -> int:
     save_landmark_preview(background_before_landmarks, background, landmark_masks)
     save_landmark_detail_preview(background)
 
-    wall = preserve_alpha_grade(
-        native["wall_5v5"], saturation=1.04, contrast=1.02, brightness=0.98
+    outer_cliff_mask = region_mask(MAP_SIZE, OUTER_CLIFF_REGIONS)
+    main_wall_mask = ImageOps.invert(outer_cliff_mask)
+    wall, wall_main_detail = apply_contour_microdetail(
+        native["wall_5v5"],
+        WALL_MASONRY_SOURCE,
+        strength=SURFACE_DETAIL_STRENGTHS["wall_main_masonry"],
+        coverage_mask=main_wall_mask,
     )
-    wall, wall_palette = apply_palette_balance(
-        wall, WALL_PALETTE_SOURCE, strength=0.10
+    wall, wall_outer_detail = apply_contour_microdetail(
+        wall,
+        CLIFF_MICRODETAIL_SOURCE,
+        strength=SURFACE_DETAIL_STRENGTHS["wall_outer_cliff"],
+        coverage_mask=outer_cliff_mask,
     )
-    wall_front = preserve_alpha_grade(
-        native["wall_5v5_front"], saturation=1.04, contrast=1.02, brightness=0.96
+    wall_front, wall_front_detail = apply_contour_microdetail(
+        native["wall_5v5_front"],
+        WALL_MASONRY_SOURCE,
+        strength=SURFACE_DETAIL_STRENGTHS["wall_front_masonry"],
     )
-    wall_front, wall_front_palette = apply_palette_balance(
-        wall_front, WALL_PALETTE_SOURCE, strength=0.10
+    bush, bush_detail = apply_contour_microdetail(
+        native["bush_5v5"],
+        BUSH_MICRODETAIL_SOURCE,
+        strength=SURFACE_DETAIL_STRENGTHS["bush_microdetail"],
     )
-    bush = preserve_alpha_grade(
-        native["bush_5v5"], saturation=1.08, contrast=1.015, brightness=0.98
+
+    wall_main_detail.update(
+        {
+            "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["wall_masonry"],
+            "coverage": "official wall alpha excluding OUTER_CLIFF_REGIONS",
+        }
     )
-    bush, bush_palette = apply_palette_balance(
-        bush, BUSH_PALETTE_SOURCE, strength=0.08
+    wall_outer_detail.update(
+        {
+            "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["cliff_microdetail"],
+            "coverage": "official wall alpha inside OUTER_CLIFF_REGIONS",
+            "regions_xyxy_half_open": [list(region) for region in OUTER_CLIFF_REGIONS],
+        }
     )
+    wall_front_detail.update(
+        {
+            "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["wall_masonry"],
+            "coverage": "official wall_5v5_front alpha",
+        }
+    )
+    bush_detail.update(
+        {
+            "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["bush_microdetail"],
+            "coverage": "official bush_5v5 alpha",
+        }
+    )
+    surface_detail_usage = {
+        "wall_main_masonry": wall_main_detail,
+        "wall_outer_cliff": wall_outer_detail,
+        "wall_front_masonry": wall_front_detail,
+        "bush_microdetail": bush_detail,
+    }
 
     # Shadows already match the native draw order and footprint.  Reusing the
     # exact native RGBA avoids dark photographic slabs around obstacles.
@@ -957,6 +1160,8 @@ def main() -> int:
     ):
         native_composite.alpha_composite(native[layer_name])
 
+    surface_preview = save_surface_detail_preview(native_composite, runtime_composite)
+
     # Native composite / refined native background / refined composite.  The
     # right panel must retain the same contours as the left without tiled slabs.
     preview = Image.new("RGBA", (1536, 512), (10, 15, 21, 255))
@@ -980,6 +1185,55 @@ def main() -> int:
     native_alpha_checks = {
         name: alpha_matches_image(path, native[name])
         for name, path in output_paths.items()
+    }
+    surface_layer_names = ("wall_5v5", "wall_5v5_front", "bush_5v5")
+    surface_layer_checks = {
+        name: {
+            "dimensions_1280": outputs[name].size == MAP_SIZE,
+            "alpha_byte_identical": (
+                outputs[name].getchannel("A").tobytes()
+                == native[name].getchannel("A").tobytes()
+            ),
+            "transparent_rgba_byte_identical": transparent_rgba_is_identical(
+                native[name], outputs[name]
+            ),
+            "native_footprint": alpha_footprint(native[name]),
+            "runtime_footprint": alpha_footprint(outputs[name]),
+            "nontransparent_count_identical": (
+                alpha_footprint(native[name])["nontransparent_pixels"]
+                == alpha_footprint(outputs[name])["nontransparent_pixels"]
+            ),
+            "nontransparent_bbox_identical": (
+                alpha_footprint(native[name])["bbox_xyxy_half_open"]
+                == alpha_footprint(outputs[name])["bbox_xyxy_half_open"]
+            ),
+            "changed_pixels_from_official": int(
+                sum(change_mask(native[name], outputs[name]).histogram()[1:])
+            ),
+            "changed_nontransparent_ratio": round(
+                sum(change_mask(native[name], outputs[name]).histogram()[1:])
+                / alpha_footprint(native[name])["nontransparent_pixels"],
+                6,
+            ),
+            "visible_mean_abs_rgb_from_official": visible_rgb_delta(
+                outputs[name], native[name]
+            )["mean_abs_rgb"],
+        }
+        for name in surface_layer_names
+    }
+    shadow_layer_names = (
+        "wall_shadow_5v5",
+        "bush_shadow_5v5",
+        "tower_shadow",
+        "nexus_shadow",
+    )
+    shadow_rgba_sha256 = {
+        name: {
+            "official": rgba_sha256(native[name]),
+            "runtime": rgba_sha256(outputs[name]),
+            "byte_identical": native[name].tobytes() == outputs[name].tobytes(),
+        }
+        for name in shadow_layer_names
     }
     rgb_deltas = {
         name: visible_rgb_delta(outputs[name], native[name])
@@ -1014,6 +1268,43 @@ def main() -> int:
         "all_native_alpha_masks_exact": all(mask_checks.values()),
         "all_runtime_alpha_matches_native_bundle": all(native_alpha_checks.values()),
         "all_runtime_rgb_deltas_are_low": all(low_delta_checks.values()),
+        "surface_layers_keep_1280_dimensions": all(
+            record["dimensions_1280"] for record in surface_layer_checks.values()
+        ),
+        "surface_alpha_bytes_are_official": all(
+            record["alpha_byte_identical"] for record in surface_layer_checks.values()
+        ),
+        "surface_transparent_rgba_is_official": all(
+            record["transparent_rgba_byte_identical"]
+            for record in surface_layer_checks.values()
+        ),
+        "surface_nontransparent_counts_are_official": all(
+            record["nontransparent_count_identical"]
+            for record in surface_layer_checks.values()
+        ),
+        "surface_nontransparent_bboxes_are_official": all(
+            record["nontransparent_bbox_identical"]
+            for record in surface_layer_checks.values()
+        ),
+        "surface_microdetail_changed_visible_pixels": all(
+            record["changed_pixels"] > 0 for record in surface_detail_usage.values()
+        ),
+        "surface_microdetail_is_high_frequency_luminance_only": all(
+            record["operation"] == "high-frequency-luminance-only"
+            and record["direct_source_pixels_copied"] is False
+            for record in surface_detail_usage.values()
+        ),
+        "surface_microdetail_strengths_are_capped": (
+            surface_detail_usage["wall_main_masonry"]["strength"] <= 0.08
+            and surface_detail_usage["wall_outer_cliff"]["strength"] <= 0.10
+            and surface_detail_usage["wall_front_masonry"]["strength"] <= 0.08
+            and surface_detail_usage["bush_microdetail"]["strength"] <= 0.08
+        ),
+        "shadow_rgba_bytes_are_official": all(
+            record["byte_identical"]
+            and record["official"] == record["runtime"]
+            for record in shadow_rgba_sha256.values()
+        ),
         "rejected_whole_map_source_removed": not REJECTED_WHOLE_MAP_SOURCE.exists(),
         "generated_spatial_wall_and_bush_tiling_removed": True,
         "runtime_geometry_comes_only_from_native_bundle": True,
@@ -1048,16 +1339,27 @@ def main() -> int:
         raise ValueError(f"Quality map static checks failed: {static_checks}; masks={mask_checks}")
 
     report = {
-        "schema": "lol_mod.quality_map_imagegen_pack.v3",
+        "schema": "lol_mod.quality_map_imagegen_pack.v4",
         "generator": "mods/lol_mod/tools/pack_quality_map.py",
         "imagegen_mode": (
-            "built-in image generation; palette/microdetail plus official-mask landmark decals"
+            "built-in image generation; official-contour high-frequency microdetail plus "
+            "official-mask landmark decals"
         ),
         "prompts": IMAGEGEN_PROMPTS,
         "sources": {
             "microdetail": image_record(MICROTEXTURE_SOURCE),
-            "wall_palette": image_record(WALL_PALETTE_SOURCE),
-            "bush_palette": image_record(BUSH_PALETTE_SOURCE),
+            "wall_masonry": {
+                **image_record(WALL_MASONRY_SOURCE),
+                "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["wall_masonry"],
+            },
+            "cliff_microdetail": {
+                **image_record(CLIFF_MICRODETAIL_SOURCE),
+                "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["cliff_microdetail"],
+            },
+            "bush_microdetail": {
+                **image_record(BUSH_MICRODETAIL_SOURCE),
+                "imagegen_exec_id": SURFACE_SOURCE_EXEC_IDS["bush_microdetail"],
+            },
         },
         "source_usage": {
             "microdetail": {
@@ -1065,9 +1367,7 @@ def main() -> int:
                 "strength": 0.05,
                 "spatial_terrain_semantics_copied": False,
             },
-            "wall_palette": wall_palette,
-            "wall_front_palette": wall_front_palette,
-            "bush_palette": bush_palette,
+            **surface_detail_usage,
         },
         "rejected_routes": [
             {
@@ -1101,6 +1401,20 @@ def main() -> int:
         },
         "runtime": {name: image_record(path) for name, path in output_paths.items()},
         "preview": image_record(PREVIEW_PATH),
+        "surface_detail": {
+            "method": "high-frequency-luminance-only",
+            "low_frequency_removal": "GaussianBlur radius 18.0",
+            "composite_contract": "Image.composite back through official native alpha",
+            "outer_cliff_regions_xyxy_half_open": [
+                list(region) for region in OUTER_CLIFF_REGIONS
+            ],
+            "layers": surface_layer_checks,
+            "shadow_rgba_sha256": shadow_rgba_sha256,
+            "preview": {
+                **surface_preview,
+                "image": image_record(SURFACE_DETAIL_PREVIEW_PATH),
+            },
+        },
         "contracts": {
             "background_size": list(MAP_SIZE),
             "minimap_size": list(MINIMAP_SIZE),
@@ -1109,7 +1423,15 @@ def main() -> int:
                 "native background with global grade, 5% semantics-free luminance microdetail, "
                 "and optional decals confined to audited native landmark masks"
             ),
-            "wall_and_bush_geometry": "native RGBA contours; ImageGen supplies global palette only",
+            "wall_and_bush_geometry": (
+                "native RGBA contours and transparent bytes; ImageGen supplies only Gaussian-"
+                "isolated high-frequency luminance at capped low strength"
+            ),
+            "wall_surface_detail": (
+                "masonry <=8%; left/right exterior cliffs <=10%; front wall <=8%"
+            ),
+            "bush_surface_detail": "brush high-frequency luminance <=8%",
+            "shadow_layers": "decoded official RGBA bytes and SHA-256 unchanged",
             "tower_circles_and_camp_markers": (
                 "official background coordinates and silhouettes; a native 2px rim is retained"
             ),
@@ -1131,6 +1453,7 @@ def main() -> int:
     print(f"Composite preview: {PREVIEW_PATH.relative_to(MOD_ROOT)}")
     print(f"Landmark mask preview: {LANDMARK_PREVIEW_PATH.relative_to(MOD_ROOT)}")
     print(f"Landmark detail preview: {LANDMARK_DETAIL_PREVIEW_PATH.relative_to(MOD_ROOT)}")
+    print(f"Surface detail preview: {SURFACE_DETAIL_PREVIEW_PATH.relative_to(MOD_ROOT)}")
     return 0
 
 

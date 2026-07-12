@@ -1,0 +1,1340 @@
+{
+  "schema": 1,
+  "champion": "Kled",
+  "native_id": "cavalry_knight",
+  "native_contract": {
+    "sheet_size": [
+      4096,
+      189
+    ],
+    "tag_order": [
+      "fire_skill1_pre",
+      "ult_self_effect_back",
+      "skill1_dash",
+      "ult_road_effect",
+      "fire_skill1",
+      "skill1",
+      "skill2",
+      "fire_attack",
+      "fire_run",
+      "fire_skill1_end",
+      "fire_skill1_effect",
+      "run",
+      "idle",
+      "attack",
+      "dead",
+      "fire_skill1_dash",
+      "skill1_effect",
+      "fire_dead",
+      "ult_self_effect",
+      "ult",
+      "hit",
+      "skill1_end",
+      "fire_idle",
+      "skill1_pre"
+    ],
+    "tags": {
+      "fire_skill1_pre": {
+        "frame_count": 2,
+        "durations": [
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            3056,
+            0,
+            43,
+            57
+          ],
+          [
+            3100,
+            0,
+            47,
+            63
+          ]
+        ]
+      },
+      "ult_self_effect_back": {
+        "frame_count": 14,
+        "durations": [
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003
+        ],
+        "rects": [
+          [
+            672,
+            119,
+            3,
+            3
+          ],
+          [
+            676,
+            119,
+            3,
+            3
+          ],
+          [
+            680,
+            119,
+            3,
+            3
+          ],
+          [
+            684,
+            119,
+            3,
+            3
+          ],
+          [
+            688,
+            119,
+            3,
+            3
+          ],
+          [
+            692,
+            119,
+            3,
+            3
+          ],
+          [
+            696,
+            119,
+            3,
+            3
+          ],
+          [
+            700,
+            119,
+            3,
+            3
+          ],
+          [
+            704,
+            119,
+            3,
+            3
+          ],
+          [
+            708,
+            119,
+            3,
+            3
+          ],
+          [
+            712,
+            119,
+            3,
+            3
+          ],
+          [
+            716,
+            119,
+            3,
+            3
+          ],
+          [
+            720,
+            119,
+            3,
+            3
+          ],
+          [
+            724,
+            119,
+            3,
+            3
+          ]
+        ]
+      },
+      "skill1_dash": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            1314,
+            0,
+            53,
+            55
+          ]
+        ]
+      },
+      "ult_road_effect": {
+        "frame_count": 9,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            728,
+            119,
+            35,
+            69
+          ],
+          [
+            764,
+            119,
+            35,
+            69
+          ],
+          [
+            800,
+            119,
+            35,
+            69
+          ],
+          [
+            836,
+            119,
+            35,
+            69
+          ],
+          [
+            872,
+            119,
+            35,
+            69
+          ],
+          [
+            908,
+            119,
+            35,
+            69
+          ],
+          [
+            944,
+            119,
+            35,
+            69
+          ],
+          [
+            980,
+            119,
+            35,
+            69
+          ],
+          [
+            1016,
+            119,
+            35,
+            69
+          ]
+        ]
+      },
+      "fire_skill1": {
+        "frame_count": 3,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            3056,
+            0,
+            43,
+            57
+          ],
+          [
+            3100,
+            0,
+            47,
+            63
+          ],
+          [
+            3148,
+            0,
+            55,
+            55
+          ]
+        ]
+      },
+      "skill1": {
+        "frame_count": 3,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            1224,
+            0,
+            43,
+            57
+          ],
+          [
+            1268,
+            0,
+            45,
+            63
+          ],
+          [
+            1314,
+            0,
+            53,
+            55
+          ]
+        ]
+      },
+      "skill2": {
+        "frame_count": 3,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            1744,
+            0,
+            45,
+            69
+          ],
+          [
+            1790,
+            0,
+            45,
+            67
+          ],
+          [
+            1836,
+            0,
+            45,
+            67
+          ]
+        ]
+      },
+      "fire_attack": {
+        "frame_count": 4,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            2430,
+            0,
+            43,
+            61
+          ],
+          [
+            2474,
+            0,
+            47,
+            63
+          ],
+          [
+            2522,
+            0,
+            67,
+            55
+          ],
+          [
+            2590,
+            0,
+            61,
+            55
+          ]
+        ]
+      },
+      "fire_run": {
+        "frame_count": 8,
+        "durations": [
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002
+        ],
+        "rects": [
+          [
+            2066,
+            0,
+            47,
+            53
+          ],
+          [
+            2114,
+            0,
+            45,
+            55
+          ],
+          [
+            2160,
+            0,
+            45,
+            57
+          ],
+          [
+            2206,
+            0,
+            43,
+            57
+          ],
+          [
+            2250,
+            0,
+            41,
+            57
+          ],
+          [
+            2292,
+            0,
+            43,
+            55
+          ],
+          [
+            2336,
+            0,
+            45,
+            55
+          ],
+          [
+            2382,
+            0,
+            47,
+            55
+          ]
+        ]
+      },
+      "fire_skill1_end": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            3204,
+            0,
+            53,
+            55
+          ]
+        ]
+      },
+      "fire_skill1_effect": {
+        "frame_count": 4,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            3258,
+            0,
+            83,
+            19
+          ],
+          [
+            3342,
+            0,
+            81,
+            25
+          ],
+          [
+            3424,
+            0,
+            79,
+            25
+          ],
+          [
+            3504,
+            0,
+            77,
+            25
+          ]
+        ]
+      },
+      "run": {
+        "frame_count": 8,
+        "durations": [
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002,
+          0.060000002
+        ],
+        "rects": [
+          [
+            230,
+            0,
+            47,
+            53
+          ],
+          [
+            278,
+            0,
+            45,
+            55
+          ],
+          [
+            324,
+            0,
+            45,
+            57
+          ],
+          [
+            370,
+            0,
+            43,
+            57
+          ],
+          [
+            414,
+            0,
+            41,
+            57
+          ],
+          [
+            456,
+            0,
+            43,
+            55
+          ],
+          [
+            500,
+            0,
+            45,
+            55
+          ],
+          [
+            546,
+            0,
+            47,
+            55
+          ]
+        ]
+      },
+      "idle": {
+        "frame_count": 4,
+        "durations": [
+          0.14,
+          0.14,
+          0.14,
+          0.14
+        ],
+        "rects": [
+          [
+            46,
+            0,
+            45,
+            61
+          ],
+          [
+            92,
+            0,
+            45,
+            59
+          ],
+          [
+            138,
+            0,
+            45,
+            57
+          ],
+          [
+            184,
+            0,
+            45,
+            59
+          ]
+        ]
+      },
+      "attack": {
+        "frame_count": 4,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            594,
+            0,
+            43,
+            61
+          ],
+          [
+            638,
+            0,
+            45,
+            63
+          ],
+          [
+            684,
+            0,
+            77,
+            55
+          ],
+          [
+            762,
+            0,
+            57,
+            55
+          ]
+        ]
+      },
+      "dead": {
+        "frame_count": 10,
+        "durations": [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        "rects": [
+          [
+            860,
+            0,
+            39,
+            57
+          ],
+          [
+            900,
+            0,
+            39,
+            55
+          ],
+          [
+            940,
+            0,
+            39,
+            53
+          ],
+          [
+            980,
+            0,
+            39,
+            51
+          ],
+          [
+            1020,
+            0,
+            39,
+            49
+          ],
+          [
+            1060,
+            0,
+            39,
+            49
+          ],
+          [
+            1100,
+            0,
+            39,
+            49
+          ],
+          [
+            1140,
+            0,
+            39,
+            49
+          ],
+          [
+            1180,
+            0,
+            39,
+            49
+          ],
+          [
+            1220,
+            0,
+            3,
+            3
+          ]
+        ]
+      },
+      "fire_skill1_dash": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            3148,
+            0,
+            55,
+            55
+          ]
+        ]
+      },
+      "skill1_effect": {
+        "frame_count": 4,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            1420,
+            0,
+            83,
+            19
+          ],
+          [
+            1504,
+            0,
+            81,
+            25
+          ],
+          [
+            1586,
+            0,
+            79,
+            25
+          ],
+          [
+            1666,
+            0,
+            77,
+            25
+          ]
+        ]
+      },
+      "fire_dead": {
+        "frame_count": 11,
+        "durations": [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ],
+        "rects": [
+          [
+            2652,
+            0,
+            39,
+            59
+          ],
+          [
+            2692,
+            0,
+            39,
+            57
+          ],
+          [
+            2732,
+            0,
+            39,
+            55
+          ],
+          [
+            2772,
+            0,
+            39,
+            53
+          ],
+          [
+            2812,
+            0,
+            39,
+            51
+          ],
+          [
+            2852,
+            0,
+            39,
+            49
+          ],
+          [
+            2892,
+            0,
+            39,
+            49
+          ],
+          [
+            2932,
+            0,
+            39,
+            49
+          ],
+          [
+            2972,
+            0,
+            39,
+            49
+          ],
+          [
+            3012,
+            0,
+            39,
+            49
+          ],
+          [
+            3052,
+            0,
+            3,
+            3
+          ]
+        ]
+      },
+      "ult_self_effect": {
+        "frame_count": 14,
+        "durations": [
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003,
+          0.040000003
+        ],
+        "rects": [
+          [
+            3938,
+            0,
+            55,
+            67
+          ],
+          [
+            3994,
+            0,
+            55,
+            67
+          ],
+          [
+            0,
+            119,
+            55,
+            67
+          ],
+          [
+            56,
+            119,
+            55,
+            67
+          ],
+          [
+            112,
+            119,
+            55,
+            67
+          ],
+          [
+            168,
+            119,
+            55,
+            67
+          ],
+          [
+            224,
+            119,
+            55,
+            67
+          ],
+          [
+            280,
+            119,
+            55,
+            67
+          ],
+          [
+            336,
+            119,
+            55,
+            67
+          ],
+          [
+            392,
+            119,
+            55,
+            67
+          ],
+          [
+            448,
+            119,
+            55,
+            67
+          ],
+          [
+            504,
+            119,
+            55,
+            67
+          ],
+          [
+            560,
+            119,
+            55,
+            67
+          ],
+          [
+            616,
+            119,
+            55,
+            67
+          ]
+        ]
+      },
+      "ult": {
+        "frame_count": 4,
+        "durations": [
+          0.080000006,
+          0.080000006,
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            3582,
+            0,
+            65,
+            61
+          ],
+          [
+            3648,
+            0,
+            83,
+            77
+          ],
+          [
+            3732,
+            0,
+            107,
+            103
+          ],
+          [
+            3840,
+            0,
+            97,
+            119
+          ]
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "durations": [
+          0.1
+        ],
+        "rects": [
+          [
+            820,
+            0,
+            39,
+            59
+          ]
+        ]
+      },
+      "skill1_end": {
+        "frame_count": 1,
+        "durations": [
+          0.080000006
+        ],
+        "rects": [
+          [
+            1368,
+            0,
+            51,
+            55
+          ]
+        ]
+      },
+      "fire_idle": {
+        "frame_count": 4,
+        "durations": [
+          0.14,
+          0.14,
+          0.14,
+          0.14
+        ],
+        "rects": [
+          [
+            1882,
+            0,
+            45,
+            61
+          ],
+          [
+            1928,
+            0,
+            45,
+            59
+          ],
+          [
+            1974,
+            0,
+            45,
+            57
+          ],
+          [
+            2020,
+            0,
+            45,
+            59
+          ]
+        ]
+      },
+      "skill1_pre": {
+        "frame_count": 2,
+        "durations": [
+          0.080000006,
+          0.080000006
+        ],
+        "rects": [
+          [
+            1224,
+            0,
+            43,
+            57
+          ],
+          [
+            1268,
+            0,
+            45,
+            63
+          ]
+        ]
+      }
+    },
+    "transparent_contract": {
+      "ult_self_effect_back": "all 14 native 3x3 frames",
+      "dead": "final native 3x3 frame",
+      "fire_dead": "final native 3x3 frame"
+    }
+  },
+  "sources": [
+    {
+      "path": "source/processed/kled_actor_contact_alpha.png",
+      "size_bytes": 1160587,
+      "sha256": "088ca55e9900d6b49effe9755c5e2ba603ff569436b916b808b8ac102146ee0b",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/processed/kled_run_contact_alpha.png",
+      "size_bytes": 866210,
+      "sha256": "5b39540900c730375e6d6ec1c822a473e57519223cd1830023936d31b65b4bbd",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/processed/kled_defeat_contact_alpha.png",
+      "size_bytes": 493727,
+      "sha256": "dff6904e395101b65b893f5cfe4d10f497710f063a0376652b47c2e9889b2267",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/processed/kled_q_vfx_contact_v2_alpha.png",
+      "size_bytes": 154220,
+      "sha256": "fbce9ebf5d6ba6372bfce425e3b54c845f8b1491e1f4230e0f7b2070880f9b4e",
+      "image_size": [
+        1774,
+        887
+      ]
+    },
+    {
+      "path": "source/processed/kled_e_vfx_contact_alpha.png",
+      "size_bytes": 177728,
+      "sha256": "b9b3448d13249f5786a4d0c430611f539115e167279357442b63ea86b0becfff",
+      "image_size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "path": "source/processed/kled_r_vfx_contact_v2_alpha.png",
+      "size_bytes": 211874,
+      "sha256": "bbf3f2ce847d84b35b9bb044243e7087730d30217a6251a96f8e11abcb7a7a6f",
+      "image_size": [
+        1717,
+        916
+      ]
+    },
+    {
+      "path": "source/imagegen/kled_q_icon_source_v2.png",
+      "size_bytes": 1836049,
+      "sha256": "cd33333e2d82e964c8cf04d3039ab81c73d99c84308da13aab7e6e19ac7101d9",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/imagegen/kled_e_icon_source.png",
+      "size_bytes": 1557219,
+      "sha256": "99b945642cad909d6638dfd2586c0128ae807669f849ea7cb34b4b8ae6c0af20",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/imagegen/kled_r_icon_source.png",
+      "size_bytes": 2555307,
+      "sha256": "584fa77e2bd5b124218039bd408e6252d84dbad4108b5861c72586ada868eb75",
+      "image_size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source/imagegen/bp_splash/cavalry_knight.png",
+      "size_bytes": 6098078,
+      "sha256": "7d9e671e8d4540332ff6d314f66ff2f70b75e2375782a229db1559867f8fd64a",
+      "image_size": [
+        1586,
+        961
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "aseprite_resources/champions/kled#sheet.png",
+      "size_bytes": 3097068,
+      "sha256": "f13f22cc17807267f79a19221e0f744849b3e8bb5bc9917ff36dd48a1938e782",
+      "image_size": [
+        4096,
+        189
+      ]
+    },
+    {
+      "path": "aseprite_resources/champions/kled#anim.fanim",
+      "size_bytes": 22838,
+      "sha256": "3360f8367de1261c7faefe41071f4a6df5fe23fdce2e559f41b492fbd5491e89"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_q_tether#sheet.png",
+      "size_bytes": 147582,
+      "sha256": "000668ffc83f4bbfbc9782d2981d5ba3140eb21824ade1bd684a5455c646aa13",
+      "image_size": [
+        768,
+        48
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/kled_q_tether#anim.fanim",
+      "size_bytes": 3293,
+      "sha256": "03cbc2fc626414058cc69e57433f3ca73747d36bacd372ce96f17f47dcc3c98f"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_e_joust#sheet.png",
+      "size_bytes": 147582,
+      "sha256": "f727f195e2c626e082980fa7e19aac2ac3f34d86c795fd941f0ac2e82a0b5b2b",
+      "image_size": [
+        768,
+        48
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/kled_e_joust#anim.fanim",
+      "size_bytes": 1507,
+      "sha256": "a12a51d48b0d5127061c4de20ef170dbd729ef5eb1bc9acfb4d495f687580295"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_trail#sheet.png",
+      "size_bytes": 196755,
+      "sha256": "a196b7b47425f578a0001ac49f9734b5a9ebf6a6d9f8ecaf0f646bbc593ec1df",
+      "image_size": [
+        768,
+        64
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_trail#anim.fanim",
+      "size_bytes": 4947,
+      "sha256": "483eec0c3b35558435d7a55771574b0e77f82ec092497402e55f30a59cedc161"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_impact#sheet.png",
+      "size_bytes": 196755,
+      "sha256": "add418a76b3d59a42cf40326e32df4557c60e4ef40546a86b71a475f6d7379cc",
+      "image_size": [
+        768,
+        64
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_impact#anim.fanim",
+      "size_bytes": 1457,
+      "sha256": "51e71259f10b6ec3be1874e3edbd684682610b4fc711678a329493d2b4c922c7"
+    },
+    {
+      "path": "icons/kled_skill.png",
+      "size_bytes": 16516,
+      "sha256": "c46b2034802e1b855222605b490dc68d228d1febbc1f7aac24ffa84ec960b89c",
+      "image_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "icons/kled_skill2.png",
+      "size_bytes": 16516,
+      "sha256": "00fecd250135452f0f7d3c975c78875223e464a8a1dc32d17ee7b7c70875aac7",
+      "image_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "icons/kled_ult.png",
+      "size_bytes": 16516,
+      "sha256": "0fb44116c7628de63cceb112dd7278c7251a30a5702ef3aa095befc84f97836a",
+      "image_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "BanPickIllust/cavalry_knight.png",
+      "size_bytes": 4886098,
+      "sha256": "ba9fea18f25c5ca4a0b20d63995070b60cddda44a85ea9cbf511405e46bca6ef",
+      "image_size": [
+        1420,
+        860
+      ]
+    },
+    {
+      "path": "ui/champion_fullbody/cavalry_knight.png",
+      "size_bytes": 16516,
+      "sha256": "fac44bcc59dcb1f909b7088c6b838e864ef4be9d949e20f1102deb3b16821ea3",
+      "image_size": [
+        64,
+        64
+      ]
+    },
+    {
+      "path": "qa/kled_actor_contact_final.png",
+      "size_bytes": 2151188,
+      "sha256": "df21565d3289967090e3e63f9942c4a714d4e51566a0db64751a11d79f8560c7",
+      "image_size": [
+        960,
+        560
+      ]
+    },
+    {
+      "path": "qa/kled_skill_icons_final.png",
+      "size_bytes": 563528,
+      "sha256": "03d89bc5dd98802c3ea15a0b0b729cd36ba62a9aa5ad641cfbac1d33c6b58044",
+      "image_size": [
+        640,
+        220
+      ]
+    },
+    {
+      "path": "qa/kled_vfx_contact_final.png",
+      "size_bytes": 3111423,
+      "sha256": "a24f7e320a9076b9e02cc020f2e170de7a5d3ca5906b813519073add40593a09",
+      "image_size": [
+        1080,
+        720
+      ]
+    }
+  ],
+  "independent_effects": {
+    "kled_q_tether": {
+      "frame_size": [
+        96,
+        48
+      ],
+      "tags": [
+        "projectile",
+        "latch",
+        "pull",
+        "tether_pre",
+        "tether_loop",
+        "tether_remove"
+      ]
+    },
+    "kled_e_joust": {
+      "frame_size": [
+        96,
+        48
+      ],
+      "tags": [
+        "dash",
+        "impact"
+      ]
+    },
+    "kled_r_trail": {
+      "frame_size": [
+        96,
+        64
+      ],
+      "tags": [
+        "trail",
+        "charge",
+        "charge_pre",
+        "charge_loop",
+        "charge_remove",
+        "ally_pre",
+        "ally_loop",
+        "ally_remove"
+      ]
+    },
+    "kled_r_impact": {
+      "frame_size": [
+        96,
+        64
+      ],
+      "tags": [
+        "impact"
+      ]
+    }
+  },
+  "deterministic_png": "canonical RGBA, filter=None, stored DEFLATE"
+}

@@ -39,7 +39,7 @@ const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;
 const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;
-const SPLASH_SPECS: [(&str, &str); 5] = [
+const SPLASH_SPECS: [(&str, &str); 6] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -50,6 +50,10 @@ const SPLASH_SPECS: [(&str, &str); 5] = [
     (
         "boomerang_hunter",
         "asset/lol_mod/BanPickIllust/boomerang_hunter",
+    ),
+    (
+        "cavalry_knight",
+        "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
 ];
 
@@ -62,6 +66,45 @@ const DRAGON_VIEW_NAMES: [&str; 5] = [
     "dragon_variants/mountain",
     "dragon_variants/cloud",
     "dragon_variants/hextech",
+];
+
+// UI kill notifications are sourced from asset/base/text/ui rather than
+// asset/base/text/object. The static merge below fixes Baron and provides an
+// Infernal fallback; this table keeps every rendered dragon label in lockstep
+// with the per-match seed-selected model.
+const DRAGON_RENDER_NAMES: [[&str; 5]; 5] = [
+    [
+        "Infernal Drake",
+        "Ocean Drake",
+        "Mountain Drake",
+        "Cloud Drake",
+        "Hextech Drake",
+    ],
+    [
+        "화염의 드래곤",
+        "바다의 드래곤",
+        "대지의 드래곤",
+        "바람의 드래곤",
+        "마법공학 드래곤",
+    ],
+    [
+        "インファーナルドレイク",
+        "オーシャンドレイク",
+        "マウンテンドレイク",
+        "クラウドドレイク",
+        "ヘクステックドレイク",
+    ],
+    ["炼狱亚龙", "海洋亚龙", "山脉亚龙", "云端亚龙", "海克斯科技亚龙"],
+    ["赤燄飛龍", "癒水飛龍", "裂地飛龍", "疾風飛龍", "海克斯科技飛龍"],
+];
+const DRAGON_RENDER_LEGACY_NAMES: [&str; 5] =
+    ["Serpen", "세르펜", "セルペン", "双角巨蛇", "蛇彭"];
+const BARON_RENDER_NAMES: [(&str, &str); 5] = [
+    ("Morgard", "Baron Nashor"),
+    ("모르가드", "내셔 남작"),
+    ("モルガード", "バロンナッシャー"),
+    ("莫尔加德", "纳什男爵"),
+    ("莫加德", "巴龍納什"),
 ];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -113,6 +156,7 @@ impl ModExtension for LolModExtension {
     }
 
     fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        rewrite_objective_render_text(ui, state);
         rewrite_bp_render_commands(ui, state);
     }
 }
@@ -275,6 +319,60 @@ fn dragon_variant_index(seed: u64) -> usize {
     ((value ^ (value >> 31)) % DRAGON_VIEW_NAMES.len() as u64) as usize
 }
 
+fn current_dragon_variant_index() -> usize {
+    CLIENT_DRAGON_STATE.with(|state| {
+        state
+            .borrow()
+            .last_applied
+            .map(|selection| dragon_variant_index(selection.seed))
+            .unwrap_or(0)
+    })
+}
+
+fn rewrite_objective_render_text(ui: &GameUI, state: &mut RenderState) {
+    // last_applied intentionally survives through the match result view, but
+    // must never recolor encyclopedia/management text with a previous match's
+    // element. Limit the dynamic pass to a live/replay MatchUIRunner tree.
+    if !ui_tree_has_match_runner(&ui.root) {
+        return;
+    }
+    let selected_dragon = current_dragon_variant_index();
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::Text { text, .. } = command else {
+                continue;
+            };
+
+            let mut rewritten = text.clone();
+            for (legacy, replacement) in BARON_RENDER_NAMES {
+                if rewritten.contains(legacy) {
+                    rewritten = rewritten.replace(legacy, replacement);
+                }
+            }
+            for (locale_index, names) in DRAGON_RENDER_NAMES.iter().enumerate() {
+                let replacement = names[selected_dragon];
+                let legacy = DRAGON_RENDER_LEGACY_NAMES[locale_index];
+                if rewritten.contains(legacy) {
+                    rewritten = rewritten.replace(legacy, replacement);
+                }
+                for name in names {
+                    if *name != replacement && rewritten.contains(name) {
+                        rewritten = rewritten.replace(name, replacement);
+                    }
+                }
+            }
+            if *text != rewritten {
+                *text = rewritten;
+            }
+        }
+    }
+}
+
+fn ui_tree_has_match_runner(root: &Node) -> bool {
+    root.runner_as::<MatchUIRunner>().is_some()
+        || root.child.iter().any(ui_tree_has_match_runner)
+}
+
 struct LolDragonServerExtension {
     announced: Mutex<HashSet<(usize, usize, u64)>>,
 }
@@ -392,6 +490,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("barrier_magician", "lol_fullbody_orianna"),
         ("berserker", "lol_fullbody_briar"),
         ("boomerang_hunter", "lol_fullbody_sivir"),
+        ("cavalry_knight", "lol_fullbody_kled"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -472,7 +571,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.7.11;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.8.2;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -787,6 +886,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "orianna" | "barrier_magician" => Some("barrier_magician"),
         "briar" | "berserker" => Some("berserker"),
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
+        "kled" | "cavalry_knight" => Some("cavalry_knight"),
         _ => None,
     }
 }

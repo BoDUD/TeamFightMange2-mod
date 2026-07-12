@@ -15,6 +15,8 @@ import wave
 
 from PIL import Image, ImageDraw
 
+from build_kled import build_all as build_kled_assets
+
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
 SOURCE = MOD_ROOT / "source" / "processed"
@@ -149,6 +151,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "barrier_magician": ACTOR_DIR / "orianna#sheet.png",
     "berserker": ACTOR_DIR / "briar#sheet.png",
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
+    "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -246,6 +249,11 @@ def build_champion_fullbody_portraits() -> list[Path]:
     CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
+        # Kled retains the official 006 atlas geometry, whose first idle frame
+        # is not the sheet's top-left 64x64 cell. build_kled_assets() exports
+        # its portrait from the exact native idle rectangle instead.
+        if champion_id == "cavalry_knight":
+            continue
         with Image.open(sheet_path) as opened:
             sheet = opened.convert("RGBA")
             if sheet.width < 64 or sheet.height < 64:
@@ -3573,6 +3581,7 @@ def main() -> int:
     sivir_silence = build_sivir_native_silence()
     sivir_qa = build_sivir_qa_contacts(sivir_frames, sivir_icons)
     sivir_imagegen_audit = build_sivir_imagegen_audit()
+    kled_outputs = build_kled_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
@@ -3607,6 +3616,7 @@ def main() -> int:
         *sivir_silence,
         *sivir_qa,
         sivir_imagegen_audit,
+        *kled_outputs,
         *champion_fullbody_portraits,
         *([manifest] if manifest else []),
     ]:

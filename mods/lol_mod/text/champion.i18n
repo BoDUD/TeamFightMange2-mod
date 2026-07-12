@@ -35,6 +35,13 @@
         "skill": "Q — Boomerang Blade: Throws a piercing crossblade 750 range. The outbound and returning passes each deal 30 + 55% Attack physical damage to non-tower enemies, so one target can be hit at most once per pass. Cooldown: 6 seconds; there is no pass-through damage falloff.",
         "skill2": "E — Spell Shield: Creates a 1.5-second window that reduces incoming skill damage by 100%, immediately heals Sivir for 60 + 15% Attack, and grants 20% Move Speed for 2 seconds. Cooldown: 12 seconds. This data version is a timed damage guard: it is not consumed by the first spell and cannot block crowd control or non-damage spell effects.",
         "ult": "R — On The Hunt: When an enemy champion is within 850 range, grants allied champions within 1000 range 25% Move Speed for 5 seconds. Cooldown: 50 seconds. It deals no damage and applies only one speed buff to Sivir."
+      },
+      "cavalry_knight": {
+        "name": "Kled",
+        "attack": "Halberd Thrust: Deals 100% Attack physical damage with Kled's halberd.",
+        "skill": "Q — Bear Trap on a Rope: Fires a non-piercing bear trap in the chosen direction. The first enemy champion hit takes 30 + 80% Attack physical damage and is slowed by 20% for 0.75 seconds. After 0.75 seconds the tether deals another 20 + 40% Attack physical damage, pulls the same target toward Kled, and roots for 0.5 seconds. This data version does not recheck tether distance before the delayed pull. Cooldown: 6 seconds.",
+        "skill2": "E — Jousting: Dashes in the chosen direction and stops on the first enemy champion hit, dealing 30 + 80% Attack physical damage. A successful hit grants Kled 20% Move Speed for 1 second. This data version has one dash and no second recast. Cooldown: 8 seconds.",
+        "ult": "R — Chaaaaaaaarge!!!: Charges up to 1200 range, gaining 50% Move Speed, a 200 + 80% Attack shield, and brief crowd-control immunity. A straight trail lasts 4 seconds and grants other allied champions 25% Move Speed. The first enemy champion struck takes 80 + 100% Attack plus 2% maximum-Health physical damage and is knocked back and airborne. The data trail is straight and does not check ally travel direction."
       }
     }
   },
@@ -74,6 +81,13 @@
         "skill": "Q—回旋之刃：向前投出可穿透敌人的十字刃，射程750。飞出和返回各对非防御塔敌人造成30 + 55%攻击力的物理伤害，同一目标每段最多命中一次。冷却6秒；穿透伤害不衰减。",
         "skill2": "E—法术护盾：展开1.5秒防护窗口，受到的技能伤害降低100%；施放时立即回复60 + 15%攻击力的生命，并获得20%移动速度，持续2秒。冷却12秒。数据版本是限时技能伤害防护，不会在挡住第一次技能后消耗，也不能阻挡控制或无伤害技能效果。",
         "ult": "R—狩猎：850距离内存在敌方英雄时，使1000范围内友方英雄获得25%移动速度，持续5秒。冷却50秒；不造成伤害，希维尔本人只获得一份加速。"
+      },
+      "cavalry_knight": {
+        "name": "克烈",
+        "attack": "长戟突刺：克烈挥动长戟，造成100%攻击力的物理伤害。",
+        "skill": "Q—飞索捕熊器：向指定方向发射一枚不可穿透的捕熊器。命中的首名敌方英雄受到30 + 80%攻击力的物理伤害，并减速20%，持续0.75秒。0.75秒后，飞索对同一目标再次造成20 + 40%攻击力的物理伤害，将其拉向克烈并定身0.5秒。数据版本在延迟拉回前不会重新检查飞索距离。冷却6秒。",
+        "skill2": "E—比武：向指定方向冲刺，在命中的首名敌方英雄处停止并造成30 + 80%攻击力的物理伤害。命中后克烈的移动速度提高20%，持续1秒。数据版本只有一次冲刺，没有第二段重施。冷却8秒。",
+        "ult": "R—冲啊——！！！：最远冲锋1200距离，获得50%移动速度、200 + 80%攻击力的护盾和短暂控制免疫。身后留下持续4秒的直线路线，使路线上的其他友方英雄移速提高25%。撞到首名敌方英雄时造成80 + 100%攻击力 + 目标2%最大生命值的物理伤害，并将其小幅击退和击飞。数据路线不会转弯，也不检查友军移动方向。"
       }
     }
   },
@@ -113,6 +127,13 @@
         "skill": "Q—迴旋之刃：向前投出可穿透敵人的十字刃，射程750。飛出和返回各對非防禦塔敵人造成30 + 55%攻擊力的物理傷害，同一目標每段最多命中一次。冷卻6秒；穿透傷害不衰減。",
         "skill2": "E—法術護盾：展開1.5秒防護窗口，受到的技能傷害降低100%；施放時立即回復60 + 15%攻擊力的生命，並獲得20%移動速度，持續2秒。冷卻12秒。資料版本是限時技能傷害防護，不會在擋住第一次技能後消耗，也不能阻擋控制或無傷害技能效果。",
         "ult": "R—狩獵：850距離內存在敵方英雄時，使1000範圍內友方英雄獲得25%移動速度，持續5秒。冷卻50秒；不造成傷害，希維爾本人只獲得一份加速。"
+      },
+      "cavalry_knight": {
+        "name": "克烈",
+        "attack": "長戟突刺：克烈揮動長戟，造成100%攻擊力的物理傷害。",
+        "skill": "Q—飛索捕熊器：向指定方向發射一枚不可穿透的捕熊器。命中的首名敵方英雄受到30 + 80%攻擊力的物理傷害，並減速20%，持續0.75秒。0.75秒後，飛索對同一目標再次造成20 + 40%攻擊力的物理傷害，將其拉向克烈並定身0.5秒。資料版本在延遲拉回前不會重新檢查飛索距離。冷卻6秒。",
+        "skill2": "E—比武：向指定方向衝刺，在命中的首名敵方英雄處停止並造成30 + 80%攻擊力的物理傷害。命中後克烈的移動速度提高20%，持續1秒。資料版本只有一次衝刺，沒有第二段重施。冷卻8秒。",
+        "ult": "R—衝啊——！！！：最遠衝鋒1200距離，獲得50%移動速度、200 + 80%攻擊力的護盾和短暫控制免疫。身後留下持續4秒的直線路線，使路線上的其他友方英雄移速提高25%。撞到首名敵方英雄時造成80 + 100%攻擊力 + 目標2%最大生命值的物理傷害，並將其小幅擊退和擊飛。資料路線不會轉彎，也不檢查友軍移動方向。"
       }
     }
   },
@@ -138,6 +159,13 @@
         "skill": "Q—ブーメランブレード：射程750の貫通する刃を投げる。往路と復路はそれぞれ30 + 攻撃力55%の物理ダメージを与え、同じ対象には各区間1回まで命中する。クールダウン6秒。",
         "skill2": "E—スペルシールド：1.5秒間スキルダメージを100%軽減し、発動時に60 + 攻撃力15%回復して2秒間移動速度が20%上がる。クールダウン12秒。データ版は時間制の軽減で、最初のスキルで消費されず、妨害や非ダメージ効果は防げない。",
         "ult": "R—戦姫の号令：敵チャンピオンが850以内にいる時、1000以内の味方チャンピオンの移動速度を5秒間25%上げる。クールダウン50秒。ダメージはなく、シヴィア自身への強化は1つだけ。"
+      },
+      "cavalry_knight": {
+        "name": "クレッド",
+        "attack": "ハルバード突き：クレッドがハルバードで攻撃し、攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—トラバサミロープ：指定方向へ貫通しないトラバサミを投げる。最初に命中した敵チャンピオンへ30 + 攻撃力80%の物理ダメージを与え、0.75秒間20%スロウにする。0.75秒後、同じ対象へ20 + 攻撃力40%の追加物理ダメージを与え、クレッドへ引き寄せて0.5秒間拘束する。データ版は遅延プルの前に距離を再判定しない。クールダウン6秒。",
+        "skill2": "E—ジャウスト：指定方向へダッシュし、最初に命中した敵チャンピオンで停止して30 + 攻撃力80%の物理ダメージを与える。命中時、クレッドの移動速度が1秒間20%上昇する。データ版は1回のダッシュのみで再発動はない。クールダウン8秒。",
+        "ult": "R—チャァァァァァァジ！！！：最大1200まで突進し、移動速度50%、200 + 攻撃力80%のシールド、短い妨害無効を得る。4秒間の直線軌跡は他の味方の移動速度を25%上げる。最初に衝突した敵チャンピオンへ80 + 攻撃力100% + 最大体力2%の物理ダメージを与え、ノックバックとノックアップを行う。軌跡は曲がらず、味方の移動方向も判定しない。"
       }
     }
   },
@@ -163,6 +191,13 @@
         "skill": "Q—부메랑 검: 사거리 750의 관통 십자날을 던집니다. 나갈 때와 돌아올 때 각각 30 + 공격력의 55%만큼 물리 피해를 입히며, 같은 대상은 각 구간에서 한 번만 맞습니다. 재사용 대기시간 6초입니다.",
         "skill2": "E—주문 방패: 1.5초 동안 받는 스킬 피해를 100% 감소시키고, 시전 즉시 60 + 공격력의 15%만큼 회복하며 2초 동안 이동 속도가 20% 증가합니다. 재사용 대기시간 12초입니다. 데이터 버전은 시간제 피해 방어로 첫 주문에 소모되지 않고 군중 제어나 비피해 효과를 막지 못합니다.",
         "ult": "R—사냥 개시: 적 챔피언이 850 안에 있을 때 1000 안의 아군 챔피언 이동 속도를 5초 동안 25% 증가시킵니다. 재사용 대기시간 50초이며 피해를 주지 않고 시비르 자신에게는 한 번만 적용됩니다."
+      },
+      "cavalry_knight": {
+        "name": "클레드",
+        "attack": "미늘창 찌르기: 클레드가 미늘창을 휘둘러 공격력의 100%만큼 물리 피해를 입힙니다.",
+        "skill": "Q—덫날리기: 지정 방향으로 관통하지 않는 덫을 발사합니다. 처음 적중한 적 챔피언에게 30 + 공격력의 80%만큼 물리 피해를 입히고 0.75초 동안 20% 둔화시킵니다. 0.75초 후 같은 대상에게 20 + 공격력의 40%만큼 추가 물리 피해를 입히고 클레드 쪽으로 끌어당겨 0.5초 속박합니다. 데이터 버전은 지연 끌어당기기 전에 줄 거리를 다시 확인하지 않습니다. 재사용 대기시간은 6초입니다.",
+        "skill2": "E—이랴!: 지정 방향으로 돌진해 처음 적중한 적 챔피언에게 멈추며 30 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 클레드의 이동 속도가 1초 동안 20% 증가합니다. 데이터 버전은 한 번만 돌진하며 재사용할 수 없습니다. 재사용 대기시간은 8초입니다.",
+        "ult": "R—돌겨어어억!!!: 최대 1200까지 돌진하며 이동 속도 50%, 200 + 공격력의 80%만큼 보호막, 짧은 군중 제어 면역을 얻습니다. 4초 동안 남는 직선 경로는 다른 아군의 이동 속도를 25% 높입니다. 처음 충돌한 적 챔피언에게 80 + 공격력의 100% + 최대 체력의 2%만큼 물리 피해를 입히고 밀쳐내며 공중에 띄웁니다. 경로는 휘지 않고 아군 이동 방향도 판정하지 않습니다."
       }
     }
   }

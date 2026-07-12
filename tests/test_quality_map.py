@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import warnings
 from pathlib import Path
@@ -23,6 +24,31 @@ MAP_NAMES = (
     "nexus_shadow",
     "minimap_5v5_bg",
 )
+
+SURFACE_ALPHA_CONTRACTS = {
+    "wall_5v5": {
+        "dimensions": (1280, 1280),
+        "nontransparent_pixels": 291274,
+        "bbox_xyxy_half_open": (0, 103, 1280, 1152),
+    },
+    "wall_5v5_front": {
+        "dimensions": (1280, 1280),
+        "nontransparent_pixels": 56022,
+        "bbox_xyxy_half_open": (0, 1113, 1280, 1170),
+    },
+    "bush_5v5": {
+        "dimensions": (1280, 1280),
+        "nontransparent_pixels": 62287,
+        "bbox_xyxy_half_open": (160, 160, 1120, 1120),
+    },
+}
+
+OFFICIAL_SHADOW_RGBA_SHA256 = {
+    "wall_shadow_5v5": "85c8719c5d65ef25467adbdc615c97014f28151ced34878db69c53b8324d8f52",
+    "bush_shadow_5v5": "63eaec2162170c9316700bd988e78972d37948cbfd52132efdb54d32308a7b25",
+    "tower_shadow": "8943beb4a06f650f36d6a558f9b425aaaf104745cdb69a9c3b8bcf222ed45fbd",
+    "nexus_shadow": "db3dc507c336a45400494fbb89061b1382eb8e4f8256b3b60d4310cca6672829",
+}
 
 
 def load_committed_runtime_layers() -> dict[str, Image.Image]:
@@ -62,10 +88,23 @@ def test_quality_map_imagegen_sources_and_native_masks_are_audited() -> None:
     qa = json.loads(
         (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
     )
-    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v3"
+    assert qa["schema"] == "lol_mod.quality_map_imagegen_pack.v4"
     assert qa["imagegen_mode"].endswith("official-mask landmark decals")
-    assert set(qa["sources"]) == {"microdetail", "wall_palette", "bush_palette"}
+    assert set(qa["sources"]) == {
+        "microdetail",
+        "wall_masonry",
+        "cliff_microdetail",
+        "bush_microdetail",
+    }
     assert all((MOD / record["path"]).is_file() for record in qa["sources"].values())
+    assert {
+        name: qa["sources"][name]["imagegen_exec_id"]
+        for name in ("wall_masonry", "cliff_microdetail", "bush_microdetail")
+    } == {
+        "wall_masonry": "exec-b126d077-ca6f-4580-845c-85e54c299ad7",
+        "cliff_microdetail": "exec-314b7938-4a24-46ba-aea4-fb476c3c8329",
+        "bush_microdetail": "exec-d8c82ac3-7568-41bb-973a-304bb910f23b",
+    }
     assert set(qa["native_bundle_layers"]) == set(MAP_NAMES)
     assert all(qa["mask_checks"].values())
     assert all(qa["native_alpha_checks"].values())
@@ -76,11 +115,28 @@ def test_quality_map_imagegen_sources_and_native_masks_are_audited() -> None:
     assert qa["contracts"]["wall_and_bush_geometry"].startswith("native RGBA contours")
     assert qa["source_usage"]["microdetail"]["strength"] <= 0.05
     assert not qa["source_usage"]["microdetail"]["spatial_terrain_semantics_copied"]
+    surface_usage = {
+        name: qa["source_usage"][name]
+        for name in (
+            "wall_main_masonry",
+            "wall_outer_cliff",
+            "wall_front_masonry",
+            "bush_microdetail",
+        )
+    }
     assert all(
-        not record.get("spatial_pixels_copied", True)
-        for name, record in qa["source_usage"].items()
-        if name.endswith("palette")
+        record["operation"] == "high-frequency-luminance-only"
+        and record["direct_source_pixels_copied"] is False
+        and record["source_sha256"]
+        and record["changed_pixels"] > 0
+        and record["alpha_byte_identical"]
+        and record["transparent_rgba_byte_identical"]
+        for record in surface_usage.values()
     )
+    assert surface_usage["wall_main_masonry"]["strength"] <= 0.08
+    assert surface_usage["wall_outer_cliff"]["strength"] <= 0.10
+    assert surface_usage["wall_front_masonry"]["strength"] <= 0.08
+    assert surface_usage["bush_microdetail"]["strength"] <= 0.08
 
     rejected = qa["rejected_routes"]
     assert len(rejected) == 1 and rejected[0]["status"] == "deleted"
@@ -156,6 +212,79 @@ def test_quality_map_runtime_alpha_footprints_match_native_masks() -> None:
         with Image.open(MOD / qa["runtime"][name]["path"]) as runtime:
             actual = runtime.convert("RGBA").getchannel("A").tobytes()
         assert actual == expected, name
+
+
+def test_quality_map_surface_microdetail_keeps_official_geometry_and_transparency() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    for name, contract in SURFACE_ALPHA_CONTRACTS.items():
+        runtime_path = MOD / qa["runtime"][name]["path"]
+        with Image.open(runtime_path) as opened:
+            runtime = opened.convert("RGBA")
+        alpha = runtime.getchannel("A")
+        histogram = alpha.histogram()
+        assert runtime.size == contract["dimensions"]
+        assert sum(histogram[1:]) == contract["nontransparent_pixels"]
+        assert alpha.getbbox() == contract["bbox_xyxy_half_open"]
+
+        # Official transparent pixels are RGBA (0,0,0,0).  Multiplying each
+        # runtime RGB channel by the fully-transparent selector must therefore
+        # remain empty, which catches hidden RGB contamination behind alpha 0.
+        transparent = alpha.point(lambda value: 255 if value == 0 else 0)
+        for channel in runtime.convert("RGB").split():
+            assert ImageChops.multiply(channel, transparent).getbbox() is None
+
+        report = qa["surface_detail"]["layers"][name]
+        assert report["dimensions_1280"]
+        assert report["alpha_byte_identical"]
+        assert report["transparent_rgba_byte_identical"]
+        assert report["nontransparent_count_identical"]
+        assert report["nontransparent_bbox_identical"]
+        assert report["native_footprint"] == report["runtime_footprint"]
+        assert 0.25 <= report["changed_nontransparent_ratio"] <= 1.0
+        assert report["changed_pixels_from_official"] > 0
+        assert 0.0 < max(report["visible_mean_abs_rgb_from_official"]) <= 1.0
+
+
+def test_quality_map_shadow_rgba_sha_is_official() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    reported = qa["surface_detail"]["shadow_rgba_sha256"]
+    for name, expected_sha in OFFICIAL_SHADOW_RGBA_SHA256.items():
+        runtime_path = MOD / qa["runtime"][name]["path"]
+        with Image.open(runtime_path) as opened:
+            actual_sha = hashlib.sha256(opened.convert("RGBA").tobytes()).hexdigest()
+        assert actual_sha == expected_sha
+        assert reported[name] == {
+            "official": expected_sha,
+            "runtime": expected_sha,
+            "byte_identical": True,
+        }
+
+
+def test_quality_map_surface_preview_uses_requested_one_to_one_crops() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_map_imagegen_pack.json").read_text(encoding="utf-8")
+    )
+    preview = qa["surface_detail"]["preview"]
+    assert preview["scale"] == "1:1" and preview["resampling"] == "none"
+    expected = {
+        "left_outer_cliff": ([32, 160, 160, 544], [128, 384]),
+        "bush": ([160, 160, 256, 256], [96, 96]),
+        "bottom_front_wall": ([384, 1113, 896, 1170], [512, 57]),
+    }
+    assert set(preview["crops"]) == set(expected)
+    for name, (bbox, dimensions) in expected.items():
+        record = preview["crops"][name]
+        assert record["bbox_xyxy_half_open"] == bbox
+        assert record["dimensions"] == dimensions
+        assert record["scale"] == "1:1" and record["resampling"] == "none"
+        assert record["official_rgba_sha256"] != record["v4_rgba_sha256"]
+    preview_path = MOD / preview["path"]
+    assert preview_path.is_file()
+    assert preview["image"]["sha256"]
 
 
 def test_landmark_compositor_cannot_change_mask_exterior_or_alpha(tmp_path: Path) -> None:
@@ -264,3 +393,8 @@ def test_quality_map_packer_cannot_reintroduce_whole_map_or_tiled_layers() -> No
     assert "REJECTED_WHOLE_MAP_SOURCE.exists()" in source
     assert '"runtime_structure_source": "native bundle 5v5 layers only"' in source
     assert '"changed_pixels_outside_allowed_union"' in source
+    assert "apply_contour_microdetail" in source
+    assert "ImageFilter.GaussianBlur" in source
+    assert "ImageChops.soft_light" in source
+    assert "Image.composite(candidate, native, contour)" in source
+    assert '"operation": "high-frequency-luminance-only"' in source

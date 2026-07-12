@@ -1,0 +1,482 @@
+{
+  "id": "cavalry_knight",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee",
+    "CC"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/kled",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/kled_skill",
+    "asset/lol_mod/icons/kled_skill2",
+    "asset/lol_mod/icons/kled_ult"
+  ],
+  "stat": {
+    "attack": 90,
+    "magic_power": 0,
+    "hp": 950,
+    "defence": 25,
+    "magic_resistance": 18,
+    "move_speed": 1200,
+    "hp_regen": 3,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 95,
+    "defence": 7,
+    "magic_resistance": 3,
+    "move_speed": 15,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.cavalry_knight.attack",
+    "duration": 20,
+    "cooltime": 50,
+    "start_timing": 8,
+    "cancelable": true,
+    "range": 27000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_kled_attack_cast"
+        },
+        {
+          "type": "Attack",
+          "damage": 0,
+          "attack_ratio": 100
+        },
+        {
+          "type": "TargetSfx",
+          "name": "lol_kled_attack_hit"
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "skill1",
+    "description": "#asset/base/text/champion?description.cavalry_knight.skill",
+    "duration": 36,
+    "cooltime": 360,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 65000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_kled_q_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill1",
+          "tick": 36
+        },
+        {
+          "type": "LinearProjectile",
+          "penetrate": false,
+          "speed": 6500,
+          "range": 72000,
+          "name": "lol_kled_q_beartrap_projectile",
+          "shape": {
+            "Circle": {
+              "radius": 10000
+            }
+          },
+          "applied_target": "EnemyChampion",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 30,
+                    "attack_ratio": 80
+                  },
+                  {
+                    "type": "AddBuff",
+                    "buff_state": {
+                      "name": "lol_kled_q_tethered",
+                      "duration": {
+                        "Time": {
+                          "tick": 45
+                        }
+                      },
+                      "move_speed_mult": -20
+                    }
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_kled_q_latch_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_kled_q_tether_on"
+                  },
+                  {
+                    "type": "Delayed",
+                    "tick": 45,
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 20,
+                        "attack_ratio": 40
+                      },
+                      {
+                        "type": "Grab",
+                        "speed": 2200,
+                        "tick": 8
+                      },
+                      {
+                        "type": "Bind",
+                        "duration": 30
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_kled_q_pull_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_kled_q_pull"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": []
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.cavalry_knight.skill2",
+    "duration": 13,
+    "cooltime": 480,
+    "start_timing": 11,
+    "cancelable": false,
+    "range": 55000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_kled_e_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill2",
+          "tick": 13
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_kled_e_dash_visual"
+        },
+        {
+          "type": "Rush",
+          "speed": 3200,
+          "move_speed_ratio": 100,
+          "range": 12000,
+          "casting_target": "EnemyChampion",
+          "penetrate": false,
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 30,
+                    "attack_ratio": 80
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_kled_e_hit_speed",
+                      "duration": {
+                        "Time": {
+                          "tick": 60
+                        }
+                      },
+                      "move_speed_mult": 20
+                    }
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_kled_e_impact_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_kled_e_hit"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.cavalry_knight.ult",
+    "duration": 120,
+    "cooltime": 3600,
+    "start_timing": 1,
+    "cancelable": false,
+    "range": 120000,
+    "growth_range": 0,
+    "casting_type": "Position",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_kled_r_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "ult",
+          "tick": 120
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_kled_r_charge_visual"
+        },
+        {
+          "type": "WithSelf",
+          "effects": [
+            {
+              "type": "Shield",
+              "amount": 200,
+              "attack_ratio": 80,
+              "ap_ratio": 0,
+              "tick": 180
+            },
+            {
+              "type": "AddCasterBuff",
+              "buff_state": {
+                "name": "lol_kled_r_charge_speed",
+                "duration": {
+                  "Time": {
+                    "tick": 120
+                  }
+                },
+                "move_speed_mult": 50
+              }
+            },
+            {
+              "type": "AddCasterBuff",
+              "buff_state": {
+                "name": "lol_kled_r_cc_immune",
+                "duration": {
+                  "Time": {
+                    "tick": 90
+                  }
+                },
+                "cc_immune": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "LineRangeProjectile",
+          "width": 22000,
+          "length": 120000,
+          "delay": 0,
+          "apply": 240,
+          "name": "lol_kled_r_trail",
+          "applied_target": "AllyNotSelf",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "AddBuff",
+                "buff_state": {
+                  "name": "lol_kled_r_trail_speed",
+                  "duration": {
+                    "Time": {
+                      "tick": 30
+                    }
+                  },
+                  "move_speed_mult": 25
+                }
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        },
+        {
+          "type": "Rush",
+          "speed": 4200,
+          "move_speed_ratio": 150,
+          "range": 14000,
+          "casting_target": "EnemyChampion",
+          "penetrate": false,
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 80,
+                    "attack_ratio": 100,
+                    "target_hp_ratio": 2
+                  },
+                  {
+                    "type": "Knockback",
+                    "speed": 2400,
+                    "tick": 8
+                  },
+                  {
+                    "type": "Airborne",
+                    "duration": 18
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_kled_r_impact_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_kled_r_impact"
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_kled_q_beartrap_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_kled_r_trail",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_r_trail",
+      "tag": "trail",
+      "z": 0,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_kled_q_latch_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+      "tag": "latch",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_kled_q_pull_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+      "tag": "pull",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_kled_e_dash_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_e_joust",
+      "tag": "dash",
+      "z": 0,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_kled_e_impact_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_e_joust",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_kled_r_charge_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_r_trail",
+      "tag": "charge",
+      "z": 0,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_kled_r_impact_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_r_impact",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    }
+  ],
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "lol_kled_q_tethered",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_q_tether",
+      "pre_tag": "tether_pre",
+      "loop_tag": "tether_loop",
+      "remove_tag": "tether_remove",
+      "z": 2
+    },
+    {
+      "type": "ThreePhase",
+      "name": "lol_kled_r_charge_speed",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_r_trail",
+      "pre_tag": "charge_pre",
+      "loop_tag": "charge_loop",
+      "remove_tag": "charge_remove",
+      "z": 0
+    },
+    {
+      "type": "ThreePhase",
+      "name": "lol_kled_r_trail_speed",
+      "anim": "asset/lol_mod/aseprite_resources/effects/kled_r_trail",
+      "pre_tag": "ally_pre",
+      "loop_tag": "ally_loop",
+      "remove_tag": "ally_remove",
+      "z": 0
+    }
+  ]
+}

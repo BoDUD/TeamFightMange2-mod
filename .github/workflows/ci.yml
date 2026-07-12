@@ -1,4 +1,4 @@
-name: Shen, Lucian, Orianna, Briar, and Sivir mod CI
+name: Shen, Lucian, Orianna, Briar, Sivir, and Kled mod CI
 
 on:
   pull_request:
@@ -22,5 +22,54 @@ jobs:
       - run: python mods/lol_mod/tools/build_lol_mod.py
       - run: python mods/lol_mod/tools/validate_lol_mod.py
       - run: python -m pytest -q
-      - name: Generated files are committed
-        run: git diff --exit-code -- mods/lol_mod/aseprite_resources mods/lol_mod/icons mods/lol_mod/champion/archer.data_champion mods/lol_mod/champion/barrier_magician.data_champion mods/lol_mod/champion/berserker.data_champion mods/lol_mod/champion/boomerang_hunter.data_champion mods/lol_mod/sound/sfx/sivir_native_silence.sound_info mods/lol_mod/sound/sfx/sivir_native_silence_clip.wav mods/lol_mod/qa/shen_actor_contact_final.png mods/lol_mod/qa/shen_skill_icons_final.png mods/lol_mod/qa/lucian_actor_contact_final.png mods/lol_mod/qa/lucian_skill_icons_final.png mods/lol_mod/qa/lucian_vfx_contact_final.png mods/lol_mod/qa/orianna_actor_contact_final.png mods/lol_mod/qa/orianna_skill_icons_final.png mods/lol_mod/qa/orianna_vfx_contact_final.png mods/lol_mod/qa/briar_actor_contact_final.png mods/lol_mod/qa/briar_skill_icons_final.png mods/lol_mod/qa/briar_vfx_contact_final.png mods/lol_mod/qa/sivir_actor_contact_final.png mods/lol_mod/qa/sivir_skill_icons_final.png mods/lol_mod/qa/sivir_vfx_contact_final.png mods/lol_mod/qa/sivir_imagegen_sources.json mods/lol_mod/build_manifest.json
+      - name: Generated actor, effects, icons, BP, fullbody, QA audit, and manifest are committed
+        run: >-
+          git diff --exit-code --
+          mods/lol_mod/aseprite_resources
+          mods/lol_mod/icons
+          'mods/lol_mod/aseprite_resources/champions/kled#anim.fanim'
+          'mods/lol_mod/aseprite_resources/champions/kled#sheet.png'
+          'mods/lol_mod/aseprite_resources/effects/kled_q_tether#anim.fanim'
+          'mods/lol_mod/aseprite_resources/effects/kled_q_tether#sheet.png'
+          'mods/lol_mod/aseprite_resources/effects/kled_e_joust#anim.fanim'
+          'mods/lol_mod/aseprite_resources/effects/kled_e_joust#sheet.png'
+          'mods/lol_mod/aseprite_resources/effects/kled_r_trail#anim.fanim'
+          'mods/lol_mod/aseprite_resources/effects/kled_r_trail#sheet.png'
+          'mods/lol_mod/aseprite_resources/effects/kled_r_impact#anim.fanim'
+          'mods/lol_mod/aseprite_resources/effects/kled_r_impact#sheet.png'
+          mods/lol_mod/icons/kled_skill.png
+          mods/lol_mod/icons/kled_skill2.png
+          mods/lol_mod/icons/kled_ult.png
+          mods/lol_mod/champion/archer.data_champion
+          mods/lol_mod/champion/barrier_magician.data_champion
+          mods/lol_mod/champion/berserker.data_champion
+          mods/lol_mod/champion/boomerang_hunter.data_champion
+          mods/lol_mod/sound/sfx/sivir_native_silence.sound_info
+          mods/lol_mod/sound/sfx/sivir_native_silence_clip.wav
+          mods/lol_mod/BanPickIllust/cavalry_knight.png
+          mods/lol_mod/ui/champion_fullbody/cavalry_knight.png
+          mods/lol_mod/qa/shen_actor_contact_final.png
+          mods/lol_mod/qa/shen_skill_icons_final.png
+          mods/lol_mod/qa/lucian_actor_contact_final.png
+          mods/lol_mod/qa/lucian_skill_icons_final.png
+          mods/lol_mod/qa/lucian_vfx_contact_final.png
+          mods/lol_mod/qa/orianna_actor_contact_final.png
+          mods/lol_mod/qa/orianna_skill_icons_final.png
+          mods/lol_mod/qa/orianna_vfx_contact_final.png
+          mods/lol_mod/qa/briar_actor_contact_final.png
+          mods/lol_mod/qa/briar_skill_icons_final.png
+          mods/lol_mod/qa/briar_vfx_contact_final.png
+          mods/lol_mod/qa/sivir_actor_contact_final.png
+          mods/lol_mod/qa/sivir_skill_icons_final.png
+          mods/lol_mod/qa/sivir_vfx_contact_final.png
+          mods/lol_mod/qa/sivir_imagegen_sources.json
+          mods/lol_mod/qa/kled_actor_contact_final.png
+          mods/lol_mod/qa/kled_skill_icons_final.png
+          mods/lol_mod/qa/kled_vfx_contact_final.png
+          mods/lol_mod/qa/kled_compact_portrait_qa.md
+          mods/lol_mod/qa/kled_imagegen_sources.json
+          mods/lol_mod/qa/kled_official_audio_sources.json
+          mods/lol_mod/qa/quality_map_imagegen_pack.json
+          mods/lol_mod/qa/quality_map_composite_preview.png
+          mods/lol_mod/qa/quality_map_surface_detail_preview.png
+          mods/lol_mod/build_manifest.json
