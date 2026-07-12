@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.7.10",
-  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.10 keeps the 0.7.9 Rift, objective, Ban/Pick and HUD quality upgrade while fixing three focused regressions: champion-card actors now stop exactly above the name band and render behind the ornate frame; Ban/Pick uses the verified League Client draft-layer mix and matches use the stable Summoner's Rift Map11 phase_01 master layer; Murk Wolf frames share one two-pixel ground anchor without changing action keys, frame counts, durations or model scale. The native double, triple, quadra, and penta kill keys continue to use verified EN-US Female1 announcer takes. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.7.11",
+  "description": "Adds Shen and reworks official champions 002-005 as Lucian, Orianna, Briar, and Sivir. Version 0.7.11 keeps the 0.7.10 Rift, objective, Ban/Pick, HUD, official music and grounded Murk Wolf upgrade while fixing three focused visual regressions: Baron now uses canonical right-facing attack art so the native actual-target flip works correctly for both sides, with all six Dragon variants audited under the same renderer contract; the ornate champion-grid frame is restored through the proven native sibling order while retaining the four-pixel actor safe inset; and the Ban/Pick header/footer chrome now encloses native controls with full-height quiet backing, compressed side wings, and no magenta key fringe without moving any control or click geometry. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-12",
   "dependencies": [
     {

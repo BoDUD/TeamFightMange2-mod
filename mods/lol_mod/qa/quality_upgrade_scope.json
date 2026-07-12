@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.7.10",
+  "release": "0.7.11",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -46,8 +46,15 @@
         "canvas": "118x88 at y=4",
         "canvas_bottom_px": 92,
         "name_band_top_px": 92,
-        "ornate_frame_z": 2,
+        "ornate_frame_render_order": "native sibling order before icon canvas; no explicit z",
+        "ornate_frame_visible_regression_fixed": true,
         "click_geometry_unchanged": true
+      },
+      "header_footer_control_safe_chrome": {
+        "native_control_geometry_unchanged": true,
+        "full_vertical_coverage": true,
+        "side_wings_compressed_outside_control_fields": true,
+        "magenta_key_fringe_removed": true
       },
       "bvp_runtime_controls_copied": false
     },
@@ -91,6 +98,9 @@
       "actor_and_attack_vfx": true,
       "attack_canvas_clip_loss_pixels": 0,
       "attack_action_frames_and_duration_preserved": true,
+      "attack_art_direction": "canonical right-facing for both attack tags",
+      "attack_facing_owner": "native GameView::get_action_flip_x using the actual action target",
+      "mod_side_flip_override": false,
       "attack_ground_anchor_max_delta_pixels": 0.450144,
       "objective_ui": true,
       "official_audio_source": "local League of Legends Map11 Wwise banks",
@@ -113,6 +123,8 @@
         "hextech"
       ],
       "same_for_both_teams_and_replay": true,
+      "attack_art_direction": "canonical right-facing for infernal, ocean, mountain, cloud, hextech, and elder",
+      "attack_facing_owner": "native GameView::get_action_flip_x using the actual action target",
       "attack_frame_pivot": "ground X at frame centre; ground Y at frame centre +35px for all five attack frames",
       "per_respawn_rotation_or_dragon_soul": false,
       "elder_transition": false

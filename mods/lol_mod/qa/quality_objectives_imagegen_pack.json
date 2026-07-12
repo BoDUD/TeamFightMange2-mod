@@ -28,6 +28,23 @@
     },
     "dragon_native_timing_and_stable_attack_pivot": true,
     "dragon_narrow_body_frames_safely_expanded": true,
+    "objective_attack_facing": {
+      "canonical_art_direction": "right",
+      "runtime_owner": "game_view::GameView::get_action_flip_x",
+      "target_source": "actual simulation action target entity/position/direction",
+      "render_consumer": "game_view::EntityView::render reads EntityView.flip_x",
+      "mod_flip_override": false,
+      "non_attack_policy": "native renderer remains the sole owner; the mod never writes EntityView.flip_x",
+      "variant_coverage": [
+        "epic",
+        "infernal",
+        "ocean",
+        "mountain",
+        "cloud",
+        "hextech",
+        "elder"
+      ]
+    },
     "dragon_scale_calibration": {
       "previous_visible_width_cap_px": 54,
       "representative_body_width_target_px": 68,
@@ -328,6 +345,37 @@
     }
   },
   "runtime": {
+    "objective_attack_facing": {
+      "native_game_setting": {
+        "bundle_file": "bundle.game_data",
+        "bundle_size_bytes": 1128427203,
+        "asset_key": "asset/base/setting/game_setting",
+        "asset_type": "game_setting",
+        "entry_size_bytes": 17862,
+        "entry_sha256": "8553dd8b8d1364eea7e710600512336f915b5c211ab7edb8a4389a4e0be469ec",
+        "epic_action_name": "attack_left",
+        "serpen_action_name": "attack",
+        "epic_attack_right_reachable_from_game_setting": false
+      },
+      "epic_entity_name": "epic",
+      "epic_attack_anim": "attack_left",
+      "serpen_entity_name": "serpen",
+      "serpen_attack_anim": "attack",
+      "canonical_art_direction": "right",
+      "native_action_flip_method": "game_view::GameView::get_action_flip_x",
+      "native_render_consumer": "game_view::EntityView::render",
+      "actual_action_target_drives_flip_x": true,
+      "mod_writes_entity_flip_x": false,
+      "variants": [
+        "epic",
+        "infernal",
+        "ocean",
+        "mountain",
+        "cloud",
+        "hextech",
+        "elder"
+      ]
+    },
     "epic": {
       "body_scale": 0.4491525423728814,
       "impact_scales": [
@@ -425,18 +473,18 @@
             133
           ],
           "alpha_bbox": [
-            2,
+            25,
             10,
-            115,
+            138,
             122
           ],
           "expected_alpha_pixels": 7732,
           "rendered_alpha_pixels": 7732,
           "alpha_clip_loss_pixels": 0,
-          "left_clearance_px": 2,
-          "right_clearance_px": 26,
+          "left_clearance_px": 25,
+          "right_clearance_px": 3,
           "native_ground_anchor_offset_from_frame_center_px": -0.5,
-          "runtime_ground_anchor_offset_from_frame_center_px": -0.294118,
+          "runtime_ground_anchor_offset_from_frame_center_px": -0.705882,
           "ground_anchor_offset_delta_px": 0.205882,
           "bottom_delta_to_native_px": 0
         },
@@ -457,18 +505,18 @@
             137
           ],
           "alpha_bbox": [
-            2,
+            20,
             13,
-            106,
+            124,
             124
           ],
           "expected_alpha_pixels": 7842,
           "rendered_alpha_pixels": 7842,
           "alpha_clip_loss_pixels": 0,
-          "left_clearance_px": 2,
-          "right_clearance_px": 21,
+          "left_clearance_px": 20,
+          "right_clearance_px": 3,
           "native_ground_anchor_offset_from_frame_center_px": -0.5,
-          "runtime_ground_anchor_offset_from_frame_center_px": -0.062633,
+          "runtime_ground_anchor_offset_from_frame_center_px": -0.937367,
           "ground_anchor_offset_delta_px": 0.437367,
           "bottom_delta_to_native_px": 0
         },
@@ -489,18 +537,18 @@
             141
           ],
           "alpha_bbox": [
-            2,
+            54,
             26,
-            132,
+            184,
             126
           ],
           "expected_alpha_pixels": 8158,
           "rendered_alpha_pixels": 8158,
           "alpha_clip_loss_pixels": 0,
-          "left_clearance_px": 2,
-          "right_clearance_px": 55,
+          "left_clearance_px": 54,
+          "right_clearance_px": 3,
           "native_ground_anchor_offset_from_frame_center_px": -0.5,
-          "runtime_ground_anchor_offset_from_frame_center_px": -0.091873,
+          "runtime_ground_anchor_offset_from_frame_center_px": -0.908127,
           "ground_anchor_offset_delta_px": 0.408127,
           "bottom_delta_to_native_px": 0
         },
@@ -521,19 +569,19 @@
             123
           ],
           "alpha_bbox": [
-            2,
+            67,
             17,
-            141,
+            206,
             117
           ],
           "expected_alpha_pixels": 7596,
           "rendered_alpha_pixels": 7596,
           "alpha_clip_loss_pixels": 0,
-          "left_clearance_px": 2,
-          "right_clearance_px": 74,
+          "left_clearance_px": 67,
+          "right_clearance_px": 9,
           "native_ground_anchor_offset_from_frame_center_px": -3.231068,
-          "runtime_ground_anchor_offset_from_frame_center_px": -3.681212,
-          "ground_anchor_offset_delta_px": 0.450144,
+          "runtime_ground_anchor_offset_from_frame_center_px": -3.318788,
+          "ground_anchor_offset_delta_px": 0.08772,
           "bottom_delta_to_native_px": 0
         },
         {
@@ -553,19 +601,19 @@
             119
           ],
           "alpha_bbox": [
-            2,
+            26,
             14,
-            107,
+            131,
             115
           ],
           "expected_alpha_pixels": 6981,
           "rendered_alpha_pixels": 6981,
           "alpha_clip_loss_pixels": 0,
-          "left_clearance_px": 2,
-          "right_clearance_px": 32,
+          "left_clearance_px": 26,
+          "right_clearance_px": 8,
           "native_ground_anchor_offset_from_frame_center_px": -3.231068,
-          "runtime_ground_anchor_offset_from_frame_center_px": -2.819022,
-          "ground_anchor_offset_delta_px": 0.412046,
+          "runtime_ground_anchor_offset_from_frame_center_px": -3.180978,
+          "ground_anchor_offset_delta_px": 0.05009,
           "bottom_delta_to_native_px": 0
         },
         {
@@ -730,7 +778,7 @@
         }
       ],
       "maximum_attack_alpha_clip_loss_pixels": 0,
-      "minimum_attack_side_clearance_px": 2,
+      "minimum_attack_side_clearance_px": 3,
       "maximum_attack_anchor_offset_delta_px": 0.450144,
       "maximum_attack_bottom_delta_to_native_px": 0,
       "native_sheet_contract": {
@@ -835,11 +883,12 @@
       "target_effect_frame_sizes_match_native": true,
       "minimum_target_effect_frame_clearance_px": 1,
       "idle_horizontal_centroid_span_px": 0.276882,
-      "attack_directions_use_mirrored_body_art": true,
+      "attack_tags_use_canonical_right_facing_art": true,
+      "runtime_direction_owned_by_native_action_flip_x": true,
       "sheet": {
         "path": "aseprite_resources/ingame/epic#sheet.png",
-        "sha256": "0e0e7bbbc50626a95e62f9e5f13e251a27eacde5d9e2f97b134fd9809950ef2f",
-        "bytes": 541416,
+        "sha256": "6ff966c279ff649d3cc3dc634d1efc3c6b65a4a588f50d7257d3965fd56d728a",
+        "bytes": 418759,
         "mode": "RGBA",
         "size": [
           4050,
@@ -860,8 +909,8 @@
       },
       "attack_contact_sheet": {
         "path": "qa/quality_baron_attack_contact.png",
-        "sha256": "0befa07d34be1be5bda3fa906a5d225cc7cc8af800ce94244365b95920cc1951",
-        "bytes": 278339,
+        "sha256": "1c62df0769fbb069e15350b7d32741d9212cf7e8245be29a50a98ae9e3a77efd",
+        "bytes": 278414,
         "mode": "RGBA",
         "size": [
           1610,
@@ -1071,33 +1120,33 @@
         ],
         "attack_left": [
           [
-            2,
+            25,
             10,
-            115,
+            138,
             122
           ],
           [
-            2,
+            20,
             13,
-            106,
+            124,
             124
           ],
           [
-            2,
+            54,
             26,
-            132,
+            184,
             126
           ],
           [
-            2,
+            67,
             17,
-            141,
+            206,
             117
           ],
           [
-            2,
+            26,
             14,
-            107,
+            131,
             115
           ]
         ]
@@ -1177,6 +1226,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.562527,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.311024,
@@ -1778,6 +1829,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.526902,
         "maximum_base_idle_visible_width_px": 68,
         "maximum_idle_center_offset_px": 0.4263,
@@ -2379,6 +2432,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.755366,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.402899,
@@ -2980,6 +3035,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.089418,
         "maximum_base_idle_visible_width_px": 68,
         "maximum_idle_center_offset_px": 0.061492,
@@ -3581,6 +3638,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.755686,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.385563,
@@ -4182,6 +4241,8 @@
         },
         "native_animation_contract_exact": true,
         "native_frame_rect_contract_safely_expanded": true,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": true,
         "idle_horizontal_centroid_span_px": 0.671899,
         "maximum_base_idle_visible_width_px": 69,
         "maximum_idle_center_offset_px": 0.387482,
@@ -4867,6 +4928,8 @@
     "epic_non_attack_frame_sizes_match_native": true,
     "epic_target_effect_frame_sizes_match_native": true,
     "epic_attack_source_sequence_uses_clean_recovery": true,
+    "native_objective_attack_actions_match_runtime_hook": true,
+    "epic_attack_art_uses_one_runtime_flippable_direction": true,
     "epic_attack_frame_widths_are_symmetric_safe_canvases": true,
     "epic_attack_alpha_is_not_clipped": true,
     "epic_attack_has_side_clearance": true,
@@ -4876,6 +4939,8 @@
     "dragon_tag_counts": true,
     "dragon_native_animation_contracts_exact": true,
     "dragon_native_frame_rect_contracts_safely_expanded": true,
+    "dragon_attack_art_uses_one_runtime_flippable_direction": true,
+    "objective_runtime_facing_covers_epic_and_all_dragon_variants": true,
     "epic_body_bottoms_match_native": true,
     "dragon_body_bottoms_match_native": true,
     "epic_idle_centroid_stable": true,

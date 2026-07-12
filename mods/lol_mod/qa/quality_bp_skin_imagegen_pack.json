@@ -124,8 +124,8 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_header_chrome.png",
-          "size_bytes": 184677,
-          "sha256": "591ccf14383b8293f2effb5bd63cc717a8b81ff720deee89411ffca062c47d6c",
+          "size_bytes": 159218,
+          "sha256": "53abac7b478367442e7b6bd05525a3e1b78d6030d1d0dbc2b301fbffdf03003f",
           "dimensions": [
             1920,
             85
@@ -147,7 +147,29 @@
           "transparent_pixels": 1229568,
           "partial_alpha_pixels": 1545
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice_horizontal_backing_edge_defringe",
+        "target_margins_px": [
+          14,
+          18,
+          14,
+          18
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": [
+          700,
+          820
+        ],
+        "edge_defringe": {
+          "edge_band_px": 8,
+          "magenta_dominant_partial_pixels_before": 3819,
+          "recolored_pixels": 3819,
+          "magenta_dominant_partial_pixels_after": 0
+        }
       },
       "bottom_chrome": {
         "source": {
@@ -162,8 +184,8 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_bottom_chrome.png",
-          "size_bytes": 319536,
-          "sha256": "4c03e76971de741bc0297fa46b2acddbf34eee809a5ee7b887ea09f19ba1c461",
+          "size_bytes": 222368,
+          "sha256": "8805fa3c928fb0c0abeed80ae5fa7baa34312ea356673c7d32832a8970623557",
           "dimensions": [
             1920,
             150
@@ -185,7 +207,29 @@
           "transparent_pixels": 1303939,
           "partial_alpha_pixels": 2204
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice_horizontal_backing_edge_defringe",
+        "target_margins_px": [
+          16,
+          12,
+          16,
+          4
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": [
+          700,
+          820
+        ],
+        "edge_defringe": {
+          "edge_band_px": 8,
+          "magenta_dominant_partial_pixels_before": 3013,
+          "recolored_pixels": 3013,
+          "magenta_dominant_partial_pixels_after": 0
+        }
       },
       "champion_card_frame": {
         "source": {
@@ -223,7 +267,16 @@
           "transparent_pixels": 1447255,
           "partial_alpha_pixels": 2790
         },
-        "packing_method": "alpha_bbox_direct_resize"
+        "packing_method": "alpha_bbox_direct_resize",
+        "target_margins_px": null,
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       },
       "filter_toolbar": {
         "source": {
@@ -261,7 +314,21 @@
           "transparent_pixels": 1356703,
           "partial_alpha_pixels": 1066
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice",
+        "target_margins_px": [
+          20,
+          8,
+          20,
+          8
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       },
       "champion_grid_frame": {
         "source": {
@@ -299,7 +366,21 @@
           "transparent_pixels": 1140057,
           "partial_alpha_pixels": 1534
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice",
+        "target_margins_px": [
+          18,
+          14,
+          18,
+          14
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       },
       "stat_frame": {
         "source": {
@@ -337,7 +418,21 @@
           "transparent_pixels": 1140057,
           "partial_alpha_pixels": 1534
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice",
+        "target_margins_px": [
+          16,
+          14,
+          16,
+          14
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       },
       "skill_frame": {
         "source": {
@@ -375,7 +470,21 @@
           "transparent_pixels": 1140057,
           "partial_alpha_pixels": 1534
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice",
+        "target_margins_px": [
+          16,
+          10,
+          16,
+          10
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       },
       "side_pick_frame": {
         "source": {
@@ -413,7 +522,21 @@
           "transparent_pixels": 926830,
           "partial_alpha_pixels": 3267
         },
-        "packing_method": "alpha_bbox_nine_slice"
+        "packing_method": "alpha_bbox_nine_slice",
+        "target_margins_px": [
+          14,
+          14,
+          14,
+          14
+        ],
+        "runtime_safe_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "horizontal_backing_strip_px": null,
+        "edge_defringe": null
       }
     },
     "control_style": {
@@ -422,7 +545,7 @@
     },
     "champion_slot": {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "sha256": "49fa69d27b35650e7b60f99cf59a462eb72f718fc9703e59c1cf5699ce279ed0",
+      "sha256": "346f9152e84c86705f39df0d8926f83fc62ccf40d7086dcd408a791827c478a6",
       "native_baseline_normalized_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
       "restored_native_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
       "preview_safe_area": {
@@ -439,13 +562,172 @@
         "icon_bottom_px": 92,
         "name_band_top_px": 92,
         "icon_stops_before_name_band": true,
-        "frame_overlay_z": 2,
-        "icon_z": 0,
-        "frame_overlays_actor": true,
+        "frame_render_order": "before_icon_canvas",
+        "frame_uses_native_sibling_order": true,
+        "frame_has_explicit_z": false,
+        "frame_visible_regression_fix": true,
         "root_and_click_geometry_unchanged": true,
         "render_camera_and_actor_contract_unchanged": true,
         "purpose": "keep tall weapons and head silhouettes below the ornate top rim without changing the 119x130 card hit target or actor animation"
       }
+    },
+    "chrome_safe_area": {
+      "header": {
+        "layout_dimensions": [
+          1920,
+          85
+        ],
+        "target_margins_px": [
+          14,
+          18,
+          14,
+          18
+        ],
+        "runtime_transparent_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "native_control_bboxes_px": {
+          "delegate": [
+            15,
+            23,
+            300,
+            63
+          ],
+          "step": [
+            335,
+            0,
+            549,
+            85
+          ],
+          "description": [
+            418,
+            0,
+            1502,
+            85
+          ],
+          "swap_phase": [
+            1371,
+            1,
+            1877,
+            84
+          ]
+        },
+        "straight_dark_backing_under_side_controls": true,
+        "full_vertical_coverage": [
+          0,
+          85
+        ],
+        "native_header_control_geometry_unchanged": true
+      },
+      "bottom": {
+        "layout_dimensions": [
+          1920,
+          150
+        ],
+        "target_margins_px": [
+          16,
+          12,
+          16,
+          4
+        ],
+        "runtime_transparent_insets_px": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "native_side_control_columns_px": {
+          "blue": [
+            0,
+            0,
+            300,
+            150
+          ],
+          "red": [
+            1620,
+            0,
+            1920,
+            150
+          ]
+        },
+        "native_central_control_bboxes_px": {
+          "blue_name": [
+            348,
+            25,
+            770,
+            75
+          ],
+          "blue_logo": [
+            830,
+            25,
+            900,
+            95
+          ],
+          "red_logo": [
+            1020,
+            25,
+            1090,
+            95
+          ],
+          "red_name": [
+            1150,
+            25,
+            1572,
+            75
+          ],
+          "blue_bans": [
+            335,
+            85,
+            651,
+            145
+          ],
+          "red_bans": [
+            1269,
+            85,
+            1585,
+            145
+          ],
+          "need_win": [
+            927,
+            34,
+            993,
+            62
+          ],
+          "versus": [
+            950,
+            65,
+            970,
+            84
+          ],
+          "matchup": [
+            818,
+            112,
+            1103,
+            145
+          ]
+        },
+        "bright_side_wings_confined_to_px": {
+          "left": [
+            0,
+            16
+          ],
+          "right": [
+            1904,
+            1920
+          ]
+        },
+        "straight_dark_backing_under_side_controls": true,
+        "full_vertical_coverage": [
+          0,
+          150
+        ],
+        "native_footer_control_geometry_unchanged": true
+      },
+      "background_asset_or_layout_rollback": false,
+      "purpose": "keep generated chrome inside the viewport and behind native labels, timer, team information, and corner buttons without moving their interaction geometry"
     },
     "blue_pick_slot": {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
@@ -457,8 +739,8 @@
     },
     "contact_sheet": {
       "path": "qa/quality_bp_component_contact.png",
-      "size_bytes": 537952,
-      "sha256": "0a6eefbfefc081f66c3ea56c37a6cce3837bdbad54f3203790038ca0c00c6f4d",
+      "size_bytes": 505645,
+      "sha256": "98a69d08d1892efd53bfa844f793776a2c92bdf13a4ce80fd0f58d851c29cb2d",
       "dimensions": [
         1200,
         800
@@ -579,7 +861,9 @@
     "champion_slot_override_registered": true,
     "champion_preview_uses_safe_top_inset": true,
     "champion_preview_stops_before_name_band": true,
-    "champion_frame_overlays_actor_without_capturing_input": true,
+    "champion_frame_uses_proven_native_sibling_order": true,
+    "header_footer_chrome_uses_control_safe_margins_and_backing": true,
+    "header_footer_chrome_has_no_magenta_key_fringe": true,
     "component_palette_is_lol_style": true,
     "component_imagegen_runtime_dimensions": true,
     "component_imagegen_runtime_has_alpha": true,

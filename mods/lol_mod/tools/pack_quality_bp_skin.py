@@ -49,8 +49,8 @@ CHAMPION_FRAME_SIZE = (119, 130)
 CHAMPION_ICON_CANVAS_SIZE = (118, 88)
 CHAMPION_ICON_SAFE_TOP_PX = 4
 CHAMPION_NAME_BAND_HEIGHT_PX = 38
-CHAMPION_FRAME_OVERLAY_Z = 2
-CHAMPION_ICON_DEFAULT_Z = 0
+HEADER_CHROME_TARGET_MARGINS = (14, 18, 14, 18)
+BOTTOM_CHROME_TARGET_MARGINS = (16, 12, 16, 4)
 FILTER_TOOLBAR_SIZE = (1260, 50)
 CHAMPION_GRID_SIZE = (1250, 377)
 STAT_FRAME_SIZE = (549, 371)
@@ -153,7 +153,6 @@ LOL_CHAMPION_FRAME_BLOCK = """\
     ignore_event: true;
     width: 100%;
     height: 100%;
-    z: 2;
     source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame";
   }
 """
@@ -401,6 +400,97 @@ def nine_slice_resize(
     return output
 
 
+def decontaminate_magenta_edge_fringe(
+    image: Image.Image,
+    *,
+    edge_band_px: int = 8,
+) -> tuple[Image.Image, dict[str, int]]:
+    """Re-hue only semi-transparent key spill at the outer chrome edge.
+
+    The ImageGen sources use a hot-magenta matte.  Lanczos/nine-slice packing
+    can leave a thin purple line even after alpha unmatting.  Keep the alpha
+    and authored blue/red accents, but push spill pixels toward blue on the
+    left, red on the right, and muted antique gold around the centre notch.
+    """
+
+    output = image.convert("RGBA")
+    pixels = output.load()
+    width, height = output.size
+    candidates = 0
+    recolored = 0
+    for y in range(height):
+        for x in range(width):
+            if not (
+                x < edge_band_px
+                or x >= width - edge_band_px
+                or y < edge_band_px
+                or y >= height - edge_band_px
+            ):
+                continue
+            red, green, blue, alpha = pixels[x, y]
+            high = max(red, blue)
+            low = min(red, blue)
+            magenta_dominant = (
+                0 < alpha < 255
+                and high >= 55
+                and low >= high * 0.68
+                and green <= low * 0.65
+            )
+            if not magenta_dominant:
+                continue
+            candidates += 1
+            if x < width * 0.45:
+                pixels[x, y] = (
+                    min(red, int(round(blue * 0.42))),
+                    max(green, int(round(blue * 0.25))),
+                    blue,
+                    alpha,
+                )
+            elif x > width * 0.55:
+                pixels[x, y] = (
+                    red,
+                    max(green, int(round(red * 0.25))),
+                    min(blue, int(round(red * 0.42))),
+                    alpha,
+                )
+            else:
+                value = max(green, int(round((red + blue) * 0.26)))
+                pixels[x, y] = (
+                    min(255, int(round(value * 1.12))),
+                    value,
+                    int(round(value * 0.62)),
+                    alpha,
+                )
+            recolored += 1
+
+    remaining = 0
+    for y in range(height):
+        for x in range(width):
+            if not (
+                x < edge_band_px
+                or x >= width - edge_band_px
+                or y < edge_band_px
+                or y >= height - edge_band_px
+            ):
+                continue
+            red, green, blue, alpha = pixels[x, y]
+            high = max(red, blue)
+            low = min(red, blue)
+            if (
+                0 < alpha < 255
+                and high >= 55
+                and low >= high * 0.68
+                and green <= low * 0.65
+            ):
+                remaining += 1
+    return output, {
+        "edge_band_px": edge_band_px,
+        "magenta_dominant_partial_pixels_before": candidates,
+        "recolored_pixels": recolored,
+        "magenta_dominant_partial_pixels_after": remaining,
+    }
+
+
 def pack_component_asset(
     source: Path,
     runtime: Path,
@@ -408,6 +498,8 @@ def pack_component_asset(
     *,
     source_margin_ratio: tuple[float, float] | None = None,
     target_margins: tuple[int, int, int, int] | None = None,
+    horizontal_backing_strip: tuple[int, int] | None = None,
+    decontaminate_magenta_fringe: bool = False,
 ) -> dict[str, Any]:
     with Image.open(source) as opened:
         keyed, key_record = remove_magenta_key(opened)
@@ -425,6 +517,31 @@ def pack_component_asset(
             target_margins,
         )
         method = "alpha_bbox_nine_slice"
+    if horizontal_backing_strip is not None:
+        strip_left, strip_right = horizontal_backing_strip
+        if not (0 <= strip_left < strip_right <= packed.width):
+            raise ValueError("Invalid horizontal backing strip")
+        original_corner_pixels = {
+            (0, 0): packed.getpixel((0, 0)),
+            (packed.width - 1, 0): packed.getpixel((packed.width - 1, 0)),
+            (0, packed.height - 1): packed.getpixel((0, packed.height - 1)),
+            (packed.width - 1, packed.height - 1): packed.getpixel(
+                (packed.width - 1, packed.height - 1)
+            ),
+        }
+        backing = packed.crop((strip_left, 0, strip_right, packed.height)).resize(
+            packed.size,
+            Image.Resampling.LANCZOS,
+        )
+        backing.alpha_composite(packed)
+        packed = backing
+        for point, pixel in original_corner_pixels.items():
+            packed.putpixel(point, pixel)
+        method += "_horizontal_backing"
+    fringe_record: dict[str, int] | None = None
+    if decontaminate_magenta_fringe:
+        packed, fringe_record = decontaminate_magenta_edge_fringe(packed)
+        method += "_edge_defringe"
     runtime.parent.mkdir(parents=True, exist_ok=True)
     packed.save(runtime, optimize=True)
     return {
@@ -432,6 +549,12 @@ def pack_component_asset(
         "runtime": image_record(runtime),
         "chroma_key": key_record,
         "packing_method": method,
+        "target_margins_px": list(target_margins) if target_margins else None,
+        "runtime_safe_insets_px": [0, 0, 0, 0],
+        "horizontal_backing_strip_px": (
+            list(horizontal_backing_strip) if horizontal_backing_strip else None
+        ),
+        "edge_defringe": fringe_record,
     }
 
 
@@ -691,14 +814,30 @@ def main() -> int:
         HEADER_CHROME_RUNTIME,
         HEADER_CHROME_SIZE,
         source_margin_ratio=(0.11, 0.24),
-        target_margins=(150, 18, 150, 18),
+        target_margins=HEADER_CHROME_TARGET_MARGINS,
+        # Reuse the generated quiet centre field as a straight backing.  The
+        # original ImageGen crop has tapered/open ends, while the native
+        # delegate and swap controls reach into both 320px side regions.
+        horizontal_backing_strip=(700, 820),
+        decontaminate_magenta_fringe=True,
     )
     bottom_chrome = pack_component_asset(
         BOTTOM_CHROME_SOURCE,
         BOTTOM_CHROME_RUNTIME,
         BOTTOM_CHROME_SIZE,
-        source_margin_ratio=(0.12, 0.24),
-        target_margins=(170, 30, 170, 30),
+        # The footer source's diagonal wedges occupy roughly the outer
+        # quarter of the keyed artwork.  Capture the whole wedge in the
+        # nine-slice corner before compressing it to the 16px viewport rim.
+        source_margin_ratio=(0.25, 0.24),
+        # The generated source has deep centre notches.  Compress only those
+        # decorative top/bottom bands so the native team row, match label,
+        # ban slots, and corner tools remain inside a quiet footer field.
+        target_margins=BOTTOM_CHROME_TARGET_MARGINS,
+        # Give the native outer 300px pick/coach columns a continuous dark
+        # field.  With 16px side margins, the generated diagonal wings stay
+        # at the viewport edge instead of crossing those columns.
+        horizontal_backing_strip=(700, 820),
+        decontaminate_magenta_fringe=True,
     )
     champion_frame = pack_component_asset(
         CHAMPION_FRAME_SOURCE,
@@ -862,14 +1001,45 @@ def main() -> int:
             CHAMPION_ICON_SAFE_TOP_PX + CHAMPION_ICON_CANVAS_SIZE[1]
             <= CHAMPION_FRAME_SIZE[1] - CHAMPION_NAME_BAND_HEIGHT_PX
         ),
-        "champion_frame_overlays_actor_without_capturing_input": (
-            CHAMPION_FRAME_OVERLAY_Z > CHAMPION_ICON_DEFAULT_Z
-            and f"z: {CHAMPION_FRAME_OVERLAY_Z};" in champion_slot.split(
+        "champion_frame_uses_proven_native_sibling_order": (
+            champion_slot.index("#lol_bp_champion_card_frame:image")
+            < champion_slot.index("#icon:canvas")
+            and "z:" not in champion_slot.split(
                 "#lol_bp_champion_card_frame:image", 1
             )[1].split("}", 1)[0]
             and "ignore_event: true;" in champion_slot.split(
                 "#lol_bp_champion_card_frame:image", 1
             )[1].split("}", 1)[0]
+        ),
+        "header_footer_chrome_uses_control_safe_margins_and_backing": (
+            header_chrome["target_margins_px"]
+            == list(HEADER_CHROME_TARGET_MARGINS)
+            and bottom_chrome["target_margins_px"]
+            == list(BOTTOM_CHROME_TARGET_MARGINS)
+            and header_chrome["runtime_safe_insets_px"] == [0, 0, 0, 0]
+            and bottom_chrome["runtime_safe_insets_px"] == [0, 0, 0, 0]
+            and header_chrome["horizontal_backing_strip_px"] == [700, 820]
+            and bottom_chrome["horizontal_backing_strip_px"] == [700, 820]
+        ),
+        "header_footer_chrome_has_no_magenta_key_fringe": (
+            header_chrome["edge_defringe"] is not None
+            and bottom_chrome["edge_defringe"] is not None
+            and header_chrome["edge_defringe"][
+                "magenta_dominant_partial_pixels_before"
+            ]
+            > 0
+            and bottom_chrome["edge_defringe"][
+                "magenta_dominant_partial_pixels_before"
+            ]
+            > 0
+            and header_chrome["edge_defringe"][
+                "magenta_dominant_partial_pixels_after"
+            ]
+            == 0
+            and bottom_chrome["edge_defringe"][
+                "magenta_dominant_partial_pixels_after"
+            ]
+            == 0
         ),
         "component_palette_is_lol_style": (
             "normal: #29475cff;" in champion_slot
@@ -992,11 +1162,10 @@ def main() -> int:
                         CHAMPION_ICON_SAFE_TOP_PX + CHAMPION_ICON_CANVAS_SIZE[1]
                         <= CHAMPION_FRAME_SIZE[1] - CHAMPION_NAME_BAND_HEIGHT_PX
                     ),
-                    "frame_overlay_z": CHAMPION_FRAME_OVERLAY_Z,
-                    "icon_z": CHAMPION_ICON_DEFAULT_Z,
-                    "frame_overlays_actor": (
-                        CHAMPION_FRAME_OVERLAY_Z > CHAMPION_ICON_DEFAULT_Z
-                    ),
+                    "frame_render_order": "before_icon_canvas",
+                    "frame_uses_native_sibling_order": True,
+                    "frame_has_explicit_z": False,
+                    "frame_visible_regression_fix": True,
                     "root_and_click_geometry_unchanged": True,
                     "render_camera_and_actor_contract_unchanged": True,
                     "purpose": (
@@ -1004,6 +1173,55 @@ def main() -> int:
                         "without changing the 119x130 card hit target or actor animation"
                     ),
                 },
+            },
+            "chrome_safe_area": {
+                "header": {
+                    "layout_dimensions": list(HEADER_CHROME_SIZE),
+                    "target_margins_px": list(HEADER_CHROME_TARGET_MARGINS),
+                    "runtime_transparent_insets_px": [0, 0, 0, 0],
+                    "native_control_bboxes_px": {
+                        "delegate": [15, 23, 300, 63],
+                        "step": [335, 0, 549, 85],
+                        "description": [418, 0, 1502, 85],
+                        "swap_phase": [1371, 1, 1877, 84],
+                    },
+                    "straight_dark_backing_under_side_controls": True,
+                    "full_vertical_coverage": [0, 85],
+                    "native_header_control_geometry_unchanged": True,
+                },
+                "bottom": {
+                    "layout_dimensions": list(BOTTOM_CHROME_SIZE),
+                    "target_margins_px": list(BOTTOM_CHROME_TARGET_MARGINS),
+                    "runtime_transparent_insets_px": [0, 0, 0, 0],
+                    "native_side_control_columns_px": {
+                        "blue": [0, 0, 300, 150],
+                        "red": [1620, 0, 1920, 150],
+                    },
+                    "native_central_control_bboxes_px": {
+                        "blue_name": [348, 25, 770, 75],
+                        "blue_logo": [830, 25, 900, 95],
+                        "red_logo": [1020, 25, 1090, 95],
+                        "red_name": [1150, 25, 1572, 75],
+                        "blue_bans": [335, 85, 651, 145],
+                        "red_bans": [1269, 85, 1585, 145],
+                        "need_win": [927, 34, 993, 62],
+                        "versus": [950, 65, 970, 84],
+                        "matchup": [818, 112, 1103, 145],
+                    },
+                    "bright_side_wings_confined_to_px": {
+                        "left": [0, 16],
+                        "right": [1904, 1920],
+                    },
+                    "straight_dark_backing_under_side_controls": True,
+                    "full_vertical_coverage": [0, 150],
+                    "native_footer_control_geometry_unchanged": True,
+                },
+                "background_asset_or_layout_rollback": False,
+                "purpose": (
+                    "keep generated chrome inside the viewport and behind native labels, "
+                    "timer, team information, and corner buttons without moving their "
+                    "interaction geometry"
+                ),
             },
             "blue_pick_slot": {
                 "path": BLUE_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),

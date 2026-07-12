@@ -444,8 +444,8 @@
     },
     {
       "path": "aseprite_resources/ingame/epic#sheet.png",
-      "size": 541416,
-      "sha256": "0e0e7bbbc50626a95e62f9e5f13e251a27eacde5d9e2f97b134fd9809950ef2f"
+      "size": 418759,
+      "sha256": "6ff966c279ff649d3cc3dc634d1efc3c6b65a4a588f50d7257d3965fd56d728a"
     },
     {
       "path": "aseprite_resources/ingame/epic_buff_animation#anim.fanim",
@@ -715,12 +715,12 @@
     {
       "path": "lol_mod.dll",
       "size": 424448,
-      "sha256": "75f58c5f9b5095a7375faf10d74bb32a4aabbf9b17985a34d7e6d0c96fe9ec6c"
+      "sha256": "2f2fc67efea545ed0ffea67a1fe7cd4489a1cc805f6c99be323e90576a12a9a1"
     },
     {
       "path": "mod.mod_info",
-      "size": 1049,
-      "sha256": "2908186235ed35eb001dcbc20ca72ea81fae839f9f5e32a97ebb5eff93efbfa1"
+      "size": 1141,
+      "sha256": "48970987ee23bc463211dd13fd90522f943957163455a129f5d03e04fa00dee8"
     },
     {
       "path": "mod.override_info",
@@ -1244,8 +1244,8 @@
     },
     {
       "path": "ui/banpick/lol_bp_bottom_chrome.png",
-      "size": 319536,
-      "sha256": "4c03e76971de741bc0297fa46b2acddbf34eee809a5ee7b887ea09f19ba1c461"
+      "size": 222368,
+      "sha256": "8805fa3c928fb0c0abeed80ae5fa7baa34312ea356673c7d32832a8970623557"
     },
     {
       "path": "ui/banpick/lol_bp_champion_card_frame.png",
@@ -1264,8 +1264,8 @@
     },
     {
       "path": "ui/banpick/lol_bp_header_chrome.png",
-      "size": 184677,
-      "sha256": "591ccf14383b8293f2effb5bd63cc717a8b81ff720deee89411ffca062c47d6c"
+      "size": 159218,
+      "sha256": "53abac7b478367442e7b6bd05525a3e1b78d6030d1d0dbc2b301fbffdf03003f"
     },
     {
       "path": "ui/banpick/lol_bp_side_pick_frame.png",
@@ -1439,8 +1439,8 @@
     },
     {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "size": 5512,
-      "sha256": "49fa69d27b35650e7b60f99cf59a462eb72f718fc9703e59c1cf5699ce279ed0"
+      "size": 5502,
+      "sha256": "346f9152e84c86705f39df0d8926f83fc62ccf40d7086dcd408a791827c478a6"
     },
     {
       "path": "ui/layout/banpick/layout.ui",

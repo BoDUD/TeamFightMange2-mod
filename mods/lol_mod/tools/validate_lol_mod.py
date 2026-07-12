@@ -4281,6 +4281,48 @@ def validate_objective_and_wolf_motion_qa() -> None:
             "objective QA contains a failed static check",
         )
         runtime = qa.get("runtime", {})
+        facing = runtime.get("objective_attack_facing", {})
+        native_facing = facing.get("native_game_setting", {})
+        check(
+            native_facing.get("epic_action_name") == "attack_left",
+            "Baron: bundled game_setting attack action is not recorded as attack_left",
+        )
+        check(
+            native_facing.get("serpen_action_name") == "attack",
+            "Dragon: bundled game_setting attack action is not recorded as attack",
+        )
+        check(
+            native_facing.get("epic_attack_right_reachable_from_game_setting") is False,
+            "Baron: QA must not claim the unused attack_right tag is a live direction",
+        )
+        check(
+            facing.get("canonical_art_direction") == "right"
+            and facing.get("native_action_flip_method")
+            == "game_view::GameView::get_action_flip_x"
+            and facing.get("native_render_consumer") == "game_view::EntityView::render"
+            and facing.get("actual_action_target_drives_flip_x") is True,
+            "Objectives: canonical-art/native actual-target flip contract is incomplete",
+        )
+        check(
+            facing.get("mod_writes_entity_flip_x") is False,
+            "Objectives: the mod must not override the native action-target flip",
+        )
+        check(
+            set(facing.get("variants", []))
+            == {"epic", "infernal", "ocean", "mountain", "cloud", "hextech", "elder"},
+            "Objectives: runtime facing does not cover Baron, five elemental dragons, and Elder",
+        )
+        runtime_source = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+        for forbidden in (
+            "fn sync_objective_attack_facing()",
+            "sync_objective_attack_facing();",
+            ".nearest_enemy",
+            "entity.flip_x =",
+        ):
+            check(
+                forbidden not in runtime_source,
+                f"Objectives: mod-side facing override must stay absent: {forbidden!r}",
+            )
 
         def validate_runtime_monster(
             label: str,
@@ -4378,6 +4420,11 @@ def validate_objective_and_wolf_motion_qa() -> None:
             "Baron: attack source sequence must end on the clean recovery pose",
         )
         check(
+            epic.get("attack_tags_use_canonical_right_facing_art") is True
+            and epic.get("runtime_direction_owned_by_native_action_flip_x") is True,
+            "Baron: attack art is not canonical for native actual-target flipping",
+        )
+        check(
             epic.get("attack_frame_widths") == [141, 127, 187, 215, 139],
             "Baron: attack-safe canvas widths changed",
         )
@@ -4439,6 +4486,11 @@ def validate_objective_and_wolf_motion_qa() -> None:
             check(isinstance(edge_ratio, (int, float)), f"{name} dragon: magenta-edge QA is missing")
             if isinstance(edge_ratio, (int, float)):
                 check(edge_ratio <= 0.011, f"{name} dragon: magenta edge ratio regressed to {edge_ratio:.2%}")
+            check(
+                record.get("attack_art_canonical_direction") == "right"
+                and record.get("runtime_direction_owned_by_native_action_flip_x") is True,
+                f"{name} dragon: native attack-facing contract is missing",
+            )
 
         serpen = runtime.get("serpen_infernal_default", {})
         serpen_sheet = validate_recorded_file(serpen.get("sheet", {}), "default Serpen sheet")
@@ -4920,7 +4972,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.7.10", "lol_mod version must be 0.7.10")
+    check(mod_info.get("version") == "0.7.11", "lol_mod version must be 0.7.11")
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
     validate_objective_and_wolf_motion_qa()

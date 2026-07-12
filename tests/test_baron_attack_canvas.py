@@ -12,6 +12,8 @@ MOD = ROOT / "mods" / "lol_mod"
 QA_PATH = MOD / "qa" / "quality_objectives_imagegen_pack.json"
 SHEET_PATH = MOD / "aseprite_resources" / "ingame" / "epic#sheet.png"
 ANIM_PATH = MOD / "aseprite_resources" / "ingame" / "epic#anim.fanim"
+RUNTIME_SOURCE_PATH = MOD / "src" / "lib.rs"
+PACKER_PATH = MOD / "tools" / "pack_quality_objectives.py"
 
 ATTACK_SOURCE_INDICES = [4, 5, 6, 7, 10]
 ATTACK_FRAME_WIDTHS = [141, 127, 187, 215, 139]
@@ -103,3 +105,51 @@ def test_baron_attack_contact_sheet_and_target_layer_are_recorded() -> None:
         for bbox in epic["tag_frame_alpha_bboxes"]["attack_target_effect"]
     )
     assert epic["target_effect_frame_sizes_match_native"] is True
+
+
+def test_objectives_use_native_actual_target_facing_without_mod_override() -> None:
+    qa = json.loads(QA_PATH.read_text(encoding="utf-8"))
+    facing = qa["runtime"]["objective_attack_facing"]
+    native = facing["native_game_setting"]
+
+    # Epic's second atlas tag is not a simulation direction switch: the
+    # bundled game_setting only ever dispatches attack_left. Serpen has one
+    # attack tag. Both therefore use the renderer's real action-target flip;
+    # a mod-side nearest-enemy approximation is intentionally forbidden.
+    assert native["epic_action_name"] == "attack_left"
+    assert native["serpen_action_name"] == "attack"
+    assert native["epic_attack_right_reachable_from_game_setting"] is False
+    assert facing["canonical_art_direction"] == "right"
+    assert facing["native_action_flip_method"] == "game_view::GameView::get_action_flip_x"
+    assert facing["native_render_consumer"] == "game_view::EntityView::render"
+    assert facing["actual_action_target_drives_flip_x"] is True
+    assert facing["mod_writes_entity_flip_x"] is False
+    assert set(facing["variants"]) == {
+        "epic",
+        "infernal",
+        "ocean",
+        "mountain",
+        "cloud",
+        "hextech",
+        "elder",
+    }
+
+    epic = qa["runtime"]["epic"]
+    assert epic["attack_tags_use_canonical_right_facing_art"] is True
+    assert epic["runtime_direction_owned_by_native_action_flip_x"] is True
+    for dragon in qa["runtime"]["dragon_variants"].values():
+        assert dragon["attack_art_canonical_direction"] == "right"
+        assert dragon["runtime_direction_owned_by_native_action_flip_x"] is True
+
+    packer = PACKER_PATH.read_text(encoding="utf-8")
+    epic_source_map = packer.split(
+        'source_by_tag: dict[str, list[tuple[int, int, bool, str]]] = {', 1
+    )[1].split("    sheet =", 1)[0]
+    assert epic_source_map.count('(index, 255, False, "ground")') == 2
+    assert '(index, 255, True, "ground")' not in epic_source_map
+
+    runtime = RUNTIME_SOURCE_PATH.read_text(encoding="utf-8")
+    assert "fn sync_objective_attack_facing()" not in runtime
+    assert "sync_objective_attack_facing();" not in runtime
+    assert ".nearest_enemy" not in runtime
+    assert "entity.flip_x =" not in runtime

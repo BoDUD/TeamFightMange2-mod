@@ -59,6 +59,11 @@ DRAGON_VARIANTS = (
     "hextech",
     "elder",
 )
+OBJECTIVE_FACING_VARIANTS = ("epic", *DRAGON_VARIANTS)
+
+NATIVE_GAME_SETTING_KEY = "asset/base/setting/game_setting"
+EPIC_RUNTIME_ATTACK_ACTION = "attack_left"
+SERPEN_RUNTIME_ATTACK_ACTION = "attack"
 
 
 def find_bundle_path() -> Path:
@@ -178,6 +183,49 @@ def load_native_sheets(
     if missing:
         raise KeyError(f"Missing native sheets in bundle.game_data: {missing}")
     return images, records
+
+
+def load_native_objective_attack_contract() -> dict[str, Any]:
+    """Read the actual simulation action keys that can reach objective art."""
+    with BUNDLE_PATH.open("rb") as handle:
+        entry_count = read_u32(handle)
+        for _index in range(entry_count):
+            type_length = read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = read_u32(handle)
+            if key != NATIVE_GAME_SETTING_KEY:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            document = json.loads(payload.decode("utf-8"))
+            epic_action = document["epic_jungle"]["attack"]["action_name"]
+            serpen_action = document["serpen_jungle"]["attack"]["action_name"]
+            if epic_action != EPIC_RUNTIME_ATTACK_ACTION:
+                raise ValueError(
+                    "Bundled Epic attack action changed: "
+                    f"{epic_action!r} != {EPIC_RUNTIME_ATTACK_ACTION!r}"
+                )
+            if serpen_action != SERPEN_RUNTIME_ATTACK_ACTION:
+                raise ValueError(
+                    "Bundled Serpen attack action changed: "
+                    f"{serpen_action!r} != {SERPEN_RUNTIME_ATTACK_ACTION!r}"
+                )
+            return {
+                "bundle_file": BUNDLE_PATH.name,
+                "bundle_size_bytes": BUNDLE_PATH.stat().st_size,
+                "asset_key": key,
+                "asset_type": asset_type,
+                "entry_size_bytes": data_length,
+                "entry_sha256": hashlib.sha256(payload).hexdigest(),
+                "epic_action_name": epic_action,
+                "serpen_action_name": serpen_action,
+                "epic_attack_right_reachable_from_game_setting": False,
+            }
+    raise KeyError(f"Missing native game setting in bundle.game_data: {NATIVE_GAME_SETTING_KEY}")
 
 
 def animation_contract_signature(document: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -1139,7 +1187,7 @@ def pack_epic(
             for index in (0, 1, 2, 3)
         ],
         "attack_left": [
-            (index, 255, True, "ground")
+            (index, 255, False, "ground")
             for index in BARON_ATTACK_SOURCE_INDICES
         ],
         "attack_right": [
@@ -1373,7 +1421,8 @@ def pack_epic(
             target_effect_clearances
         ),
         "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
-        "attack_directions_use_mirrored_body_art": True,
+        "attack_tags_use_canonical_right_facing_art": True,
+        "runtime_direction_owned_by_native_action_flip_x": True,
         "sheet": artifact_record(sheet_path),
         "animation": file_record(anim_path),
         "attack_contact_sheet": artifact_record(BARON_ATTACK_CONTACT_PATH),
@@ -1636,6 +1685,8 @@ def pack_dragon(
         "native_animation_contract": native_record,
         "native_animation_contract_exact": True,
         "native_frame_rect_contract_safely_expanded": True,
+        "attack_art_canonical_direction": "right",
+        "runtime_direction_owned_by_native_action_flip_x": True,
         "idle_horizontal_centroid_span_px": round(idle_centroid_span, 6),
         "maximum_base_idle_visible_width_px": maximum_base_idle_width,
         "maximum_idle_center_offset_px": round(maximum_idle_center_offset, 6),
@@ -1686,6 +1737,7 @@ def main() -> int:
 
     native_documents, native_records = load_native_animation_contracts(("epic", "serpen"))
     native_sheets, native_sheet_records = load_native_sheets(("epic", "serpen"))
+    native_objective_attack_contract = load_native_objective_attack_contract()
     epic = pack_epic(
         native_documents["epic"],
         native_records["epic"],
@@ -1738,6 +1790,15 @@ def main() -> int:
             },
             "dragon_native_timing_and_stable_attack_pivot": True,
             "dragon_narrow_body_frames_safely_expanded": True,
+            "objective_attack_facing": {
+                "canonical_art_direction": "right",
+                "runtime_owner": "game_view::GameView::get_action_flip_x",
+                "target_source": "actual simulation action target entity/position/direction",
+                "render_consumer": "game_view::EntityView::render reads EntityView.flip_x",
+                "mod_flip_override": False,
+                "non_attack_policy": "native renderer remains the sole owner; the mod never writes EntityView.flip_x",
+                "variant_coverage": list(OBJECTIVE_FACING_VARIANTS),
+            },
             "dragon_scale_calibration": {
                 "previous_visible_width_cap_px": 54,
                 "representative_body_width_target_px": DRAGON_TUNED_BODY_WIDTH,
@@ -1767,6 +1828,19 @@ def main() -> int:
             },
         },
         "runtime": {
+            "objective_attack_facing": {
+                "native_game_setting": native_objective_attack_contract,
+                "epic_entity_name": "epic",
+                "epic_attack_anim": EPIC_RUNTIME_ATTACK_ACTION,
+                "serpen_entity_name": "serpen",
+                "serpen_attack_anim": SERPEN_RUNTIME_ATTACK_ACTION,
+                "canonical_art_direction": "right",
+                "native_action_flip_method": "game_view::GameView::get_action_flip_x",
+                "native_render_consumer": "game_view::EntityView::render",
+                "actual_action_target_drives_flip_x": True,
+                "mod_writes_entity_flip_x": False,
+                "variants": list(OBJECTIVE_FACING_VARIANTS),
+            },
             "epic": epic,
             "dragon_variants": dragons,
             "serpen_infernal_default": {
@@ -1809,6 +1883,20 @@ def main() -> int:
                 "attack_source_indices"
             ]
             == list(BARON_ATTACK_SOURCE_INDICES),
+            "native_objective_attack_actions_match_runtime_hook": (
+                native_objective_attack_contract["epic_action_name"]
+                == EPIC_RUNTIME_ATTACK_ACTION
+                and native_objective_attack_contract["serpen_action_name"]
+                == SERPEN_RUNTIME_ATTACK_ACTION
+                and native_objective_attack_contract[
+                    "epic_attack_right_reachable_from_game_setting"
+                ]
+                is False
+            ),
+            "epic_attack_art_uses_one_runtime_flippable_direction": (
+                epic["attack_tags_use_canonical_right_facing_art"] is True
+                and epic["runtime_direction_owned_by_native_action_flip_x"] is True
+            ),
             "epic_attack_frame_widths_are_symmetric_safe_canvases": epic[
                 "attack_frame_widths"
             ]
@@ -1846,6 +1934,15 @@ def main() -> int:
             "dragon_native_frame_rect_contracts_safely_expanded": all(
                 record["native_frame_rect_contract_safely_expanded"]
                 for record in dragons.values()
+            ),
+            "dragon_attack_art_uses_one_runtime_flippable_direction": all(
+                record["attack_art_canonical_direction"] == "right"
+                and record["runtime_direction_owned_by_native_action_flip_x"] is True
+                for record in dragons.values()
+            ),
+            "objective_runtime_facing_covers_epic_and_all_dragon_variants": (
+                set(OBJECTIVE_FACING_VARIANTS)
+                == {"epic", "infernal", "ocean", "mountain", "cloud", "hextech", "elder"}
             ),
             "epic_body_bottoms_match_native": paired_tag_bottoms_match_native(
                 epic_runtime_sheet,

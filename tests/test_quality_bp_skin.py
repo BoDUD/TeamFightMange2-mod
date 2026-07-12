@@ -155,7 +155,10 @@ def test_bp_imagegen_component_chrome_is_sized_and_noninteractive() -> None:
         assert "ignore_event: true;" in block
     frame = champion_slot.split("#lol_bp_champion_card_frame:image", 1)[1].split("}", 1)[0]
     assert "ignore_event: true;" in frame
-    assert "z: 2;" in frame
+    assert "z:" not in frame
+    assert champion_slot.index("#lol_bp_champion_card_frame:image") < champion_slot.index(
+        "#icon:canvas"
+    )
     assert qa["components"]["contact_sheet"]["dimensions"] == [1200, 800]
 
 
@@ -176,9 +179,10 @@ def test_bp_champion_preview_has_a_safe_top_inset_without_changing_card_input() 
         "icon_bottom_px": 92,
         "name_band_top_px": 92,
         "icon_stops_before_name_band": True,
-        "frame_overlay_z": 2,
-        "icon_z": 0,
-        "frame_overlays_actor": True,
+        "frame_render_order": "before_icon_canvas",
+        "frame_uses_native_sibling_order": True,
+        "frame_has_explicit_z": False,
+        "frame_visible_regression_fix": True,
         "root_and_click_geometry_unchanged": True,
         "render_camera_and_actor_contract_unchanged": True,
         "purpose": (
@@ -201,8 +205,93 @@ def test_bp_champion_preview_has_a_safe_top_inset_without_changing_card_input() 
         "}", 1
     )[0]
     assert "ignore_event: true;" in frame
-    assert safe["frame_overlay_z"] > safe["icon_z"]
-    assert f'z: {safe["frame_overlay_z"]};' in frame
+    assert "z:" not in frame
+    assert champion_slot.index("#lol_bp_champion_card_frame:image") < champion_slot.index(
+        "#icon:canvas"
+    )
+
+
+def test_bp_chrome_safe_fields_enclose_native_controls_without_moving_them() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
+    safe = qa["components"]["chrome_safe_area"]
+    header = safe["header"]
+    bottom = safe["bottom"]
+
+    assert header["layout_dimensions"] == [1920, 85]
+    assert header["target_margins_px"] == [14, 18, 14, 18]
+    assert header["runtime_transparent_insets_px"] == [0, 0, 0, 0]
+    assert header["full_vertical_coverage"] == [0, 85]
+    assert header["native_control_bboxes_px"] == {
+        "delegate": [15, 23, 300, 63],
+        "step": [335, 0, 549, 85],
+        "description": [418, 0, 1502, 85],
+        "swap_phase": [1371, 1, 1877, 84],
+    }
+    assert bottom["layout_dimensions"] == [1920, 150]
+    assert bottom["target_margins_px"] == [16, 12, 16, 4]
+    assert bottom["runtime_transparent_insets_px"] == [0, 0, 0, 0]
+    assert bottom["full_vertical_coverage"] == [0, 150]
+    assert bottom["native_side_control_columns_px"] == {
+        "blue": [0, 0, 300, 150],
+        "red": [1620, 0, 1920, 150],
+    }
+    assert bottom["bright_side_wings_confined_to_px"] == {
+        "left": [0, 16],
+        "right": [1904, 1920],
+    }
+    assert header["straight_dark_backing_under_side_controls"] is True
+    assert bottom["straight_dark_backing_under_side_controls"] is True
+    assert safe["background_asset_or_layout_rollback"] is False
+
+    # The image nodes still fill the exact native 85px/150px containers.  No
+    # native label, timer, team, ban, or button coordinates were moved.
+    assert "#header:color {\n    color: #08111dee;\n    width: 100%;\n    height: 85px;" in layout
+    assert "#bottom:color {\n    color: #08111dee;\n\n    width: 100%;\n    height: 150px;" in layout
+    assert "#delegate_btn:color_icon_button" in layout
+    assert "x: 15px;\n      y: 23px;\n      width: 285px;\n      height: 40px;" in layout
+    assert "#blue_picks:empty {\n    y: 97px;\n\n    width: 300px;\n    height: 926px;" in layout
+    assert "#red_picks:empty {\n    anchor_x: 1;\n    pivot_x: 1;\n    y: 97px;" in layout
+
+    for asset_name, expected_bbox in (
+        ("header", (0, 0, 1920, 85)),
+        ("bottom", (0, 0, 1920, 150)),
+    ):
+        with Image.open(
+            MOD / "ui/banpick" / f"lol_bp_{asset_name}_chrome.png"
+        ) as image:
+            alpha = image.convert("RGBA").getchannel("A")
+            assert alpha.getbbox() == expected_bbox
+
+    with Image.open(MOD / "ui/banpick/lol_bp_header_chrome.png") as image:
+        alpha = image.convert("RGBA").getchannel("A")
+        assert alpha.crop((15, 23, 300, 63)).getextrema() == (255, 255)
+        assert alpha.crop((1371, 12, 1877, 73)).getextrema() == (255, 255)
+    with Image.open(MOD / "ui/banpick/lol_bp_bottom_chrome.png") as image:
+        alpha = image.convert("RGBA").getchannel("A")
+        assert alpha.crop((15, 12, 300, 138)).getextrema() == (255, 255)
+        assert alpha.crop((1620, 12, 1905, 138)).getextrema() == (255, 255)
+
+
+def test_bp_chrome_edges_have_no_hot_magenta_key_fringe() -> None:
+    qa = json.loads(
+        (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assets = qa["components"]["imagegen_assets"]
+    for name in ("header_chrome", "bottom_chrome"):
+        record = assets[name]["edge_defringe"]
+        assert record["edge_band_px"] == 8
+        assert record["magenta_dominant_partial_pixels_before"] > 0
+        assert record["recolored_pixels"] == record[
+            "magenta_dominant_partial_pixels_before"
+        ]
+        assert record["magenta_dominant_partial_pixels_after"] == 0
 
 
 def test_bp_pick_card_skin_preserves_geometry_and_uses_noninteractive_frame() -> None:
