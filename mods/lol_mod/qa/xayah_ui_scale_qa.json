@@ -1,0 +1,848 @@
+{
+  "schema_version": 1,
+  "champion": "Xayah",
+  "accepted_idle_and_portrait_source": "source/processed/xayah_idle_contact_v3_alpha.png",
+  "actor_scale": {
+    "policy": "one uniform nearest-neighbor resize per frame; native width may cap the whole pose; no x-only compression, crop, or atlas spill",
+    "requested_scale_class": "approximately 12-15 percent larger",
+    "mean_height_scale_ratio": 1.1389,
+    "median_height_scale_ratio": 1.1471,
+    "minimum_bottom_clearance": 4,
+    "actions": {
+      "idle": [
+        {
+          "frame": 0,
+          "native_rect": [
+            27,
+            47
+          ],
+          "visible_bbox": [
+            2,
+            1,
+            24,
+            40
+          ],
+          "visible_size": [
+            22,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 7,
+          "left_clearance": 2,
+          "right_clearance": 3,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            27,
+            45
+          ],
+          "visible_bbox": [
+            3,
+            1,
+            24,
+            39
+          ],
+          "visible_size": [
+            21,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 3,
+          "right_clearance": 3,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            27,
+            43
+          ],
+          "visible_bbox": [
+            3,
+            1,
+            23,
+            37
+          ],
+          "visible_size": [
+            20,
+            36
+          ],
+          "baseline_height": 32,
+          "target_height": 36,
+          "height_scale_ratio": 1.125,
+          "bottom_clearance": 6,
+          "left_clearance": 3,
+          "right_clearance": 4,
+          "native_width_limited": false
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            27,
+            45
+          ],
+          "visible_bbox": [
+            3,
+            1,
+            24,
+            39
+          ],
+          "visible_size": [
+            21,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 3,
+          "right_clearance": 3,
+          "native_width_limited": false
+        }
+      ],
+      "run": [
+        {
+          "frame": 0,
+          "native_rect": [
+            25,
+            45
+          ],
+          "visible_bbox": [
+            0,
+            2,
+            25,
+            37
+          ],
+          "visible_size": [
+            25,
+            35
+          ],
+          "baseline_height": 32,
+          "target_height": 36,
+          "height_scale_ratio": 1.0938,
+          "bottom_clearance": 8,
+          "left_clearance": 0,
+          "right_clearance": 0,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            23,
+            47
+          ],
+          "visible_bbox": [
+            0,
+            1,
+            23,
+            33
+          ],
+          "visible_size": [
+            23,
+            32
+          ],
+          "baseline_height": 28,
+          "target_height": 32,
+          "height_scale_ratio": 1.1429,
+          "bottom_clearance": 14,
+          "left_clearance": 0,
+          "right_clearance": 0,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            25,
+            49
+          ],
+          "visible_bbox": [
+            1,
+            1,
+            23,
+            31
+          ],
+          "visible_size": [
+            22,
+            30
+          ],
+          "baseline_height": 26,
+          "target_height": 30,
+          "height_scale_ratio": 1.1538,
+          "bottom_clearance": 18,
+          "left_clearance": 1,
+          "right_clearance": 2,
+          "native_width_limited": false
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            23,
+            47
+          ],
+          "visible_bbox": [
+            0,
+            1,
+            23,
+            33
+          ],
+          "visible_size": [
+            23,
+            32
+          ],
+          "baseline_height": 28,
+          "target_height": 32,
+          "height_scale_ratio": 1.1429,
+          "bottom_clearance": 14,
+          "left_clearance": 0,
+          "right_clearance": 0,
+          "native_width_limited": false
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            25,
+            45
+          ],
+          "visible_bbox": [
+            0,
+            2,
+            25,
+            36
+          ],
+          "visible_size": [
+            25,
+            34
+          ],
+          "baseline_height": 31,
+          "target_height": 35,
+          "height_scale_ratio": 1.0968,
+          "bottom_clearance": 9,
+          "left_clearance": 0,
+          "right_clearance": 0,
+          "native_width_limited": false
+        },
+        {
+          "frame": 5,
+          "native_rect": [
+            25,
+            47
+          ],
+          "visible_bbox": [
+            0,
+            1,
+            24,
+            35
+          ],
+          "visible_size": [
+            24,
+            34
+          ],
+          "baseline_height": 30,
+          "target_height": 34,
+          "height_scale_ratio": 1.1333,
+          "bottom_clearance": 12,
+          "left_clearance": 0,
+          "right_clearance": 1,
+          "native_width_limited": false
+        },
+        {
+          "frame": 6,
+          "native_rect": [
+            27,
+            49
+          ],
+          "visible_bbox": [
+            2,
+            1,
+            25,
+            33
+          ],
+          "visible_size": [
+            23,
+            32
+          ],
+          "baseline_height": 28,
+          "target_height": 32,
+          "height_scale_ratio": 1.1429,
+          "bottom_clearance": 16,
+          "left_clearance": 2,
+          "right_clearance": 2,
+          "native_width_limited": false
+        },
+        {
+          "frame": 7,
+          "native_rect": [
+            25,
+            47
+          ],
+          "visible_bbox": [
+            0,
+            1,
+            24,
+            35
+          ],
+          "visible_size": [
+            24,
+            34
+          ],
+          "baseline_height": 30,
+          "target_height": 34,
+          "height_scale_ratio": 1.1333,
+          "bottom_clearance": 12,
+          "left_clearance": 0,
+          "right_clearance": 1,
+          "native_width_limited": false
+        }
+      ],
+      "attack": [
+        {
+          "frame": 0,
+          "native_rect": [
+            27,
+            45
+          ],
+          "visible_bbox": [
+            1,
+            1,
+            26,
+            39
+          ],
+          "visible_size": [
+            25,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 1,
+          "right_clearance": 1,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            31,
+            45
+          ],
+          "visible_bbox": [
+            2,
+            1,
+            28,
+            39
+          ],
+          "visible_size": [
+            26,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 2,
+          "right_clearance": 3,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            35,
+            47
+          ],
+          "visible_bbox": [
+            3,
+            1,
+            31,
+            40
+          ],
+          "visible_size": [
+            28,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 7,
+          "left_clearance": 3,
+          "right_clearance": 4,
+          "native_width_limited": false
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            23,
+            45
+          ],
+          "visible_bbox": [
+            0,
+            2,
+            23,
+            35
+          ],
+          "visible_size": [
+            23,
+            33
+          ],
+          "baseline_height": 30,
+          "target_height": 34,
+          "height_scale_ratio": 1.1,
+          "bottom_clearance": 10,
+          "left_clearance": 0,
+          "right_clearance": 0,
+          "native_width_limited": false
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            23,
+            43
+          ],
+          "visible_bbox": [
+            1,
+            1,
+            22,
+            37
+          ],
+          "visible_size": [
+            21,
+            36
+          ],
+          "baseline_height": 32,
+          "target_height": 36,
+          "height_scale_ratio": 1.125,
+          "bottom_clearance": 6,
+          "left_clearance": 1,
+          "right_clearance": 1,
+          "native_width_limited": false
+        }
+      ],
+      "hit": [
+        {
+          "frame": 0,
+          "native_rect": [
+            31,
+            45
+          ],
+          "visible_bbox": [
+            1,
+            1,
+            30,
+            39
+          ],
+          "visible_size": [
+            29,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 1,
+          "right_clearance": 1,
+          "native_width_limited": false
+        }
+      ],
+      "skill1": [
+        {
+          "frame": 0,
+          "native_rect": [
+            41,
+            45
+          ],
+          "visible_bbox": [
+            7,
+            1,
+            34,
+            40
+          ],
+          "visible_size": [
+            27,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 5,
+          "left_clearance": 7,
+          "right_clearance": 7,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            49,
+            47
+          ],
+          "visible_bbox": [
+            8,
+            1,
+            41,
+            40
+          ],
+          "visible_size": [
+            33,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 7,
+          "left_clearance": 8,
+          "right_clearance": 8,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            51,
+            67
+          ],
+          "visible_bbox": [
+            6,
+            6,
+            45,
+            45
+          ],
+          "visible_size": [
+            39,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 22,
+          "left_clearance": 6,
+          "right_clearance": 6,
+          "native_width_limited": false
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            39,
+            49
+          ],
+          "visible_bbox": [
+            3,
+            1,
+            35,
+            39
+          ],
+          "visible_size": [
+            32,
+            38
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1176,
+          "bottom_clearance": 10,
+          "left_clearance": 3,
+          "right_clearance": 4,
+          "native_width_limited": false
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            43,
+            57
+          ],
+          "visible_bbox": [
+            8,
+            1,
+            34,
+            40
+          ],
+          "visible_size": [
+            26,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 17,
+          "left_clearance": 8,
+          "right_clearance": 9,
+          "native_width_limited": false
+        }
+      ],
+      "skill2": [
+        {
+          "frame": 0,
+          "native_rect": [
+            35,
+            61
+          ],
+          "visible_bbox": [
+            2,
+            3,
+            33,
+            42
+          ],
+          "visible_size": [
+            31,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 19,
+          "left_clearance": 2,
+          "right_clearance": 2,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            33,
+            63
+          ],
+          "visible_bbox": [
+            6,
+            4,
+            26,
+            43
+          ],
+          "visible_size": [
+            20,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 20,
+          "left_clearance": 6,
+          "right_clearance": 7,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            33,
+            67
+          ],
+          "visible_bbox": [
+            6,
+            7,
+            26,
+            46
+          ],
+          "visible_size": [
+            20,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 21,
+          "left_clearance": 6,
+          "right_clearance": 7,
+          "native_width_limited": false
+        }
+      ],
+      "ult": [
+        {
+          "frame": 0,
+          "native_rect": [
+            53,
+            43
+          ],
+          "visible_bbox": [
+            13,
+            6,
+            40,
+            39
+          ],
+          "visible_size": [
+            27,
+            33
+          ],
+          "baseline_height": 29,
+          "target_height": 33,
+          "height_scale_ratio": 1.1379,
+          "bottom_clearance": 4,
+          "left_clearance": 13,
+          "right_clearance": 13,
+          "native_width_limited": false
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            41,
+            45
+          ],
+          "visible_bbox": [
+            6,
+            1,
+            35,
+            39
+          ],
+          "visible_size": [
+            29,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 6,
+          "left_clearance": 6,
+          "right_clearance": 6,
+          "native_width_limited": false
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            89,
+            79
+          ],
+          "visible_bbox": [
+            26,
+            18,
+            62,
+            53
+          ],
+          "visible_size": [
+            36,
+            35
+          ],
+          "baseline_height": 31,
+          "target_height": 35,
+          "height_scale_ratio": 1.129,
+          "bottom_clearance": 26,
+          "left_clearance": 26,
+          "right_clearance": 27,
+          "native_width_limited": false
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            96,
+            89
+          ],
+          "visible_bbox": [
+            33,
+            33,
+            63,
+            71
+          ],
+          "visible_size": [
+            30,
+            38
+          ],
+          "baseline_height": 33,
+          "target_height": 38,
+          "height_scale_ratio": 1.1515,
+          "bottom_clearance": 18,
+          "left_clearance": 33,
+          "right_clearance": 33,
+          "native_width_limited": false
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            96,
+            89
+          ],
+          "visible_bbox": [
+            38,
+            46,
+            58,
+            85
+          ],
+          "visible_size": [
+            20,
+            39
+          ],
+          "baseline_height": 34,
+          "target_height": 39,
+          "height_scale_ratio": 1.1471,
+          "bottom_clearance": 4,
+          "left_clearance": 38,
+          "right_clearance": 38,
+          "native_width_limited": false
+        }
+      ]
+    },
+    "q_e_r_sources": {
+      "Q": "source/processed/xayah_q_body_contact_v2_alpha.png",
+      "E": "source/processed/xayah_e_body_contact_v2_alpha.png",
+      "R": "source/processed/xayah_r_body_contact_v2_alpha.png"
+    }
+  },
+  "portraits": {
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/dancer.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        16,
+        4,
+        47,
+        60
+      ],
+      "hard_alpha": true
+    },
+    "compact": {
+      "path": "ui/champion_portrait/dancer_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        13,
+        8,
+        50,
+        58
+      ],
+      "hard_alpha": true
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/dancer_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        22,
+        4,
+        68,
+        86
+      ],
+      "hard_alpha": true
+    }
+  },
+  "bp_geometry": {
+    "side_card_stable": [
+      81,
+      141
+    ],
+    "side_card_transition": {
+      "width": [
+        80,
+        82
+      ],
+      "height": [
+        124,
+        142
+      ]
+    },
+    "stable_center_matches_standard_actor": true,
+    "center_grid_native_geometry": [
+      54,
+      94
+    ],
+    "center_grid_isolation": "54x94 is routed only to dancer_grid; side-card replacement requires the left/right edge gate and 81x125-141 geometry",
+    "name_band": {
+      "texture_y_start": 96,
+      "texture_height": 26,
+      "minimum_subject_clearance": 10
+    }
+  }
+}

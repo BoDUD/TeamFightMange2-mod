@@ -16,6 +16,7 @@ import wave
 from PIL import Image, ImageDraw
 
 from build_kled import build_all as build_kled_assets
+from build_xayah import build_all as build_xayah_assets
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -152,6 +153,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "berserker": ACTOR_DIR / "briar#sheet.png",
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
     "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
+    "dancer": ACTOR_DIR / "xayah#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -249,10 +251,10 @@ def build_champion_fullbody_portraits() -> list[Path]:
     CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
-        # Kled retains the official 006 atlas geometry, whose first idle frame
-        # is not the sheet's top-left 64x64 cell. build_kled_assets() exports
-        # its portrait from the exact native idle rectangle instead.
-        if champion_id == "cavalry_knight":
+        # Kled and Xayah retain tight native atlas geometry whose first idle
+        # frame is not the sheet's top-left 64x64 cell. Their dedicated
+        # builders export portraits from each exact native idle rectangle.
+        if champion_id in {"cavalry_knight", "dancer"}:
             continue
         with Image.open(sheet_path) as opened:
             sheet = opened.convert("RGBA")
@@ -3474,6 +3476,42 @@ def build_sivir_imagegen_audit() -> Path:
     return path
 
 
+MANIFEST_TEXT_SUFFIXES = {
+    ".champion_view",
+    ".data_champion",
+    ".fanim",
+    ".i18n",
+    ".json",
+    ".md",
+    ".mod_info",
+    ".override_info",
+    ".sound_info",
+    ".sprite_sheet",
+    ".style",
+    ".svg",
+    ".txt",
+    ".ui",
+}
+
+
+def normalize_manifest_text_lf(path: Path) -> None:
+    """Make generated/runtime text hashes independent of Windows checkout EOLs.
+
+    Git stores these files as LF, while Python generators on Windows can leave
+    CRLF bytes in the working tree.  The manifest hashes installed bytes, so a
+    CRLF-only local hash would drift after GitHub checks out the same blob as
+    LF.  Canonicalize every manifest-owned text file before hashing/copying.
+    """
+    if path.suffix.lower() not in MANIFEST_TEXT_SUFFIXES:
+        return
+    raw = path.read_bytes()
+    if b"\0" in raw:
+        raise ValueError(f"manifest text candidate contains NUL bytes: {path}")
+    normalized = raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    if normalized != raw:
+        path.write_bytes(normalized)
+
+
 def build_manifest() -> Path:
     runtime_roots = [
         MOD_ROOT / "mod.mod_info",
@@ -3487,6 +3525,12 @@ def build_manifest() -> Path:
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
         MOD_ROOT / "lol_mod.dll",
+        # Public source/provenance records for the image-gen and official
+        # Riot-audio inputs shipped with the Xayah replacement.
+        QA_DIR / "xayah_imagegen_sources.json",
+        QA_DIR / "xayah_official_audio_sources.json",
+        QA_DIR / "xayah_ui_scale_qa.json",
+        QA_DIR / "xayah_portrait_surface_final.png",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -3494,6 +3538,8 @@ def build_manifest() -> Path:
             files.append(root)
         elif root.is_dir():
             files.extend(path for path in root.rglob("*") if path.is_file())
+    for path in files:
+        normalize_manifest_text_lf(path)
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
@@ -3582,6 +3628,7 @@ def main() -> int:
     sivir_qa = build_sivir_qa_contacts(sivir_frames, sivir_icons)
     sivir_imagegen_audit = build_sivir_imagegen_audit()
     kled_outputs = build_kled_assets()
+    xayah_outputs = build_xayah_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
@@ -3617,6 +3664,7 @@ def main() -> int:
         *sivir_qa,
         sivir_imagegen_audit,
         *kled_outputs,
+        *xayah_outputs,
         *champion_fullbody_portraits,
         *([manifest] if manifest else []),
     ]:

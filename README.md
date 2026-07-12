@@ -1,5 +1,19 @@
 # TeamFightMange2-mod
 
+## v0.9.1：霞模型与 Q/E/R 重制、克烈头像清晰度修复
+
+- 霞改用原生最终尺寸设计的新主体：统一等比缩放并恢复官方 Dancer 的逐帧脚底留白，走路不再横向压扁；Q、E、R 使用互不复用的身体动作和特效图集，R 具备完整腾空、五羽扇形与独立保护残影。
+- Q 只发射两枚直出羽毛；E 依据一羽、双羽、三羽以上选择独立回收表现且仅三羽以上禁锢；R 不再自动触发 E。公开 Mod API 0.8 无法安全维护、逐根识别和删除地图羽毛，因此不发布会残留幽灵羽毛的近似实现。
+- 霞的 BP 侧卡插画适配官方 007 的 54x94 紧凑绘制矩形，卡片、HUD、百科和奔跑模型采用新的清晰脸部与安全裁剪。
+- 克烈的小尺寸 HUD/比分表头像、90x122 BP 英雄格和百科全身图分别从高清 ImageGen 源直接下采样，不再把约 40px 的整只坐骑重复缩放或放大。
+
+## v0.9.0：霞同 ID 重做官方 007 与元素龙模型随机修复
+
+- 以同 ID `dancer` 覆盖官方英雄 007，只提供 Q「双刃」、E「倒钩」和 R「暴风羽刃」三个主动槽；不会新增重复的 `lol_xayah`，也不会把 W 或自动倒钩塞进 R。
+- Q 发射两枚可穿透羽刃；Q、R 与锐切强化普攻建立可审计的羽毛层数，E 将羽毛沿目标线召回，三羽以上只有中心窄路径禁锢。公开 API 无法维护逐根永久地面羽毛坐标，因此采用可由 E 正确清空的施法者层数近似，避免留下无法回收的假羽毛。
+- 霞的主体、Q/E/R 与普攻特效、图标、BP 插画和百科全身图均使用 ImageGen 源素材，并严格保留官方 Dancer 的原生动画标签、帧数、时长和紧凑 HUD 裁切合同；普攻与 Q/E/R 音频来自本机 Xayah Base Wwise 资源并按哈希审计。
+- 修复元素龙每局随机显示与实际模型脱节：不再在已经生成绘制命令后改写临时实体名，而是在比赛渲染阶段让模型贴图和顶部目标名称读取同一份权威种子选择；五种元素龙动画合同保持一致。
+
 ## v0.8.2：克烈头像/Q 命中与野区目标击杀名修复
 
 - 克烈小头像改为独立的骑手视口 `(1,-36)`，不再把全身视口压进比分表与战斗侧栏；全身展示继续保持 `(0,-12)`。
@@ -161,6 +175,6 @@ python -m pytest -q
 powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\install_lol_mod.ps1
 ```
 
-本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
+本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir、Kled、Xayah 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
 
 TeamFightMange2-mod was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.

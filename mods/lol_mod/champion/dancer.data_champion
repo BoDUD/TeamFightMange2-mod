@@ -1,0 +1,1852 @@
+{
+  "id": "dancer",
+  "category": "Range",
+  "tags": [
+    "AD",
+    "Range",
+    "CC"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/xayah",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/xayah_skill",
+    "asset/lol_mod/icons/xayah_skill2",
+    "asset/lol_mod/icons/xayah_ult"
+  ],
+  "stat": {
+    "attack": 100,
+    "magic_power": 0,
+    "hp": 900,
+    "defence": 20,
+    "magic_resistance": 15,
+    "move_speed": 920,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 90,
+    "defence": 7,
+    "magic_resistance": 3,
+    "move_speed": 8,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.dancer.attack",
+    "duration": 24,
+    "cooltime": 60,
+    "start_timing": 12,
+    "cancelable": true,
+    "range": 60000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "lol_xayah_clean_cuts_3",
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Native",
+            "effect_ref": "lol_xayah_ai_feather_add_1"
+          },
+          {
+            "type": "Sfx",
+            "name": "lol_xayah_attack_cast"
+          },
+          {
+            "type": "TargetProjectile",
+            "speed": 6500,
+            "name": "lol_xayah_attack_feather",
+            "y_offset": 0,
+            "applied_target": "Enemy",
+            "applied_effects": [
+              {
+                "casting_type": "Targeting",
+                "effect": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 65
+                    },
+                    {
+                      "type": "ViewEffect",
+                      "name": "lol_xayah_attack_hit_visual"
+                    },
+                    {
+                      "type": "TargetSfx",
+                      "name": "lol_xayah_attack_hit"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "LinearProjectile",
+            "penetrate": true,
+            "speed": 9000,
+            "range": 72000,
+            "name": "lol_xayah_clean_cut_feather",
+            "shape": {
+              "Circle": {
+                "radius": 6500
+              }
+            },
+            "applied_target": "EnemyWithoutTower",
+            "applied_effects": [
+              {
+                "casting_type": "Targeting",
+                "effect": {
+                  "type": "Attack",
+                  "damage": 0,
+                  "attack_ratio": 35
+                }
+              }
+            ],
+            "end_effects": []
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "lol_xayah_clean_cuts_3"
+          },
+          {
+            "type": "AddCasterBuff",
+            "buff_state": {
+              "name": "lol_xayah_clean_cuts_2",
+              "duration": {
+                "Time": {
+                  "tick": 360
+                }
+              }
+            }
+          },
+          {
+            "type": "SwitchByBuff",
+            "buff_name": "lol_xayah_feathers_5",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "lol_xayah_feathers_5"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_xayah_feathers_5",
+                    "duration": {
+                      "Time": {
+                        "tick": 600
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "effect_none": {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_xayah_feathers_4",
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_xayah_feathers_4"
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_xayah_feathers_5",
+                      "duration": {
+                        "Time": {
+                          "tick": 600
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "effect_none": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_xayah_feathers_3",
+                "effect_buff": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "RemoveCasterBuff",
+                      "name": "lol_xayah_feathers_3"
+                    },
+                    {
+                      "type": "AddCasterBuff",
+                      "buff_state": {
+                        "name": "lol_xayah_feathers_4",
+                        "duration": {
+                          "Time": {
+                            "tick": 600
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "effect_none": {
+                  "type": "SwitchByBuff",
+                  "buff_name": "lol_xayah_feathers_2",
+                  "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "RemoveCasterBuff",
+                        "name": "lol_xayah_feathers_2"
+                      },
+                      {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_xayah_feathers_3",
+                          "duration": {
+                            "Time": {
+                              "tick": 600
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "effect_none": {
+                    "type": "SwitchByBuff",
+                    "buff_name": "lol_xayah_feathers_1",
+                    "effect_buff": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "RemoveCasterBuff",
+                          "name": "lol_xayah_feathers_1"
+                        },
+                        {
+                          "type": "AddCasterBuff",
+                          "buff_state": {
+                            "name": "lol_xayah_feathers_2",
+                            "duration": {
+                              "Time": {
+                                "tick": 600
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "effect_none": {
+                      "type": "AddCasterBuff",
+                      "buff_state": {
+                        "name": "lol_xayah_feathers_1",
+                        "duration": {
+                          "Time": {
+                            "tick": 600
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "effect_none": {
+        "type": "SwitchByBuff",
+        "buff_name": "lol_xayah_clean_cuts_2",
+        "effect_buff": {
+          "type": "Combine",
+          "effects": [
+            {
+              "type": "Native",
+              "effect_ref": "lol_xayah_ai_feather_add_1"
+            },
+            {
+              "type": "Sfx",
+              "name": "lol_xayah_attack_cast"
+            },
+            {
+              "type": "TargetProjectile",
+              "speed": 6500,
+              "name": "lol_xayah_attack_feather",
+              "y_offset": 0,
+              "applied_target": "Enemy",
+              "applied_effects": [
+                {
+                  "casting_type": "Targeting",
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 0,
+                        "attack_ratio": 65
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_xayah_attack_hit_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_xayah_attack_hit"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "LinearProjectile",
+              "penetrate": true,
+              "speed": 9000,
+              "range": 72000,
+              "name": "lol_xayah_clean_cut_feather",
+              "shape": {
+                "Circle": {
+                  "radius": 6500
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "casting_type": "Targeting",
+                  "effect": {
+                    "type": "Attack",
+                    "damage": 0,
+                    "attack_ratio": 35
+                  }
+                }
+              ],
+              "end_effects": []
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "lol_xayah_clean_cuts_2"
+            },
+            {
+              "type": "AddCasterBuff",
+              "buff_state": {
+                "name": "lol_xayah_clean_cuts_1",
+                "duration": {
+                  "Time": {
+                    "tick": 360
+                  }
+                }
+              }
+            },
+            {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_xayah_feathers_5",
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_xayah_feathers_5"
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_xayah_feathers_5",
+                      "duration": {
+                        "Time": {
+                          "tick": 600
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "effect_none": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_xayah_feathers_4",
+                "effect_buff": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "RemoveCasterBuff",
+                      "name": "lol_xayah_feathers_4"
+                    },
+                    {
+                      "type": "AddCasterBuff",
+                      "buff_state": {
+                        "name": "lol_xayah_feathers_5",
+                        "duration": {
+                          "Time": {
+                            "tick": 600
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "effect_none": {
+                  "type": "SwitchByBuff",
+                  "buff_name": "lol_xayah_feathers_3",
+                  "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "RemoveCasterBuff",
+                        "name": "lol_xayah_feathers_3"
+                      },
+                      {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_xayah_feathers_4",
+                          "duration": {
+                            "Time": {
+                              "tick": 600
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "effect_none": {
+                    "type": "SwitchByBuff",
+                    "buff_name": "lol_xayah_feathers_2",
+                    "effect_buff": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "RemoveCasterBuff",
+                          "name": "lol_xayah_feathers_2"
+                        },
+                        {
+                          "type": "AddCasterBuff",
+                          "buff_state": {
+                            "name": "lol_xayah_feathers_3",
+                            "duration": {
+                              "Time": {
+                                "tick": 600
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "effect_none": {
+                      "type": "SwitchByBuff",
+                      "buff_name": "lol_xayah_feathers_1",
+                      "effect_buff": {
+                        "type": "Combine",
+                        "effects": [
+                          {
+                            "type": "RemoveCasterBuff",
+                            "name": "lol_xayah_feathers_1"
+                          },
+                          {
+                            "type": "AddCasterBuff",
+                            "buff_state": {
+                              "name": "lol_xayah_feathers_2",
+                              "duration": {
+                                "Time": {
+                                  "tick": 600
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "effect_none": {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_xayah_feathers_1",
+                          "duration": {
+                            "Time": {
+                              "tick": 600
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "effect_none": {
+          "type": "SwitchByBuff",
+          "buff_name": "lol_xayah_clean_cuts_1",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Native",
+                "effect_ref": "lol_xayah_ai_feather_add_1"
+              },
+              {
+                "type": "Sfx",
+                "name": "lol_xayah_attack_cast"
+              },
+              {
+                "type": "TargetProjectile",
+                "speed": 6500,
+                "name": "lol_xayah_attack_feather",
+                "y_offset": 0,
+                "applied_target": "Enemy",
+                "applied_effects": [
+                  {
+                    "casting_type": "Targeting",
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 0,
+                          "attack_ratio": 65
+                        },
+                        {
+                          "type": "ViewEffect",
+                          "name": "lol_xayah_attack_hit_visual"
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_xayah_attack_hit"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "LinearProjectile",
+                "penetrate": true,
+                "speed": 9000,
+                "range": 72000,
+                "name": "lol_xayah_clean_cut_feather",
+                "shape": {
+                  "Circle": {
+                    "radius": 6500
+                  }
+                },
+                "applied_target": "EnemyWithoutTower",
+                "applied_effects": [
+                  {
+                    "casting_type": "Targeting",
+                    "effect": {
+                      "type": "Attack",
+                      "damage": 0,
+                      "attack_ratio": 35
+                    }
+                  }
+                ],
+                "end_effects": []
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_xayah_clean_cuts_1"
+              },
+              {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_xayah_feathers_5",
+                "effect_buff": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "RemoveCasterBuff",
+                      "name": "lol_xayah_feathers_5"
+                    },
+                    {
+                      "type": "AddCasterBuff",
+                      "buff_state": {
+                        "name": "lol_xayah_feathers_5",
+                        "duration": {
+                          "Time": {
+                            "tick": 600
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "effect_none": {
+                  "type": "SwitchByBuff",
+                  "buff_name": "lol_xayah_feathers_4",
+                  "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "RemoveCasterBuff",
+                        "name": "lol_xayah_feathers_4"
+                      },
+                      {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_xayah_feathers_5",
+                          "duration": {
+                            "Time": {
+                              "tick": 600
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "effect_none": {
+                    "type": "SwitchByBuff",
+                    "buff_name": "lol_xayah_feathers_3",
+                    "effect_buff": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "RemoveCasterBuff",
+                          "name": "lol_xayah_feathers_3"
+                        },
+                        {
+                          "type": "AddCasterBuff",
+                          "buff_state": {
+                            "name": "lol_xayah_feathers_4",
+                            "duration": {
+                              "Time": {
+                                "tick": 600
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "effect_none": {
+                      "type": "SwitchByBuff",
+                      "buff_name": "lol_xayah_feathers_2",
+                      "effect_buff": {
+                        "type": "Combine",
+                        "effects": [
+                          {
+                            "type": "RemoveCasterBuff",
+                            "name": "lol_xayah_feathers_2"
+                          },
+                          {
+                            "type": "AddCasterBuff",
+                            "buff_state": {
+                              "name": "lol_xayah_feathers_3",
+                              "duration": {
+                                "Time": {
+                                  "tick": 600
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "effect_none": {
+                        "type": "SwitchByBuff",
+                        "buff_name": "lol_xayah_feathers_1",
+                        "effect_buff": {
+                          "type": "Combine",
+                          "effects": [
+                            {
+                              "type": "RemoveCasterBuff",
+                              "name": "lol_xayah_feathers_1"
+                            },
+                            {
+                              "type": "AddCasterBuff",
+                              "buff_state": {
+                                "name": "lol_xayah_feathers_2",
+                                "duration": {
+                                  "Time": {
+                                    "tick": 600
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "effect_none": {
+                          "type": "AddCasterBuff",
+                          "buff_state": {
+                            "name": "lol_xayah_feathers_1",
+                            "duration": {
+                              "Time": {
+                                "tick": 600
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "Sfx",
+                "name": "lol_xayah_attack_cast"
+              },
+              {
+                "type": "TargetProjectile",
+                "speed": 6500,
+                "name": "lol_xayah_attack_feather",
+                "y_offset": 0,
+                "applied_target": "Enemy",
+                "applied_effects": [
+                  {
+                    "casting_type": "Targeting",
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 0,
+                          "attack_ratio": 100
+                        },
+                        {
+                          "type": "ViewEffect",
+                          "name": "lol_xayah_attack_hit_visual"
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_xayah_attack_hit"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "skill": {
+    "action_name": "skill1",
+    "description": "#asset/base/text/champion?description.dancer.skill",
+    "duration": 28,
+    "cooltime": 360,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 72000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "lol_xayah_ai_feather_add_2"
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_xayah_q_cast"
+        },
+        {
+          "type": "LinearProjectile",
+          "penetrate": true,
+          "speed": 8000,
+          "range": 72000,
+          "name": "lol_xayah_q_feather",
+          "shape": {
+            "Circle": {
+              "radius": 7000
+            }
+          },
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
+            {
+              "casting_type": "Targeting",
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 25,
+                    "attack_ratio": 45
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_xayah_q_hit_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_xayah_q_hit"
+                  }
+                ]
+              }
+            }
+          ],
+          "end_effects": [
+            {
+              "type": "RangePeriodProjectile",
+              "name": "lol_xayah_ground_single",
+              "tick": 180,
+              "period": 180,
+              "first_delay": 0,
+              "shape": {
+                "Circle": {
+                  "radius": 1000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [],
+              "end_effects": []
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 6,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": true,
+              "speed": 8000,
+              "range": 72000,
+              "name": "lol_xayah_q_feather",
+              "shape": {
+                "Circle": {
+                  "radius": 7000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "casting_type": "Targeting",
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 25,
+                        "attack_ratio": 45
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_xayah_q_hit_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_xayah_q_hit"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "end_effects": [
+                {
+                  "type": "RangePeriodProjectile",
+                  "name": "lol_xayah_ground_single",
+                  "tick": 180,
+                  "period": 180,
+                  "first_delay": 0,
+                  "shape": {
+                    "Circle": {
+                      "radius": 1000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [],
+                  "end_effects": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_3"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_2"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_1"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_xayah_clean_cuts_3",
+            "duration": {
+              "Time": {
+                "tick": 360
+              }
+            }
+          }
+        },
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "lol_xayah_feathers_5",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_xayah_feathers_5"
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "lol_xayah_feathers_5",
+                  "duration": {
+                    "Time": {
+                      "tick": 600
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "lol_xayah_feathers_4",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "RemoveCasterBuff",
+                  "name": "lol_xayah_feathers_4"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_xayah_feathers_5",
+                    "duration": {
+                      "Time": {
+                        "tick": 600
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "effect_none": {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_xayah_feathers_3",
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_xayah_feathers_3"
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_xayah_feathers_5",
+                      "duration": {
+                        "Time": {
+                          "tick": 600
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "effect_none": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_xayah_feathers_2",
+                "effect_buff": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "RemoveCasterBuff",
+                      "name": "lol_xayah_feathers_2"
+                    },
+                    {
+                      "type": "AddCasterBuff",
+                      "buff_state": {
+                        "name": "lol_xayah_feathers_4",
+                        "duration": {
+                          "Time": {
+                            "tick": 600
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "effect_none": {
+                  "type": "SwitchByBuff",
+                  "buff_name": "lol_xayah_feathers_1",
+                  "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "RemoveCasterBuff",
+                        "name": "lol_xayah_feathers_1"
+                      },
+                      {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_xayah_feathers_3",
+                          "duration": {
+                            "Time": {
+                              "tick": 600
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "effect_none": {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_xayah_feathers_2",
+                      "duration": {
+                        "Time": {
+                          "tick": 600
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.dancer.skill2",
+    "duration": 28,
+    "cooltime": 720,
+    "start_timing": 6,
+    "cancelable": false,
+    "range": 90000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "lol_xayah_ai_feather_clear"
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_xayah_e_cast"
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_xayah_e_launch"
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_xayah_e_call_visual"
+        },
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "lol_xayah_feathers_5",
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "LinearProjectile",
+                "penetrate": true,
+                "speed": 30000,
+                "range": 90000,
+                "name": "lol_xayah_e_anchor",
+                "shape": {
+                  "Circle": {
+                    "radius": 1000
+                  }
+                },
+                "applied_target": "EnemyWithoutTower",
+                "applied_effects": [],
+                "end_effects": [
+                  {
+                    "type": "BackToCasterLinearProjectile",
+                    "penetrate": true,
+                    "speed": 12000,
+                    "range": 120000,
+                    "name": "lol_xayah_e_recall_cluster",
+                    "shape": {
+                      "Circle": {
+                        "radius": 15000
+                      }
+                    },
+                    "applied_target": "EnemyWithoutTower",
+                    "applied_effects": [
+                      {
+                        "casting_type": "Targeting",
+                        "effect": {
+                          "type": "Combine",
+                          "effects": [
+                            {
+                              "type": "Attack",
+                              "damage": 80,
+                              "attack_ratio": 65
+                            },
+                            {
+                              "type": "ViewEffect",
+                              "name": "lol_xayah_e_hit_visual"
+                            },
+                            {
+                              "type": "TargetSfx",
+                              "name": "lol_xayah_e_hit"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "end_effects": [
+                      {
+                        "type": "Sfx",
+                        "name": "lol_xayah_e_catch"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "BackToCasterLinearProjectile",
+                    "penetrate": true,
+                    "speed": 12000,
+                    "range": 120000,
+                    "name": "lol_xayah_e_third_feather_root",
+                    "shape": {
+                      "Circle": {
+                        "radius": 6500
+                      }
+                    },
+                    "applied_target": "EnemyWithoutTower",
+                    "applied_effects": [
+                      {
+                        "casting_type": "Targeting",
+                        "effect": {
+                          "type": "Combine",
+                          "effects": [
+                            {
+                              "type": "Bind",
+                              "duration": 45
+                            },
+                            {
+                              "type": "ViewEffect",
+                              "name": "lol_xayah_e_root_visual"
+                            },
+                            {
+                              "type": "TargetSfx",
+                              "name": "lol_xayah_e_root"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "end_effects": []
+                  }
+                ]
+              }
+            ]
+          },
+          "effect_none": {
+            "type": "SwitchByBuff",
+            "buff_name": "lol_xayah_feathers_4",
+            "effect_buff": {
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "LinearProjectile",
+                  "penetrate": true,
+                  "speed": 30000,
+                  "range": 90000,
+                  "name": "lol_xayah_e_anchor",
+                  "shape": {
+                    "Circle": {
+                      "radius": 1000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [],
+                  "end_effects": [
+                    {
+                      "type": "BackToCasterLinearProjectile",
+                      "penetrate": true,
+                      "speed": 12000,
+                      "range": 120000,
+                      "name": "lol_xayah_e_recall_cluster",
+                      "shape": {
+                        "Circle": {
+                          "radius": 15000
+                        }
+                      },
+                      "applied_target": "EnemyWithoutTower",
+                      "applied_effects": [
+                        {
+                          "casting_type": "Targeting",
+                          "effect": {
+                            "type": "Combine",
+                            "effects": [
+                              {
+                                "type": "Attack",
+                                "damage": 65,
+                                "attack_ratio": 55
+                              },
+                              {
+                                "type": "ViewEffect",
+                                "name": "lol_xayah_e_hit_visual"
+                              },
+                              {
+                                "type": "TargetSfx",
+                                "name": "lol_xayah_e_hit"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "end_effects": [
+                        {
+                          "type": "Sfx",
+                          "name": "lol_xayah_e_catch"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BackToCasterLinearProjectile",
+                      "penetrate": true,
+                      "speed": 12000,
+                      "range": 120000,
+                      "name": "lol_xayah_e_third_feather_root",
+                      "shape": {
+                        "Circle": {
+                          "radius": 6500
+                        }
+                      },
+                      "applied_target": "EnemyWithoutTower",
+                      "applied_effects": [
+                        {
+                          "casting_type": "Targeting",
+                          "effect": {
+                            "type": "Combine",
+                            "effects": [
+                              {
+                                "type": "Bind",
+                                "duration": 45
+                              },
+                              {
+                                "type": "ViewEffect",
+                                "name": "lol_xayah_e_root_visual"
+                              },
+                              {
+                                "type": "TargetSfx",
+                                "name": "lol_xayah_e_root"
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "end_effects": []
+                    }
+                  ]
+                }
+              ]
+            },
+            "effect_none": {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_xayah_feathers_3",
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "LinearProjectile",
+                    "penetrate": true,
+                    "speed": 30000,
+                    "range": 90000,
+                    "name": "lol_xayah_e_anchor",
+                    "shape": {
+                      "Circle": {
+                        "radius": 1000
+                      }
+                    },
+                    "applied_target": "EnemyWithoutTower",
+                    "applied_effects": [],
+                    "end_effects": [
+                      {
+                        "type": "BackToCasterLinearProjectile",
+                        "penetrate": true,
+                        "speed": 12000,
+                        "range": 120000,
+                        "name": "lol_xayah_e_recall_cluster",
+                        "shape": {
+                          "Circle": {
+                            "radius": 15000
+                          }
+                        },
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [
+                          {
+                            "casting_type": "Targeting",
+                            "effect": {
+                              "type": "Combine",
+                              "effects": [
+                                {
+                                  "type": "Attack",
+                                  "damage": 50,
+                                  "attack_ratio": 45
+                                },
+                                {
+                                  "type": "ViewEffect",
+                                  "name": "lol_xayah_e_hit_visual"
+                                },
+                                {
+                                  "type": "TargetSfx",
+                                  "name": "lol_xayah_e_hit"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "end_effects": [
+                          {
+                            "type": "Sfx",
+                            "name": "lol_xayah_e_catch"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "BackToCasterLinearProjectile",
+                        "penetrate": true,
+                        "speed": 12000,
+                        "range": 120000,
+                        "name": "lol_xayah_e_third_feather_root",
+                        "shape": {
+                          "Circle": {
+                            "radius": 6500
+                          }
+                        },
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [
+                          {
+                            "casting_type": "Targeting",
+                            "effect": {
+                              "type": "Combine",
+                              "effects": [
+                                {
+                                  "type": "Bind",
+                                  "duration": 45
+                                },
+                                {
+                                  "type": "ViewEffect",
+                                  "name": "lol_xayah_e_root_visual"
+                                },
+                                {
+                                  "type": "TargetSfx",
+                                  "name": "lol_xayah_e_root"
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "end_effects": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              "effect_none": {
+                "type": "SwitchByBuff",
+                "buff_name": "lol_xayah_feathers_2",
+                "effect_buff": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "LinearProjectile",
+                      "penetrate": true,
+                      "speed": 30000,
+                      "range": 90000,
+                      "name": "lol_xayah_e_anchor",
+                      "shape": {
+                        "Circle": {
+                          "radius": 1000
+                        }
+                      },
+                      "applied_target": "EnemyWithoutTower",
+                      "applied_effects": [],
+                      "end_effects": [
+                        {
+                          "type": "BackToCasterLinearProjectile",
+                          "penetrate": true,
+                          "speed": 12000,
+                          "range": 120000,
+                          "name": "lol_xayah_e_recall_double",
+                          "shape": {
+                            "Circle": {
+                              "radius": 15000
+                            }
+                          },
+                          "applied_target": "EnemyWithoutTower",
+                          "applied_effects": [
+                            {
+                              "casting_type": "Targeting",
+                              "effect": {
+                                "type": "Combine",
+                                "effects": [
+                                  {
+                                    "type": "Attack",
+                                    "damage": 35,
+                                    "attack_ratio": 35
+                                  },
+                                  {
+                                    "type": "ViewEffect",
+                                    "name": "lol_xayah_e_hit_visual"
+                                  },
+                                  {
+                                    "type": "TargetSfx",
+                                    "name": "lol_xayah_e_hit"
+                                  }
+                                ]
+                              }
+                            }
+                          ],
+                          "end_effects": [
+                            {
+                              "type": "Sfx",
+                              "name": "lol_xayah_e_catch"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "effect_none": {
+                  "type": "SwitchByBuff",
+                  "buff_name": "lol_xayah_feathers_1",
+                  "effect_buff": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "LinearProjectile",
+                        "penetrate": true,
+                        "speed": 30000,
+                        "range": 90000,
+                        "name": "lol_xayah_e_anchor",
+                        "shape": {
+                          "Circle": {
+                            "radius": 1000
+                          }
+                        },
+                        "applied_target": "EnemyWithoutTower",
+                        "applied_effects": [],
+                        "end_effects": [
+                          {
+                            "type": "BackToCasterLinearProjectile",
+                            "penetrate": true,
+                            "speed": 12000,
+                            "range": 120000,
+                            "name": "lol_xayah_e_recall_single",
+                            "shape": {
+                              "Circle": {
+                                "radius": 15000
+                              }
+                            },
+                            "applied_target": "EnemyWithoutTower",
+                            "applied_effects": [
+                              {
+                                "casting_type": "Targeting",
+                                "effect": {
+                                  "type": "Combine",
+                                  "effects": [
+                                    {
+                                      "type": "Attack",
+                                      "damage": 20,
+                                      "attack_ratio": 25
+                                    },
+                                    {
+                                      "type": "ViewEffect",
+                                      "name": "lol_xayah_e_hit_visual"
+                                    },
+                                    {
+                                      "type": "TargetSfx",
+                                      "name": "lol_xayah_e_hit"
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "end_effects": [
+                              {
+                                "type": "Sfx",
+                                "name": "lol_xayah_e_catch"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "effect_none": {
+                    "type": "CasterViewEffect",
+                    "name": "lol_xayah_e_empty_visual"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_5"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_4"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_3"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_2"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_1"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_3"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_2"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_1"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_xayah_clean_cuts_3",
+            "duration": {
+              "Time": {
+                "tick": 360
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.dancer.ult",
+    "duration": 60,
+    "cooltime": 3000,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 80000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Native",
+          "effect_ref": "lol_xayah_ai_feather_set_5"
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_xayah_r_cast"
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_xayah_r_guard_visual"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_xayah_r_safety_window",
+            "duration": {
+              "Time": {
+                "tick": 60
+              }
+            },
+            "damaged_reduce": 100,
+            "skill_damaged_reduce": 100,
+            "cc_immune": true
+          }
+        },
+        {
+          "type": "Delayed",
+          "tick": 12,
+          "effects": [
+            {
+              "type": "LinearProjectile",
+              "penetrate": true,
+              "speed": 6500,
+              "range": 80000,
+              "name": "lol_xayah_r_fan",
+              "shape": {
+                "Circle": {
+                  "radius": 18000
+                }
+              },
+              "applied_target": "EnemyWithoutTower",
+              "applied_effects": [
+                {
+                  "casting_type": "Targeting",
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 80,
+                        "attack_ratio": 70
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_xayah_r_hit_visual"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "end_effects": [
+                {
+                  "type": "RangePeriodProjectile",
+                  "name": "lol_xayah_ground_fan",
+                  "tick": 180,
+                  "period": 180,
+                  "first_delay": 0,
+                  "shape": {
+                    "Circle": {
+                      "radius": 1000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [],
+                  "end_effects": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_1"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_2"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_3"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_4"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_feathers_5"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_xayah_feathers_5",
+            "duration": {
+              "Time": {
+                "tick": 600
+              }
+            }
+          }
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_1"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_2"
+        },
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_xayah_clean_cuts_3"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_xayah_clean_cuts_3",
+            "duration": {
+              "Time": {
+                "tick": 360
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_xayah_attack_feather",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_clean_cut_feather",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_q_feather",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_q",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_r_fan",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_r",
+      "tag": "fan",
+      "z": 3,
+      "repeat": false
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_ground_single",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_ground_feather",
+      "tag": "ground_single",
+      "z": 1,
+      "repeat": false
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_ground_fan",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_ground_feather",
+      "tag": "ground_fan",
+      "z": 1,
+      "repeat": false
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_e_recall_single",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "return_single",
+      "z": 3,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_e_recall_double",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "return_double",
+      "z": 3,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_e_recall_cluster",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "return_cluster",
+      "z": 3,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_xayah_e_third_feather_root",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "root",
+      "z": 3,
+      "repeat": false
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_xayah_attack_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_attack",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_q_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_q",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_e_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_e_empty_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "hit",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_r_guard_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_r",
+      "tag": "guard",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_r_hit_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_r",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_e_call_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "root",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_xayah_e_root_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "root",
+      "z": 2,
+      "is_follow": true
+    }
+  ],
+  "view_buffs": []
+}

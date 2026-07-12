@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.8.2",
+  "release": "0.9.1",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -9,7 +9,8 @@
       "barrier_magician",
       "berserker",
       "boomerang_hunter",
-      "cavalry_knight"
+      "cavalry_knight",
+      "dancer"
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
@@ -86,7 +87,8 @@
       "barrier_magician",
       "berserker",
       "boomerang_hunter",
-      "cavalry_knight"
+      "cavalry_knight",
+      "dancer"
     ],
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -115,6 +117,25 @@
       "target_following_overhead_marker": true,
       "body_enclosing_ring_removed": true,
       "gameplay_payload_and_native_actor_timing_preserved": true
+    },
+    "xayah_official_007": {
+      "stable_id": "dancer",
+      "native_force_pick_index": 37,
+      "active_slots": [
+        "Q Double Daggers",
+        "E Bladecaller",
+        "R Featherstorm"
+      ],
+      "w_slot_present": false,
+      "same_id_replacement": true,
+      "clean_cuts_state_tiers": 3,
+      "recall_feather_state_tiers": 5,
+      "bladecaller_root_minimum_tier": 3,
+      "persistent_world_feather_claimed": false,
+      "persistent_world_feather_reason": "Mod API 0.8 exposes no safe owner-positioned persistent projectile collection; caster tiers are consumed by E instead of leaving uncleared fake feathers.",
+      "imagegen_actor_vfx_icons_bp_and_fullbody": true,
+      "native_dancer_animation_contract_preserved": true,
+      "official_base_sfx_hash_manifest": "qa/xayah_official_audio_sources.json"
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -236,7 +257,7 @@
       "bee"
     ],
     "raptor_and_krug": "TFM2 has no fifth or sixth ordinary neutral actor/spawn state; these two generated packs are not claimed as independently spawning camps.",
-    "elemental_dragon_state_machine": "API 0.8 now deterministically selects one of five base elemental dragons per match from the authoritative match seed; both teams and replay derive the same visual. The public API still exposes no safe per-respawn rotation, Dragon Soul, or Elder-transition hook, and a replay opened before any MatchUIRunner database handle safely retains default serpen.",
+    "elemental_dragon_state_machine": "API 0.8 deterministically selects one of five base elemental dragons per match from the authoritative match seed. The final Sprite texture and objective text are rewritten in the same MatchUIRunner post-render pass from the same active selection, so the model and displayed name cannot diverge. The public API still exposes no safe per-respawn rotation, Dragon Soul, or Elder-transition hook, and a replay opened before any MatchUIRunner database handle safely retains default serpen.",
     "first_blood_announcer": "The official First Blood event, container, media ID, WEM and decoded hash are audited. TFM2 exposes native sound dispatch only for 2/3/4/5 multikills, while IngameUIRunner kill logs and play_sound remain private and Mod API 0.8 has no safe global first-kill sound callback. No OS-level bypass or guessed every-kill remap is shipped."
   },
   "verification_boundary": {

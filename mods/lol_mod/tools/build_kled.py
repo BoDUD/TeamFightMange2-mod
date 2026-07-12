@@ -28,6 +28,7 @@ EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 SPLASH_DIR = MOD_ROOT / "BanPickIllust"
 FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
+PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 QA_DIR = MOD_ROOT / "qa"
 
 ACTOR_SOURCE = PROCESSED_ROOT / "kled_actor_contact_alpha.png"
@@ -656,21 +657,92 @@ def build_splash_and_fullbody(actor_sheet: Path, actor_anim: Path) -> list[Path]
     splash_path = SPLASH_DIR / "cavalry_knight.png"
     save_png(splash_path, splash)
 
-    sheet = Image.open(actor_sheet).convert("RGBA")
-    anim = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
-    row = anim["idle"]["frames"][0]["data"]
-    frame = sheet.crop((row["x"], row["y"], row["x"] + row["w"], row["y"] + row["h"]))
-    subject = frame.crop(alpha_bbox(frame))
-    scale = min(54 / subject.width, 58 / subject.height)
-    subject = subject.resize(
-        (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-        Image.Resampling.NEAREST,
+    # UI portraits must not be enlarged from the already packed 40px battle
+    # actor.  At 18/26/34px that route reduces mounted Kled's face to a muddy
+    # 2-4px cluster.  Derive each UI surface once from the accepted high-res
+    # ImageGen idle source instead, while leaving the native actor atlas and
+    # animation contract untouched.
+    idle_source = split_grid(Image.open(ACTOR_SOURCE).convert("RGBA"), 4, 4)[0]
+    idle_source = hard_alpha(idle_source)
+    mounted = idle_source.crop(alpha_bbox(idle_source))
+
+    def render_subject(
+        source: Image.Image,
+        size: tuple[int, int],
+        *,
+        max_subject: tuple[int, int],
+        bottom: int,
+        colors: int,
+    ) -> Image.Image:
+        source = hard_alpha(source)
+        subject = source.crop(alpha_bbox(source))
+        scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
+        subject = subject.resize(
+            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        subject = palette_finish(subject, colors)
+        output = Image.new("RGBA", size, (0, 0, 0, 0))
+        output.alpha_composite(
+            subject,
+            ((size[0] - subject.width) // 2, min(size[1] - subject.height, bottom - subject.height)),
+        )
+        return output
+
+    # Encyclopedia: full mount from head to feet, downsampled directly from
+    # the accepted source so the face is not a nearest-neighbour enlargement
+    # of the 40px battle frame.
+    fullbody = render_subject(
+        mounted,
+        (64, 64),
+        max_subject=(58, 58),
+        bottom=62,
+        colors=96,
     )
-    portrait = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    portrait.alpha_composite(subject, ((64 - subject.width) // 2, 62 - subject.height))
-    portrait_path = FULLBODY_DIR / "cavalry_knight.png"
-    save_png(portrait_path, portrait)
-    return [splash_path, portrait_path]
+    fullbody_path = FULLBODY_DIR / "cavalry_knight.png"
+    save_png(fullbody_path, fullbody)
+
+    # Compact HUD/scoreboard portrait: crop only the rider's head and upper
+    # torso from the same approved idle pose.  Skaarl remains represented by
+    # the full-body/grid surfaces; a complete mount cannot expose a readable
+    # yordle face inside an 18x18 runtime icon.
+    mounted_width, mounted_height = mounted.size
+    rider_focus = mounted.crop(
+        (
+            round(mounted_width * 0.02),
+            0,
+            round(mounted_width * 0.68),
+            round(mounted_height * 0.70),
+        )
+    )
+    compact = render_subject(
+        rider_focus,
+        (64, 64),
+        # Live compact rows need the rider's complete head, shoulders, and
+        # upper torso with breathing room; a 58px tight crop still looked cut.
+        max_subject=(50, 50),
+        bottom=58,
+        colors=96,
+    )
+    compact_path = PORTRAIT_DIR / "cavalry_knight_compact.png"
+    save_png(compact_path, compact)
+
+    # Ban/pick grid telemetry proves native 006 is rendered at 90x122.  This
+    # purpose-built full-body texture avoids stretching a tiny native atlas
+    # rectangle and keeps both Kled's face and Skaarl's silhouette legible.
+    grid = render_subject(
+        mounted,
+        (90, 122),
+        # The hero name occupies the bottom ~26px of the 90x122 BP cell.  Live
+        # review showed that an alpha bottom near the band still made Skaarl's
+        # feet look clipped, so keep a full 10px transparent safety gap.
+        max_subject=(70, 76),
+        bottom=86,
+        colors=128,
+    )
+    grid_path = PORTRAIT_DIR / "cavalry_knight_grid.png"
+    save_png(grid_path, grid)
+    return [splash_path, fullbody_path, compact_path, grid_path]
 
 
 def _contact_background(size: tuple[int, int]) -> Image.Image:
@@ -711,6 +783,42 @@ def build_qa_contacts(
     actor_contact_path = QA_DIR / "kled_actor_contact_final.png"
     save_png(actor_contact_path, actor_contact)
     outputs.append(actor_contact_path)
+
+    portrait_contact = _contact_background((880, 260))
+    draw = ImageDraw.Draw(portrait_contact)
+    draw.text((16, 10), "KLED UI PORTRAIT SURFACES / SOURCE-DIRECT", fill=draw_color)
+    compact = Image.open(PORTRAIT_DIR / "cavalry_knight_compact.png").convert("RGBA")
+    for index, runtime_size in enumerate((18, 26, 34, 46)):
+        tile_x = 16 + index * 130
+        draw.text((tile_x, 42), f"compact {runtime_size}px", fill=draw_color)
+        tile = Image.new("RGBA", (112, 112), (7, 13, 23, 255))
+        runtime = compact.resize((runtime_size, runtime_size), Image.Resampling.NEAREST)
+        tile.alpha_composite(runtime, ((112 - runtime_size) // 2, (112 - runtime_size) // 2))
+        zoom = runtime.resize((runtime_size * 2, runtime_size * 2), Image.Resampling.NEAREST)
+        tile.alpha_composite(zoom, ((112 - zoom.width) // 2, 112 - zoom.height))
+        portrait_contact.alpha_composite(tile, (tile_x, 62))
+
+    grid = Image.open(PORTRAIT_DIR / "cavalry_knight_grid.png").convert("RGBA")
+    grid_tile = Image.new("RGBA", (110, 142), (7, 13, 23, 255))
+    grid_tile.alpha_composite(grid, ((110 - grid.width) // 2, (142 - grid.height) // 2))
+    draw.text((548, 42), "BP grid 90x122", fill=draw_color)
+    portrait_contact.alpha_composite(grid_tile, (548, 62))
+
+    fullbody = Image.open(FULLBODY_DIR / "cavalry_knight.png").convert("RGBA")
+    fullbody_tile = Image.new("RGBA", (142, 142), (7, 13, 23, 255))
+    fullbody_zoom = fullbody.resize((128, 128), Image.Resampling.NEAREST)
+    fullbody_tile.alpha_composite(fullbody_zoom, (7, 7))
+    draw.text((700, 42), "encyclopedia 64", fill=draw_color)
+    portrait_contact.alpha_composite(fullbody_tile, (700, 62))
+
+    draw.text(
+        (16, 226),
+        "Compact = rider focus; BP grid / encyclopedia = full mounted silhouette.",
+        fill=draw_color,
+    )
+    portrait_contact_path = QA_DIR / "kled_portrait_surface_final.png"
+    save_png(portrait_contact_path, portrait_contact)
+    outputs.append(portrait_contact_path)
 
     icon_contact = _contact_background((640, 220))
     draw = ImageDraw.Draw(icon_contact)
@@ -825,6 +933,28 @@ def self_check(outputs: list[Path]) -> None:
         raise AssertionError("Kled BP splash is not 1420x860")
     if Image.open(FULLBODY_DIR / "cavalry_knight.png").size != (64, 64):
         raise AssertionError("Kled encyclopedia portrait is not 64x64")
+    if Image.open(PORTRAIT_DIR / "cavalry_knight_compact.png").size != (64, 64):
+        raise AssertionError("Kled compact portrait is not 64x64")
+    compact_alpha = Image.open(PORTRAIT_DIR / "cavalry_knight_compact.png").convert("RGBA").getchannel("A")
+    compact_bbox = compact_alpha.getbbox()
+    if (
+        compact_bbox is None
+        or compact_bbox[2] - compact_bbox[0] > 50
+        or compact_bbox[3] - compact_bbox[1] > 50
+        or min(
+            compact_bbox[0],
+            compact_bbox[1],
+            64 - compact_bbox[2],
+            64 - compact_bbox[3],
+        ) < 6
+    ):
+        raise AssertionError(f"Kled compact portrait lacks 6px safety margins: {compact_bbox}")
+    if Image.open(PORTRAIT_DIR / "cavalry_knight_grid.png").size != (90, 122):
+        raise AssertionError("Kled BP-grid portrait is not 90x122")
+    grid_alpha = Image.open(PORTRAIT_DIR / "cavalry_knight_grid.png").convert("RGBA").getchannel("A")
+    grid_bbox = grid_alpha.getbbox()
+    if grid_bbox is None or grid_bbox[3] > 86:
+        raise AssertionError("Kled BP-grid portrait overlaps the bottom hero-name band")
 
 
 def build_audit(outputs: list[Path]) -> Path:

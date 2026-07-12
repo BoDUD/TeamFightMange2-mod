@@ -57,7 +57,8 @@ def test_objective_ui_text_is_merged_and_dragon_name_tracks_the_seeded_model() -
     assert "RenderCommand::Text { text, .. }" in source
     assert "ui_tree_has_match_runner(&ui.root)" in source
     assert "current_dragon_variant_index" in source
-    assert ".last_applied" in source
+    assert ".active_selection" in source
+    assert "current_dragon_selection()" in source
     assert "dragon_variant_index(selection.seed)" in source
     for name in (
         "Infernal Drake",

@@ -24,6 +24,21 @@ def test_static_validator_passes() -> None:
     assert validator.main() == 0
 
 
+def test_manifest_owned_runtime_text_is_canonical_lf() -> None:
+    builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
+    assert "def normalize_manifest_text_lf(path: Path) -> None:" in builder
+    manifest = json.loads((MOD / "build_manifest.json").read_text(encoding="utf-8"))
+    text_suffixes = {
+        ".champion_view", ".data_champion", ".fanim", ".i18n", ".json",
+        ".md", ".mod_info", ".override_info", ".sound_info",
+        ".sprite_sheet", ".style", ".svg", ".txt", ".ui",
+    }
+    for row in manifest["files"]:
+        path = MOD / row["path"]
+        if path.suffix.lower() in text_suffixes:
+            assert b"\r" not in path.read_bytes(), row["path"]
+
+
 def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     shen = json.loads((MOD / "champion" / "lol_shen.data_champion").read_text(encoding="utf-8"))
     lucian = json.loads((MOD / "champion" / "archer.data_champion").read_text(encoding="utf-8"))
@@ -39,7 +54,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.8.2"
+    assert mod_info["version"] == "0.9.1"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -102,7 +117,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.8.2;root=' in source
+    assert '"version=0.9.1;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -221,12 +236,73 @@ def test_bp_overlay_is_card_anchored_and_deduplicated() -> None:
     assert "const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;" in source
     assert "const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;" in source
     assert "const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;" in source
-    assert "bp_side_from_geometry(*x, *y, *w, *h, map_width)" in rewrite
+    assert "bp_side_from_geometry(champion_id, *x, *y, *w, *h, map_width)" in " ".join(
+        rewrite.split()
+    )
     assert "original_actor_indices.push(command_index);" in rewrite
     assert "original_actor_counts[side.candidate_index(slot_index)] += 1;" in rewrite
     assert "for command_index in original_actor_indices.into_iter().rev()" in rewrite
     assert "commands.remove(command_index);" in rewrite
     assert "original_actor_commands_removed={removed_actor_count}" in rewrite
+
+
+def test_bp_overlay_supports_xayahs_tight_native_dancer_rect_without_touching_grid_art() -> None:
+    source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
+    rewrite = source.split("fn rewrite_bp_render_commands", 1)[1].split(
+        "\nfn texture_source", 1
+    )[0]
+
+    # Current live telemetry proves the picked side actor settles at 81x141
+    # and keeps width 81 while its transition height grows from ~125 to 141.
+    # Its center exactly matches the standard 137x184 card actor.  The older
+    # 54x94 geometry is the center hero grid and must stay out of this route.
+    assert "const BP_DANCER_ACTOR_WIDTH: f32 = 81.0;" in source
+    assert "const BP_DANCER_ACTOR_HEIGHT: f32 = 141.0;" in source
+    assert "const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;" in source
+    assert "const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;" in source
+    assert "const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;" in source
+    assert "const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;" in source
+    assert 'if champion_id == "dancer"' in source
+    assert "let contract = bp_actor_contract(champion_id);" in source
+    assert "contract.min_width..=contract.max_width" in source
+    assert "contract.min_height..=contract.max_height" in source
+    assert "bp_actor_candidate_score( champion_id," in " ".join(rewrite.split())
+    assert "bp_geometry_is_actor_sized_near_pick_edge(*x, *w, *h, map_width)" in " ".join(
+        rewrite.split()
+    )
+    assert "near_side && width >= 40.0 && height >= 70.0" in source
+    assert "native_center_x - contract.width * 0.5" in source
+    assert "native_center_y - contract.height * 0.5" in source
+    assert "let right_edge_start = (map_width - BP_RED_TRANSITION_EDGE_BAND).max(335.0);" in source
+
+    # The dedicated 90x122 texture is substituted only for the center grid's
+    # tight native command.  It cannot swallow the new side-card geometry.
+    xayah_portrait_route = source.split("fn rewrite_xayah_portrait_render_commands", 1)[1].split(
+        "\nfn match_ui_database", 1
+    )[0]
+    assert "(50.0..=58.0).contains(w)" in xayah_portrait_route
+    assert "(88.0..=100.0).contains(h)" in xayah_portrait_route
+    assert "(80.0..=82.0).contains(w)" not in xayah_portrait_route
+    assert "let center_x = *x + *w * 0.5;" in xayah_portrait_route
+    assert "let center_y = *y + *h * 0.5;" in xayah_portrait_route
+    assert "*w = 90.0;" in xayah_portrait_route
+    assert "*h = 122.0;" in xayah_portrait_route
+
+    # Replay the newest 1920px telemetry samples against the encoded bounds.
+    # Stable Dancer and the standard actor share one center at (1694.5,179).
+    standard_center = (1920.0 - 294.0 + 137.0 / 2, 87.0 + 184.0 / 2)
+    dancer_center = (1654.0 + 81.0 / 2, 108.5 + 141.0 / 2)
+    assert dancer_center == standard_center
+    for width, height in ((81.0, 125.2), (81.0, 129.3), (81.0, 136.7), (81.0, 141.0)):
+        assert 80.0 <= width <= 82.0
+        assert 124.0 <= height <= 142.0
+    assert 1601.2 >= 1920.0 - 430.0  # first observed red transition sample
+    assert not (0.0 <= 804.5 <= 335.0 or 1920.0 - 430.0 <= 804.5 <= 2100.0)
+
+    style = json.loads(
+        (MOD / "style/champion_view.champion_view").read_text(encoding="utf-8")
+    )["entries"]["dancer"]
+    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}
 
 
 def test_override_metadata_uses_registered_sprite_sheet_extension() -> None:

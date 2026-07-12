@@ -39,7 +39,35 @@ const BP_TRANSITION_ACTOR_MIN_WIDTH: f32 = 120.0;
 const BP_TRANSITION_ACTOR_MAX_WIDTH: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MIN_HEIGHT: f32 = 140.0;
 const BP_TRANSITION_ACTOR_MAX_HEIGHT: f32 = 190.0;
-const SPLASH_SPECS: [(&str, &str); 6] = [
+// Live 0.9.1 telemetry proves that Dancer's completed side-card command is
+// 81x141 (the 27x47 native idle rect at 3x), centered on exactly the same
+// point as the standard 137x184 pick actor.  Its slide-in transition keeps an
+// 81px width while height grows from about 125px to 141px.  The separate
+// center champion grid remains 54x94; the left/right edge gate below is what
+// prevents that grid art from ever being converted into a side-card splash.
+const BP_DANCER_ACTOR_WIDTH: f32 = 81.0;
+const BP_DANCER_ACTOR_HEIGHT: f32 = 141.0;
+const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;
+const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;
+const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;
+const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
+const KLED_ACTOR_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/champions/cavalry_knight#sheet",
+    "asset/lol_mod/aseprite_resources/champions/kled#sheet",
+];
+const KLED_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/cavalry_knight_compact";
+const KLED_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/cavalry_knight_grid";
+const XAYAH_ACTOR_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/champions/dancer#sheet",
+    "asset/lol_mod/aseprite_resources/champions/xayah#sheet",
+];
+const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dancer_compact";
+const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dancer_grid";
+const SPLASH_SPECS: [(&str, &str); 7] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -55,17 +83,30 @@ const SPLASH_SPECS: [(&str, &str); 6] = [
         "cavalry_knight",
         "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
+    ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
 ];
 
-// EntityView::view_name is relative to
-// asset/base/aseprite_resources/ingame/. Elder is intentionally excluded:
-// this feature selects one base elemental drake for the whole match.
+// Elder is intentionally excluded: this feature selects one base elemental
+// drake for the whole match.  The relative names are retained for telemetry;
+// the renderer uses the direct mod sheet keys below so it does not depend on
+// EntityView's neutral-monster asset routing.
 const DRAGON_VIEW_NAMES: [&str; 5] = [
     "dragon_variants/infernal",
     "dragon_variants/ocean",
     "dragon_variants/mountain",
     "dragon_variants/cloud",
     "dragon_variants/hextech",
+];
+const DRAGON_SOURCE_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/ingame/serpen#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/serpen#sheet",
+];
+const DRAGON_VARIANT_SHEET_TEXTURES: [&str; 5] = [
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/infernal#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/ocean#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/mountain#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/cloud#sheet",
+    "asset/lol_mod/aseprite_resources/ingame/dragon_variants/hextech#sheet",
 ];
 
 // UI kill notifications are sourced from asset/base/text/ui rather than
@@ -94,11 +135,22 @@ const DRAGON_RENDER_NAMES: [[&str; 5]; 5] = [
         "クラウドドレイク",
         "ヘクステックドレイク",
     ],
-    ["炼狱亚龙", "海洋亚龙", "山脉亚龙", "云端亚龙", "海克斯科技亚龙"],
-    ["赤燄飛龍", "癒水飛龍", "裂地飛龍", "疾風飛龍", "海克斯科技飛龍"],
+    [
+        "炼狱亚龙",
+        "海洋亚龙",
+        "山脉亚龙",
+        "云端亚龙",
+        "海克斯科技亚龙",
+    ],
+    [
+        "赤燄飛龍",
+        "癒水飛龍",
+        "裂地飛龍",
+        "疾風飛龍",
+        "海克斯科技飛龍",
+    ],
 ];
-const DRAGON_RENDER_LEGACY_NAMES: [&str; 5] =
-    ["Serpen", "세르펜", "セルペン", "双角巨蛇", "蛇彭"];
+const DRAGON_RENDER_LEGACY_NAMES: [&str; 5] = ["Serpen", "세르펜", "セルペン", "双角巨蛇", "蛇彭"];
 const BARON_RENDER_NAMES: [(&str, &str); 5] = [
     ("Morgard", "Baron Nashor"),
     ("모르가드", "내셔 남작"),
@@ -126,7 +178,8 @@ struct ClientDragonState {
     database: Option<Rc<RefCell<ClientDatabase>>>,
     live_selection: Option<DragonSelection>,
     seen_payloads: HashSet<Vec<u8>>,
-    last_applied: Option<DragonSelection>,
+    active_selection: Option<DragonSelection>,
+    last_rendered: Option<DragonSelection>,
     fallback_logged: bool,
 }
 
@@ -156,8 +209,135 @@ impl ModExtension for LolModExtension {
     }
 
     fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        rewrite_dragon_render_commands(ui, state);
         rewrite_objective_render_text(ui, state);
         rewrite_bp_render_commands(ui, state);
+        rewrite_kled_portrait_render_commands(state);
+        rewrite_xayah_portrait_render_commands(state);
+    }
+}
+
+fn rewrite_kled_portrait_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !KLED_ACTOR_SHEET_TEXTURES.contains(&texture.as_str()) {
+                continue;
+            }
+
+            // Compact report/scoreboard/HUD rows are square (telemetry shows
+            // 18/26/34/46px).  A full Kled + Skaarl mount cannot retain a
+            // readable face there, so route only these exact UI geometries
+            // to the rider-focused portrait.  Native battle frames are
+            // rectangular and therefore cannot enter this branch.
+            let is_compact_square = (14.0..=52.0).contains(w)
+                && (14.0..=52.0).contains(h)
+                && (*w - *h).abs() <= 2.0;
+            // Ban/pick grid telemetry identifies native 006 at 90x122, with
+            // a small scale transition around 86x122.  Keep that full-body
+            // surface distinct from the head-focused compact icon.
+            let is_bp_grid = (84.0..=96.0).contains(w) && (108.0..=130.0).contains(h);
+            let replacement = if is_compact_square {
+                KLED_COMPACT_PORTRAIT_TEXTURE
+            } else if is_bp_grid {
+                KLED_BP_GRID_PORTRAIT_TEXTURE
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
+    }
+}
+
+fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !XAYAH_ACTOR_SHEET_TEXTURES.contains(&texture.as_str()) {
+                continue;
+            }
+
+            // Square report, scoreboard, side-list, and HUD commands receive
+            // the v3 two-eye face crop.  Battle actor commands are Sprite
+            // commands and cannot enter this NinePatch-only UI route.
+            let is_compact_square = (14.0..=52.0).contains(w)
+                && (14.0..=52.0).contains(h)
+                && (*w - *h).abs() <= 2.0;
+            // Dancer's center hero-grid preview is the native 27x47 idle rect
+            // rendered at 2x.  Keep this tight 54x94 geometry disjoint from
+            // the telemetry-proven 81x125-141 picked-side transition; the
+            // latter is removed by rewrite_bp_render_commands above.
+            let is_bp_grid = (50.0..=58.0).contains(w) && (88.0..=100.0).contains(h);
+            let replacement = if is_compact_square {
+                XAYAH_COMPACT_PORTRAIT_TEXTURE
+            } else if is_bp_grid {
+                // The dedicated grid texture is 90x122, while native Dancer
+                // draws its 27x47 idle rect at 2x (54x94). Preserve the
+                // command center and expand to the real texture size;
+                // stretching 90x122 back into 54x94 would squeeze Xayah on x
+                // and recreate the tiny/deformed grid model.
+                let center_x = *x + *w * 0.5;
+                let center_y = *y + *h * 0.5;
+                *w = 90.0;
+                *h = 122.0;
+                *x = center_x - *w * 0.5;
+                *y = center_y - *h * 0.5;
+                XAYAH_BP_GRID_PORTRAIT_TEXTURE
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
     }
 }
 
@@ -195,7 +375,8 @@ fn remember_database(database: Rc<RefCell<ClientDatabase>>) {
             state.database = Some(database);
             state.live_selection = None;
             state.seen_payloads.clear();
-            state.last_applied = None;
+            state.active_selection = None;
+            state.last_rendered = None;
             state.fallback_logged = false;
         }
     });
@@ -211,7 +392,7 @@ fn sync_deterministic_dragon() {
             return;
         };
 
-        let mut database = database.borrow_mut();
+        let database = database.borrow();
         let events = database.mod_events(MOD_ID);
 
         {
@@ -250,37 +431,21 @@ fn sync_deterministic_dragon() {
         } else {
             state.borrow().live_selection
         };
-        let view_name = selection
-            .map(|selected| DRAGON_VIEW_NAMES[dragon_variant_index(selected.seed)])
-            .unwrap_or("serpen");
-
-        if let Some(game) = database.game_view.as_mut() {
-            for entity in game.client.view.entity_view.values_mut() {
-                if entity.name == "serpen" && entity.view_name != view_name {
-                    entity.view_name.clear();
-                    entity.view_name.push_str(view_name);
-                }
-            }
-        }
-
         let mut state = state.borrow_mut();
         if let Some(selection) = selection {
-            if state.last_applied != Some(selection) {
-                let detail = format!(
-                    "view_name={}",
-                    DRAGON_VIEW_NAMES[dragon_variant_index(selection.seed)]
-                );
-                write_dragon_telemetry("entity_apply", selection, &detail);
-                state.last_applied = Some(selection);
-                state.fallback_logged = false;
+            if state.active_selection != Some(selection) {
+                state.active_selection = Some(selection);
+                state.last_rendered = None;
             }
+            state.fallback_logged = false;
         } else if !state.fallback_logged {
             write_dragon_fallback_telemetry(if replay_mode {
                 "replay seed unavailable; retained default serpen"
             } else {
                 "server seed event unavailable; retained default serpen"
             });
-            state.last_applied = None;
+            state.active_selection = None;
+            state.last_rendered = None;
             state.fallback_logged = true;
         }
     });
@@ -320,17 +485,72 @@ fn dragon_variant_index(seed: u64) -> usize {
 }
 
 fn current_dragon_variant_index() -> usize {
-    CLIENT_DRAGON_STATE.with(|state| {
-        state
-            .borrow()
-            .last_applied
-            .map(|selection| dragon_variant_index(selection.seed))
-            .unwrap_or(0)
-    })
+    current_dragon_selection()
+        .map(|selection| dragon_variant_index(selection.seed))
+        .unwrap_or(0)
+}
+
+fn current_dragon_selection() -> Option<DragonSelection> {
+    CLIENT_DRAGON_STATE.with(|state| state.borrow().active_selection)
+}
+
+fn rewrite_dragon_render_commands(ui: &GameUI, state: &mut RenderState) {
+    // EntityView::view_name is applied too late for the already-produced
+    // Sprite command and is overwritten again by the next server refresh.
+    // Rewrite the final command instead, inside the same MatchUIRunner gate as
+    // the objective-name pass, so model and text use one seed in one frame.
+    if !ui_tree_has_match_runner(&ui.root) {
+        return;
+    }
+
+    let selection = current_dragon_selection();
+    let selected_dragon = selection
+        .map(|selection| dragon_variant_index(selection.seed))
+        .unwrap_or(0);
+    let replacement = DRAGON_VARIANT_SHEET_TEXTURES[selected_dragon];
+    let mut rewrite_count = 0usize;
+    let mut first_source = None;
+
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::Sprite { texture, .. } = command else {
+                continue;
+            };
+            let Some(source) = DRAGON_SOURCE_SHEET_TEXTURES
+                .iter()
+                .copied()
+                .find(|source| texture.as_str() == *source)
+            else {
+                continue;
+            };
+            first_source.get_or_insert(source);
+            texture.clear();
+            texture.push_str(replacement);
+            rewrite_count += 1;
+        }
+    }
+
+    let Some(selection) = selection.filter(|_| rewrite_count > 0) else {
+        return;
+    };
+    CLIENT_DRAGON_STATE.with(|dragon_state| {
+        let mut dragon_state = dragon_state.borrow_mut();
+        if dragon_state.last_rendered == Some(selection) {
+            return;
+        }
+        let detail = format!(
+            "old={} new={} rewrite_count={}",
+            first_source.unwrap_or(DRAGON_SOURCE_SHEET_TEXTURES[0]),
+            replacement,
+            rewrite_count
+        );
+        write_dragon_telemetry("render_apply", selection, &detail);
+        dragon_state.last_rendered = Some(selection);
+    });
 }
 
 fn rewrite_objective_render_text(ui: &GameUI, state: &mut RenderState) {
-    // last_applied intentionally survives through the match result view, but
+    // active_selection intentionally survives through the match result view, but
     // must never recolor encyclopedia/management text with a previous match's
     // element. Limit the dynamic pass to a live/replay MatchUIRunner tree.
     if !ui_tree_has_match_runner(&ui.root) {
@@ -369,8 +589,7 @@ fn rewrite_objective_render_text(ui: &GameUI, state: &mut RenderState) {
 }
 
 fn ui_tree_has_match_runner(root: &Node) -> bool {
-    root.runner_as::<MatchUIRunner>().is_some()
-        || root.child.iter().any(ui_tree_has_match_runner)
+    root.runner_as::<MatchUIRunner>().is_some() || root.child.iter().any(ui_tree_has_match_runner)
 }
 
 struct LolDragonServerExtension {
@@ -491,6 +710,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("berserker", "lol_fullbody_briar"),
         ("boomerang_hunter", "lol_fullbody_sivir"),
         ("cavalry_knight", "lol_fullbody_kled"),
+        ("dancer", "lol_fullbody_xayah"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -571,7 +791,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.8.2;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.9.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -620,21 +840,27 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 continue;
             };
             let geometry_identity = || {
-                let side = bp_side_from_geometry(*x, *y, *w, *h, map_width)?;
+                let side = bp_side_from_geometry(champion_id, *x, *y, *w, *h, map_width)?;
                 let slot = bp_slot_from_geometry(*y, *h)?;
                 Some((side, slot))
             };
             let Some((side, slot_index)) = pass_identity.or_else(geometry_identity) else {
-                write_bp_render_telemetry_once(
-                    "candidate_skip",
-                    "",
-                    None,
-                    texture,
-                    "",
-                    &format!(
-                        "champion={champion_id};pass={pass};map_width={map_width:.1};geometry={x:.1},{y:.1},{w:.1},{h:.1}"
-                    ),
-                );
+                // Keep telemetry capacity for real side-card failures. The
+                // old route recorded every scrolling 128x128 grid preview
+                // and every 18x18 footer icon, exhausting all 80 rows before
+                // a user could complete a pick.
+                if bp_geometry_is_actor_sized_near_pick_edge(*x, *w, *h, map_width) {
+                    write_bp_render_telemetry_once(
+                        "candidate_skip",
+                        "",
+                        None,
+                        texture,
+                        "",
+                        &format!(
+                            "champion={champion_id};pass={pass};map_width={map_width:.1};geometry={x:.1},{y:.1},{w:.1},{h:.1}"
+                        ),
+                    );
+                }
                 continue;
             };
             let Some(asset) = splash_asset(champion_id) else {
@@ -701,7 +927,13 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
             *flip_x = side == BpRenderSide::Red;
             *flip_y = false;
 
-            let score = bp_actor_candidate_score(side, slot_index, map_width, original_geometry);
+            let score = bp_actor_candidate_score(
+                champion_id,
+                side,
+                slot_index,
+                map_width,
+                original_geometry,
+            );
             let candidate_index = side.candidate_index(slot_index);
             let should_replace = candidates[candidate_index]
                 .as_ref()
@@ -788,20 +1020,56 @@ fn bp_overlay_y(slot_index: usize) -> f32 {
 }
 
 fn bp_actor_candidate_score(
+    champion_id: &str,
     side: BpRenderSide,
     slot_index: usize,
     map_width: f32,
     geometry: (f32, f32, f32, f32),
 ) -> f32 {
-    let expected_x = match side {
-        BpRenderSide::Blue => BP_NATIVE_ACTOR_BLUE_X,
-        BpRenderSide::Red => map_width - BP_NATIVE_ACTOR_RED_INSET,
+    let contract = bp_actor_contract(champion_id);
+    let native_center_x = match side {
+        BpRenderSide::Blue => BP_NATIVE_ACTOR_BLUE_X + BP_NATIVE_ACTOR_WIDTH * 0.5,
+        BpRenderSide::Red => map_width - BP_NATIVE_ACTOR_RED_INSET + BP_NATIVE_ACTOR_WIDTH * 0.5,
     };
-    let expected_y = BP_NATIVE_ACTOR_TOP + BP_CARD_STEP_Y * slot_index as f32;
+    let native_center_y =
+        BP_NATIVE_ACTOR_TOP + BP_NATIVE_ACTOR_HEIGHT * 0.5 + BP_CARD_STEP_Y * slot_index as f32;
+    let expected_x = native_center_x - contract.width * 0.5;
+    let expected_y = native_center_y - contract.height * 0.5;
     (geometry.0 - expected_x).abs()
         + (geometry.1 - expected_y).abs()
-        + (geometry.2 - BP_NATIVE_ACTOR_WIDTH).abs()
-        + (geometry.3 - BP_NATIVE_ACTOR_HEIGHT).abs()
+        + (geometry.2 - contract.width).abs()
+        + (geometry.3 - contract.height).abs()
+}
+
+#[derive(Clone, Copy)]
+struct BpActorContract {
+    width: f32,
+    height: f32,
+    min_width: f32,
+    max_width: f32,
+    min_height: f32,
+    max_height: f32,
+}
+
+fn bp_actor_contract(champion_id: &str) -> BpActorContract {
+    if champion_id == "dancer" {
+        return BpActorContract {
+            width: BP_DANCER_ACTOR_WIDTH,
+            height: BP_DANCER_ACTOR_HEIGHT,
+            min_width: BP_DANCER_TRANSITION_MIN_WIDTH,
+            max_width: BP_DANCER_TRANSITION_MAX_WIDTH,
+            min_height: BP_DANCER_TRANSITION_MIN_HEIGHT,
+            max_height: BP_DANCER_TRANSITION_MAX_HEIGHT,
+        };
+    }
+    BpActorContract {
+        width: BP_NATIVE_ACTOR_WIDTH,
+        height: BP_NATIVE_ACTOR_HEIGHT,
+        min_width: BP_TRANSITION_ACTOR_MIN_WIDTH,
+        max_width: BP_TRANSITION_ACTOR_MAX_WIDTH,
+        min_height: BP_TRANSITION_ACTOR_MIN_HEIGHT,
+        max_height: BP_TRANSITION_ACTOR_MAX_HEIGHT,
+    }
 }
 
 fn ui_tree_contains_id(root: &Node, target: &str) -> bool {
@@ -830,15 +1098,17 @@ fn bp_identity_from_pass(pass: &str) -> Option<(BpRenderSide, usize)> {
 }
 
 fn bp_side_from_geometry(
+    champion_id: &str,
     x: f32,
     y: f32,
     width: f32,
     height: f32,
     map_width: f32,
 ) -> Option<BpRenderSide> {
+    let contract = bp_actor_contract(champion_id);
     if !(40.0..=960.0).contains(&y)
-        || !(BP_TRANSITION_ACTOR_MIN_WIDTH..=BP_TRANSITION_ACTOR_MAX_WIDTH).contains(&width)
-        || !(BP_TRANSITION_ACTOR_MIN_HEIGHT..=BP_TRANSITION_ACTOR_MAX_HEIGHT).contains(&height)
+        || !(contract.min_width..=contract.max_width).contains(&width)
+        || !(contract.min_height..=contract.max_height).contains(&height)
     {
         return None;
     }
@@ -853,6 +1123,18 @@ fn bp_side_from_geometry(
     } else {
         None
     }
+}
+
+fn bp_geometry_is_actor_sized_near_pick_edge(
+    x: f32,
+    width: f32,
+    height: f32,
+    map_width: f32,
+) -> bool {
+    let right_edge_start = (map_width - BP_RED_TRANSITION_EDGE_BAND).max(335.0);
+    let near_side =
+        (0.0..=335.0).contains(&x) || (right_edge_start..=(map_width + 180.0)).contains(&x);
+    near_side && width >= 40.0 && height >= 70.0
 }
 
 fn bp_slot_from_geometry(y: f32, height: f32) -> Option<usize> {
@@ -887,6 +1169,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "briar" | "berserker" => Some("berserker"),
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
+        "xayah" | "dancer" => Some("dancer"),
         _ => None,
     }
 }
@@ -981,8 +1264,202 @@ fn find_path_anchor_mut<'a>(
     None
 }
 
+const XAYAH_FEATHER_STATE_TTL_TICKS: usize = 600;
+const XAYAH_AI_MIN_RECALL_FEATHERS: u8 = 2;
+
+#[derive(Debug)]
+struct XayahFeatherUnitState {
+    unit: EntityHandle,
+    player_id: usize,
+    team: usize,
+    position: Position,
+    count: u8,
+    updated_tick: usize,
+    expiry_tick: usize,
+}
+
+static XAYAH_AI_FEATHER_STATE: OnceLock<Mutex<Vec<XayahFeatherUnitState>>> = OnceLock::new();
+
+fn xayah_ai_feather_state() -> &'static Mutex<Vec<XayahFeatherUnitState>> {
+    XAYAH_AI_FEATHER_STATE.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn xayah_player_for_caster(
+    ctx: &GameCtx,
+    caster_id: usize,
+) -> Option<(usize, usize, Position, EntityHandle)> {
+    let caster_handle = ctx.get_entity(caster_id)?.handle();
+    (0..ctx.player_count()).find_map(|player_id| {
+        let Some(player) = ctx.player_at(player_id) else {
+            return None;
+        };
+        let Some(champion) = player.champion() else {
+            return None;
+        };
+        (champion.handle() == caster_handle).then(|| {
+            (
+                player_id,
+                player.team(),
+                player.position(),
+                caster_handle,
+            )
+        })
+    })
+}
+
+#[derive(Clone, Copy, Debug)]
+enum XayahFeatherStateChange {
+    Add(u8),
+    Set(u8),
+    Clear,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct XayahFeatherAiStateEffect {
+    change: XayahFeatherStateChange,
+}
+
+impl ModEffectType for XayahFeatherAiStateEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        let Some((player_id, team, position, unit)) = xayah_player_for_caster(ctx, caster_id)
+        else {
+            return;
+        };
+        let now = ctx.tick();
+        let Ok(mut states) = xayah_ai_feather_state().lock() else {
+            return;
+        };
+        states.retain(|state| state.expiry_tick > now || state.unit == unit);
+
+        if matches!(self.change, XayahFeatherStateChange::Clear) {
+            states.retain(|state| state.unit != unit);
+            return;
+        }
+
+        let state_index = states.iter().position(|state| state.unit == unit);
+        let state = if let Some(index) = state_index {
+            &mut states[index]
+        } else {
+            states.push(XayahFeatherUnitState {
+                unit,
+                player_id,
+                team,
+                position,
+                count: 0,
+                updated_tick: now,
+                expiry_tick: now,
+            });
+            states.last_mut().expect("Xayah state was just inserted")
+        };
+        if state.expiry_tick <= now {
+            state.count = 0;
+        }
+        state.player_id = player_id;
+        state.team = team;
+        state.position = position;
+        state.count = match self.change {
+            XayahFeatherStateChange::Add(amount) => state.count.saturating_add(amount).min(5),
+            XayahFeatherStateChange::Set(amount) => amount.min(5),
+            XayahFeatherStateChange::Clear => 0,
+        };
+        state.updated_tick = now;
+        state.expiry_tick = now.saturating_add(XAYAH_FEATHER_STATE_TTL_TICKS);
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct XayahFeatherInputGate;
+
+impl ModPlayerInputAi for XayahFeatherInputGate {
+    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
+        Box::new(self.clone())
+    }
+
+    fn id(&self) -> &str {
+        "lol_xayah_feather_input_gate"
+    }
+
+    fn think(
+        &mut self,
+        ctx: &mut PlayerAiContext<'_, '_, '_>,
+        base_input: Option<Input>,
+    ) -> PlayerInputDecision {
+        if !matches!(
+            ctx.champion_name(),
+            "dancer" | "Xayah" | "霞" | "剎雅" | "ザヤ" | "자야"
+        ) {
+            return PlayerInputDecision::Pass;
+        }
+        let Some(Input::Skill2 { target }) = base_input else {
+            return PlayerInputDecision::Pass;
+        };
+
+        let player_id = ctx.player_id();
+        let team = ctx.team();
+        let position = ctx.position();
+        let now = ctx.tick();
+        let feather_count = xayah_ai_feather_state()
+            .lock()
+            .map(|mut states| {
+                states.retain(|state| state.expiry_tick > now);
+                states
+                    .iter()
+                    .filter(|state| {
+                        state.player_id == player_id
+                            && state.team == team
+                            && state.position == position
+                            && state.updated_tick <= now
+                    })
+                    .max_by_key(|state| state.updated_tick)
+                    .map(|state| state.count)
+                    .unwrap_or(0)
+            })
+            .unwrap_or(0);
+        if feather_count >= XAYAH_AI_MIN_RECALL_FEATHERS {
+            return PlayerInputDecision::Pass;
+        }
+
+        // DataActionDef has no buff-based cast predicate in Mod API 0.8.
+        // Replace an empty Bladecaller decision before it reaches the action,
+        // so its cooldown, cast animation, SFX and effect tree are not spent.
+        let attack = Input::Attack { target };
+        if ctx.is_valid_input(&attack) {
+            PlayerInputDecision::Replace(attack)
+        } else if let Some(retreat) = ctx.get_run_away_without_skill_input() {
+            PlayerInputDecision::Replace(retreat)
+        } else {
+            PlayerInputDecision::Replace(attack)
+        }
+    }
+}
+
 fn init(_ctx: &GameCtx) -> ModRegistration {
     let mut registration = ModRegistration::new(MOD_ID);
+    registration.add_native_effect(
+        "lol_xayah_ai_feather_add_1",
+        XayahFeatherAiStateEffect {
+            change: XayahFeatherStateChange::Add(1),
+        },
+    );
+    registration.add_native_effect(
+        "lol_xayah_ai_feather_add_2",
+        XayahFeatherAiStateEffect {
+            change: XayahFeatherStateChange::Add(2),
+        },
+    );
+    registration.add_native_effect(
+        "lol_xayah_ai_feather_set_5",
+        XayahFeatherAiStateEffect {
+            change: XayahFeatherStateChange::Set(5),
+        },
+    );
+    registration.add_native_effect(
+        "lol_xayah_ai_feather_clear",
+        XayahFeatherAiStateEffect {
+            change: XayahFeatherStateChange::Clear,
+        },
+    );
+    registration.add_player_input_ai(XayahFeatherInputGate);
     registration.set_extension(LolModExtension);
     registration.set_server_extension(LolDragonServerExtension {
         announced: Mutex::new(HashSet::new()),
