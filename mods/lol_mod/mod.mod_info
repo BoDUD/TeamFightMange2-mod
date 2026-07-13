@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.0",
-  "description": "Adds Shen and reworks official champions 002-008 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, and Urgot. Version 0.10.0 upgrades Shen, Lucian, Orianna, Briar, and Sivir with clearer battle actors plus source-direct encyclopedia, side-list, scoreboard, and Ban/Pick portraits. Official 008 Demon is replaced by a six-legged ImageGen Urgot with W/E/R only: mobile Purge fire, Disdain shield/dash/flip, and Fear Beyond Death with a real 25% current-Health execute check whose splash fear occurs only after a confirmed kill. Urgot includes dedicated VFX, icons, Ban/Pick art and pinned official base-skin audio while retaining Xayah/Kled fixes, deterministic elemental drakes, and the existing Rift quality pack. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.10.1",
+  "description": "Adds Shen and reworks official champions 002-008 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, and Urgot. Version 0.10.1 fixes Urgot's battle baseline and face-focused HUD portraits, gives his basic attack a visible muzzle/projectile/impact chain, wires all twelve Purge shots to distinct muzzle and hit effects with a persistent cannon state, adds a readable Fear Beyond Death launch/chain/pull/execute presentation, and legality-gates AI use of R then W. It retains the 0.10.0 HD rebuilds for Shen, Lucian, Orianna, Briar, and Sivir, Xayah/Kled fixes, deterministic elemental drakes, and the existing Rift quality pack. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-13",
   "dependencies": [
     {

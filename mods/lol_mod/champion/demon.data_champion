@@ -1,9 +1,9 @@
 {
   "id": "demon",
-  "category": "Melee",
+  "category": "Ranged",
   "tags": [
     "AD",
-    "Melee",
+    "Ranged",
     "Tank",
     "CC"
   ],
@@ -57,17 +57,53 @@
           "name": "lol_urgot_attack_cast"
         },
         {
-          "type": "Attack",
-          "damage": 0,
-          "attack_ratio": 100
+          "type": "CasterAnimation",
+          "name": "attack",
+          "tick": 28
         },
         {
-          "type": "Native",
-          "effect_ref": "lol_urgot_passive_native"
+          "type": "CasterViewEffect",
+          "name": "lol_urgot_attack_muzzle_visual"
         },
         {
-          "type": "TargetSfx",
-          "name": "lol_urgot_attack_hit"
+          "type": "Delayed",
+          "tick": 8,
+          "effects": [
+            {
+              "type": "TargetProjectile",
+              "speed": 7600,
+              "name": "lol_urgot_attack_projectile",
+              "y_offset": 0,
+              "applied_target": "Enemy",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 0,
+                        "attack_ratio": 100
+                      },
+                      {
+                        "type": "Native",
+                        "effect_ref": "lol_urgot_passive_native"
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_attack_impact_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_urgot_attack_hit"
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
@@ -79,10 +115,10 @@
     "cooltime": 600,
     "start_timing": 1,
     "cancelable": false,
-    "range": 60000,
+    "range": 0,
     "growth_range": 0,
     "casting_type": "None",
-    "casting_target": "None",
+    "casting_target": "AllyOnlySelf",
     "attack_type": "Skill",
     "can_use_with_move": true,
     "effect": {
@@ -120,6 +156,10 @@
           "tick": 0,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -135,6 +175,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -153,6 +197,10 @@
           "tick": 20,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -168,6 +216,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -186,6 +238,10 @@
           "tick": 40,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -201,6 +257,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -219,6 +279,10 @@
           "tick": 60,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -234,6 +298,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -252,6 +320,10 @@
           "tick": 80,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -267,6 +339,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -285,6 +361,10 @@
           "tick": 100,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -300,6 +380,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -318,6 +402,10 @@
           "tick": 120,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -333,6 +421,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -351,6 +443,10 @@
           "tick": 140,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -366,6 +462,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -384,6 +484,10 @@
           "tick": 160,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -399,6 +503,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -417,6 +525,10 @@
           "tick": 180,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -432,6 +544,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -450,6 +566,10 @@
           "tick": 200,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -465,6 +585,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -483,6 +607,10 @@
           "tick": 220,
           "effects": [
             {
+              "type": "CasterViewEffect",
+              "name": "lol_urgot_w_muzzle_visual"
+            },
+            {
               "type": "AutoTargetProjectile",
               "speed": 7000,
               "range": 60000,
@@ -498,6 +626,10 @@
                         "type": "Attack",
                         "damage": 8,
                         "attack_ratio": 20
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_w_impact_visual"
                       },
                       {
                         "type": "TargetSfx",
@@ -610,6 +742,10 @@
           "type": "CasterAnimation",
           "name": "ult",
           "tick": 75
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_urgot_r_launch_visual"
         },
         {
           "type": "LinearProjectile",
@@ -747,6 +883,14 @@
   "view_projectiles": [
     {
       "type": "Animated",
+      "name": "lol_urgot_attack_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
       "name": "lol_urgot_w_cannon_projectile",
       "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
       "tag": "projectile",
@@ -763,6 +907,46 @@
     }
   ],
   "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_urgot_attack_muzzle_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "muzzle",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_attack_impact_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_w_muzzle_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
+      "tag": "muzzle",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_w_impact_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_launch_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
+      "tag": "launch",
+      "z": 2,
+      "is_follow": true
+    },
     {
       "type": "Animation",
       "name": "lol_urgot_e_disdain_visual",
@@ -812,5 +996,15 @@
       "is_follow": true
     }
   ],
-  "view_buffs": []
+  "view_buffs": [
+    {
+      "type": "ThreePhase",
+      "name": "lol_urgot_w_purge",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
+      "pre_tag": "pre",
+      "loop_tag": "loop",
+      "remove_tag": "remove",
+      "z": 2
+    }
+  ]
 }

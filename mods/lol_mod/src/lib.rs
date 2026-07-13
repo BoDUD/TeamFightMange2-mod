@@ -977,7 +977,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1614,6 +1614,55 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
     }
 }
 
+#[derive(Clone, Debug, Default)]
+struct UrgotAbilityInputGate;
+
+impl ModPlayerInputAi for UrgotAbilityInputGate {
+    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
+        Box::new(self.clone())
+    }
+
+    fn id(&self) -> &str {
+        "lol_urgot_ability_input_gate"
+    }
+
+    fn think(
+        &mut self,
+        ctx: &mut PlayerAiContext<'_, '_, '_>,
+        base_input: Option<Input>,
+    ) -> PlayerInputDecision {
+        if !matches!(
+            ctx.champion_name(),
+            "demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳"
+        ) {
+            return PlayerInputDecision::Pass;
+        }
+        let Some(Input::Attack { target }) = base_input else {
+            return PlayerInputDecision::Pass;
+        };
+
+        // The Demon slot's stock AI was authored for the original melee
+        // transformation kit.  It can keep returning basic attacks even when
+        // Urgot's data-defined W or R is learned and off cooldown.  Promote a
+        // normal attack only when the engine itself confirms that the action
+        // is currently legal; this preserves level, cooldown, range and CC
+        // checks instead of bypassing them with a scripted cast.
+        let ultimate = Input::Ult { target };
+        if ctx.is_valid_input(&ultimate) {
+            return PlayerInputDecision::Replace(ultimate);
+        }
+
+        let purge = Input::Skill {
+            target: InputTarget::None,
+        };
+        if ctx.is_valid_input(&purge) {
+            return PlayerInputDecision::Replace(purge);
+        }
+
+        PlayerInputDecision::Pass
+    }
+}
+
 const URGOT_PASSIVE_COOLDOWN_TICKS: usize = 120;
 const URGOT_PASSIVE_FLAT_DAMAGE: usize = 20;
 const URGOT_PASSIVE_ATTACK_RATIO_PERCENT: usize = 30;
@@ -1797,6 +1846,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         },
     );
     registration.add_player_input_ai(XayahFeatherInputGate);
+    registration.add_player_input_ai(UrgotAbilityInputGate);
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_w_native", UrgotWNativeEffect);
     registration.add_native_effect("lol_urgot_e_native", UrgotENativeEffect);

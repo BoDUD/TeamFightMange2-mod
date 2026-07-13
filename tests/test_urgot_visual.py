@@ -16,9 +16,17 @@ BUILDER = MOD / "tools" / "build_urgot.py"
 NATIVE_CONTRACT = MOD / "source" / "native" / "demon_actor_contract.json"
 
 EFFECT_TAGS = {
-    "urgot_w_cannon": {"muzzle", "projectile", "impact"},
+    "urgot_attack": {"muzzle", "projectile", "impact"},
+    "urgot_w_cannon": {
+        "pre",
+        "loop",
+        "remove",
+        "muzzle",
+        "projectile",
+        "impact",
+    },
     "urgot_e_disdain": {"shield", "dash", "impact", "flip"},
-    "urgot_r_chain": {"projectile", "latch", "pull"},
+    "urgot_r_chain": {"launch", "projectile", "latch", "pull"},
     "urgot_r_execute": {"execute", "fear"},
 }
 
@@ -118,7 +126,10 @@ def test_actor_frames_are_clean_body_only_and_native_safe() -> None:
             left, top, right, bottom = bbox
             assert left >= 1 and right <= frame.width - 1
             assert top >= 1 and bottom <= frame.height - 1
-            assert bottom == 60, f"{tag}[{index}] baseline drift"
+            assert bottom == 53, f"{tag}[{index}] baseline drift"
+            assert bottom - frame.height // 2 <= 21, (
+                f"{tag}[{index}] extends below the native Demon foot anchor"
+            )
             if tag in {
                 "normal",
                 "archfiend_base",
@@ -145,6 +156,31 @@ def test_actor_frames_are_clean_body_only_and_native_safe() -> None:
         if tag in {"idle", "run", "attack", "skill1", "skill2"}:
             assert len(hashes) >= 2, f"{tag} collapsed to one static actor frame"
     assert max(core_heights) - min(core_heights) <= 6
+
+
+def test_w_uses_firing_body_pose_and_e_keeps_stable_dash_body() -> None:
+    sheet = Image.open(MOD / "aseprite_resources/champions/demon#sheet.png").convert(
+        "RGBA"
+    )
+    anims = load_json("aseprite_resources/champions/demon#anim.fanim")["anims"]
+
+    def first_hash(tag: str) -> str:
+        frame = crop_anim_frame(sheet, anims[tag]["frames"][0])
+        return hashlib.sha256(frame.tobytes()).hexdigest()
+
+    def sequence_hashes(tag: str) -> list[str]:
+        return [
+            hashlib.sha256(crop_anim_frame(sheet, row).tobytes()).hexdigest()
+            for row in anims[tag]["frames"]
+        ]
+
+    # W is the engine skill/skill1 slot and must visibly fire its cannon.
+    assert first_hash("skill1") == first_hash("attack")
+    # E is the appended skill2 slot and begins from the stable dash body.
+    assert first_hash("skill2") == first_hash("normal")
+    assert first_hash("skill1") != first_hash("skill2")
+    assert sequence_hashes("skill1") != sequence_hashes("attack")
+    assert sequence_hashes("ult") != sequence_hashes("idle")
 
 
 def test_uniform_scaling_helper_does_not_stretch_urgot() -> None:
@@ -277,8 +313,12 @@ def test_visual_qa_records_contract_effects_and_grid_clearance() -> None:
     assert qa["actor_contract"]["native_rectangles_repacked_for_hd"] is True
     assert qa["actor_contract"]["frame_size"] == [80, 64]
     assert qa["actor_contract"]["visible_body_height_px"] == 46
-    assert qa["actor_contract"]["foot_baseline_exclusive_y"] == 60
+    assert qa["actor_contract"]["foot_baseline_exclusive_y"] == 53
     assert set(qa["effects"]) == set(EFFECT_TAGS)
+    assert qa["portrait_focus"] == {
+        "compact": {"left": 0.25, "top": 0.0, "right": 0.72, "bottom": 0.55},
+        "scoreboard": {"left": 0.30, "top": 0.0, "right": 0.66, "bottom": 0.44},
+    }
     assert qa["bp_grid"] == {
         "name_band_y": 96,
         "max_alpha_bottom": 86,

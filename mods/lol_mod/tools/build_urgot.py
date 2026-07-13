@@ -6,7 +6,7 @@ native DLL are wired by the main mod builder.  Official champion 008 uses the
 ``demon`` actor contract, so every original tag, frame count and duration is
 copied verbatim.  Native Demon rectangles are deliberately replaced with a
 stable HD frame contract; their narrow normal-form boxes reduce Urgot to a
-25px blob.  A six-frame ``skill2`` body-only cast is appended for W.
+25px blob.  A six-frame ``skill2`` body-only cast is appended for E.
 """
 
 from __future__ import annotations
@@ -30,7 +30,8 @@ NATIVE_CONTRACT_PATH = SOURCE_ROOT / "native" / "demon_actor_contract.json"
 
 ACTOR_SOURCE = PROCESSED_ROOT / "urgot_actor_contact_v1_alpha.png"
 RUN_SOURCE = PROCESSED_ROOT / "urgot_run_contact_v1_alpha.png"
-VFX_SOURCE = PROCESSED_ROOT / "urgot_vfx_contact_v1_alpha.png"
+VFX_SOURCE = PROCESSED_ROOT / "urgot_combat_vfx_v2_alpha.png"
+E_VFX_SOURCE = PROCESSED_ROOT / "urgot_vfx_contact_v1_alpha.png"
 ICON_SOURCE = IMAGEGEN_ROOT / "urgot_icons_v1.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "demon.png"
 
@@ -44,7 +45,11 @@ QA_DIR = MOD_ROOT / "qa"
 
 ACTOR_FRAME_SIZE = (80, 64)
 ACTOR_VISIBLE_HEIGHT = 46
-ACTOR_BASELINE = 60
+# The native Demon idle frame is 39-43px tall and places its feet roughly
+# 21px below the frame centre.  Keep Urgot's 80x64 wide-body canvas, but use
+# the same vertical foot offset so the battle HP/name plate stays below all
+# six legs instead of cutting through them.
+ACTOR_BASELINE = 53
 SKILL2_DURATION = 0.060000002
 GRID_NAME_BAND_Y = 96
 GRID_ALPHA_BOTTOM = 86
@@ -269,16 +274,18 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         "archfiend_idle": [actor_cells[index] for index in (0, 1, 2, 3, 2, 1, 0)],
         "run": run_cells[:8],
         "archfiend_run": run_cells[:6],
-        "attack": [actor_cells[index] for index in (4, 4, 7, 7, 4, 7)],
-        "archfiend_attack": [actor_cells[index] for index in (4, 4, 7, 7, 4, 7)],
-        # E body poses; its shield/dash/flip read lives in urgot_e_disdain.
-        "skill1": [actor_cells[index] for index in (0, 1, 2, 3, 1, 0)],
-        "archfiend_skill1": [actor_cells[index] for index in (0, 1, 2, 3, 1, 0)],
+        "attack": [actor_cells[index] for index in (4, 5, 6, 6, 5, 7)],
+        "archfiend_attack": [actor_cells[index] for index in (4, 5, 6, 6, 5, 7)],
+        # W occupies the skill/skill1 engine slot. Use firing poses here;
+        # previously these were accidentally assigned to skill2, which made
+        # W look like a neutral idle cycle even when its projectiles fired.
+        "skill1": [actor_cells[index] for index in (4, 5, 6, 5, 6, 7)],
+        "archfiend_skill1": [actor_cells[index] for index in (4, 5, 6, 5, 6, 7)],
         "hit": [actor_cells[3]],
         "archfiend_hit": [actor_cells[3]],
-        # R body remains stable; chain/pull/execute are separate VFX sheets.
-        "ult": [actor_cells[index] for index in (0, 1, 2, 1, 0)],
-        "archfiend_ult": [actor_cells[index] for index in (0, 1, 2, 1, 0)],
+        # R has a distinct heavy launch pose; chain/pull/execute stay separate.
+        "ult": [actor_cells[index] for index in (4, 10, 11, 10, 7)],
+        "archfiend_ult": [actor_cells[index] for index in (4, 10, 11, 10, 7)],
         "transform": [
             actor_cells[index]
             for index in (0, 1, 2, 3, 8, 1, 2, 3, 2, 1, 0)
@@ -322,7 +329,9 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
             cursor += 1
         output_anims[tag] = {"frames": packed_rows}
 
-    skill2_sources = [actor_cells[index] for index in (4, 4, 7, 7, 4, 7)]
+    # E occupies the skill2 slot; its shield/dash/flip read is supplied by the
+    # separate urgot_e_disdain effect while the actor keeps a stable body.
+    skill2_sources = [actor_cells[index] for index in (0, 1, 2, 3, 1, 0)]
     skill2_frames: list[dict[str, Any]] = []
     for source in skill2_sources:
         x, y = cursor * ACTOR_FRAME_SIZE[0], 0
@@ -445,12 +454,17 @@ def _build_effect(
 
 def build_effects() -> tuple[list[Path], dict[str, dict[str, list[Image.Image]]]]:
     cells = split_grid(Image.open(VFX_SOURCE).convert("RGBA"), 4, 3)
-    # The generated W row includes a cannon housing for visual context.  The
-    # actor already owns that cannon, so crop only the cyan muzzle/beam pixels
-    # for runtime effects and avoid drawing a second weapon over Urgot.
-    w_muzzle = cells[0].crop((225, 130, 330, 270))
-    w_projectile = cells[2].crop((150, 130, 362, 270))
-    w_impact = w_muzzle.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    e_cells = split_grid(Image.open(E_VFX_SOURCE).convert("RGBA"), 4, 3)
+    # V2 uses three explicit chronological rows: basic attack, sustained W,
+    # and R.  Crop weapon-context pixels out of moving projectiles so only the
+    # caster-follow muzzle/purge layer ever overlaps Urgot's own cannon.
+    attack_muzzle = cells[0].crop((205, 55, 362, 305))
+    attack_projectile = cells[1]
+    attack_impact = cells[2]
+    w_purge = cells[4].crop((118, 35, 362, 330))
+    w_muzzle = cells[5].crop((145, 45, 362, 320))
+    w_projectile = cells[6].crop((242, 70, 362, 300))
+    w_impact = cells[3]
     specs: list[
         tuple[
             str,
@@ -462,31 +476,44 @@ def build_effects() -> tuple[list[Path], dict[str, dict[str, list[Image.Image]]]
         ]
     ] = [
         (
-            "urgot_w_cannon",
-            (112, 64),
+            "urgot_attack",
+            (96, 64),
             {
-                "muzzle": (w_muzzle, None, 0.38),
+                "muzzle": (attack_muzzle, None, 0.72),
+                "projectile": (attack_projectile, None, 0.88),
+                "impact": (attack_impact, None, 0.72),
+            },
+        ),
+        (
+            "urgot_w_cannon",
+            (112, 80),
+            {
+                "pre": (w_purge, None, 0.72),
+                "loop": (w_purge, None, 0.88),
+                "remove": (w_impact, None, 0.62),
+                "muzzle": (w_muzzle, None, 0.82),
                 "projectile": (w_projectile, None, 0.82),
-                "impact": (w_impact, None, 0.38),
+                "impact": (w_impact, None, 0.72),
             },
         ),
         (
             "urgot_e_disdain",
             (96, 96),
             {
-                "shield": (cells[4], None, 0.88),
-                "dash": (cells[5], None, 0.94),
-                "impact": (cells[6], None, 0.9),
-                "flip": (cells[7], None, 0.88),
+                "shield": (e_cells[4], None, 0.88),
+                "dash": (e_cells[5], None, 0.94),
+                "impact": (e_cells[6], None, 0.9),
+                "flip": (e_cells[7], None, 0.88),
             },
         ),
         (
             "urgot_r_chain",
             (128, 96),
             {
+                "launch": (cells[8], None, 0.70),
                 "projectile": (cells[8], None, 0.92),
                 "latch": (cells[9], None, 0.94),
-                "pull": (cells[10], None, 0.92),
+                "pull": (cells[10], None, 0.96),
             },
         ),
         (
@@ -494,7 +521,7 @@ def build_effects() -> tuple[list[Path], dict[str, dict[str, list[Image.Image]]]
             (128, 128),
             {
                 "execute": (cells[11], None, 0.94),
-                "fear": (cells[10], (1.75, 0.35, 0.42), 0.92),
+                "fear": (cells[11], (1.55, 0.42, 0.48), 0.98),
             },
         ),
     ]
@@ -564,7 +591,7 @@ def build_presentation() -> list[Path]:
     )
 
     compact_source = _focus_crop(
-        source, left_ratio=0.18, top_ratio=0.0, right_ratio=0.85, bottom_ratio=0.78
+        source, left_ratio=0.25, top_ratio=0.0, right_ratio=0.72, bottom_ratio=0.55
     )
     compact_path = PORTRAIT_DIR / "demon_compact.png"
     save_png(
@@ -580,7 +607,7 @@ def build_presentation() -> list[Path]:
     )
 
     scoreboard_source = _focus_crop(
-        source, left_ratio=0.25, top_ratio=0.0, right_ratio=0.82, bottom_ratio=0.68
+        source, left_ratio=0.30, top_ratio=0.0, right_ratio=0.66, bottom_ratio=0.44
     )
     scoreboard_path = PORTRAIT_DIR / "demon_scoreboard.png"
     save_png(
@@ -683,10 +710,17 @@ def build_qa(
         "schema_version": 1,
         "champion": "Urgot",
         "native_id": "demon",
-        "source_route": "approved ImageGen actor/run/VFX/icon/splash set",
+        "source_route": "approved ImageGen actor/run/VFX-v2/icon/splash set",
         "sources": {
             str(path.relative_to(MOD_ROOT)).replace("\\", "/"): sha256(path)
-            for path in (ACTOR_SOURCE, RUN_SOURCE, VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)
+            for path in (
+                ACTOR_SOURCE,
+                RUN_SOURCE,
+                VFX_SOURCE,
+                E_VFX_SOURCE,
+                ICON_SOURCE,
+                SPLASH_SOURCE,
+            )
         },
         "actor_contract": {
             "original_tag_order": list(native),
@@ -714,6 +748,10 @@ def build_qa(
                 "sha256": sha256(path),
             }
             for name, path in portrait_paths.items()
+        },
+        "portrait_focus": {
+            "compact": {"left": 0.25, "top": 0.0, "right": 0.72, "bottom": 0.55},
+            "scoreboard": {"left": 0.30, "top": 0.0, "right": 0.66, "bottom": 0.44},
         },
         "bp_grid": {
             "name_band_y": GRID_NAME_BAND_Y,

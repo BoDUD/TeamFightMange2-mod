@@ -1,6 +1,6 @@
 {
   "anims": {
-    "projectile": {
+    "launch": {
       "frames": [
         {
           "duration": 0.045,
@@ -40,7 +40,7 @@
         }
       ]
     },
-    "latch": {
+    "projectile": {
       "frames": [
         {
           "duration": 0.045,
@@ -80,7 +80,7 @@
         }
       ]
     },
-    "pull": {
+    "latch": {
       "frames": [
         {
           "duration": 0.045,
@@ -113,6 +113,46 @@
           "duration": 0.09,
           "data": {
             "x": 1408,
+            "y": 0,
+            "w": 128,
+            "h": 96
+          }
+        }
+      ]
+    },
+    "pull": {
+      "frames": [
+        {
+          "duration": 0.045,
+          "data": {
+            "x": 1536,
+            "y": 0,
+            "w": 128,
+            "h": 96
+          }
+        },
+        {
+          "duration": 0.055,
+          "data": {
+            "x": 1664,
+            "y": 0,
+            "w": 128,
+            "h": 96
+          }
+        },
+        {
+          "duration": 0.07,
+          "data": {
+            "x": 1792,
+            "y": 0,
+            "w": 128,
+            "h": 96
+          }
+        },
+        {
+          "duration": 0.09,
+          "data": {
+            "x": 1920,
             "y": 0,
             "w": 128,
             "h": 96

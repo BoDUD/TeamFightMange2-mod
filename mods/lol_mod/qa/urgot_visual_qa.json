@@ -2,10 +2,11 @@
   "schema_version": 1,
   "champion": "Urgot",
   "native_id": "demon",
-  "source_route": "approved ImageGen actor/run/VFX/icon/splash set",
+  "source_route": "approved ImageGen actor/run/VFX-v2/icon/splash set",
   "sources": {
     "source/processed/urgot_actor_contact_v1_alpha.png": "44b60660e9c140d80a06b3f67d0fc96bd302320892a887364034a499f706bcee",
     "source/processed/urgot_run_contact_v1_alpha.png": "22d0a5de0d2fdc5b6c8386b6de54a53a1c9da4062816e69b46d19a74fb6a6202",
+    "source/processed/urgot_combat_vfx_v2_alpha.png": "5f829eb511d55d6f07f0bb4d90436f0dda185ebb525c0edd503cefe060306d77",
     "source/processed/urgot_vfx_contact_v1_alpha.png": "ab1ead1b60a6ce86908bf2ac10534a06e61356bbf2ec066a93bf44da63f8c7ee",
     "source/imagegen/urgot_icons_v1.png": "5e63f9f6546b6908cedb73a805d75be7d8386f9e660af0a29ea3036e8dbdbadf",
     "source/imagegen/bp_splash/demon.png": "a153121bfb54e22e395a15c546b7bc21fbfef791e5792c7a0b095a5ab33f71d5"
@@ -73,12 +74,20 @@
       64
     ],
     "visible_body_height_px": 46,
-    "foot_baseline_exclusive_y": 60,
+    "foot_baseline_exclusive_y": 53,
     "uniform_xy_scale": true,
     "body_effects_separated": true
   },
   "effects": {
+    "urgot_attack": {
+      "muzzle": 4,
+      "projectile": 4,
+      "impact": 4
+    },
     "urgot_w_cannon": {
+      "pre": 4,
+      "loop": 4,
+      "remove": 4,
       "muzzle": 4,
       "projectile": 4,
       "impact": 4
@@ -90,6 +99,7 @@
       "flip": 4
     },
     "urgot_r_chain": {
+      "launch": 4,
       "projectile": 4,
       "latch": 4,
       "pull": 4
@@ -123,10 +133,10 @@
       "alpha_bbox": [
         7,
         8,
-        57,
+        56,
         58
       ],
-      "sha256": "cd4baee95a1aa3bb5cd2c9bafd4e6378a65db6c42504ea8adeafd046275a300e"
+      "sha256": "483d9491f5dd39e3859f4eaf10406fd6f180fd02eaaf4b8e4d0fc2c9ac1ec0e8"
     },
     "scoreboard": {
       "path": "ui/champion_portrait/demon_scoreboard.png",
@@ -135,12 +145,12 @@
         64
       ],
       "alpha_bbox": [
+        7,
         6,
-        6,
-        57,
+        56,
         58
       ],
-      "sha256": "3471024916810d0ba4d11e52be3590f0947fec7fdd73ec4f8f5cc5b5782a9bd6"
+      "sha256": "c022feebdb0969e93ca57ae703985f1f048bbb8d452e8af26af09a229bcdfd18"
     },
     "grid": {
       "path": "ui/champion_portrait/demon_grid.png",
@@ -155,6 +165,20 @@
         86
       ],
       "sha256": "644971c01ba95625379840e61d33f55c88b59da61c504b2bff3e3fa35b952ca2"
+    }
+  },
+  "portrait_focus": {
+    "compact": {
+      "left": 0.25,
+      "top": 0.0,
+      "right": 0.72,
+      "bottom": 0.55
+    },
+    "scoreboard": {
+      "left": 0.3,
+      "top": 0.0,
+      "right": 0.66,
+      "bottom": 0.44
     }
   },
   "bp_grid": {

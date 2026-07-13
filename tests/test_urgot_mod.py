@@ -50,8 +50,9 @@ def test_urgot_is_the_single_official_008_demon_replacement():
 
 def test_urgot_stats_attack_contract_and_wer_only_slots():
     champion = load_json("champion/demon.data_champion")
-    assert champion["category"] == "Melee"
-    assert {"AD", "Melee", "Tank", "CC"}.issubset(champion["tags"])
+    assert champion["category"] == "Ranged"
+    assert {"AD", "Ranged", "Tank", "CC"}.issubset(champion["tags"])
+    assert "Melee" not in champion["tags"]
     assert champion["stat"] == {
         "attack": 100,
         "magic_power": 0,
@@ -72,6 +73,30 @@ def test_urgot_stats_attack_contract_and_wer_only_slots():
     attack = champion["attack"]
     assert attack["range"] == 40000
     assert attack["cooltime"] == 72
+    projectiles = find_effect(
+        attack, "TargetProjectile", name="lol_urgot_attack_projectile"
+    )
+    assert len(projectiles) == 1
+    assert projectiles[0]["speed"] == 7600
+    hits = find_effect(projectiles[0], "Attack")
+    assert hits == [{"type": "Attack", "damage": 0, "attack_ratio": 100}]
+    assert len(
+        find_effect(attack, "Native", effect_ref="lol_urgot_passive_native")
+    ) == 1
+    assert len(
+        find_effect(
+            attack,
+            "CasterViewEffect",
+            name="lol_urgot_attack_muzzle_visual",
+        )
+    ) == 1
+    assert len(
+        find_effect(
+            attack,
+            "ViewEffect",
+            name="lol_urgot_attack_impact_visual",
+        )
+    ) == 1
 
     assert champion["skill_icons"] == [
         "asset/lol_mod/icons/urgot_w",
@@ -120,6 +145,11 @@ def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
     assert w["cooltime"] == 600
     assert w["duration"] == 240
     assert w["can_use_with_move"] is True
+    assert (w["range"], w["casting_type"], w["casting_target"]) == (
+        0,
+        "None",
+        "AllyOnlySelf",
+    )
     assert len(find_effect(w, "Native", effect_ref="lol_urgot_w_native")) == 1
 
     purge = find_effect(w, "AddCasterBuff")
@@ -137,6 +167,9 @@ def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
         w, "AutoTargetProjectile", name="lol_urgot_w_cannon_projectile"
     )
     assert len(projectiles) == 12
+    assert len(
+        find_effect(w, "CasterViewEffect", name="lol_urgot_w_muzzle_visual")
+    ) == 12
     for projectile in projectiles:
         assert projectile["speed"] == 7000
         assert projectile["range"] == 60000
@@ -144,10 +177,54 @@ def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
         assert len(hits) == 1
         assert hits[0]["damage"] == 8
         assert hits[0]["attack_ratio"] == 20
+        assert len(
+            find_effect(
+                projectile,
+                "ViewEffect",
+                name="lol_urgot_w_impact_visual",
+            )
+        ) == 1
 
     source = RUST_PATH.read_text(encoding="utf-8")
     assert "const URGOT_W_BLOCK_ATTACK_TICKS: usize = 240;" in source
     assert "CCState::BlockAttack" in source
+
+    view_buff = [
+        binding
+        for binding in champion["view_buffs"]
+        if binding["name"] == "lol_urgot_w_purge"
+    ]
+    assert view_buff == [
+        {
+            "type": "ThreePhase",
+            "name": "lol_urgot_w_purge",
+            "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
+            "pre_tag": "pre",
+            "loop_tag": "loop",
+            "remove_tag": "remove",
+            "z": 2,
+        }
+    ]
+
+
+def test_urgot_ai_promotes_legal_attacks_to_learned_r_then_w():
+    source = RUST_PATH.read_text(encoding="utf-8")
+    gate = re.search(
+        r"impl ModPlayerInputAi for UrgotAbilityInputGate \{(?P<body>.*?)\n\}",
+        source,
+        re.DOTALL,
+    )
+    assert gate
+    body = gate.group("body")
+    assert '"demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳"' in body
+    assert "let Some(Input::Attack { target }) = base_input" in body
+    assert "let ultimate = Input::Ult { target };" in body
+    assert "ctx.is_valid_input(&ultimate)" in body
+    assert "let purge = Input::Skill {" in body
+    assert "target: InputTarget::None" in body
+    assert "ctx.is_valid_input(&purge)" in body
+    assert body.index("Input::Ult") < body.index("Input::Skill")
+    assert "registration.add_player_input_ai(UrgotAbilityInputGate);" in source
 
 
 def test_e_shields_rushes_behind_and_flings_the_enemy_back():
@@ -193,6 +270,13 @@ def test_r_is_non_piercing_pull_and_true_25_percent_execute_check():
     assert projectile["penetrate"] is False
     assert projectile["speed"] == 7000
     assert projectile["range"] == 90000
+    assert len(
+        find_effect(
+            r,
+            "CasterViewEffect",
+            name="lol_urgot_r_launch_visual",
+        )
+    ) == 1
 
     first_hit = find_effect(projectile, "Attack")[0]
     assert first_hit["damage"] == 80
@@ -290,6 +374,7 @@ def test_urgot_localization_view_style_and_vfx_routes_are_wired():
     champion = load_json("champion/demon.data_champion")
     serialized = json.dumps(champion, ensure_ascii=False)
     for effect_asset in (
+        "asset/lol_mod/aseprite_resources/effects/urgot_attack",
         "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
         "asset/lol_mod/aseprite_resources/effects/urgot_e_disdain",
         "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
