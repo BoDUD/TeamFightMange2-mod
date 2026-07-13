@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "champion": "Urgot",
+  "native_id": "demon",
+  "source_route": "approved ImageGen actor/run/VFX/icon/splash set",
+  "sources": {
+    "source/processed/urgot_actor_contact_v1_alpha.png": "44b60660e9c140d80a06b3f67d0fc96bd302320892a887364034a499f706bcee",
+    "source/processed/urgot_run_contact_v1_alpha.png": "22d0a5de0d2fdc5b6c8386b6de54a53a1c9da4062816e69b46d19a74fb6a6202",
+    "source/processed/urgot_vfx_contact_v1_alpha.png": "ab1ead1b60a6ce86908bf2ac10534a06e61356bbf2ec066a93bf44da63f8c7ee",
+    "source/imagegen/urgot_icons_v1.png": "5e63f9f6546b6908cedb73a805d75be7d8386f9e660af0a29ea3036e8dbdbadf",
+    "source/imagegen/bp_splash/demon.png": "a153121bfb54e22e395a15c546b7bc21fbfef791e5792c7a0b095a5ab33f71d5"
+  },
+  "actor_contract": {
+    "original_tag_order": [
+      "skill1",
+      "transform",
+      "archfiend_skill1",
+      "hit",
+      "archfiend_base",
+      "idle",
+      "archfiend_hit",
+      "normal",
+      "ult",
+      "archfiend_ult",
+      "archfiend_idle",
+      "dead",
+      "archfiend_attack",
+      "archfiend_run",
+      "attack",
+      "run"
+    ],
+    "output_tag_order": [
+      "skill1",
+      "transform",
+      "archfiend_skill1",
+      "hit",
+      "archfiend_base",
+      "idle",
+      "archfiend_hit",
+      "normal",
+      "ult",
+      "archfiend_ult",
+      "archfiend_idle",
+      "dead",
+      "archfiend_attack",
+      "archfiend_run",
+      "attack",
+      "run",
+      "skill2"
+    ],
+    "original_frame_counts": {
+      "skill1": 6,
+      "transform": 11,
+      "archfiend_skill1": 6,
+      "hit": 1,
+      "archfiend_base": 1,
+      "idle": 4,
+      "archfiend_hit": 1,
+      "normal": 1,
+      "ult": 5,
+      "archfiend_ult": 5,
+      "archfiend_idle": 7,
+      "dead": 10,
+      "archfiend_attack": 6,
+      "archfiend_run": 6,
+      "attack": 6,
+      "run": 8
+    },
+    "skill2_appended_frames": 6,
+    "native_rectangles_repacked_for_hd": true,
+    "frame_size": [
+      80,
+      64
+    ],
+    "visible_body_height_px": 46,
+    "foot_baseline_exclusive_y": 60,
+    "uniform_xy_scale": true,
+    "body_effects_separated": true
+  },
+  "effects": {
+    "urgot_w_cannon": {
+      "muzzle": 4,
+      "projectile": 4,
+      "impact": 4
+    },
+    "urgot_e_disdain": {
+      "shield": 4,
+      "dash": 4,
+      "impact": 4,
+      "flip": 4
+    },
+    "urgot_r_chain": {
+      "projectile": 4,
+      "latch": 4,
+      "pull": 4
+    },
+    "urgot_r_execute": {
+      "execute": 4,
+      "fear": 4
+    }
+  },
+  "surfaces": {
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/demon.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        4,
+        12,
+        60,
+        60
+      ],
+      "sha256": "a41fe181be1ca37b81ef1be873388d061dcc8fcf3391247a797486b2d14b0b85"
+    },
+    "compact": {
+      "path": "ui/champion_portrait/demon_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        7,
+        8,
+        57,
+        58
+      ],
+      "sha256": "cd4baee95a1aa3bb5cd2c9bafd4e6378a65db6c42504ea8adeafd046275a300e"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/demon_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        6,
+        6,
+        57,
+        58
+      ],
+      "sha256": "3471024916810d0ba4d11e52be3590f0947fec7fdd73ec4f8f5cc5b5782a9bd6"
+    },
+    "grid": {
+      "path": "ui/champion_portrait/demon_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        4,
+        15,
+        86,
+        86
+      ],
+      "sha256": "644971c01ba95625379840e61d33f55c88b59da61c504b2bff3e3fa35b952ca2"
+    }
+  },
+  "bp_grid": {
+    "name_band_y": 96,
+    "max_alpha_bottom": 86,
+    "clearance": 10
+  }
+}

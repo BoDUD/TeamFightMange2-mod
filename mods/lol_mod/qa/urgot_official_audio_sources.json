@@ -1,0 +1,451 @@
+{
+  "schema_version": 1,
+  "champion": "Urgot",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Urgot.wad.client (local League install)",
+    "size_bytes": 69170675,
+    "sha256": "7feab1a2c2994e1f68a213fc6133fca80e29c88799c62bdeb0e82afde4b46975"
+  },
+  "base_registry": {
+    "virtual_path": "data/characters/urgot/skins/skin0.bin",
+    "wad_path_hash": "4ce892ac40ca773f",
+    "size_bytes": 78740,
+    "sha256": "2ec2a2e0d668e9ddc45eb78d3a0beb2dc33baebbc2edc6b390212eaddcf5cdab",
+    "role": "authoritative source of exact Riot event-name strings"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/urgot/skins/base/urgot_base_sfx_audio.bnk",
+    "wad_path_hash": "b1f399b349a7bacc",
+    "size_bytes": 2122959,
+    "media_count": 152,
+    "sha256": "675a67d8d46aaf0e71f87c876e19b57b4a2cf2bad1a8f331647071df12f90eef"
+  },
+  "internal_event_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/urgot/skins/base/urgot_base_sfx_events.bnk",
+    "wad_path_hash": "1956fe8fb8973c9f",
+    "size_bytes": 20901,
+    "sha256": "4ac6f2dff665c8f80fc8ef5a967f73c9b0d1de4e1c59ab6267da9aa68bdb69dc"
+  },
+  "mapping_tools": {
+    "wad_reader": {
+      "name": "LeagueToolkit wadtools",
+      "version": "0.5.6",
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866"
+    },
+    "path_hashtable": {
+      "name": "CommunityDragon hashes.game.txt",
+      "size_bytes": 207968174,
+      "sha256": "f7d5e73ff1c4b7b4630cef6d4bafe3d1b7a80a2f51e3bf9d4db4e018954d041b"
+    },
+    "event_resolver": {
+      "name": "wwiser",
+      "version": "v20250928",
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53",
+      "contract": "every pinned Riot event ID resolves to exactly its recorded WEM pool"
+    },
+    "decoder": {
+      "name": "vgmstream-cli",
+      "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+      "arguments": [
+        "-i",
+        "-W",
+        "1"
+      ],
+      "output_contract": "mono 16-bit PCM 44100 Hz"
+    }
+  },
+  "selection_policy": "One verified official mono base-skin media variant per runtime event. The route covers attack cast/hit, W cast/shot, E cast/hit, and R cast/latch/pull/execute/fear without adding voice-over or skin audio.",
+  "native_audio_isolation": {
+    "reason": "The occupied Demon slot can auto-dispatch its original attack, transform, skill and ultimate audio beside explicit Urgot effects.",
+    "strategy": "Remap every bundled Demon sound event/clip plus skill2 compatibility keys to one deterministic physical-silence asset.",
+    "bundled_native_events": [
+      "demon_attack",
+      "demon_attack_ult",
+      "demon_skill1",
+      "demon_transform",
+      "demon_ult"
+    ],
+    "bundled_native_clips": [
+      "demon_attack0",
+      "demon_attack_ult0",
+      "demon_skill0",
+      "demon_skill1_resource",
+      "demon_ult0",
+      "demon_ult1",
+      "demon_ult_resource"
+    ],
+    "compatibility_native_events": [
+      "demon_skill2"
+    ],
+    "compatibility_native_clips": [
+      "demon_skill2_resource"
+    ],
+    "silence_sound_info": "sound/sfx/urgot_native_silence.sound_info",
+    "silence_wav": {
+      "path": "sound/sfx/urgot_native_silence_clip.wav",
+      "size_bytes": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2",
+      "channels": 1,
+      "sample_width_bytes": 2,
+      "sample_rate_hz": 44100,
+      "frame_count": 2205,
+      "duration_seconds": 0.05,
+      "compression": "NONE",
+      "pcm_contract": "all-zero samples"
+    }
+  },
+  "outputs": [
+    {
+      "event_key": "urgot_attack_cast",
+      "runtime_event": "lol_urgot_attack_cast",
+      "riot_event": "Play_sfx_Urgot_UrgotBasicAttack_cast",
+      "riot_event_id": 3992445123,
+      "event_media_pool": [
+        70663045,
+        69321891,
+        270506805,
+        77833467,
+        40240153
+      ],
+      "media_id": 70663045,
+      "source_wem_size_bytes": 9634,
+      "source_wem_sha256": "ce0f1a2b38f62d6307193075ca94c4750130be3e8132f63acf40cd54332ce314",
+      "selection_note": "first variant in Riot's base attack-cast random container",
+      "dispatch_contract": "top-level Sfx when the basic cannon attack commits",
+      "sound_info": "sound/sfx/urgot_attack_cast.sound_info",
+      "clip": "urgot_attack_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_attack_cast_clip.wav",
+        "size_bytes": 96526,
+        "sha256": "c12b5f6da7bf6240ce788e254dae9011d89408e16c3607e683d58dc1c7e91682",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 48241,
+        "duration_seconds": 1.0939002267573696,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_attack_hit",
+      "runtime_event": "lol_urgot_attack_hit",
+      "riot_event": "Play_sfx_Urgot_UrgotBasicAttack_OnHit",
+      "riot_event_id": 2866133468,
+      "event_media_pool": [
+        261711048,
+        309248895,
+        165551459,
+        2474448,
+        26122873,
+        30175078,
+        173710541,
+        101938678,
+        77645252,
+        186772506,
+        146596911,
+        76602174,
+        179112175,
+        65669815,
+        126561859,
+        253076287,
+        11788806,
+        83999309,
+        250552409,
+        169167817
+      ],
+      "media_id": 261711048,
+      "source_wem_size_bytes": 3782,
+      "source_wem_sha256": "c5ec076f6130e60bf023f0e7541389d958311204c5e4279d555346fbf7016e3a",
+      "selection_note": "first variant in Riot's default non-Metal/Stone/Wood surface switch",
+      "dispatch_contract": "TargetSfx after basic-attack damage",
+      "sound_info": "sound/sfx/urgot_attack_hit.sound_info",
+      "clip": "urgot_attack_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_attack_hit_clip.wav",
+        "size_bytes": 32778,
+        "sha256": "219ac122f5e1ff0cfe0b10d212e4880b0dd022c116b80cc09f0b7474c3643c2f",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 16367,
+        "duration_seconds": 0.3711337868480726,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_w_cast",
+      "runtime_event": "lol_urgot_w_cast",
+      "riot_event": "Play_sfx_Urgot_UrgotW_OnCast",
+      "riot_event_id": 3093759059,
+      "event_media_pool": [
+        264170470,
+        215941130,
+        316564949
+      ],
+      "media_id": 264170470,
+      "source_wem_size_bytes": 12181,
+      "source_wem_sha256": "7577534b3e187b6d9e57a81ce632567755cd0a38e6667c85f42ba711da903b32",
+      "selection_note": "first variant in Riot's W cast random container",
+      "dispatch_contract": "top-level Sfx once when Purge starts",
+      "sound_info": "sound/sfx/urgot_w_cast.sound_info",
+      "clip": "urgot_w_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_w_cast_clip.wav",
+        "size_bytes": 109494,
+        "sha256": "6f4b0d9964a07f117971d48de9a97166b7448e580b288988d9fa2a5b2f642d8b",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 54725,
+        "duration_seconds": 1.2409297052154196,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_w_shot",
+      "runtime_event": "lol_urgot_w_shot",
+      "riot_event": "Play_sfx_Urgot_UrgotWMissileExtra_OnMissileLaunch",
+      "riot_event_id": 1737283661,
+      "event_media_pool": [
+        691841699,
+        83006034,
+        210443025,
+        520358027,
+        1023839766
+      ],
+      "media_id": 691841699,
+      "source_wem_size_bytes": 6115,
+      "source_wem_sha256": "bc521c68bb25e1e2105814a37df6e4c041a875758586da0d79e320886c01b63f",
+      "selection_note": "first variant in Riot's W missile-launch random container",
+      "dispatch_contract": "Sfx on each paced W projectile launch",
+      "sound_info": "sound/sfx/urgot_w_shot.sound_info",
+      "clip": "urgot_w_shot_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_w_shot_clip.wav",
+        "size_bytes": 49158,
+        "sha256": "7e99f5346efa97cc1e8a90ccc031078b2c38dd78568d98310b1b97cc9f964bca",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 24557,
+        "duration_seconds": 0.5568480725623582,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_e_cast",
+      "runtime_event": "lol_urgot_e_cast",
+      "riot_event": "Play_sfx_Urgot_UrgotE_OnCast",
+      "riot_event_id": 3773826833,
+      "event_media_pool": [
+        982720132,
+        889334460,
+        583277064,
+        499364099
+      ],
+      "media_id": 982720132,
+      "source_wem_size_bytes": 11593,
+      "source_wem_sha256": "428e4c333d2951cf85142e8dea8d42c8018882a4262798077fa79118d651bec1",
+      "selection_note": "first variant in Riot's E cast random container",
+      "dispatch_contract": "top-level Sfx when Disdain's shield-charge starts",
+      "sound_info": "sound/sfx/urgot_e_cast.sound_info",
+      "clip": "urgot_e_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_e_cast_clip.wav",
+        "size_bytes": 120956,
+        "sha256": "c86b79295ef7736323c6bf17b624e590662937a6237c49c41f0ea06de236bacc",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 60456,
+        "duration_seconds": 1.3708843537414965,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_e_hit",
+      "runtime_event": "lol_urgot_e_hit",
+      "riot_event": "Play_sfx_Urgot_UrgotE_OnHitLocation",
+      "riot_event_id": 898916462,
+      "event_media_pool": [
+        520331676,
+        882848098,
+        668812023
+      ],
+      "media_id": 520331676,
+      "source_wem_size_bytes": 9097,
+      "source_wem_sha256": "76f196a6a8b24ecb7b15419f93916de513b096c1268172c60c9cd8012ec7dc10",
+      "selection_note": "first variant in Riot's E hit-location random container",
+      "dispatch_contract": "TargetSfx on the champion caught and flipped by E",
+      "sound_info": "sound/sfx/urgot_e_hit.sound_info",
+      "clip": "urgot_e_hit_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_e_hit_clip.wav",
+        "size_bytes": 89104,
+        "sha256": "40b4c3f8c1b4223b04b114e1499b28c7c3bd5f6e002bca8dc6fd09d7b50a3726",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 44530,
+        "duration_seconds": 1.0097505668934241,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_r_cast",
+      "runtime_event": "lol_urgot_r_cast",
+      "riot_event": "Play_sfx_Urgot_UrgotR_OnCast",
+      "riot_event_id": 481345476,
+      "event_media_pool": [
+        985284682,
+        924147906,
+        508537866
+      ],
+      "media_id": 985284682,
+      "source_wem_size_bytes": 14924,
+      "source_wem_sha256": "31c017ab72a8c15b0611260ff0f0d8c709089054a5d9c290a40afe19b55ff037",
+      "selection_note": "first variant in Riot's R cast random container",
+      "dispatch_contract": "top-level Sfx once when Fear Beyond Death is fired",
+      "sound_info": "sound/sfx/urgot_r_cast.sound_info",
+      "clip": "urgot_r_cast_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_r_cast_clip.wav",
+        "size_bytes": 159574,
+        "sha256": "96f5d69d8ca23ccd8a73ae76151fd8d3b2d589ead79395f20184f134bf313cc3",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 79765,
+        "duration_seconds": 1.8087301587301587,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_r_latch",
+      "runtime_event": "lol_urgot_r_latch",
+      "riot_event": "Play_sfx_Urgot_UrgotR_OnHit",
+      "riot_event_id": 2034822636,
+      "event_media_pool": [
+        365431487,
+        433580542,
+        828708047
+      ],
+      "media_id": 365431487,
+      "source_wem_size_bytes": 19103,
+      "source_wem_sha256": "7d16b36e8e84e3fdc3336e2d938ed53f6d0b973d0913e970382f7befec3be275",
+      "selection_note": "first variant in Riot's R on-hit random container",
+      "dispatch_contract": "TargetSfx when the R drill latches onto its victim",
+      "sound_info": "sound/sfx/urgot_r_latch.sound_info",
+      "clip": "urgot_r_latch_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_r_latch_clip.wav",
+        "size_bytes": 198212,
+        "sha256": "697419f718207ad09b357be09d7430808dd4a91c85234a1be1961c63f8b03674",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 99084,
+        "duration_seconds": 2.2468027210884354,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_r_pull",
+      "runtime_event": "lol_urgot_r_pull",
+      "riot_event": "Play_sfx_Urgot_UrgotRRecastMissile_OnMissileLaunch",
+      "riot_event_id": 1981392254,
+      "event_media_pool": [
+        859097235
+      ],
+      "media_id": 859097235,
+      "source_wem_size_bytes": 24376,
+      "source_wem_sha256": "5e5f68b805f4ae2a8a07a889d69e36ec1b76ff6934102c3428512a93f2e98019",
+      "selection_note": "Riot event has one deterministic media source",
+      "dispatch_contract": "TargetSfx only when the R chain starts reeling the victim in",
+      "sound_info": "sound/sfx/urgot_r_pull.sound_info",
+      "clip": "urgot_r_pull_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_r_pull_clip.wav",
+        "size_bytes": 196180,
+        "sha256": "c7d6dade9dd9198d3e242ecad0fb0ea60babcdabf4d8ff9da30b64f9c8850ff2",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 98068,
+        "duration_seconds": 2.223764172335601,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_r_execute",
+      "runtime_event": "lol_urgot_r_execute",
+      "riot_event": "Play_sfx_Urgot_UrgotRGrind_cast",
+      "riot_event_id": 3223246003,
+      "event_media_pool": [
+        861007347,
+        837423464,
+        383713124,
+        1012422835
+      ],
+      "media_id": 861007347,
+      "source_wem_size_bytes": 25197,
+      "source_wem_sha256": "34f0aa9c1d1524a1451d1b7b2759a9e8199a4882bdf01a361dc1c0696e93200f",
+      "selection_note": "first variant in Riot's R grinder-cast random container",
+      "dispatch_contract": "TargetSfx only after the native 25-percent execute succeeds",
+      "sound_info": "sound/sfx/urgot_r_execute.sound_info",
+      "clip": "urgot_r_execute_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_r_execute_clip.wav",
+        "size_bytes": 265740,
+        "sha256": "4412a880c536005136a45056f30e23d247eee776af41e847c754dadc48985d48",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 132848,
+        "duration_seconds": 3.012426303854875,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "urgot_r_fear",
+      "runtime_event": "lol_urgot_r_fear",
+      "riot_event": "Play_sfx_Urgot_UrgotRGrind_fear_hit",
+      "riot_event_id": 2871514954,
+      "event_media_pool": [
+        1019572390,
+        545639051,
+        1004693697
+      ],
+      "media_id": 1019572390,
+      "source_wem_size_bytes": 23145,
+      "source_wem_sha256": "d86a35ee7052e3d99a41f37edca369783697fb62a9a1e435e0c8f5115f9e0a82",
+      "selection_note": "first variant in Riot's R fear-hit random container",
+      "dispatch_contract": "Sfx with the successful-execute fear pulse",
+      "sound_info": "sound/sfx/urgot_r_fear.sound_info",
+      "clip": "urgot_r_fear_clip",
+      "volume": 1.0,
+      "wav": {
+        "path": "sound/sfx/urgot_r_fear_clip.wav",
+        "size_bytes": 256152,
+        "sha256": "7134ab49788fffb2f5b477d941e234d5bda38729473028aa4df525cc02d1c74b",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 128054,
+        "duration_seconds": 2.903718820861678,
+        "compression": "NONE"
+      }
+    }
+  ]
+}

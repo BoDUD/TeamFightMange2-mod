@@ -49,6 +49,13 @@
         "skill": "Q — Double Daggers: Throws two piercing feathers along the chosen direction, with the second launched 0.1 seconds later. Each feather deals 25 + 45% Attack physical damage and both together add two stored Feathers, up to five. Casting prepares three Clean Cuts. Cooldown: 6 seconds.",
         "skill2": "E — Bladecaller: As its own skill2 action, sends a fast invisible direction anchor and recalls the stored Feather count along that line. One Feather uses a single return, two use a double return, and three or more use the Bladecaller cluster. Damage scales from 20 + 25% Attack to 80 + 65% Attack; only the 3/4/5-Feather branches add a 0.75-second center root against non-tower enemies. Casting consumes the count and prepares three Clean Cuts. Cooldown: 12 seconds.",
         "ult": "R — Featherstorm: Xayah gains a 1-second damage and crowd-control safety window, then sends one wide, piercing fan forward for 80 + 70% Attack physical damage. It sets the stored Feather count to five and prepares three Clean Cuts; it never recalls Feathers or triggers E automatically. Cooldown: 50 seconds. The safety window approximates LoL untargetability without removing Xayah from the battlefield."
+      },
+      "demon": {
+        "name": "Urgot",
+        "attack": "Echoing Flames: Fires a basic shot for 100% Attack physical damage. Once every 2 seconds per Urgot, the shotgun legs add 20 + 30% Attack + 2% of the target's maximum Health as physical damage.",
+        "skill": "W — Purge: For 4 seconds Urgot may move but cannot basic attack. He fires 12 auto-targeting cannon shots, one every 0.33 seconds, each dealing 8 + 20% Attack physical damage. During Purge he loses 12% Move Speed and gains 20 Defence and 10 Magic Resistance. Cooldown: 10 seconds.",
+        "skill2": "E — Disdain: Gains a 160 + 70% Attack shield for 3 seconds, rushes behind a targeted enemy champion, deals 70 + 90% Attack physical damage, stuns for 1 second and flings the target behind him. Cooldown: 7 seconds.",
+        "ult": "R — Fear Beyond Death: Fires a non-piercing drill up to 900 range. The first enemy champion hit takes 80 + 60% Attack physical damage and is slowed by 35% for 1.5 seconds. After 0.75 seconds Urgot reels the victim in; if their current Health is 25% or lower at that moment, he executes them. Only a successful execution deals 30 + 30% Attack physical damage and fears enemy champions within 320 range for 0.75 seconds. Cooldown: 50 seconds."
       }
     }
   },
@@ -102,6 +109,13 @@
         "skill": "Q—双刃：朝指定方向投出两枚可穿透的羽刃，第二枚在0.1秒后发射。每枚造成25 + 45%攻击力的物理伤害，并使储存羽毛增加2枚，最多5枚。施放后准备三次锐切。冷却6秒。",
         "skill2": "E—倒钩：作为独立的skill2技能，先朝指定方向放出高速不可见定位投射物，再按储存羽毛数量沿该直线召回。1枚显示单羽、2枚显示双羽、3枚及以上显示倒钩羽簇；伤害从20 + 25%攻击力提高至80 + 65%攻击力，只有3/4/5枚分支会对非防御塔敌人额外产生0.75秒中心定身。施放会消耗羽毛计数并准备三次锐切。冷却12秒。",
         "ult": "R—暴风羽刃：霞获得1秒的伤害与控制防护窗口，随后向前发射一片宽阔且可穿透的羽刃扇形，造成80 + 70%攻击力的物理伤害。技能把储存羽毛设为5枚并准备三次锐切，绝不会自动召回羽毛或自动触发E。冷却50秒。防护窗口是数据系统对《英雄联盟》不可被选取效果的近似实现，霞仍留在战场上。"
+      },
+      "demon": {
+        "name": "厄加特",
+        "attack": "回响烈焰：普攻造成100%攻击力的物理伤害。每个厄加特拥有独立的2秒散弹腿冷却；就绪时额外造成20 + 30%攻击力 + 目标2%最大生命值的物理伤害。",
+        "skill": "W—净除：持续4秒，厄加特可以移动但不能普通攻击；每0.33秒自动向敌人发射一枚炮弹，共12枚，每枚造成8 + 20%攻击力的物理伤害。期间移动速度降低12%，护甲提高20，魔抗提高10。冷却10秒。",
+        "skill2": "E—鄙弃：获得160 + 70%攻击力的护盾，持续3秒；随后冲到目标敌方英雄身后，造成70 + 90%攻击力的物理伤害、眩晕1秒，并把目标背摔到自己身后。冷却7秒。",
+        "ult": "R—超越死亡的恐惧：发射一枚最远900距离、不可穿透的钻头。首名命中的敌方英雄受到80 + 60%攻击力的物理伤害，并被减速35%，持续1.5秒。0.75秒后将目标拉回；若此时目标当前生命值不高于25%，则真实斩杀。只有斩杀实际成功后，才会对自身320范围内敌方英雄造成30 + 30%攻击力的物理伤害并恐惧0.75秒。冷却50秒。"
       }
     }
   },
@@ -155,6 +169,13 @@
         "skill": "Q—雙刃：朝指定方向投出兩枚可穿透的羽刃，第二枚在0.1秒後發射。每枚造成25 + 45%攻擊力的物理傷害，並使儲存羽毛增加2枚，最多5枚。施放後準備三次銳切。冷卻6秒。",
         "skill2": "E—倒鉤：作為獨立的skill2技能，先朝指定方向放出高速不可見定位投射物，再按儲存羽毛數量沿該直線召回。1枚顯示單羽、2枚顯示雙羽、3枚及以上顯示倒鉤羽簇；傷害從20 + 25%攻擊力提高至80 + 65%攻擊力，只有3/4/5枚分支會對非防禦塔敵人額外產生0.75秒中心定身。施放會消耗羽毛計數並準備三次銳切。冷卻12秒。",
         "ult": "R—暴風羽刃：剎雅獲得1秒的傷害與控制防護窗口，隨後向前發射一片寬闊且可穿透的羽刃扇形，造成80 + 70%攻擊力的物理傷害。技能把儲存羽毛設為5枚並準備三次銳切，絕不會自動召回羽毛或自動觸發E。冷卻50秒。防護窗口是資料系統對《英雄聯盟》不可被選取效果的近似實作，剎雅仍留在戰場上。"
+      },
+      "demon": {
+        "name": "厄加特",
+        "attack": "迴響烈焰：普攻造成100%攻擊力的物理傷害。每個厄加特擁有獨立的2秒散彈腿冷卻；就緒時額外造成20 + 30%攻擊力 + 目標2%最大生命值的物理傷害。",
+        "skill": "W—淨除：持續4秒，厄加特可以移動但不能普通攻擊；每0.33秒自動向敵人發射一枚炮彈，共12枚，每枚造成8 + 20%攻擊力的物理傷害。期間移動速度降低12%，護甲提高20，魔抗提高10。冷卻10秒。",
+        "skill2": "E—鄙棄：獲得160 + 70%攻擊力的護盾，持續3秒；隨後衝到目標敵方英雄身後，造成70 + 90%攻擊力的物理傷害、暈眩1秒，並把目標背摔到自己身後。冷卻7秒。",
+        "ult": "R—超越死亡的恐懼：發射一枚最遠900距離、不可穿透的鑽頭。首名命中的敵方英雄受到80 + 60%攻擊力的物理傷害，並被減速35%，持續1.5秒。0.75秒後將目標拉回；若此時目標當前生命值不高於25%，則真正處決。只有處決實際成功後，才會對自身320範圍內敵方英雄造成30 + 30%攻擊力的物理傷害並恐懼0.75秒。冷卻50秒。"
       }
     }
   },
@@ -194,6 +215,13 @@
         "skill": "Q—ダブルダガー：指定方向へ貫通する羽根を2枚投げ、2枚目は0.1秒後に発射する。各羽根は25 + 攻撃力45%の物理ダメージを与え、保存羽根を2枚増やして最大5枚にする。発動後はクリーンカットを3回準備する。クールダウン6秒。",
         "skill2": "E—ブレードコーラー：独立したskill2として不可視の方向アンカーを出し、保存羽根数を同じ直線で回収する。1枚は単羽、2枚は双羽、3枚以上はクラスター表示となり、ダメージは20 + 攻撃力25%から80 + 攻撃力65%まで増加する。3/4/5枚の分岐だけが中心線を0.75秒拘束する。羽根数を消費し、クリーンカットを3回準備する。クールダウン12秒。",
         "ult": "R—フェザーストーム：1秒間ダメージと妨害に対する防護を得た後、幅広い貫通羽根の扇を前方へ放ち、80 + 攻撃力70%の物理ダメージを与える。保存羽根を5枚にし、クリーンカットを3回準備する。羽根の呼び戻しやEの自動発動は行わない。クールダウン50秒。防護はLoLの対象指定不可を近似したもので、ザヤは戦場から消えない。"
+      },
+      "demon": {
+        "name": "アーゴット",
+        "attack": "エコーフレイム：通常攻撃は攻撃力100%の物理ダメージを与える。アーゴットごとに2秒のショットガン脚クールダウンを持ち、準備完了時は20 + 攻撃力30% + 対象の最大体力2%の追加物理ダメージを与える。",
+        "skill": "W—パージ：4秒間、移動可能だが通常攻撃不可になり、0.33秒ごとに自動照準砲弾を計12発撃つ。各弾は8 + 攻撃力20%の物理ダメージ。移動速度-12%、防御+20、魔法耐性+10。クールダウン10秒。",
+        "skill2": "E—ディスデイン：3秒間160 + 攻撃力70%のシールドを得て、対象の敵チャンピオンの背後へ突進する。70 + 攻撃力90%の物理ダメージ、1秒スタンを与え、対象を自分の背後へ投げる。クールダウン7秒。",
+        "ult": "R—デスグラインダー：最大900の非貫通ドリルを撃ち、最初の敵チャンピオンへ80 + 攻撃力60%の物理ダメージと1.5秒間35%スロウを与える。0.75秒後に引き寄せ、その時点の現在体力が25%以下なら処刑する。実際に処刑できた場合のみ、周囲320の敵チャンピオンへ30 + 攻撃力30%の物理ダメージと0.75秒の恐怖を与える。クールダウン50秒。"
       }
     }
   },
@@ -233,6 +261,13 @@
         "skill": "Q—깃털 연타: 지정 방향으로 관통 깃털 2개를 던지며 두 번째 깃털은 0.1초 뒤 발사됩니다. 각 깃털은 25 + 공격력의 45%만큼 물리 피해를 입히고 저장된 깃털을 2개 늘려 최대 5개로 만듭니다. 사용 후 관통상 3회를 준비합니다. 재사용 대기시간은 6초입니다.",
         "skill2": "E—깃부르미: 독립된 skill2로 보이지 않는 방향 기준점을 보내고 저장된 깃털 수를 같은 직선으로 회수합니다. 1개는 단일, 2개는 이중, 3개 이상은 깃털 무리로 표시되며 피해는 20 + 공격력의 25%에서 80 + 공격력의 65%까지 증가합니다. 3/4/5개 분기만 중심선을 0.75초 속박합니다. 깃털 수를 소모하고 관통상 3회를 준비합니다. 재사용 대기시간은 12초입니다.",
         "ult": "R—저항의 비상: 1초 동안 피해와 군중 제어 방호를 얻은 뒤 넓고 관통하는 깃털 부채를 전방으로 발사해 80 + 공격력의 70%만큼 물리 피해를 입힙니다. 저장 깃털을 5개로 만들고 관통상 3회를 준비하며, 깃털 회수나 E를 자동으로 발동하지 않습니다. 재사용 대기시간은 50초입니다. 방호 창은 LoL의 대상 지정 불가를 근사하며 자야는 전장에서 사라지지 않습니다."
+      },
+      "demon": {
+        "name": "우르곳",
+        "attack": "메아리치는 불꽃: 기본 공격으로 공격력의 100%만큼 물리 피해를 입힙니다. 우르곳마다 2초의 산탄포 다리 재사용 대기시간이 있으며, 준비되면 20 + 공격력의 30% + 대상 최대 체력의 2%만큼 추가 물리 피해를 입힙니다.",
+        "skill": "W—심판의 원: 4초 동안 이동할 수 있지만 기본 공격은 할 수 없습니다. 0.33초마다 자동 조준 포탄을 총 12발 발사하며 각 탄은 8 + 공격력의 20%만큼 물리 피해를 입힙니다. 이동 속도는 12% 감소하고 방어력 20, 마법 저항력 10을 얻습니다. 재사용 대기시간 10초입니다.",
+        "skill2": "E—경멸: 3초 동안 160 + 공격력의 70%만큼 보호막을 얻고 대상 적 챔피언의 뒤로 돌진합니다. 70 + 공격력의 90%만큼 물리 피해와 1초 기절을 주고 대상을 자신의 뒤로 넘깁니다. 재사용 대기시간 7초입니다.",
+        "ult": "R—불사의 공포: 최대 900 사거리의 비관통 드릴을 발사합니다. 처음 적중한 적 챔피언에게 80 + 공격력의 60%만큼 물리 피해를 주고 1.5초 동안 35% 둔화시킵니다. 0.75초 후 끌어당기며 현재 체력이 25% 이하라면 처형합니다. 실제 처형에 성공한 경우에만 주변 320의 적 챔피언에게 30 + 공격력의 30%만큼 물리 피해와 0.75초 공포를 줍니다. 재사용 대기시간 50초입니다."
       }
     }
   }

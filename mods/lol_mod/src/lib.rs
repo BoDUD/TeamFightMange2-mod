@@ -1554,6 +1554,162 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
     }
 }
 
+const URGOT_PASSIVE_COOLDOWN_TICKS: usize = 120;
+const URGOT_PASSIVE_FLAT_DAMAGE: usize = 20;
+const URGOT_PASSIVE_ATTACK_RATIO_PERCENT: usize = 30;
+const URGOT_PASSIVE_TARGET_MAX_HP_PERCENT: usize = 2;
+const URGOT_W_BLOCK_ATTACK_TICKS: usize = 240;
+const URGOT_E_STUN_TICKS: u64 = 60;
+const URGOT_R_EXECUTE_THRESHOLD_PERCENT: usize = 25;
+
+#[derive(Debug)]
+struct UrgotPassiveCooldown {
+    caster: EntityHandle,
+    ready_tick: usize,
+}
+
+static URGOT_PASSIVE_COOLDOWNS: OnceLock<Mutex<Vec<UrgotPassiveCooldown>>> = OnceLock::new();
+
+fn urgot_passive_cooldowns() -> &'static Mutex<Vec<UrgotPassiveCooldown>> {
+    URGOT_PASSIVE_COOLDOWNS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotPassiveNativeEffect;
+
+impl ModEffectType for UrgotPassiveNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some((caster_handle, caster_attack)) = ctx
+            .get_entity(caster_id)
+            .map(|caster| (caster.handle(), caster.stat().attack))
+        else {
+            return;
+        };
+        let Some(target_max_hp) = ctx.get_entity(target_id).map(|target| target.hp().max) else {
+            return;
+        };
+
+        let now = ctx.tick();
+        let Ok(mut cooldowns) = urgot_passive_cooldowns().lock() else {
+            return;
+        };
+        if let Some(cooldown) = cooldowns
+            .iter_mut()
+            .find(|cooldown| cooldown.caster == caster_handle)
+        {
+            if now < cooldown.ready_tick {
+                return;
+            }
+            cooldown.ready_tick = now.saturating_add(URGOT_PASSIVE_COOLDOWN_TICKS);
+        } else {
+            cooldowns.push(UrgotPassiveCooldown {
+                caster: caster_handle,
+                ready_tick: now.saturating_add(URGOT_PASSIVE_COOLDOWN_TICKS),
+            });
+        }
+        drop(cooldowns);
+
+        let damage = URGOT_PASSIVE_FLAT_DAMAGE
+            .saturating_add(caster_attack.saturating_mul(URGOT_PASSIVE_ATTACK_RATIO_PERCENT) / 100)
+            .saturating_add(
+                target_max_hp.saturating_mul(URGOT_PASSIVE_TARGET_MAX_HP_PERCENT) / 100,
+            );
+        ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotWNativeEffect;
+
+impl ModEffectType for UrgotWNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        // Purge's twelve projectiles, stats and movement are data-driven. The
+        // native hook owns the one behavior the data action must enforce even
+        // while the caster is allowed to move: basic attacks stay blocked for
+        // the complete 240-tick channel.
+        ctx.apply_cc(
+            caster_id,
+            CCState::BlockAttack {
+                tick: URGOT_W_BLOCK_ATTACK_TICKS,
+            },
+        );
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotENativeEffect;
+
+impl ModEffectType for UrgotENativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        // RushMoveToBack and Knockback in demon.data_champion put the victim
+        // behind Urgot. This native hard-disable keeps the carried target from
+        // acting during the visible flip instead of approximating E as a plain
+        // forward dash.
+        ctx.apply_cc(
+            target_id,
+            CCState::Stun {
+                tick: URGOT_E_STUN_TICKS,
+            },
+        );
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotRNativeEffect;
+
+impl ModEffectType for UrgotRNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some((target_hp, target_shield, target_alive)) = ctx
+            .get_entity(target_id)
+            .map(|target| (target.hp(), target.shield(), target.is_alive()))
+        else {
+            return;
+        };
+        if !target_alive || target_hp.max == 0 {
+            return;
+        }
+        let execute_limit = target_hp
+            .max
+            .saturating_mul(URGOT_R_EXECUTE_THRESHOLD_PERCENT)
+            / 100;
+        if target_hp.current > execute_limit {
+            return;
+        }
+
+        // Deal enough physical damage to cross current HP and shield, then
+        // query the entity again. Undying/invulnerability therefore prevents
+        // the success marker and, in turn, prevents the execute VFX, splash
+        // damage and fear branch in demon.data_champion.
+        let lethal_damage = target_hp
+            .current
+            .saturating_add(target_shield)
+            .saturating_add(target_hp.max);
+        ctx.deal_damage(caster_id, target_id, lethal_damage, 0, AttackType::Skill);
+        let executed = ctx
+            .get_entity(target_id)
+            .is_some_and(|target| !target.is_alive());
+        if !executed {
+            return;
+        }
+
+        let mut success = BuffState::default();
+        success.name = "lol_urgot_r_execute_success"
+            .try_into()
+            .expect("Urgot R success marker fits BuffState name capacity");
+        success.duration = BuffType::Time { tick: 2 };
+        ctx.add_buff(caster_id, success);
+    }
+}
+
 fn init(_ctx: &GameCtx) -> ModRegistration {
     let mut registration = ModRegistration::new(MOD_ID);
     registration.add_native_effect(
@@ -1581,6 +1737,10 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         },
     );
     registration.add_player_input_ai(XayahFeatherInputGate);
+    registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
+    registration.add_native_effect("lol_urgot_w_native", UrgotWNativeEffect);
+    registration.add_native_effect("lol_urgot_e_native", UrgotENativeEffect);
+    registration.add_native_effect("lol_urgot_r_native", UrgotRNativeEffect);
     registration.set_extension(LolModExtension);
     registration.set_server_extension(LolDragonServerExtension {
         announced: Mutex::new(HashSet::new()),
