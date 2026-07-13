@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Pack the approved ImageGen Urgot art into TFM2 native resources.
+"""Pack the approved ImageGen Urgot art and W contract into TFM2 resources.
 
-This builder intentionally owns visual resources only.  Gameplay data and the
-native DLL are wired by the main mod builder.  Official champion 008 uses the
-``demon`` actor contract, so every original tag, frame count and duration is
-copied verbatim.  Native Demon rectangles are deliberately replaced with a
-stable HD frame contract; their narrow normal-form boxes reduce Urgot to a
-25px blob.  A six-frame ``skill2`` body-only cast is appended for E.
+The native DLL still owns Urgot's stateful checks, but this builder also owns
+the data-driven W pulse tree so a later visual rebuild cannot silently restore
+the broken same-tick marker gate. Official champion 008 uses the ``demon``
+actor contract, so every original tag, frame count and duration is copied
+verbatim. Native Demon rectangles are deliberately replaced with a stable HD
+frame contract; their narrow normal-form boxes reduce Urgot to a 25px blob. A
+six-frame ``skill2`` body-only cast is appended for E.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageFilter
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +43,7 @@ SPLASH_DIR = MOD_ROOT / "BanPickIllust"
 FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 QA_DIR = MOD_ROOT / "qa"
+DATA_PATH = MOD_ROOT / "champion" / "demon.data_champion"
 
 ACTOR_FRAME_SIZE = (80, 64)
 ACTOR_VISIBLE_HEIGHT = 46
@@ -57,8 +59,8 @@ GRID_ALPHA_BOTTOM = 86
 
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    path.write_bytes(
+        (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     )
 
 
@@ -186,6 +188,44 @@ def keep_components(image: Image.Image, min_pixels: int = 5) -> Image.Image:
     for x, y in kept:
         output_pixels[x, y] = source_pixels[x, y]
     return output
+
+
+def isolate_warm_shot(image: Image.Image, *, outline_px: int = 2) -> Image.Image:
+    """Keep one compact orange cannon burst without the source's cyan W ring.
+
+    The approved W contact sheet combines the gun, a large cyan stabiliser ring
+    and several orange rounds in the same cells.  Runtime muzzle effects follow
+    the caster, so keeping that ring makes every 20-tick shot look like a giant
+    persistent shield around Urgot.  Seed a mask only from warm shot pixels,
+    then expand it slightly to retain their dark mechanical outline and white
+    cores.  This preserves the generated source art without carrying the ring.
+    """
+
+    rgba = image.convert("RGBA")
+    source_alpha = rgba.getchannel("A")
+    warm_mask = Image.new("L", rgba.size, 0)
+    mask_pixels = warm_mask.load()
+    for y in range(rgba.height):
+        for x in range(rgba.width):
+            red, green, blue, alpha = rgba.getpixel((x, y))
+            if alpha < 48:
+                continue
+            is_orange = red >= 112 and red >= green * 1.18 and red >= blue * 1.45
+            is_hot_core = red >= 205 and green >= 125 and blue <= 175
+            if is_orange or is_hot_core:
+                mask_pixels[x, y] = 255
+
+    if outline_px:
+        warm_mask = warm_mask.filter(ImageFilter.MaxFilter(outline_px * 2 + 1))
+    output = Image.new("RGBA", rgba.size, (0, 0, 0, 0))
+    output_pixels = output.load()
+    mask_pixels = warm_mask.load()
+    alpha_pixels = source_alpha.load()
+    for y in range(rgba.height):
+        for x in range(rgba.width):
+            if mask_pixels[x, y] and alpha_pixels[x, y]:
+                output_pixels[x, y] = rgba.getpixel((x, y))
+    return keep_components(output, min_pixels=3)
 
 
 def palette_finish(image: Image.Image, colors: int = 96) -> Image.Image:
@@ -461,10 +501,12 @@ def build_effects() -> tuple[list[Path], dict[str, dict[str, list[Image.Image]]]
     attack_muzzle = cells[0].crop((205, 55, 362, 305))
     attack_projectile = cells[1]
     attack_impact = cells[2]
-    w_purge = cells[4].crop((118, 35, 362, 330))
-    w_muzzle = cells[5].crop((145, 45, 362, 320))
-    w_projectile = cells[6].crop((242, 70, 362, 300))
-    w_impact = cells[3]
+    # Purge is a stream of compact rounds, not a persistent body aura.  The
+    # engine cannot anchor an independent caster effect to the moving weapon
+    # muzzle, so bake the firing motion into the actor and render only one
+    # travelling round plus a compact contact spark here.
+    w_projectile = isolate_warm_shot(cells[6].crop((245, 138, 307, 168)), outline_px=1)
+    w_impact = cells[2].crop((102, 112, 316, 320))
     specs: list[
         tuple[
             str,
@@ -486,14 +528,10 @@ def build_effects() -> tuple[list[Path], dict[str, dict[str, list[Image.Image]]]
         ),
         (
             "urgot_w_cannon",
-            (112, 80),
+            (64, 40),
             {
-                "pre": (w_purge, None, 0.72),
-                "loop": (w_purge, None, 0.88),
-                "remove": (w_impact, None, 0.62),
-                "muzzle": (w_muzzle, None, 0.82),
-                "projectile": (w_projectile, None, 0.82),
-                "impact": (w_impact, None, 0.72),
+                "projectile": (w_projectile, None, 0.46),
+                "impact": (w_impact, None, 0.48),
             },
         ),
         (
@@ -558,6 +596,113 @@ def build_icons() -> list[Path]:
     return outputs
 
 
+def _urgot_w_projectile() -> dict[str, Any]:
+    """One compact Purge round using the engine's proven auto-target route."""
+
+    return {
+        "type": "AutoTargetProjectile",
+        "speed": 7000,
+        "range": 60000,
+        "name": "lol_urgot_w_cannon_projectile",
+        "y_offset": 0,
+        "applied_target": "EnemyWithoutTower",
+        "applied_effects": [
+            {
+                "effect": {
+                    "type": "Combine",
+                    "effects": [
+                        {"type": "Attack", "damage": 8, "attack_ratio": 20},
+                        {
+                            "type": "ViewEffect",
+                            "name": "lol_urgot_w_impact_visual",
+                        },
+                        {"type": "TargetSfx", "name": "lol_urgot_w_shot"},
+                    ],
+                },
+                "casting_type": "Targeting",
+            }
+        ],
+    }
+
+
+def build_gameplay_data() -> Path:
+    """Rebuild W as a pure data-driven self-cast with twelve direct rounds.
+
+    The previous runtime gate wrote a two-tick marker and read it back inside
+    the same effect batch. The live game can observe that marker one tick late,
+    which deleted Purge and collapsed the channel after its opening pose. The
+    attempted 22-tick replacement then left callbacks queued through tick 221,
+    violating the engine-safe lifetime used by every stable long multishot in
+    this pack. A 240-tick targeted/native replacement still stalled the live
+    simulation. Restore the original engine-safe self-cast shape: no target
+    handle, no Rust channel state, no SwitchByBuff wrapper and no attack lock.
+    The cancelable parent action owns and cancels every delayed round.
+    """
+
+    data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    pulses = []
+    for tick in range(1, 222, 20):
+        pulses.append(
+            {
+                "type": "Delayed",
+                "tick": tick,
+                "effects": [_urgot_w_projectile()],
+            }
+        )
+
+    data["skill"] = {
+        "action_name": "skill1",
+        "description": "#asset/base/text/champion?description.demon.skill",
+        "duration": 240,
+        "cooltime": 600,
+        "start_timing": 1,
+        "cancelable": True,
+        "range": 0,
+        "growth_range": 0,
+        "casting_type": "None",
+        "casting_target": "AllyOnlySelf",
+        "attack_type": "Skill",
+        "can_use_with_move": True,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_urgot_w_cast"},
+                {"type": "CasterAnimation", "name": "skill1", "tick": 8},
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                        "name": "lol_urgot_w_purge",
+                        "duration": {"Time": {"tick": 240}},
+                        "move_speed_mult": -12,
+                        "defence": 20,
+                        "magic_resistance": 10,
+                    },
+                },
+                *pulses,
+            ],
+        },
+    }
+
+    # The removed native channel and two-tick shot marker must not survive as
+    # dead cleanup in R. Canceling the parent action owns queued-round cleanup.
+    data["ult"]["effect"]["effects"] = [
+        effect
+        for effect in data["ult"]["effect"]["effects"]
+        if not (
+            (
+                effect.get("type") == "RemoveCasterBuff"
+                and effect.get("name") == "lol_urgot_w_shot_ready"
+            )
+            or (
+                effect.get("type") == "Native"
+                and effect.get("effect_ref") == "lol_urgot_w_cancel_native"
+            )
+        )
+    ]
+    write_json(DATA_PATH, data)
+    return DATA_PATH
+
+
 def _focus_crop(
     source: Image.Image,
     *,
@@ -591,7 +736,7 @@ def build_presentation() -> list[Path]:
     )
 
     compact_source = _focus_crop(
-        source, left_ratio=0.25, top_ratio=0.0, right_ratio=0.72, bottom_ratio=0.55
+        source, left_ratio=0.34, top_ratio=0.01, right_ratio=0.66, bottom_ratio=0.39
     )
     compact_path = PORTRAIT_DIR / "demon_compact.png"
     save_png(
@@ -607,7 +752,11 @@ def build_presentation() -> list[Path]:
     )
 
     scoreboard_source = _focus_crop(
-        source, left_ratio=0.30, top_ratio=0.0, right_ratio=0.66, bottom_ratio=0.44
+        # The 14-38px match-scoreboard route is smaller than the 39-52px
+        # battle-sidebar route, but it must retain the same readable head and
+        # shoulders composition.  Keep this source focus equal to compact;
+        # only the dedicated scoreboard output below is allowed to scale it.
+        source, left_ratio=0.34, top_ratio=0.01, right_ratio=0.66, bottom_ratio=0.39
     )
     scoreboard_path = PORTRAIT_DIR / "demon_scoreboard.png"
     save_png(
@@ -615,9 +764,9 @@ def build_presentation() -> list[Path]:
         fit_subject(
             scoreboard_source,
             (64, 64),
-            padding=3,
-            desired_width=55,
-            desired_height=52,
+            padding=4,
+            desired_width=52,
+            desired_height=50,
             baseline=58,
         ),
     )
@@ -688,13 +837,23 @@ def build_qa(
     save_png(icon_contact, _contact_sheet(icons, cell_size=(80, 80), columns=3))
 
     portrait_contact = QA_DIR / "urgot_portrait_surface_final.png"
-    portraits = [
-        Image.open(FULLBODY_DIR / "demon.png").convert("RGBA"),
-        Image.open(PORTRAIT_DIR / "demon_compact.png").convert("RGBA"),
-        Image.open(PORTRAIT_DIR / "demon_scoreboard.png").convert("RGBA"),
-        Image.open(PORTRAIT_DIR / "demon_grid.png").convert("RGBA"),
+    portrait_contact_specs = [
+        ("encyclopedia", FULLBODY_DIR / "demon.png", 64),
+        ("compact_40", PORTRAIT_DIR / "demon_compact.png", 40),
+        ("compact_46", PORTRAIT_DIR / "demon_compact.png", 46),
+        ("scoreboard_18", PORTRAIT_DIR / "demon_scoreboard.png", 18),
+        ("scoreboard_26", PORTRAIT_DIR / "demon_scoreboard.png", 26),
+        ("scoreboard_30", PORTRAIT_DIR / "demon_scoreboard.png", 30),
+        ("scoreboard_34", PORTRAIT_DIR / "demon_scoreboard.png", 34),
+        ("bp_grid", PORTRAIT_DIR / "demon_grid.png", 90),
     ]
-    save_png(portrait_contact, _contact_sheet(portraits, cell_size=(112, 144), columns=4))
+    portraits = [
+        Image.open(path)
+        .convert("RGBA")
+        .resize((size, size if name != "bp_grid" else 122), Image.Resampling.NEAREST)
+        for name, path, size in portrait_contact_specs
+    ]
+    save_png(portrait_contact, _contact_sheet(portraits, cell_size=(112, 144), columns=7))
 
     native = _contract()
     built_anim = json.loads(
@@ -706,6 +865,19 @@ def build_qa(
         "scoreboard": PORTRAIT_DIR / "demon_scoreboard.png",
         "grid": PORTRAIT_DIR / "demon_grid.png",
     }
+    portrait_runtime_metrics: dict[str, dict[str, Any]] = {}
+    for (name, path, _size), image in zip(portrait_contact_specs, portraits):
+        if name not in {"compact_40", "scoreboard_30"}:
+            continue
+        bbox = _bbox_or_none(image)
+        if bbox is None:
+            raise ValueError(f"Urgot {name} runtime portrait is empty")
+        portrait_runtime_metrics[name] = {
+            "asset": str(path.relative_to(MOD_ROOT)).replace("\\", "/"),
+            "runtime_size": list(image.size),
+            "alpha_bbox": bbox,
+            "subject_size": [bbox[2] - bbox[0], bbox[3] - bbox[1]],
+        }
     qa = {
         "schema_version": 1,
         "champion": "Urgot",
@@ -750,9 +922,26 @@ def build_qa(
             for name, path in portrait_paths.items()
         },
         "portrait_focus": {
-            "compact": {"left": 0.25, "top": 0.0, "right": 0.72, "bottom": 0.55},
-            "scoreboard": {"left": 0.30, "top": 0.0, "right": 0.66, "bottom": 0.44},
+            "compact": {"left": 0.34, "top": 0.01, "right": 0.66, "bottom": 0.39},
+            "scoreboard": {"left": 0.34, "top": 0.01, "right": 0.66, "bottom": 0.39},
         },
+        "portrait_surface_routing": {
+            "screenshot_1_match_scoreboard": {
+                "runtime_square_px": [14, 38],
+                "asset": "ui/champion_portrait/demon_scoreboard.png",
+                "crop_contract": "same_head_shoulders_focus_as_battle_sidebar",
+            },
+            "screenshot_2_battle_sidebar": {
+                "runtime_square_px": [39, 52],
+                "asset": "ui/champion_portrait/demon_compact.png",
+                "preserved_sha256": sha256(PORTRAIT_DIR / "demon_compact.png"),
+            },
+        },
+        "portrait_contact_actual_sizes": {
+            name: list(image.size)
+            for (name, _path, _size), image in zip(portrait_contact_specs, portraits)
+        },
+        "portrait_runtime_metrics": portrait_runtime_metrics,
         "bp_grid": {
             "name_band_y": GRID_NAME_BAND_Y,
             "max_alpha_bottom": GRID_ALPHA_BOTTOM,
@@ -772,11 +961,13 @@ def build_all() -> list[Path]:
         ICON_SOURCE,
         SPLASH_SOURCE,
         NATIVE_CONTRACT_PATH,
+        DATA_PATH,
     )
     missing = [path for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError("missing Urgot source(s): " + ", ".join(map(str, missing)))
     actor_sheet, actor_anim, actor_frames = build_actor()
+    gameplay_data = build_gameplay_data()
     effect_paths, effect_frames = build_effects()
     icon_paths = build_icons()
     presentation_paths = build_presentation()
@@ -784,6 +975,7 @@ def build_all() -> list[Path]:
     return [
         actor_sheet,
         actor_anim,
+        gameplay_data,
         *effect_paths,
         *icon_paths,
         *presentation_paths,

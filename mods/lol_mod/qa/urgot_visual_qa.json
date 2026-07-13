@@ -85,10 +85,6 @@
       "impact": 4
     },
     "urgot_w_cannon": {
-      "pre": 4,
-      "loop": 4,
-      "remove": 4,
-      "muzzle": 4,
       "projectile": 4,
       "impact": 4
     },
@@ -136,7 +132,7 @@
         56,
         58
       ],
-      "sha256": "483d9491f5dd39e3859f4eaf10406fd6f180fd02eaaf4b8e4d0fc2c9ac1ec0e8"
+      "sha256": "ccf00544d2cdd12e8683b5cd95b1a7573d73ebc973fc69d59f26ce95dde2dc7d"
     },
     "scoreboard": {
       "path": "ui/champion_portrait/demon_scoreboard.png",
@@ -146,11 +142,11 @@
       ],
       "alpha_bbox": [
         7,
-        6,
+        8,
         56,
         58
       ],
-      "sha256": "c022feebdb0969e93ca57ae703985f1f048bbb8d452e8af26af09a229bcdfd18"
+      "sha256": "ccf00544d2cdd12e8683b5cd95b1a7573d73ebc973fc69d59f26ce95dde2dc7d"
     },
     "grid": {
       "path": "ui/champion_portrait/demon_grid.png",
@@ -169,16 +165,104 @@
   },
   "portrait_focus": {
     "compact": {
-      "left": 0.25,
-      "top": 0.0,
-      "right": 0.72,
-      "bottom": 0.55
+      "left": 0.34,
+      "top": 0.01,
+      "right": 0.66,
+      "bottom": 0.39
     },
     "scoreboard": {
-      "left": 0.3,
-      "top": 0.0,
+      "left": 0.34,
+      "top": 0.01,
       "right": 0.66,
-      "bottom": 0.44
+      "bottom": 0.39
+    }
+  },
+  "portrait_surface_routing": {
+    "screenshot_1_match_scoreboard": {
+      "runtime_square_px": [
+        14,
+        38
+      ],
+      "asset": "ui/champion_portrait/demon_scoreboard.png",
+      "crop_contract": "same_head_shoulders_focus_as_battle_sidebar"
+    },
+    "screenshot_2_battle_sidebar": {
+      "runtime_square_px": [
+        39,
+        52
+      ],
+      "asset": "ui/champion_portrait/demon_compact.png",
+      "preserved_sha256": "ccf00544d2cdd12e8683b5cd95b1a7573d73ebc973fc69d59f26ce95dde2dc7d"
+    }
+  },
+  "portrait_contact_actual_sizes": {
+    "encyclopedia": [
+      64,
+      64
+    ],
+    "compact_40": [
+      40,
+      40
+    ],
+    "compact_46": [
+      46,
+      46
+    ],
+    "scoreboard_18": [
+      18,
+      18
+    ],
+    "scoreboard_26": [
+      26,
+      26
+    ],
+    "scoreboard_30": [
+      30,
+      30
+    ],
+    "scoreboard_34": [
+      34,
+      34
+    ],
+    "bp_grid": [
+      90,
+      122
+    ]
+  },
+  "portrait_runtime_metrics": {
+    "compact_40": {
+      "asset": "ui/champion_portrait/demon_compact.png",
+      "runtime_size": [
+        40,
+        40
+      ],
+      "alpha_bbox": [
+        4,
+        5,
+        35,
+        36
+      ],
+      "subject_size": [
+        31,
+        31
+      ]
+    },
+    "scoreboard_30": {
+      "asset": "ui/champion_portrait/demon_scoreboard.png",
+      "runtime_size": [
+        30,
+        30
+      ],
+      "alpha_bbox": [
+        3,
+        4,
+        26,
+        27
+      ],
+      "subject_size": [
+        23,
+        23
+      ]
     }
   },
   "bp_grid": {

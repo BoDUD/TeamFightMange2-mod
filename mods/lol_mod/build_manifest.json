@@ -394,13 +394,13 @@
     },
     {
       "path": "aseprite_resources/effects/urgot_w_cannon#anim.fanim",
-      "size": 4292,
-      "sha256": "d5edfbfdae9275ce884050cdf621c8cd5b475f2e81baf57ea3e14fc8789b78ab"
+      "size": 1433,
+      "sha256": "017ea2b23b22287fffb0af15bba42a8dcbd2ce28dd80c472c628767db86b390a"
     },
     {
       "path": "aseprite_resources/effects/urgot_w_cannon#sheet.png",
-      "size": 860373,
-      "sha256": "20a569cf717e39fd149e6f0e6ab1d5928182b7df4cabe7283ee3705dcc872c58"
+      "size": 82033,
+      "sha256": "e138e23478087e1e8638fea4e3fd568c37cad371212db3102e720622a85418ed"
     },
     {
       "path": "aseprite_resources/effects/xayah_attack#anim.fanim",
@@ -829,8 +829,8 @@
     },
     {
       "path": "champion/demon.data_champion",
-      "size": 29153,
-      "sha256": "22e516dace03f2e2fe1186d430e05526da22ca3a72f0c7fc8efc2a72e45d4322"
+      "size": 28989,
+      "sha256": "35d217d3289935077f9b8a02897eca37083006c1513e00832eed33d951dec31c"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -959,13 +959,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1017344,
-      "sha256": "ffe0e464f71b4f9c726ba6d54d3435ed137880d5c6d6a8577aeba33fa9f58346"
+      "size": 1017856,
+      "sha256": "5c703a06093f777c661e342d2d8497c9d541209818a918c06b73f0c183d11cfc"
     },
     {
       "path": "mod.mod_info",
-      "size": 1009,
-      "sha256": "e1c8340be1449909141d4fea58051e499a2a0970c351318f1bb6fdd47e5ea39c"
+      "size": 1041,
+      "sha256": "88d89a53468a308a1435ede45781ab532d93197c9977dd4aa5d29e3f32861730"
     },
     {
       "path": "mod.override_info",
@@ -984,8 +984,8 @@
     },
     {
       "path": "qa/urgot_portrait_surface_final.png",
-      "size": 258275,
-      "sha256": "53798d007842f36377a063e41c25a01b198b435ee637da544e8e629462b597a1"
+      "size": 903589,
+      "sha256": "fb2bbb25e2b9732bd9f73807516532c623b2139287fdaf042452afc463180ca8"
     },
     {
       "path": "qa/urgot_skill_icons_final.png",
@@ -994,13 +994,13 @@
     },
     {
       "path": "qa/urgot_vfx_contact_final.png",
-      "size": 6268783,
-      "sha256": "ecd45adca196bb9822d48afddd424cd6c6afcbf6a423c35bff644f6adee472d8"
+      "size": 5015040,
+      "sha256": "a70db85eacc570b01ba79d392928005588f791996168ddaceaa2a75d82c73a9c"
     },
     {
       "path": "qa/urgot_visual_qa.json",
-      "size": 4292,
-      "sha256": "22df1f50e1eb5177a51582f393cb5b58268812a5172e8d6e08da80b933b48b2f"
+      "size": 5756,
+      "sha256": "1e751d4de1a56f8f9040830d56c7dccb897d4736d6dc6b08125b1e2bb1685bbd"
     },
     {
       "path": "qa/xayah_imagegen_sources.json",
@@ -2045,7 +2045,7 @@
     {
       "path": "ui/champion_portrait/demon_compact.png",
       "size": 16516,
-      "sha256": "483d9491f5dd39e3859f4eaf10406fd6f180fd02eaaf4b8e4d0fc2c9ac1ec0e8"
+      "sha256": "ccf00544d2cdd12e8683b5cd95b1a7573d73ebc973fc69d59f26ce95dde2dc7d"
     },
     {
       "path": "ui/champion_portrait/demon_grid.png",
@@ -2055,7 +2055,7 @@
     {
       "path": "ui/champion_portrait/demon_scoreboard.png",
       "size": 16516,
-      "sha256": "c022feebdb0969e93ca57ae703985f1f048bbb8d452e8af26af09a229bcdfd18"
+      "sha256": "ccf00544d2cdd12e8683b5cd95b1a7573d73ebc973fc69d59f26ce95dde2dc7d"
     },
     {
       "path": "ui/champion_portrait/lol_shen_compact.png",

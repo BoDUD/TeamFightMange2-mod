@@ -32,6 +32,18 @@ def find_effect(node, effect_type: str, **fields):
     return found
 
 
+def test_all_champion_categories_use_engine_enum_values():
+    valid_categories = {"Melee", "Range", "Magician", "Util", "Assassin"}
+    invalid = {}
+    for path in sorted((MOD / "champion").glob("*.data_champion")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        category = payload.get("category")
+        if category not in valid_categories:
+            invalid[path.name] = category
+
+    assert invalid == {}
+
+
 def test_urgot_is_the_single_official_008_demon_replacement():
     champion = load_json("champion/demon.data_champion")
     demon_files = []
@@ -50,9 +62,9 @@ def test_urgot_is_the_single_official_008_demon_replacement():
 
 def test_urgot_stats_attack_contract_and_wer_only_slots():
     champion = load_json("champion/demon.data_champion")
-    assert champion["category"] == "Ranged"
-    assert {"AD", "Ranged", "Tank", "CC"}.issubset(champion["tags"])
-    assert "Melee" not in champion["tags"]
+    assert champion["category"] == "Melee"
+    assert {"AD", "Melee", "Tank", "CC"}.issubset(champion["tags"])
+    assert "Range" not in champion["tags"]
     assert champion["stat"] == {
         "attack": 100,
         "magic_power": 0,
@@ -139,18 +151,25 @@ def test_echoing_flames_is_a_real_native_two_second_shotgun_cooldown():
     assert "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);" in source
 
 
-def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
+def test_w_keeps_all_twelve_delayed_shots_inside_a_cancelable_240_tick_action():
     champion = load_json("champion/demon.data_champion")
     w = champion["skill"]
     assert w["cooltime"] == 600
     assert w["duration"] == 240
+    assert w["cancelable"] is True
     assert w["can_use_with_move"] is True
     assert (w["range"], w["casting_type"], w["casting_target"]) == (
         0,
         "None",
         "AllyOnlySelf",
     )
-    assert len(find_effect(w, "Native", effect_ref="lol_urgot_w_native")) == 1
+    assert not find_effect(w, "Native")
+    cast_animations = find_effect(w, "CasterAnimation")
+    assert cast_animations == [{
+        "type": "CasterAnimation",
+        "name": "skill1",
+        "tick": 8,
+    }]
 
     purge = find_effect(w, "AddCasterBuff")
     assert len(purge) == 1
@@ -162,17 +181,29 @@ def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
     assert buff["magic_resistance"] == 10
 
     delayed = find_effect(w, "Delayed")
-    assert sorted(effect["tick"] for effect in delayed) == list(range(0, 240, 20))
+    assert sorted(effect["tick"] for effect in delayed) == list(range(1, 222, 20))
+    assert max(effect["tick"] for effect in delayed) < w["duration"]
     projectiles = find_effect(
         w, "AutoTargetProjectile", name="lol_urgot_w_cannon_projectile"
     )
     assert len(projectiles) == 12
-    assert len(
-        find_effect(w, "CasterViewEffect", name="lol_urgot_w_muzzle_visual")
-    ) == 12
+    assert not find_effect(w, "TargetProjectile", name="lol_urgot_w_cannon_projectile")
+    for pulse in delayed:
+        assert len(
+            find_effect(
+                pulse,
+                "AutoTargetProjectile",
+                name="lol_urgot_w_cannon_projectile",
+            )
+        ) == 1
+        assert not find_effect(pulse, "SwitchByBuff")
+        assert not find_effect(pulse, "CasterAnimation")
+        assert not find_effect(pulse, "Native")
+    assert not find_effect(w, "CasterViewEffect", name="lol_urgot_w_muzzle_visual")
     for projectile in projectiles:
         assert projectile["speed"] == 7000
         assert projectile["range"] == 60000
+        assert projectile["applied_target"] == "EnemyWithoutTower"
         hits = find_effect(projectile, "Attack")
         assert len(hits) == 1
         assert hits[0]["damage"] == 8
@@ -186,25 +217,31 @@ def test_w_is_twelve_shots_over_240_ticks_with_movement_and_attack_lock():
         ) == 1
 
     source = RUST_PATH.read_text(encoding="utf-8")
-    assert "const URGOT_W_BLOCK_ATTACK_TICKS: usize = 240;" in source
-    assert "CCState::BlockAttack" in source
+    assert "const URGOT_W_CHANNEL_TICKS" not in source
+    assert "URGOT_W_CHANNELS" not in source
+    assert "const URGOT_W_SHOT_LOCK_TICKS" not in source
+    assert "const URGOT_W_BLOCK_ATTACK_TICKS" not in source
+    assert "struct UrgotWChannelState" not in source
+    assert "UrgotWNativeEffect" not in source
+    assert "UrgotWCancelNativeEffect" not in source
+    assert "UrgotWShotGateNativeEffect" not in source
+    assert "lol_urgot_w_native" not in source
+    assert "lol_urgot_w_cancel_native" not in source
+    assert "lol_urgot_w_shot_gate_native" not in source
+    assert "lol_urgot_w_shot_ready" not in source
 
-    view_buff = [
-        binding
-        for binding in champion["view_buffs"]
-        if binding["name"] == "lol_urgot_w_purge"
-    ]
-    assert view_buff == [
-        {
-            "type": "ThreePhase",
-            "name": "lol_urgot_w_purge",
-            "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
-            "pre_tag": "pre",
-            "loop_tag": "loop",
-            "remove_tag": "remove",
-            "z": 2,
-        }
-    ]
+    builder = (MOD / "tools/build_urgot.py").read_text(encoding="utf-8")
+    assert "for tick in range(1, 222, 20):" in builder
+    assert "def _urgot_w_projectile()" in builder
+    assert "gameplay_data = build_gameplay_data()" in builder
+
+    # Purge is represented by twelve firing poses/single projectiles, not a
+    # giant persistent aura or an incorrectly body-centred muzzle effect.
+    assert champion["view_buffs"] == []
+    assert not any(
+        effect.get("name") == "lol_urgot_w_muzzle_visual"
+        for effect in champion["view_effects"]
+    )
 
 
 def test_urgot_ai_promotes_legal_attacks_to_learned_r_then_w():
@@ -217,7 +254,11 @@ def test_urgot_ai_promotes_legal_attacks_to_learned_r_then_w():
     assert gate
     body = gate.group("body")
     assert '"demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳"' in body
-    assert "let Some(Input::Attack { target }) = base_input" in body
+    recall = body.index("matches!(base_input, Some(Input::Return))")
+    attack_gate = body.index("let Some(Input::Attack { target }) = base_input")
+    assert recall < attack_gate
+    assert "urgot_w_active_target_for_ai" not in body
+    assert "urgot_w_cancel_for_ai" not in body
     assert "let ultimate = Input::Ult { target };" in body
     assert "ctx.is_valid_input(&ultimate)" in body
     assert "let purge = Input::Skill {" in body
@@ -227,11 +268,26 @@ def test_urgot_ai_promotes_legal_attacks_to_learned_r_then_w():
     assert "registration.add_player_input_ai(UrgotAbilityInputGate);" in source
 
 
-def test_e_shields_rushes_behind_and_flings_the_enemy_back():
+def test_r_clears_persistent_purge_before_launching():
+    champion = load_json("champion/demon.data_champion")
+    r = champion["ult"]
+    top_level = r["effect"]["effects"]
+    assert top_level[0] == {"type": "RemoveCasterBuff", "name": "lol_urgot_w_purge"}
+    assert "lol_urgot_w_cancel_native" not in json.dumps(r)
+    assert "lol_urgot_w_shot_ready" not in json.dumps(r)
+
+
+def test_e_restores_the_first_reviewed_rush_behind_and_flip_contract():
     champion = load_json("champion/demon.data_champion")
     e = champion["skill2"]
     assert e["cooltime"] == 420
+    assert e["action_name"] == "transform"
+    assert e["duration"] == 30
+    assert e["range"] == 45000
     assert e["casting_target"] == "EnemyChampion"
+    assert find_effect(e, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "transform", "tick": 30}
+    ]
 
     shields = find_effect(e, "Shield")
     assert len(shields) == 1
@@ -242,18 +298,23 @@ def test_e_shields_rushes_behind_and_flings_the_enemy_back():
     rushes = find_effect(e, "RushMoveToBack")
     assert len(rushes) == 1
     rush = rushes[0]
+    assert rush["speed"] == 4500
     hit = find_effect(rush, "Attack")
     assert len(hit) == 1
     assert hit[0]["damage"] == 70
     assert hit[0]["attack_ratio"] == 90
     assert len(find_effect(rush, "Native", effect_ref="lol_urgot_e_native")) == 1
-    knockback = find_effect(rush, "Knockback")
-    assert knockback == [{"type": "Knockback", "speed": 2600, "tick": 8}]
+    assert find_effect(rush, "Knockback") == [
+        {"type": "Knockback", "speed": 2600, "tick": 8}
+    ]
+    assert not find_effect(e, "Grab")
 
     source = RUST_PATH.read_text(encoding="utf-8")
     assert "const URGOT_E_STUN_TICKS: u64 = 60;" in source
     assert re.search(
-        r"impl ModEffectType for UrgotENativeEffect.*?CCState::Stun\s*\{\s*tick: URGOT_E_STUN_TICKS",
+        r"impl ModEffectType for UrgotENativeEffect.*?get_entity\(target_id\).*?"
+        r"is_some_and\(\|target\| target\.is_alive\(\)\).*?CCState::Stun\s*\{\s*"
+        r"tick: URGOT_E_STUN_TICKS",
         source,
         re.DOTALL,
     )
@@ -264,6 +325,11 @@ def test_r_is_non_piercing_pull_and_true_25_percent_execute_check():
     r = champion["ult"]
     assert r["cooltime"] == 3000
     assert r["range"] == 90000
+    assert r["duration"] == 30
+    assert r["casting_type"] == "Targeting"
+    assert find_effect(r, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "ult", "tick": 30}
+    ]
     projectile = find_effect(r, "LinearProjectile", name="lol_urgot_r_chain_projectile")
     assert len(projectile) == 1
     projectile = projectile[0]
@@ -289,10 +355,35 @@ def test_r_is_non_piercing_pull_and_true_25_percent_execute_check():
 
     delayed = [effect for effect in find_effect(projectile, "Delayed") if effect["tick"] == 45]
     assert len(delayed) == 1
-    assert find_effect(delayed[0], "Grab") == [
+    assert len(
+        find_effect(
+            delayed[0],
+            "Native",
+            effect_ref="lol_urgot_r_check_native",
+        )
+    ) == 1
+    ready_switches = find_effect(
+        delayed[0], "SwitchByBuff", buff_name="lol_urgot_r_execute_ready"
+    )
+    assert len(ready_switches) == 1
+    ready_switch = ready_switches[0]
+    assert not find_effect(ready_switch["effect_none"], "Grab")
+    assert find_effect(ready_switch["effect_buff"], "Grab") == [
         {"type": "Grab", "speed": 7000, "tick": 12}
     ]
-    assert len(find_effect(delayed[0], "Native", effect_ref="lol_urgot_r_native")) == 1
+    execute_delays = [
+        effect
+        for effect in find_effect(ready_switch["effect_buff"], "Delayed")
+        if effect["tick"] == 12
+    ]
+    assert len(execute_delays) == 1
+    assert len(
+        find_effect(
+            execute_delays[0],
+            "Native",
+            effect_ref="lol_urgot_r_execute_native",
+        )
+    ) == 1
 
     source = RUST_PATH.read_text(encoding="utf-8")
     assert "const URGOT_R_EXECUTE_THRESHOLD_PERCENT: usize = 25;" in source
@@ -329,8 +420,19 @@ def test_r_fear_and_splash_exist_only_on_confirmed_successful_execution():
     ) == 1
 
     source = RUST_PATH.read_text(encoding="utf-8")
+    check_impl = re.search(
+        r"impl ModEffectType for UrgotRCheckNativeEffect \{(?P<body>.*?)\n\}",
+        source,
+        re.DOTALL,
+    )
+    assert check_impl
+    check_body = check_impl.group("body")
+    assert "target_hp.current > execute_limit" in check_body
+    assert 'ready.name = "lol_urgot_r_execute_ready"' in check_body
+    assert "ctx.add_buff(caster_id, ready);" in check_body
+
     execute_impl = re.search(
-        r"impl ModEffectType for UrgotRNativeEffect \{(?P<body>.*?)\n\}",
+        r"impl ModEffectType for UrgotRExecuteNativeEffect \{(?P<body>.*?)\n\}",
         source,
         re.DOTALL,
     )
@@ -347,14 +449,15 @@ def test_all_four_urgot_native_effects_are_registered_without_replacing_champion
     source = RUST_PATH.read_text(encoding="utf-8")
     expected = {
         "lol_urgot_passive_native": "UrgotPassiveNativeEffect",
-        "lol_urgot_w_native": "UrgotWNativeEffect",
         "lol_urgot_e_native": "UrgotENativeEffect",
-        "lol_urgot_r_native": "UrgotRNativeEffect",
+        "lol_urgot_r_check_native": "UrgotRCheckNativeEffect",
+        "lol_urgot_r_execute_native": "UrgotRExecuteNativeEffect",
     }
     for effect_ref, implementation in expected.items():
-        assert (
-            f'registration.add_native_effect("{effect_ref}", {implementation});'
-            in source
+        assert re.search(
+            rf'registration\.add_native_effect\(\s*"{effect_ref}",\s*'
+            rf"{implementation}\s*,?\s*\);",
+            source,
         )
         assert f"struct {implementation};" in source
     assert "replace_champion" not in source

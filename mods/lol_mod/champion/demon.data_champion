@@ -1,9 +1,9 @@
 {
   "id": "demon",
-  "category": "Ranged",
+  "category": "Melee",
   "tags": [
     "AD",
-    "Ranged",
+    "Melee",
     "Tank",
     "CC"
   ],
@@ -114,7 +114,7 @@
     "duration": 240,
     "cooltime": 600,
     "start_timing": 1,
-    "cancelable": false,
+    "cancelable": true,
     "range": 0,
     "growth_range": 0,
     "casting_type": "None",
@@ -125,17 +125,13 @@
       "type": "Combine",
       "effects": [
         {
-          "type": "Native",
-          "effect_ref": "lol_urgot_w_native"
-        },
-        {
           "type": "Sfx",
           "name": "lol_urgot_w_cast"
         },
         {
           "type": "CasterAnimation",
           "name": "skill1",
-          "tick": 240
+          "tick": 8
         },
         {
           "type": "AddCasterBuff",
@@ -153,12 +149,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 0,
+          "tick": 1,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -194,12 +186,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 20,
+          "tick": 21,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -235,12 +223,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 40,
+          "tick": 41,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -276,12 +260,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 60,
+          "tick": 61,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -317,12 +297,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 80,
+          "tick": 81,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -358,12 +334,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 100,
+          "tick": 101,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -399,12 +371,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 120,
+          "tick": 121,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -440,12 +408,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 140,
+          "tick": 141,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -481,12 +445,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 160,
+          "tick": 161,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -522,12 +482,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 180,
+          "tick": 181,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -563,12 +519,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 200,
+          "tick": 201,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -604,12 +556,8 @@
         },
         {
           "type": "Delayed",
-          "tick": 220,
+          "tick": 221,
           "effects": [
-            {
-              "type": "CasterViewEffect",
-              "name": "lol_urgot_w_muzzle_visual"
-            },
             {
               "type": "AutoTargetProjectile",
               "speed": 7000,
@@ -721,13 +669,13 @@
   "ult": {
     "action_name": "ult",
     "description": "#asset/base/text/champion?description.demon.ult",
-    "duration": 75,
+    "duration": 30,
     "cooltime": 3000,
     "start_timing": 12,
     "cancelable": false,
     "range": 90000,
     "growth_range": 0,
-    "casting_type": "Direction",
+    "casting_type": "Targeting",
     "casting_target": "EnemyChampion",
     "attack_type": "Skill",
     "can_use_with_move": false,
@@ -735,13 +683,17 @@
       "type": "Combine",
       "effects": [
         {
+          "type": "RemoveCasterBuff",
+          "name": "lol_urgot_w_purge"
+        },
+        {
           "type": "Sfx",
           "name": "lol_urgot_r_cast"
         },
         {
           "type": "CasterAnimation",
           "name": "ult",
-          "tick": 75
+          "tick": 30
         },
         {
           "type": "CasterViewEffect",
@@ -794,29 +746,12 @@
                     "tick": 45,
                     "effects": [
                       {
-                        "type": "Grab",
-                        "speed": 7000,
-                        "tick": 12
-                      },
-                      {
-                        "type": "Bind",
-                        "duration": 12
-                      },
-                      {
-                        "type": "ViewEffect",
-                        "name": "lol_urgot_r_pull_visual"
-                      },
-                      {
-                        "type": "TargetSfx",
-                        "name": "lol_urgot_r_pull"
-                      },
-                      {
                         "type": "Native",
-                        "effect_ref": "lol_urgot_r_native"
+                        "effect_ref": "lol_urgot_r_check_native"
                       },
                       {
                         "type": "SwitchByBuff",
-                        "buff_name": "lol_urgot_r_execute_success",
+                        "buff_name": "lol_urgot_r_execute_ready",
                         "effect_none": {
                           "type": "Combine",
                           "effects": []
@@ -825,45 +760,89 @@
                           "type": "Combine",
                           "effects": [
                             {
-                              "type": "CasterViewEffect",
-                              "name": "lol_urgot_r_execute_visual"
+                              "type": "Grab",
+                              "speed": 7000,
+                              "tick": 12
                             },
                             {
-                              "type": "CasterViewEffect",
-                              "name": "lol_urgot_r_fear_visual"
+                              "type": "Bind",
+                              "duration": 12
                             },
                             {
-                              "type": "Sfx",
-                              "name": "lol_urgot_r_execute"
+                              "type": "ViewEffect",
+                              "name": "lol_urgot_r_pull_visual"
                             },
                             {
-                              "type": "Sfx",
-                              "name": "lol_urgot_r_fear"
+                              "type": "TargetSfx",
+                              "name": "lol_urgot_r_pull"
                             },
                             {
-                              "type": "RangeEffect",
-                              "shape": {
-                                "Circle": {
-                                  "radius": 32000
-                                }
-                              },
-                              "target": "EnemyChampion",
-                              "apply_type": "AroundCaster",
+                              "type": "Delayed",
+                              "tick": 12,
                               "effects": [
                                 {
-                                  "type": "Attack",
-                                  "damage": 30,
-                                  "attack_ratio": 30
+                                  "type": "Native",
+                                  "effect_ref": "lol_urgot_r_execute_native"
                                 },
                                 {
-                                  "type": "Fear",
-                                  "tick": 45
+                                  "type": "SwitchByBuff",
+                                  "buff_name": "lol_urgot_r_execute_success",
+                                  "effect_none": {
+                                    "type": "Combine",
+                                    "effects": []
+                                  },
+                                  "effect_buff": {
+                                    "type": "Combine",
+                                    "effects": [
+                                      {
+                                        "type": "CasterViewEffect",
+                                        "name": "lol_urgot_r_execute_visual"
+                                      },
+                                      {
+                                        "type": "CasterViewEffect",
+                                        "name": "lol_urgot_r_fear_visual"
+                                      },
+                                      {
+                                        "type": "Sfx",
+                                        "name": "lol_urgot_r_execute"
+                                      },
+                                      {
+                                        "type": "Sfx",
+                                        "name": "lol_urgot_r_fear"
+                                      },
+                                      {
+                                        "type": "RangeEffect",
+                                        "shape": {
+                                          "Circle": {
+                                            "radius": 32000
+                                          }
+                                        },
+                                        "target": "EnemyChampion",
+                                        "apply_type": "AroundCaster",
+                                        "effects": [
+                                          {
+                                            "type": "Attack",
+                                            "damage": 30,
+                                            "attack_ratio": 30
+                                          },
+                                          {
+                                            "type": "Fear",
+                                            "tick": 45
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "RemoveCasterBuff",
+                                        "name": "lol_urgot_r_execute_success"
+                                      }
+                                    ]
+                                  }
                                 }
                               ]
                             },
                             {
                               "type": "RemoveCasterBuff",
-                              "name": "lol_urgot_r_execute_success"
+                              "name": "lol_urgot_r_execute_ready"
                             }
                           ]
                         }
@@ -920,14 +899,6 @@
       "name": "lol_urgot_attack_impact_visual",
       "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
       "tag": "impact",
-      "z": 2,
-      "is_follow": true
-    },
-    {
-      "type": "Animation",
-      "name": "lol_urgot_w_muzzle_visual",
-      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
-      "tag": "muzzle",
       "z": 2,
       "is_follow": true
     },
@@ -996,15 +967,5 @@
       "is_follow": true
     }
   ],
-  "view_buffs": [
-    {
-      "type": "ThreePhase",
-      "name": "lol_urgot_w_purge",
-      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
-      "pre_tag": "pre",
-      "loop_tag": "loop",
-      "remove_tag": "remove",
-      "z": 2
-    }
-  ]
+  "view_buffs": []
 }
