@@ -65,7 +65,11 @@ const XAYAH_ACTOR_SHEET_TEXTURES: [&str; 2] = [
 ];
 const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_compact";
 const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_grid";
-const SPLASH_SPECS: [(&str, &str); 7] = [
+const URGOT_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/demon_compact";
+const URGOT_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/demon_scoreboard";
+const URGOT_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/demon_grid";
+const SPLASH_SPECS: [(&str, &str); 8] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -82,6 +86,7 @@ const SPLASH_SPECS: [(&str, &str); 7] = [
         "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
     ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
+    ("demon", "asset/lol_mod/BanPickIllust/demon"),
 ];
 const SHEN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_compact";
 const SHEN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
@@ -236,7 +241,9 @@ impl ModExtension for LolModExtension {
         rewrite_bp_render_commands(ui, state);
         rewrite_kled_portrait_render_commands(state);
         rewrite_xayah_portrait_render_commands(state);
-        rewrite_legacy_portrait_render_commands(state);
+        rewrite_shen_lucian_portrait_render_commands(state);
+        rewrite_orianna_briar_portrait_render_commands(state);
+        rewrite_sivir_urgot_portrait_render_commands(state);
     }
 }
 
@@ -400,11 +407,48 @@ fn legacy_portrait_assets(texture: &str) -> Option<(&'static str, &'static str, 
             BRIAR_SCOREBOARD_PORTRAIT_TEXTURE,
             BRIAR_BP_GRID_PORTRAIT_TEXTURE,
         )),
+        "asset/base/aseprite_resources/champions/demon#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/demon#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/urgot#sheet" => Some((
+            URGOT_COMPACT_PORTRAIT_TEXTURE,
+            URGOT_SCOREBOARD_PORTRAIT_TEXTURE,
+            URGOT_BP_GRID_PORTRAIT_TEXTURE,
+        )),
         _ => None,
     }
 }
 
-fn rewrite_legacy_portrait_render_commands(state: &mut RenderState) {
+fn rewrite_shen_lucian_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/lol_shen#sheet")
+            || texture.contains("/shen#sheet")
+            || texture.contains("/archer#sheet")
+            || texture.contains("/lucian#sheet")
+    });
+}
+
+fn rewrite_orianna_briar_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/barrier_magician#sheet")
+            || texture.contains("/orianna#sheet")
+            || texture.contains("/berserker#sheet")
+            || texture.contains("/briar#sheet")
+    });
+}
+
+fn rewrite_sivir_urgot_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/boomerang_hunter#sheet")
+            || texture.contains("/sivir#sheet")
+            || texture.contains("/demon#sheet")
+            || texture.contains("/urgot#sheet")
+    });
+}
+
+fn rewrite_legacy_portrait_render_commands(
+    state: &mut RenderState,
+    accepts_texture: impl Fn(&str) -> bool,
+) {
     for commands in state.commands.values_mut() {
         for command in commands {
             let RenderCommand::NinePatch {
@@ -424,6 +468,9 @@ fn rewrite_legacy_portrait_render_commands(state: &mut RenderState) {
             else {
                 continue;
             };
+            if !accepts_texture(texture) {
+                continue;
+            }
             let Some((compact, scoreboard, grid)) = legacy_portrait_assets(texture) else {
                 continue;
             };
@@ -431,13 +478,24 @@ fn rewrite_legacy_portrait_render_commands(state: &mut RenderState) {
             // Report/scoreboard rows and the larger side-list use independent
             // source-direct face crops. Battle actors are Sprite commands and
             // therefore cannot enter this UI-only NinePatch route.
+            let is_scoreboard_square = (14.0..=38.0).contains(w);
             let is_scoreboard_square =
-                (14.0..=38.0).contains(w) && (14.0..=38.0).contains(h) && (*w - *h).abs() <= 2.0;
+                is_scoreboard_square && (14.0..=38.0).contains(h) && (*w - *h).abs() <= 2.0;
+            let is_compact_square = (39.0..=52.0).contains(w);
             let is_compact_square =
-                (39.0..=52.0).contains(w) && (39.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
+                is_compact_square && (39.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
+            // Most legacy actors arrive as a fixed 128px square. Urgot's new
+            // 80x64 actor atlas can also arrive as a 160x128 rectangle; both
+            // are center-preserving routes to the dedicated 90x122 grid art.
+            let is_urgot = texture.contains("/demon#sheet") || texture.contains("/urgot#sheet");
             let is_bp_grid = (124.0..=132.0).contains(w)
                 && (124.0..=132.0).contains(h)
                 && (*w - *h).abs() <= 2.0;
+            let is_bp_grid = if is_urgot {
+                (124.0..=164.0).contains(w) && (120.0..=132.0).contains(h)
+            } else {
+                is_bp_grid
+            };
             let replacement = if is_scoreboard_square {
                 scoreboard
             } else if is_compact_square {
@@ -838,6 +896,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("boomerang_hunter", "lol_fullbody_sivir"),
         ("cavalry_knight", "lol_fullbody_kled"),
         ("dancer", "lol_fullbody_xayah"),
+        ("demon", "lol_fullbody_urgot"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -918,7 +977,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.9.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1297,6 +1356,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
         "xayah" | "dancer" => Some("dancer"),
+        "urgot" | "demon" => Some("demon"),
         _ => None,
     }
 }

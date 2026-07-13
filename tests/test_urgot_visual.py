@@ -298,3 +298,33 @@ def test_required_qa_contacts_exist_and_are_nonempty() -> None:
         image = Image.open(MOD / "qa" / name).convert("RGBA")
         assert image.width >= 240 and image.height >= 80
         assert alpha_bbox(image) is not None
+
+
+def test_urgot_visuals_are_wired_into_the_full_builder_and_every_ui_surface() -> None:
+    builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
+    assert "from build_urgot import build_all as build_urgot_assets" in builder
+    assert "urgot_outputs = build_urgot_assets()" in builder
+    assert "*urgot_outputs" in builder
+
+    runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    assert '("demon", "asset/lol_mod/BanPickIllust/demon")' in runtime
+    assert '"urgot" | "demon" => Some("demon")' in runtime
+    assert '("demon", "lol_fullbody_urgot")' in runtime
+    for asset in ("demon_compact", "demon_scoreboard", "demon_grid"):
+        assert f"asset/lol_mod/ui/champion_portrait/{asset}" in runtime
+
+    encyclopedia = (
+        MOD / "ui/layout/champion_info_component/champion_slot.ui"
+    ).read_text(encoding="utf-8")
+    assert "#lol_fullbody_urgot:image" in encyclopedia
+    assert 'source: "asset/lol_mod/ui/champion_fullbody/demon";' in encyclopedia
+
+    overrides = load_json("mod.override_info")
+    assert overrides["asset/base/aseprite_resources/champions/demon#sheet"] == {
+        "remapping": "asset/lol_mod/aseprite_resources/champions/demon#sheet",
+        "type": "override",
+    }
+    assert overrides["asset/base/aseprite_resources/champions/demon#anim"] == {
+        "remapping": "asset/lol_mod/aseprite_resources/champions/demon#anim",
+        "type": "override",
+    }

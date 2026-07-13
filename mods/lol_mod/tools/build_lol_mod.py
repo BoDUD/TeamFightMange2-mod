@@ -16,6 +16,7 @@ import wave
 from PIL import Image, ImageDraw
 
 from build_kled import build_all as build_kled_assets
+from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
 
 
@@ -4160,6 +4161,12 @@ def build_manifest() -> Path:
         QA_DIR / "xayah_official_audio_sources.json",
         QA_DIR / "xayah_ui_scale_qa.json",
         QA_DIR / "xayah_portrait_surface_final.png",
+        QA_DIR / "urgot_visual_qa.json",
+        QA_DIR / "urgot_official_audio_sources.json",
+        QA_DIR / "urgot_actor_contact_final.png",
+        QA_DIR / "urgot_vfx_contact_final.png",
+        QA_DIR / "urgot_skill_icons_final.png",
+        QA_DIR / "urgot_portrait_surface_final.png",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -4258,6 +4265,7 @@ def main() -> int:
     sivir_imagegen_audit = build_sivir_imagegen_audit()
     kled_outputs = build_kled_assets()
     xayah_outputs = build_xayah_assets()
+    urgot_outputs = build_urgot_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     manifest = None if args.skip_manifest else build_manifest()
@@ -4295,6 +4303,7 @@ def main() -> int:
         sivir_imagegen_audit,
         *kled_outputs,
         *xayah_outputs,
+        *urgot_outputs,
         *champion_fullbody_portraits,
         *orianna_briar_hd_surface_qa,
         *([manifest] if manifest else []),

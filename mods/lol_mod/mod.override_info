@@ -1091,6 +1091,14 @@
     "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
     "type": "override"
   },
+  "asset/base/aseprite_resources/champions/demon#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/demon#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/demon#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/demon#anim",
+    "type": "override"
+  },
   "asset/base/sound/sfx/lol_urgot_attack_cast": {
     "remapping": "asset/lol_mod/sound/sfx/urgot_attack_cast",
     "type": "override"
