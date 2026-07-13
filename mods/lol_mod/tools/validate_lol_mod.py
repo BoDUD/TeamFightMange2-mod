@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for Shen and same-id Lucian/002 through Kled/006."""
+"""Static validation for Shen and same-id Lucian/002 through Yone/009."""
 
 from __future__ import annotations
 
@@ -4869,9 +4869,11 @@ def validate_imagegen_sources() -> None:
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
     # run, defeat, and three independent VFX contacts. Xayah's corrective
     # route adds seven disjoint body contacts plus attack/Q/E/R VFX contacts.
+    # Yone adds six accepted chroma-key contacts: core, run, defeat, W/R body,
+    # Q/W VFX, and R VFX. Its opaque icons and BP illustration stay source-only.
     # Opaque icons and BP
     # illustrations do not need alpha derivatives.
-    expected_processed = 56
+    expected_processed = 62
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -6409,6 +6411,661 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
     check(not missing, "Xayah runtime resources are missing from build_manifest.json: " + ", ".join(missing))
 
 
+def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
+    """Gate the complete same-ID Yone/official-009 release contract."""
+
+    registered: list[tuple[str, str]] = []
+    for path in sorted((MOD_ROOT / "champion").glob("*.data_champion")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as error:  # pragma: no cover - diagnostic path
+            ERRORS.append(f"{path.relative_to(MOD_ROOT).as_posix()}: cannot parse JSON: {error}")
+            continue
+        champion_id = payload.get("id")
+        if isinstance(champion_id, str):
+            registered.append((champion_id, path.name))
+    check(
+        [filename for champion_id, filename in registered if champion_id == "dual_blader"]
+        == ["dual_blader.data_champion"],
+        "Yone must replace official 009 exactly once through champion/dual_blader.data_champion",
+    )
+    check(
+        all(champion_id != "lol_yone" for champion_id, _ in registered),
+        "lol_yone must not be registered as an additive duplicate champion",
+    )
+    check(
+        not (MOD_ROOT / "champion/lol_yone.data_champion").exists(),
+        "champion/lol_yone.data_champion must be absent in same-ID replacement mode",
+    )
+
+    check(champion.get("id") == "dual_blader", "Yone must retain official 009 id dual_blader")
+    check(champion.get("category") == "Assassin", "Yone category must be Assassin")
+    check(set(champion.get("tags", [])) == {"AD", "Melee", "CC"}, "Yone tags must be AD/Melee/CC")
+    check(
+        champion.get("sprite") == "asset/lol_mod/aseprite_resources/champions/yone",
+        "same-ID Yone must bind the custom Yone actor",
+    )
+    check(champion.get("anim_prefix") == "", "Yone must preserve native Dual Blader animation tags")
+    check(
+        champion.get("skill_icons")
+        == [
+            "asset/lol_mod/icons/yone_skill",
+            "asset/lol_mod/icons/yone_skill2",
+            "asset/lol_mod/icons/yone_ult",
+        ],
+        "Yone active icon order must be Q/W/R",
+    )
+    check(len(champion.get("skill_icons", [])) == 3, "Yone must expose exactly three active icons")
+    for unsupported_slot in ("w", "e", "skill3", "skill4"):
+        check(unsupported_slot not in champion, f"Yone must not add unsupported active slot {unsupported_slot}")
+    check(
+        champion.get("stat")
+        == {
+            "attack": 110,
+            "magic_power": 0,
+            "hp": 900,
+            "defence": 25,
+            "magic_resistance": 15,
+            "move_speed": 1100,
+            "hp_regen": 2,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Yone base stats do not match the approved 009 design",
+    )
+    check(
+        champion.get("growth")
+        == {
+            "attack": 20,
+            "magic_power": 0,
+            "hp": 100,
+            "defence": 7,
+            "magic_resistance": 3,
+            "move_speed": 10,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "Yone growth stats do not match the approved 009 design",
+    )
+
+    for slot, action_name in (("attack", "attack"), ("skill", "skill"), ("skill2", "skill2"), ("ult", "ult")):
+        action = champion.get(slot, {})
+        check(action.get("action_name") == action_name, f"Yone {slot} must use native action {action_name}")
+        check(
+            action.get("description") == f"#asset/base/text/champion?description.dual_blader.{slot}",
+            f"Yone {slot} must use the dual_blader localization key",
+        )
+    check(not find_effect(champion, "Native"), "Yone must remain data-only and contain zero Native effects")
+
+    attack = champion.get("attack", {})
+    check((attack.get("range"), attack.get("cooltime")) == (25000, 50), "Yone basic attack range/cooldown changed")
+    attack_switch = attack.get("effect", {})
+    check(
+        (attack_switch.get("type"), attack_switch.get("buff_name"))
+        == ("SwitchByBuff", "lol_yone_azakana_ready"),
+        "Yone basic attack must alternate steel/Azakana through lol_yone_azakana_ready",
+    )
+    check(
+        [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(attack, "Attack")]
+        == [(0, 100), (0, 100)],
+        "Yone steel and Azakana basic attacks must each deal 100% Attack once",
+    )
+    check(
+        len(find_effect(attack_switch.get("effect_none", {}), "AddCasterBuff")) == 1
+        and len(find_effect(attack_switch.get("effect_buff", {}), "RemoveCasterBuff", name="lol_yone_azakana_ready")) == 1,
+        "Yone basic attacks must toggle the Azakana marker exactly once",
+    )
+
+    q = champion.get("skill", {})
+    check(
+        (
+            q.get("action_name"), q.get("cooltime"), q.get("duration"), q.get("start_timing"),
+            q.get("range"), q.get("casting_type"), q.get("casting_target"),
+        )
+        == ("skill", 240, 30, 8, 65000, "Direction", "EnemyChampion"),
+        "Yone Q timing, range, or targeting changed",
+    )
+    q_switch = q.get("effect", {})
+    check(
+        (q_switch.get("type"), q_switch.get("buff_name"))
+        == ("SwitchByBuff", "lol_yone_gathering_storm"),
+        "Yone Q must switch on Gathering Storm",
+    )
+    q_normal = q_switch.get("effect_none", {})
+    normal_projectiles = find_effect(q_normal, "LinearProjectile", name="lol_yone_q_projectile")
+    check(len(normal_projectiles) == 1, "Yone normal Q must contain exactly one line projectile")
+    if normal_projectiles:
+        projectile = normal_projectiles[0]
+        check(
+            (
+                projectile.get("penetrate"), projectile.get("speed"), projectile.get("range"),
+                projectile.get("shape"), projectile.get("applied_target"),
+            )
+            == (True, 8000, 60000, {"Circle": {"radius": 8000}}, "EnemyWithoutTower"),
+            "Yone normal Q projectile contract changed",
+        )
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
+            == [(25, 80)],
+            "Yone normal Q must deal 25 + 80% Attack exactly once",
+        )
+        gathering = [
+            effect for effect in find_effect(projectile, "AddCasterBuff")
+            if effect.get("buff_state", {}).get("name") == "lol_yone_gathering_storm"
+        ]
+        check(len(gathering) == 1, "Yone normal Q must grant Gathering Storm only from its hit payload")
+        if gathering:
+            check(
+                set(gathering[0]) == {"type", "buff_state"},
+                "Yone Q state gain must use the supported AddCasterBuff schema only",
+            )
+            check(
+                gathering[0].get("buff_state", {}).get("duration") == {"Time": {"tick": 360}},
+                "Yone Gathering Storm state must last 360 ticks",
+            )
+    check(
+        not [effect for effect in q_normal.get("effects", []) if effect.get("type") == "AddCasterBuff"],
+        "Yone normal Q must not grant Gathering Storm at cast time",
+    )
+    check(not find_effect(q_normal, "Airborne"), "Yone normal Q must not knock up")
+
+    q_empowered = q_switch.get("effect_buff", {})
+    check(
+        bool(q_empowered.get("effects"))
+        and q_empowered["effects"][0]
+        == {"type": "RemoveCasterBuff", "name": "lol_yone_gathering_storm"},
+        "Yone empowered Q must consume Gathering Storm at cast start, including on miss",
+    )
+    q_rushes = find_effect(q_empowered, "RushTime")
+    check(len(q_rushes) == 1, "Yone empowered Q must contain exactly one damage-free RushTime")
+    if q_rushes:
+        check(
+            q_rushes[0]
+            == {
+                "type": "RushTime", "speed": 4000, "tick": 8, "range": 0,
+                "casting_target": "None", "penetrate": True, "applied_effects": [],
+            },
+            "Yone empowered Q dash contract changed",
+        )
+        check(not find_effect(q_rushes[0], "Attack"), "Yone empowered Q dash itself must not deal damage")
+    empowered_projectiles = find_effect(q_empowered, "LinearProjectile", name="lol_yone_q_empowered_projectile")
+    check(len(empowered_projectiles) == 1, "Yone empowered Q must contain exactly one wind projectile")
+    if empowered_projectiles:
+        projectile = empowered_projectiles[0]
+        check(
+            (
+                projectile.get("penetrate"), projectile.get("speed"), projectile.get("range"),
+                projectile.get("shape"), projectile.get("applied_target"),
+            )
+            == (True, 8000, 65000, {"Circle": {"radius": 9000}}, "EnemyWithoutTower"),
+            "Yone empowered Q wind projectile contract changed",
+        )
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
+            == [(25, 80)],
+            "Yone empowered Q projectile must deal 25 + 80% Attack exactly once",
+        )
+        check(
+            [effect.get("duration") for effect in find_effect(projectile, "Airborne")] == [45],
+            "Yone empowered Q must knock up for 45 ticks exactly once",
+        )
+    check(not find_effect(q, "Delayed"), "Yone Q must not use delayed target state")
+
+    w = champion.get("skill2", {})
+    check(
+        (
+            w.get("action_name"), w.get("cooltime"), w.get("duration"), w.get("start_timing"),
+            w.get("range"), w.get("casting_type"), w.get("casting_target"),
+        )
+        == ("skill2", 480, 36, 4, 90000, "Targeting", "EnemyChampionInCC"),
+        "Yone W timing, range, or CC-only targeting changed",
+    )
+    w_rushes = find_effect(w, "RushMoveToBack")
+    check(len(w_rushes) == 1, "Yone W must contain exactly one RushMoveToBack")
+    if w_rushes:
+        rush = w_rushes[0]
+        check(rush.get("speed") == 5000, "Yone W RushMoveToBack speed must be 5000")
+        check(
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
+            == [(45, 90)],
+            "Yone W must deal 45 + 90% Attack exactly once",
+        )
+        check(
+            [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [45],
+            "Yone W must knock up for 45 ticks exactly once",
+        )
+        check(
+            find_effect(rush, "Shield")
+            == [{"type": "Shield", "amount": 90, "attack_ratio": 30, "ap_ratio": 0, "tick": 90}],
+            "Yone W self shield must be 90 + 30% Attack for 90 ticks",
+        )
+        max_travel = (int(w.get("range", 0)) + int(rush.get("speed", 1)) - 1) // int(rush.get("speed", 1))
+        check(
+            int(w.get("start_timing", 0)) + max_travel < int(w.get("duration", 0)),
+            "Yone W action duration must outlive its worst-case rush",
+        )
+    check(not find_effect(w, "Delayed"), "Yone W must not leave delayed target state")
+
+    ult = champion.get("ult", {})
+    check(
+        (
+            ult.get("action_name"), ult.get("cooltime"), ult.get("duration"), ult.get("start_timing"),
+            ult.get("range"), ult.get("casting_type"), ult.get("casting_target"),
+        )
+        == ("ult", 3000, 96, 4, 40000, "Targeting", "EnemyChampion"),
+        "Yone R timing, range, or target lock changed",
+    )
+    r_rushes = find_effect(ult, "RushMoveToBack")
+    check(len(r_rushes) == 1, "Yone R must contain exactly one RushMoveToBack")
+    if r_rushes:
+        rush = r_rushes[0]
+        check(rush.get("speed") == 5000, "Yone R RushMoveToBack speed must be 5000")
+        check(
+            [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [60],
+            "Yone R must apply one 60-tick knockup, not one per slash",
+        )
+        delayed = [effect for effect in rush.get("applied_effects", []) if effect.get("type") == "Delayed"]
+        check([effect.get("tick") for effect in delayed] == [8, 16, 24, 32, 40, 48, 60], "Yone R delayed cadence changed")
+        for index, effect in enumerate(delayed[:6]):
+            check(
+                [(hit.get("damage"), hit.get("attack_ratio")) for hit in find_effect(effect, "Attack")]
+                == [(12, 16)],
+                f"Yone R slash {index + 1} must deal 12 + 16% Attack exactly once",
+            )
+            check(not find_effect(effect, "FixedAttack"), f"Yone R slash {index + 1} must remain physical Attack")
+        if len(delayed) == 7:
+            check(not find_effect(delayed[-1], "Attack"), "Yone R echo must not add a seventh normal Attack")
+            check(
+                [(hit.get("damage"), hit.get("attack_ratio")) for hit in find_effect(delayed[-1], "FixedAttack")]
+                == [(30, 25)],
+                "Yone R final echo must be one 30 + 25% Attack FixedAttack",
+            )
+        max_travel = (int(ult.get("range", 0)) + int(rush.get("speed", 1)) - 1) // int(rush.get("speed", 1))
+        max_delay = max((int(effect.get("tick", 0)) for effect in delayed), default=0)
+        check(
+            int(ult.get("start_timing", 0)) + max_travel + max_delay < int(ult.get("duration", 0)),
+            "Yone R duration must outlive start + worst travel + delayed echo",
+        )
+    check(len(find_effect(ult, "Attack")) == 6, "Yone R must contain exactly six physical slash hits")
+    check(len(find_effect(ult, "FixedAttack")) == 1, "Yone R must contain exactly one final fixed echo")
+    for forbidden_type in ("Stun", "RandomTarget", "AutoTargetProjectile", "RangeEffect"):
+        check(not find_effect(ult, forbidden_type), f"Yone R must not contain {forbidden_type}")
+
+    expected_actor_contract: dict[str, tuple[list[float], list[tuple[int, int, int, int]]]] = {
+        "skill2": ([0.060000002], [(1970, 0, 31, 49)]),
+        "hit": ([0.1], [(874, 0, 43, 53)]),
+        "attack": ([0.060000002] * 6, [(544, 0, 45, 51), (590, 0, 49, 51), (640, 0, 59, 47), (700, 0, 59, 49), (760, 0, 61, 49), (822, 0, 51, 51)]),
+        "skill2_dash": ([0.060000002], [(2002, 0, 43, 43)]),
+        "ult": ([0.05] * 13, [(2288, 0, 49, 51), (2338, 0, 59, 53), (2398, 0, 59, 57), (2458, 0, 61, 53), (2520, 0, 51, 51), (2572, 0, 59, 47), (2632, 0, 59, 49), (2692, 0, 61, 53), (2754, 0, 55, 57), (2810, 0, 59, 53), (2870, 0, 59, 51), (2930, 0, 61, 49), (2992, 0, 53, 51)]),
+        "run": ([0.080000006] * 8, [(220, 0, 41, 49), (262, 0, 39, 51), (302, 0, 39, 53), (342, 0, 39, 51), (382, 0, 41, 49), (424, 0, 39, 51), (464, 0, 39, 53), (504, 0, 39, 51)]),
+        "ult_hit_effect": ([0.05] * 11, [(3046, 0, 27, 59), (3074, 0, 45, 59), (3120, 0, 45, 57), (3166, 0, 41, 65), (3208, 0, 41, 65), (3250, 0, 41, 61), (3292, 0, 41, 59), (3334, 0, 41, 59), (3376, 0, 41, 55), (3418, 0, 41, 49), (3460, 0, 41, 37)]),
+        "skill2_attack": ([0.060000002] * 5, [(2046, 0, 31, 43), (2078, 0, 31, 45), (2110, 0, 59, 53), (2170, 0, 59, 55), (2230, 0, 57, 51)]),
+        "idle": ([0.14] * 4, [(44, 0, 43, 55), (88, 0, 43, 53), (132, 0, 43, 51), (176, 0, 43, 53)]),
+        "hit_effect_area": ([0.05] * 11, [(2338, 0, 59, 53), (2398, 0, 59, 57), (2458, 0, 61, 53), (2520, 0, 51, 51), (2572, 0, 59, 47), (2632, 0, 59, 49), (2692, 0, 61, 53), (2754, 0, 55, 57), (2810, 0, 59, 53), (2870, 0, 59, 51), (2930, 0, 61, 49)]),
+        "dead": ([0.1] * 9, [(918, 0, 43, 51), (962, 0, 41, 49), (1004, 0, 41, 45), (1046, 0, 41, 39), (1088, 0, 41, 39), (1130, 0, 41, 39), (1172, 0, 41, 39), (1214, 0, 41, 39), (1256, 0, 3, 3)]),
+        "skill_projectile": ([0.060000002] * 4, [(1690, 0, 69, 37), (1760, 0, 69, 37), (1830, 0, 69, 39), (1900, 0, 69, 37)]),
+        "skill": ([0.060000002] * 7, [(1260, 0, 31, 49), (1292, 0, 31, 43), (1324, 0, 31, 55), (1356, 0, 71, 57), (1428, 0, 83, 67), (1512, 0, 85, 77), (1598, 0, 91, 87)]),
+    }
+    actor_sheet_path = MOD_ROOT / "aseprite_resources/champions/yone#sheet.png"
+    actor_anim_path = MOD_ROOT / "aseprite_resources/champions/yone#anim.fanim"
+    check(actor_sheet_path.is_file(), "Yone actor sheet is missing")
+    check(actor_anim_path.is_file(), "Yone actor animation is missing")
+    if actor_sheet_path.is_file():
+        check(Image.open(actor_sheet_path).size == (3502, 88), "Yone actor sheet must preserve the official 3502x88 canvas")
+    actor_anims = load_json("aseprite_resources/champions/yone#anim.fanim").get("anims", {})
+    check(list(actor_anims) == list(expected_actor_contract), "Yone actor must preserve the official 13-tag insertion order")
+    for tag, (durations, rects) in expected_actor_contract.items():
+        frames = actor_anims.get(tag, {}).get("frames", [])
+        actual_durations = [float(frame.get("duration", -1)) for frame in frames]
+        actual_rects = [tuple(int(frame.get("data", {}).get(key, -1)) for key in ("x", "y", "w", "h")) for frame in frames]
+        check(actual_durations == durations, f"Yone actor {tag} frame durations changed")
+        check(actual_rects == rects, f"Yone actor {tag} rectangles changed")
+    if actor_sheet_path.is_file() and actor_anims:
+        actor_sheet = Image.open(actor_sheet_path).convert("RGBA")
+        for tag in ("idle", "run", "attack", "skill", "skill2", "skill2_dash", "skill2_attack", "ult", "hit"):
+            for index, frame in enumerate(actor_anims.get(tag, {}).get("frames", [])):
+                data = frame.get("data", {})
+                crop = actor_sheet.crop((data.get("x", 0), data.get("y", 0), data.get("x", 0) + data.get("w", 0), data.get("y", 0) + data.get("h", 0)))
+                check(crop.getchannel("A").getbbox() is not None, f"Yone actor {tag}[{index}] is empty")
+        terminal = actor_anims.get("dead", {}).get("frames", [])[-1:]
+        if terminal:
+            data = terminal[0].get("data", {})
+            crop = actor_sheet.crop((data.get("x", 0), data.get("y", 0), data.get("x", 0) + data.get("w", 0), data.get("y", 0) + data.get("h", 0)))
+            check(crop.getchannel("A").getbbox() is None, "Yone dead terminal 3x3 frame must stay transparent")
+
+    expected_vfx: dict[str, dict[str, tuple[int, float]]] = {
+        "yone_attack": {"steel_hit": (4, 0.05), "azakana_hit": (4, 0.05)},
+        "yone_q": {"projectile": (5, 0.055), "empowered_projectile": (6, 0.06), "hit": (5, 0.05), "empowered_hit": (5, 0.06)},
+        "yone_w": {"dash": (4, 0.065), "impact": (4, 0.06), "shield": (5, 0.08)},
+        "yone_r": {"windup": (4, 0.065), "arrival": (5, 0.065), "slash_blue": (4, 0.055), "slash_red": (4, 0.055), "echo": (9, 0.065)},
+    }
+    expected_views = {
+        "lol_yone_attack_steel_hit": ("yone_attack", "steel_hit"),
+        "lol_yone_attack_azakana_hit": ("yone_attack", "azakana_hit"),
+        "lol_yone_q_projectile": ("yone_q", "projectile"),
+        "lol_yone_q_empowered_projectile": ("yone_q", "empowered_projectile"),
+        "lol_yone_q_hit": ("yone_q", "hit"),
+        "lol_yone_q_empowered_hit": ("yone_q", "empowered_hit"),
+        "lol_yone_w_dash_visual": ("yone_w", "dash"),
+        "lol_yone_w_impact": ("yone_w", "impact"),
+        "lol_yone_w_shield": ("yone_w", "shield"),
+        "lol_yone_r_windup": ("yone_r", "windup"),
+        "lol_yone_r_arrival": ("yone_r", "arrival"),
+        "lol_yone_r_slash_blue": ("yone_r", "slash_blue"),
+        "lol_yone_r_slash_red": ("yone_r", "slash_red"),
+        "lol_yone_r_echo": ("yone_r", "echo"),
+    }
+    declared_views: dict[str, tuple[str, str]] = {}
+    for view in [*champion.get("view_projectiles", []), *champion.get("view_effects", [])]:
+        anim = str(view.get("anim", "")).removeprefix("asset/lol_mod/aseprite_resources/effects/")
+        declared_views[str(view.get("name", ""))] = (anim, str(view.get("tag", "")))
+    check(declared_views == expected_views, "Yone projectile/effect names must map to the four dedicated VFX sheets and tags")
+    used_views = {
+        str(effect.get("name"))
+        for effect in walk_effects({slot: champion.get(slot, {}) for slot in ("attack", "skill", "skill2", "ult")})
+        if effect.get("type") in {"ViewEffect", "CasterViewEffect", "LinearProjectile"}
+    }
+    check(used_views == set(expected_views), "Yone Q/W/R data must use every declared visual exactly through its stable name")
+    for effect_name, tag_specs in expected_vfx.items():
+        sheet_path = MOD_ROOT / f"aseprite_resources/effects/{effect_name}#sheet.png"
+        anim_path = MOD_ROOT / f"aseprite_resources/effects/{effect_name}#anim.fanim"
+        check(sheet_path.is_file(), f"Yone VFX sheet is missing: {effect_name}")
+        check(anim_path.is_file(), f"Yone VFX animation is missing: {effect_name}")
+        anims = load_json(f"aseprite_resources/effects/{effect_name}#anim.fanim").get("anims", {})
+        check(list(anims) == list(tag_specs), f"Yone {effect_name} tag order changed")
+        if not sheet_path.is_file():
+            continue
+        sheet = Image.open(sheet_path).convert("RGBA")
+        for tag, (expected_count, expected_duration) in tag_specs.items():
+            frames = anims.get(tag, {}).get("frames", [])
+            check(len(frames) == expected_count, f"Yone {effect_name}:{tag} frame count changed")
+            for index, frame in enumerate(frames):
+                check(
+                    math.isclose(float(frame.get("duration", -1)), expected_duration, rel_tol=0.0, abs_tol=1e-9),
+                    f"Yone {effect_name}:{tag}[{index}] duration changed",
+                )
+                data = frame.get("data", {})
+                x, y, width, height = (int(data.get("x", -1)), int(data.get("y", -1)), int(data.get("w", 0)), int(data.get("h", 0)))
+                check(x >= 0 and y >= 0 and width > 0 and height > 0, f"Yone {effect_name}:{tag}[{index}] rectangle is invalid")
+                check(x + width <= sheet.width and y + height <= sheet.height, f"Yone {effect_name}:{tag}[{index}] is out of bounds")
+                bbox = sheet.crop((x, y, x + width, y + height)).getchannel("A").getbbox()
+                if index == len(frames) - 1:
+                    check(bbox is None, f"Yone {effect_name}:{tag} must terminate on a transparent cleanup frame")
+                else:
+                    check(bbox is not None, f"Yone {effect_name}:{tag}[{index}] is empty")
+
+    icons = [MOD_ROOT / relative for relative in ("icons/yone_skill.png", "icons/yone_skill2.png", "icons/yone_ult.png")]
+    for path in icons:
+        check(path.is_file(), f"Yone skill icon is missing: {path.name}")
+        if path.is_file():
+            icon = Image.open(path).convert("RGBA")
+            check(icon.size == (64, 64), f"Yone skill icon must be 64x64: {path.name}")
+            check(icon.getchannel("A").getbbox() is not None, f"Yone skill icon is empty: {path.name}")
+    if all(path.is_file() for path in icons):
+        check(len({sha256(path) for path in icons}) == 3, "Yone Q/W/R icons must remain three distinct generated assets")
+
+    portrait_specs = {
+        "ui/champion_portrait/dual_blader_compact.png": (64, 64),
+        "ui/champion_portrait/dual_blader_grid.png": (90, 122),
+        "ui/champion_fullbody/dual_blader.png": (64, 64),
+        "BanPickIllust/dual_blader.png": (1420, 860),
+    }
+    portrait_paths = [MOD_ROOT / relative for relative in portrait_specs]
+    for relative, expected_size in portrait_specs.items():
+        path = MOD_ROOT / relative
+        check(path.is_file(), f"Yone independent presentation asset is missing: {relative}")
+        if path.is_file():
+            image = Image.open(path).convert("RGBA")
+            check(image.size == expected_size, f"Yone presentation asset has the wrong size: {relative}")
+            check(image.getchannel("A").getbbox() is not None, f"Yone presentation asset is empty: {relative}")
+    compact_path = MOD_ROOT / "ui/champion_portrait/dual_blader_compact.png"
+    if compact_path.is_file():
+        compact_bbox = Image.open(compact_path).convert("RGBA").getchannel("A").getbbox()
+        if compact_bbox is not None:
+            check(compact_bbox[2] - compact_bbox[0] <= 50 and compact_bbox[3] - compact_bbox[1] <= 50, f"Yone compact portrait exceeds 50x50: {compact_bbox}")
+            check(min(compact_bbox[0], compact_bbox[1], 64 - compact_bbox[2], 64 - compact_bbox[3]) >= 6, f"Yone compact portrait lacks 6px safety margins: {compact_bbox}")
+    grid_path = MOD_ROOT / "ui/champion_portrait/dual_blader_grid.png"
+    if grid_path.is_file():
+        grid_bbox = Image.open(grid_path).convert("RGBA").getchannel("A").getbbox()
+        if grid_bbox is not None:
+            check(grid_bbox[3] <= 86, f"Yone BP-grid portrait overlaps the hero-name band: {grid_bbox}")
+    if all(path.is_file() for path in portrait_paths):
+        check(len({sha256(path) for path in portrait_paths}) == 4, "Yone compact/grid/fullbody/BP assets must remain independently authored")
+    source_splash = MOD_ROOT / "source/imagegen/bp_splash/dual_blader.png"
+    check(source_splash.is_file(), "Yone built-in image-gen BP source is missing")
+
+    text = load_json("text/champion.i18n")
+    expected_names = {"en": "Yone", "zh-hans": "永恩", "zh-hant": "犽凝", "ja": "ヨネ", "ko": "요네"}
+    for locale, expected_name in expected_names.items():
+        description = text.get(locale, {}).get("description", {}).get("dual_blader", {})
+        check(description.get("name") == expected_name, f"Yone localized name is wrong for {locale}")
+        for slot in ("attack", "skill", "skill2", "ult"):
+            check(bool(description.get(slot)), f"Yone {locale} localization is missing {slot}")
+        check("lol_yone" not in text.get(locale, {}).get("description", {}), f"{locale} must not register additive lol_yone text")
+    style = load_json("style/champion_view.champion_view").get("entries", {}).get("dual_blader", {})
+    check(set(style) >= {"face", "center"}, "Yone champion_view must define independent face and center cameras")
+
+    rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
+    check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
+    check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
+    check('"yone" | "dual_blader" => Some("dual_blader")' in rust, "Yone splash alias route is missing")
+    check("rewrite_yone_portrait_render_commands(state);" in rust, "Yone independent compact/grid portrait rewrite is missing")
+    check("#lol_fullbody_yone:image" in ui, "Yone encyclopedia full-body node is missing")
+    check('source: "asset/lol_mod/ui/champion_fullbody/dual_blader";' in ui, "Yone full-body node uses the wrong asset")
+
+    for source, remapping in {
+        "asset/base/aseprite_resources/champions/dual_blader#sheet": "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+        "asset/base/aseprite_resources/champions/dual_blader#anim": "asset/lol_mod/aseprite_resources/champions/yone#anim",
+    }.items():
+        check(override.get(source) == {"remapping": remapping, "type": "override"}, f"Yone actor override is missing: {source}")
+
+    expected_audio = {
+        "lol_yone_attack_steel_cast", "lol_yone_attack_steel_hit",
+        "lol_yone_attack_azakana_cast", "lol_yone_attack_azakana_hit",
+        "lol_yone_q_cast", "lol_yone_q_hit", "lol_yone_q_empowered_cast", "lol_yone_q_empowered_hit",
+        "lol_yone_w_cast", "lol_yone_w_hit", "lol_yone_w_shield",
+        "lol_yone_r_cast", "lol_yone_r_arrival", "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana", "lol_yone_r_echo",
+    }
+    used_audio = {
+        str(effect.get("name"))
+        for effect in walk_effects({slot: champion.get(slot, {}) for slot in ("attack", "skill", "skill2", "ult")})
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+    }
+    check(used_audio == expected_audio, "Yone attack/Q/W/R must use the complete custom audio event set")
+    audio_audit = load_json("qa/yone_official_audio_sources.json")
+    audit_outputs = {
+        str(row.get("event_key")): row
+        for row in audio_audit.get("outputs", [])
+        if isinstance(row, dict)
+    }
+    check(set(audit_outputs) == expected_audio, "Yone official-audio audit must pin the final 16 gameplay SFX")
+    r_slash_events = {"lol_yone_r_slash_steel", "lol_yone_r_slash_azakana"}
+    r_safe_volume_events = r_slash_events | {"lol_yone_r_echo"}
+    expected_r_wav_hashes = {
+        "lol_yone_r_slash_steel": "4db973f0465e87a756b4946d36e1d2b1c445d5c848e1ef980fe247c68465ea40",
+        "lol_yone_r_slash_azakana": "af55b445d6c640c825e3fb1c0ae811d4d3037072cb9e5ee760c849f8c84552d0",
+        "lol_yone_r_echo": "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9",
+    }
+    runtime_wav_hashes: dict[str, str] = {}
+    runtime_wav_durations: dict[str, float] = {}
+    runtime_media_ids: dict[str, int] = {}
+    required_manifest_paths = {
+        "champion/dual_blader.data_champion",
+        "aseprite_resources/champions/yone#sheet.png",
+        "aseprite_resources/champions/yone#anim.fanim",
+        *portrait_specs,
+        *(f"icons/yone_{suffix}.png" for suffix in ("skill", "skill2", "ult")),
+        *(f"aseprite_resources/effects/{effect_name}{suffix}" for effect_name in expected_vfx for suffix in ("#sheet.png", "#anim.fanim")),
+    }
+    for event in sorted(expected_audio):
+        mapping = override.get(f"asset/base/sound/sfx/{event}", {})
+        check(mapping.get("type") == "override", f"Yone audio event override is missing: {event}")
+        remapping = str(mapping.get("remapping", ""))
+        check(remapping.startswith("asset/lol_mod/sound/sfx/lol_yone_"), f"Yone audio event has the wrong local mapping: {event}")
+        if not remapping.startswith("asset/lol_mod/sound/sfx/"):
+            continue
+        local = remapping.removeprefix("asset/lol_mod/sound/sfx/")
+        info_relative = f"sound/sfx/{local}.sound_info"
+        info_path = MOD_ROOT / info_relative
+        required_manifest_paths.add(info_relative)
+        check(info_path.is_file(), f"Yone sound_info is missing: {local}")
+        if not info_path.is_file():
+            continue
+        plays = load_json(info_relative).get("plays", [])
+        check(bool(plays), f"Yone sound_info has no plays: {local}")
+        for play in plays:
+            clip = play.get("clip")
+            check(isinstance(clip, str) and bool(clip), f"Yone sound_info has an invalid clip: {local}")
+            volume = float(play.get("volume", 0.0))
+            if event in r_safe_volume_events:
+                check(abs(volume - 0.55) < 1e-9, f"Yone rapid-R/echo safety volume must be 0.55: {local}")
+            else:
+                check(volume >= 0.85, f"Yone sound volume must be at least 0.85: {local}")
+            if not isinstance(clip, str) or not clip:
+                continue
+            clip_mapping = override.get(f"asset/base/sound/sfx/{clip}")
+            check(
+                clip_mapping == {"remapping": f"asset/lol_mod/sound/sfx/{clip}", "type": "override"},
+                f"Yone audio clip override is missing: {clip}",
+            )
+            wav_relative = f"sound/sfx/{clip}.wav"
+            wav_path = MOD_ROOT / wav_relative
+            required_manifest_paths.add(wav_relative)
+            check(wav_path.is_file() and wav_path.stat().st_size > 44, f"Yone WAV is missing or empty: {clip}")
+            if not wav_path.is_file():
+                continue
+            try:
+                with wave.open(str(wav_path), "rb") as decoded:
+                    channels = decoded.getnchannels()
+                    sample_width = decoded.getsampwidth()
+                    sample_rate = decoded.getframerate()
+                    frame_count = decoded.getnframes()
+                    compression = decoded.getcomptype()
+                    raw = decoded.readframes(frame_count)
+                    check(
+                        (channels, sample_width, sample_rate, compression) == (1, 2, 44_100, "NONE"),
+                        f"Yone WAV must be mono PCM16 44100 Hz: {clip}",
+                    )
+                    check(frame_count > 0 and bool(raw), f"Yone WAV has no audio frames: {clip}")
+                    check(any(value != 0 for value in raw), f"Yone custom WAV is silent: {clip}")
+                    runtime_wav_durations[event] = frame_count / sample_rate
+                    if event in r_slash_events:
+                        check(0.18 <= frame_count / sample_rate <= 0.22, f"Yone R slash must be 0.18-0.22 seconds: {clip}")
+                        check(raw[-2:] == b"\0\0", f"Yone R slash fade-out must terminate at zero: {clip}")
+            except wave.Error as error:
+                check(False, f"Yone WAV cannot be decoded: {clip}: {error}")
+        audit = audit_outputs.get(event, {})
+        if isinstance(audit.get("media_id"), int):
+            runtime_media_ids[event] = int(audit["media_id"])
+        sound_record = audit.get("sound_info", {})
+        wav_record = audit.get("wav", {})
+        check(sound_record.get("path") == info_relative, f"Yone audio audit has the wrong sound_info path: {event}")
+        check(wav_record.get("path") == f"sound/sfx/{local}_clip.wav", f"Yone audio audit has the wrong WAV path: {event}")
+        if info_path.is_file():
+            check(sound_record.get("sha256") == sha256(info_path), f"Yone audio audit sound_info hash changed: {event}")
+        audited_wav = MOD_ROOT / str(wav_record.get("path", "missing"))
+        if audited_wav.is_file():
+            check(wav_record.get("sha256") == sha256(audited_wav), f"Yone audio audit WAV hash changed: {event}")
+            runtime_wav_hashes[event] = sha256(audited_wav)
+        if plays:
+            check(
+                abs(float(sound_record.get("volume", -1.0)) - float(plays[0].get("volume", -2.0))) < 1e-9,
+                f"Yone audio audit volume differs from sound_info: {event}",
+            )
+        if audited_wav.is_file():
+            try:
+                with wave.open(str(audited_wav), "rb") as decoded:
+                    check(
+                        wav_record.get("channels") == decoded.getnchannels()
+                        and wav_record.get("sample_width_bytes") == decoded.getsampwidth()
+                        and wav_record.get("sample_rate_hz") == decoded.getframerate()
+                        and wav_record.get("frame_count") == decoded.getnframes()
+                        and wav_record.get("compression") == decoded.getcomptype(),
+                        f"Yone audio audit WAV format differs from runtime file: {event}",
+                    )
+            except wave.Error as error:
+                check(False, f"Yone audited WAV cannot be decoded: {event}: {error}")
+        if event in r_slash_events:
+            transform = audit.get("runtime_transform", {})
+            check(
+                transform.get("kind") == "prefix_trim_with_linear_pcm_fade_out"
+                and transform.get("target_frames") == 8_820
+                and transform.get("fade_out_frames") == 1_764
+                and transform.get("terminal_sample") == 0,
+                f"Yone R slash deterministic trim/fade contract changed: {event}",
+            )
+        if event in expected_r_wav_hashes:
+            check(
+                wav_record.get("sha256") == expected_r_wav_hashes[event],
+                f"Yone pinned R runtime WAV hash changed: {event}",
+            )
+
+    check(
+        len(runtime_wav_hashes) == len(expected_audio)
+        and len(runtime_wav_durations) == len(expected_audio),
+        "Yone validator must inspect all 16 runtime WAV outputs",
+    )
+    check(runtime_media_ids.get("lol_yone_r_echo") == 862_736_579, "Yone R echo must use independent official media 862736579")
+    check(
+        runtime_wav_hashes.get("lol_yone_r_echo")
+        not in {
+            runtime_wav_hashes.get("lol_yone_r_slash_steel"),
+            runtime_wav_hashes.get("lol_yone_r_slash_azakana"),
+        },
+        "Yone R echo WAV must be byte-distinct from both rapid slash WAVs",
+    )
+    check(
+        runtime_wav_durations.get("lol_yone_r_echo", 0.0) > 2.7,
+        "Yone R echo must retain the full official terminal tail",
+    )
+
+    native_events = {"dual_blader_attack", "dual_blader_skill", "dual_blader_skill2", "dual_blader_ult"}
+    native_clips = {
+        "duel_blader_attack0", "duel_blader_attack1", "duel_blader_skill0", "duel_blader_skill1",
+        "dual_blader_skill_resource", "dual_blader_skill2_resource", "duel_blader_ult0",
+    }
+    isolation_audit = audio_audit.get("native_audio_isolation", {})
+    check(set(isolation_audit.get("native_events", [])) == native_events, "Yone audio audit has the wrong native event isolation set")
+    check(set(isolation_audit.get("native_clips", [])) == native_clips, "Yone audio audit has the wrong native clip isolation set")
+    for event in native_events:
+        check(
+            override.get(f"asset/base/sound/sfx/{event}")
+            == {"remapping": "asset/lol_mod/sound/sfx/yone_native_silence", "type": "override"},
+            f"native Dual Blader event must be silenced: {event}",
+        )
+    for clip in native_clips:
+        check(
+            override.get(f"asset/base/sound/sfx/{clip}")
+            == {"remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip", "type": "override"},
+            f"native Dual Blader clip must be silenced: {clip}",
+        )
+    silence_info = MOD_ROOT / "sound/sfx/yone_native_silence.sound_info"
+    silence_clip = MOD_ROOT / "sound/sfx/yone_native_silence_clip.wav"
+    check(silence_info.is_file(), "Yone native silence sound_info is missing")
+    check(silence_clip.is_file(), "Yone native silence WAV is missing")
+    if silence_info.is_file():
+        check(
+            load_json("sound/sfx/yone_native_silence.sound_info")
+            == {"plays": [{"delay": 0.0, "clip": "yone_native_silence_clip", "volume": 1.0}]},
+            "Yone native silence sound_info changed",
+        )
+    if silence_clip.is_file():
+        try:
+            with wave.open(str(silence_clip), "rb") as decoded:
+                raw = decoded.readframes(decoded.getnframes())
+                check(decoded.getnframes() > 0 and bool(raw), "Yone native silence WAV has no frames")
+                check(not any(raw), "Yone native silence WAV must contain physical all-zero PCM")
+        except wave.Error as error:
+            check(False, f"Yone native silence WAV cannot be decoded: {error}")
+    required_manifest_paths.update({"sound/sfx/yone_native_silence.sound_info", "sound/sfx/yone_native_silence_clip.wav"})
+
+    manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
+    missing_manifest = sorted(path for path in required_manifest_paths if path not in manifest_paths)
+    check(not missing_manifest, "Yone runtime resources are missing from build_manifest.json: " + ", ".join(missing_manifest))
+
+
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     lucian = load_json("champion/archer.data_champion")
@@ -6417,9 +7074,10 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     kled = load_json("champion/cavalry_knight.data_champion")
     xayah = load_json("champion/dancer.data_champion")
+    yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.9.1", "lol_mod version must be 0.9.1")
+    check(mod_info.get("version") == "0.10.0", "lol_mod version must be 0.10.0")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
@@ -6504,6 +7162,7 @@ def main() -> int:
     validate_sivir_audio(sivir, override)
     validate_kled_audio(kled, override)
     validate_xayah_release(xayah, override)
+    validate_yone(yone, override)
     validate_briar_imagegen_and_qa_files()
     validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()

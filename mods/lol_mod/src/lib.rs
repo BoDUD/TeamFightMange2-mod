@@ -51,6 +51,11 @@ const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;
 const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;
 const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;
 const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
+// Official 009 Dual Blader's native idle frame is 43x55 and the Ban/Pick
+// surface renders it at 3x.  Keep its settled 129x165 actor centre distinct
+// from both the 90x122 hero-grid portrait and the generic 137x184 contract.
+const BP_DUAL_BLADER_ACTOR_WIDTH: f32 = 129.0;
+const BP_DUAL_BLADER_ACTOR_HEIGHT: f32 = 165.0;
 const KLED_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/cavalry_knight#sheet",
     "asset/lol_mod/aseprite_resources/champions/kled#sheet",
@@ -67,7 +72,15 @@ const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_portrait/dancer_compact";
 const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_portrait/dancer_grid";
-const SPLASH_SPECS: [(&str, &str); 7] = [
+const YONE_ACTOR_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/champions/dual_blader#sheet",
+    "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+];
+const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dual_blader_compact";
+const YONE_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dual_blader_grid";
+const SPLASH_SPECS: [(&str, &str); 8] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -84,6 +97,7 @@ const SPLASH_SPECS: [(&str, &str); 7] = [
         "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
     ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
+    ("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader"),
 ];
 
 // Elder is intentionally excluded: this feature selects one base elemental
@@ -214,6 +228,7 @@ impl ModExtension for LolModExtension {
         rewrite_bp_render_commands(ui, state);
         rewrite_kled_portrait_render_commands(state);
         rewrite_xayah_portrait_render_commands(state);
+        rewrite_yone_portrait_render_commands(state);
     }
 }
 
@@ -323,6 +338,57 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
                 *x = center_x - *w * 0.5;
                 *y = center_y - *h * 0.5;
                 XAYAH_BP_GRID_PORTRAIT_TEXTURE
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
+    }
+}
+
+fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !YONE_ACTOR_SHEET_TEXTURES.contains(&texture.as_str()) {
+                continue;
+            }
+
+            // Keep the readable mask/face crop for compact HUD, scoreboard,
+            // report and side-list squares.  The 90x122 centre hero-grid uses
+            // a separate full-body texture with a protected name-band gap.
+            let is_compact_square = (14.0..=52.0).contains(w)
+                && (14.0..=52.0).contains(h)
+                && (*w - *h).abs() <= 2.0;
+            let is_bp_grid = (84.0..=96.0).contains(w) && (108.0..=130.0).contains(h);
+            let replacement = if is_compact_square {
+                YONE_COMPACT_PORTRAIT_TEXTURE
+            } else if is_bp_grid {
+                YONE_BP_GRID_PORTRAIT_TEXTURE
             } else {
                 continue;
             };
@@ -711,6 +777,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("boomerang_hunter", "lol_fullbody_sivir"),
         ("cavalry_knight", "lol_fullbody_kled"),
         ("dancer", "lol_fullbody_xayah"),
+        ("dual_blader", "lol_fullbody_yone"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -791,7 +858,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.9.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1062,6 +1129,16 @@ fn bp_actor_contract(champion_id: &str) -> BpActorContract {
             max_height: BP_DANCER_TRANSITION_MAX_HEIGHT,
         };
     }
+    if champion_id == "dual_blader" {
+        return BpActorContract {
+            width: BP_DUAL_BLADER_ACTOR_WIDTH,
+            height: BP_DUAL_BLADER_ACTOR_HEIGHT,
+            min_width: BP_TRANSITION_ACTOR_MIN_WIDTH,
+            max_width: BP_TRANSITION_ACTOR_MAX_WIDTH,
+            min_height: 150.0,
+            max_height: BP_TRANSITION_ACTOR_MAX_HEIGHT,
+        };
+    }
     BpActorContract {
         width: BP_NATIVE_ACTOR_WIDTH,
         height: BP_NATIVE_ACTOR_HEIGHT,
@@ -1170,6 +1247,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
         "xayah" | "dancer" => Some("dancer"),
+        "yone" | "dual_blader" => Some("dual_blader"),
         _ => None,
     }
 }

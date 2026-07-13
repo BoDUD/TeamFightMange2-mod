@@ -3,9 +3,9 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.9.1",
-  "description": "Adds Shen and reworks official champions 002-007 as Lucian, Orianna, Briar, Sivir, Kled, and Xayah. Version 0.9.1 rebuilds Xayah at native final scale with stable movement, clear face and fully independent Q/E/R bodies and VFX; Q and R now leave bounded, damage-free endpoint Feather visuals, while a Mod API 0.8 native count mirror blocks built-in AI from spending E below two Feathers. Kled's compact HUD, Ban/Pick grid and encyclopedia surfaces use source-direct portraits for clearer facial detail. Xayah still uses auditable caster-side Feather counts because Mod API 0.8 cannot safely identify, remove and recall persistent per-feather map entities. Includes ImageGen actor, VFX, icons, Ban/Pick art, full-body encyclopedia art, Rift quality assets, deterministic elemental drakes and pinned official ability audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
-  "last_updated": "2026-07-12",
+  "version": "0.10.0",
+  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.0 replaces official 009 Dual Blader with a native-contract Yone: alternating steel/Azakana attacks, hit-gated two-stage Q, crowd-control-gated W pursuit, and a safe six-slash R with one final fixed-damage soul echo. It includes independent ImageGen actor, Q/W/R VFX, icons, compact/grid/full-body portraits, Ban/Pick illustration and pinned local official ability audio while preserving all 13 official animation tags, frame rectangles and timings. Also includes the existing Rift quality pack, deterministic elemental drakes and League-style UI/audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "last_updated": "2026-07-14",
   "dependencies": [
     {
       "mod_id": "base",

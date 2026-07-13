@@ -1090,5 +1090,189 @@
   "asset/base/sound/sfx/xayah_native_silence_clip": {
     "remapping": "asset/lol_mod/sound/sfx/xayah_native_silence_clip",
     "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/dual_blader#sheet": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+    "type": "override"
+  },
+  "asset/base/aseprite_resources/champions/dual_blader#anim": {
+    "remapping": "asset/lol_mod/aseprite_resources/champions/yone#anim",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_steel_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_steel_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_azakana_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_azakana_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_steel_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_steel_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_azakana_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_azakana_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_empowered_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_empowered_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_empowered_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_empowered_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_hit": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_hit",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_shield": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_shield",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_cast": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_cast",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_arrival": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_arrival",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_slash_steel": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_slash_steel",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_slash_azakana": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_slash_azakana",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_echo": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_echo",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_steel_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_steel_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_azakana_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_azakana_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_steel_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_steel_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_attack_azakana_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_attack_azakana_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_empowered_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_empowered_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_q_empowered_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_q_empowered_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_hit_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_hit_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_w_shield_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_w_shield_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_cast_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_cast_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_arrival_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_arrival_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_slash_steel_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_slash_steel_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_slash_azakana_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_slash_azakana_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/lol_yone_r_echo_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/lol_yone_r_echo_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_attack": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_skill": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_skill2": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_ult": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/duel_blader_attack0": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/duel_blader_attack1": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/duel_blader_skill0": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/duel_blader_skill1": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_skill_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/dual_blader_skill2_resource": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/duel_blader_ult0": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/yone_native_silence_clip": {
+    "remapping": "asset/lol_mod/sound/sfx/yone_native_silence_clip",
+    "type": "override"
   }
 }

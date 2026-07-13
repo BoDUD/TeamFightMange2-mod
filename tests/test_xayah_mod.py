@@ -747,7 +747,7 @@ def test_xayah_official_audio_is_pinned_mono_pcm16_and_full_volume() -> None:
 
 def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    assert 'const SPLASH_SPECS: [(&str, &str); 7]' in runtime
+    assert 'const SPLASH_SPECS: [(&str, &str); 8]' in runtime
     assert '("dancer", "asset/lol_mod/BanPickIllust/dancer")' in runtime
     assert '("dancer", "lol_fullbody_xayah")' in " ".join(runtime.split())
     assert '"xayah" | "dancer" => Some("dancer")' in runtime

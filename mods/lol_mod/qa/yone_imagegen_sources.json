@@ -1,0 +1,532 @@
+{
+  "schema_version": 1,
+  "champion": "Yone",
+  "generator": "built-in image_gen",
+  "generated_on": "2026-07-14",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, no generated repaint",
+  "sources": [
+    {
+      "path": "source/imagegen/yone_core_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1945904,
+      "sha256": "6ea7f8649e243407637aa22aba5c99f42a3a0b0e888fbe7fb4b15e5f4e5c84d5",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_run_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1815437,
+      "sha256": "837643dd7dc6303c09f747bd20a391863b2e8c8c8d1078296f6612a4f2dd7cf4",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_wr_body_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1873765,
+      "sha256": "1202e47c6dc2db833ce2fbe0b13e7fc6dfdea34f7b65543f24512000d345f0a5",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_defeat_contact.png",
+      "dimensions": [
+        1619,
+        972
+      ],
+      "size_bytes": 1458656,
+      "sha256": "ada8a7b8221c2372cc9cc34d2d23fdd312255ed9a5c3d2e698d7b8b7b1728cbf",
+      "alpha_bbox": [
+        0,
+        0,
+        1619,
+        972
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_qw_vfx_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1545908,
+      "sha256": "5a6389c90f731e9ae17c68d9c70db36f0d6cf399da763715b6bdee82d1d724fa",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_r_vfx_contact.png",
+      "dimensions": [
+        1619,
+        971
+      ],
+      "size_bytes": 1452131,
+      "sha256": "77954bd5eb28f9777de07be56117e8b11ae959b8b6e19ffbfa75380f2cae60d0",
+      "alpha_bbox": [
+        0,
+        0,
+        1619,
+        971
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_icons_source.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 1591210,
+      "sha256": "292a158dfd06f90fc9bb00c69321535ff07ca65bf99a61dfde600f4d389f7f2e",
+      "alpha_bbox": [
+        0,
+        0,
+        1983,
+        793
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/bp_splash/dual_blader.png",
+      "dimensions": [
+        1611,
+        976
+      ],
+      "size_bytes": 2476957,
+      "sha256": "0f33a13d13fa9e9a88ee7cf2898870ea28c0735951fb9a2376f3bbf1d721ecac",
+      "alpha_bbox": [
+        0,
+        0,
+        1611,
+        976
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    }
+  ],
+  "processed": [
+    {
+      "path": "source/processed/yone_core_contact_alpha.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1214813,
+      "sha256": "794bfea423ac4be05c5962778b5b2598625d7e5b89ad57c7e3c8f039196a8d61",
+      "alpha_bbox": [
+        17,
+        38,
+        1395,
+        1048
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_run_contact_alpha.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 939933,
+      "sha256": "db1d458191b6e53bab585ea7266158c3548594bac7a247c3d3d5a1c43300b2a7",
+      "alpha_bbox": [
+        67,
+        91,
+        1448,
+        916
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_wr_body_contact_alpha.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1134225,
+      "sha256": "7ad8012fc65009873ae2e86e0560f500851d8521dce9d82762456b98ea708d15",
+      "alpha_bbox": [
+        20,
+        27,
+        1368,
+        1063
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_defeat_contact_alpha.png",
+      "dimensions": [
+        1619,
+        972
+      ],
+      "size_bytes": 690460,
+      "sha256": "4cf8fc3d79c3f75bab7af08a8a8f297c40a96bef1136ecfa31b945943593b53e",
+      "alpha_bbox": [
+        30,
+        98,
+        1599,
+        829
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_qw_vfx_contact_alpha.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 679005,
+      "sha256": "0bc6776946f2dc2727cdc285eed5c652306a4f3bc50c18639bd7bef191dba70f",
+      "alpha_bbox": [
+        38,
+        66,
+        1358,
+        1067
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_r_vfx_contact_alpha.png",
+      "dimensions": [
+        1619,
+        971
+      ],
+      "size_bytes": 529701,
+      "sha256": "3eeeae8140ad9dc83fdee26e4c3aa0fc475a402492b040d20a9f6bf72c627afd",
+      "alpha_bbox": [
+        35,
+        43,
+        1560,
+        925
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "path": "aseprite_resources/champions/yone#sheet.png",
+      "dimensions": [
+        3502,
+        88
+      ],
+      "size_bytes": 1232950,
+      "sha256": "9077ef46a8cde39676e02e003a308d97ca5407f21cf3f5cdb949c913586e44bb",
+      "alpha_bbox": [
+        45,
+        1,
+        3498,
+        79
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/champions/yone#anim.fanim",
+      "size_bytes": 15008,
+      "sha256": "21a4325ea1e59ff542e734f2b061a634306689a4a8293a0b48ada7c2d81b9741"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#sheet.png",
+      "dimensions": [
+        224,
+        96
+      ],
+      "size_bytes": 86185,
+      "sha256": "6e98efd49cbac3cb30319ec3c85cf1d55ba49d13c0c6142fc2c0328fab03ef55",
+      "alpha_bbox": [
+        6,
+        2,
+        157,
+        94
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#anim.fanim",
+      "size_bytes": 1518,
+      "sha256": "b81ffa0a9f7127c36f111a61213fbcc25d8bc756517d8f66521ddbd9bb6657a3"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#sheet.png",
+      "dimensions": [
+        624,
+        216
+      ],
+      "size_bytes": 539460,
+      "sha256": "d9f7545f6d49adf8d929088c8ac8f2592949e0a18268b43a78a81ccd7d2611e6",
+      "alpha_bbox": [
+        2,
+        2,
+        499,
+        214
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#anim.fanim",
+      "size_bytes": 3913,
+      "sha256": "174b6280fdde24dc288600e713affba3bd7fc1942548276004261dbb7f7906a7"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#sheet.png",
+      "dimensions": [
+        448,
+        216
+      ],
+      "size_bytes": 387381,
+      "sha256": "2bdd5a4fe2df7b825264c88a56393286dfd57270e1c06c51e209acadea4bc409",
+      "alpha_bbox": [
+        4,
+        2,
+        321,
+        214
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#anim.fanim",
+      "size_bytes": 2441,
+      "sha256": "169355cf731c452a3899b2934e31b64df27e4ee07941963306a75bda78957a80"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#sheet.png",
+      "dimensions": [
+        864,
+        360
+      ],
+      "size_bytes": 1244678,
+      "sha256": "444dfe2e9af7a518c3b704f214ecf1925bbdeb1f8923c8b48a3a545121c7afac",
+      "alpha_bbox": [
+        2,
+        2,
+        761,
+        358
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#anim.fanim",
+      "size_bytes": 4854,
+      "sha256": "5e251f95dc2787e6c44dcad1e12cb7434c7d1a98473b4ecbcc120d2f7974d490"
+    },
+    {
+      "path": "icons/yone_skill.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "f4f6691a42874677ea0cb22a28043b009e1b8776ed78d3bd209bc22620cd840c",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "icons/yone_skill2.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "5d40a81ddfeeaa6a18c1d0d0bd9d357b625c51838c6f0519512f2d7875821a45",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "icons/yone_ult.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "3820739c8a77f884922351481250846b936b4412b0a0dfd3f767e957c914b8ba",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "BanPickIllust/dual_blader.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "size_bytes": 4886098,
+      "sha256": "e20d5b3c8590ff756745d5b7cd0fecd06305699c9a0a69517b91c4f6188b4de5",
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_fullbody/dual_blader.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "d4ec001c0c0c6ec718a25fe8ba2f937b1cd0c2da110be31added195130086f59",
+      "alpha_bbox": [
+        5,
+        9,
+        59,
+        60
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "a8fc28725d98c87e4c939a27e2d069433515fd175459551a64dae3bdf3b9b9c7",
+      "alpha_bbox": [
+        10,
+        8,
+        54,
+        58
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "size_bytes": 44110,
+      "sha256": "ab887454bb1d43f40da459144ea2541384624e9715496a186fd242e4f444a75f",
+      "alpha_bbox": [
+        7,
+        15,
+        83,
+        86
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ]
+}

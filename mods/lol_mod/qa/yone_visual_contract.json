@@ -1,0 +1,1668 @@
+{
+  "schema_version": 1,
+  "champion": "Yone",
+  "replacement_id": "dual_blader",
+  "native_actor": {
+    "sheet_size": [
+      3502,
+      88
+    ],
+    "tag_order": [
+      "skill2",
+      "hit",
+      "attack",
+      "skill2_dash",
+      "ult",
+      "run",
+      "ult_hit_effect",
+      "skill2_attack",
+      "idle",
+      "hit_effect_area",
+      "dead",
+      "skill_projectile",
+      "skill"
+    ],
+    "frame_counts": {
+      "skill2": 1,
+      "hit": 1,
+      "attack": 6,
+      "skill2_dash": 1,
+      "ult": 13,
+      "run": 8,
+      "ult_hit_effect": 11,
+      "skill2_attack": 5,
+      "idle": 4,
+      "hit_effect_area": 11,
+      "dead": 9,
+      "skill_projectile": 4,
+      "skill": 7
+    },
+    "durations": {
+      "skill2": [
+        0.060000002
+      ],
+      "hit": [
+        0.1
+      ],
+      "attack": [
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002
+      ],
+      "skill2_dash": [
+        0.060000002
+      ],
+      "ult": [
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "run": [
+        0.080000006,
+        0.080000006,
+        0.080000006,
+        0.080000006,
+        0.080000006,
+        0.080000006,
+        0.080000006,
+        0.080000006
+      ],
+      "ult_hit_effect": [
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "skill2_attack": [
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002
+      ],
+      "idle": [
+        0.14,
+        0.14,
+        0.14,
+        0.14
+      ],
+      "hit_effect_area": [
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "dead": [
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "skill_projectile": [
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002
+      ],
+      "skill": [
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002,
+        0.060000002
+      ]
+    },
+    "rects": {
+      "skill2": [
+        [
+          1970,
+          0,
+          31,
+          49
+        ]
+      ],
+      "hit": [
+        [
+          874,
+          0,
+          43,
+          53
+        ]
+      ],
+      "attack": [
+        [
+          544,
+          0,
+          45,
+          51
+        ],
+        [
+          590,
+          0,
+          49,
+          51
+        ],
+        [
+          640,
+          0,
+          59,
+          47
+        ],
+        [
+          700,
+          0,
+          59,
+          49
+        ],
+        [
+          760,
+          0,
+          61,
+          49
+        ],
+        [
+          822,
+          0,
+          51,
+          51
+        ]
+      ],
+      "skill2_dash": [
+        [
+          2002,
+          0,
+          43,
+          43
+        ]
+      ],
+      "ult": [
+        [
+          2288,
+          0,
+          49,
+          51
+        ],
+        [
+          2338,
+          0,
+          59,
+          53
+        ],
+        [
+          2398,
+          0,
+          59,
+          57
+        ],
+        [
+          2458,
+          0,
+          61,
+          53
+        ],
+        [
+          2520,
+          0,
+          51,
+          51
+        ],
+        [
+          2572,
+          0,
+          59,
+          47
+        ],
+        [
+          2632,
+          0,
+          59,
+          49
+        ],
+        [
+          2692,
+          0,
+          61,
+          53
+        ],
+        [
+          2754,
+          0,
+          55,
+          57
+        ],
+        [
+          2810,
+          0,
+          59,
+          53
+        ],
+        [
+          2870,
+          0,
+          59,
+          51
+        ],
+        [
+          2930,
+          0,
+          61,
+          49
+        ],
+        [
+          2992,
+          0,
+          53,
+          51
+        ]
+      ],
+      "run": [
+        [
+          220,
+          0,
+          41,
+          49
+        ],
+        [
+          262,
+          0,
+          39,
+          51
+        ],
+        [
+          302,
+          0,
+          39,
+          53
+        ],
+        [
+          342,
+          0,
+          39,
+          51
+        ],
+        [
+          382,
+          0,
+          41,
+          49
+        ],
+        [
+          424,
+          0,
+          39,
+          51
+        ],
+        [
+          464,
+          0,
+          39,
+          53
+        ],
+        [
+          504,
+          0,
+          39,
+          51
+        ]
+      ],
+      "ult_hit_effect": [
+        [
+          3046,
+          0,
+          27,
+          59
+        ],
+        [
+          3074,
+          0,
+          45,
+          59
+        ],
+        [
+          3120,
+          0,
+          45,
+          57
+        ],
+        [
+          3166,
+          0,
+          41,
+          65
+        ],
+        [
+          3208,
+          0,
+          41,
+          65
+        ],
+        [
+          3250,
+          0,
+          41,
+          61
+        ],
+        [
+          3292,
+          0,
+          41,
+          59
+        ],
+        [
+          3334,
+          0,
+          41,
+          59
+        ],
+        [
+          3376,
+          0,
+          41,
+          55
+        ],
+        [
+          3418,
+          0,
+          41,
+          49
+        ],
+        [
+          3460,
+          0,
+          41,
+          37
+        ]
+      ],
+      "skill2_attack": [
+        [
+          2046,
+          0,
+          31,
+          43
+        ],
+        [
+          2078,
+          0,
+          31,
+          45
+        ],
+        [
+          2110,
+          0,
+          59,
+          53
+        ],
+        [
+          2170,
+          0,
+          59,
+          55
+        ],
+        [
+          2230,
+          0,
+          57,
+          51
+        ]
+      ],
+      "idle": [
+        [
+          44,
+          0,
+          43,
+          55
+        ],
+        [
+          88,
+          0,
+          43,
+          53
+        ],
+        [
+          132,
+          0,
+          43,
+          51
+        ],
+        [
+          176,
+          0,
+          43,
+          53
+        ]
+      ],
+      "hit_effect_area": [
+        [
+          2338,
+          0,
+          59,
+          53
+        ],
+        [
+          2398,
+          0,
+          59,
+          57
+        ],
+        [
+          2458,
+          0,
+          61,
+          53
+        ],
+        [
+          2520,
+          0,
+          51,
+          51
+        ],
+        [
+          2572,
+          0,
+          59,
+          47
+        ],
+        [
+          2632,
+          0,
+          59,
+          49
+        ],
+        [
+          2692,
+          0,
+          61,
+          53
+        ],
+        [
+          2754,
+          0,
+          55,
+          57
+        ],
+        [
+          2810,
+          0,
+          59,
+          53
+        ],
+        [
+          2870,
+          0,
+          59,
+          51
+        ],
+        [
+          2930,
+          0,
+          61,
+          49
+        ]
+      ],
+      "dead": [
+        [
+          918,
+          0,
+          43,
+          51
+        ],
+        [
+          962,
+          0,
+          41,
+          49
+        ],
+        [
+          1004,
+          0,
+          41,
+          45
+        ],
+        [
+          1046,
+          0,
+          41,
+          39
+        ],
+        [
+          1088,
+          0,
+          41,
+          39
+        ],
+        [
+          1130,
+          0,
+          41,
+          39
+        ],
+        [
+          1172,
+          0,
+          41,
+          39
+        ],
+        [
+          1214,
+          0,
+          41,
+          39
+        ],
+        [
+          1256,
+          0,
+          3,
+          3
+        ]
+      ],
+      "skill_projectile": [
+        [
+          1690,
+          0,
+          69,
+          37
+        ],
+        [
+          1760,
+          0,
+          69,
+          37
+        ],
+        [
+          1830,
+          0,
+          69,
+          39
+        ],
+        [
+          1900,
+          0,
+          69,
+          37
+        ]
+      ],
+      "skill": [
+        [
+          1260,
+          0,
+          31,
+          49
+        ],
+        [
+          1292,
+          0,
+          31,
+          43
+        ],
+        [
+          1324,
+          0,
+          31,
+          55
+        ],
+        [
+          1356,
+          0,
+          71,
+          57
+        ],
+        [
+          1428,
+          0,
+          83,
+          67
+        ],
+        [
+          1512,
+          0,
+          85,
+          77
+        ],
+        [
+          1598,
+          0,
+          91,
+          87
+        ]
+      ]
+    },
+    "overlap": "hit_effect_area aliases ult frames 1..11 exactly",
+    "body_frames": {
+      "idle": [
+        {
+          "frame": 0,
+          "native_rect": [
+            44,
+            0,
+            43,
+            55
+          ],
+          "alpha_bbox": [
+            1,
+            11,
+            42,
+            49
+          ],
+          "visible_size": [
+            41,
+            38
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            88,
+            0,
+            43,
+            53
+          ],
+          "alpha_bbox": [
+            2,
+            10,
+            40,
+            48
+          ],
+          "visible_size": [
+            38,
+            38
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            132,
+            0,
+            43,
+            51
+          ],
+          "alpha_bbox": [
+            1,
+            10,
+            41,
+            47
+          ],
+          "visible_size": [
+            40,
+            37
+          ],
+          "bottom_clearance": 4
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            176,
+            0,
+            43,
+            53
+          ],
+          "alpha_bbox": [
+            1,
+            10,
+            42,
+            48
+          ],
+          "visible_size": [
+            41,
+            38
+          ],
+          "bottom_clearance": 5
+        }
+      ],
+      "run": [
+        {
+          "frame": 0,
+          "native_rect": [
+            220,
+            0,
+            41,
+            49
+          ],
+          "alpha_bbox": [
+            5,
+            8,
+            36,
+            43
+          ],
+          "visible_size": [
+            31,
+            35
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            262,
+            0,
+            39,
+            51
+          ],
+          "alpha_bbox": [
+            4,
+            9,
+            34,
+            43
+          ],
+          "visible_size": [
+            30,
+            34
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            302,
+            0,
+            39,
+            53
+          ],
+          "alpha_bbox": [
+            5,
+            10,
+            34,
+            43
+          ],
+          "visible_size": [
+            29,
+            33
+          ],
+          "bottom_clearance": 10
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            342,
+            0,
+            39,
+            51
+          ],
+          "alpha_bbox": [
+            4,
+            9,
+            34,
+            43
+          ],
+          "visible_size": [
+            30,
+            34
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            382,
+            0,
+            41,
+            49
+          ],
+          "alpha_bbox": [
+            5,
+            8,
+            35,
+            43
+          ],
+          "visible_size": [
+            30,
+            35
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 5,
+          "native_rect": [
+            424,
+            0,
+            39,
+            51
+          ],
+          "alpha_bbox": [
+            5,
+            9,
+            34,
+            43
+          ],
+          "visible_size": [
+            29,
+            34
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 6,
+          "native_rect": [
+            464,
+            0,
+            39,
+            53
+          ],
+          "alpha_bbox": [
+            6,
+            10,
+            33,
+            43
+          ],
+          "visible_size": [
+            27,
+            33
+          ],
+          "bottom_clearance": 10
+        },
+        {
+          "frame": 7,
+          "native_rect": [
+            504,
+            0,
+            39,
+            51
+          ],
+          "alpha_bbox": [
+            4,
+            9,
+            34,
+            43
+          ],
+          "visible_size": [
+            30,
+            34
+          ],
+          "bottom_clearance": 8
+        }
+      ],
+      "attack": [
+        {
+          "frame": 0,
+          "native_rect": [
+            544,
+            0,
+            45,
+            51
+          ],
+          "alpha_bbox": [
+            2,
+            8,
+            42,
+            46
+          ],
+          "visible_size": [
+            40,
+            38
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            590,
+            0,
+            49,
+            51
+          ],
+          "alpha_bbox": [
+            1,
+            9,
+            48,
+            46
+          ],
+          "visible_size": [
+            47,
+            37
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            640,
+            0,
+            59,
+            47
+          ],
+          "alpha_bbox": [
+            5,
+            6,
+            54,
+            43
+          ],
+          "visible_size": [
+            49,
+            37
+          ],
+          "bottom_clearance": 4
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            700,
+            0,
+            59,
+            49
+          ],
+          "alpha_bbox": [
+            9,
+            6,
+            50,
+            44
+          ],
+          "visible_size": [
+            41,
+            38
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            760,
+            0,
+            61,
+            49
+          ],
+          "alpha_bbox": [
+            7,
+            6,
+            53,
+            44
+          ],
+          "visible_size": [
+            46,
+            38
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 5,
+          "native_rect": [
+            822,
+            0,
+            51,
+            51
+          ],
+          "alpha_bbox": [
+            12,
+            8,
+            38,
+            46
+          ],
+          "visible_size": [
+            26,
+            38
+          ],
+          "bottom_clearance": 5
+        }
+      ],
+      "hit": [
+        {
+          "frame": 0,
+          "native_rect": [
+            874,
+            0,
+            43,
+            53
+          ],
+          "alpha_bbox": [
+            2,
+            10,
+            41,
+            48
+          ],
+          "visible_size": [
+            39,
+            38
+          ],
+          "bottom_clearance": 5
+        }
+      ],
+      "skill": [
+        {
+          "frame": 0,
+          "native_rect": [
+            1260,
+            0,
+            31,
+            49
+          ],
+          "alpha_bbox": [
+            2,
+            6,
+            28,
+            44
+          ],
+          "visible_size": [
+            26,
+            38
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            1292,
+            0,
+            31,
+            43
+          ],
+          "alpha_bbox": [
+            5,
+            2,
+            26,
+            39
+          ],
+          "visible_size": [
+            21,
+            37
+          ],
+          "bottom_clearance": 4
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            1324,
+            0,
+            31,
+            55
+          ],
+          "alpha_bbox": [
+            5,
+            10,
+            25,
+            48
+          ],
+          "visible_size": [
+            20,
+            38
+          ],
+          "bottom_clearance": 7
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            1356,
+            0,
+            71,
+            57
+          ],
+          "alpha_bbox": [
+            13,
+            12,
+            58,
+            51
+          ],
+          "visible_size": [
+            45,
+            39
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            1428,
+            0,
+            83,
+            67
+          ],
+          "alpha_bbox": [
+            20,
+            20,
+            63,
+            59
+          ],
+          "visible_size": [
+            43,
+            39
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 5,
+          "native_rect": [
+            1512,
+            0,
+            85,
+            77
+          ],
+          "alpha_bbox": [
+            16,
+            28,
+            68,
+            67
+          ],
+          "visible_size": [
+            52,
+            39
+          ],
+          "bottom_clearance": 10
+        },
+        {
+          "frame": 6,
+          "native_rect": [
+            1598,
+            0,
+            91,
+            87
+          ],
+          "alpha_bbox": [
+            19,
+            40,
+            72,
+            79
+          ],
+          "visible_size": [
+            53,
+            39
+          ],
+          "bottom_clearance": 8
+        }
+      ],
+      "skill2": [
+        {
+          "frame": 0,
+          "native_rect": [
+            1970,
+            0,
+            31,
+            49
+          ],
+          "alpha_bbox": [
+            5,
+            6,
+            26,
+            44
+          ],
+          "visible_size": [
+            21,
+            38
+          ],
+          "bottom_clearance": 5
+        }
+      ],
+      "skill2_dash": [
+        {
+          "frame": 0,
+          "native_rect": [
+            2002,
+            0,
+            43,
+            43
+          ],
+          "alpha_bbox": [
+            3,
+            3,
+            40,
+            39
+          ],
+          "visible_size": [
+            37,
+            36
+          ],
+          "bottom_clearance": 4
+        }
+      ],
+      "skill2_attack": [
+        {
+          "frame": 0,
+          "native_rect": [
+            2046,
+            0,
+            31,
+            43
+          ],
+          "alpha_bbox": [
+            1,
+            3,
+            29,
+            39
+          ],
+          "visible_size": [
+            28,
+            36
+          ],
+          "bottom_clearance": 4
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            2078,
+            0,
+            31,
+            45
+          ],
+          "alpha_bbox": [
+            1,
+            3,
+            29,
+            40
+          ],
+          "visible_size": [
+            28,
+            37
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            2110,
+            0,
+            59,
+            53
+          ],
+          "alpha_bbox": [
+            12,
+            9,
+            46,
+            47
+          ],
+          "visible_size": [
+            34,
+            38
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            2170,
+            0,
+            59,
+            55
+          ],
+          "alpha_bbox": [
+            11,
+            10,
+            48,
+            48
+          ],
+          "visible_size": [
+            37,
+            38
+          ],
+          "bottom_clearance": 7
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            2230,
+            0,
+            57,
+            51
+          ],
+          "alpha_bbox": [
+            8,
+            8,
+            48,
+            46
+          ],
+          "visible_size": [
+            40,
+            38
+          ],
+          "bottom_clearance": 5
+        }
+      ],
+      "ult": [
+        {
+          "frame": 0,
+          "native_rect": [
+            2288,
+            0,
+            49,
+            51
+          ],
+          "alpha_bbox": [
+            1,
+            10,
+            48,
+            46
+          ],
+          "visible_size": [
+            47,
+            36
+          ],
+          "bottom_clearance": 5
+        },
+        {
+          "frame": 1,
+          "native_rect": [
+            2338,
+            0,
+            59,
+            53
+          ],
+          "alpha_bbox": [
+            6,
+            9,
+            53,
+            47
+          ],
+          "visible_size": [
+            47,
+            38
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 2,
+          "native_rect": [
+            2398,
+            0,
+            59,
+            57
+          ],
+          "alpha_bbox": [
+            9,
+            11,
+            50,
+            49
+          ],
+          "visible_size": [
+            41,
+            38
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 3,
+          "native_rect": [
+            2458,
+            0,
+            61,
+            53
+          ],
+          "alpha_bbox": [
+            9,
+            5,
+            51,
+            43
+          ],
+          "visible_size": [
+            42,
+            38
+          ],
+          "bottom_clearance": 10
+        },
+        {
+          "frame": 4,
+          "native_rect": [
+            2520,
+            0,
+            51,
+            51
+          ],
+          "alpha_bbox": [
+            12,
+            2,
+            39,
+            39
+          ],
+          "visible_size": [
+            27,
+            37
+          ],
+          "bottom_clearance": 12
+        },
+        {
+          "frame": 5,
+          "native_rect": [
+            2572,
+            0,
+            59,
+            47
+          ],
+          "alpha_bbox": [
+            5,
+            1,
+            53,
+            36
+          ],
+          "visible_size": [
+            48,
+            35
+          ],
+          "bottom_clearance": 11
+        },
+        {
+          "frame": 6,
+          "native_rect": [
+            2632,
+            0,
+            59,
+            49
+          ],
+          "alpha_bbox": [
+            12,
+            2,
+            46,
+            40
+          ],
+          "visible_size": [
+            34,
+            38
+          ],
+          "bottom_clearance": 9
+        },
+        {
+          "frame": 7,
+          "native_rect": [
+            2692,
+            0,
+            61,
+            53
+          ],
+          "alpha_bbox": [
+            15,
+            8,
+            45,
+            46
+          ],
+          "visible_size": [
+            30,
+            38
+          ],
+          "bottom_clearance": 7
+        },
+        {
+          "frame": 8,
+          "native_rect": [
+            2754,
+            0,
+            55,
+            57
+          ],
+          "alpha_bbox": [
+            7,
+            13,
+            47,
+            51
+          ],
+          "visible_size": [
+            40,
+            38
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 9,
+          "native_rect": [
+            2810,
+            0,
+            59,
+            53
+          ],
+          "alpha_bbox": [
+            5,
+            8,
+            53,
+            46
+          ],
+          "visible_size": [
+            48,
+            38
+          ],
+          "bottom_clearance": 7
+        },
+        {
+          "frame": 10,
+          "native_rect": [
+            2870,
+            0,
+            59,
+            51
+          ],
+          "alpha_bbox": [
+            3,
+            5,
+            56,
+            43
+          ],
+          "visible_size": [
+            53,
+            38
+          ],
+          "bottom_clearance": 8
+        },
+        {
+          "frame": 11,
+          "native_rect": [
+            2930,
+            0,
+            61,
+            49
+          ],
+          "alpha_bbox": [
+            12,
+            5,
+            49,
+            43
+          ],
+          "visible_size": [
+            37,
+            38
+          ],
+          "bottom_clearance": 6
+        },
+        {
+          "frame": 12,
+          "native_rect": [
+            2992,
+            0,
+            53,
+            51
+          ],
+          "alpha_bbox": [
+            12,
+            9,
+            40,
+            46
+          ],
+          "visible_size": [
+            28,
+            37
+          ],
+          "bottom_clearance": 5
+        }
+      ]
+    }
+  },
+  "runtime_effect_map": {
+    "lol_yone_attack_steel_hit": [
+      "yone_attack",
+      "steel_hit"
+    ],
+    "lol_yone_attack_azakana_hit": [
+      "yone_attack",
+      "azakana_hit"
+    ],
+    "lol_yone_q_projectile": [
+      "yone_q",
+      "projectile"
+    ],
+    "lol_yone_q_empowered_projectile": [
+      "yone_q",
+      "empowered_projectile"
+    ],
+    "lol_yone_q_hit": [
+      "yone_q",
+      "hit"
+    ],
+    "lol_yone_q_empowered_hit": [
+      "yone_q",
+      "empowered_hit"
+    ],
+    "lol_yone_w_dash_visual": [
+      "yone_w",
+      "dash"
+    ],
+    "lol_yone_w_impact": [
+      "yone_w",
+      "impact"
+    ],
+    "lol_yone_w_shield": [
+      "yone_w",
+      "shield"
+    ],
+    "lol_yone_r_windup": [
+      "yone_r",
+      "windup"
+    ],
+    "lol_yone_r_arrival": [
+      "yone_r",
+      "arrival"
+    ],
+    "lol_yone_r_slash_blue": [
+      "yone_r",
+      "slash_blue"
+    ],
+    "lol_yone_r_slash_red": [
+      "yone_r",
+      "slash_red"
+    ],
+    "lol_yone_r_echo": [
+      "yone_r",
+      "echo"
+    ]
+  },
+  "large_vfx_policy": "Q/W/R high-footprint feedback is isolated in yone_q/yone_w/yone_r sheets; actor frames contain body poses and compact native cues only.",
+  "portrait_policy": {
+    "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
+    "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96"
+  }
+}

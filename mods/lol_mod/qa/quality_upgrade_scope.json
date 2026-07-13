@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.9.1",
+  "release": "0.10.0",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -10,7 +10,8 @@
       "berserker",
       "boomerang_hunter",
       "cavalry_knight",
-      "dancer"
+      "dancer",
+      "dual_blader"
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
@@ -88,7 +89,8 @@
       "berserker",
       "boomerang_hunter",
       "cavalry_knight",
-      "dancer"
+      "dancer",
+      "dual_blader"
     ],
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -136,6 +138,26 @@
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "native_dancer_animation_contract_preserved": true,
       "official_base_sfx_hash_manifest": "qa/xayah_official_audio_sources.json"
+    },
+    "yone_official_009": {
+      "stable_id": "dual_blader",
+      "native_force_pick_index": 16,
+      "active_slots": [
+        "Q Mortal Steel",
+        "W Sealed Pursuit",
+        "R Soul Unbound: Sixfold Echo"
+      ],
+      "same_id_replacement": true,
+      "hit_gated_two_stage_q": true,
+      "empowered_q_dash_damage": false,
+      "w_target": "EnemyChampionInCC",
+      "r_physical_slashes": 6,
+      "r_final_fixed_echoes": 1,
+      "r_airborne_applications": 1,
+      "data_only_no_native_effects": true,
+      "imagegen_actor_vfx_icons_bp_and_fullbody": true,
+      "native_dual_blader_animation_contract_preserved": true,
+      "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json"
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [

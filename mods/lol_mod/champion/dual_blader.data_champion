@@ -1,0 +1,650 @@
+{
+  "id": "dual_blader",
+  "category": "Assassin",
+  "tags": [
+    "AD",
+    "Melee",
+    "CC"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/yone",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/yone_skill",
+    "asset/lol_mod/icons/yone_skill2",
+    "asset/lol_mod/icons/yone_ult"
+  ],
+  "stat": {
+    "attack": 110,
+    "magic_power": 0,
+    "hp": 900,
+    "defence": 25,
+    "magic_resistance": 15,
+    "move_speed": 1100,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 20,
+    "magic_power": 0,
+    "hp": 100,
+    "defence": 7,
+    "magic_resistance": 3,
+    "move_speed": 10,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.dual_blader.attack",
+    "duration": 20,
+    "cooltime": 50,
+    "start_timing": 13,
+    "cancelable": true,
+    "range": 25000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "lol_yone_azakana_ready",
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_yone_attack_steel_cast"
+          },
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 100
+          },
+          {
+            "type": "ViewEffect",
+            "name": "lol_yone_attack_steel_hit"
+          },
+          {
+            "type": "TargetSfx",
+            "name": "lol_yone_attack_steel_hit"
+          },
+          {
+            "type": "AddCasterBuff",
+            "buff_state": {
+              "name": "lol_yone_azakana_ready",
+              "duration": "Permanent"
+            }
+          }
+        ]
+      },
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_yone_attack_azakana_cast"
+          },
+          {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 100
+          },
+          {
+            "type": "ViewEffect",
+            "name": "lol_yone_attack_azakana_hit"
+          },
+          {
+            "type": "TargetSfx",
+            "name": "lol_yone_attack_azakana_hit"
+          },
+          {
+            "type": "RemoveCasterBuff",
+            "name": "lol_yone_azakana_ready"
+          }
+        ]
+      }
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.dual_blader.skill",
+    "duration": 30,
+    "cooltime": 240,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 65000,
+    "growth_range": 0,
+    "casting_type": "Direction",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "SwitchByBuff",
+      "buff_name": "lol_yone_gathering_storm",
+      "effect_none": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "Sfx",
+            "name": "lol_yone_q_cast"
+          },
+          {
+            "type": "CasterAnimation",
+            "name": "skill",
+            "tick": 30
+          },
+          {
+            "type": "LinearProjectile",
+            "penetrate": true,
+            "speed": 8000,
+            "range": 60000,
+            "name": "lol_yone_q_projectile",
+            "shape": {
+              "Circle": {
+                "radius": 8000
+              }
+            },
+            "applied_target": "EnemyWithoutTower",
+            "applied_effects": [
+              {
+                "casting_type": "Targeting",
+                "effect": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 25,
+                      "attack_ratio": 80
+                    },
+                    {
+                      "type": "ViewEffect",
+                      "name": "lol_yone_q_hit"
+                    },
+                    {
+                      "type": "TargetSfx",
+                      "name": "lol_yone_q_hit"
+                    },
+                    {
+                      "type": "SwitchByBuff",
+                      "buff_name": "lol_yone_gathering_storm",
+                      "effect_none": {
+                        "type": "AddCasterBuff",
+                        "buff_state": {
+                          "name": "lol_yone_gathering_storm",
+                          "duration": {
+                            "Time": {
+                              "tick": 360
+                            }
+                          }
+                        }
+                      },
+                      "effect_buff": {
+                        "type": "Combine",
+                        "effects": []
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "end_effects": []
+          }
+        ]
+      },
+      "effect_buff": {
+        "type": "Combine",
+        "effects": [
+          {
+            "type": "RemoveCasterBuff",
+            "name": "lol_yone_gathering_storm"
+          },
+          {
+            "type": "Sfx",
+            "name": "lol_yone_q_empowered_cast"
+          },
+          {
+            "type": "CasterAnimation",
+            "name": "skill",
+            "tick": 30
+          },
+          {
+            "type": "RushTime",
+            "speed": 4000,
+            "tick": 8,
+            "range": 0,
+            "casting_target": "None",
+            "penetrate": true,
+            "applied_effects": []
+          },
+          {
+            "type": "LinearProjectile",
+            "penetrate": true,
+            "speed": 8000,
+            "range": 65000,
+            "name": "lol_yone_q_empowered_projectile",
+            "shape": {
+              "Circle": {
+                "radius": 9000
+              }
+            },
+            "applied_target": "EnemyWithoutTower",
+            "applied_effects": [
+              {
+                "casting_type": "Targeting",
+                "effect": {
+                  "type": "Combine",
+                  "effects": [
+                    {
+                      "type": "Attack",
+                      "damage": 25,
+                      "attack_ratio": 80
+                    },
+                    {
+                      "type": "Airborne",
+                      "duration": 45
+                    },
+                    {
+                      "type": "ViewEffect",
+                      "name": "lol_yone_q_empowered_hit"
+                    },
+                    {
+                      "type": "TargetSfx",
+                      "name": "lol_yone_q_empowered_hit"
+                    }
+                  ]
+                }
+              }
+            ],
+            "end_effects": []
+          }
+        ]
+      }
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.dual_blader.skill2",
+    "duration": 36,
+    "cooltime": 480,
+    "start_timing": 4,
+    "cancelable": false,
+    "range": 90000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampionInCC",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_yone_w_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "skill2_dash",
+          "tick": 36
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_yone_w_dash_visual"
+        },
+        {
+          "type": "RushMoveToBack",
+          "speed": 5000,
+          "applied_effects": [
+            {
+              "type": "RemoveCasterAnimation",
+              "name": "skill2_dash"
+            },
+            {
+              "type": "CasterAnimation",
+              "name": "skill2_attack",
+              "tick": 24
+            },
+            {
+              "type": "Attack",
+              "damage": 45,
+              "attack_ratio": 90
+            },
+            {
+              "type": "Airborne",
+              "duration": 45
+            },
+            {
+              "type": "WithSelf",
+              "effects": [
+                {
+                  "type": "Shield",
+                  "amount": 90,
+                  "attack_ratio": 30,
+                  "ap_ratio": 0,
+                  "tick": 90
+                }
+              ]
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_yone_w_shield"
+            },
+            {
+              "type": "Sfx",
+              "name": "lol_yone_w_shield"
+            },
+            {
+              "type": "ViewEffect",
+              "name": "lol_yone_w_impact"
+            },
+            {
+              "type": "TargetSfx",
+              "name": "lol_yone_w_hit"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.dual_blader.ult",
+    "duration": 96,
+    "cooltime": 3000,
+    "start_timing": 4,
+    "cancelable": false,
+    "range": 40000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_yone_r_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "ult",
+          "tick": 78
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_yone_r_windup"
+        },
+        {
+          "type": "RushMoveToBack",
+          "speed": 5000,
+          "applied_effects": [
+            {
+              "type": "Airborne",
+              "duration": 60
+            },
+            {
+              "type": "ViewEffect",
+              "name": "lol_yone_r_arrival"
+            },
+            {
+              "type": "TargetSfx",
+              "name": "lol_yone_r_arrival"
+            },
+            {
+              "type": "Delayed",
+              "tick": 8,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_blue"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_steel"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 16,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_red"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_azakana"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 24,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_blue"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_steel"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 32,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_red"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_azakana"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 40,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_blue"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_steel"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 48,
+              "effects": [
+                {
+                  "type": "Attack",
+                  "damage": 12,
+                  "attack_ratio": 16
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_slash_red"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_slash_azakana"
+                }
+              ]
+            },
+            {
+              "type": "Delayed",
+              "tick": 60,
+              "effects": [
+                {
+                  "type": "FixedAttack",
+                  "damage": 30,
+                  "attack_ratio": 25
+                },
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_yone_r_echo"
+                },
+                {
+                  "type": "TargetSfx",
+                  "name": "lol_yone_r_echo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_yone_q_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_yone_q_empowered_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "empowered_projectile",
+      "z": 2,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_yone_attack_steel_hit",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "steel_hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_attack_azakana_hit",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "azakana_hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q_hit",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q_empowered_hit",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "empowered_hit",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_w_dash_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "dash",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_w_impact",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_w_shield",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "shield",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_windup",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "windup",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_arrival",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "arrival",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_slash_blue",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "slash_blue",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_slash_red",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "slash_red",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_echo",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "echo",
+      "z": 2,
+      "is_follow": true
+    }
+  ]
+}

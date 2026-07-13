@@ -1,5 +1,12 @@
 # TeamFightMange2-mod
 
+## v0.10.0：永恩同 ID 重做官方 009
+
+- 以 `dual_blader` 同 ID 覆盖官方英雄 009，只提供 Q「错玉切」、W「封尘追斩」和 R「破障之锋·六道断魂」三个主动槽；不会新增重复的 `lol_yone`，也不会混入厄加特分支。
+- Q 采用命中才获得状态的两段循环，强化形态先消耗状态、无伤害冲刺，再由同方向剑风造成一次伤害与击飞；W 只追击已受控英雄；R 只有一次击飞、六段物理斩击和一次固定伤害灵魂回响，全树不使用 `Native`。
+- 永恩主体、钢剑/亚扎卡纳普攻、Q/W/R 特效、图标、紧凑头像、90×122 BP 英雄格、百科全身图与 BP 插画均来自独立 ImageGen 源；严格保留官方 Dual Blader 的 13 个动画标签、帧矩形、帧数和时长，并为所有动作保留脚底安全区。
+- 技能和平 A 音效从本机 Yone 基础皮肤 Wwise 资源固定提取并按 SHA-256 审计；钢剑与亚扎卡纳剑使用不同的官方随机池变体，原 Dual Blader 自动音频全部重定向到物理静音资源，避免叠播。
+
 ## v0.9.1：霞模型与 Q/E/R 重制、克烈头像清晰度修复
 
 - 霞改用原生最终尺寸设计的新主体：统一等比缩放并恢复官方 Dancer 的逐帧脚底留白，走路不再横向压扁；Q、E、R 使用互不复用的身体动作和特效图集，R 具备完整腾空、五羽扇形与独立保护残影。
@@ -175,6 +182,6 @@ python -m pytest -q
 powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\install_lol_mod.ps1
 ```
 
-本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir、Kled、Xayah 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
+本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir、Kled、Xayah、Yone 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
 
 TeamFightMange2-mod was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.
