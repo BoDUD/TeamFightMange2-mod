@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "champion": "Sivir",
+  "native_id": "boomerang_hunter",
+  "accepted_source": "source/processed/sivir_actor_contact_alpha.png",
+  "accepted_source_sha256": "6df77fe7cd9922cd15438d467b4a43c5624980d4464736e43b8b0eb4a7b30103",
+  "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+  "skill_logic_changed": false,
+  "battle_actor": {
+    "sheet": "aseprite_resources/champions/sivir#sheet.png",
+    "animation": "aseprite_resources/champions/sivir#anim.fanim",
+    "uniform_xy_scale": true,
+    "x_only_compression": false,
+    "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+    "foot_baseline_exclusive_y": 46,
+    "first_idle_alpha_bbox": [
+      13,
+      2,
+      50,
+      46
+    ],
+    "face_readability": {
+      "sample_box": [
+        16,
+        2,
+        47,
+        27
+      ],
+      "opaque_pixels": 533,
+      "gold_accent_pixels": 105,
+      "luminance_dynamic_range": 217.47
+    },
+    "core_actions": {
+      "idle": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            13,
+            2,
+            50,
+            46
+          ],
+          [
+            14,
+            2,
+            50,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ],
+          [
+            14,
+            2,
+            50,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          44,
+          44
+        ],
+        "visible_width_range": [
+          36,
+          37
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "run": {
+        "frame_count": 8,
+        "alpha_bboxes": [
+          [
+            11,
+            2,
+            53,
+            46
+          ],
+          [
+            10,
+            2,
+            53,
+            46
+          ],
+          [
+            6,
+            3,
+            57,
+            46
+          ],
+          [
+            7,
+            1,
+            56,
+            46
+          ],
+          [
+            10,
+            3,
+            54,
+            46
+          ],
+          [
+            10,
+            2,
+            53,
+            46
+          ],
+          [
+            9,
+            2,
+            55,
+            46
+          ],
+          [
+            9,
+            2,
+            54,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          43,
+          45
+        ],
+        "visible_width_range": [
+          42,
+          51
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "alpha_bboxes": [
+          [
+            9,
+            8,
+            55,
+            46
+          ],
+          [
+            9,
+            8,
+            55,
+            46
+          ],
+          [
+            12,
+            8,
+            52,
+            46
+          ],
+          [
+            12,
+            8,
+            52,
+            46
+          ],
+          [
+            10,
+            10,
+            53,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          44
+        ],
+        "visible_width_range": [
+          37,
+          46
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "skill": {
+        "frame_count": 7,
+        "alpha_bboxes": [
+          [
+            10,
+            2,
+            54,
+            46
+          ],
+          [
+            10,
+            2,
+            54,
+            46
+          ],
+          [
+            10,
+            10,
+            53,
+            46
+          ],
+          [
+            10,
+            10,
+            53,
+            46
+          ],
+          [
+            11,
+            13,
+            53,
+            46
+          ],
+          [
+            14,
+            2,
+            50,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          33,
+          44
+        ],
+        "visible_width_range": [
+          36,
+          44
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "skill2": {
+        "frame_count": 7,
+        "alpha_bboxes": [
+          [
+            12,
+            3,
+            52,
+            46
+          ],
+          [
+            12,
+            3,
+            52,
+            46
+          ],
+          [
+            12,
+            3,
+            52,
+            46
+          ],
+          [
+            11,
+            6,
+            53,
+            46
+          ],
+          [
+            14,
+            2,
+            50,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          40,
+          44
+        ],
+        "visible_width_range": [
+          36,
+          42
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "ult": {
+        "frame_count": 6,
+        "alpha_bboxes": [
+          [
+            17,
+            4,
+            46,
+            46
+          ],
+          [
+            17,
+            4,
+            46,
+            46
+          ],
+          [
+            17,
+            4,
+            46,
+            46
+          ],
+          [
+            17,
+            4,
+            46,
+            46
+          ],
+          [
+            14,
+            2,
+            50,
+            46
+          ],
+          [
+            13,
+            2,
+            50,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          42,
+          44
+        ],
+        "visible_width_range": [
+          29,
+          37
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "alpha_bboxes": [
+          [
+            11,
+            5,
+            52,
+            46
+          ]
+        ],
+        "visible_height_range": [
+          41,
+          41
+        ],
+        "visible_width_range": [
+          41,
+          41
+        ],
+        "bottom_range": [
+          46,
+          46
+        ]
+      }
+    }
+  },
+  "surfaces": {
+    "side_card": {
+      "path": "BanPickIllust/boomerang_hunter.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "hard_alpha": false,
+      "opaque_pixels": 1216644,
+      "sha256": "8f2890914892aeb1f446a28fa5d4e6e71738907533e72df4c62515db9c38b431"
+    },
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/boomerang_hunter.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        7,
+        2,
+        56,
+        60
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1614,
+      "sha256": "bdc2f630c7b81f2b7204e3e5da5fbe322e70645fe80de84ad2d4904d0cef2d73"
+    },
+    "sidebar": {
+      "path": "ui/champion_portrait/boomerang_hunter_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        9,
+        8,
+        54,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1673,
+      "sha256": "1cd4c992f6e27e14c4b1eee302b48409810dbe1c9d151e7ff590183f83638cea"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/boomerang_hunter_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        9,
+        8,
+        55,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1628,
+      "sha256": "622c5cbaa1d60a921fa9e03eb6b110a9a5e1aa0f8d1a393a3a87e1bb72bde350"
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/boomerang_hunter_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        10,
+        4,
+        79,
+        86
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 3185,
+      "sha256": "852532e8af7f8573f81e708d54b7b5a51561ac4d3e4548f9e35fef52155bdd89",
+      "name_band_y": 96,
+      "name_band_clearance": 10
+    }
+  },
+  "runtime_routing": {
+    "scoreboard_square_px": [
+      14,
+      38
+    ],
+    "sidebar_square_px": [
+      39,
+      52
+    ],
+    "bp_native_grid_px": [
+      124,
+      132
+    ],
+    "bp_replacement_dimensions": [
+      90,
+      122
+    ],
+    "battle_sprite_commands_untouched": true
+  }
+}

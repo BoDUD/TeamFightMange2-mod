@@ -1,0 +1,670 @@
+{
+  "schema_version": 1,
+  "champion": "Lucian",
+  "native_id": "archer",
+  "accepted_source": "source/processed/lucian_actor_master_v3_alpha.png",
+  "accepted_source_sha256": "c538356b122e333d48880010cfcb0bdff2147c7dae813d4c965a6654bad4dac0",
+  "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+  "skill_logic_changed": false,
+  "battle_actor": {
+    "sheet": "aseprite_resources/champions/lucian#sheet.png",
+    "animation": "aseprite_resources/champions/lucian#anim.fanim",
+    "uniform_xy_scale": true,
+    "x_only_compression": false,
+    "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+    "foot_baseline_exclusive_y": 45,
+    "first_idle_alpha_bbox": [
+      19,
+      5,
+      44,
+      45
+    ],
+    "face_readability": {
+      "sample_box": [
+        21,
+        5,
+        42,
+        27
+      ],
+      "opaque_pixels": 309,
+      "cyan_accent_pixels": 19,
+      "luminance_dynamic_range": 242.95
+    },
+    "core_actions": {
+      "idle": {
+        "frame_count": 7,
+        "alpha_bboxes": [
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            20,
+            5,
+            44,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            20,
+            5,
+            44,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            20,
+            5,
+            44,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          40,
+          40
+        ],
+        "visible_width_range": [
+          24,
+          25
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "run": {
+        "frame_count": 9,
+        "alpha_bboxes": [
+          [
+            16,
+            5,
+            47,
+            45
+          ],
+          [
+            14,
+            5,
+            49,
+            45
+          ],
+          [
+            16,
+            5,
+            48,
+            45
+          ],
+          [
+            16,
+            6,
+            47,
+            45
+          ],
+          [
+            16,
+            6,
+            47,
+            45
+          ],
+          [
+            16,
+            6,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            48,
+            45
+          ],
+          [
+            17,
+            6,
+            47,
+            45
+          ],
+          [
+            17,
+            5,
+            47,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          40
+        ],
+        "visible_width_range": [
+          30,
+          35
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack_right": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            13,
+            5,
+            51,
+            45
+          ],
+          [
+            13,
+            5,
+            51,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          40,
+          40
+        ],
+        "visible_width_range": [
+          25,
+          38
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack_left": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            13,
+            6,
+            51,
+            45
+          ],
+          [
+            13,
+            6,
+            51,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          39,
+          40
+        ],
+        "visible_width_range": [
+          25,
+          38
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack_double": {
+        "frame_count": 6,
+        "alpha_bboxes": [
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            5,
+            51,
+            45
+          ],
+          [
+            13,
+            6,
+            51,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          39,
+          40
+        ],
+        "visible_width_range": [
+          25,
+          38
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill": {
+        "frame_count": 10,
+        "alpha_bboxes": [
+          [
+            19,
+            5,
+            44,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            12,
+            5,
+            51,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          40,
+          40
+        ],
+        "visible_width_range": [
+          25,
+          39
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill2": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            16,
+            11,
+            48,
+            45
+          ],
+          [
+            14,
+            11,
+            50,
+            45
+          ],
+          [
+            14,
+            11,
+            50,
+            45
+          ],
+          [
+            14,
+            11,
+            50,
+            45
+          ],
+          [
+            20,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          34,
+          40
+        ],
+        "visible_width_range": [
+          24,
+          36
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "ult": {
+        "frame_count": 17,
+        "alpha_bboxes": [
+          [
+            19,
+            0,
+            44,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            13,
+            6,
+            50,
+            45
+          ],
+          [
+            19,
+            5,
+            44,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          39,
+          45
+        ],
+        "visible_width_range": [
+          25,
+          37
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "alpha_bboxes": [
+          [
+            17,
+            7,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          29,
+          29
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      }
+    }
+  },
+  "surfaces": {
+    "side_card": {
+      "path": "BanPickIllust/archer.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "hard_alpha": false,
+      "opaque_pixels": 1216644,
+      "sha256": "faf74bff3129e3afd5019c7939fe973a54b2dd3a167aca41445978131dccad84"
+    },
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/archer.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        14,
+        2,
+        50,
+        60
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1357,
+      "sha256": "30405f7c747bab463ab091ae8c501e6d4ad981e41040865c72f8a9671c049bbf"
+    },
+    "sidebar": {
+      "path": "ui/champion_portrait/archer_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        13,
+        8,
+        51,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1417,
+      "sha256": "55784dcc604f1ad171dca045b4b5feaaf92d69189d54d2f5cea2be8b98fa6be2"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/archer_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        11,
+        8,
+        52,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1679,
+      "sha256": "8b877dae63d873be40f18d327227a73a699bc7c115999edd7213c45d782b8a69"
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/archer_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        19,
+        4,
+        70,
+        86
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 2687,
+      "sha256": "8fe87e0707026766d6f840ba60c711f785cfb71d31e84d37bd5cc1524dc1c9c3",
+      "name_band_y": 96,
+      "name_band_clearance": 10
+    }
+  },
+  "runtime_routing": {
+    "scoreboard_square_px": [
+      14,
+      38
+    ],
+    "sidebar_square_px": [
+      39,
+      52
+    ],
+    "bp_native_grid_px": [
+      124,
+      132
+    ],
+    "bp_replacement_dimensions": [
+      90,
+      122
+    ],
+    "battle_sprite_commands_untouched": true
+  }
+}

@@ -91,6 +91,69 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
     assert all(entry["volume"] >= 0.85 for entry in [*shen_audio["outputs"], *lucian_audio["outputs"]])
 
 
+def test_shen_and_lucian_hd_surfaces_are_source_direct_and_independent() -> None:
+    import sys
+
+    sys.path.insert(0, str(ROOT / "tests"))
+    from legacy_hd_assertions import (
+        animation_frames,
+        assert_actor_tag_scale,
+        assert_legacy_hd_portrait_set,
+        assert_readable_upper_detail,
+    )
+
+    builder = (MOD / "tools" / "build_lol_mod.py").read_text(encoding="utf-8")
+    runtime = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
+    assert "def render_source_direct_ui_subject(" in builder
+    assert "def build_source_direct_portrait_set(" in builder
+    assert "source_direct_actor_cell(" in builder
+    assert builder.count("actor_scale = 40 / idle_height") >= 2
+    assert "rewrite_shen_lucian_portrait_render_commands(state);" in runtime
+    assert "let is_scoreboard_square = (14.0..=38.0)" in runtime
+    assert "let is_compact_square = (39.0..=52.0)" in runtime
+    assert "let is_bp_grid = (124.0..=132.0)" in runtime
+
+    for hero, champion_id, actor_name, run_range in (
+        ("shen", "lol_shen", "shen", (38, 42)),
+        ("lucian", "archer", "lucian", (38, 40)),
+    ):
+        qa = json.loads((MOD / "qa" / f"{hero}_hd_surface_qa.json").read_text(encoding="utf-8"))
+        assert qa["source_route"] == "existing processed high-resolution ImageGen idle; no new generation"
+        assert qa["skill_logic_changed"] is False
+        assert qa["battle_actor"]["uniform_xy_scale"] is True
+        assert qa["battle_actor"]["x_only_compression"] is False
+        assert qa["battle_actor"]["first_idle_alpha_bbox"][3] - qa["battle_actor"]["first_idle_alpha_bbox"][1] == 40
+        assert qa["runtime_routing"]["scoreboard_square_px"] == [14, 38]
+        assert qa["runtime_routing"]["sidebar_square_px"] == [39, 52]
+
+        assert_legacy_hd_portrait_set(
+            MOD,
+            champion_id,
+            side_card_relative=f"BanPickIllust/{champion_id}.png",
+        )
+        actor_sheet = MOD / "aseprite_resources" / "champions" / f"{actor_name}#sheet.png"
+        actor_anim = MOD / "aseprite_resources" / "champions" / f"{actor_name}#anim.fanim"
+        assert_actor_tag_scale(
+            actor_sheet,
+            actor_anim,
+            "idle",
+            min_height=40,
+            max_height=40,
+            baseline=45,
+            min_unique_frames=2,
+        )
+        assert_actor_tag_scale(
+            actor_sheet,
+            actor_anim,
+            "run",
+            min_height=run_range[0],
+            max_height=run_range[1],
+            baseline=45,
+            min_unique_frames=9,
+        )
+        assert_readable_upper_detail(animation_frames(actor_sheet, actor_anim, "idle")[0])
+
+
 def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None:
     source = (MOD / "src" / "lib.rs").read_text(encoding="utf-8")
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
@@ -380,5 +443,5 @@ def test_lucian_q_locks_an_enemy_unit_and_shares_one_piercing_projectile() -> No
     actor_sheet = Image.open(MOD / "aseprite_resources" / "champions" / "lucian#sheet.png").convert("RGBA")
     hit_bbox = actor_sheet.crop((19 * 64, 0, 20 * 64, 64)).getchannel("A").getbbox()
     dead_bbox = actor_sheet.crop((20 * 64, 0, 21 * 64, 64)).getchannel("A").getbbox()
-    assert hit_bbox is not None and hit_bbox[2] - hit_bbox[0] <= 28
-    assert dead_bbox is not None and dead_bbox[2] - dead_bbox[0] <= 40
+    assert hit_bbox is not None and hit_bbox[2] - hit_bbox[0] <= 32
+    assert dead_bbox is not None and dead_bbox[2] - dead_bbox[0] <= 44

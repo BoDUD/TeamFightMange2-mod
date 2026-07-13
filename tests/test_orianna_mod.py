@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+from PIL import Image
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
@@ -189,6 +191,10 @@ def test_orianna_preserves_native_animation_and_packages_every_view_resource() -
         "icons/orianna_skill.png",
         "icons/orianna_skill2.png",
         "icons/orianna_ult.png",
+        "ui/champion_fullbody/barrier_magician.png",
+        "ui/champion_portrait/barrier_magician_compact.png",
+        "ui/champion_portrait/barrier_magician_scoreboard.png",
+        "ui/champion_portrait/barrier_magician_grid.png",
     }
     for binding in [*orianna["view_projectiles"], *orianna["view_effects"], *orianna["view_buffs"]]:
         anim_path = binding.get("anim")
@@ -212,6 +218,53 @@ def test_orianna_v2_actor_face_feet_run_and_attack_dart_visual_gates() -> None:
     validator.validate_orianna_v2_visual_contract()
 
     assert validator.ERRORS == []
+
+
+def test_orianna_hd_portraits_are_source_direct_surface_specific_and_bp_safe() -> None:
+    surfaces = {
+        "encyclopedia": ("ui/champion_fullbody/barrier_magician.png", (64, 64)),
+        "sidebar": ("ui/champion_portrait/barrier_magician_compact.png", (64, 64)),
+        "scoreboard": (
+            "ui/champion_portrait/barrier_magician_scoreboard.png",
+            (64, 64),
+        ),
+        "bp_grid": ("ui/champion_portrait/barrier_magician_grid.png", (90, 122)),
+    }
+    bboxes: dict[str, tuple[int, int, int, int]] = {}
+    for surface, (relative, expected_size) in surfaces.items():
+        image = Image.open(MOD / relative).convert("RGBA")
+        bbox = image.getchannel("A").getbbox()
+        assert image.size == expected_size, surface
+        assert bbox is not None, surface
+        assert image.getchannel("A").getextrema() == (0, 255), surface
+        bboxes[surface] = bbox
+
+    assert bboxes["bp_grid"][3] <= 86
+    assert 96 - bboxes["bp_grid"][3] >= 10
+    assert bboxes["bp_grid"][1] <= 8
+    for surface in ("sidebar", "scoreboard"):
+        bbox = bboxes[surface]
+        assert bbox[2] - bbox[0] <= 50
+        assert bbox[3] - bbox[1] <= 50
+        assert min(bbox[0], bbox[1], 64 - bbox[2], 64 - bbox[3]) >= 6
+    assert (MOD / surfaces["sidebar"][0]).read_bytes() != (
+        MOD / surfaces["scoreboard"][0]
+    ).read_bytes()
+
+    qa = load_json("qa/orianna_hd_surface_qa.json")
+    assert qa["champion"] == "Orianna"
+    assert qa["native_id"] == "barrier_magician"
+    assert qa["accepted_source"] == "source/processed/orianna_actor_contact_alpha.png"
+    assert qa["battle_actor"]["uniform_xy_scale"] is True
+    assert qa["battle_actor"]["x_only_compression"] is False
+    assert qa["surfaces"]["bp_grid"]["alpha_bbox"][3] <= 86
+    assert qa["surfaces"]["bp_grid"]["name_band_clearance"] >= 10
+    assert (MOD / "qa/orianna_portrait_surface_final.png").is_file()
+
+    runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    assert "rewrite_orianna_briar_portrait_render_commands(state);" in runtime
+    assert "ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE" in runtime
+    assert "ORIANNA_BP_GRID_PORTRAIT_TEXTURE" in runtime
 
 
 def test_orianna_attack_audio_restores_official_oncast_launch_and_hit_identity() -> None:

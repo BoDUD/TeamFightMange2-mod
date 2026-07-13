@@ -2322,7 +2322,13 @@ def validate_orianna_v2_visual_contract() -> None:
 
 def validate_orianna_resources_and_manifest(champion: dict[str, Any]) -> None:
     prefix = "asset/lol_mod/"
-    required_manifest_paths = {"champion/barrier_magician.data_champion"}
+    required_manifest_paths = {
+        "champion/barrier_magician.data_champion",
+        "ui/champion_fullbody/barrier_magician.png",
+        "ui/champion_portrait/barrier_magician_compact.png",
+        "ui/champion_portrait/barrier_magician_scoreboard.png",
+        "ui/champion_portrait/barrier_magician_grid.png",
+    }
     animation_cache: dict[str, dict[str, Any]] = {}
 
     def require_animation(asset: Any, tag: Any, label: str) -> None:
@@ -2462,9 +2468,9 @@ def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 38, f"Briar primary idle {index} must retain the reviewed 38px actor height")
+        check(height == 42, f"Briar primary idle {index} must retain the HD 42px actor height")
         check(bbox[3] == 46, f"Briar primary idle {index} must end on the exclusive y=46 foot baseline")
-        check(20 <= width <= 26, f"Briar primary idle {index} left the compact 20-26px footprint")
+        check(22 <= width <= 30, f"Briar primary idle {index} left the HD 22-30px footprint")
         check(bbox[0] >= 2 and bbox[2] <= 62, f"Briar primary idle {index} touches a side edge")
         foot_x = [x for x in range(64) if alpha.getpixel((x, 45)) >= 128]
         foot_segments: list[list[int]] = []
@@ -2493,9 +2499,9 @@ def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 38, f"Briar run frame {index} must retain the 38px actor height")
+        check(height == 42, f"Briar run frame {index} must retain the HD 42px actor height")
         check(bbox[3] == 46, f"Briar run frame {index} must retain the y=45 foot pixels")
-        check(27 <= width <= 38, f"Briar run frame {index} left the compact 27-38px footprint")
+        check(29 <= width <= 42, f"Briar run frame {index} left the HD 29-42px footprint")
         area = sum(alpha.getpixel((x, y)) >= 128 for y in range(64) for x in range(64))
         check(area >= 520, f"Briar run frame {index} loses too much body/lower-leg detail")
         run_areas.append(area)
@@ -2529,6 +2535,10 @@ def validate_briar_resources_and_manifest(champion: dict[str, Any]) -> None:
         "champion/berserker.data_champion",
         "aseprite_resources/champions/briar#sheet.png",
         "aseprite_resources/champions/briar#anim.fanim",
+        "ui/champion_fullbody/berserker.png",
+        "ui/champion_portrait/berserker_compact.png",
+        "ui/champion_portrait/berserker_scoreboard.png",
+        "ui/champion_portrait/berserker_grid.png",
         "style/champion_view.champion_view",
         "text/champion.i18n",
     }
@@ -2593,6 +2603,130 @@ def validate_briar_resources_and_manifest(champion: dict[str, Any]) -> None:
         not missing_manifest_paths,
         "Briar runtime resources are missing from build_manifest.json: " + ", ".join(missing_manifest_paths),
     )
+
+
+def validate_orianna_briar_hd_surfaces() -> None:
+    runtime_path = MOD_ROOT / "src/lib.rs"
+    check(runtime_path.is_file(), "portrait runtime source is missing")
+    runtime = runtime_path.read_text(encoding="utf-8") if runtime_path.is_file() else ""
+    check(
+        "rewrite_orianna_briar_portrait_render_commands(state);" in runtime,
+        "Orianna/Briar source-direct UI portrait router is not active",
+    )
+
+    specs = (
+        (
+            "Orianna",
+            "barrier_magician",
+            "orianna_actor_contact_alpha.png",
+            "orianna_hd_surface_qa.json",
+            "orianna_portrait_surface_final.png",
+            [23, 4, 41, 42],
+            "ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE",
+        ),
+        (
+            "Briar",
+            "berserker",
+            "briar_actor_contact_alpha.png",
+            "briar_hd_surface_qa.json",
+            "briar_portrait_surface_final.png",
+            [20, 4, 44, 46],
+            "BRIAR_SCOREBOARD_PORTRAIT_TEXTURE",
+        ),
+    )
+    for (
+        champion,
+        champion_id,
+        source_name,
+        qa_name,
+        contact_name,
+        expected_idle_bbox,
+        runtime_constant,
+    ) in specs:
+        check(runtime_constant in runtime, f"{champion} scoreboard portrait route is missing")
+        qa_path = MOD_ROOT / "qa" / qa_name
+        contact_path = MOD_ROOT / "qa" / contact_name
+        check(qa_path.is_file(), f"{champion} HD surface QA record is missing")
+        check(contact_path.is_file(), f"{champion} HD surface contact is missing")
+        if not qa_path.is_file():
+            continue
+        qa = load_json(f"qa/{qa_name}")
+        check(qa.get("champion") == champion, f"{champion} HD surface QA identity changed")
+        check(qa.get("native_id") == champion_id, f"{champion} HD native-id route changed")
+        expected_source = f"source/processed/{source_name}"
+        check(
+            qa.get("accepted_source") == expected_source,
+            f"{champion} portraits must use the accepted high-resolution actor source",
+        )
+        source_path = MOD_ROOT / expected_source
+        check(source_path.is_file(), f"{champion} accepted portrait source is missing")
+        if source_path.is_file():
+            check(
+                qa.get("accepted_source_sha256") == sha256(source_path),
+                f"{champion} accepted portrait source hash changed",
+            )
+
+        battle = qa.get("battle_actor", {})
+        check(battle.get("uniform_xy_scale") is True, f"{champion} actor must use uniform x/y scale")
+        check(battle.get("x_only_compression") is False, f"{champion} actor must forbid x-only compression")
+        check(
+            battle.get("first_idle_alpha_bbox") == expected_idle_bbox,
+            f"{champion} primary battle idle bbox changed",
+        )
+        face = battle.get("face_readability", {})
+        check(face.get("opaque_pixels", 0) >= 120, f"{champion} battle face area became too small")
+        check(
+            face.get("luminance_dynamic_range", 0) >= 140,
+            f"{champion} battle face contrast regressed",
+        )
+
+        surfaces = qa.get("surfaces", {})
+        expected_surfaces = {
+            "side_card": (f"BanPickIllust/{champion_id}.png", [1420, 860]),
+            "encyclopedia": (f"ui/champion_fullbody/{champion_id}.png", [64, 64]),
+            "sidebar": (f"ui/champion_portrait/{champion_id}_compact.png", [64, 64]),
+            "scoreboard": (
+                f"ui/champion_portrait/{champion_id}_scoreboard.png",
+                [64, 64],
+            ),
+            "bp_grid": (f"ui/champion_portrait/{champion_id}_grid.png", [90, 122]),
+        }
+        for surface, (relative, dimensions) in expected_surfaces.items():
+            record = surfaces.get(surface, {})
+            path = MOD_ROOT / relative
+            check(record.get("path") == relative, f"{champion} {surface} route changed")
+            check(record.get("dimensions") == dimensions, f"{champion} {surface} dimensions changed")
+            check(path.is_file(), f"{champion} {surface} image is missing")
+            if not path.is_file():
+                continue
+            image = Image.open(path).convert("RGBA")
+            bbox = image.getchannel("A").getbbox()
+            expected_bbox = list(bbox) if bbox else None
+            check(
+                record.get("alpha_bbox") == expected_bbox,
+                f"{champion} {surface} bbox record is stale",
+            )
+            check(record.get("sha256") == sha256(path), f"{champion} {surface} hash record is stale")
+            if surface != "side_card":
+                check(
+                    record.get("hard_alpha") is True,
+                    f"{champion} {surface} must use hard alpha",
+                )
+
+        grid_bbox = surfaces.get("bp_grid", {}).get("alpha_bbox")
+        check(
+            isinstance(grid_bbox, list) and grid_bbox[3] <= 86,
+            f"{champion} BP-grid alpha must end at or before y=86",
+        )
+        check(
+            surfaces.get("bp_grid", {}).get("name_band_clearance", -1) >= 10,
+            f"{champion} BP-grid needs ten transparent pixels before name-band y=96",
+        )
+        check(
+            surfaces.get("sidebar", {}).get("sha256")
+            != surfaces.get("scoreboard", {}).get("sha256"),
+            f"{champion} sidebar and scoreboard must remain independent crops",
+        )
 
 
 def validate_sivir_replacement_uniqueness() -> None:
@@ -2837,11 +2971,11 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
                 visible_width = bbox[2] - bbox[0]
                 visible_height = bbox[3] - bbox[1]
                 check(bbox[3] == 46, f"Sivir core {tag} frame {index} must retain the exclusive y=46 foot baseline")
-                check(23 <= visible_height <= 43, f"Sivir core {tag} frame {index} changed actor scale")
+                check(33 <= visible_height <= 45, f"Sivir core {tag} frame {index} changed HD actor scale")
                 check(18 <= visible_width <= 58 and bbox[0] >= 2 and bbox[2] <= 62, f"Sivir core {tag} frame {index} left the battle-safe width")
             if tag == "run":
                 run_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
-                check(bbox[3] - bbox[1] == 36, f"Sivir run frame {index} must remain 36px tall")
+                check(43 <= bbox[3] - bbox[1] <= 45, f"Sivir run frame {index} must remain in the 43..45px HD band")
             if tag == "attack":
                 attack_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
                 check(len(alpha_component_sizes(image)) == 1, f"Sivir attack frame {index} contains detached pixels or a duplicate weapon")
@@ -2859,7 +2993,10 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
                     f"Sivir attack frame {index} has hidden RGB in transparent pixels",
                 )
             if tag == "idle_no_boomerang":
-                check(bbox[2] - bbox[0] <= 38, "Sivir idle_no_boomerang must use the compact empty-hand pose")
+                check(
+                    bbox[3] - bbox[1] >= 35,
+                    "Sivir idle_no_boomerang must retain the full-scale empty-hand body",
+                )
     check(len(set(run_hashes)) == 8, "Sivir must keep eight distinct generated run phases")
     check(len(set(attack_hashes)) >= 4, "Sivir attack must retain at least four distinct clean poses")
 
@@ -2916,10 +3053,113 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
     for event_name in SIVIR_AUDIO_EVENTS:
         local = event_name.removeprefix("lol_")
         required_manifest_paths.update({f"sound/sfx/{local}.sound_info", f"sound/sfx/{local}_clip.wav"})
-    required_manifest_paths.update({"sound/sfx/sivir_native_silence.sound_info", "sound/sfx/sivir_native_silence_clip.wav"})
+    required_manifest_paths.update({
+        "sound/sfx/sivir_native_silence.sound_info",
+        "sound/sfx/sivir_native_silence_clip.wav",
+        "BanPickIllust/boomerang_hunter.png",
+        "ui/champion_fullbody/boomerang_hunter.png",
+        "ui/champion_portrait/boomerang_hunter_compact.png",
+        "ui/champion_portrait/boomerang_hunter_scoreboard.png",
+        "ui/champion_portrait/boomerang_hunter_grid.png",
+    })
     manifest_paths = {row.get("path") for row in load_json("build_manifest.json").get("files", [])}
     missing = sorted(required_manifest_paths - manifest_paths)
     check(not missing, "Sivir runtime resources are missing from build_manifest.json: " + ", ".join(missing))
+
+
+def validate_sivir_hd_surfaces() -> None:
+    runtime_path = MOD_ROOT / "src/lib.rs"
+    runtime = runtime_path.read_text(encoding="utf-8") if runtime_path.is_file() else ""
+    for marker in (
+        "SIVIR_COMPACT_PORTRAIT_TEXTURE",
+        "SIVIR_SCOREBOARD_PORTRAIT_TEXTURE",
+        "SIVIR_BP_GRID_PORTRAIT_TEXTURE",
+        "asset/base/aseprite_resources/champions/boomerang_hunter#sheet",
+        "asset/lol_mod/aseprite_resources/champions/sivir#sheet",
+    ):
+        check(marker in runtime, f"Sivir source-direct portrait route is missing: {marker}")
+
+    qa_path = MOD_ROOT / "qa/sivir_hd_surface_qa.json"
+    contact_path = MOD_ROOT / "qa/sivir_portrait_surface_final.png"
+    check(qa_path.is_file(), "Sivir HD surface QA record is missing")
+    check(contact_path.is_file(), "Sivir HD surface contact is missing")
+    if not qa_path.is_file():
+        return
+    qa = load_json("qa/sivir_hd_surface_qa.json")
+    check(qa.get("champion") == "Sivir", "Sivir HD surface QA identity changed")
+    check(qa.get("native_id") == "boomerang_hunter", "Sivir HD native-id route changed")
+    check(qa.get("skill_logic_changed") is False, "Sivir HD pass must not change skill logic")
+    expected_source = "source/processed/sivir_actor_contact_alpha.png"
+    check(
+        qa.get("accepted_source") == expected_source,
+        "Sivir portraits must use the accepted high-resolution ImageGen actor source",
+    )
+    source_path = MOD_ROOT / expected_source
+    check(source_path.is_file(), "Sivir accepted portrait source is missing")
+    if source_path.is_file():
+        check(
+            qa.get("accepted_source_sha256") == sha256(source_path),
+            "Sivir accepted portrait source hash changed",
+        )
+
+    battle = qa.get("battle_actor", {})
+    check(battle.get("uniform_xy_scale") is True, "Sivir actor must use uniform x/y scale")
+    check(battle.get("x_only_compression") is False, "Sivir actor must forbid x-only compression")
+    check(
+        battle.get("first_idle_alpha_bbox") == [13, 2, 50, 46],
+        "Sivir primary battle idle bbox changed",
+    )
+    face = battle.get("face_readability", {})
+    check(face.get("opaque_pixels", 0) >= 120, "Sivir battle face area became too small")
+    check(face.get("gold_accent_pixels", 0) >= 2, "Sivir circlet/armor face accents disappeared")
+    check(
+        face.get("luminance_dynamic_range", 0) >= 140,
+        "Sivir battle face contrast regressed",
+    )
+
+    surfaces = qa.get("surfaces", {})
+    expected_surfaces = {
+        "side_card": ("BanPickIllust/boomerang_hunter.png", [1420, 860]),
+        "encyclopedia": ("ui/champion_fullbody/boomerang_hunter.png", [64, 64]),
+        "sidebar": ("ui/champion_portrait/boomerang_hunter_compact.png", [64, 64]),
+        "scoreboard": (
+            "ui/champion_portrait/boomerang_hunter_scoreboard.png",
+            [64, 64],
+        ),
+        "bp_grid": ("ui/champion_portrait/boomerang_hunter_grid.png", [90, 122]),
+    }
+    for surface, (relative, dimensions) in expected_surfaces.items():
+        record = surfaces.get(surface, {})
+        path = MOD_ROOT / relative
+        check(record.get("path") == relative, f"Sivir {surface} route changed")
+        check(record.get("dimensions") == dimensions, f"Sivir {surface} dimensions changed")
+        check(path.is_file(), f"Sivir {surface} image is missing")
+        if not path.is_file():
+            continue
+        image = Image.open(path).convert("RGBA")
+        bbox = image.getchannel("A").getbbox()
+        check(
+            record.get("alpha_bbox") == (list(bbox) if bbox else None),
+            f"Sivir {surface} bbox record is stale",
+        )
+        check(record.get("sha256") == sha256(path), f"Sivir {surface} hash record is stale")
+        if surface != "side_card":
+            check(record.get("hard_alpha") is True, f"Sivir {surface} must use hard alpha")
+
+    grid_bbox = surfaces.get("bp_grid", {}).get("alpha_bbox")
+    check(
+        isinstance(grid_bbox, list) and grid_bbox[3] <= 86,
+        "Sivir BP-grid alpha must end at or before y=86",
+    )
+    check(
+        surfaces.get("bp_grid", {}).get("name_band_clearance", -1) >= 10,
+        "Sivir BP-grid needs ten transparent pixels before name-band y=96",
+    )
+    check(
+        surfaces.get("sidebar", {}).get("sha256")
+        != surfaces.get("scoreboard", {}).get("sha256"),
+        "Sivir sidebar and scoreboard must remain independent crops",
+    )
 
 
 def validate_kled_replacement_uniqueness() -> None:
@@ -3872,8 +4112,8 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
         idle_height = idle[3] - idle[1]
         idle_width = idle[2] - idle[0]
         idle_center = (idle[0] + idle[2] - 1) / 2
-        check(idle_height == 36, "Lucian idle must match Shen's 36px native visible height")
-        check(22 <= idle_width <= 25, "Lucian idle must retain the rebuilt full-body gunslinger width")
+        check(idle_height == 40, "Lucian idle must use the high-definition 40px visible height")
+        check(24 <= idle_width <= 27, "Lucian idle must retain the rebuilt full-body gunslinger width")
         check(44 <= idle[3] <= 46, "Lucian idle does not use the y=45 foot baseline")
         check(29 <= idle_center <= 34, "Lucian idle is not horizontally centered")
     for idle_index in (0, 1):
@@ -3917,11 +4157,11 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
     check(hashes[2] != hashes[10], "Lucian run cycle endpoints must be visually distinct")
     check(len(set(hashes[11:14])) == 3, "Lucian right/left/double shots must be distinct")
     check(
-        bboxes[19][2] - bboxes[19][0] <= 28,
+        bboxes[19][2] - bboxes[19][0] <= 32,
         "Lucian hit/fall frame must not widen back into the rejected two-pistol pose",
     )
     check(
-        bboxes[20][2] - bboxes[20][0] <= 40,
+        bboxes[20][2] - bboxes[20][0] <= 44,
         "Lucian defeated frame must keep a compact one-pistol silhouette",
     )
 
@@ -3932,8 +4172,8 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
         if bbox:
             width = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
-            check(27 <= width <= 32, f"Lucian run {index} must stay inside Shen's compact 27-32px footprint")
-            check(height == 36, f"Lucian run {index} must keep Shen's 36px visible height")
+            check(30 <= width <= 35, f"Lucian run {index} must stay inside the 30-35px HD footprint")
+            check(38 <= height <= 40, f"Lucian run {index} must keep the uniform-scale 38-40px pose range")
             check(bbox[3] == 45, f"Lucian run {index} must keep Shen's y=44 foot pixels")
         alpha = run_frames[index - 1].getchannel("A")
         run_areas.append(
@@ -4007,6 +4247,68 @@ def validate_compact_view_and_w_layout() -> None:
     lucian = style.get("entries", {}).get("archer", {})
     check(lucian.get("face") == {"x": 0, "y": -34}, "Lucian compact portrait offset must be x=0/y=-34")
     check(lucian.get("center") == {"x": 0, "y": -12}, "Lucian battle/card center offset must be x=0/y=-12")
+
+    portrait_specs = {
+        "lol_shen": {
+            "fullbody": ("ui/champion_fullbody/lol_shen.png", (64, 64)),
+            "compact": ("ui/champion_portrait/lol_shen_compact.png", (64, 64)),
+            "scoreboard": ("ui/champion_portrait/lol_shen_scoreboard.png", (64, 64)),
+            "grid": ("ui/champion_portrait/lol_shen_grid.png", (90, 122)),
+        },
+        "archer": {
+            "fullbody": ("ui/champion_fullbody/archer.png", (64, 64)),
+            "compact": ("ui/champion_portrait/archer_compact.png", (64, 64)),
+            "scoreboard": ("ui/champion_portrait/archer_scoreboard.png", (64, 64)),
+            "grid": ("ui/champion_portrait/archer_grid.png", (90, 122)),
+        },
+    }
+    for champion_id, surfaces in portrait_specs.items():
+        hashes: set[str] = set()
+        for surface, (relative, expected_size) in surfaces.items():
+            path = MOD_ROOT / relative
+            check(path.is_file(), f"{champion_id} missing source-direct {surface} portrait")
+            if not path.is_file():
+                continue
+            image = Image.open(path).convert("RGBA")
+            bbox = image.getchannel("A").getbbox()
+            check(image.size == expected_size, f"{champion_id} {surface} size mismatch: {image.size}")
+            check(bbox is not None, f"{champion_id} {surface} portrait is empty")
+            if bbox:
+                check(
+                    bbox[0] >= 6 and bbox[1] >= 2 and image.width - bbox[2] >= 6,
+                    f"{champion_id} {surface} portrait lacks transparent side/top safety",
+                )
+                if surface in {"compact", "scoreboard"}:
+                    check(
+                        bbox[2] - bbox[0] <= 50 and bbox[3] - bbox[1] <= 50,
+                        f"{champion_id} {surface} portrait exceeds the 50px compact-safe subject",
+                    )
+                if surface == "grid":
+                    check(bbox[3] <= 86, f"{champion_id} grid art touches the BP name band")
+            hashes.add(hashlib.sha256(image.tobytes()).hexdigest())
+        check(
+            len(hashes) == len(surfaces),
+            f"{champion_id} UI surfaces must be independently cropped, not duplicate files",
+        )
+
+    source = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    check(
+        "rewrite_shen_lucian_portrait_render_commands(state);" in source,
+        "Shen/Lucian source-direct portraits are not wired into post_render",
+    )
+    for marker in (
+        "SHEN_COMPACT_PORTRAIT_TEXTURE",
+        "SHEN_SCOREBOARD_PORTRAIT_TEXTURE",
+        "SHEN_BP_GRID_PORTRAIT_TEXTURE",
+        "LUCIAN_COMPACT_PORTRAIT_TEXTURE",
+        "LUCIAN_SCOREBOARD_PORTRAIT_TEXTURE",
+        "LUCIAN_BP_GRID_PORTRAIT_TEXTURE",
+        "let is_scoreboard_square = (14.0..=38.0)",
+        "let is_compact_square = (39.0..=52.0)",
+        "let is_bp_grid = (124.0..=132.0)",
+    ):
+        check(marker in source, f"missing Shen/Lucian portrait routing proof: {marker}")
+
 
 def validate_localization() -> None:
     text = load_json("text/champion.i18n")
@@ -4869,12 +5171,12 @@ def validate_imagegen_sources() -> None:
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
     # run, defeat, and three independent VFX contacts. Xayah's corrective
     # route adds seven disjoint body contacts plus attack/Q/E/R VFX contacts.
-    # Opaque icons and BP
-    # illustrations do not need alpha derivatives.
-    expected_processed = 56
+    # Later champions may add more processed sources, so this is a minimum;
+    # every discovered source still receives the full alpha-corner audit.
+    minimum_processed = 56
     check(
-        len(processed) == expected_processed,
-        f"processed image-gen source set must contain {expected_processed} active PNGs",
+        len(processed) >= minimum_processed,
+        f"processed image-gen source set must contain at least {minimum_processed} active PNGs",
     )
     for path in processed:
         image = Image.open(path).convert("RGBA")
@@ -6437,9 +6739,11 @@ def main() -> int:
     validate_briar_data_contract(briar)
     validate_briar_native_animation_and_actor(briar)
     validate_briar_resources_and_manifest(briar)
+    validate_orianna_briar_hd_surfaces()
     validate_sivir_replacement_uniqueness()
     validate_sivir_data_contract(sivir)
     validate_sivir_native_animation_and_resources(sivir)
+    validate_sivir_hd_surfaces()
     validate_kled_replacement_uniqueness()
     validate_kled_data_contract(kled)
     validate_kled_native_animation_and_resources(kled)

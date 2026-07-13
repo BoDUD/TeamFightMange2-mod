@@ -170,13 +170,13 @@
     "actor": {
       "sheet": {
         "path": "aseprite_resources/champions/briar#sheet.png",
-        "sha256": "54c535a61b94b2d5ad8dca3d2dc2293ebd413d89686cd8066f943ffccaee433d",
+        "sha256": "56fc5dab378cc8e1145e2995625381e16330eb80048af5ded812d0ed23784db4",
         "size_bytes": 458919,
         "dimensions": [1792, 64],
         "mode": "RGBA",
         "cell_size": [64, 64],
         "cell_count": 28,
-        "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 98395, "partial_pixels": 928, "opaque_pixels": 15365, "nonzero_bbox": [21, 2, 1718, 46]},
+        "alpha": {"present": true, "min": 0, "max": 255, "transparent_pixels": 94969, "partial_pixels": 1154, "opaque_pixels": 18565, "nonzero_bbox": [20, 2, 1720, 46]},
         "core_frame_alpha": "hard 0/255; the only partial-alpha cells are the intentional 58% and 28% death fades",
         "foot_baseline_exclusive_y": 46
       },
@@ -232,7 +232,7 @@
     ]
   },
   "contact_sheets": [
-    {"path": "qa/briar_actor_contact_final.png", "sha256": "771a434d06e34549f539ad7c63480fd52fc42891ea16a3ea87005c9f25ba8f3b", "size_bytes": 2065183, "dimensions": [896, 576], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
+    {"path": "qa/briar_actor_contact_final.png", "sha256": "1187bb8e7bc819f2f66f53e8b4cf1b7a271c65c992c70e090ed7dffa8c81a374", "size_bytes": 2065183, "dimensions": [896, 576], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
     {"path": "qa/briar_skill_icons_final.png", "sha256": "521522c0c3e3f1c71449082b533a3a6b237f75c0f633ca81c08df41c4ff8c055", "size_bytes": 479543, "dimensions": [576, 208], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}},
     {"path": "qa/briar_vfx_contact_final.png", "sha256": "2f84f115aeb69c770d57dd93ae70c2fe09526b318612b364d0b53560a221b352", "size_bytes": 4244880, "dimensions": [1024, 1036], "mode": "RGBA", "alpha": {"present": true, "min": 255, "max": 255}}
   ]

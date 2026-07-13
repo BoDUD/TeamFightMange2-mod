@@ -63,10 +63,8 @@ const XAYAH_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/dancer#sheet",
     "asset/lol_mod/aseprite_resources/champions/xayah#sheet",
 ];
-const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str =
-    "asset/lol_mod/ui/champion_portrait/dancer_compact";
-const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str =
-    "asset/lol_mod/ui/champion_portrait/dancer_grid";
+const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_compact";
+const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_grid";
 const SPLASH_SPECS: [(&str, &str); 7] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
@@ -85,6 +83,30 @@ const SPLASH_SPECS: [(&str, &str); 7] = [
     ),
     ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
 ];
+const SHEN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_compact";
+const SHEN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/lol_shen_scoreboard";
+const SHEN_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_grid";
+const LUCIAN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/archer_compact";
+const LUCIAN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/archer_scoreboard";
+const LUCIAN_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/archer_grid";
+const SIVIR_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_compact";
+const SIVIR_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_scoreboard";
+const SIVIR_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_grid";
+const ORIANNA_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_compact";
+const ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_scoreboard";
+const ORIANNA_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_grid";
+const BRIAR_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/berserker_compact";
+const BRIAR_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/berserker_scoreboard";
+const BRIAR_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/berserker_grid";
 
 // Elder is intentionally excluded: this feature selects one base elemental
 // drake for the whole match.  The relative names are retained for telemetry;
@@ -214,6 +236,7 @@ impl ModExtension for LolModExtension {
         rewrite_bp_render_commands(ui, state);
         rewrite_kled_portrait_render_commands(state);
         rewrite_xayah_portrait_render_commands(state);
+        rewrite_legacy_portrait_render_commands(state);
     }
 }
 
@@ -244,9 +267,8 @@ fn rewrite_kled_portrait_render_commands(state: &mut RenderState) {
             // readable face there, so route only these exact UI geometries
             // to the rider-focused portrait.  Native battle frames are
             // rectangular and therefore cannot enter this branch.
-            let is_compact_square = (14.0..=52.0).contains(w)
-                && (14.0..=52.0).contains(h)
-                && (*w - *h).abs() <= 2.0;
+            let is_compact_square =
+                (14.0..=52.0).contains(w) && (14.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
             // Ban/pick grid telemetry identifies native 006 at 90x122, with
             // a small scale transition around 86x122.  Keep that full-body
             // surface distinct from the head-focused compact icon.
@@ -300,9 +322,8 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
             // Square report, scoreboard, side-list, and HUD commands receive
             // the v3 two-eye face crop.  Battle actor commands are Sprite
             // commands and cannot enter this NinePatch-only UI route.
-            let is_compact_square = (14.0..=52.0).contains(w)
-                && (14.0..=52.0).contains(h)
-                && (*w - *h).abs() <= 2.0;
+            let is_compact_square =
+                (14.0..=52.0).contains(w) && (14.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
             // Dancer's center hero-grid preview is the native 27x47 idle rect
             // rendered at 2x.  Keep this tight 54x94 geometry disjoint from
             // the telemetry-proven 81x125-141 picked-side transition; the
@@ -323,6 +344,112 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
                 *x = center_x - *w * 0.5;
                 *y = center_y - *h * 0.5;
                 XAYAH_BP_GRID_PORTRAIT_TEXTURE
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
+    }
+}
+
+fn legacy_portrait_assets(texture: &str) -> Option<(&'static str, &'static str, &'static str)> {
+    match texture {
+        "asset/base/aseprite_resources/champions/lol_shen#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/lol_shen#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/shen#sheet" => Some((
+            SHEN_COMPACT_PORTRAIT_TEXTURE,
+            SHEN_SCOREBOARD_PORTRAIT_TEXTURE,
+            SHEN_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/archer#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/archer#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/lucian#sheet" => Some((
+            LUCIAN_COMPACT_PORTRAIT_TEXTURE,
+            LUCIAN_SCOREBOARD_PORTRAIT_TEXTURE,
+            LUCIAN_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/boomerang_hunter#sheet"
+        | "asset/base/aseprite_resources/champions/sivir#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/boomerang_hunter#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/sivir#sheet" => Some((
+            SIVIR_COMPACT_PORTRAIT_TEXTURE,
+            SIVIR_SCOREBOARD_PORTRAIT_TEXTURE,
+            SIVIR_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/barrier_magician#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/barrier_magician#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/orianna#sheet" => Some((
+            ORIANNA_COMPACT_PORTRAIT_TEXTURE,
+            ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE,
+            ORIANNA_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/berserker#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/berserker#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/briar#sheet" => Some((
+            BRIAR_COMPACT_PORTRAIT_TEXTURE,
+            BRIAR_SCOREBOARD_PORTRAIT_TEXTURE,
+            BRIAR_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        _ => None,
+    }
+}
+
+fn rewrite_legacy_portrait_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            let Some((compact, scoreboard, grid)) = legacy_portrait_assets(texture) else {
+                continue;
+            };
+
+            // Report/scoreboard rows and the larger side-list use independent
+            // source-direct face crops. Battle actors are Sprite commands and
+            // therefore cannot enter this UI-only NinePatch route.
+            let is_scoreboard_square =
+                (14.0..=38.0).contains(w) && (14.0..=38.0).contains(h) && (*w - *h).abs() <= 2.0;
+            let is_compact_square =
+                (39.0..=52.0).contains(w) && (39.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
+            let is_bp_grid = (124.0..=132.0).contains(w)
+                && (124.0..=132.0).contains(h)
+                && (*w - *h).abs() <= 2.0;
+            let replacement = if is_scoreboard_square {
+                scoreboard
+            } else if is_compact_square {
+                compact
+            } else if is_bp_grid {
+                let center_x = *x + *w * 0.5;
+                let center_y = *y + *h * 0.5;
+                *w = 90.0;
+                *h = 122.0;
+                *x = center_x - *w * 0.5;
+                *y = center_y - *h * 0.5;
+                grid
             } else {
                 continue;
             };
@@ -1296,14 +1423,8 @@ fn xayah_player_for_caster(
         let Some(champion) = player.champion() else {
             return None;
         };
-        (champion.handle() == caster_handle).then(|| {
-            (
-                player_id,
-                player.team(),
-                player.position(),
-                caster_handle,
-            )
-        })
+        (champion.handle() == caster_handle)
+            .then(|| (player_id, player.team(), player.position(), caster_handle))
     })
 }
 

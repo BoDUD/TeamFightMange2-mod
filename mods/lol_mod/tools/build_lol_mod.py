@@ -26,6 +26,7 @@ EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
 CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
+CHAMPION_PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
@@ -246,8 +247,138 @@ def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]
     ]
 
 
+def render_source_direct_ui_subject(
+    source: Image.Image,
+    size: tuple[int, int],
+    *,
+    max_subject: tuple[int, int],
+    bottom: int,
+    colors: int,
+) -> Image.Image:
+    """Render a UI surface directly from accepted high-resolution actor art.
+
+    UI portraits must never enlarge the already reduced 36-40px battle atlas.
+    This helper keeps one uniform x/y scale, then gives compact and grid assets
+    explicit transparent safety margins for their real runtime geometries.
+    """
+
+    source = hard_alpha(source)
+    subject = source.crop(alpha_bbox(source))
+    scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
+    subject = subject.resize(
+        (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+        Image.Resampling.LANCZOS,
+    )
+    subject = palette_finish(subject, colors)
+    subject = subject.crop(alpha_bbox(subject))
+    output = Image.new("RGBA", size, (0, 0, 0, 0))
+    x = (size[0] - subject.width) // 2
+    y = min(size[1] - subject.height, bottom - subject.height)
+    if x < 0 or y < 0:
+        raise ValueError(
+            f"UI subject {subject.size} does not fit {size} with bottom={bottom}"
+        )
+    output.alpha_composite(subject, (x, y))
+    return output
+
+
+def source_direct_actor_cell(
+    source_path: Path,
+    *,
+    columns: int,
+    rows: int,
+    index: int,
+    keep_box: tuple[int, int, int, int] | None,
+) -> Image.Image:
+    source = Image.open(source_path).convert("RGBA")
+    cell = hard_alpha(split_grid(source, columns, rows)[index])
+    if keep_box is not None:
+        masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
+        masked.alpha_composite(cell.crop(keep_box), (keep_box[0], keep_box[1]))
+        cell = masked
+    return cell.crop(alpha_bbox(cell))
+
+
+def build_source_direct_portrait_set(
+    champion_id: str,
+    full_body: Image.Image,
+    *,
+    compact_focus: tuple[float, float, float, float],
+    scoreboard_focus: tuple[float, float, float, float] | None = None,
+) -> list[Path]:
+    """Build encyclopedia, compact-row, and BP-grid art as separate assets."""
+
+    CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
+    CHAMPION_PORTRAIT_DIR.mkdir(parents=True, exist_ok=True)
+    full_body = hard_alpha(full_body).crop(alpha_bbox(hard_alpha(full_body)))
+
+    encyclopedia = render_source_direct_ui_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+        colors=128,
+    )
+    encyclopedia_path = CHAMPION_FULLBODY_DIR / f"{champion_id}.png"
+    save_png(encyclopedia_path, encyclopedia)
+
+    width, height = full_body.size
+    left, top, right, bottom = compact_focus
+    focus = full_body.crop(
+        (
+            round(width * left),
+            round(height * top),
+            round(width * right),
+            round(height * bottom),
+        )
+    )
+    compact = render_source_direct_ui_subject(
+        focus,
+        (64, 64),
+        max_subject=(50, 50),
+        bottom=58,
+        colors=128,
+    )
+    compact_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png"
+    save_png(compact_path, compact)
+
+    scoreboard_focus = scoreboard_focus or compact_focus
+    left, top, right, bottom = scoreboard_focus
+    scoreboard_source = full_body.crop(
+        (
+            round(width * left),
+            round(height * top),
+            round(width * right),
+            round(height * bottom),
+        )
+    )
+    scoreboard = render_source_direct_ui_subject(
+        scoreboard_source,
+        (64, 64),
+        max_subject=(50, 50),
+        bottom=58,
+        colors=128,
+    )
+    scoreboard_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png"
+    save_png(scoreboard_path, scoreboard)
+
+    # The reusable 90x122 BP surface reserves y=86..121 for its name/icon
+    # band. Ending visible pixels at y<=86 leaves ten clear pixels before the
+    # native y=96 label boundary and prevents feet/weapons touching the name.
+    grid = render_source_direct_ui_subject(
+        full_body,
+        (90, 122),
+        max_subject=(72, 82),
+        bottom=86,
+        colors=128,
+    )
+    grid_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png"
+    save_png(grid_path, grid)
+    return [encyclopedia_path, compact_path, scoreboard_path, grid_path]
+
+
 def build_champion_fullbody_portraits() -> list[Path]:
-    """Export the complete first idle frame for encyclopedia-only portraits."""
+    """Export per-surface portraits without upscaling packed battle pixels."""
     CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
@@ -255,6 +386,107 @@ def build_champion_fullbody_portraits() -> list[Path]:
         # frame is not the sheet's top-left 64x64 cell. Their dedicated
         # builders export portraits from each exact native idle rectangle.
         if champion_id in {"cavalry_knight", "dancer"}:
+            continue
+        if champion_id == "lol_shen":
+            source = source_direct_actor_cell(
+                ACTOR_SOURCE,
+                columns=4,
+                rows=3,
+                index=0,
+                keep_box=ACTOR_KEEP_BOXES[0],
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Drop the detached spirit blade and keep helmet,
+                    # shoulders, eyeslit and upper torso in compact rows.
+                    compact_focus=(0.25, 0.0, 1.0, 0.60),
+                    scoreboard_focus=(0.28, 0.0, 0.98, 0.48),
+                )
+            )
+            continue
+        if champion_id == "archer":
+            source = source_direct_actor_cell(
+                LUCIAN_ACTOR_SOURCE,
+                columns=4,
+                rows=3,
+                index=0,
+                keep_box=LUCIAN_ACTOR_KEEP_BOXES[0],
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Preserve hair, both eyes, shoulders and coat collar;
+                    # omit lower legs that made 18px rows unreadably tiny.
+                    compact_focus=(0.04, 0.0, 0.96, 0.60),
+                    scoreboard_focus=(0.08, 0.0, 0.92, 0.48),
+                )
+            )
+            continue
+        if champion_id == "barrier_magician":
+            source = source_direct_actor_cell(
+                ORIANNA_ACTOR_SOURCE,
+                columns=4,
+                rows=4,
+                index=0,
+                keep_box=None,
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Sidebar/HUD keeps face, crown, shoulders and enough
+                    # clockwork torso to remain recognizably Orianna.
+                    compact_focus=(0.0, 0.0, 1.0, 0.65),
+                    # The 18/26/34px report and scoreboard rows need a tighter
+                    # porcelain-face crop than the 46px side list.
+                    scoreboard_focus=(0.08, 0.0, 0.92, 0.52),
+                )
+            )
+            continue
+        if champion_id == "berserker":
+            source = source_direct_actor_cell(
+                BRIAR_ACTOR_SOURCE,
+                columns=4,
+                rows=4,
+                index=0,
+                keep_box=None,
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Preserve white hair, red eyes, shoulders and pillory in
+                    # the larger battle-side list without shrinking to feet.
+                    compact_focus=(0.0, 0.0, 1.0, 0.68),
+                    # Scoreboard rows prioritize both eyes and the red crystal.
+                    scoreboard_focus=(0.03, 0.0, 0.97, 0.52),
+                )
+            )
+            continue
+        if champion_id == "boomerang_hunter":
+            # Sivir's accepted source is a hand-spaced 1254x1254 contact
+            # sheet rather than an evenly divided grid.  Pull the complete
+            # first idle pose directly from its source keep-box so none of the
+            # UI surfaces ever enlarge the reduced battle atlas.
+            source = hard_alpha(Image.open(SIVIR_ACTOR_SOURCE).convert("RGBA"))
+            source = keep_alpha_components(
+                source.crop(SIVIR_ACTOR_KEEP_BOXES[0]), 200
+            )
+            source = source.crop(alpha_bbox(source))
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # The side list keeps the face, circlet, shoulders and
+                    # crossed blade; the tiny scoreboard uses a tighter face
+                    # crop so both eyes survive 18px rendering.
+                    compact_focus=(0.14, 0.0, 0.92, 0.73),
+                    scoreboard_focus=(0.23, 0.0, 0.81, 0.53),
+                )
+            )
             continue
         with Image.open(sheet_path) as opened:
             sheet = opened.convert("RGBA")
@@ -394,21 +626,25 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     source = Image.open(ACTOR_SOURCE).convert("RGBA")
     cells = split_grid(source, 4, 3)
     base_frames: list[Image.Image] = []
-    # A proven 64x64 additive actor (Galio) occupies about 35 pixels in idle.
-    # Keep Shen in that same battle/UI scale class instead of letting the large
-    # image-gen source fill the full frame and get cropped in compact cards.
-    actor_scale = 0.145
+    # The accepted high-resolution source already contains a clean face and
+    # silhouette. Use one 40px-idle scale for every pose (including run) so no
+    # action is independently squeezed or enlarged.  UI surfaces are now
+    # source-direct and therefore no longer constrain the battle actor scale.
+    masked_subjects: list[Image.Image] = []
     for cell, keep_box in zip(cells, ACTOR_KEEP_BOXES, strict=True):
         masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
         kept = cell.crop(keep_box)
         masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
         masked = hard_alpha(masked)
-        subject = masked.crop(alpha_bbox(masked))
+        masked_subjects.append(masked.crop(alpha_bbox(masked)))
+    idle_height = max(subject.height for subject in masked_subjects[:2])
+    actor_scale = 40 / idle_height
+    for subject in masked_subjects:
         resized = subject.resize(
             (max(1, round(subject.width * actor_scale)), max(1, round(subject.height * actor_scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 40)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         x = (64 - resized.width) // 2
         # The proven 64x64 additive contract keeps the actor's foot baseline at
@@ -426,12 +662,14 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(36 / subject.height, 58 / subject.width)
         resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            (
+                max(1, round(subject.width * actor_scale)),
+                max(1, round(subject.height * actor_scale)),
+            ),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 40)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         run_frames.append(frame)
@@ -492,19 +730,21 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         source_cells.append(cell)
     source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
 
-    # Shen's accepted actor is 36px tall on a y=45 foot baseline. Derive one
-    # scale from Lucian's two idles and reuse it for every combat pose so cards,
-    # the HUD and the battle map all keep the same native-size silhouette.
+    # Derive one uniform 40px idle scale from Lucian's accepted master and use
+    # it unchanged for every combat and run pose. Wide gun/cast poses keep the
+    # same body scale instead of silently entering a smaller scale class.
     idle_height = max(subject.height for subject in source_subjects[:2])
-    actor_scale = 36 / idle_height
+    actor_scale = 40 / idle_height
     base_frames: list[Image.Image] = []
     for subject in source_subjects:
-        scale = min(actor_scale, 58 / subject.width, 43 / subject.height)
         resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            (
+                max(1, round(subject.width * actor_scale)),
+                max(1, round(subject.height * actor_scale)),
+            ),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 40)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         base_frames.append(frame)
@@ -517,12 +757,14 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(36 / subject.height, 58 / subject.width)
         resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+            (
+                max(1, round(subject.width * actor_scale)),
+                max(1, round(subject.height * actor_scale)),
+            ),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 40)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
         run_frames.append(frame)
@@ -593,7 +835,10 @@ def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        # Keep the accepted 38px battle footprint, but retain twice the prior
+        # palette budget so porcelain shading, cyan eyes and brass joints do
+        # not collapse into muddy blocks at the final scale.
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 42 - resized.height))
         return frame
@@ -689,7 +934,10 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
     ]
     actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    actor_scale = 38 / idle_height
+    # Briar's first pass was only 38px high and lost one eye/cheek plane on the
+    # battle map.  A single 42px scale derived from the accepted idle is reused
+    # by every source pose; x and y are never resized independently.
+    actor_scale = 42 / idle_height
 
     def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
         scale = actor_scale if fixed_height is None else fixed_height / subject.height
@@ -698,7 +946,7 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
         return frame
@@ -729,7 +977,7 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
         for cell in split_grid(Image.open(BRIAR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
     run_frames = [
-        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=38) for cell in run_cells
+        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=42) for cell in run_cells
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -813,28 +1061,44 @@ def build_sivir_actor() -> tuple[Path, Path, list[Image.Image]]:
         for box in SIVIR_ACTOR_KEEP_BOXES
     ]
     actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
+    # Pose 7 holds the crossblade high above Sivir's head.  Keeping the whole
+    # weapon inside the actor texture forced that one R frame to shrink by
+    # almost half.  The dedicated R cast sheet already carries the readable
+    # ability flourish, so trim only the oversized overhead blade region and
+    # preserve Sivir's body at the same scale as every other action.
+    r_subject = actor_subjects[7]
+    actor_subjects[7] = r_subject.crop((0, 55, r_subject.width, r_subject.height))
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    actor_scale = 36 / idle_height
+    actor_scale = 44 / idle_height
 
-    def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
-        scale = actor_scale if fixed_height is None else fixed_height / subject.height
-        scale = min(scale, 58 / subject.width, 42 / subject.height)
+    def actor_frame(subject: Image.Image, scale: float) -> Image.Image:
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        resized = palette_finish(resized, 96)
+        if resized.width > 60 or resized.height > 46:
+            raise ValueError(
+                f"Sivir actor subject {resized.size} exceeds the stable 64x64 contract"
+            )
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
         frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
         return frame
 
-    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    # One scale for every base action avoids pose-by-pose x/y squeezing and
+    # keeps the face/torso readable in battle.
+    base_frames = [actor_frame(subject, actor_scale) for subject in actor_subjects]
     run_cells = [
         hard_alpha(cell)
         for cell in split_grid(Image.open(SIVIR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
+    run_subjects = [cell.crop(alpha_bbox(cell)) for cell in run_cells]
+    run_heights = sorted(subject.height for subject in run_subjects)
+    # The run sheet was generated at a slightly different source-space scale.
+    # Normalize the whole run set once from its median pose, never per frame.
+    run_scale = 44 / run_heights[len(run_heights) // 2]
     run_frames = [
-        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=36) for cell in run_cells
+        actor_frame(subject, run_scale) for subject in run_subjects
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -3388,6 +3652,371 @@ def build_sivir_qa_contacts(
     return [actor_path, icon_path, vfx_path]
 
 
+def _hd_surface_record(path: Path) -> dict[str, object]:
+    image = Image.open(path).convert("RGBA")
+    alpha = image.getchannel("A")
+    bbox = alpha.getbbox()
+    histogram = alpha.histogram()
+    return {
+        "path": path.relative_to(MOD_ROOT).as_posix(),
+        "dimensions": list(image.size),
+        "alpha_bbox": list(bbox) if bbox else None,
+        "hard_alpha": sum(histogram[1:255]) == 0,
+        "opaque_pixels": histogram[255],
+        "sha256": sha256(path),
+    }
+
+
+def _hd_actor_record(
+    champion: str,
+    actor_sheet: Path,
+    actor_anim: Path,
+    core_tags: tuple[str, ...],
+    *,
+    foot_baseline: int,
+    expected_idle_height: int,
+    accent: str,
+    max_visible_height: int = 44,
+) -> dict[str, object]:
+    sheet = Image.open(actor_sheet).convert("RGBA")
+    anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
+    action_records: dict[str, object] = {}
+    for tag in core_tags:
+        bboxes: list[list[int]] = []
+        for frame_row in anims[tag]["frames"]:
+            data = frame_row["data"]
+            frame = sheet.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            bbox = frame.getchannel("A").getbbox()
+            if bbox is None:
+                raise ValueError(f"{champion} HD actor {tag} contains an empty frame")
+            if bbox[2] - bbox[0] > 58 or bbox[3] - bbox[1] > max_visible_height:
+                raise ValueError(
+                    f"{champion} HD actor {tag} exceeds "
+                    f"58x{max_visible_height}: {bbox}"
+                )
+            if bbox[3] > foot_baseline:
+                raise ValueError(
+                    f"{champion} HD actor {tag} crosses y={foot_baseline}: {bbox}"
+                )
+            bboxes.append(list(bbox))
+        action_records[tag] = {
+            "frame_count": len(bboxes),
+            "alpha_bboxes": bboxes,
+            "visible_height_range": [
+                min(row[3] - row[1] for row in bboxes),
+                max(row[3] - row[1] for row in bboxes),
+            ],
+            "visible_width_range": [
+                min(row[2] - row[0] for row in bboxes),
+                max(row[2] - row[0] for row in bboxes),
+            ],
+            "bottom_range": [min(row[3] for row in bboxes), max(row[3] for row in bboxes)],
+        }
+
+    idle_data = anims["idle"]["frames"][0]["data"]
+    idle = sheet.crop(
+        (
+            idle_data["x"],
+            idle_data["y"],
+            idle_data["x"] + idle_data["w"],
+            idle_data["y"] + idle_data["h"],
+        )
+    )
+    idle_bbox = idle.getchannel("A").getbbox()
+    if idle_bbox is None:
+        raise ValueError(f"{champion} HD primary idle is empty")
+    if idle_bbox[3] - idle_bbox[1] != expected_idle_height:
+        raise ValueError(
+            f"{champion} HD idle height changed: {idle_bbox}, expected {expected_idle_height}"
+        )
+    margin = max(1, round((idle_bbox[2] - idle_bbox[0]) * 0.08))
+    face_box = (
+        idle_bbox[0] + margin,
+        idle_bbox[1],
+        idle_bbox[2] - margin,
+        idle_bbox[1] + round((idle_bbox[3] - idle_bbox[1]) * 0.56),
+    )
+    opaque_luma: list[float] = []
+    accent_pixels = 0
+    for y in range(face_box[1], face_box[3]):
+        for x in range(face_box[0], face_box[2]):
+            red, green, blue, alpha = idle.getpixel((x, y))
+            if alpha < 128:
+                continue
+            opaque_luma.append((299 * red + 587 * green + 114 * blue) / 1000)
+            if accent == "cyan":
+                accent_pixels += (
+                    green >= 100
+                    and blue >= 115
+                    and blue >= red + 20
+                    and green >= red + 10
+                )
+            elif accent == "gold":
+                accent_pixels += (
+                    red >= 120
+                    and green >= 70
+                    and red >= green + 12
+                    and green >= blue + 24
+                )
+            else:
+                accent_pixels += red >= 100 and green <= 70 and blue <= 90
+    dynamic_range = max(opaque_luma) - min(opaque_luma) if opaque_luma else 0.0
+    if len(opaque_luma) < 120 or accent_pixels < 2 or dynamic_range < 140:
+        raise ValueError(
+            f"{champion} battle face is not readable: opaque={len(opaque_luma)}, "
+            f"accent={accent_pixels}, range={dynamic_range:.1f}"
+        )
+    return {
+        "sheet": actor_sheet.relative_to(MOD_ROOT).as_posix(),
+        "animation": actor_anim.relative_to(MOD_ROOT).as_posix(),
+        "uniform_xy_scale": True,
+        "x_only_compression": False,
+        "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+        "foot_baseline_exclusive_y": foot_baseline,
+        "first_idle_alpha_bbox": list(idle_bbox),
+        "face_readability": {
+            "sample_box": list(face_box),
+            "opaque_pixels": len(opaque_luma),
+            f"{accent}_accent_pixels": accent_pixels,
+            "luminance_dynamic_range": round(dynamic_range, 2),
+        },
+        "core_actions": action_records,
+    }
+
+
+def _build_hd_surface_contact(
+    champion: str,
+    champion_id: str,
+    actor_sheet: Path,
+    output_path: Path,
+) -> None:
+    contact = Image.new("RGBA", (1120, 300), (10, 18, 31, 255))
+    draw = ImageDraw.Draw(contact)
+    label = (212, 226, 238, 255)
+    draw.text((16, 10), f"{champion.upper()} HD / SOURCE-DIRECT UI SURFACES", fill=label)
+
+    idle = Image.open(actor_sheet).convert("RGBA").crop((0, 0, 64, 64))
+    draw.text((16, 42), "battle idle 64", fill=label)
+    contact.alpha_composite(idle.resize((128, 128), Image.Resampling.NEAREST), (16, 62))
+
+    surface_specs = (
+        ("sidebar 46", CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png", 46),
+        (
+            "scoreboard 34",
+            CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png",
+            34,
+        ),
+    )
+    for index, (surface_label, path, runtime_size) in enumerate(surface_specs):
+        x = 170 + index * 150
+        draw.text((x, 42), surface_label, fill=label)
+        tile = Image.new("RGBA", (128, 128), (7, 13, 23, 255))
+        portrait = Image.open(path).convert("RGBA")
+        runtime = portrait.resize((runtime_size, runtime_size), Image.Resampling.NEAREST)
+        zoom = runtime.resize((runtime_size * 2, runtime_size * 2), Image.Resampling.NEAREST)
+        tile.alpha_composite(runtime, ((128 - runtime.width) // 2, 8))
+        tile.alpha_composite(zoom, ((128 - zoom.width) // 2, 128 - zoom.height))
+        contact.alpha_composite(tile, (x, 62))
+
+    grid_x = 470
+    draw.text((grid_x, 42), "BP grid 90x122 / name y=96", fill=label)
+    grid_tile = Image.new("RGBA", (110, 142), (7, 13, 23, 255))
+    grid = Image.open(CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png").convert("RGBA")
+    grid_tile.alpha_composite(grid, (10, 10))
+    grid_draw = ImageDraw.Draw(grid_tile)
+    grid_draw.rectangle((10, 106, 99, 131), fill=(34, 46, 64, 255))
+    grid_draw.text((31, 111), "NAME", fill=(166, 181, 196, 255))
+    contact.alpha_composite(grid_tile, (grid_x, 62))
+
+    full_x = 650
+    draw.text((full_x, 42), "encyclopedia 64", fill=label)
+    full_tile = Image.new("RGBA", (142, 142), (7, 13, 23, 255))
+    fullbody = Image.open(CHAMPION_FULLBODY_DIR / f"{champion_id}.png").convert("RGBA")
+    full_tile.alpha_composite(fullbody.resize((128, 128), Image.Resampling.NEAREST), (7, 7))
+    contact.alpha_composite(full_tile, (full_x, 62))
+
+    splash_x = 820
+    draw.text((splash_x, 42), "BP side card / 1420x860", fill=label)
+    splash = Image.open(MOD_ROOT / "BanPickIllust" / f"{champion_id}.png").convert("RGBA")
+    splash.thumbnail((284, 172), Image.Resampling.LANCZOS)
+    contact.alpha_composite(splash, (splash_x, 62))
+    draw.text(
+        (16, 254),
+        "Battle keeps one aspect-preserving scale; UI crops come directly from the accepted HD idle source.",
+        fill=label,
+    )
+    save_png(output_path, contact)
+
+
+def build_orianna_briar_hd_surface_qa() -> list[Path]:
+    specs = (
+        {
+            "champion": "Shen",
+            "champion_id": "lol_shen",
+            "source": ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "shen#sheet.png",
+            "actor_anim": ACTOR_DIR / "shen#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
+            "baseline": 45,
+            "idle_height": 40,
+            "max_visible_height": 45,
+            "accent": "cyan",
+            "qa": QA_DIR / "shen_hd_surface_qa.json",
+            "contact": QA_DIR / "shen_portrait_surface_final.png",
+        },
+        {
+            "champion": "Lucian",
+            "champion_id": "archer",
+            "source": LUCIAN_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "lucian#sheet.png",
+            "actor_anim": ACTOR_DIR / "lucian#anim.fanim",
+            "tags": (
+                "idle",
+                "run",
+                "attack_right",
+                "attack_left",
+                "attack_double",
+                "skill",
+                "skill2",
+                "ult",
+                "hit",
+            ),
+            "baseline": 45,
+            "idle_height": 40,
+            "max_visible_height": 45,
+            "accent": "cyan",
+            "qa": QA_DIR / "lucian_hd_surface_qa.json",
+            "contact": QA_DIR / "lucian_portrait_surface_final.png",
+        },
+        {
+            "champion": "Orianna",
+            "champion_id": "barrier_magician",
+            "source": ORIANNA_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "orianna#sheet.png",
+            "actor_anim": ACTOR_DIR / "orianna#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill1", "skill2", "ult", "hit"),
+            "baseline": 42,
+            "idle_height": 38,
+            "accent": "cyan",
+            "qa": QA_DIR / "orianna_hd_surface_qa.json",
+            "contact": QA_DIR / "orianna_portrait_surface_final.png",
+        },
+        {
+            "champion": "Briar",
+            "champion_id": "berserker",
+            "source": BRIAR_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "briar#sheet.png",
+            "actor_anim": ACTOR_DIR / "briar#anim.fanim",
+            "tags": (
+                "idle",
+                "berserk_idle",
+                "run",
+                "berserk_run",
+                "attack",
+                "attack2",
+                "berserk_attack",
+                "skill1",
+                "skill2",
+                "skill2_berserk",
+                "ult",
+                "hit",
+            ),
+            "baseline": 46,
+            "idle_height": 42,
+            "accent": "red",
+            "qa": QA_DIR / "briar_hd_surface_qa.json",
+            "contact": QA_DIR / "briar_portrait_surface_final.png",
+        },
+        {
+            "champion": "Sivir",
+            "champion_id": "boomerang_hunter",
+            "source": SIVIR_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "sivir#sheet.png",
+            "actor_anim": ACTOR_DIR / "sivir#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
+            "baseline": 46,
+            "idle_height": 44,
+            "max_visible_height": 45,
+            "accent": "gold",
+            "qa": QA_DIR / "sivir_hd_surface_qa.json",
+            "contact": QA_DIR / "sivir_portrait_surface_final.png",
+        },
+    )
+    outputs: list[Path] = []
+    for spec in specs:
+        champion_id = str(spec["champion_id"])
+        surface_paths = {
+            "side_card": MOD_ROOT / "BanPickIllust" / f"{champion_id}.png",
+            "encyclopedia": CHAMPION_FULLBODY_DIR / f"{champion_id}.png",
+            "sidebar": CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png",
+            "scoreboard": CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png",
+            "bp_grid": CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png",
+        }
+        records = {name: _hd_surface_record(path) for name, path in surface_paths.items()}
+        grid_bbox = records["bp_grid"]["alpha_bbox"]
+        if not isinstance(grid_bbox, list) or grid_bbox[3] > 86:
+            raise ValueError(f"{spec['champion']} BP-grid alpha enters the name band")
+        records["bp_grid"]["name_band_y"] = 96
+        records["bp_grid"]["name_band_clearance"] = 96 - grid_bbox[3]
+        for name in ("sidebar", "scoreboard"):
+            bbox = records[name]["alpha_bbox"]
+            if not isinstance(bbox, list):
+                raise ValueError(f"{spec['champion']} {name} portrait is empty")
+            if (
+                bbox[2] - bbox[0] > 50
+                or bbox[3] - bbox[1] > 50
+                or min(bbox[0], bbox[1], 64 - bbox[2], 64 - bbox[3]) < 6
+            ):
+                raise ValueError(f"{spec['champion']} {name} portrait is unsafe: {bbox}")
+        if records["sidebar"]["sha256"] == records["scoreboard"]["sha256"]:
+            raise ValueError(f"{spec['champion']} sidebar and scoreboard crops are not independent")
+
+        battle_actor = _hd_actor_record(
+            str(spec["champion"]),
+            Path(spec["actor_sheet"]),
+            Path(spec["actor_anim"]),
+            tuple(spec["tags"]),
+            foot_baseline=int(spec["baseline"]),
+            expected_idle_height=int(spec["idle_height"]),
+            accent=str(spec["accent"]),
+            max_visible_height=int(spec.get("max_visible_height", 44)),
+        )
+        payload = {
+            "schema_version": 1,
+            "champion": spec["champion"],
+            "native_id": champion_id,
+            "accepted_source": Path(spec["source"]).relative_to(MOD_ROOT).as_posix(),
+            "accepted_source_sha256": sha256(Path(spec["source"])),
+            "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+            "skill_logic_changed": False,
+            "battle_actor": battle_actor,
+            "surfaces": records,
+            "runtime_routing": {
+                "scoreboard_square_px": [14, 38],
+                "sidebar_square_px": [39, 52],
+                "bp_native_grid_px": [124, 132],
+                "bp_replacement_dimensions": [90, 122],
+                "battle_sprite_commands_untouched": True,
+            },
+        }
+        write_json(Path(spec["qa"]), payload)
+        _build_hd_surface_contact(
+            str(spec["champion"]),
+            champion_id,
+            Path(spec["actor_sheet"]),
+            Path(spec["contact"]),
+        )
+        outputs.extend([Path(spec["qa"]), Path(spec["contact"])])
+    return outputs
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -3630,6 +4259,7 @@ def main() -> int:
     kled_outputs = build_kled_assets()
     xayah_outputs = build_xayah_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
+    orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -3666,6 +4296,7 @@ def main() -> int:
         *kled_outputs,
         *xayah_outputs,
         *champion_fullbody_portraits,
+        *orianna_briar_hd_surface_qa,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

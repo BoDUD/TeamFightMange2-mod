@@ -2,6 +2,8 @@
 
 Status: pending fresh installed-build startup and target-visible match capture.
 
+The 2026-07-13 legacy-HD pass adds a new pending live gate for the current v0.8.2 build: confirm the 44px battle actor, 43-45px run cycle, independent BP-grid/side-list/scoreboard/encyclopedia crops, ten-pixel BP name-band clearance, and stable R command body scale. Static tests and generated contacts pass; this document does not claim a new live capture.
+
 Required force-pick identity: `LOL_QA_FORCE_CHAMPION_ID=26` (`boomerang_hunter`). Project number 005 must not be used as the engine index.
 
 Acceptance evidence must show the current installed v0.6.0 build and Sivir visibly present in the actual draft/battle/HUD. A generic successful match or telemetry-only row is not sufficient.

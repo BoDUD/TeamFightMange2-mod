@@ -439,7 +439,7 @@
     {
       "path": "aseprite_resources/champions/sivir#sheet.png",
       "size_bytes": 508071,
-      "sha256": "11655d9b4827defb72af495924804fca2e51651679efe19d70b4cbf6e8e4c7bf"
+      "sha256": "86fe6e958b7d8095ae89ca25adcaf02b61cee3a7b1e9694c0ec8d5d8c832dc8c"
     },
     {
       "path": "aseprite_resources/champions/sivir#anim.fanim",
@@ -519,7 +519,7 @@
     {
       "path": "qa/sivir_actor_contact_final.png",
       "size_bytes": 2360120,
-      "sha256": "a0affab805021a02cbb773e5ee7913ff3a7ff0973a744ea1dd17198608828df0"
+      "sha256": "4bb5db0acd154866684b908a005c1909982169878d5a0ff8f407dc742365be50"
     },
     {
       "path": "qa/sivir_skill_icons_final.png",

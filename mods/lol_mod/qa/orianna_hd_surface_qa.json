@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "champion": "Orianna",
+  "native_id": "barrier_magician",
+  "accepted_source": "source/processed/orianna_actor_contact_alpha.png",
+  "accepted_source_sha256": "c7f687935356a4fffd77a49dac1475c65910391a5f9c3d997a77b6fc4de33ea7",
+  "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+  "skill_logic_changed": false,
+  "battle_actor": {
+    "sheet": "aseprite_resources/champions/orianna#sheet.png",
+    "animation": "aseprite_resources/champions/orianna#anim.fanim",
+    "uniform_xy_scale": true,
+    "x_only_compression": false,
+    "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+    "foot_baseline_exclusive_y": 42,
+    "first_idle_alpha_bbox": [
+      23,
+      4,
+      41,
+      42
+    ],
+    "face_readability": {
+      "sample_box": [
+        24,
+        4,
+        40,
+        25
+      ],
+      "opaque_pixels": 268,
+      "cyan_accent_pixels": 4,
+      "luminance_dynamic_range": 236.93
+    },
+    "core_actions": {
+      "idle": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            23,
+            4,
+            41,
+            42
+          ],
+          [
+            23,
+            4,
+            41,
+            42
+          ],
+          [
+            19,
+            5,
+            45,
+            42
+          ],
+          [
+            19,
+            7,
+            44,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          38
+        ],
+        "visible_width_range": [
+          18,
+          26
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      },
+      "run": {
+        "frame_count": 8,
+        "alpha_bboxes": [
+          [
+            19,
+            4,
+            44,
+            42
+          ],
+          [
+            19,
+            4,
+            45,
+            42
+          ],
+          [
+            22,
+            4,
+            42,
+            42
+          ],
+          [
+            20,
+            4,
+            43,
+            42
+          ],
+          [
+            18,
+            4,
+            46,
+            42
+          ],
+          [
+            20,
+            4,
+            43,
+            42
+          ],
+          [
+            22,
+            4,
+            42,
+            42
+          ],
+          [
+            20,
+            4,
+            44,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          20,
+          28
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      },
+      "attack": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            18,
+            7,
+            46,
+            42
+          ],
+          [
+            19,
+            7,
+            47,
+            42
+          ],
+          [
+            18,
+            8,
+            45,
+            42
+          ],
+          [
+            17,
+            8,
+            44,
+            42
+          ],
+          [
+            23,
+            4,
+            41,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          34,
+          38
+        ],
+        "visible_width_range": [
+          18,
+          28
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      },
+      "skill1": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            19,
+            4,
+            44,
+            42
+          ],
+          [
+            20,
+            4,
+            45,
+            42
+          ],
+          [
+            18,
+            4,
+            46,
+            42
+          ],
+          [
+            17,
+            4,
+            45,
+            42
+          ],
+          [
+            23,
+            4,
+            41,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          18,
+          28
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      },
+      "skill2": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            22,
+            4,
+            41,
+            42
+          ],
+          [
+            23,
+            4,
+            42,
+            42
+          ],
+          [
+            15,
+            3,
+            48,
+            42
+          ],
+          [
+            14,
+            3,
+            47,
+            42
+          ],
+          [
+            23,
+            4,
+            41,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          39
+        ],
+        "visible_width_range": [
+          18,
+          33
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      },
+      "ult": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            19,
+            6,
+            44,
+            42
+          ],
+          [
+            19,
+            5,
+            44,
+            41
+          ],
+          [
+            12,
+            8,
+            51,
+            42
+          ],
+          [
+            12,
+            7,
+            51,
+            41
+          ]
+        ],
+        "visible_height_range": [
+          34,
+          36
+        ],
+        "visible_width_range": [
+          25,
+          39
+        ],
+        "bottom_range": [
+          41,
+          42
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "alpha_bboxes": [
+          [
+            19,
+            9,
+            44,
+            42
+          ]
+        ],
+        "visible_height_range": [
+          33,
+          33
+        ],
+        "visible_width_range": [
+          25,
+          25
+        ],
+        "bottom_range": [
+          42,
+          42
+        ]
+      }
+    }
+  },
+  "surfaces": {
+    "side_card": {
+      "path": "BanPickIllust/barrier_magician.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "hard_alpha": false,
+      "opaque_pixels": 1216644,
+      "sha256": "93ee86a0c3f3588157216675702e562c0b80ba845420cf99d8c58dea26de171e"
+    },
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/barrier_magician.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        18,
+        2,
+        45,
+        60
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1123,
+      "sha256": "7ae9b9092a9ba6659f2383a0b83ef80bd289617cfb1b41c21c40c24f0977153b"
+    },
+    "sidebar": {
+      "path": "ui/champion_portrait/barrier_magician_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        14,
+        8,
+        50,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1323,
+      "sha256": "2a42caa99f70c4f5e64b3b97fb626808dff8c3a88a786fb6d2dba9bb3e882079"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/barrier_magician_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        13,
+        8,
+        50,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1518,
+      "sha256": "5d8fe52871dd7b84b5a0c7fc2fc3a13ca60214f439077cfbdbd3f1cd9bea6e3c"
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/barrier_magician_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        25,
+        4,
+        64,
+        86
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 2264,
+      "sha256": "d665f19c68b7f88a2e35e929d4ba21df6115bb64b9391fec870f8cf6789cac11",
+      "name_band_y": 96,
+      "name_band_clearance": 10
+    }
+  },
+  "runtime_routing": {
+    "scoreboard_square_px": [
+      14,
+      38
+    ],
+    "sidebar_square_px": [
+      39,
+      52
+    ],
+    "bp_native_grid_px": [
+      124,
+      132
+    ],
+    "bp_replacement_dimensions": [
+      90,
+      122
+    ],
+    "battle_sprite_commands_untouched": true
+  }
+}
