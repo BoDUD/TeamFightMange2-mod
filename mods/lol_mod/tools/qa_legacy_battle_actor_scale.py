@@ -128,6 +128,7 @@ TARGETS = (
 # standing body. A wide live pose (width > 1.30 * height) is treated as a real
 # lunge/knockdown posture and checked by silhouette scale instead of height.
 NON_BODY_TAGS = {
+    "archer": {"ult_projectile"},
     "boomerang_hunter": {"big_boomerang", "boomerang", "ult_boomerang"},
 }
 DEATH_TAG_TOKENS = ("dead",)
@@ -198,7 +199,7 @@ PRESERVED_UI_SHA256_ALTERNATES = {
 
 PRESERVED_ANIMATION_SHA256 = {
     "shen": "4fcd4da62313dc2e5294310b2c1ba998f24ae063643b0bf0f29bd95845aa8e16",
-    "lucian": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c",
+    "lucian": "10efb0757b6b5955777a9bc970b61703df90bb153cefbcf286d31a716feac6d2",
     "orianna": "bf82a05db4934e9985761ca2bff06d88488465df21f41e34b10bb3af5926f9fe",
     "briar": "ebf73e93841103c66b32faa811a5009c654c89067948e1db65fd20796df898b3",
     "sivir": "74875b39afa10b6c5143327b0c53a9aa05b72457cbe62e51d6ff049ad11c3540",
@@ -718,12 +719,46 @@ def maximum_core_size(actions: dict[str, Any]) -> list[int]:
 
 
 def _action_before_after(
-    before: dict[str, Any], after: dict[str, Any]
+    before: dict[str, Any],
+    after: dict[str, Any],
+    *,
+    allowed_added_actions: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
-    if set(before["actions"]) != set(after["actions"]):
+    before_tags = set(before["actions"])
+    after_tags = set(after["actions"])
+    if before_tags - after_tags or (after_tags - before_tags) - allowed_added_actions:
         raise ValueError("actor action keys changed during the scale-stability pass")
     comparisons: dict[str, Any] = {}
     for tag, after_action in after["actions"].items():
+        if tag not in before["actions"]:
+            comparisons[tag] = {
+                "classification": after_action["classification"],
+                "frame_count": after_action["declared_frame_count"],
+                "native_runtime_compatibility_added_after_baseline": True,
+                "visible_width_range_before": after_action["visible_width_range"],
+                "visible_width_range_after": after_action["visible_width_range"],
+                "visible_height_range_before": after_action["visible_height_range"],
+                "visible_height_range_after": after_action["visible_height_range"],
+                "silhouette_scale_range_before": after_action[
+                    "silhouette_scale_vs_idle_range"
+                ],
+                "silhouette_scale_range_after": after_action[
+                    "silhouette_scale_vs_idle_range"
+                ],
+                "max_adjacent_height_jump_before_px": after_action[
+                    "max_adjacent_visible_height_jump_px"
+                ],
+                "max_adjacent_height_jump_after_px": after_action[
+                    "max_adjacent_visible_height_jump_px"
+                ],
+                "max_adjacent_scale_jump_before_percent": after_action[
+                    "max_adjacent_scale_jump_percent"
+                ],
+                "max_adjacent_scale_jump_after_percent": after_action[
+                    "max_adjacent_scale_jump_percent"
+                ],
+            }
+            continue
         before_action = before["actions"][tag]
         if before_action["declared_frame_count"] != after_action["declared_frame_count"]:
             raise ValueError(f"{tag} frame count changed during the scale-stability pass")
@@ -957,7 +992,27 @@ def build_all() -> list[Path]:
         actions = action_metrics(sheet, anim, spec.tags)
         full_audit = full_actor_metrics(spec, sheet, anim)
         before_audit = before_payload["targets"][spec.native_id]["audit"]
-        action_comparison = _action_before_after(before_audit, full_audit)
+        action_comparison = _action_before_after(
+            before_audit,
+            full_audit,
+            allowed_added_actions=(
+                frozenset(
+                    {
+                        "ult_old",
+                        "ult_pre",
+                        "ult_loop",
+                        "ult_end",
+                        "ult_projectile",
+                        "old_ult_buff_effect",
+                        "skill_attack",
+                        "skill_dash",
+                        "old_ult_pre",
+                    }
+                )
+                if spec.native_id == "archer"
+                else frozenset()
+            ),
+        )
         if full_audit["live_body_failure_count"]:
             raise ValueError(
                 f"{spec.label} still has live body scale failures: "

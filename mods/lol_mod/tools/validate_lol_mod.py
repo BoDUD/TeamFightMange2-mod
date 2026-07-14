@@ -2397,62 +2397,64 @@ def validate_native_setting_override(override: dict[str, Any]) -> None:
 
 
 def validate_native_archer_animation() -> None:
-    sheet_path = MOD_ROOT / "aseprite_resources/champions/archer#sheet.png"
-    anim = load_json("aseprite_resources/champions/archer#anim.fanim")
+    """Gate every missing native Archer alias needed by same-ID Lucian."""
+
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
+    anim = load_json("aseprite_resources/champions/lucian#anim.fanim")
     sheet = Image.open(sheet_path).convert("RGBA")
     expected = {
         "ult_old": [0.080000006] * 7 + [0.1] * 4,
-        "skill": [0.080000006] * 6,
+        "ult_pre": [0.080000006] * 3,
+        "ult_loop": [0.030000001] * 4,
         "ult_end": [0.080000006] * 3,
         "ult_projectile": [0.080000006],
-        "hit": [0.1],
-        "run": [0.080000006] * 8,
-        "ult_loop": [0.030000001] * 4,
-        "skill2": [0.080000006] * 7,
-        "ult_pre": [0.080000006] * 3,
-        "dead": [0.1] * 4 + [0.15] * 5,
         "old_ult_buff_effect": [0.1] * 4,
         "skill_attack": [0.080000006] * 3,
-        "idle": [0.18, 0.14, 0.14, 0.14],
         "skill_dash": [0.080000006] * 3,
-        "attack": [0.060000002] * 6,
         "old_ult_pre": [0.080000006] * 7,
     }
-    check(set(anim.get("anims", {})) == set(expected), "Lucian must preserve every native Archer animation key")
-    total_frames = sum(len(durations) for durations in expected.values())
-    check(sheet.size == (total_frames * 64, 64), f"native Archer sheet must be {total_frames * 64}x64, got {sheet.size}")
+    expected_indexes = {
+        "ult_old": [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
+        "ult_pre": [0, 17, 17],
+        "ult_loop": [18, 18, 18, 18],
+        "ult_end": [18, 17, 0],
+        "ult_projectile": [21],
+        "old_ult_buff_effect": [18, 18, 17, 0],
+        "skill_attack": [13, 11, 0],
+        "skill_dash": [15, 16, 16],
+        "old_ult_pre": [0, 17, 17, 18, 18, 18, 18],
+    }
+    available = set(anim.get("anims", {}))
+    check(
+        set(expected).issubset(available),
+        "same-ID Lucian must expose every previously missing native Archer alias",
+    )
+    check(
+        sheet.height == 64 and sheet.width % 64 == 0,
+        f"Lucian actor sheet must remain a row of 64x64 frames, got {sheet.size}",
+    )
     for tag, durations in expected.items():
         frames = anim.get("anims", {}).get(tag, {}).get("frames", [])
-        check(len(frames) == len(durations), f"native Archer tag {tag} frame count changed")
-        for frame, duration in zip(frames, durations):
-            check(abs(float(frame.get("duration", -1)) - duration) < 1e-8, f"native Archer tag {tag} duration changed")
+        check(
+            len(frames) == len(durations),
+            f"native Archer compatibility tag {tag} frame count changed",
+        )
+        for frame, duration, index in zip(
+            frames, durations, expected_indexes[tag], strict=True
+        ):
+            check(
+                abs(float(frame.get("duration", -1)) - duration) < 1e-8,
+                f"native Archer compatibility tag {tag} duration changed",
+            )
             data = frame.get("data", {})
-            check(data.get("w") == 64 and data.get("h") == 64, f"native Archer tag {tag} must use 64x64 safe frames")
-            check(data.get("x", -1) + 64 <= sheet.width, f"native Archer tag {tag} frame is out of bounds")
-
-    run_frames = []
-    for frame in anim.get("anims", {}).get("run", {}).get("frames", []):
-        data = frame["data"]
-        run_frames.append(sheet.crop((data["x"], 0, data["x"] + 64, 64)))
-    hashes = [hashlib.sha256(frame.tobytes()).hexdigest() for frame in run_frames]
-    check(len(set(hashes)) == 8, "native Archer run contract must contain eight unique Lucian phases")
-    lower_sets = []
-    for frame in run_frames:
-        alpha = frame.getchannel("A")
-        lower_sets.append({(x, y) for y in range(31, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128})
-    differences = []
-    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
-        union = current | following
-        differences.append(len(current ^ following) / len(union) if union else 0.0)
-    if differences:
-        check(min(differences) >= 0.06, "native Archer run phases are too similar to show crossing steps")
-
-    idle = anim.get("anims", {}).get("idle", {}).get("frames", [])[0]["data"]
-    idle_frame = sheet.crop((idle["x"], 0, idle["x"] + 64, 64))
-    bbox = idle_frame.getchannel("A").getbbox()
-    check(bbox is not None and 34 <= bbox[3] - bbox[1] <= 37, "native Archer idle is outside the 34-37px Lucian scale")
-    if bbox:
-        check(bbox[3] <= 46 and bbox[0] >= 2 and bbox[2] <= 62, "native Archer idle violates the safe frame/baseline")
+            check(
+                data == {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                f"native Archer compatibility tag {tag} frame mapping changed",
+            )
+            check(
+                data.get("x", -1) + 64 <= sheet.width,
+                f"native Archer compatibility tag {tag} frame is out of bounds",
+            )
 
 
 def validate_orianna_native_animation(champion: dict[str, Any]) -> None:
@@ -4523,7 +4525,7 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
 def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
     actor_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
     actor = Image.open(actor_path).convert("RGBA")
-    check(actor.size == (1344, 64), f"Lucian actor sheet must be 1344x64, got {actor.size}")
+    check(actor.size == (1408, 64), f"Lucian actor sheet must be 1408x64, got {actor.size}")
     actor_anim = load_json("aseprite_resources/champions/lucian#anim.fanim").get("anims", {})
     skill_frames = actor_anim.get("skill", {}).get("frames", [])
     check(
@@ -4542,6 +4544,15 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
             check(bbox[3] <= 46, f"Lucian actor frame {index} crosses the y=45 foot baseline")
             check(bbox[0] >= 2 and bbox[2] <= 62, f"Lucian actor frame {index} touches a side edge")
         hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
+    r_projectile = actor.crop((21 * 64, 0, 22 * 64, 64))
+    r_projectile_bbox = r_projectile.getchannel("A").getbbox()
+    check(r_projectile_bbox is not None, "Lucian native ult_projectile alias frame is empty")
+    if r_projectile_bbox:
+        check(
+            r_projectile_bbox[2] - r_projectile_bbox[0] <= 48
+            and r_projectile_bbox[3] - r_projectile_bbox[1] <= 18,
+            "Lucian native ult_projectile alias exceeds its 48x18 effect-only bounds",
+        )
     if bboxes:
         idle = bboxes[0]
         idle_height = idle[3] - idle[1]
@@ -8469,6 +8480,7 @@ def main() -> int:
     validate_data_contract(champion)
     validate_shen_sdk_data_champion()
     validate_lucian_data_contract(lucian)
+    validate_native_archer_animation()
     validate_orianna_replacement_uniqueness()
     validate_orianna_data_contract(orianna)
     validate_orianna_native_animation(orianna)
@@ -8525,6 +8537,15 @@ def main() -> int:
             "skill": 10,
             "skill2": 5,
             "ult": 17,
+            "ult_old": 11,
+            "ult_pre": 3,
+            "ult_loop": 4,
+            "ult_end": 3,
+            "ult_projectile": 1,
+            "old_ult_buff_effect": 4,
+            "skill_attack": 3,
+            "skill_dash": 3,
+            "old_ult_pre": 7,
             "hit": 1,
             "dead": 1,
         },

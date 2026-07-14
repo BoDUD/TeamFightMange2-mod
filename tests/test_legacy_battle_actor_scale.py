@@ -244,7 +244,7 @@ def test_all_declared_actor_tags_and_frames_have_full_stability_evidence() -> No
     assert qa["schema_version"] == 2
     expected = {
         "lol_shen": (8, 41, 3),
-        "archer": (11, 67, 5),
+        "archer": (20, 106, 5),
         "barrier_magician": (8, 41, 5),
         "berserker": (24, 103, 14),
         "boomerang_hunter": (12, 55, 12),
@@ -283,6 +283,25 @@ def test_all_declared_actor_tags_and_frames_have_full_stability_evidence() -> No
                         frame["frame_index"],
                         frame["stability_checks"],
                     )
+
+    lucian_compat = qa["targets"]["archer"]["all_action_frame_stability"][
+        "action_before_after"
+    ]
+    assert {
+        tag
+        for tag, row in lucian_compat.items()
+        if row.get("native_runtime_compatibility_added_after_baseline") is True
+    } == {
+        "ult_old",
+        "ult_pre",
+        "ult_loop",
+        "ult_end",
+        "ult_projectile",
+        "old_ult_buff_effect",
+        "skill_attack",
+        "skill_dash",
+        "old_ult_pre",
+    }
 
 
 def test_known_live_size_jumps_are_closed_in_every_target() -> None:
