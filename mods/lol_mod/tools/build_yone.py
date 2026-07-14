@@ -2,7 +2,7 @@
 """Build Yone's deterministic visual resources for the Dual Blader slot.
 
 The actor preserves official champion 009/Dual Blader's exact 3502x88 atlas
-and animation contract.  High-footprint Q/W/R feedback is packed into
+and animation contract.  High-footprint Q/E+W/R feedback is packed into
 independent effect sheets so the battle actor keeps one stable body scale.
 
 This module owns Yone visuals only.  Champion mechanics, localization,
@@ -174,7 +174,11 @@ DEAD_BOTTOM_MARGINS = [4, 4, 3, 3, 2, 2, 2, 2]
 
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Write canonical LF bytes directly.  Path.write_text uses platform newline
+    # translation on Windows, which made the provenance audit record CRLF
+    # hashes before build_manifest normalized the same fanim files to LF.
+    payload = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    path.write_bytes(payload)
 
 
 def _png_chunk(kind: bytes, data: bytes) -> bytes:
@@ -668,6 +672,66 @@ def build_effect_sheet(
     return [sheet_path, anim_path]
 
 
+def spirit_actor_frame(
+    source: Image.Image,
+    frame_size: tuple[int, int],
+    *,
+    tint: tuple[int, int, int],
+    alpha_scale: float,
+) -> Image.Image:
+    """Turn an approved Yone body pose into a translucent spirit effect.
+
+    The spirit is derived from the accepted actor sources instead of drawing a
+    substitute body.  Only color/opacity changes; the silhouette remains Yone.
+    """
+
+    frame = fit_actor(source, frame_size, target_height=42, bottom_margin=6)
+    output = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+    for y in range(frame.height):
+        for x in range(frame.width):
+            red, green, blue, alpha = frame.getpixel((x, y))
+            if alpha == 0:
+                continue
+            light = (red * 3 + green * 5 + blue * 2) // 10
+            mixed = tuple(min(255, round(channel * 0.72 + light * 0.52)) for channel in tint)
+            output.putpixel((x, y), (*mixed, max(1, round(alpha * alpha_scale))))
+    return output
+
+
+def build_spirit_effects() -> list[Path]:
+    core = split_grid(Image.open(CORE_ALPHA).convert("RGBA"), 5, 4)
+    wr = split_grid(Image.open(WR_BODY_ALPHA).convert("RGBA"), 5, 4)
+    specs = [
+        ("anchor", core[0:4], (64, 56), 0.08, (100, 185, 238), 0.52),
+        ("outbound", wr[5:9], (72, 56), 0.065, (80, 205, 255), 0.68),
+        ("return", list(reversed(wr[5:9])), (72, 56), 0.065, (240, 84, 120), 0.68),
+        ("return_burst", [core[3], core[2], core[1], core[0]], (80, 64), 0.055, (190, 110, 245), 0.62),
+    ]
+    width = max((len(sources) + 1) * size[0] for _, sources, size, *_ in specs)
+    height = sum(size[1] for _, _, size, *_ in specs)
+    sheet = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    animations: dict[str, Any] = {}
+    y = 0
+    for tag, sources, size, duration, tint, alpha_scale in specs:
+        frames: list[dict[str, Any]] = []
+        for index, source in enumerate([*sources, None]):
+            frame = (
+                Image.new("RGBA", size, (0, 0, 0, 0))
+                if source is None
+                else spirit_actor_frame(source, size, tint=tint, alpha_scale=alpha_scale)
+            )
+            x = index * size[0]
+            sheet.alpha_composite(frame, (x, y))
+            frames.append({"duration": duration, "data": {"x": x, "y": y, "w": size[0], "h": size[1]}})
+        animations[tag] = {"frames": frames}
+        y += size[1]
+    sheet_path = EFFECT_DIR / "yone_spirit#sheet.png"
+    anim_path = EFFECT_DIR / "yone_spirit#anim.fanim"
+    save_png(sheet_path, sheet)
+    write_json(anim_path, {"anims": animations})
+    return [sheet_path, anim_path]
+
+
 def build_effects() -> list[Path]:
     outputs: list[Path] = []
     outputs += build_effect_sheet(
@@ -686,18 +750,20 @@ def build_effects() -> list[Path]:
             ("empowered_hit", [11, 12, 13, 14, None], (80, 64), 0.06),
         ],
     )
-    # W / Sealed Pursuit owns a compact follow-up sheet.  It deliberately
-    # avoids the old Q-atlas crescents and full circular shield that obscured
-    # Yone's actor and made the pursuit read like a duplicate spirit body.
+    outputs += build_effect_sheet(
+        "yone_q3_airborne", FOLLOWUP_VFX_ALPHA, (5, 5),
+        [("cue", [15, 16, 17, 18, None], (56, 80), 0.055)],
+    )
+    outputs += build_spirit_effects()
+    outputs += build_effect_sheet(
+        "yone_w", QW_VFX_ALPHA, (5, 4),
+        [("crescent", [15, 16, 17, 16, None], (112, 72), 0.055)],
+    )
+    # The W shield cue remains an open pair of crescents; it never becomes a
+    # body-covering ring.  The broad damage crescent lives in yone_w instead.
     outputs += build_effect_sheet(
         "yone_followup", FOLLOWUP_VFX_ALPHA, (5, 5),
-        [
-            ("lock", [0, 1, 2, 3, None], (64, 40), 0.05),
-            ("dash", [5, 6, 7, 8, 9, None], (112, 56), 0.05),
-            ("cross", [10, 11, 12, 13, None], (96, 64), 0.05),
-            ("airborne", [15, 16, 17, 18, None], (48, 64), 0.05),
-            ("guard", [20, 21, 22, 23, None], (64, 56), 0.06),
-        ],
+        [("shield", [20, 21, 22, 23, None], (64, 56), 0.06)],
     )
     outputs += build_effect_sheet(
         "yone_r", R_VFX_ALPHA, (5, 3),
@@ -817,11 +883,13 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_q_empowered_projectile": ["yone_q", "empowered_projectile"],
     "lol_yone_q_hit": ["yone_q", "hit"],
     "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
-    "lol_yone_w_lock": ["yone_followup", "lock"],
-    "lol_yone_w_dash_visual": ["yone_followup", "dash"],
-    "lol_yone_w_cross": ["yone_followup", "cross"],
-    "lol_yone_w_airborne": ["yone_followup", "airborne"],
-    "lol_yone_w_guard": ["yone_followup", "guard"],
+    "lol_yone_q3_airborne_cue": ["yone_q3_airborne", "cue"],
+    "lol_yone_e_spirit_outbound": ["yone_spirit", "outbound"],
+    "lol_yone_e_spirit_return": ["yone_spirit", "return"],
+    "lol_yone_e_body_anchor": ["yone_spirit", "anchor"],
+    "lol_yone_e_return_burst": ["yone_spirit", "return_burst"],
+    "lol_yone_w_crescent": ["yone_w", "crescent"],
+    "lol_yone_w_shield_visual": ["yone_followup", "shield"],
     "lol_yone_r_windup": ["yone_r", "windup"],
     "lol_yone_r_arrival": ["yone_r", "arrival"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
@@ -871,7 +939,29 @@ def build_qa(
                 "body_frames": body_frames,
             },
             "runtime_effect_map": RUNTIME_EFFECT_MAP,
-            "large_vfx_policy": "Q/W/R feedback is isolated in yone_q/yone_followup/yone_r sheets; W uses narrow target, trail, cross, airborne and open guard cues instead of an enclosing ring.",
+            "runtime_body_actions": {
+                "skill2": {
+                    "animation_tag": "skill2_attack",
+                    "frame_count": 5,
+                    "qa_contact_tag": "skill2_attack",
+                }
+            },
+            "runtime_w_resolution": {
+                "shared_geometry": {"width": 42000, "length": 48000, "delay": 0, "apply": 1},
+                "damage_hitbox": {
+                    "name": "lol_yone_w_sweep_hitbox",
+                    "applied_target": "EnemyWithoutTower",
+                    "attack_count": 1,
+                    "hit_sfx_count": 1,
+                },
+                "champion_shield_probe": {
+                    "name": "lol_yone_w_champion_shield_probe",
+                    "applied_target": "EnemyChampion",
+                    "attack_count": 0,
+                    "shield_tiers": 2,
+                },
+            },
+            "large_vfx_policy": "Q3 knockup, E spirit/anchor/return, W crescent/shield and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
@@ -896,16 +986,19 @@ def build_qa(
 
     visual_md = QA_DIR / "yone_visual_qa.md"
     visual_md.write_text(
-        """# Yone visual QA\n\n"
+        "# Yone visual QA\n\n"
         "- [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).\n"
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
-        "- [x] Idle/run/attack/Q/W/R/dead bodies use independent generated pose groups while retaining one stable battle scale.\n"
-        "- [x] Q/W/R feedback is packed into separate `yone_q`, `yone_followup`, and `yone_r` sheets. W uses a short target lock, narrow dual trail, compact cross, airborne cue and open guard instead of a full circular overlay.\n"
+        "- [x] Idle/run/attack/Q/E+W/R/dead bodies retain one stable battle scale.\n"
+        "- [x] Q3 has a dedicated vertical airborne cue.\n"
+        "- [x] E uses approved-body spirit silhouettes for outbound/return plus a fixed body anchor; it never swaps the real actor body.\n"
+        "- [x] E+W binds runtime `CasterAnimation` to the five-frame `skill2_attack` tag; the QA contact displays that same tag.\n"
+        "- [x] W uses aligned data hitboxes: one broad crescent damages every non-tower enemy once, while a champion-only probe drives the capped shield and never attacks.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
-        "- [x] BP illustration is `1420x860`; Q/W/R icons are independent `64x64` assets.\n"
-        "\nRuntime effect IDs and sheet tags are recorded in `qa/yone_visual_contract.json`.\n""",
+        "- [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.\n"
+        "\nRuntime effect IDs and sheet tags are recorded in `qa/yone_visual_contract.json`.\n",
         encoding="utf-8",
     )
 
@@ -930,7 +1023,7 @@ def build_qa(
         image = Image.open(path).convert("RGBA")
         contact.alpha_composite(image.resize((image.width * 2, image.height * 2), Image.Resampling.NEAREST), position)
     for index, (label, path) in enumerate((
-        ("Q", ICON_DIR / "yone_skill.png"), ("W", ICON_DIR / "yone_skill2.png"), ("R", ICON_DIR / "yone_ult.png"),
+        ("Q", ICON_DIR / "yone_skill.png"), ("E+W", ICON_DIR / "yone_skill2.png"), ("R", ICON_DIR / "yone_ult.png"),
     )):
         x = 650 + index * 160
         draw.text((x, 282), label, fill=(196, 210, 225, 255))
@@ -1050,7 +1143,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     for effect, required_tags in {
         "yone_attack": ["steel_hit", "azakana_hit"],
         "yone_q": ["projectile", "empowered_projectile", "hit", "empowered_hit"],
-        "yone_followup": ["lock", "dash", "cross", "airborne", "guard"],
+        "yone_q3_airborne": ["cue"],
+        "yone_spirit": ["anchor", "outbound", "return", "return_burst"],
+        "yone_w": ["crescent"],
+        "yone_followup": ["shield"],
         "yone_r": ["windup", "arrival", "slash_blue", "slash_red", "echo"],
     }.items():
         anims = json.loads((EFFECT_DIR / f"{effect}#anim.fanim").read_text(encoding="utf-8"))["anims"]

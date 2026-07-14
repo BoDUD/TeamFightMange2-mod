@@ -334,8 +334,8 @@
     },
     {
       "path": "aseprite_resources/champions/yone#anim.fanim",
-      "size_bytes": 15008,
-      "sha256": "21a4325ea1e59ff542e734f2b061a634306689a4a8293a0b48ada7c2d81b9741"
+      "size_bytes": 14223,
+      "sha256": "33fd512994a50efbe25397a22f63f072ff036eeba05aeed3e6f676eb3aa42cb1"
     },
     {
       "path": "aseprite_resources/effects/yone_attack#sheet.png",
@@ -358,8 +358,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_attack#anim.fanim",
-      "size_bytes": 1518,
-      "sha256": "b81ffa0a9f7127c36f111a61213fbcc25d8bc756517d8f66521ddbd9bb6657a3"
+      "size_bytes": 1434,
+      "sha256": "fd502a6c88c55dfb9b673045763e541a1f2ae22854d8579a45e3b332260b0ebe"
     },
     {
       "path": "aseprite_resources/effects/yone_q#sheet.png",
@@ -382,22 +382,94 @@
     },
     {
       "path": "aseprite_resources/effects/yone_q#anim.fanim",
-      "size_bytes": 3913,
-      "sha256": "174b6280fdde24dc288600e713affba3bd7fc1942548276004261dbb7f7906a7"
+      "size_bytes": 3704,
+      "sha256": "398315329ed6facadf0ad11262cd0cdd25ca234d76be125a3baf6ae38d66a809"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_airborne#sheet.png",
+      "dimensions": [
+        280,
+        80
+      ],
+      "size_bytes": 89753,
+      "sha256": "e385d1c9a94639ac8e67544d3b42d58b6110efdfe2bb9e484cfd301f757607f2",
+      "alpha_bbox": [
+        14,
+        2,
+        208,
+        78
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_airborne#anim.fanim",
+      "size_bytes": 887,
+      "sha256": "610456105f738fe56b546722f6af049c2aa3de0cf8ee045f0dc2bd40e3eb9d34"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_spirit#sheet.png",
+      "dimensions": [
+        400,
+        232
+      ],
+      "size_bytes": 371525,
+      "sha256": "b35a07d986d4830562ea5383025fed601a65f706d3911201a2f5aeb510808ea0",
+      "alpha_bbox": [
+        9,
+        8,
+        302,
+        226
+      ],
+      "alpha_extrema": [
+        0,
+        173
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_spirit#anim.fanim",
+      "size_bytes": 3528,
+      "sha256": "40ca30aad17ec7288c8542b498eeabd181a62450baa2f83244b7974a89f8f503"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#sheet.png",
+      "dimensions": [
+        560,
+        72
+      ],
+      "size_bytes": 161430,
+      "sha256": "b673a73a0e9c28eff26f9d8f2743e19ffad46cf2aa26bd4898d86cb537c3796e",
+      "alpha_bbox": [
+        8,
+        2,
+        437,
+        70
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#anim.fanim",
+      "size_bytes": 898,
+      "sha256": "96d965bde94c36f39fd48ce2e626ced5d09924f66462cfe4ad2e1b05446b4161"
     },
     {
       "path": "aseprite_resources/effects/yone_followup#sheet.png",
       "dimensions": [
-        672,
-        280
+        320,
+        56
       ],
-      "size_bytes": 753043,
-      "sha256": "896e66ee89fe83b372244d6979e808fc01a71dd1d99f561ee7a0c38773fd8de0",
+      "size_bytes": 71809,
+      "sha256": "b1d1aabbd426fec72990b1f60739ea3ca90c26fb8f868f8ef4160a368a85ffb9",
       "alpha_bbox": [
         2,
-        12,
-        558,
-        276
+        3,
+        254,
+        52
       ],
       "alpha_extrema": [
         0,
@@ -406,8 +478,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_followup#anim.fanim",
-      "size_bytes": 4800,
-      "sha256": "61856f0bcce49fb3168b38c3439cc39d451a9bd35e822ec102d209a1b2ee80ce"
+      "size_bytes": 885,
+      "sha256": "9a324ce653c64c7337055e9dcd345d5ee298617f21d1a6d7118d346ebd2aa0ef"
     },
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",
@@ -430,8 +502,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
-      "size_bytes": 4689,
-      "sha256": "df9a4ab74f217dac24c27645c70cec31adfde54c4f7aa33153f1582e3c616acd"
+      "size_bytes": 4440,
+      "sha256": "3be794ca5d91f9a3d4f740e6a708cd9f5ab9a6bdf7b40bfe7052415e3639ac50"
     },
     {
       "path": "icons/yone_skill.png",

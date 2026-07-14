@@ -53,9 +53,9 @@
       "dual_blader": {
         "name": "Yone",
         "attack": "Way of the Hunter: Alternates between a blue-white steel slash and a red-black Azakana slash. Both deal 100% Attack physical damage in this data-only version.",
-        "skill": "Q — Mortal Steel: Sends a narrow piercing thrust for 25 + 80% Attack physical damage. A hit grants Gathering Storm for 6 seconds; the next Q consumes it, dashes forward without dealing dash damage, releases a longer wind blade and knocks hit enemies airborne for 0.75 seconds. Cooldown: 4 seconds.",
-        "skill2": "W — Sealed Pursuit: Targets an enemy champion. Yone rushes behind the target, deals 45 + 90% Attack physical damage, knocks them airborne for 0.75 seconds and gains a 90 + 30% Attack shield for 1.5 seconds. Cooldown: 8 seconds.",
-        "ult": "R — Soul Unbound: Six alternating steel and Azakana slashes strike at 8-tick intervals for 12 + 16% Attack physical damage each. At tick 60, the soul mark echoes once for 30 + 25% Attack fixed damage. The target is knocked airborne once, not once per slash. Cooldown: 50 seconds."
+        "skill": "Q — Mortal Steel: Q1 and Q2 each send one narrow piercing thrust for 25 + 80% Attack physical damage. A hit advances Mortal Steel from named stack 1 to named stack 2 for 6 seconds; a miss does not advance it. Q3 consumes stack 2 at cast, performs one damage-free lunge, then releases one wind lane that damages once and knocks hit enemies airborne for 0.75 seconds. Cooldown: 4 seconds.",
+        "skill2": "E+W composite approximation — Soul Unbound / Spirit Cleave: Targets an enemy champion so stock AI can cast it. A fixed body marker remains at the cast point while a visible spirit projectile travels out and returns through BackToCaster. The public data API cannot move and restore the real hero coordinate, so Yone remains at the marker; this is not true positional rollback. The same action swings one short, broad W crescent that hits enemy champions, minions and monsters, but not towers, once for 45 + 90% Attack physical damage. Only enemy-champion hits count for the shield: the first grants 70 + 20% Attack and a second can add at most 35 + 10% Attack. Minions and monsters take damage but cannot trigger either shield tier. W has no knock-up. Cooldown: 12 seconds.",
+        "ult": "R — Fate Sealed (data approximation): Six alternating steel and Azakana slashes strike at 8-tick intervals for 12 + 16% Attack physical damage each. At tick 60, the soul mark echoes once for 30 + 25% Attack fixed damage. The target is knocked airborne once, not once per slash. Cooldown: 50 seconds."
       }
     }
   },
@@ -113,9 +113,9 @@
       "dual_blader": {
         "name": "永恩",
         "attack": "狩人之道：普攻在蓝白钢剑斩击与红黑亚扎卡纳剑斩击之间交替。数据版两种攻击都造成100%攻击力的物理伤害。",
-        "skill": "Q—错玉切：向前释放狭窄且可穿透的剑气，造成25 + 80%攻击力的物理伤害。命中后获得持续6秒的剑风；下一次Q会消耗剑风，无伤害冲刺并释放更远的旋风剑气，将命中的敌人击飞0.75秒。冷却4秒。",
-        "skill2": "W—封尘追斩：选择一名敌方英雄。永恩冲到目标身后，造成45 + 90%攻击力的物理伤害并击飞0.75秒，同时获得90 + 30%攻击力的护盾，持续1.5秒。冷却8秒。",
-        "ult": "R—破障之锋·六道断魂：以8 tick间隔交替使用钢剑与亚扎卡纳之剑斩击六次，每次造成12 + 16%攻击力的物理伤害；第60 tick灵魂印记只回响一次，造成30 + 25%攻击力的固定伤害。目标只会被击飞一次。冷却50秒。"
+        "skill": "Q—错玉切：Q1与Q2各释放一道狭窄且可穿透的剑气，造成25 + 80%攻击力的物理伤害。命中才会在6秒内从第一层剑风推进至第二层，未命中不会叠层。Q3施法时消耗第二层，执行一次无伤害突进，再释放唯一一道风道；风道只造成一次伤害，并将命中的敌人击飞0.75秒。冷却4秒。",
+        "skill2": "E+W组合近似—破障之锋／凛神斩：以敌方英雄为目标，便于原生AI稳定施放。施法点留下固定本体标记，可见灵体投射物离体后通过BackToCaster返回。公开数据API无法移动并恢复真实英雄坐标，因此永恩本人始终留在标记处；这不是真实的位置回溯。同一动作挥出一次短宽W月牙，对英雄、小兵与野怪（不含防御塔）各造成一次45 + 90%攻击力的物理伤害；护盾只按敌方英雄命中计数，命中第一名英雄获得70 + 20%攻击力护盾，命中第二名英雄最多再增加35 + 10%攻击力护盾。小兵与野怪会受到伤害，但不会触发任一档护盾。W无击飞。冷却12秒。",
+        "ult": "R—封尘绝念斩（数据近似）：以8 tick间隔交替使用钢剑与亚扎卡纳之剑斩击六次，每次造成12 + 16%攻击力的物理伤害；第60 tick灵魂印记只回响一次，造成30 + 25%攻击力的固定伤害。目标只会被击飞一次。冷却50秒。"
       }
     }
   },
@@ -173,9 +173,9 @@
       "dual_blader": {
         "name": "犽凝",
         "attack": "狩人之道：普攻在藍白鋼劍斬擊與紅黑亞扎卡納劍斬擊之間交替。資料版兩種攻擊都造成100%攻擊力的物理傷害。",
-        "skill": "Q—錯玉切：向前釋放狹窄且可穿透的劍氣，造成25 + 80%攻擊力的物理傷害。命中後獲得持續6秒的劍風；下一次Q會消耗劍風，無傷害衝刺並釋放更遠的旋風劍氣，將命中的敵人擊飛0.75秒。冷卻4秒。",
-        "skill2": "W—封塵追斬：選擇一名敵方英雄。犽凝衝到目標身後，造成45 + 90%攻擊力的物理傷害並擊飛0.75秒，同時獲得90 + 30%攻擊力的護盾，持續1.5秒。冷卻8秒。",
-        "ult": "R—破障之鋒·六道斷魂：以8 tick間隔交替使用鋼劍與亞扎卡納之劍斬擊六次，每次造成12 + 16%攻擊力的物理傷害；第60 tick靈魂印記只回響一次，造成30 + 25%攻擊力的固定傷害。目標只會被擊飛一次。冷卻50秒。"
+        "skill": "Q—錯玉切：Q1與Q2各釋放一道狹窄且可穿透的劍氣，造成25 + 80%攻擊力的物理傷害。命中才會在6秒內從第一層劍風推進至第二層，未命中不會疊層。Q3施法時消耗第二層，執行一次無傷害突進，再釋放唯一一道風道；風道只造成一次傷害，並將命中的敵人擊飛0.75秒。冷卻4秒。",
+        "skill2": "E+W組合近似—破障之鋒／凜神斬：以敵方英雄為目標，方便原生AI穩定施放。施法點留下固定本體標記，可見靈體投射物離體後透過BackToCaster返回。公開資料API無法移動並恢復真實英雄座標，因此犽凝本人始終留在標記處；這不是真實的位置回溯。同一動作揮出一次短寬W月牙，對英雄、小兵與野怪（不含防禦塔）各造成一次45 + 90%攻擊力的物理傷害；護盾只按敵方英雄命中計數，命中第一名英雄獲得70 + 20%攻擊力護盾，命中第二名英雄最多再增加35 + 10%攻擊力護盾。小兵與野怪會受到傷害，但不會觸發任一檔護盾。W無擊飛。冷卻12秒。",
+        "ult": "R—封塵絕念斬（資料近似）：以8 tick間隔交替使用鋼劍與亞扎卡納之劍斬擊六次，每次造成12 + 16%攻擊力的物理傷害；第60 tick靈魂印記只回響一次，造成30 + 25%攻擊力的固定傷害。目標只會被擊飛一次。冷卻50秒。"
       }
     }
   },
@@ -219,9 +219,9 @@
       "dual_blader": {
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は青白い鋼の剣と赤黒いアザカナの剣を交互に使う。データ版ではどちらも攻撃力100%の物理ダメージを与える。",
-        "skill": "Q—斬命刀：細く貫通する剣気を放ち、25 + 攻撃力80%の物理ダメージを与える。命中すると6秒間「つむじ風」を得る。次のQは状態を消費し、ダメージのない前進と長い風刃で命中した敵を0.75秒ノックアップする。クールダウン4秒。",
-        "skill2": "W—封塵追撃：敵チャンピオンを対象にできる。対象の背後へ突進し、45 + 攻撃力90%の物理ダメージと0.75秒のノックアップを与え、自身は1.5秒間90 + 攻撃力30%のシールドを得る。クールダウン8秒。",
-        "ult": "R—縛魂の六連斬：8 tick間隔で鋼とアザカナの剣を交互に6回振り、各12 + 攻撃力16%の物理ダメージを与える。60 tick目に魂の印が一度だけ爆発し、30 + 攻撃力25%の固定ダメージを与える。ノックアップは一度だけ。クールダウン50秒。"
+        "skill": "Q—斬命刀：Q1とQ2は細い貫通剣気で25 + 攻撃力80%の物理ダメージを与える。命中時だけ6秒間の第1スタックから第2スタックへ進み、外すと進まない。Q3は詠唱時に第2スタックを消費し、無ダメージの前進を1回行って風のレーンを1本だけ放つ。命中ダメージは1回で、敵を0.75秒ノックアップする。クールダウン4秒。",
+        "skill2": "E+W複合近似—縛魂の解放／霊断刀：標準AIが使えるよう敵チャンピオンを対象にする。発動地点に固定の本体マーカーを残し、可視の霊体投射物が前進してBackToCasterで戻る。公開データAPIでは実体座標の移動と復元ができないため、ヨネ本体はマーカー地点に残り、真の位置巻き戻しではない。同じ動作で短く幅広いWの三日月斬りを1回行い、敵チャンピオン、ミニオン、モンスター（タワーを除く）にそれぞれ1回、45 + 攻撃力90%の物理ダメージを与える。シールドは敵チャンピオンへの命中だけを数え、1人目で70 + 攻撃力20%、2人目で最大35 + 攻撃力10%を追加する。ミニオンとモンスターはダメージを受けるが、どちらのシールド段階も発動しない。Wにノックアップはない。クールダウン12秒。",
+        "ult": "R—運命の封印（データ近似）：8 tick間隔で鋼とアザカナの剣を交互に6回振り、各12 + 攻撃力16%の物理ダメージを与える。60 tick目に魂の印が一度だけ爆発し、30 + 攻撃力25%の固定ダメージを与える。ノックアップは一度だけ。クールダウン50秒。"
       }
     }
   },
@@ -265,9 +265,9 @@
       "dual_blader": {
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 청백색 강철검과 적흑색 아자카나 검을 번갈아 사용합니다. 데이터 버전에서는 둘 다 공격력의 100%만큼 물리 피해를 입힙니다.",
-        "skill": "Q—필멸의 검: 가늘고 관통하는 검기를 날려 25 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 6초 동안 회오리 상태를 얻으며 다음 Q가 이를 소모해 피해 없는 돌진과 더 긴 바람 칼날로 적을 0.75초 공중에 띄웁니다. 재사용 대기시간은 4초입니다.",
-        "skill2": "W—봉진 추격: 적 챔피언을 대상으로 삼습니다. 대상 뒤로 돌진해 45 + 공격력의 90%만큼 물리 피해를 입히고 0.75초 공중에 띄우며, 자신은 1.5초 동안 90 + 공격력의 30%만큼 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
-        "ult": "R—영혼의 육연참: 강철검과 아자카나 검으로 8 tick마다 번갈아 6회 베어 각각 12 + 공격력의 16%만큼 물리 피해를 입힙니다. 60 tick에 영혼 표식이 한 번만 폭발해 30 + 공격력의 25%만큼 고정 피해를 입힙니다. 공중에 띄우는 효과는 한 번만 적용됩니다. 재사용 대기시간은 50초입니다."
+        "skill": "Q—필멸의 검: Q1과 Q2는 각각 좁은 관통 검기를 하나 발사해 25 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중해야만 6초 동안 1단계에서 2단계로 진행하며 빗나가면 중첩되지 않습니다. Q3는 시전 시 2단계를 소모하고 피해 없는 전진을 한 번 한 뒤 바람 통로 하나만 발사합니다. 적중 피해는 한 번이며 적을 0.75초 공중에 띄웁니다. 재사용 대기시간은 4초입니다.",
+        "skill2": "E+W 복합 근사—영혼해방／영혼 가르기: 기본 AI가 안정적으로 사용하도록 적 챔피언을 대상으로 합니다. 시전 지점에 고정된 본체 표식을 남기고 보이는 영체 투사체가 전진한 뒤 BackToCaster로 돌아옵니다. 공개 데이터 API는 실제 영웅 좌표를 이동하고 복원할 수 없으므로 요네 본체는 표식에 남으며 실제 위치 되감기는 아닙니다. 같은 동작에서 짧고 넓은 W 초승달을 한 번 휘둘러 적 챔피언, 미니언, 몬스터(포탑 제외)에게 각각 한 번 45 + 공격력의 90%만큼 물리 피해를 입힙니다. 보호막은 적 챔피언 적중만 계산하며 첫 챔피언 적중 시 70 + 공격력의 20%, 두 번째 챔피언 적중 시 최대 35 + 공격력의 10%를 추가합니다. 미니언과 몬스터는 피해를 받지만 어느 보호막 단계도 발동하지 않습니다. W에는 공중 띄우기가 없습니다. 재사용 대기시간은 12초입니다.",
+        "ult": "R—운명봉인(데이터 근사): 강철검과 아자카나 검으로 8 tick마다 번갈아 6회 베어 각각 12 + 공격력의 16%만큼 물리 피해를 입힙니다. 60 tick에 영혼 표식이 한 번만 폭발해 30 + 공격력의 25%만큼 고정 피해를 입힙니다. 공중에 띄우는 효과는 한 번만 적용됩니다. 재사용 대기시간은 50초입니다."
       }
     }
   }
