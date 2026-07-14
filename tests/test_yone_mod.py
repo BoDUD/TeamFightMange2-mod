@@ -180,7 +180,7 @@ def test_q_is_hit_gated_two_stage_and_empowered_dash_cannot_double_damage() -> N
     assert not find_effect(q, "Delayed")
 
 
-def test_w_is_cc_only_dash_behind_with_one_hit_knockup_and_self_shield() -> None:
+def test_w_targets_enemy_champions_and_keeps_one_hit_knockup_and_self_shield() -> None:
     w = load_yone()["skill2"]
     assert (
         w["action_name"],
@@ -190,7 +190,7 @@ def test_w_is_cc_only_dash_behind_with_one_hit_knockup_and_self_shield() -> None
         w["range"],
         w["casting_type"],
         w["casting_target"],
-    ) == ("skill2", 480, 36, 4, 90000, "Targeting", "EnemyChampionInCC")
+    ) == ("skill2", 480, 36, 4, 90000, "Targeting", "EnemyChampion")
     rushes = find_effect(w, "RushMoveToBack")
     assert len(rushes) == 1
     rush = rushes[0]
@@ -229,6 +229,19 @@ def test_w_is_cc_only_dash_behind_with_one_hit_knockup_and_self_shield() -> None
     assert not find_effect(w, "Delayed")
     assert not find_effect(w, "Native")
     assert w["start_timing"] + ((w["range"] + rush["speed"] - 1) // rush["speed"]) < w["duration"]
+
+
+def test_yone_w_uses_stock_ai_without_unsafe_target_revalidation() -> None:
+    source = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    for retired_token in (
+        "struct YoneWInputGate",
+        "impl ModPlayerInputAi for YoneWInputGate",
+        '"lol_yone_w_input_gate"',
+        "registration.add_player_input_ai(YoneWInputGate);",
+        "let sealed_pursuit = Input::Skill2 { target };",
+        "ctx.is_valid_input(&sealed_pursuit)",
+    ):
+        assert retired_token not in source
 
 
 def test_r_has_one_knockup_six_physical_slashes_and_one_fixed_echo() -> None:
@@ -360,3 +373,7 @@ def test_yone_safety_qa_records_target_death_and_no_native_gates() -> None:
     assert "零 `Native`" in qa
     assert "目标死亡" in qa
     assert "50–100" in qa
+    assert "17:49:58.857" in qa
+    assert "YoneWInputGate" in qa
+    assert "过期实体" in qa
+    assert "原生 AI" in qa
