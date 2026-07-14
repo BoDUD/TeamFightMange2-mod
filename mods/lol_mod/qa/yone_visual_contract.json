@@ -673,15 +673,15 @@
           ],
           "alpha_bbox": [
             1,
-            11,
+            6,
             42,
-            49
+            44
           ],
           "visible_size": [
             41,
             38
           ],
-          "bottom_clearance": 6
+          "bottom_clearance": 11
         },
         {
           "frame": 1,
@@ -693,15 +693,15 @@
           ],
           "alpha_bbox": [
             2,
-            10,
+            5,
             40,
-            48
+            43
           ],
           "visible_size": [
             38,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 10
         },
         {
           "frame": 2,
@@ -713,15 +713,15 @@
           ],
           "alpha_bbox": [
             1,
-            10,
+            5,
             41,
-            47
+            42
           ],
           "visible_size": [
             40,
             37
           ],
-          "bottom_clearance": 4
+          "bottom_clearance": 9
         },
         {
           "frame": 3,
@@ -733,15 +733,15 @@
           ],
           "alpha_bbox": [
             1,
-            10,
+            5,
             42,
-            48
+            43
           ],
           "visible_size": [
             41,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 10
         }
       ],
       "run": [
@@ -755,15 +755,15 @@
           ],
           "alpha_bbox": [
             5,
-            8,
+            5,
             36,
-            43
+            40
           ],
           "visible_size": [
             31,
             35
           ],
-          "bottom_clearance": 6
+          "bottom_clearance": 9
         },
         {
           "frame": 1,
@@ -775,15 +775,15 @@
           ],
           "alpha_bbox": [
             4,
-            9,
+            7,
             34,
-            43
+            41
           ],
           "visible_size": [
             30,
             34
           ],
-          "bottom_clearance": 8
+          "bottom_clearance": 10
         },
         {
           "frame": 2,
@@ -795,15 +795,15 @@
           ],
           "alpha_bbox": [
             5,
-            10,
+            9,
             34,
-            43
+            42
           ],
           "visible_size": [
             29,
             33
           ],
-          "bottom_clearance": 10
+          "bottom_clearance": 11
         },
         {
           "frame": 3,
@@ -815,15 +815,15 @@
           ],
           "alpha_bbox": [
             4,
-            9,
+            7,
             34,
-            43
+            41
           ],
           "visible_size": [
             30,
             34
           ],
-          "bottom_clearance": 8
+          "bottom_clearance": 10
         },
         {
           "frame": 4,
@@ -835,15 +835,15 @@
           ],
           "alpha_bbox": [
             5,
-            8,
+            5,
             35,
-            43
+            40
           ],
           "visible_size": [
             30,
             35
           ],
-          "bottom_clearance": 6
+          "bottom_clearance": 9
         },
         {
           "frame": 5,
@@ -855,15 +855,15 @@
           ],
           "alpha_bbox": [
             5,
-            9,
+            7,
             34,
-            43
+            41
           ],
           "visible_size": [
             29,
             34
           ],
-          "bottom_clearance": 8
+          "bottom_clearance": 10
         },
         {
           "frame": 6,
@@ -875,15 +875,15 @@
           ],
           "alpha_bbox": [
             6,
-            10,
+            9,
             33,
-            43
+            42
           ],
           "visible_size": [
             27,
             33
           ],
-          "bottom_clearance": 10
+          "bottom_clearance": 11
         },
         {
           "frame": 7,
@@ -895,15 +895,15 @@
           ],
           "alpha_bbox": [
             4,
-            9,
+            7,
             34,
-            43
+            41
           ],
           "visible_size": [
             30,
             34
           ],
-          "bottom_clearance": 8
+          "bottom_clearance": 10
         }
       ],
       "attack": [
@@ -916,16 +916,16 @@
             51
           ],
           "alpha_bbox": [
-            2,
-            8,
-            42,
-            46
+            9,
+            5,
+            35,
+            43
           ],
           "visible_size": [
-            40,
+            26,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 8
         },
         {
           "frame": 1,
@@ -936,16 +936,16 @@
             51
           ],
           "alpha_bbox": [
-            1,
-            9,
-            48,
-            46
+            7,
+            5,
+            42,
+            43
           ],
           "visible_size": [
-            47,
-            37
+            35,
+            38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 8
         },
         {
           "frame": 2,
@@ -956,16 +956,16 @@
             47
           ],
           "alpha_bbox": [
-            5,
-            6,
-            54,
-            43
+            14,
+            3,
+            45,
+            40
           ],
           "visible_size": [
-            49,
+            31,
             37
           ],
-          "bottom_clearance": 4
+          "bottom_clearance": 7
         },
         {
           "frame": 3,
@@ -977,15 +977,15 @@
           ],
           "alpha_bbox": [
             9,
-            6,
+            3,
             50,
-            44
+            41
           ],
           "visible_size": [
             41,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 8
         },
         {
           "frame": 4,
@@ -997,15 +997,15 @@
           ],
           "alpha_bbox": [
             7,
-            6,
+            3,
             53,
-            44
+            41
           ],
           "visible_size": [
             46,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 8
         },
         {
           "frame": 5,
@@ -1017,15 +1017,15 @@
           ],
           "alpha_bbox": [
             12,
-            8,
+            5,
             38,
-            46
+            43
           ],
           "visible_size": [
             26,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 8
         }
       ],
       "hit": [
@@ -1039,15 +1039,15 @@
           ],
           "alpha_bbox": [
             2,
-            10,
+            5,
             41,
-            48
+            43
           ],
           "visible_size": [
             39,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 10
         }
       ],
       "skill": [
@@ -1627,17 +1627,25 @@
       "yone_q",
       "empowered_hit"
     ],
+    "lol_yone_w_lock": [
+      "yone_followup",
+      "lock"
+    ],
     "lol_yone_w_dash_visual": [
-      "yone_w",
+      "yone_followup",
       "dash"
     ],
-    "lol_yone_w_impact": [
-      "yone_w",
-      "impact"
+    "lol_yone_w_cross": [
+      "yone_followup",
+      "cross"
     ],
-    "lol_yone_w_shield": [
-      "yone_w",
-      "shield"
+    "lol_yone_w_airborne": [
+      "yone_followup",
+      "airborne"
+    ],
+    "lol_yone_w_guard": [
+      "yone_followup",
+      "guard"
     ],
     "lol_yone_r_windup": [
       "yone_r",
@@ -1660,7 +1668,7 @@
       "echo"
     ]
   },
-  "large_vfx_policy": "Q/W/R high-footprint feedback is isolated in yone_q/yone_w/yone_r sheets; actor frames contain body poses and compact native cues only.",
+  "large_vfx_policy": "Q/W/R feedback is isolated in yone_q/yone_followup/yone_r sheets; W uses narrow target, trail, cross, airborne and open guard cues instead of an enclosing ring.",
   "portrait_policy": {
     "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
     "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96"

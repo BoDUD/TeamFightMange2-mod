@@ -56,6 +56,13 @@ const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
 // from both the 90x122 hero-grid portrait and the generic 137x184 contract.
 const BP_DUAL_BLADER_ACTOR_WIDTH: f32 = 129.0;
 const BP_DUAL_BLADER_ACTOR_HEIGHT: f32 = 165.0;
+// Live 0.10.0 telemetry records Dual Blader's picked-side slide from
+// 114.4x134.1 through 129x165.  These limits deliberately remain disjoint
+// from the 84..96x108..130 centre-grid portrait contract below.
+const BP_DUAL_BLADER_TRANSITION_MIN_WIDTH: f32 = 112.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_WIDTH: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT: f32 = 168.0;
 const KLED_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/cavalry_knight#sheet",
     "asset/lol_mod/aseprite_resources/champions/kled#sheet",
@@ -356,12 +363,33 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
     }
 }
 
+fn is_yone_actor_sheet_texture(texture: &str) -> bool {
+    YONE_ACTOR_SHEET_TEXTURES.contains(&texture)
+        || texture.contains("/aseprite_resources/champions/dual_blader")
+        || texture.contains("/aseprite_resources/champions/yone")
+}
+
+fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
+    if !(14.0..=52.0).contains(&width) || !(14.0..=64.0).contains(&height) {
+        return false;
+    }
+    let short_side = width.min(height);
+    let long_side = width.max(height);
+    short_side >= 14.0 && long_side / short_side <= 1.50
+}
+
+fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
+    (84.0..=96.0).contains(&width) && (108.0..=130.0).contains(&height)
+}
+
 fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
     for commands in state.commands.values_mut() {
         for command in commands {
             let RenderCommand::NinePatch {
                 texture,
                 texture_rect,
+                x,
+                y,
                 w,
                 h,
                 left,
@@ -374,18 +402,26 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             else {
                 continue;
             };
-            if !YONE_ACTOR_SHEET_TEXTURES.contains(&texture.as_str()) {
+            if !is_yone_actor_sheet_texture(texture.as_str()) {
                 continue;
             }
 
-            // Keep the readable mask/face crop for compact HUD, scoreboard,
-            // report and side-list squares.  The 90x122 centre hero-grid uses
-            // a separate full-body texture with a protected name-band gap.
-            let is_compact_square = (14.0..=52.0).contains(w)
-                && (14.0..=52.0).contains(h)
-                && (*w - *h).abs() <= 2.0;
-            let is_bp_grid = (84.0..=96.0).contains(w) && (108.0..=130.0).contains(h);
-            let replacement = if is_compact_square {
+            // Scoreboard and battle-side-list commands preserve the native
+            // actor frame's slight portrait aspect ratio (for example 18x26
+            // and 30x38), so a square-only test silently left the tiny full
+            // body actor in place.  Route both compact geometries to the
+            // dedicated head/shoulder crop and square the destination around
+            // its original centre to avoid stretching the face.
+            let is_compact = is_yone_compact_portrait_geometry(*w, *h);
+            let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);
+            let replacement = if is_compact {
+                let center_x = *x + *w * 0.5;
+                let center_y = *y + *h * 0.5;
+                let side = (*w).max(*h).min(52.0);
+                *w = side;
+                *h = side;
+                *x = center_x - side * 0.5;
+                *y = center_y - side * 0.5;
                 YONE_COMPACT_PORTRAIT_TEXTURE
             } else if is_bp_grid {
                 YONE_BP_GRID_PORTRAIT_TEXTURE
@@ -858,7 +894,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1133,10 +1169,10 @@ fn bp_actor_contract(champion_id: &str) -> BpActorContract {
         return BpActorContract {
             width: BP_DUAL_BLADER_ACTOR_WIDTH,
             height: BP_DUAL_BLADER_ACTOR_HEIGHT,
-            min_width: BP_TRANSITION_ACTOR_MIN_WIDTH,
-            max_width: BP_TRANSITION_ACTOR_MAX_WIDTH,
-            min_height: 150.0,
-            max_height: BP_TRANSITION_ACTOR_MAX_HEIGHT,
+            min_width: BP_DUAL_BLADER_TRANSITION_MIN_WIDTH,
+            max_width: BP_DUAL_BLADER_TRANSITION_MAX_WIDTH,
+            min_height: BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT,
+            max_height: BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT,
         };
     }
     BpActorContract {

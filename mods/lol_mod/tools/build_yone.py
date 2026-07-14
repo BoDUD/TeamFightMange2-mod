@@ -41,6 +41,7 @@ RUN_SOURCE = IMAGEGEN_ROOT / "yone_run_contact.png"
 WR_BODY_SOURCE = IMAGEGEN_ROOT / "yone_wr_body_contact.png"
 DEFEAT_SOURCE = IMAGEGEN_ROOT / "yone_defeat_contact.png"
 QW_VFX_SOURCE = IMAGEGEN_ROOT / "yone_qw_vfx_contact.png"
+FOLLOWUP_VFX_SOURCE = IMAGEGEN_ROOT / "yone_followup_vfx_contact.png"
 R_VFX_SOURCE = IMAGEGEN_ROOT / "yone_r_vfx_contact.png"
 ICON_SOURCE = IMAGEGEN_ROOT / "yone_icons_source.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "dual_blader.png"
@@ -50,6 +51,7 @@ RUN_ALPHA = PROCESSED_ROOT / "yone_run_contact_alpha.png"
 WR_BODY_ALPHA = PROCESSED_ROOT / "yone_wr_body_contact_alpha.png"
 DEFEAT_ALPHA = PROCESSED_ROOT / "yone_defeat_contact_alpha.png"
 QW_VFX_ALPHA = PROCESSED_ROOT / "yone_qw_vfx_contact_alpha.png"
+FOLLOWUP_VFX_ALPHA = PROCESSED_ROOT / "yone_followup_vfx_contact_alpha.png"
 R_VFX_ALPHA = PROCESSED_ROOT / "yone_r_vfx_contact_alpha.png"
 
 ACTOR_SHEET_SIZE = (3502, 88)
@@ -153,10 +155,13 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
 }
 
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
-    "idle": [6, 5, 4, 5],
-    "run": [6, 8, 10, 8, 6, 8, 10, 8],
-    "attack": [5, 5, 4, 5, 5, 5],
-    "hit": [5],
+    # Keep the feet above the battle HP/name plate.  The first version used
+    # the lower edge of Dual Blader's native rectangles too literally, which
+    # put Yone's longer generated legs through the plate while recalling.
+    "idle": [11, 10, 9, 10],
+    "run": [9, 10, 11, 10, 9, 10, 11, 10],
+    "attack": [8, 8, 7, 8, 8, 8],
+    "hit": [10],
     "skill": [5, 4, 7, 6, 8, 10, 8],
     "skill2": [5],
     "skill2_dash": [4],
@@ -267,7 +272,9 @@ def process_sources() -> list[Path]:
     for source, target in (
         (CORE_SOURCE, CORE_ALPHA), (RUN_SOURCE, RUN_ALPHA),
         (WR_BODY_SOURCE, WR_BODY_ALPHA), (DEFEAT_SOURCE, DEFEAT_ALPHA),
-        (QW_VFX_SOURCE, QW_VFX_ALPHA), (R_VFX_SOURCE, R_VFX_ALPHA),
+        (QW_VFX_SOURCE, QW_VFX_ALPHA),
+        (FOLLOWUP_VFX_SOURCE, FOLLOWUP_VFX_ALPHA),
+        (R_VFX_SOURCE, R_VFX_ALPHA),
     ):
         save_processed_png(target, remove_chroma_key(Image.open(source)))
         outputs.append(target)
@@ -291,6 +298,63 @@ def alpha_bbox(image: Image.Image) -> tuple[int, int, int, int]:
     if bbox is None:
         raise ValueError("Yone source cell has no visible pixels")
     return bbox
+
+
+def alpha_components(image: Image.Image) -> list[set[tuple[int, int]]]:
+    """Return hard-alpha 8-connected components, largest first."""
+    alpha = hard_alpha(image).getchannel("A")
+    width, height = alpha.size
+    occupied = {
+        (x, y)
+        for y in range(height)
+        for x in range(width)
+        if alpha.getpixel((x, y))
+    }
+    components: list[set[tuple[int, int]]] = []
+    while occupied:
+        seed = occupied.pop()
+        component = {seed}
+        queue = deque([seed])
+        while queue:
+            x, y = queue.popleft()
+            for yy in range(max(0, y - 1), min(height, y + 2)):
+                for xx in range(max(0, x - 1), min(width, x + 2)):
+                    point = (xx, yy)
+                    if point in occupied:
+                        occupied.remove(point)
+                        component.add(point)
+                        queue.append(point)
+        components.append(component)
+    return sorted(components, key=len, reverse=True)
+
+
+def keep_component_near(image: Image.Image, target: tuple[float, float]) -> Image.Image:
+    """Keep the generated actor nearest a hand-audited cell-space target.
+
+    Several poses in the 5x4 GPT contact cross a nominal grid boundary.  A
+    simple largest-component rule is unsafe here: in core[7] the neighbouring
+    actor fragment is larger than the intended pose.  The targets below are
+    measured centroids of the accepted actor in each source cell.
+    """
+    rgba = hard_alpha(image)
+    components = alpha_components(rgba)
+    if not components:
+        raise ValueError("Yone actor component selection received an empty cell")
+
+    target_x, target_y = target
+    selected = min(
+        components,
+        key=lambda component: (
+            (sum(x for x, _ in component) / len(component) - target_x) ** 2
+            + (sum(y for _, y in component) / len(component) - target_y) ** 2
+        ),
+    )
+    pixels = rgba.load()
+    for y in range(rgba.height):
+        for x in range(rgba.width):
+            if (x, y) not in selected:
+                pixels[x, y] = (0, 0, 0, 0)
+    return rgba
 
 
 def remove_tiny_components(image: Image.Image, minimum: int = 10) -> Image.Image:
@@ -482,10 +546,22 @@ def build_actor() -> tuple[Path, Path]:
     qw_vfx = split_grid(Image.open(QW_VFX_ALPHA).convert("RGBA"), 5, 4)
     r_vfx = split_grid(Image.open(R_VFX_ALPHA).convert("RGBA"), 5, 3)
 
+    # The generated attack row crosses its nominal 5-column grid boundaries.
+    # Keep the intended actor by its audited component centroid instead of
+    # allowing adjacent half-bodies to survive the generic crumb filter.
+    attack_sources = [
+        keep_component_near(source, target)
+        for source, target in zip(
+            core[5:10],
+            ((130, 149), (87, 146), (41, 142), (141, 146), (99, 153)),
+            strict=True,
+        )
+    ]
+
     body_sequences: dict[str, list[Image.Image]] = {
         "idle": [core[0], trim_actor_width(core[1], 0.88), core[2], core[3]],
         "hit": [core[4]],
-        "attack": [*core[5:10], core[19]],
+        "attack": [*attack_sources, core[19]],
         "run": run,
         # The first three native Q windup slots are only 31px wide.  Use
         # clean narrow guard/thrust poses instead of shrinking a long blade
@@ -610,22 +686,30 @@ def build_effects() -> list[Path]:
             ("empowered_hit", [11, 12, 13, 14, None], (80, 64), 0.06),
         ],
     )
+    # W / Sealed Pursuit owns a compact follow-up sheet.  It deliberately
+    # avoids the old Q-atlas crescents and full circular shield that obscured
+    # Yone's actor and made the pursuit read like a duplicate spirit body.
     outputs += build_effect_sheet(
-        "yone_w", QW_VFX_ALPHA, (5, 4),
+        "yone_followup", FOLLOWUP_VFX_ALPHA, (5, 5),
         [
-            ("dash", [15, 16, 17, None], (112, 72), 0.065),
-            ("impact", [16, 17, 15, None], (88, 64), 0.06),
-            ("shield", [18, 19, 18, 19, None], (80, 80), 0.08),
+            ("lock", [0, 1, 2, 3, None], (64, 40), 0.05),
+            ("dash", [5, 6, 7, 8, 9, None], (112, 56), 0.05),
+            ("cross", [10, 11, 12, 13, None], (96, 64), 0.05),
+            ("airborne", [15, 16, 17, 18, None], (48, 64), 0.05),
+            ("guard", [20, 21, 22, 23, None], (64, 56), 0.06),
         ],
     )
     outputs += build_effect_sheet(
         "yone_r", R_VFX_ALPHA, (5, 3),
         [
-            ("windup", [0, 2, 4, None], (72, 80), 0.065),
-            ("arrival", [7, 9, 10, 11, None], (104, 80), 0.065),
-            ("slash_blue", [1, 3, 6, None], (120, 56), 0.055),
-            ("slash_red", [5, 4, 7, None], (120, 56), 0.055),
-            ("echo", [8, 7, 9, 10, 11, 12, 13, 14, None], (96, 88), 0.065),
+            # Fate Sealed reads as one forward lane followed by converging
+            # steel/Azakana cuts and an upward pull.  The previous circular
+            # vortex and cracked-ground explosion were visually misleading.
+            ("windup", [0, 1, 2, 3, None], (144, 48), 0.065),
+            ("arrival", [5, 6, 7, 8, 9, None], (128, 64), 0.065),
+            ("slash_blue", [5, 7, 9, None], (120, 56), 0.055),
+            ("slash_red", [6, 8, 9, None], (120, 56), 0.055),
+            ("echo", [10, 11, 12, 13, 14, None], (120, 72), 0.065),
         ],
     )
     return outputs
@@ -733,9 +817,11 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_q_empowered_projectile": ["yone_q", "empowered_projectile"],
     "lol_yone_q_hit": ["yone_q", "hit"],
     "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
-    "lol_yone_w_dash_visual": ["yone_w", "dash"],
-    "lol_yone_w_impact": ["yone_w", "impact"],
-    "lol_yone_w_shield": ["yone_w", "shield"],
+    "lol_yone_w_lock": ["yone_followup", "lock"],
+    "lol_yone_w_dash_visual": ["yone_followup", "dash"],
+    "lol_yone_w_cross": ["yone_followup", "cross"],
+    "lol_yone_w_airborne": ["yone_followup", "airborne"],
+    "lol_yone_w_guard": ["yone_followup", "guard"],
     "lol_yone_r_windup": ["yone_r", "windup"],
     "lol_yone_r_arrival": ["yone_r", "arrival"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
@@ -785,7 +871,7 @@ def build_qa(
                 "body_frames": body_frames,
             },
             "runtime_effect_map": RUNTIME_EFFECT_MAP,
-            "large_vfx_policy": "Q/W/R high-footprint feedback is isolated in yone_q/yone_w/yone_r sheets; actor frames contain body poses and compact native cues only.",
+            "large_vfx_policy": "Q/W/R feedback is isolated in yone_q/yone_followup/yone_r sheets; W uses narrow target, trail, cross, airborne and open guard cues instead of an enclosing ring.",
             "portrait_policy": {
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
@@ -802,7 +888,7 @@ def build_qa(
             "generator": "built-in image_gen",
             "generated_on": "2026-07-14",
             "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, no generated repaint",
-            "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
+            "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, FOLLOWUP_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
         },
@@ -815,7 +901,7 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies use independent generated pose groups while retaining one stable battle scale.\n"
-        "- [x] Q/W/R high-footprint feedback is packed into separate `yone_q`, `yone_w`, and `yone_r` sheets.\n"
+        "- [x] Q/W/R feedback is packed into separate `yone_q`, `yone_followup`, and `yone_r` sheets. W uses a short target lock, narrow dual trail, compact cross, airborne cue and open guard instead of a full circular overlay.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
         "- [x] BP illustration is `1420x860`; Q/W/R icons are independent `64x64` assets.\n"
@@ -891,6 +977,46 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
                     f"{visible_height}px vs target {target_height}px"
                 )
 
+    # A source-grid regression previously packed a second half-body into
+    # attack[1..3].  Body height/bbox checks alone cannot detect that failure,
+    # so require one significant connected subject, only tiny residual edge
+    # specks, and real pose variation across the six native attack frames.
+    attack_hashes: set[str] = set()
+    for index, row in enumerate(payload["attack"]["frames"]):
+        data = row["data"]
+        frame = sheet.crop(
+            (
+                data["x"], data["y"],
+                data["x"] + data["w"], data["y"] + data["h"],
+            )
+        )
+        component_sizes = [len(component) for component in alpha_components(frame)]
+        significant = [size for size in component_sizes if size > 16]
+        if len(significant) != 1:
+            raise ValueError(
+                f"Yone attack[{index}] must contain one actor, got components {component_sizes[:6]}"
+            )
+        stray_area = sum(component_sizes[1:])
+        if stray_area > 24:
+            raise ValueError(
+                f"Yone attack[{index}] retained {stray_area}px of detached source-grid debris"
+            )
+        attack_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
+    if len(attack_hashes) < 5:
+        raise ValueError(
+            f"Yone attack lost pose variation: only {len(attack_hashes)}/6 unique frames"
+        )
+
+    core_foot_anchors = [
+        bottom
+        for tag in ("idle", "run", "attack", "hit")
+        for bottom in BODY_BOTTOM_MARGINS[tag]
+    ]
+    if min(core_foot_anchors) < 7 or max(core_foot_anchors) > 11:
+        raise ValueError(f"Yone core foot anchors left the battle-safe 7..11px band: {core_foot_anchors}")
+    if max(BODY_BOTTOM_MARGINS["idle"]) - min(BODY_BOTTOM_MARGINS["run"]) > 2:
+        raise ValueError("Yone idle/run foot anchors diverged by more than 2px")
+
     idle_data = payload["idle"]["frames"][0]["data"]
     idle = sheet.crop(
         (
@@ -924,7 +1050,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     for effect, required_tags in {
         "yone_attack": ["steel_hit", "azakana_hit"],
         "yone_q": ["projectile", "empowered_projectile", "hit", "empowered_hit"],
-        "yone_w": ["dash", "impact", "shield"],
+        "yone_followup": ["lock", "dash", "cross", "airborne", "guard"],
         "yone_r": ["windup", "arrival", "slash_blue", "slash_red", "echo"],
     }.items():
         anims = json.loads((EFFECT_DIR / f"{effect}#anim.fanim").read_text(encoding="utf-8"))["anims"]
@@ -957,7 +1083,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     for icon in ("yone_skill.png", "yone_skill2.png", "yone_ult.png"):
         if Image.open(ICON_DIR / icon).size != (64, 64):
             raise ValueError(f"Yone icon {icon} is not 64x64")
-    for processed in (CORE_ALPHA, RUN_ALPHA, WR_BODY_ALPHA, DEFEAT_ALPHA, QW_VFX_ALPHA, R_VFX_ALPHA):
+    for processed in (CORE_ALPHA, RUN_ALPHA, WR_BODY_ALPHA, DEFEAT_ALPHA, QW_VFX_ALPHA, FOLLOWUP_VFX_ALPHA, R_VFX_ALPHA):
         alpha = Image.open(processed).convert("RGBA").getchannel("A")
         corners = [alpha.getpixel((0, 0)), alpha.getpixel((alpha.width - 1, 0)), alpha.getpixel((0, alpha.height - 1)), alpha.getpixel((alpha.width - 1, alpha.height - 1))]
         if any(corners):
@@ -968,7 +1094,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
 
 def build_all() -> list[Path]:
-    required = [CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE]
+    required = [CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, FOLLOWUP_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE]
     missing = [path for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError("Missing Yone image-gen sources:\n" + "\n".join(str(path) for path in missing))

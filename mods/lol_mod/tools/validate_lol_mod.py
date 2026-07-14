@@ -553,6 +553,39 @@ def alpha_component_sizes(image: Image.Image) -> list[int]:
     return sorted(sizes, reverse=True)
 
 
+def alpha_component_sizes_8(image: Image.Image) -> list[int]:
+    """Return hard-alpha 8-connected component sizes, largest first.
+
+    Diagonal sword/outline pixels belong to the same authored actor, so the
+    Yone duplicate-body gate must use the same 8-neighbour connectivity as
+    the deterministic actor builder rather than splitting valid diagonals.
+    """
+
+    alpha = image.convert("RGBA").getchannel("A")
+    remaining = {
+        (x, y)
+        for y in range(image.height)
+        for x in range(image.width)
+        if alpha.getpixel((x, y)) >= 128
+    }
+    sizes: list[int] = []
+    while remaining:
+        seed = remaining.pop()
+        size = 1
+        stack = [seed]
+        while stack:
+            x, y = stack.pop()
+            for neighbor_y in range(max(0, y - 1), min(image.height, y + 2)):
+                for neighbor_x in range(max(0, x - 1), min(image.width, x + 2)):
+                    neighbor = (neighbor_x, neighbor_y)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        size += 1
+                        stack.append(neighbor)
+        sizes.append(size)
+    return sorted(sizes, reverse=True)
+
+
 def walk_effects(value: Any) -> Iterable[dict[str, Any]]:
     if isinstance(value, dict):
         if isinstance(value.get("type"), str):
@@ -4873,7 +4906,7 @@ def validate_imagegen_sources() -> None:
     # Q/W VFX, and R VFX. Its opaque icons and BP illustration stay source-only.
     # Opaque icons and BP
     # illustrations do not need alpha derivatives.
-    expected_processed = 62
+    expected_processed = 63
     check(
         len(processed) == expected_processed,
         f"processed image-gen source set must contain {expected_processed} active PNGs",
@@ -6734,11 +6767,87 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             crop = actor_sheet.crop((data.get("x", 0), data.get("y", 0), data.get("x", 0) + data.get("w", 0), data.get("y", 0) + data.get("h", 0)))
             check(crop.getchannel("A").getbbox() is None, "Yone dead terminal 3x3 frame must stay transparent")
 
+        # The accepted attack source previously crossed its contact-sheet
+        # cell boundary and packed a second half-body beside Yone.  Require
+        # one significant 8-connected subject, only tiny detached particles,
+        # and genuine pose variation across the native six-frame contract.
+        attack_hashes: set[str] = set()
+        for index, frame in enumerate(actor_anims.get("attack", {}).get("frames", [])):
+            data = frame.get("data", {})
+            crop = actor_sheet.crop(
+                (
+                    data.get("x", 0), data.get("y", 0),
+                    data.get("x", 0) + data.get("w", 0),
+                    data.get("y", 0) + data.get("h", 0),
+                )
+            )
+            component_sizes = alpha_component_sizes_8(crop)
+            significant = [size for size in component_sizes if size > 16]
+            check(
+                len(significant) == 1,
+                f"Yone attack[{index}] must contain one actor, got components {component_sizes[:6]}",
+            )
+            check(
+                sum(component_sizes[1:]) <= 24,
+                f"Yone attack[{index}] retained detached source-grid debris: {component_sizes[:6]}",
+            )
+            attack_hashes.add(hashlib.sha256(crop.tobytes()).hexdigest())
+        check(len(attack_hashes) >= 5, f"Yone attack lost pose variation: {len(attack_hashes)}/6 unique frames")
+
+        # Keep the feet above the battle HP/name plate.  These values are
+        # measured from the packed native rectangles, not inferred from the
+        # source art, so actor rebuilds cannot silently sink under the label.
+        expected_core_bottoms = {
+            "idle": [11, 10, 9, 10],
+            "run": [9, 10, 11, 10, 9, 10, 11, 10],
+            "attack": [8, 8, 7, 8, 8, 8],
+            "hit": [10],
+        }
+        measured_core_bottoms: dict[str, list[int]] = {}
+        for tag, expected_bottoms in expected_core_bottoms.items():
+            measured: list[int] = []
+            frames = actor_anims.get(tag, {}).get("frames", [])
+            check(len(frames) == len(expected_bottoms), f"Yone {tag} foot-safety frame count changed")
+            for index, frame in enumerate(frames):
+                data = frame.get("data", {})
+                crop = actor_sheet.crop(
+                    (
+                        data.get("x", 0), data.get("y", 0),
+                        data.get("x", 0) + data.get("w", 0),
+                        data.get("y", 0) + data.get("h", 0),
+                    )
+                )
+                bbox = crop.getchannel("A").getbbox()
+                if bbox is None:
+                    continue
+                bottom = int(data.get("h", 0)) - bbox[3]
+                measured.append(bottom)
+                check(7 <= bottom <= 11, f"Yone {tag}[{index}] left the 7..11px foot-safety band: {bottom}")
+            measured_core_bottoms[tag] = measured
+            check(measured == expected_bottoms, f"Yone {tag} foot anchors changed: {measured} != {expected_bottoms}")
+        if measured_core_bottoms.get("idle") and measured_core_bottoms.get("run"):
+            check(
+                max(measured_core_bottoms["idle"]) - min(measured_core_bottoms["run"]) <= 2,
+                "Yone idle/run foot anchors diverged by more than 2px",
+            )
+
     expected_vfx: dict[str, dict[str, tuple[int, float]]] = {
         "yone_attack": {"steel_hit": (4, 0.05), "azakana_hit": (4, 0.05)},
         "yone_q": {"projectile": (5, 0.055), "empowered_projectile": (6, 0.06), "hit": (5, 0.05), "empowered_hit": (5, 0.06)},
-        "yone_w": {"dash": (4, 0.065), "impact": (4, 0.06), "shield": (5, 0.08)},
-        "yone_r": {"windup": (4, 0.065), "arrival": (5, 0.065), "slash_blue": (4, 0.055), "slash_red": (4, 0.055), "echo": (9, 0.065)},
+        "yone_followup": {
+            "lock": (5, 0.05),
+            "dash": (6, 0.05),
+            "cross": (5, 0.05),
+            "airborne": (5, 0.05),
+            "guard": (5, 0.06),
+        },
+        "yone_r": {
+            "windup": (5, 0.065),
+            "arrival": (6, 0.065),
+            "slash_blue": (4, 0.055),
+            "slash_red": (4, 0.055),
+            "echo": (6, 0.065),
+        },
     }
     expected_views = {
         "lol_yone_attack_steel_hit": ("yone_attack", "steel_hit"),
@@ -6747,9 +6856,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_q_empowered_projectile": ("yone_q", "empowered_projectile"),
         "lol_yone_q_hit": ("yone_q", "hit"),
         "lol_yone_q_empowered_hit": ("yone_q", "empowered_hit"),
-        "lol_yone_w_dash_visual": ("yone_w", "dash"),
-        "lol_yone_w_impact": ("yone_w", "impact"),
-        "lol_yone_w_shield": ("yone_w", "shield"),
+        "lol_yone_w_lock": ("yone_followup", "lock"),
+        "lol_yone_w_dash_visual": ("yone_followup", "dash"),
+        "lol_yone_w_cross": ("yone_followup", "cross"),
+        "lol_yone_w_airborne": ("yone_followup", "airborne"),
+        "lol_yone_w_guard": ("yone_followup", "guard"),
         "lol_yone_r_windup": ("yone_r", "windup"),
         "lol_yone_r_arrival": ("yone_r", "arrival"),
         "lol_yone_r_slash_blue": ("yone_r", "slash_blue"),
@@ -6823,13 +6934,25 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     if compact_path.is_file():
         compact_bbox = Image.open(compact_path).convert("RGBA").getchannel("A").getbbox()
         if compact_bbox is not None:
-            check(compact_bbox[2] - compact_bbox[0] <= 50 and compact_bbox[3] - compact_bbox[1] <= 50, f"Yone compact portrait exceeds 50x50: {compact_bbox}")
-            check(min(compact_bbox[0], compact_bbox[1], 64 - compact_bbox[2], 64 - compact_bbox[3]) >= 6, f"Yone compact portrait lacks 6px safety margins: {compact_bbox}")
+            compact_width = compact_bbox[2] - compact_bbox[0]
+            compact_height = compact_bbox[3] - compact_bbox[1]
+            check(42 <= compact_width <= 52, f"Yone compact portrait width must be 42..52px: {compact_bbox}")
+            check(48 <= compact_height <= 52, f"Yone compact portrait height must be 48..52px: {compact_bbox}")
+            margins = (
+                compact_bbox[0], compact_bbox[1],
+                64 - compact_bbox[2], 64 - compact_bbox[3],
+            )
+            check(min(margins) >= 6, f"Yone compact portrait lacks 6px safety margins: {compact_bbox}")
     grid_path = MOD_ROOT / "ui/champion_portrait/dual_blader_grid.png"
     if grid_path.is_file():
-        grid_bbox = Image.open(grid_path).convert("RGBA").getchannel("A").getbbox()
+        grid_image = Image.open(grid_path).convert("RGBA")
+        grid_bbox = grid_image.getchannel("A").getbbox()
         if grid_bbox is not None:
             check(grid_bbox[3] <= 86, f"Yone BP-grid portrait overlaps the hero-name band: {grid_bbox}")
+        check(
+            grid_image.crop((0, 96, grid_image.width, grid_image.height)).getchannel("A").getbbox() is None,
+            "Yone BP-grid native name band y=96..121 must stay fully transparent",
+        )
     if all(path.is_file() for path in portrait_paths):
         check(len({sha256(path) for path in portrait_paths}) == 4, "Yone compact/grid/fullbody/BP assets must remain independently authored")
     source_splash = MOD_ROOT / "source/imagegen/bp_splash/dual_blader.png"
@@ -6852,6 +6975,39 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
     check('"yone" | "dual_blader" => Some("dual_blader")' in rust, "Yone splash alias route is missing")
     check("rewrite_yone_portrait_render_commands(state);" in rust, "Yone independent compact/grid portrait rewrite is missing")
+    for token in (
+        "fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {",
+        "if !(14.0..=52.0).contains(&width) || !(14.0..=64.0).contains(&height) {",
+        "let short_side = width.min(height);",
+        "let long_side = width.max(height);",
+        "short_side >= 14.0 && long_side / short_side <= 1.50",
+        "let is_compact = is_yone_compact_portrait_geometry(*w, *h);",
+        "let side = (*w).max(*h).min(52.0);",
+        "*w = side;",
+        "*h = side;",
+    ):
+        check(token in rust, f"Yone rectangular compact-portrait runtime helper is missing: {token}")
+    transition_constants = {
+        "BP_DUAL_BLADER_TRANSITION_MIN_WIDTH": "112.0",
+        "BP_DUAL_BLADER_TRANSITION_MAX_WIDTH": "132.0",
+        "BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT": "132.0",
+        "BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT": "168.0",
+    }
+    for constant, value in transition_constants.items():
+        check(
+            f"const {constant}: f32 = {value};" in rust,
+            f"Yone Dual Blader BP transition threshold changed: {constant}",
+        )
+    for field, constant in (
+        ("min_width", "BP_DUAL_BLADER_TRANSITION_MIN_WIDTH"),
+        ("max_width", "BP_DUAL_BLADER_TRANSITION_MAX_WIDTH"),
+        ("min_height", "BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT"),
+        ("max_height", "BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT"),
+    ):
+        check(
+            f"{field}: {constant}," in rust,
+            f"Yone Dual Blader BP actor contract does not use {constant}",
+        )
     check("#lol_fullbody_yone:image" in ui, "Yone encyclopedia full-body node is missing")
     check('source: "asset/lol_mod/ui/champion_fullbody/dual_blader";' in ui, "Yone full-body node uses the wrong asset")
 
@@ -7077,7 +7233,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.0", "lol_mod version must be 0.10.0")
+    check(mod_info.get("version") == "0.10.1", "lol_mod version must be 0.10.1")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

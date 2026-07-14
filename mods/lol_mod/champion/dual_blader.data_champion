@@ -285,6 +285,10 @@
           "name": "lol_yone_w_cast"
         },
         {
+          "type": "ViewEffect",
+          "name": "lol_yone_w_lock"
+        },
+        {
           "type": "CasterAnimation",
           "name": "skill2_dash",
           "tick": 36
@@ -329,7 +333,7 @@
             },
             {
               "type": "CasterViewEffect",
-              "name": "lol_yone_w_shield"
+              "name": "lol_yone_w_guard"
             },
             {
               "type": "Sfx",
@@ -337,7 +341,11 @@
             },
             {
               "type": "ViewEffect",
-              "name": "lol_yone_w_impact"
+              "name": "lol_yone_w_cross"
+            },
+            {
+              "type": "ViewEffect",
+              "name": "lol_yone_w_airborne"
             },
             {
               "type": "TargetSfx",
@@ -584,25 +592,41 @@
     },
     {
       "type": "Animation",
+      "name": "lol_yone_w_lock",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_followup",
+      "tag": "lock",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
       "name": "lol_yone_w_dash_visual",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_followup",
       "tag": "dash",
       "z": 1,
       "is_follow": true
     },
     {
       "type": "Animation",
-      "name": "lol_yone_w_impact",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
-      "tag": "impact",
+      "name": "lol_yone_w_cross",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_followup",
+      "tag": "cross",
       "z": 2,
       "is_follow": true
     },
     {
       "type": "Animation",
-      "name": "lol_yone_w_shield",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
-      "tag": "shield",
+      "name": "lol_yone_w_airborne",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_followup",
+      "tag": "airborne",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_w_guard",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_followup",
+      "tag": "guard",
       "z": 2,
       "is_follow": true
     },

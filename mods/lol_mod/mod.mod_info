@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.0",
-  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.0 replaces official 009 Dual Blader with a native-contract Yone: alternating steel/Azakana attacks, hit-gated two-stage Q, crowd-control-gated W pursuit, and a safe six-slash R with one final fixed-damage soul echo. It includes independent ImageGen actor, Q/W/R VFX, icons, compact/grid/full-body portraits, Ban/Pick illustration and pinned local official ability audio while preserving all 13 official animation tags, frame rectangles and timings. Also includes the existing Rift quality pack, deterministic elemental drakes and League-style UI/audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.10.1",
+  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.1 fixes Yone's compact portrait routing on scoreboard and side-list surfaces, removes duplicate attack-frame bodies, raises recall/idle foot anchors above the health bar, covers the full picked-card transition, and rebuilds W/R feedback with independent ImageGen effects. It retains the hit-gated two-stage Q, crowd-control-gated W pursuit, six-slash R with one final fixed-damage soul echo, official audio, all 13 native animation tags, frame rectangles and timings, plus the existing Rift quality pack and League-style UI/audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-14",
   "dependencies": [
     {

@@ -9,7 +9,7 @@
 "
         "- [x] Idle/run/attack/Q/W/R/dead bodies use independent generated pose groups while retaining one stable battle scale.
 "
-        "- [x] Q/W/R high-footprint feedback is packed into separate `yone_q`, `yone_w`, and `yone_r` sheets.
+        "- [x] Q/W/R feedback is packed into separate `yone_q`, `yone_followup`, and `yone_r` sheets. W uses a short target lock, narrow dual trail, compact cross, airborne cue and open guard instead of a full circular overlay.
 "
         "- [x] Compact portrait is face-focused with transparent safety margins.
 "

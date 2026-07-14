@@ -210,7 +210,22 @@ def test_w_is_cc_only_dash_behind_with_one_hit_knockup_and_self_shield() -> None
         }
     ]
     assert len(find_effect(rush, "WithSelf")) == 1
-    assert len(find_effect(w, "CasterViewEffect", name="lol_yone_w_shield")) == 1
+    assert len(find_effect(w, "ViewEffect", name="lol_yone_w_lock")) == 1
+    assert len(find_effect(w, "CasterViewEffect", name="lol_yone_w_dash_visual")) == 1
+    assert len(find_effect(rush, "ViewEffect", name="lol_yone_w_cross")) == 1
+    assert len(find_effect(rush, "ViewEffect", name="lol_yone_w_airborne")) == 1
+    assert len(find_effect(rush, "CasterViewEffect", name="lol_yone_w_guard")) == 1
+    assert {
+        effect["name"]
+        for effect in walk_effects(w)
+        if effect.get("type") in {"ViewEffect", "CasterViewEffect"}
+    } == {
+        "lol_yone_w_lock",
+        "lol_yone_w_dash_visual",
+        "lol_yone_w_cross",
+        "lol_yone_w_airborne",
+        "lol_yone_w_guard",
+    }
     assert not find_effect(w, "Delayed")
     assert not find_effect(w, "Native")
     assert w["start_timing"] + ((w["range"] + rush["speed"] - 1) // rush["speed"]) < w["duration"]
@@ -267,15 +282,44 @@ def test_yone_effect_and_audio_names_are_distinct_and_data_only() -> None:
         "lol_yone_attack_azakana_hit",
         "lol_yone_q_hit",
         "lol_yone_q_empowered_hit",
+        "lol_yone_w_lock",
         "lol_yone_w_dash_visual",
-        "lol_yone_w_impact",
-        "lol_yone_w_shield",
+        "lol_yone_w_cross",
+        "lol_yone_w_airborne",
+        "lol_yone_w_guard",
         "lol_yone_r_windup",
         "lol_yone_r_arrival",
         "lol_yone_r_slash_blue",
         "lol_yone_r_slash_red",
         "lol_yone_r_echo",
     }
+    assert {
+        name: (views[name]["tag"], views[name]["z"])
+        for name in (
+            "lol_yone_w_lock",
+            "lol_yone_w_dash_visual",
+            "lol_yone_w_cross",
+            "lol_yone_w_airborne",
+            "lol_yone_w_guard",
+        )
+    } == {
+        "lol_yone_w_lock": ("lock", 1),
+        "lol_yone_w_dash_visual": ("dash", 1),
+        "lol_yone_w_cross": ("cross", 2),
+        "lol_yone_w_airborne": ("airborne", 2),
+        "lol_yone_w_guard": ("guard", 2),
+    }
+    assert all(
+        views[name]["anim"]
+        == "asset/lol_mod/aseprite_resources/effects/yone_followup"
+        for name in (
+            "lol_yone_w_lock",
+            "lol_yone_w_dash_visual",
+            "lol_yone_w_cross",
+            "lol_yone_w_airborne",
+            "lol_yone_w_guard",
+        )
+    )
     used_view_names = {
         effect["name"]
         for slot in ("attack", "skill", "skill2", "ult")
