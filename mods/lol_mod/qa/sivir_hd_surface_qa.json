@@ -442,14 +442,14 @@
         64
       ],
       "alpha_bbox": [
-        9,
+        11,
         8,
-        55,
+        53,
         58
       ],
       "hard_alpha": true,
-      "opaque_pixels": 1628,
-      "sha256": "622c5cbaa1d60a921fa9e03eb6b110a9a5e1aa0f8d1a393a3a87e1bb72bde350"
+      "opaque_pixels": 1769,
+      "sha256": "e7b504e484562cd603b4f38fb85534cd32ab9a9b85a33d9c17401423700a57c0"
     },
     "bp_grid": {
       "path": "ui/champion_portrait/boomerang_hunter_grid.png",

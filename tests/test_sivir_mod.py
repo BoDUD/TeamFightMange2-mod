@@ -346,9 +346,32 @@ def test_sivir_legacy_hd_actor_and_each_ui_surface_use_their_own_safe_crop() -> 
     assert surfaces == {
         "encyclopedia": (7, 2, 56, 60),
         "compact": (9, 8, 54, 58),
-        "scoreboard": (9, 8, 55, 58),
+        "scoreboard": (11, 8, 53, 58),
         "bp_grid": (10, 4, 79, 86),
     }
+
+    # Sivir faces screen-right in the accepted idle source.  The old tiny-row
+    # crop ended before the right edge of her head, leaving the skin/circlet
+    # cluster at x=47 and making the scoreboard look like half a face.  Keep
+    # that readable cluster centred after the real 18-34px nearest resize.
+    scoreboard = Image.open(
+        MOD / "ui/champion_portrait/boomerang_hunter_scoreboard.png"
+    ).convert("RGBA")
+    warm_face_pixels = []
+    for y in range(8, 42):
+        for x in range(scoreboard.width):
+            red, green, blue, alpha = scoreboard.getpixel((x, y))
+            if (
+                alpha
+                and red >= 105
+                and 45 <= green <= 155
+                and blue <= 105
+                and red >= green + 20
+            ):
+                warm_face_pixels.append((x, y))
+    assert len(warm_face_pixels) >= 240
+    face_center_x = sum(x for x, _ in warm_face_pixels) / len(warm_face_pixels)
+    assert 31 <= face_center_x <= 39
 
     qa = load_json("qa/sivir_hd_surface_qa.json")
     assert qa["champion"] == "Sivir"

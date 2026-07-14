@@ -4,8 +4,8 @@
       "lol_shen": {
         "name": "Shen",
         "attack": "Ninja Blade: Shen makes a steady melee strike for 100% Attack physical damage.",
-        "skill": "Twilight Assault: Recalls Shen's spirit blade and empowers his next 3 basic attacks for 8 seconds. Each charge adds 20 + 20% Ability Power magic damage. This stable data implementation does not track a separate blade position or the conditional slow on enemies moving away from Shen.",
-        "skill2": "Shadow Dash: Dashes up to 600 range in the chosen direction, passing through enemy champions. Each champion hit takes 60 physical damage and is taunted for 1.5 seconds.",
+        "skill": "Twilight Assault: With an enemy champion in range, sends a spirit-blade trace in that target's direction and recalls it to Shen, empowering his next 3 basic attacks for 8 seconds. Each normal charge adds 20 + 20% Ability Power magic damage. The first enemy champion crossed by the returning trace upgrades only the empowered attacks still unused to 35 + 30% Ability Power, grants Shen 35% Attack Speed for 2 seconds, and is slowed by 30% for 1.5 seconds. This is a target-directed path approximation; the engine does not retain an independently positioned blade between casts.",
+        "skill2": "Shadow Dash: Dashes up to 600 range in the chosen direction, passing through enemy champions. Each champion hit takes 60 physical damage and is forced to attack Shen for 1.5 seconds.",
         "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After the 0.8-second engine-paced channel Shen teleports to the ally. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
       },
       "archer": {
@@ -71,8 +71,8 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
-        "skill": "奥义！暮临：召回慎的魂刃，并强化接下来3次普通攻击，持续8秒。每次消耗一层并额外造成20 + 20%法术强度的魔法伤害。为保证稳定，数据实现不追踪独立魂刃坐标，也不模拟仅对远离慎的敌人生效的减速。",
-        "skill2": "奥义！影缚：向所选方向冲刺最多600距离并穿过敌方英雄。每名命中的英雄受到60点物理伤害并被嘲讽1.5秒。",
+        "skill": "奥义！暮临：附近存在敌方英雄时，将魂刃轨迹送向目标方向后召回慎身边，并强化接下来3次普通攻击，持续8秒。普通强化每次额外造成20 + 20%法术强度的魔法伤害；回程轨迹首次穿过敌方英雄时，仅将尚未使用的强化升级为35 + 30%法术强度，慎获得35%攻击速度，持续2秒，并使该英雄减速30%，持续1.5秒。受引擎限制，这是朝目标方向施放的路径近似，不会在两次施法之间保留可独立定位的魂刃。",
+        "skill2": "奥义！影缚：向所选方向冲刺最多600距离并穿过敌方英雄。每名命中的英雄受到60点物理伤害，并被强制攻击慎1.5秒。",
         "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。经过引擎节奏压缩的0.8秒引导后，慎传送至其身边。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
       },
       "archer": {
@@ -138,8 +138,8 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
-        "skill": "奧義！暮臨：召回慎的魂刃，並強化接下來3次普通攻擊，持續8秒。每次消耗一層並額外造成20 + 20%法術強度的魔法傷害。為確保穩定，資料實作不追蹤獨立魂刃座標，也不模擬僅對遠離慎的敵人生效的減速。",
-        "skill2": "奧義！影縛：向所選方向衝刺最多600距離並穿過敵方英雄。每名命中的英雄受到60點物理傷害並被嘲諷1.5秒。",
+        "skill": "奧義！暮臨：附近存在敵方英雄時，將魂刃軌跡送向目標方向後召回慎身邊，並強化接下來3次普通攻擊，持續8秒。普通強化每次額外造成20 + 20%法術強度的魔法傷害；回程軌跡首次穿過敵方英雄時，僅將尚未使用的強化升級為35 + 30%法術強度，慎獲得35%攻擊速度，持續2秒，並使該英雄減速30%，持續1.5秒。受引擎限制，這是朝目標方向施放的路徑近似，不會在兩次施法之間保留可獨立定位的魂刃。",
+        "skill2": "奧義！影縛：向所選方向衝刺最多600距離並穿過敵方英雄。每名命中的英雄受到60點物理傷害，並被強制攻擊慎1.5秒。",
         "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。經過引擎節奏壓縮的0.8秒引導後，慎傳送至其身邊。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
       },
       "archer": {

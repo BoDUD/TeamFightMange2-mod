@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+import sys
+
+import pytest
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
+SCALE_QA_SCRIPT = MOD / "tools" / "qa_legacy_battle_actor_scale.py"
 
 
 def sha256(path: Path) -> str:
@@ -21,6 +27,129 @@ def load_qa() -> dict[str, object]:
     return json.loads(
         (MOD / "qa/legacy_battle_actor_scale_qa.json").read_text(encoding="utf-8")
     )
+
+
+def load_scale_qa_module():
+    spec = importlib.util.spec_from_file_location(
+        "legacy_battle_actor_scale_test_module", SCALE_QA_SCRIPT
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_official_native_snapshot_is_fixed_complete_and_auditable() -> None:
+    module = load_scale_qa_module()
+    snapshot_path = MOD / "qa/official_native_actor_contract_snapshot.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    assert snapshot["schema_version"] == 1
+    assert snapshot["source"] == {
+        "bundle_filename": "bundle.game_data",
+        "bundle_sha256": "0fa9cd7dfbcd85be55503ceb96336e8955f6fb5bb1d7a540e161d4aa92e1cc2d",
+        "asset_key_pattern": "asset/base/aseprite_resources/champions/<native_id>#sheet + #anim",
+        "animation_contract_canonicalization": (
+            "SHA-256 of UTF-8 JSON for tag -> durations rounded to 8 decimals, "
+            "sort_keys=true, separators=(',', ':')"
+        ),
+    }
+    expected = {
+        "archer": ([31, 33], [26, 31], "e2c6c7d68adf7aac81383265542f67bb32493680c1c26fa952e527a3b4145eca"),
+        "barrier_magician": ([32, 34], [30, 33], "c7a905b72eba04effd990dabed15861c70e0edfb501a8f2e9d1c0b15f91fe4d2"),
+        "berserker": ([37, 39], [36, 38], "4105635b6b299349b81d41de861cc6e2b6e2c5d48d6f0fbe74c16cb7cb3b86ef"),
+        "boomerang_hunter": ([33, 35], [29, 34], "6c3428900194b4b4970117d932dc738c6d092f5f56f1f022a73040f577e1c6f1"),
+    }
+    evidence = module.load_repository_official_native_snapshot(set(expected))
+    assert set(evidence) == set(expected)
+    for native_id, (idle_range, run_range, contract_sha256) in expected.items():
+        record = evidence[native_id]
+        assert record["asset_key"] == (
+            f"asset/base/aseprite_resources/champions/{native_id}"
+        )
+        assert record["idle_height_range"] == idle_range
+        assert record["run_height_range"] == run_range
+        assert record["animation_contract"]["sha256"] == contract_sha256
+        assert record["animation_contract"]["tag_frame_counts"]["idle"] == 4
+        assert record["animation_contract"]["tag_frame_counts"]["run"] == 8
+
+
+def test_missing_bundle_uses_only_the_repository_snapshot(monkeypatch) -> None:
+    module = load_scale_qa_module()
+
+    def missing_bundle() -> Path:
+        raise FileNotFoundError("CI checkout has no proprietary game bundle")
+
+    def unexpected_asset_read(*_args, **_kwargs):
+        pytest.fail("bundle loader must not run after bundle discovery fails")
+
+    monkeypatch.setattr(module, "find_bundle_path", missing_bundle)
+    monkeypatch.setattr(module, "load_official_assets", unexpected_asset_read)
+    native_ids = {"archer", "barrier_magician", "berserker", "boomerang_hunter"}
+    expected = module.load_repository_official_native_snapshot(native_ids)
+    evidence, source = module.load_official_native_evidence(native_ids)
+    assert source == "repository_snapshot"
+    assert evidence == expected
+
+
+def test_present_bundle_path_still_reads_and_measures_real_assets(monkeypatch) -> None:
+    module = load_scale_qa_module()
+    bundle_path = Path("C:/game/bundle.game_data")
+    sheet = Image.new("RGBA", (20, 10), (0, 0, 0, 0))
+    for y in range(2, 8):
+        for x in range(1, 6):
+            sheet.putpixel((x, y), (255, 255, 255, 255))
+    for y in range(1, 9):
+        for x in range(11, 18):
+            sheet.putpixel((x, y), (255, 255, 255, 255))
+    anim = {
+        "anims": {
+            "idle": {
+                "frames": [
+                    {
+                        "duration": 0.18,
+                        "data": {"x": 0, "y": 0, "w": 10, "h": 10},
+                    }
+                ]
+            },
+            "run": {
+                "frames": [
+                    {
+                        "duration": 0.08,
+                        "data": {"x": 10, "y": 0, "w": 10, "h": 10},
+                    }
+                ]
+            },
+        }
+    }
+
+    def fake_loader(native_ids: set[str], *, bundle: Path | None = None):
+        assert native_ids == {"archer"}
+        assert bundle == bundle_path
+        return {"archer": (sheet, anim)}
+
+    monkeypatch.setattr(module, "find_bundle_path", lambda: bundle_path)
+    monkeypatch.setattr(module, "load_official_assets", fake_loader)
+    evidence, source = module.load_official_native_evidence({"archer"})
+    assert source == "bundle.game_data"
+    assert evidence["archer"]["idle_height_range"] == [6, 6]
+    assert evidence["archer"]["run_height_range"] == [8, 8]
+    assert evidence["archer"]["animation_contract"] == (
+        module.animation_contract_record(anim)
+    )
+
+
+def test_checked_in_snapshot_matches_real_bundle_when_available() -> None:
+    module = load_scale_qa_module()
+    native_ids = {"archer", "barrier_magician", "berserker", "boomerang_hunter"}
+    try:
+        module.find_bundle_path()
+    except FileNotFoundError:
+        pytest.skip("proprietary bundle.game_data is intentionally absent in CI")
+    bundle_evidence, source = module.load_official_native_evidence(native_ids)
+    snapshot_evidence = module.load_repository_official_native_snapshot(native_ids)
+    assert source == "bundle.game_data"
+    assert bundle_evidence == snapshot_evidence
 
 
 def test_five_legacy_battle_actors_use_independent_native_like_targets() -> None:

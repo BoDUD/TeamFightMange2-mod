@@ -1903,6 +1903,40 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
     }
 }
 
+const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
+
+#[derive(Clone, Copy, Debug, Default)]
+struct ShenShadowDashTauntNativeEffect;
+
+impl ModEffectType for ShenShadowDashTauntNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+            || !ctx
+                .get_entity(target_id)
+                .is_some_and(|target| target.is_alive())
+        {
+            return;
+        }
+
+        ctx.apply_cc(
+            target_id,
+            CCState::Taunt {
+                tick: SHEN_SHADOW_DASH_TAUNT_TICKS,
+                target: caster_id,
+            },
+        );
+    }
+
+    fn expected_cc_time(&self) -> Option<usize> {
+        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
+    }
+}
+
 fn init(_ctx: &GameCtx) -> ModRegistration {
     let mut registration = ModRegistration::new(MOD_ID);
     registration.add_native_effect(
@@ -1933,6 +1967,10 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_taunt_native",
+        ShenShadowDashTauntNativeEffect,
+    );
     registration.set_extension(LolModExtension);
     registration.set_server_extension(LolDragonServerExtension {
         announced: Mutex::new(HashSet::new()),

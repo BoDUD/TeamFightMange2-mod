@@ -1,6 +1,6 @@
-# Shen motion and W alignment regression QA
+# Shen motion and retired-W regression QA
 
-This pass responds to the live reports that the run lacked a visible cross-step and that Spirit's Refuge did not visually center on the caster.
+This file preserves the accepted run-cycle evidence and records that the former Spirit's Refuge experiment is no longer part of Shen's active Q/E/R payload.
 
 ## Run cycle
 
@@ -12,10 +12,10 @@ This pass responds to the live reports that the run lacked a visible cross-step 
 
 The validator requires all nine poses to remain unique, rejects a repeated first/last pose, rejects lower-body detail collapse, and constrains adjacent gait changes.
 
-## Spirit's Refuge
+## Retired Spirit's Refuge experiment
 
-- Data binding remains `CasterViewEffect`, `AroundCaster`, `is_follow: true`, and `z: -1`.
-- The six image-gen field phases are packed into 112x64 frames with target alpha bounds `(4,29)-(108,59)` (the spark phase is `(7,29)-(106,59)`).
-- Visible field size is approximately 104x30 px and its vertical center is y=43.5, aligned with Shen's y=45 foot point instead of the rejected y=31.5 center.
+- The old `shen_w` source/effect is historical only. `lol_shen.data_champion` must not reference `shen_w`, `spirit_refuge`, or any `lol_shen_w_*` event.
+- Active `skill2` is Shadow Dash. It uses the independent `shen_e` dash/impact sheet, a 30-tick dash-trail marker, a 90-tick taunt marker, and the native `CCState::Taunt` callback.
+- The validator now rejects any reintroduction of the former caster-centered refuge field into Q, E, or R.
 
-The validator rejects W frames outside the 96–106 px width, 24–34 px height, centered x=54–57/y=42–45 contract.
+The historical W frame geometry is not a release gate because that asset is no longer loaded by the active champion contract.
