@@ -4,9 +4,9 @@
   "root_cause": "The previous gate only capped maximum bboxes. Shorter generated pose crops and detached source-edge/VFX components changed per-pose crop scale, so attack/hit/skill frames could become 15-25 percent shorter than idle inside the same 64x64 canvas.",
   "fix_route": "Remove detached source-only effect fragments, normalize every live pose with an aspect-preserving per-pose height contract, keep horizontal lunges on a long-axis silhouette gate, and preserve the original 64x64 rectangles, frame counts, durations and exclusive foot baselines.",
   "stability_contact": "qa/legacy_battle_actor_state_stability_contact.png",
-  "stability_contact_sha256": "b386974896bd852e2ae01e76a4d1d266a19aeceb4d88fea977db4c637013ea05",
+  "stability_contact_sha256": "9bc4b310dd1a5a8262abd1ae29450269a6739e92a3205487efc9d6d8a602fcb0",
   "reference_scale_contact": "qa/legacy_battle_actor_reference_scale_contact.png",
-  "reference_scale_contact_sha256": "f078bd82ce9f7e7caf19525001560c5426205d88959fe21fa84b844b287823d1",
+  "reference_scale_contact_sha256": "e0673b8c99b7044c47db2725495041f2ef5c5f5ba55d634496ca6e143bf9aad9",
   "reference_idle_height_envelope_px": [
     40,
     46

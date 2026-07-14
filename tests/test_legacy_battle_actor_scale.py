@@ -214,6 +214,19 @@ def test_battle_only_resize_preserves_all_21_ui_and_portrait_hashes() -> None:
         assert sha256(path) == record["after_sha256"], relative
 
 
+def test_scale_contacts_use_the_canonical_png_writer(tmp_path: Path) -> None:
+    module = load_scale_qa_module()
+    for name in (
+        "legacy_battle_actor_state_stability_contact.png",
+        "legacy_battle_actor_reference_scale_contact.png",
+    ):
+        committed = MOD / "qa" / name
+        rebuilt = tmp_path / name
+        with Image.open(committed) as opened:
+            module.save_png(rebuilt, opened.convert("RGBA"))
+        assert rebuilt.read_bytes() == committed.read_bytes()
+
+
 def test_builder_runs_the_battle_scale_gate_after_all_reference_builders() -> None:
     builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
     assert "build_legacy_battle_actor_scale_qa" in builder
