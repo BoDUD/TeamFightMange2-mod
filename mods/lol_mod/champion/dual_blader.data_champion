@@ -274,7 +274,7 @@
     "range": 90000,
     "growth_range": 0,
     "casting_type": "Targeting",
-    "casting_target": "EnemyChampionInCC",
+    "casting_target": "EnemyChampion",
     "attack_type": "Skill",
     "can_use_with_move": false,
     "effect": {

@@ -5,7 +5,7 @@
 ## 槽位
 
 - `skill`：Q 错玉切，两段循环。
-- `skill2`：W 封尘追斩，仅选择 `EnemyChampionInCC`。
+- `skill2`：W 封尘追斩，选择 `EnemyChampion`。
 - `ult`：R 破障之锋·六道断魂。
 - 不增加 E、第四技能或合并技能。
 
@@ -19,11 +19,19 @@
 
 ## W
 
-- 施法目标严格为 `EnemyChampionInCC`。
+- 施法目标为 `EnemyChampion`，不再要求目标预先处于控制中。
 - 仅有一个 `RushMoveToBack`。
 - 到达后只结算一次 `45 + 90% AD`、一次 45 tick 击飞和一份 `90 + 30% AD`、90 tick 自盾。
 - W 不包含 `Delayed` 或 `Native`。
 - 最远移动预算：`start 4 + travel ceil(90000 / 5000) 18 = 22 < duration 36`。
+
+## W AI
+
+- W 的数据目标由 `EnemyChampionInCC` 修正为 `EnemyChampion`，由原生 AI 按技能冷却、距离、目标与动作状态选择释放，不再要求目标预先受控。
+- 退役整个 `YoneWInputGate` 及其注册。该门控把原生普攻目标提升成 R/W，并对同一个目标依次调用 `ctx.is_valid_input`；Mod API 0.8 的这个方法只是把输入转发给游戏，不提供过期实体 ID 的存在性保护。
+- 只检查 `InputTarget::Target` 变体并不安全：目标可能在普攻决策产生后、R/W 校验前死亡或消失，仍会让引擎解包缺失实体。`PlayerAiContext` 又没有公开的安全实体查询，因此不能在 mod 门控里可靠补齐这层生命周期检查。
+- W 的数据效果树、冲刺、伤害、击飞、护盾、动作和视效全部保持不变；修复只删除不安全的 AI 重校验层。
+- 回归门禁要求 Rust 中不存在 `YoneWInputGate`、`lol_yone_w_input_gate`、其注册以及 `ctx.is_valid_input(&sealed_pursuit)`。
 
 ## R
 
@@ -35,6 +43,9 @@
 
 ## 防卡死约束
 
+- 2026-07-14 的实机复现中，战斗计时器停在 `01:32`；`log.log` 在 `17:49:58.857`、`17:49:59.100`、`17:49:59.107` 连续记录三次 `called Option::unwrap() on a None value`，窗口仍响应但模拟不再推进。这与已退役的厄加特 targeted 输入重校验故障形态一致。
+- 当前安全修复删除永恩自定义输入门控，让原生 AI 直接使用 `EnemyChampion` 数据契约；不再从普攻携带的可能过期实体目标构造 R/W 输入。
+- 重启游戏后，包含永恩与厄加特的新对局已推进至 `07:02`，超过原 `01:32` 卡死点且当前日志为 0 次 panic；W 稳定性路径通过本轮实机冒烟测试。
 - 永恩 Q/W/R 整棵效果树为零 `Native`，不新增 mutex、实体状态表或自定义目标生命周期。
 - Q 与 W 不使用延迟效果。
 - R 所有延迟均在动作持续时间内完成。
