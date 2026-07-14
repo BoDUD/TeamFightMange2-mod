@@ -23,7 +23,7 @@ Cards, HUD, face, feet and motion:
 - [ ] Full-body/card/battle views at `center(0,-12)` show both feet completely above the crop; hair, restraint, hands and feet do not touch or disappear behind the card/HUD edge.
 - [ ] The pale face plane, separated red eyes and dark restraint remain readable at actual compact scale rather than only in the enlarged contact sheet.
 - [ ] Nine-phase source to native-eight-frame adaptation is smooth: normal `run` shows source phases 1-8, `berserk_run` shows phases 2-9, both keep eight frames and 0.640000048 seconds, and their union visibly exercises all nine unique source phases without repeated-frame stutter, sliding or size jumps.
-- [ ] Idle, normal attack, Snack, Q, E, R, hit, fall, grounded, defeated and death-fade actions keep one body, one aspect-preserving scale and the y=46 exclusive foot baseline. Primary idle and both run tags remain 42px tall; horizontal lunge/throw poses may be shorter without x-only compression. The transparent terminal death frame leaves no duplicate corpse.
+- [ ] Idle, normal attack, Snack, Q, E, R, hit, fall, grounded, defeated and death-fade actions keep one body, one aspect-preserving scale and the y=46 exclusive foot baseline. Primary idle and both run tags remain 38px tall; horizontal lunge/throw poses may be shorter without x-only compression. The transparent terminal death frame leaves no duplicate corpse.
 
 Passive and basic attacks:
 

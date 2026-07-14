@@ -21,6 +21,9 @@ MOD_ROOT = Path(__file__).resolve().parents[1]
 ACTOR_DIR = MOD_ROOT / "aseprite_resources" / "champions"
 QA_DIR = MOD_ROOT / "qa"
 BEFORE_AUDIT_PATH = QA_DIR / "legacy_battle_actor_scale_before.json"
+OFFICIAL_NATIVE_SNAPSHOT_PATH = (
+    QA_DIR / "official_native_actor_contract_snapshot.json"
+)
 
 
 @dataclass(frozen=True)
@@ -179,7 +182,7 @@ PRESERVED_UI_SHA256 = {
     "ui/champion_portrait/berserker_grid.png": "9df4c9dba3a291e29a19c38c7007fc666979e512e11e8837137de95a35737960",
     "ui/champion_fullbody/boomerang_hunter.png": "bdc2f630c7b81f2b7204e3e5da5fbe322e70645fe80de84ad2d4904d0cef2d73",
     "ui/champion_portrait/boomerang_hunter_compact.png": "1cd4c992f6e27e14c4b1eee302b48409810dbe1c9d151e7ff590183f83638cea",
-    "ui/champion_portrait/boomerang_hunter_scoreboard.png": "622c5cbaa1d60a921fa9e03eb6b110a9a5e1aa0f8d1a393a3a87e1bb72bde350",
+    "ui/champion_portrait/boomerang_hunter_scoreboard.png": "e7b504e484562cd603b4f38fb85534cd32ab9a9b85a33d9c17401423700a57c0",
     "ui/champion_portrait/boomerang_hunter_grid.png": "852532e8af7f8573f81e708d54b7b5a51561ac4d3e4548f9e35fef52155bdd89",
 }
 
@@ -494,6 +497,23 @@ def contract_signature(anim: dict[str, Any]) -> dict[str, list[float]]:
     }
 
 
+def animation_contract_record(anim: dict[str, Any]) -> dict[str, Any]:
+    """Return the canonical, exact duration contract used by the QA gate."""
+
+    signature = contract_signature(anim)
+    canonical = json.dumps(
+        signature,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return {
+        "sha256": hashlib.sha256(canonical).hexdigest(),
+        "tag_frame_counts": {
+            tag: len(durations) for tag, durations in sorted(signature.items())
+        },
+    }
+
+
 def find_bundle_path() -> Path:
     for path in (MOD_ROOT.parents[2] / "bundle.game_data", MOD_ROOT.parents[1] / "bundle.game_data"):
         if path.is_file():
@@ -501,14 +521,16 @@ def find_bundle_path() -> Path:
     raise FileNotFoundError("bundle.game_data not found from lol_mod tree")
 
 
-def load_official_assets(native_ids: set[str]) -> dict[str, tuple[Image.Image, dict[str, Any]]]:
+def load_official_assets(
+    native_ids: set[str], *, bundle: Path | None = None
+) -> dict[str, tuple[Image.Image, dict[str, Any]]]:
     keys = {
         f"asset/base/aseprite_resources/champions/{native_id}#{kind}": (native_id, kind)
         for native_id in native_ids
         for kind in ("sheet", "anim")
     }
     payloads: dict[tuple[str, str], bytes] = {}
-    bundle = find_bundle_path()
+    bundle = find_bundle_path() if bundle is None else bundle
     with bundle.open("rb") as handle:
         entry_count = struct.unpack("<I", handle.read(4))[0]
         for _ in range(entry_count):
@@ -533,6 +555,105 @@ def load_official_assets(native_ids: set[str]) -> dict[str, tuple[Image.Image, d
         document = json.loads(payloads[native_id, "anim"].decode("utf-8"))
         result[native_id] = image, document
     return result
+
+
+def official_native_evidence_from_assets(
+    assets: dict[str, tuple[Image.Image, dict[str, Any]]],
+) -> dict[str, dict[str, Any]]:
+    """Derive the pinned size/animation evidence from real bundle assets."""
+
+    evidence: dict[str, dict[str, Any]] = {}
+    for native_id, (sheet, anim) in sorted(assets.items()):
+        actions = action_metrics(sheet, anim, ("idle", "run"))
+        evidence[native_id] = {
+            "asset_key": (
+                f"asset/base/aseprite_resources/champions/{native_id}"
+            ),
+            "idle_height_range": actions["idle"]["visible_height_range"],
+            "run_height_range": actions["run"]["visible_height_range"],
+            "animation_contract": animation_contract_record(anim),
+        }
+    return evidence
+
+
+def load_repository_official_native_snapshot(
+    native_ids: set[str],
+) -> dict[str, dict[str, Any]]:
+    """Load the audited CI fallback captured from the official game bundle."""
+
+    document = json.loads(
+        OFFICIAL_NATIVE_SNAPSHOT_PATH.read_text(encoding="utf-8")
+    )
+    if document.get("schema_version") != 1:
+        raise ValueError("unsupported official native actor snapshot schema")
+    champions = document.get("champions")
+    if not isinstance(champions, dict):
+        raise ValueError("official native actor snapshot has no champion table")
+    missing = sorted(native_ids - set(champions))
+    if missing:
+        raise KeyError(f"official native actor snapshot is missing: {missing}")
+
+    evidence: dict[str, dict[str, Any]] = {}
+    for native_id in sorted(native_ids):
+        record = champions[native_id]
+        expected_asset_key = (
+            f"asset/base/aseprite_resources/champions/{native_id}"
+        )
+        if record.get("asset_key") != expected_asset_key:
+            raise ValueError(
+                f"official snapshot asset key mismatch for {native_id}"
+            )
+        for field in ("idle_height_range", "run_height_range"):
+            values = record.get(field)
+            if (
+                not isinstance(values, list)
+                or len(values) != 2
+                or not all(isinstance(value, int) for value in values)
+            ):
+                raise ValueError(
+                    f"official snapshot {native_id} has invalid {field}"
+                )
+        contract = record.get("animation_contract")
+        if not isinstance(contract, dict):
+            raise ValueError(
+                f"official snapshot {native_id} has no animation contract"
+            )
+        digest = contract.get("sha256")
+        counts = contract.get("tag_frame_counts")
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+            or not isinstance(counts, dict)
+            or not counts
+            or not all(
+                isinstance(tag, str)
+                and isinstance(count, int)
+                and count > 0
+                for tag, count in counts.items()
+            )
+        ):
+            raise ValueError(
+                f"official snapshot {native_id} has an invalid animation contract"
+            )
+        evidence[native_id] = record
+    return evidence
+
+
+def load_official_native_evidence(
+    native_ids: set[str],
+) -> tuple[dict[str, dict[str, Any]], str]:
+    """Prefer live bundle evidence and fall back only when CI lacks the bundle."""
+
+    try:
+        bundle = find_bundle_path()
+    except FileNotFoundError:
+        return (
+            load_repository_official_native_snapshot(native_ids),
+            "repository_snapshot",
+        )
+    assets = load_official_assets(native_ids, bundle=bundle)
+    return official_native_evidence_from_assets(assets), "bundle.game_data"
 
 
 def maximum_core_size(actions: dict[str, Any]) -> list[int]:
@@ -748,7 +869,9 @@ def build_all() -> list[Path]:
         )
     )
     native_ids = {spec.official_native_id for spec in TARGETS if spec.official_native_id}
-    official = load_official_assets({native_id for native_id in native_ids if native_id})
+    official, _official_evidence_source = load_official_native_evidence(
+        {native_id for native_id in native_ids if native_id}
+    )
 
     available_references = tuple(
         spec
@@ -804,14 +927,15 @@ def build_all() -> list[Path]:
         )
         native_record: dict[str, Any] | None = None
         if spec.official_native_id:
-            native_sheet, native_anim = official[spec.official_native_id]
-            native_actions = action_metrics(native_sheet, native_anim, ("idle", "run"))
+            native_evidence = official[spec.official_native_id]
             native_record = {
-                "asset_key": f"asset/base/aseprite_resources/champions/{spec.official_native_id}",
-                "idle_height_range": native_actions["idle"]["visible_height_range"],
-                "run_height_range": native_actions["run"]["visible_height_range"],
-                "animation_contract_exact": contract_signature(anim)
-                == contract_signature(native_anim),
+                "asset_key": native_evidence["asset_key"],
+                "idle_height_range": native_evidence["idle_height_range"],
+                "run_height_range": native_evidence["run_height_range"],
+                "animation_contract_exact": animation_contract_record(anim)[
+                    "sha256"
+                ]
+                == native_evidence["animation_contract"]["sha256"],
             }
             # Lucian intentionally owns a project-specific action table for
             # Lightslinger/E/Q/R. The battle-scale pass must keep that table

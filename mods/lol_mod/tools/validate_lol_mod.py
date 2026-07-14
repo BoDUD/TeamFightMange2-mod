@@ -8,6 +8,7 @@ import ctypes
 import hashlib
 import json
 import math
+import subprocess
 import sys
 import wave
 import xml.etree.ElementTree as ET
@@ -20,6 +21,41 @@ from PIL import Image
 MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
 EXPECTED_MOD_API_VERSION = 8
+
+
+def validate_shen_sdk_data_champion() -> None:
+    """Ask the exact installed SDK type to deserialize Shen's generated file."""
+
+    script = MOD_ROOT / "tools" / "validate_shen_data_champion_sdk.ps1"
+    source = MOD_ROOT / "tools" / "shen_data_champion_sdk_gate.rs"
+    check(script.is_file(), "Shen SDK DataChampionInfo gate script is missing")
+    check(source.is_file(), "Shen SDK DataChampionInfo gate Rust source is missing")
+    sdk = MOD_ROOT.parents[2] / "mod-sdk"
+    if not sdk.is_dir() or not script.is_file():
+        return
+    result = subprocess.run(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(script),
+            "-ChampionPath",
+            str(MOD_ROOT / "champion" / "lol_shen.data_champion"),
+            "-SdkDir",
+            str(sdk),
+        ],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    check(
+        result.returncode == 0,
+        "official SDK DataChampionInfo rejected Shen: "
+        + (result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"),
+    )
 
 NEXUS_NATIVE_SHEET_SIZES: dict[str, tuple[int, int]] = {
     "nexus": (836, 81),
@@ -620,19 +656,21 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
     check(
         [effect.get("buff_name") for effect in q_switches]
         == [
+            "lol_shen_twilight_assault_through_charge_3",
+            "lol_shen_twilight_assault_through_charge_2",
+            "lol_shen_twilight_assault_through_charge_1",
             "lol_shen_twilight_assault_charge_3",
             "lol_shen_twilight_assault_charge_2",
             "lol_shen_twilight_assault_charge_1",
         ],
-        "Q basic-attack state must consume exactly charge 3 -> 2 -> 1",
+        "Q basic-attack state must prefer through-blade 3 -> 2 -> 1, then normal 3 -> 2 -> 1",
     )
     empowered_hits = find_effect(attack, "ApAttack")
-    check(len(empowered_hits) == 3, "Q must expose one empowered magic hit per charge")
-    for effect in empowered_hits:
-        check(
-            (effect.get("damage"), effect.get("attack_ratio")) == (20, 20),
-            "Q empowered hit must be 20 + 20% Ability Power magic damage",
-        )
+    check(
+        [(effect.get("damage"), effect.get("attack_ratio")) for effect in empowered_hits]
+        == [(35, 30)] * 3 + [(20, 20)] * 3,
+        "Q must expose three 35+30% AP through-blade hits and three 20+20% AP normal hits",
+    )
     for switch in q_switches:
         buff_branch = switch.get("effect_buff", {})
         delayed = [effect for effect in buff_branch.get("effects", []) if effect.get("type") == "Delayed"]
@@ -656,17 +694,42 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             q.get("start_timing"), q.get("range"), q.get("casting_type"),
             q.get("casting_target"),
         )
-        == ("skill", 360, 24, 8, 0, "None", "AllyOnlySelf"),
-        "Q self-cast timing or target contract mismatch",
+        == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion"),
+        "Q must use a stock-AI enemy-gated direction cast instead of self-casting into empty space",
     )
-    for unsafe_type in ("LinearProjectile", "RangeProjectile", "Attack", "ApAttack", "Shield"):
+    for unsafe_type in ("RangeProjectile", "Attack", "ApAttack", "Shield"):
         check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
-    check(
-        bool(find_effect(q, "CasterViewEffect", name="lol_shen_twilight_assault_recall_visual")),
-        "Q recall visual is missing",
-    )
-    q_grants = find_effect(q, "AddCasterBuff")
-    check(len(q_grants) == 3, "Q must grant exactly three shared-window markers")
+    outbound = find_effect(q, "LinearProjectile", name="lol_shen_twilight_assault_blade_outbound")
+    check(len(outbound) == 1, "Q must own exactly one stable outbound spirit-blade anchor")
+    returns = find_effect(outbound[0], "BackToCasterLinearProjectile", name="lol_shen_twilight_assault_blade_return") if outbound else []
+    check(len(returns) == 1, "Q outbound anchor must own exactly one return-to-caster blade")
+    if outbound:
+        check(
+            (
+                outbound[0].get("penetrate"), outbound[0].get("speed"),
+                outbound[0].get("range"), outbound[0].get("shape"),
+                outbound[0].get("applied_target"), outbound[0].get("applied_effects"),
+            )
+            == (True, 10000, 65000, {"Circle": {"radius": 4000}}, "EnemyChampion", []),
+            "Q outbound spirit-blade anchor contract mismatch",
+        )
+    if returns:
+        blade_return = returns[0]
+        check(
+            outbound[0].get("end_effects") == [blade_return],
+            "Q return blade must be the outbound projectile's single direct end_effect",
+        )
+        check(
+            (
+                blade_return.get("penetrate"), blade_return.get("speed"),
+                blade_return.get("range"), blade_return.get("shape"),
+                blade_return.get("applied_target"), blade_return.get("end_effects"),
+            )
+            == (True, 12000, 130000, {"Circle": {"radius": 7500}}, "EnemyChampion", []),
+            "Q return spirit-blade path contract mismatch",
+        )
+    direct_q_effects = q.get("effect", {}).get("effects", [])
+    q_grants = [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"]
     q_windows = {
         effect.get("buff_state", {}).get("name"): effect.get("buff_state", {}).get("duration")
         for effect in q_grants
@@ -678,8 +741,110 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
             "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
         },
-        "Q must grant three independently consumed markers with one shared 480-tick window",
+        "Q cast must grant three normal markers with one shared 480-tick window",
     )
+    direct_q_removals = {
+        effect.get("name")
+        for effect in direct_q_effects
+        if effect.get("type") == "RemoveCasterBuff"
+    }
+    check(
+        direct_q_removals
+        == {
+            *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
+            *(f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)),
+            "lol_shen_twilight_assault_return_resolved",
+        },
+        "Q cast must clear both charge families and its once-per-cast return guard",
+    )
+    if returns:
+        return_effect = returns[0].get("applied_effects", [{}])[0].get("effect", {})
+        guard_state = {
+            "name": "lol_shen_twilight_assault_return_resolved",
+            "duration": {"Time": {"tick": 480}},
+        }
+        check(
+            return_effect.get("type") == "SwitchByBuff"
+            and return_effect.get("buff_name") == guard_state["name"]
+            and return_effect.get("effect_buff")
+            == {"type": "AddCasterBuff", "buff_state": guard_state},
+            "Q return must begin with an inert once-per-cast resolved guard",
+        )
+        remaining_switch = return_effect.get("effect_none", {})
+        all_charge_names = {
+            *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
+            *(f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)),
+        }
+        for remaining, normal_marker in zip(
+            (3, 2, 1),
+            (f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
+            strict=True,
+        ):
+            check(
+                remaining_switch.get("type") == "SwitchByBuff"
+                and remaining_switch.get("buff_name") == normal_marker,
+                f"Q return remaining-charge branch mismatch for {normal_marker}",
+            )
+            branch = remaining_switch.get("effect_buff", {})
+            direct = branch.get("effects", []) if branch.get("type") == "Combine" else []
+            removed = {
+                effect.get("name")
+                for effect in direct
+                if effect.get("type") == "RemoveCasterBuff"
+            }
+            check(
+                removed == all_charge_names,
+                f"Q {remaining}-charge return branch must replace, not append to, old charge markers",
+            )
+            caster_states = [
+                effect.get("buff_state", {})
+                for effect in direct
+                if effect.get("type") == "AddCasterBuff"
+            ]
+            upgraded = {
+                state.get("name")
+                for state in caster_states
+                if str(state.get("name", "")).startswith(
+                    "lol_shen_twilight_assault_through_charge_"
+                )
+            }
+            check(
+                upgraded
+                == {
+                    f"lol_shen_twilight_assault_through_charge_{charge}"
+                    for charge in range(remaining, 0, -1)
+                },
+                f"Q return must upgrade exactly the {remaining} still-unused charges",
+            )
+            check(guard_state in caster_states, "Q upgrade branch must set its once-per-cast guard")
+            check(
+                {
+                    "name": "lol_shen_twilight_assault_through_attack_speed",
+                    "duration": {"Time": {"tick": 120}},
+                    "attack_speed_mult": 35,
+                }
+                in caster_states,
+                "Q return-through must grant the short attack-speed branch",
+            )
+            pull_slows = [
+                effect.get("buff_state", {})
+                for effect in direct
+                if effect.get("type") == "AddBuff"
+            ]
+            check(
+                pull_slows
+                == [{
+                    "name": "lol_shen_twilight_assault_pull_slow",
+                    "duration": {"Time": {"tick": 90}},
+                    "move_speed_mult": -30,
+                }],
+                f"Q {remaining}-charge return branch must slow only its first crossed target",
+            )
+            remaining_switch = remaining_switch.get("effect_none", {})
+        check(
+            remaining_switch == {"type": "AddCasterBuff", "buff_state": guard_state},
+            "Q return with no charges remaining must only close the once-per-cast guard",
+        )
 
     e = champion.get("skill2", {})
     check(
@@ -701,16 +866,49 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 rush.get("casting_target"), rush.get("penetrate"),
             )
             == (4000, 100, 10000, "EnemyChampion", True),
-            "E Rush speed, collision radius, target or penetration mismatch",
+            "E Rush speed, 10,000 swept collision radius, target or penetration mismatch",
+        )
+        applied = rush.get("applied_effects", [])
+        check(
+            len(applied) == 1 and applied[0].get("casting_type") == "Targeting",
+            "E Rush must own exactly one direct Targeting collision payload",
+        )
+        rush_payload = applied[0].get("effect", {}) if applied else {}
+        direct_payload = (
+            rush_payload.get("effects", []) if rush_payload.get("type") == "Combine" else []
+        )
+        check(
+            [effect.get("type") for effect in direct_payload]
+            == ["Attack", "Native", "AddBuff", "ViewEffect", "TargetSfx"],
+            "E collision payload order must keep the native taunt directly on Rush hit",
+        )
+        check(
+            len(direct_payload) > 1
+            and direct_payload[1]
+            == {"type": "Native", "effect_ref": "lol_shen_shadow_dash_taunt_native"},
+            "E Native taunt must be the direct second effect of the Rush collision payload",
         )
         check(bool(find_effect(rush, "Attack", damage=60, attack_ratio=0)), "E physical hit mismatch")
-        check(bool(find_effect(rush, "Taunt", duration=90)), "E must taunt each crossed champion for 90 ticks")
+        check(not find_effect(rush, "Taunt"), "E must not duplicate the native taunt with a data Taunt")
+        check(
+            bool(find_effect(rush, "Native", effect_ref="lol_shen_shadow_dash_taunt_native")),
+            "E must call the native taunt effect on every crossed champion",
+        )
         taunt_markers = [
             effect
             for effect in find_effect(rush, "AddBuff")
             if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_taunted"
         ]
         check(len(taunt_markers) == 1, "E named taunt marker is missing")
+    trail_windows = [
+        effect.get("buff_state", {})
+        for effect in find_effect(e, "AddCasterBuff")
+        if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_trail_window"
+    ]
+    check(
+        trail_windows == [{"name": "lol_shen_shadow_dash_trail_window", "duration": {"Time": {"tick": 30}}}],
+        "E must keep a dash-length trail marker",
+    )
     check(not find_effect(e, "RangeEffect"), "E must not retain W's caster-centered field")
     check(not find_effect(e, "Shield"), "E must not retain W's ally shield")
 
@@ -740,26 +938,150 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
+        "lol_shen_twilight_assault_through_charge_3",
+        "lol_shen_twilight_assault_through_charge_2",
+        "lol_shen_twilight_assault_through_charge_1",
+        "lol_shen_twilight_assault_return_resolved",
+        "lol_shen_twilight_assault_through_attack_speed",
+        "lol_shen_twilight_assault_pull_slow",
+        "lol_shen_shadow_dash_trail_window",
         "lol_shen_shadow_dash_taunted",
         "lol_shen_stand_united_channel",
         "lol_shen_stand_united_shield_window",
     }
     for marker in required_markers:
         check(marker in serialized, f"named state marker missing: {marker}")
-    check(champion.get("view_projectiles") == [], "Shen Q must not register a gameplay projectile view")
-    view_names = {effect.get("name") for effect in champion.get("view_effects", [])}
+    projectile_views = champion.get("view_projectiles", [])
     check(
-        {
-            "lol_shen_twilight_assault_recall_visual",
-            "lol_shen_twilight_assault_empowered_hit",
-            "lol_shen_shadow_dash_trail",
-            "lol_shen_shadow_dash_impact",
-            "lol_shen_stand_united_guard_visual",
-            "lol_shen_stand_united_arrival_visual",
-        }
-        == view_names,
+        projectile_views
+        == [
+            {
+                "type": "Animated",
+                "name": "lol_shen_twilight_assault_blade_outbound",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "outbound",
+                "z": 2,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_shen_twilight_assault_blade_return",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "return",
+                "z": 2,
+                "repeat": True,
+            },
+        ],
+        "Shen Q outbound/return projectile visuals are not registered independently",
+    )
+    view_effects = champion.get("view_effects", [])
+    check(
+        view_effects
+        == [
+            {
+                "type": "Animation",
+                "name": "lol_shen_twilight_assault_empowered_hit",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "empowered_hit",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_twilight_assault_through_empowered_hit",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "through_hit",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_twilight_assault_pass_through_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "pass_through",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_shadow_dash_impact",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+                "tag": "impact",
+                "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_stand_united_guard_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+                "tag": "guard",
+                "z": 1,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_stand_united_arrival_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+                "tag": "arrival",
+                "z": 1,
+                "is_follow": False,
+            },
+        ],
         "Shen Q/E/R view-effect registration mismatch",
     )
+    check(
+        champion.get("view_buffs", [])
+        == [
+            {
+                "type": "ThreePhase",
+                "name": "lol_shen_shadow_dash_trail_window",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+                "pre_tag": "trail_pre",
+                "loop_tag": "trail_loop",
+                "remove_tag": "trail_remove",
+                "z": -1,
+            },
+            {
+                "type": "ThreePhase",
+                "name": "lol_shen_shadow_dash_taunted",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+                "pre_tag": "taunt_pre",
+                "loop_tag": "taunt_loop",
+                "remove_tag": "taunt_remove",
+                "z": 2,
+            },
+        ],
+        "Shen E dash-trail/taunt marker visuals are not registered",
+    )
+    runtime = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    for marker in (
+        "struct ShenShadowDashTauntNativeEffect;",
+        "CCState::Taunt {",
+        "target: caster_id",
+        "fn expected_cc_time(&self) -> Option<usize>",
+        "Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)",
+        '"lol_shen_shadow_dash_taunt_native"',
+    ):
+        check(marker in runtime, f"Shen native E runtime proof is missing: {marker}")
+    check("ShenShadowDashInput" not in runtime, "Shen E must not restore a custom input-AI validator")
+    if "impl ModEffectType for ShenShadowDashTauntNativeEffect {" in runtime:
+        shen_native = runtime.split(
+            "impl ModEffectType for ShenShadowDashTauntNativeEffect {", 1
+        )[1].split("\nfn init(", 1)[0]
+        check(".unwrap(" not in shen_native, "Shen E native effect must not unwrap stale entities")
+        check(
+            ".get_entity(caster_id)" in shen_native
+            and ".get_entity(target_id)" in shen_native
+            and shen_native.count(".is_some_and(|") == 2,
+            "Shen E native effect must revalidate both live entities before applying taunt",
+        )
+        check(
+            shen_native.count("ctx.apply_cc(") == 1
+            and "ctx.apply_cc(\n            target_id,\n            CCState::Taunt {" in shen_native
+            and shen_native.count("tick: SHEN_SHADOW_DASH_TAUNT_TICKS") == 1
+            and shen_native.count("target: caster_id") == 1,
+            "Shen E runtime impl must contain exactly one caster-targeted native taunt",
+        )
 
 
 def validate_orianna_replacement_uniqueness() -> None:
@@ -4327,7 +4649,14 @@ def validate_compact_view_and_e_layout() -> None:
         else:
             check(width <= height * 2, f"E impact frame {index} does not read as a compact collision")
     e_anim = load_json("aseprite_resources/effects/shen_e#anim.fanim")
-    check(set(e_anim.get("anims", {})) == {"dash", "impact"}, "E animation must expose dash and impact tags")
+    check(
+        set(e_anim.get("anims", {}))
+        == {
+            "dash", "impact", "trail_pre", "trail_loop", "trail_remove",
+            "taunt_pre", "taunt_loop", "taunt_remove",
+        },
+        "E animation must expose distinct dash, impact, trail and sustained-taunt tags",
+    )
     check(len(e_anim.get("anims", {}).get("dash", {}).get("frames", [])) == 3, "E dash tag must have three frames")
     check(len(e_anim.get("anims", {}).get("impact", {}).get("frames", [])) == 3, "E impact tag must have three frames")
 
@@ -4416,9 +4745,12 @@ def validate_localization() -> None:
     shen_zh_hant = text.get("zh-hant", {}).get("description", {}).get("lol_shen", {})
     check("Twilight Assault" in shen_en.get("skill", ""), "English Q text must name Twilight Assault")
     check("next 3 basic attacks" in shen_en.get("skill", ""), "English Q text must disclose three empowered attacks")
+    check("only the empowered attacks still unused" in shen_en.get("skill", ""), "English Q text must disclose remaining-charge-only upgrade")
+    check("does not retain an independently positioned blade" in shen_en.get("skill", ""), "English Q text must disclose the persistent-blade limitation")
     check("Shadow Dash" in shen_en.get("skill2", ""), "English second slot must be Shadow Dash")
     check("taunted for 1.5 seconds" in shen_en.get("skill2", ""), "English E text must disclose the 1.5-second taunt")
     check("奥义！暮临" in shen_zh_hans.get("skill", ""), "zh-hans Q must use the localized Twilight Assault name")
+    check("仅将尚未使用的强化升级" in shen_zh_hans.get("skill", ""), "zh-hans Q must disclose remaining-charge-only upgrade")
     check("奥义！影缚" in shen_zh_hans.get("skill2", ""), "zh-hans second slot must be Shadow Dash")
     check("奧義！暮臨" in shen_zh_hant.get("skill", ""), "zh-hant Q must use the localized Twilight Assault name")
     check("奧義！影縛" in shen_zh_hant.get("skill2", ""), "zh-hant second slot must be Shadow Dash")
@@ -6985,7 +7317,7 @@ def validate_urgot_w(champion: dict[str, Any]) -> None:
 
     r_execute_rust = urgot_impl_block(
         "impl ModEffectType for UrgotRExecuteNativeEffect {",
-        "\nfn init(",
+        "\nconst SHEN_SHADOW_DASH_TAUNT_TICKS",
         "R execute",
     )
     caster_lookup = ".get_entity(caster_id)"
@@ -7049,6 +7381,7 @@ def main() -> int:
     validate_quality_map_and_bp_skin(override)
     validate_quality_ingame_hud(override)
     validate_data_contract(champion)
+    validate_shen_sdk_data_champion()
     validate_lucian_data_contract(lucian)
     validate_orianna_replacement_uniqueness()
     validate_orianna_data_contract(orianna)
@@ -7073,8 +7406,25 @@ def main() -> int:
         "aseprite_resources/champions/shen#anim.fanim",
         {"idle": 7, "run": 9, "attack": 6, "skill": 7, "skill2": 5, "ult": 5, "hit": 1, "dead": 1},
     )
-    validate_animation("aseprite_resources/effects/shen_q#sheet.png", "aseprite_resources/effects/shen_q#anim.fanim", {"projectile": 8})
-    validate_animation("aseprite_resources/effects/shen_e#sheet.png", "aseprite_resources/effects/shen_e#anim.fanim", {"dash": 3, "impact": 3})
+    validate_animation(
+        "aseprite_resources/effects/shen_q#sheet.png",
+        "aseprite_resources/effects/shen_q#anim.fanim",
+        {"outbound": 8, "return": 8, "empowered_hit": 4, "through_hit": 5, "pass_through": 4},
+    )
+    validate_animation(
+        "aseprite_resources/effects/shen_e#sheet.png",
+        "aseprite_resources/effects/shen_e#anim.fanim",
+        {
+            "dash": 3,
+            "impact": 3,
+            "trail_pre": 1,
+            "trail_loop": 2,
+            "trail_remove": 1,
+            "taunt_pre": 1,
+            "taunt_loop": 1,
+            "taunt_remove": 1,
+        },
+    )
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
     validate_animation(
         "aseprite_resources/champions/lucian#sheet.png",

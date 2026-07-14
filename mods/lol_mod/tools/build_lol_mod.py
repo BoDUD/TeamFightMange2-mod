@@ -507,10 +507,12 @@ def build_champion_fullbody_portraits() -> list[Path]:
                     champion_id,
                     source,
                     # The side list keeps the face, circlet, shoulders and
-                    # crossed blade; the tiny scoreboard uses a tighter face
-                    # crop so both eyes survive 18px rendering.
+                    # crossed blade.  The first source pose looks to screen
+                    # right, so the tiny scoreboard must keep the complete
+                    # right edge of the head instead of cutting through the
+                    # second eye/cheek at 18-34px rendering.
                     compact_focus=(0.14, 0.0, 0.92, 0.73),
-                    scoreboard_focus=(0.23, 0.0, 0.81, 0.53),
+                    scoreboard_focus=(0.42, 0.0, 1.0, 0.53),
                 )
             )
             continue
@@ -1577,11 +1579,23 @@ def build_vfx() -> list[Path]:
         anim = EFFECT_DIR / f"{name}#anim.fanim"
         save_png(sheet, atlas)
         if name == "shen_q":
-            anims = {"projectile": effect_anim(64, 64, list(range(8)), [0.06] * 8)}
+            anims = {
+                "outbound": effect_anim(64, 64, list(range(8)), [0.05] * 8),
+                "return": effect_anim(64, 64, list(reversed(range(8))), [0.05] * 8),
+                "empowered_hit": effect_anim(64, 64, [3, 4, 5, 6], [0.05, 0.06, 0.08, 0.10]),
+                "through_hit": effect_anim(64, 64, [2, 3, 4, 5, 6], [0.04, 0.05, 0.06, 0.08, 0.10]),
+                "pass_through": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
+            }
         elif name == "shen_e":
             anims = {
                 "dash": effect_anim(96, 64, [0, 1, 2], [0.06, 0.06, 0.08]),
                 "impact": effect_anim(96, 64, [3, 4, 5], [0.06, 0.08, 0.12]),
+                "trail_pre": effect_anim(96, 64, [0], [0.04]),
+                "trail_loop": effect_anim(96, 64, [1, 2], [0.05, 0.06]),
+                "trail_remove": effect_anim(96, 64, [2], [0.08]),
+                "taunt_pre": effect_anim(96, 64, [3], [0.05]),
+                "taunt_loop": effect_anim(96, 64, [4], [0.08]),
+                "taunt_remove": effect_anim(96, 64, [5], [0.12]),
             }
         else:
             anims = {
@@ -2136,6 +2150,505 @@ def lucian_culling_projectile() -> dict[str, object]:
         ],
         "end_effects": [],
     }
+
+
+def shen_timed_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
+    return {
+        "name": name,
+        "duration": {"Time": {"tick": tick}},
+        **stats,
+    }
+
+
+SHEN_Q_NORMAL_MARKERS = tuple(
+    f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)
+)
+SHEN_Q_THROUGH_MARKERS = tuple(
+    f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)
+)
+SHEN_Q_RETURN_RESOLVED_MARKER = "lol_shen_twilight_assault_return_resolved"
+SHEN_SHADOW_DASH_DISTANCE = 60000
+# Rush.range is the swept collision radius, not the distance travelled.  The
+# action's top-level range owns Shadow Dash's travel distance.
+SHEN_SHADOW_DASH_COLLISION_RADIUS = 10000
+
+
+def shen_attack_branch(
+    buff_name: str,
+    *,
+    damage: int,
+    ap_ratio: int,
+    visual: str,
+) -> dict[str, object]:
+    return {
+        "type": "Combine",
+        "effects": [
+            {"type": "Sfx", "name": "lol_shen_attack_cast"},
+            {
+                "type": "Delayed",
+                "tick": 10,
+                "effects": [
+                    {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                    {"type": "ApAttack", "damage": damage, "attack_ratio": ap_ratio},
+                    {"type": "ViewEffect", "name": visual},
+                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                    {"type": "RemoveCasterBuff", "name": buff_name},
+                ],
+            },
+        ],
+    }
+
+
+def build_shen_attack() -> dict[str, object]:
+    normal_attack: dict[str, object] = {
+        "type": "Combine",
+        "effects": [
+            {"type": "Sfx", "name": "lol_shen_attack_cast"},
+            {
+                "type": "Delayed",
+                "tick": 10,
+                "effects": [
+                    {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                ],
+            },
+        ],
+    }
+    branches = [
+        (f"lol_shen_twilight_assault_through_charge_{charge}", 35, 30,
+         "lol_shen_twilight_assault_through_empowered_hit")
+        for charge in (3, 2, 1)
+    ] + [
+        (f"lol_shen_twilight_assault_charge_{charge}", 20, 20,
+         "lol_shen_twilight_assault_empowered_hit")
+        for charge in (3, 2, 1)
+    ]
+    effect = normal_attack
+    for buff_name, damage, ap_ratio, visual in reversed(branches):
+        effect = {
+            "type": "SwitchByBuff",
+            "buff_name": buff_name,
+            "effect_buff": shen_attack_branch(
+                buff_name,
+                damage=damage,
+                ap_ratio=ap_ratio,
+                visual=visual,
+            ),
+            "effect_none": effect,
+        }
+    return {
+        "action_name": "attack",
+        "description": "#asset/base/text/champion?description.lol_shen.attack",
+        "duration": 24,
+        "cooltime": 70,
+        "start_timing": 10,
+        "cancelable": True,
+        "range": 25000,
+        "casting_type": "Targeting",
+        "casting_target": "Enemy",
+        "attack_type": "BaseAttack",
+        "effect": effect,
+    }
+
+
+def build_shen_q() -> dict[str, object]:
+    def upgrade_remaining_charges(remaining: int) -> dict[str, object]:
+        return {
+            "type": "Combine",
+            "effects": [
+                *(
+                    {"type": "RemoveCasterBuff", "name": name}
+                    for name in [*SHEN_Q_NORMAL_MARKERS, *SHEN_Q_THROUGH_MARKERS]
+                ),
+                *(
+                    {
+                        "type": "AddCasterBuff",
+                        "buff_state": shen_timed_buff(name, 480),
+                    }
+                    for name in SHEN_Q_THROUGH_MARKERS[-remaining:]
+                ),
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
+                },
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff(
+                        "lol_shen_twilight_assault_through_attack_speed",
+                        120,
+                        attack_speed_mult=35,
+                    ),
+                },
+                {
+                    "type": "AddBuff",
+                    "buff_state": shen_timed_buff(
+                        "lol_shen_twilight_assault_pull_slow",
+                        90,
+                        move_speed_mult=-30,
+                    ),
+                },
+                {
+                    "type": "ViewEffect",
+                    "name": "lol_shen_twilight_assault_pass_through_visual",
+                },
+            ],
+        }
+
+    # A penetrating return projectile can overlap several champions in one
+    # pass.  Resolve the upgrade once, and upgrade only the normal charges that
+    # remain at that instant instead of restoring all three on every hit.
+    remaining_switch: dict[str, object] = {
+        "type": "AddCasterBuff",
+        "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
+    }
+    for remaining in (1, 2, 3):
+        remaining_switch = {
+            "type": "SwitchByBuff",
+            "buff_name": SHEN_Q_NORMAL_MARKERS[3 - remaining],
+            "effect_buff": upgrade_remaining_charges(remaining),
+            "effect_none": remaining_switch,
+        }
+    return_once_gate = {
+        "type": "SwitchByBuff",
+        "buff_name": SHEN_Q_RETURN_RESOLVED_MARKER,
+        # Refreshing the guard is deliberately inert and remains valid for the
+        # SDK effect schema; an empty Combine is not used as a pseudo no-op.
+        "effect_buff": {
+            "type": "AddCasterBuff",
+            "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
+        },
+        "effect_none": remaining_switch,
+    }
+    return {
+        "action_name": "skill",
+        "description": "#asset/base/text/champion?description.lol_shen.skill",
+        "duration": 28,
+        "cooltime": 360,
+        "start_timing": 8,
+        "cancelable": True,
+        "range": 55000,
+        "casting_type": "Direction",
+        "casting_target": "EnemyChampion",
+        "attack_type": "Skill",
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_q_cast"},
+                *(
+                    {"type": "RemoveCasterBuff", "name": name}
+                    for name in [
+                        *SHEN_Q_NORMAL_MARKERS,
+                        *SHEN_Q_THROUGH_MARKERS,
+                        SHEN_Q_RETURN_RESOLVED_MARKER,
+                    ]
+                ),
+                *(
+                    {
+                        "type": "AddCasterBuff",
+                        "buff_state": shen_timed_buff(name, 480),
+                    }
+                    for name in SHEN_Q_NORMAL_MARKERS
+                ),
+                {
+                    "type": "LinearProjectile",
+                    "penetrate": True,
+                    "speed": 10000,
+                    "range": 65000,
+                    "name": "lol_shen_twilight_assault_blade_outbound",
+                    "shape": {"Circle": {"radius": 4000}},
+                    "applied_target": "EnemyChampion",
+                    "applied_effects": [],
+                    "end_effects": [
+                        {
+                            "type": "BackToCasterLinearProjectile",
+                            "penetrate": True,
+                            "speed": 12000,
+                            "range": 130000,
+                            "name": "lol_shen_twilight_assault_blade_return",
+                            "shape": {"Circle": {"radius": 7500}},
+                            "applied_target": "EnemyChampion",
+                            "applied_effects": [
+                                {
+                                    "casting_type": "Targeting",
+                                    "effect": return_once_gate,
+                                }
+                            ],
+                            "end_effects": [],
+                        }
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_e() -> dict[str, object]:
+    return {
+        "action_name": "skill2",
+        "description": "#asset/base/text/champion?description.lol_shen.skill2",
+        "duration": 30,
+        "cooltime": 720,
+        "start_timing": 4,
+        "cancelable": False,
+        "range": SHEN_SHADOW_DASH_DISTANCE,
+        "casting_type": "Direction",
+        "casting_target": "EnemyChampion",
+        "attack_type": "Skill",
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_attack_cast"},
+                {"type": "CasterAnimation", "name": "run", "tick": 30},
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff("lol_shen_shadow_dash_trail_window", 30),
+                },
+                {
+                    "type": "Rush",
+                    "speed": 4000,
+                    "move_speed_ratio": 100,
+                    "range": SHEN_SHADOW_DASH_COLLISION_RADIUS,
+                    "casting_target": "EnemyChampion",
+                    "penetrate": True,
+                    "applied_effects": [
+                        {
+                            "casting_type": "Targeting",
+                            "effect": {
+                                "type": "Combine",
+                                "effects": [
+                                    {"type": "Attack", "damage": 60, "attack_ratio": 0},
+                                    {
+                                        "type": "Native",
+                                        "effect_ref": "lol_shen_shadow_dash_taunt_native",
+                                    },
+                                    {
+                                        "type": "AddBuff",
+                                        "buff_state": shen_timed_buff(
+                                            "lol_shen_shadow_dash_taunted", 90
+                                        ),
+                                    },
+                                    {"type": "ViewEffect", "name": "lol_shen_shadow_dash_impact"},
+                                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                                ],
+                            },
+                        }
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_ult() -> dict[str, object]:
+    return {
+        "action_name": "ult",
+        "description": "#asset/base/text/champion?description.lol_shen.ult",
+        "duration": 72,
+        "cooltime": 3000,
+        "start_timing": 1,
+        "range": 960000,
+        "casting_type": "Position",
+        "casting_target": "AllyNotSelf",
+        "attack_type": "Skill",
+        "cancelable": False,
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_r_cast"},
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff("lol_shen_stand_united_channel", 48),
+                },
+                {
+                    "type": "RangeProjectile",
+                    "name": "lol_shen_stand_united_guard",
+                    "delay": 1,
+                    "apply": 1,
+                    "shape": {"Circle": {"radius": 6000}},
+                    "applied_target": "AllyNotSelf",
+                    "applied_effects": [
+                        {
+                            "effect": {
+                                "type": "Shield",
+                                "amount": 900,
+                                "attack_ratio": 0,
+                                "ap_ratio": 80,
+                                "tick": 180,
+                            },
+                            "casting_type": "Targeting",
+                        },
+                        {
+                            "effect": {
+                                "type": "AddBuff",
+                                "buff_state": shen_timed_buff(
+                                    "lol_shen_stand_united_shield_window", 180
+                                ),
+                            },
+                            "casting_type": "Targeting",
+                        },
+                        {
+                            "effect": {
+                                "type": "ViewEffect",
+                                "name": "lol_shen_stand_united_guard_visual",
+                            },
+                            "casting_type": "Targeting",
+                        },
+                    ],
+                    "end_effects": [],
+                },
+                {
+                    "type": "Delayed",
+                    "tick": 48,
+                    "effects": [
+                        {"type": "Teleport"},
+                        {"type": "Sfx", "name": "lol_shen_r_arrive"},
+                        {
+                            "type": "CasterViewEffect",
+                            "name": "lol_shen_stand_united_arrival_visual",
+                        },
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_data() -> Path:
+    path = MOD_ROOT / "champion" / "lol_shen.data_champion"
+    # Construct from an immutable in-code template.  Never read the generated
+    # output as the next build's input: that made stale view records and test
+    # contamination survive otherwise clean rebuilds.
+    champion: dict[str, object] = {
+        "id": "lol_shen",
+        "category": "Melee",
+        "tags": ["Melee", "Tank", "Shield", "CC", "Magic"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/shen",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/shen_skill",
+            "asset/lol_mod/icons/shen_skill2",
+            "asset/lol_mod/icons/shen_ult",
+        ],
+        "stat": {
+            "attack": 75,
+            "magic_power": 20,
+            "hp": 1100,
+            "defence": 40,
+            "magic_resistance": 35,
+            "move_speed": 1000,
+            "hp_regen": 3,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 4,
+            "magic_power": 8,
+            "hp": 120,
+            "defence": 7,
+            "magic_resistance": 6,
+            "move_speed": 5,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": build_shen_attack(),
+        "skill": build_shen_q(),
+        "skill2": build_shen_e(),
+        "ult": build_shen_ult(),
+        "view_projectiles": [
+        {
+            "type": "Animated",
+            "name": "lol_shen_twilight_assault_blade_outbound",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "outbound",
+            "z": 2,
+            "repeat": True,
+        },
+        {
+            "type": "Animated",
+            "name": "lol_shen_twilight_assault_blade_return",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "return",
+            "z": 2,
+            "repeat": True,
+        },
+        ],
+        "view_effects": [
+        {
+            "type": "Animation",
+            "name": "lol_shen_twilight_assault_empowered_hit",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "empowered_hit",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_twilight_assault_through_empowered_hit",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "through_hit",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_twilight_assault_pass_through_visual",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "pass_through",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_shadow_dash_impact",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "tag": "impact",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_stand_united_guard_visual",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+            "tag": "guard",
+            "z": 1,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_stand_united_arrival_visual",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+            "tag": "arrival",
+            "z": 1,
+            "is_follow": False,
+        },
+        ],
+        "view_buffs": [
+        {
+            "type": "ThreePhase",
+            "name": "lol_shen_shadow_dash_trail_window",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "pre_tag": "trail_pre",
+            "loop_tag": "trail_loop",
+            "remove_tag": "trail_remove",
+            "z": -1,
+        },
+        {
+            "type": "ThreePhase",
+            "name": "lol_shen_shadow_dash_taunted",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "pre_tag": "taunt_pre",
+            "loop_tag": "taunt_loop",
+            "remove_tag": "taunt_remove",
+            "z": 2,
+        },
+        ],
+    }
+    write_json(path, champion)
+    return path
 
 
 def build_lucian_data() -> Path:
@@ -4454,6 +4967,7 @@ def main() -> int:
     actor_sheet, actor_anim, actor_frames = build_actor()
     icons = build_icons()
     vfx = build_vfx()
+    shen_champion = build_shen_data()
     qa = build_qa_contacts(actor_frames, icons)
     lucian_sheet, lucian_anim, lucian_frames = build_lucian_actor()
     lucian_icons = build_lucian_icons()
@@ -4489,6 +5003,7 @@ def main() -> int:
         actor_anim,
         *icons,
         *vfx,
+        shen_champion,
         *qa,
         lucian_sheet,
         lucian_anim,

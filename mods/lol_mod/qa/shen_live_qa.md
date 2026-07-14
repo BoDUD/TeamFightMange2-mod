@@ -7,9 +7,11 @@ Static/build checks are automated. These live checks are release gates:
 - [ ] Card, weekly report, scoreboard, side list, and battle HUD show a readable full-body/compact portrait.
 - [ ] A current battle screenshot visibly contains Shen; draft telemetry alone is not accepted.
 - [ ] Idle, run, attack, Q, E, R, hit, and death animations play without scale jumps or terrain clipping.
-- [ ] Q recalls the spirit-blade visual without launching a damage projectile, then exactly three basic attacks consume charge 3 -> 2 -> 1 and receive the magic-damage hit visual.
-- [ ] E visibly dashes in the chosen direction, can cross multiple enemy champions, and each crossed champion takes one hit plus a 1.5-second taunt.
-- [ ] E uses the new compact dash wake / taunt impact; the old W refuge circle never appears from the active second slot.
+- [ ] Q is not cast at match start or into empty space; the stock AI waits until a valid enemy champion is within 550 range before choosing the direction cast.
+- [ ] Q visibly sends the soul-blade trace outward and then returns it to Shen. A return path that misses champions leaves the remaining normal 20 + 20% AP charges unchanged; the first champion crossed upgrades only the still-unused charges to 35 + 30% AP, grants a short 35% Attack Speed window, and visibly slows that target. Crossing additional champions during the same return must not refill charges or repeat the upgrade.
+- [ ] E visibly covers the chosen 600-distance direction, can cross multiple enemy champions, and each crossed champion takes one hit plus a true 1.5-second forced-target taunt toward Shen.
+- [ ] E uses the sustained compact dash wake, separate hit flash, and persistent taunt marker/built-in CC read; the old W refuge circle never appears from the active second slot.
+- [ ] Repeated AI matches include E casts when enemy champions can be crossed; no Shen-specific custom input-AI target revalidation or game freeze appears.
 - [ ] R applies the shield before the 0.8-second teleport and does not taunt enemies on arrival.
 - [ ] Multiple unequal-health ally scenarios record which ally the built-in `AllyNotSelf` AI selects; do not upgrade the lowest-health claim without repeated proof.
 - [ ] Official attack/Q/R audio is audible and correctly timed; E currently reuses the verified attack cast/hit events and must not trigger the retired W events.
