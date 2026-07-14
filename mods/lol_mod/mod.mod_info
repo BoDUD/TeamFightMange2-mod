@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.9",
-  "description": "Adds Shen and reworks official champions 002-008 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, and Urgot. Version 0.10.9 keeps Urgot W on the crash-safe single-hit pure-data route with no delayed scheduler, stale entity handle, or body-covering cannon effect; E retains the rush-behind flip contract. Shen Q now sends and recalls his spirit blade for three empowered attacks, while E dashes through enemy champions and applies a 1.5-second taunt recognized by the stock AI. The five legacy replacements use fixed battle-actor scale, and Sivir's real match scoreboard uses the corrected full-face crop. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.10.10",
+  "description": "Adds Shen and reworks official champions 002-008 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, and Urgot. Version 0.10.10 keeps Urgot W on the crash-safe single-hit pure-data route with no delayed scheduler, stale entity handle, or body-covering cannon effect; E retains the rush-behind flip contract. Shen Q now sends and recalls his spirit blade for three empowered attacks, while E dashes through enemy champions and applies a 1.5-second taunt recognized by the stock AI. Lucian now exposes every previously missing same-ID Archer animation alias so native R and skill presentation cannot unwrap a missing animation. The five legacy replacements use fixed battle-actor scale, and Sivir's real match scoreboard uses the corrected full-face crop. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-14",
   "dependencies": [
     {

@@ -34,13 +34,13 @@
     },
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 11534,
-      "sha256": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c"
+      "size": 18627,
+      "sha256": "10efb0757b6b5955777a9bc970b61703df90bb153cefbcf286d31a716feac6d2"
     },
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 344221,
-      "sha256": "c38bfb5b02f845d29ae85d3bf3f2497e6690c26793d30d449a251b8596eabbec"
+      "size": 360605,
+      "sha256": "4731b9b608ee8343f3bd949799b90ee91be3e272ba4cb439f22a15d433fab263"
     },
     {
       "path": "aseprite_resources/champions/orianna#anim.fanim",
@@ -970,12 +970,12 @@
     {
       "path": "lol_mod.dll",
       "size": 1017344,
-      "sha256": "62b22a0d17992e153c87ca7e1f15a73693844e7b1a8b2b1e98a386998ee937e5"
+      "sha256": "1e884fe5f3cb5833154563ae2bbba413559fa74db4256b2914baa8a9edc7a198"
     },
     {
       "path": "mod.mod_info",
-      "size": 989,
-      "sha256": "c62b1102ec359c32fc4e663ad2162db905710fd4727ba1c599b0da2069fd9798"
+      "size": 1136,
+      "sha256": "68b58ebcd31b7cb79286300ea88972b36b1e1c9f7a23a611c741cc52f0ab4a12"
     },
     {
       "path": "mod.override_info",
@@ -984,8 +984,8 @@
     },
     {
       "path": "qa/legacy_battle_actor_scale_qa.json",
-      "size": 569760,
-      "sha256": "9c01dbb21576674b4883c3be16dbdf81c82fb99244c410c468a320a08aaf00b7"
+      "size": 636125,
+      "sha256": "1ad2a930bc52319aa4426a4e1e7da7e378a6010584c5e0c46f7aa99d2b6d8041"
     },
     {
       "path": "qa/urgot_actor_contact_final.png",
