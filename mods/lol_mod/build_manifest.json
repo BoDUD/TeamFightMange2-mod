@@ -1074,13 +1074,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1017856,
-      "sha256": "0521fd87aa4668979b20ded8704bedda597fa1d9b71ee0cfdaa0c3cd3a2b689b"
+      "size": 1020928,
+      "sha256": "318f10bf1576a02a5f9ae6994e5fca64b2055102e6fc7a1806f1bee5e2d58c56"
     },
     {
       "path": "mod.mod_info",
-      "size": 895,
-      "sha256": "8c6af1f76ea6cf052fc0c0a12b2f4ab2affa0fbb09d002886d5801d2f8efef45"
+      "size": 1167,
+      "sha256": "93b45703aec2dc1c5e906fc5bd7896994ae3cff8d77c7750b120517488f03196"
     },
     {
       "path": "mod.override_info",
@@ -1090,12 +1090,7 @@
     {
       "path": "qa/legacy_battle_actor_scale_qa.json",
       "size": 576503,
-      "sha256": "f0607f63d2118ab9021e224af4b3545d53d9fcf91c2014f79e66b3490aa223e0"
-    },
-    {
-      "path": "qa/legacy_battle_actor_scale_qa.json",
-      "size": 569760,
-      "sha256": "9c01dbb21576674b4883c3be16dbdf81c82fb99244c410c468a320a08aaf00b7"
+      "sha256": "994bfc3b9c57a58b0a207b36e83fcd2899262e0ab5b376f44ca16da306df7f1e"
     },
     {
       "path": "qa/urgot_actor_contact_final.png",
@@ -2174,8 +2169,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 53319,
-      "sha256": "0f0d367930300223aaae587f67987e095f192090441ba4405b38f8d7774c2bef"
+      "size": 57717,
+      "sha256": "8a0c37e889118e49986e92e2c862b10c06c64d44a8d1ce6fed53e949ef60447d"
     },
     {
       "path": "text/item.i18n",
