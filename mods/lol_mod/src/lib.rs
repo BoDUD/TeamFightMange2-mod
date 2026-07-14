@@ -1727,68 +1727,10 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-struct UrgotAbilityInputGate;
-
-impl ModPlayerInputAi for UrgotAbilityInputGate {
-    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
-        Box::new(self.clone())
-    }
-
-    fn id(&self) -> &str {
-        "lol_urgot_ability_input_gate"
-    }
-
-    fn think(
-        &mut self,
-        ctx: &mut PlayerAiContext<'_, '_, '_>,
-        base_input: Option<Input>,
-    ) -> PlayerInputDecision {
-        if !matches!(
-            ctx.champion_name(),
-            "demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳"
-        ) {
-            return PlayerInputDecision::Pass;
-        }
-
-        // Never replace recall or movement. Purge is a cancelable self-cast;
-        // only promote a normal attack after the engine has supplied a legal
-        // enemy target. This keeps W out of empty jungle camps.
-        if matches!(base_input, Some(Input::Return)) {
-            return PlayerInputDecision::Pass;
-        }
-
-        let Some(Input::Attack { target }) = base_input else {
-            return PlayerInputDecision::Pass;
-        };
-
-        // The Demon slot's stock AI was authored for the original melee
-        // transformation kit.  It can keep returning basic attacks even when
-        // Urgot's data-defined W or R is learned and off cooldown.  Promote a
-        // normal attack only when the engine itself confirms that the action
-        // is currently legal; this preserves level, cooldown, range and CC
-        // checks instead of bypassing them with a scripted cast.
-        let ultimate = Input::Ult { target };
-        if ctx.is_valid_input(&ultimate) {
-            return PlayerInputDecision::Replace(ultimate);
-        }
-
-        let purge = Input::Skill {
-            target: InputTarget::None,
-        };
-        if ctx.is_valid_input(&purge) {
-            return PlayerInputDecision::Replace(purge);
-        }
-
-        PlayerInputDecision::Pass
-    }
-}
-
 const URGOT_PASSIVE_COOLDOWN_TICKS: usize = 120;
 const URGOT_PASSIVE_FLAT_DAMAGE: usize = 20;
 const URGOT_PASSIVE_ATTACK_RATIO_PERCENT: usize = 30;
 const URGOT_PASSIVE_TARGET_MAX_HP_PERCENT: usize = 2;
-const URGOT_E_STUN_TICKS: u64 = 60;
 const URGOT_R_EXECUTE_THRESHOLD_PERCENT: usize = 25;
 
 #[derive(Debug)]
@@ -1811,15 +1753,28 @@ impl ModEffectType for UrgotPassiveNativeEffect {
         let InputTarget::Target { target_id } = input else {
             return;
         };
-        let Some((caster_handle, caster_attack)) = ctx
+        // This native callback runs after the data-driven Attack in the same
+        // projectile payload. Reacquire both entities here: that Attack may
+        // already have killed or removed either participant through combat
+        // resolution, retaliation, or another engine-owned effect.
+        let Some((caster_handle, caster_attack, caster_alive)) = ctx
             .get_entity(caster_id)
-            .map(|caster| (caster.handle(), caster.stat().attack))
+            .map(|caster| (caster.handle(), caster.stat().attack, caster.is_alive()))
         else {
             return;
         };
-        let Some(target_max_hp) = ctx.get_entity(target_id).map(|target| target.hp().max) else {
+        if !caster_alive {
+            return;
+        }
+        let Some((target_max_hp, target_alive)) = ctx
+            .get_entity(target_id)
+            .map(|target| (target.hp().max, target.is_alive()))
+        else {
             return;
         };
+        if !target_alive || target_max_hp == 0 {
+            return;
+        }
 
         let now = ctx.tick();
         let Ok(mut cooldowns) = urgot_passive_cooldowns().lock() else {
@@ -1851,35 +1806,6 @@ impl ModEffectType for UrgotPassiveNativeEffect {
 }
 
 #[derive(Clone, Copy, Debug, Default)]
-struct UrgotENativeEffect;
-
-impl ModEffectType for UrgotENativeEffect {
-    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, input: InputTarget) {
-        let InputTarget::Target { target_id } = input else {
-            return;
-        };
-        if !ctx
-            .get_entity(target_id)
-            .is_some_and(|target| target.is_alive())
-        {
-            return;
-        }
-        // Restore the first reviewed E contract: RushMoveToBack crosses the
-        // selected target and Knockback finishes the visible flip behind Urgot.
-        // Keeping Urgot in the original Melee category preserves the close
-        // approach/standing behavior with which that contract was reviewed.
-        // The alive guard rejects a stale id when the preceding hit kills the
-        // target before the hard-disable is applied.
-        ctx.apply_cc(
-            target_id,
-            CCState::Stun {
-                tick: URGOT_E_STUN_TICKS,
-            },
-        );
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default)]
 struct UrgotRCheckNativeEffect;
 
 impl ModEffectType for UrgotRCheckNativeEffect {
@@ -1901,6 +1827,12 @@ impl ModEffectType for UrgotRCheckNativeEffect {
             .saturating_mul(URGOT_R_EXECUTE_THRESHOLD_PERCENT)
             / 100;
         if target_hp.current > execute_limit {
+            return;
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
             return;
         }
 
@@ -1933,6 +1865,12 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
         if !target_alive || target_hp.max == 0 {
             return;
         }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
+            return;
+        }
 
         // Deal enough physical damage to cross current HP and shield, then
         // query the entity again. Undying/invulnerability therefore prevents
@@ -1947,6 +1885,12 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
             .get_entity(target_id)
             .is_some_and(|target| !target.is_alive());
         if !executed {
+            return;
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
             return;
         }
 
@@ -1986,9 +1930,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         },
     );
     registration.add_player_input_ai(XayahFeatherInputGate);
-    registration.add_player_input_ai(UrgotAbilityInputGate);
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
-    registration.add_native_effect("lol_urgot_e_native", UrgotENativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
     registration.set_extension(LolModExtension);

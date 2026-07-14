@@ -18,6 +18,26 @@ def load_validator():
     return module
 
 
+def walk_effects(value):
+    if isinstance(value, dict):
+        if isinstance(value.get("type"), str):
+            yield value
+        for child in value.values():
+            yield from walk_effects(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk_effects(child)
+
+
+def find_effect(value, effect_type: str, **fields):
+    return [
+        effect
+        for effect in walk_effects(value)
+        if effect.get("type") == effect_type
+        and all(effect.get(key) == expected for key, expected in fields.items())
+    ]
+
+
 def test_static_validator_passes() -> None:
     validator = load_validator()
     validator.ERRORS.clear()
@@ -69,10 +89,10 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
         "actor_model",
         "run_cycle",
         "q_icon",
-        "w_icon",
+        "e_icon",
         "r_icon",
         "q_vfx",
-        "w_vfx",
+        "e_vfx",
         "r_vfx",
     }
     assert len(lucian_imagegen["sources"]) == 8
@@ -91,6 +111,132 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
     assert all(entry["volume"] >= 0.85 for entry in [*shen_audio["outputs"], *lucian_audio["outputs"]])
 
 
+def test_shen_q_e_r_contract_uses_stable_three_hit_state_and_path_taunt() -> None:
+    shen = json.loads((MOD / "champion/lol_shen.data_champion").read_text(encoding="utf-8"))
+
+    attack = shen["attack"]
+    switches = find_effect(attack, "SwitchByBuff")
+    assert [switch["buff_name"] for switch in switches] == [
+        "lol_shen_twilight_assault_charge_3",
+        "lol_shen_twilight_assault_charge_2",
+        "lol_shen_twilight_assault_charge_1",
+    ]
+    empowered = find_effect(attack, "ApAttack")
+    assert len(empowered) == 3
+    assert all((effect["damage"], effect["attack_ratio"]) == (20, 20) for effect in empowered)
+    removed = {effect["name"] for effect in find_effect(attack, "RemoveCasterBuff")}
+    assert removed == {
+        "lol_shen_twilight_assault_charge_3",
+        "lol_shen_twilight_assault_charge_2",
+        "lol_shen_twilight_assault_charge_1",
+    }
+    for switch in switches:
+        delayed = [
+            effect
+            for effect in switch["effect_buff"]["effects"]
+            if effect.get("type") == "Delayed"
+        ]
+        assert len(delayed) == 1
+        assert [
+            effect["name"]
+            for effect in delayed[0]["effects"]
+            if effect.get("type") == "RemoveCasterBuff"
+        ] == [switch["buff_name"]]
+    assert not find_effect(attack, "AddCasterBuff")
+
+    q = shen["skill"]
+    assert (
+        q["action_name"], q["cooltime"], q["duration"], q["start_timing"],
+        q["range"], q["casting_type"], q["casting_target"],
+    ) == ("skill", 360, 24, 8, 0, "None", "AllyOnlySelf")
+    assert not find_effect(q, "LinearProjectile")
+    assert not find_effect(q, "RangeProjectile")
+    assert not find_effect(q, "Attack")
+    assert not find_effect(q, "ApAttack")
+    assert not find_effect(q, "Shield")
+    assert find_effect(q, "CasterViewEffect", name="lol_shen_twilight_assault_recall_visual")
+    q_grants = find_effect(q, "AddCasterBuff")
+    assert len(q_grants) == 3
+    assert {
+        effect["buff_state"]["name"]: effect["buff_state"]["duration"]
+        for effect in q_grants
+    } == {
+        "lol_shen_twilight_assault_charge_3": {"Time": {"tick": 480}},
+        "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
+        "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
+    }
+    assert {
+        effect["name"] for effect in find_effect(q, "RemoveCasterBuff")
+    } == {
+        "lol_shen_twilight_assault_charge_3",
+        "lol_shen_twilight_assault_charge_2",
+        "lol_shen_twilight_assault_charge_1",
+    }
+
+    e = shen["skill2"]
+    assert (
+        e["action_name"], e["cooltime"], e["duration"], e["start_timing"],
+        e["range"], e["casting_type"], e["casting_target"],
+    ) == ("skill2", 720, 30, 4, 60000, "Direction", "EnemyChampion")
+    rushes = find_effect(e, "Rush")
+    assert len(rushes) == 1
+    rush = rushes[0]
+    assert (
+        rush["speed"], rush["move_speed_ratio"], rush["range"],
+        rush["casting_target"], rush["penetrate"],
+    ) == (4000, 100, 10000, "EnemyChampion", True)
+    assert find_effect(rush, "Attack", damage=60, attack_ratio=0)
+    assert find_effect(rush, "Taunt", duration=90)
+    taunt_markers = find_effect(rush, "AddBuff")
+    assert len(taunt_markers) == 1
+    assert taunt_markers[0]["buff_state"] == {
+        "name": "lol_shen_shadow_dash_taunted",
+        "duration": {"Time": {"tick": 90}},
+    }
+    assert find_effect(e, "CasterViewEffect", name="lol_shen_shadow_dash_trail")
+    assert find_effect(e, "ViewEffect", name="lol_shen_shadow_dash_impact")
+    assert not find_effect(e, "RangeEffect")
+    assert not find_effect(e, "Shield")
+
+    r = shen["ult"]
+    arrivals = find_effect(r, "Delayed", tick=48)
+    assert len(arrivals) == 1
+    assert find_effect(arrivals[0], "Teleport")
+    assert not find_effect(r, "Taunt")
+    assert not [
+        effect
+        for effect in find_effect(r, "RangeEffect")
+        if effect.get("target") == "EnemyChampion"
+    ]
+
+    serialized = json.dumps(shen, ensure_ascii=False)
+    for retired in ("Spirit's Refuge", "spirit_refuge", "lol_shen_w_", "shen_w"):
+        assert retired not in serialized
+    assert shen["view_projectiles"] == []
+    view_names = {effect["name"] for effect in shen["view_effects"]}
+    assert {
+        "lol_shen_twilight_assault_recall_visual",
+        "lol_shen_twilight_assault_empowered_hit",
+        "lol_shen_shadow_dash_trail",
+        "lol_shen_shadow_dash_impact",
+        "lol_shen_stand_united_guard_visual",
+        "lol_shen_stand_united_arrival_visual",
+    } == view_names
+
+    text = json.loads((MOD / "text/champion.i18n").read_text(encoding="utf-8"))
+    assert "Twilight Assault" in text["en"]["description"]["lol_shen"]["skill"]
+    assert "Shadow Dash" in text["en"]["description"]["lol_shen"]["skill2"]
+    assert "奥义！暮临" in text["zh-hans"]["description"]["lol_shen"]["skill"]
+    assert "奥义！影缚" in text["zh-hans"]["description"]["lol_shen"]["skill2"]
+    assert "奧義！暮臨" in text["zh-hant"]["description"]["lol_shen"]["skill"]
+    assert "奧義！影縛" in text["zh-hant"]["description"]["lol_shen"]["skill2"]
+
+    builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
+    assert '"shen_skill2.png": SOURCE / "shen_e_icon_source_alpha.png"' in builder
+    assert '"shen_e": (SOURCE / "shen_e_vfx_contact_alpha.png"' in builder
+    assert 'zip(icons, ["Q", "E", "R"], strict=True)' in builder
+
+
 def test_shen_and_lucian_hd_surfaces_are_source_direct_and_independent() -> None:
     import sys
 
@@ -107,22 +253,28 @@ def test_shen_and_lucian_hd_surfaces_are_source_direct_and_independent() -> None
     assert "def render_source_direct_ui_subject(" in builder
     assert "def build_source_direct_portrait_set(" in builder
     assert "source_direct_actor_cell(" in builder
-    assert builder.count("actor_scale = 40 / idle_height") >= 2
+    assert "def pack_stable_actor_pose(" in builder
+    assert "base_pose_heights = (36, 36, 36, 36, 36, 35, 35, 35, 35, 35, 36, 33)" in builder
+    assert "base_pose_heights = (36, 36, 36, 36, 36, 36, 34, 34, 39, 36, 35, 14)" in builder
     assert "rewrite_shen_lucian_portrait_render_commands(state);" in runtime
     assert "let is_scoreboard_square = (14.0..=38.0)" in runtime
     assert "let is_compact_square = (39.0..=52.0)" in runtime
     assert "let is_bp_grid = (124.0..=132.0)" in runtime
 
-    for hero, champion_id, actor_name, run_range in (
-        ("shen", "lol_shen", "shen", (38, 42)),
-        ("lucian", "archer", "lucian", (38, 40)),
+    for hero, champion_id, actor_name, idle_height, run_range in (
+        ("shen", "lol_shen", "shen", 36, (36, 36)),
+        ("lucian", "archer", "lucian", 36, (36, 36)),
     ):
         qa = json.loads((MOD / "qa" / f"{hero}_hd_surface_qa.json").read_text(encoding="utf-8"))
         assert qa["source_route"] == "existing processed high-resolution ImageGen idle; no new generation"
         assert qa["skill_logic_changed"] is False
         assert qa["battle_actor"]["uniform_xy_scale"] is True
         assert qa["battle_actor"]["x_only_compression"] is False
-        assert qa["battle_actor"]["first_idle_alpha_bbox"][3] - qa["battle_actor"]["first_idle_alpha_bbox"][1] == 40
+        assert (
+            qa["battle_actor"]["first_idle_alpha_bbox"][3]
+            - qa["battle_actor"]["first_idle_alpha_bbox"][1]
+            == idle_height
+        )
         assert qa["runtime_routing"]["scoreboard_square_px"] == [14, 38]
         assert qa["runtime_routing"]["sidebar_square_px"] == [39, 52]
 
@@ -137,8 +289,8 @@ def test_shen_and_lucian_hd_surfaces_are_source_direct_and_independent() -> None
             actor_sheet,
             actor_anim,
             "idle",
-            min_height=40,
-            max_height=40,
+            min_height=idle_height,
+            max_height=idle_height,
             baseline=45,
             min_unique_frames=2,
         )

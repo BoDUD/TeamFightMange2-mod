@@ -596,78 +596,42 @@ def build_icons() -> list[Path]:
     return outputs
 
 
-def _urgot_w_projectile() -> dict[str, Any]:
-    """One compact Purge round using the engine's proven auto-target route."""
-
-    return {
-        "type": "AutoTargetProjectile",
-        "speed": 7000,
-        "range": 60000,
-        "name": "lol_urgot_w_cannon_projectile",
-        "y_offset": 0,
-        "applied_target": "EnemyWithoutTower",
-        "applied_effects": [
-            {
-                "effect": {
-                    "type": "Combine",
-                    "effects": [
-                        {"type": "Attack", "damage": 8, "attack_ratio": 20},
-                        {
-                            "type": "ViewEffect",
-                            "name": "lol_urgot_w_impact_visual",
-                        },
-                        {"type": "TargetSfx", "name": "lol_urgot_w_shot"},
-                    ],
-                },
-                "casting_type": "Targeting",
-            }
-        ],
-    }
-
-
 def build_gameplay_data() -> Path:
-    """Rebuild W as a pure data-driven self-cast with twelve direct rounds.
+    """Rebuild W as one short, target-bound, data-only Purge burst.
 
-    The previous runtime gate wrote a two-tick marker and read it back inside
-    the same effect batch. The live game can observe that marker one tick late,
-    which deleted Purge and collapsed the channel after its opening pose. The
-    attempted 22-tick replacement then left callbacks queued through tick 221,
-    violating the engine-safe lifetime used by every stable long multishot in
-    this pack. A 240-tick targeted/native replacement still stalled the live
-    simulation. Restore the original engine-safe self-cast shape: no target
-    handle, no Rust channel state, no SwitchByBuff wrapper and no attack lock.
-    The cancelable parent action owns and cancels every delayed round.
+    Four different multishot implementations froze real matches: projectile
+    callbacks near 00:30, AddCasted/Bleed near 02:22, linear projectiles near
+    00:43, and the native entity-scan implementation at first contact (00:25).
+    The last failure emitted three engine ``Option::unwrap(None)`` panics.
+
+    This stability baseline intentionally compresses the twelve intended shots
+    into one ordinary data ``Attack``. It has no Delayed/Native callback, no
+    projectile, no actor/body overlay and no view effect. The short,
+    non-cancelable action also prevents queued callbacks or AI re-entry from
+    outliving the original target.
     """
 
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    pulses = []
-    for tick in range(1, 222, 20):
-        pulses.append(
-            {
-                "type": "Delayed",
-                "tick": tick,
-                "effects": [_urgot_w_projectile()],
-            }
-        )
-
     data["skill"] = {
-        "action_name": "skill1",
+        # The former skill1 action automatically drew the oversized machine-gun
+        # pose over Urgot's body. Reuse the compact basic-fire body contract and
+        # do not restart any animation from the delayed pulse effects.
+        "action_name": "attack",
         "description": "#asset/base/text/champion?description.demon.skill",
-        "duration": 240,
+        "duration": 16,
         "cooltime": 600,
         "start_timing": 1,
-        "cancelable": True,
-        "range": 0,
+        "cancelable": False,
+        "range": 60000,
         "growth_range": 0,
-        "casting_type": "None",
-        "casting_target": "AllyOnlySelf",
+        "casting_type": "Targeting",
+        "casting_target": "EnemyWithoutTower",
         "attack_type": "Skill",
-        "can_use_with_move": True,
+        "can_use_with_move": False,
         "effect": {
             "type": "Combine",
             "effects": [
                 {"type": "Sfx", "name": "lol_urgot_w_cast"},
-                {"type": "CasterAnimation", "name": "skill1", "tick": 8},
                 {
                     "type": "AddCasterBuff",
                     "buff_state": {
@@ -678,13 +642,49 @@ def build_gameplay_data() -> Path:
                         "magic_resistance": 10,
                     },
                 },
-                *pulses,
+                {"type": "Sfx", "name": "lol_urgot_w_shot"},
+                {"type": "Attack", "damage": 96, "attack_ratio": 240},
             ],
         },
     }
 
-    # The removed native channel and two-tick shot marker must not survive as
-    # dead cleanup in R. Canceling the parent action owns queued-round cleanup.
+    # E must finish its displacement through engine-owned data effects.  The
+    # old order applied a native Stun before Knockback, which could freeze the
+    # victim in place and turn Disdain into a caster-only cross-through.  The
+    # proven Kled/Briar collision contract resolves Knockback first and keeps
+    # the victim disabled with Airborne while it travels.  Combined with
+    # RushMoveToBack, this leaves Urgot beyond the target and throws the target
+    # away from Urgot toward the side from which he charged.
+    e_rushes = [
+        effect
+        for effect in data["skill2"]["effect"]["effects"]
+        if effect.get("type") == "RushMoveToBack"
+    ]
+    if len(e_rushes) != 1:
+        raise ValueError("Urgot E must contain exactly one RushMoveToBack")
+    e_rushes[0]["applied_effects"] = [
+        {"type": "Attack", "damage": 70, "attack_ratio": 90},
+        {"type": "Knockback", "speed": 2600, "tick": 8},
+        {"type": "Airborne", "duration": 60},
+        {"type": "ViewEffect", "name": "lol_urgot_e_flip_visual"},
+        {"type": "TargetSfx", "name": "lol_urgot_e_hit"},
+    ]
+
+    # W now has no rendered projectile or impact. Remove both runtime bindings
+    # so stale data cannot resurrect the rejected cannon/body overlay even
+    # though the historical source sheet remains available for QA evidence.
+    data["view_projectiles"] = [
+        binding
+        for binding in data.get("view_projectiles", [])
+        if binding.get("name") != "lol_urgot_w_cannon_projectile"
+    ]
+    data["view_effects"] = [
+        binding
+        for binding in data.get("view_effects", [])
+        if binding.get("name") != "lol_urgot_w_impact_visual"
+    ]
+
+    # Removed experimental channel markers/native cleanup must not survive in R.
     data["ult"]["effect"]["effects"] = [
         effect
         for effect in data["ult"]["effect"]["effects"]

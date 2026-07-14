@@ -279,7 +279,7 @@ def test_sivir_preserves_native_animation_tags_counts_timings_and_transparent_de
     for row in anim["run"]["frames"]:
         data = row["data"]
         frame = sheet.crop((data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"]))
-        assert frame.getchannel("A").getbbox()[3] == 46
+        assert frame.getchannel("A").getbbox()[3] == 45
         run_hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
     assert len(set(run_hashes)) == 8
     attack_hashes = []
@@ -308,34 +308,34 @@ def test_sivir_legacy_hd_actor_and_each_ui_surface_use_their_own_safe_crop() -> 
         sheet_path,
         anim_path,
         "idle",
-        min_height=44,
-        max_height=44,
-        baseline=46,
+        min_height=36,
+        max_height=36,
+        baseline=45,
         min_unique_frames=2,
     )
     run_bboxes = assert_actor_tag_scale(
         sheet_path,
         anim_path,
         "run",
-        min_height=43,
-        max_height=45,
-        baseline=46,
+        min_height=35,
+        max_height=37,
+        baseline=45,
         min_unique_frames=8,
     )
     ult_bboxes = assert_actor_tag_scale(
         sheet_path,
         anim_path,
         "ult",
-        min_height=42,
-        max_height=44,
-        baseline=46,
+        min_height=35,
+        max_height=36,
+        baseline=45,
         min_unique_frames=3,
     )
     # The accepted source subjects are 179x212 (idle A) and 222x231 (run A).
     # Their packed bboxes retain those ratios: no x-only compression is used.
     assert_uniform_aspect_ratio((179, 212), idle_bboxes[0], tolerance=0.04)
     assert_uniform_aspect_ratio((222, 231), run_bboxes[0], tolerance=0.04)
-    assert ult_bboxes[0][3] - ult_bboxes[0][1] == 42
+    assert ult_bboxes[0][3] - ult_bboxes[0][1] == 36
     assert_readable_upper_detail(animation_frames(sheet_path, anim_path, "idle")[0])
 
     surfaces = assert_legacy_hd_portrait_set(

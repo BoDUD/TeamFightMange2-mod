@@ -124,13 +124,44 @@ def test_urgot_stats_attack_contract_and_wer_only_slots():
     assert forbidden_active_slots.isdisjoint(champion)
 
     i18n = load_json("text/champion.i18n")
-    for locale in ("en", "zh-hans", "zh-hant", "ja"):
+    w_copy_contract = {
+        "en": ("one valid non-tower enemy", "96 + 240% Attack", "chosen direction", "12 rapid pulses"),
+        "zh-hans": (
+            "\u4e00\u4e2a\u5408\u6cd5\u7684\u975e\u9632\u5fa1\u5854\u654c\u4eba",
+            "96 + 240%\u653b\u51fb\u529b",
+            "\u9009\u5b9a\u65b9\u5411",
+            "\u5feb\u901f\u653b\u51fb12\u6b21",
+        ),
+        "zh-hant": (
+            "\u4e00\u500b\u5408\u6cd5\u7684\u975e\u9632\u79a6\u5854\u6575\u4eba",
+            "96 + 240%\u653b\u64ca\u529b",
+            "\u9078\u5b9a\u65b9\u5411",
+            "\u5feb\u901f\u653b\u64ca12\u6b21",
+        ),
+        "ja": (
+            "\u6709\u52b9\u306a\u30bf\u30ef\u30fc\u4ee5\u5916\u306e\u65751\u4f53",
+            "96 + \u653b\u6483\u529b\u306e240%",
+            "\u6307\u5b9a\u65b9\u5411",
+            "\u8a0812\u56de",
+        ),
+        "ko": (
+            "\uc720\ud6a8\ud55c \ud3ec\ud0d1\uc774 \uc544\ub2cc \uc801 \ud558\ub098",
+            "96 + \uacf5\uaca9\ub825\uc758 240%",
+            "\uc9c0\uc815\ud55c \ubc29\ud5a5",
+            "\ucd1d 12\ud68c\uc758",
+        ),
+    }
+    for locale, (target_copy, damage_copy, retired_direction_copy, retired_pulse_copy) in w_copy_contract.items():
         text = i18n[locale]["description"]["demon"]
         assert text["name"]
         assert text["skill"].lstrip().startswith("W")
         assert text["skill2"].lstrip().startswith("E")
         assert text["ult"].lstrip().startswith("R")
         assert not text["skill"].lstrip().startswith("Q")
+        assert target_copy in text["skill"]
+        assert damage_copy in text["skill"]
+        assert retired_direction_copy not in text["skill"]
+        assert retired_pulse_copy not in text["skill"]
 
 
 def test_echoing_flames_is_a_real_native_two_second_shotgun_cooldown():
@@ -150,26 +181,64 @@ def test_echoing_flames_is_a_real_native_two_second_shotgun_cooldown():
     assert "target_max_hp.saturating_mul(URGOT_PASSIVE_TARGET_MAX_HP_PERCENT)" in source
     assert "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);" in source
 
+    passive_impl = re.search(
+        r"impl ModEffectType for UrgotPassiveNativeEffect \{(?P<body>.*?)\n\}",
+        source,
+        re.DOTALL,
+    )
+    assert passive_impl
+    body = passive_impl.group("body")
+    caster_snapshot = body.index(
+        ".map(|caster| (caster.handle(), caster.stat().attack, caster.is_alive()))"
+    )
+    caster_reject = body.index("if !caster_alive")
+    target_snapshot = body.index(
+        ".map(|target| (target.hp().max, target.is_alive()))"
+    )
+    target_reject = body.index("if !target_alive || target_max_hp == 0")
+    cooldown_write = min(
+        body.index("cooldown.ready_tick ="), body.index("cooldowns.push(")
+    )
+    deal_damage = body.index(
+        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);"
+    )
+    assert (
+        caster_snapshot
+        < caster_reject
+        < target_snapshot
+        < target_reject
+        < cooldown_write
+        < deal_damage
+    )
 
-def test_w_keeps_all_twelve_delayed_shots_inside_a_cancelable_240_tick_action():
+
+def test_w_is_one_short_data_attack_without_scheduler_native_or_body_overlay():
     champion = load_json("champion/demon.data_champion")
     w = champion["skill"]
     assert w["cooltime"] == 600
-    assert w["duration"] == 240
-    assert w["cancelable"] is True
-    assert w["can_use_with_move"] is True
-    assert (w["range"], w["casting_type"], w["casting_target"]) == (
-        0,
-        "None",
-        "AllyOnlySelf",
+    assert (
+        w["action_name"],
+        w["duration"],
+        w["start_timing"],
+        w["cancelable"],
+        w["range"],
+        w["casting_type"],
+        w["casting_target"],
+        w["can_use_with_move"],
+    ) == (
+        "attack",
+        16,
+        1,
+        False,
+        60000,
+        "Targeting",
+        "EnemyWithoutTower",
+        False,
     )
-    assert not find_effect(w, "Native")
-    cast_animations = find_effect(w, "CasterAnimation")
-    assert cast_animations == [{
-        "type": "CasterAnimation",
-        "name": "skill1",
-        "tick": 8,
-    }]
+    assert not find_effect(w, "CasterAnimation")
+    assert not find_effect(w, "CasterViewEffect")
+    assert not find_effect(w, "ViewEffect")
+    assert not find_effect(w, "TargetSfx")
 
     purge = find_effect(w, "AddCasterBuff")
     assert len(purge) == 1
@@ -180,92 +249,69 @@ def test_w_keeps_all_twelve_delayed_shots_inside_a_cancelable_240_tick_action():
     assert buff["defence"] == 20
     assert buff["magic_resistance"] == 10
 
-    delayed = find_effect(w, "Delayed")
-    assert sorted(effect["tick"] for effect in delayed) == list(range(1, 222, 20))
-    assert max(effect["tick"] for effect in delayed) < w["duration"]
-    projectiles = find_effect(
-        w, "AutoTargetProjectile", name="lol_urgot_w_cannon_projectile"
-    )
-    assert len(projectiles) == 12
-    assert not find_effect(w, "TargetProjectile", name="lol_urgot_w_cannon_projectile")
-    for pulse in delayed:
-        assert len(
-            find_effect(
-                pulse,
-                "AutoTargetProjectile",
-                name="lol_urgot_w_cannon_projectile",
-            )
-        ) == 1
-        assert not find_effect(pulse, "SwitchByBuff")
-        assert not find_effect(pulse, "CasterAnimation")
-        assert not find_effect(pulse, "Native")
-    assert not find_effect(w, "CasterViewEffect", name="lol_urgot_w_muzzle_visual")
-    for projectile in projectiles:
-        assert projectile["speed"] == 7000
-        assert projectile["range"] == 60000
-        assert projectile["applied_target"] == "EnemyWithoutTower"
-        hits = find_effect(projectile, "Attack")
-        assert len(hits) == 1
-        assert hits[0]["damage"] == 8
-        assert hits[0]["attack_ratio"] == 20
-        assert len(
-            find_effect(
-                projectile,
-                "ViewEffect",
-                name="lol_urgot_w_impact_visual",
-            )
-        ) == 1
+    # Every scheduled/native/projectile W route froze in live play. The stable
+    # fallback compresses the old twelve 8 + 20% pulses into one engine-owned
+    # 96 + 240% Attack hit against the action's validated non-tower target.
+    serialized_w = json.dumps(w)
+    assert "Projectile" not in serialized_w
+    for forbidden_type in (
+        "RangePeriod",
+        "RangePeriodProjectile",
+        "AddCasted",
+        "Delayed",
+        "Native",
+    ):
+        assert not find_effect(w, forbidden_type)
+    assert find_effect(w, "Attack") == [
+        {"type": "Attack", "damage": 96, "attack_ratio": 240}
+    ]
+    assert find_effect(w, "Sfx") == [
+        {"type": "Sfx", "name": "lol_urgot_w_cast"},
+        {"type": "Sfx", "name": "lol_urgot_w_shot"},
+    ]
 
     source = RUST_PATH.read_text(encoding="utf-8")
-    assert "const URGOT_W_CHANNEL_TICKS" not in source
-    assert "URGOT_W_CHANNELS" not in source
-    assert "const URGOT_W_SHOT_LOCK_TICKS" not in source
-    assert "const URGOT_W_BLOCK_ATTACK_TICKS" not in source
-    assert "struct UrgotWChannelState" not in source
-    assert "UrgotWNativeEffect" not in source
-    assert "UrgotWCancelNativeEffect" not in source
-    assert "UrgotWShotGateNativeEffect" not in source
-    assert "lol_urgot_w_native" not in source
-    assert "lol_urgot_w_cancel_native" not in source
-    assert "lol_urgot_w_shot_gate_native" not in source
-    assert "lol_urgot_w_shot_ready" not in source
+    for retired_symbol in (
+        "URGOT_W_CHANNEL_TICKS",
+        "URGOT_W_CHANNELS",
+        "URGOT_W_SHOT_LOCK_TICKS",
+        "URGOT_W_BLOCK_ATTACK_TICKS",
+        "UrgotWChannelState",
+        "UrgotWNativeEffect",
+        "UrgotWCancelNativeEffect",
+        "UrgotWShotGateNativeEffect",
+        "lol_urgot_w_cancel_native",
+        "lol_urgot_w_shot_gate_native",
+        "lol_urgot_w_shot_ready",
+        "URGOT_W_RANGE",
+        "URGOT_W_FLAT_DAMAGE",
+        "URGOT_W_ATTACK_RATIO_PERCENT",
+        "UrgotWPulseNativeEffect",
+        "lol_urgot_w_pulse_native",
+        "UrgotAbilityInputGate",
+    ):
+        assert retired_symbol not in source
 
-    builder = (MOD / "tools/build_urgot.py").read_text(encoding="utf-8")
-    assert "for tick in range(1, 222, 20):" in builder
-    assert "def _urgot_w_projectile()" in builder
-    assert "gameplay_data = build_gameplay_data()" in builder
-
-    # Purge is represented by twelve firing poses/single projectiles, not a
-    # giant persistent aura or an incorrectly body-centred muzzle effect.
+    # No runtime W projectile/effect binding or skill1 animation may resurrect
+    # the rejected body-covering machine-gun presentation.
     assert champion["view_buffs"] == []
-    assert not any(
-        effect.get("name") == "lol_urgot_w_muzzle_visual"
-        for effect in champion["view_effects"]
-    )
+    runtime_views = [*champion["view_projectiles"], *champion["view_effects"]]
+    assert all(not view.get("name", "").startswith("lol_urgot_w_") for view in runtime_views)
+    assert "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon" not in json.dumps(runtime_views)
 
 
-def test_urgot_ai_promotes_legal_attacks_to_learned_r_then_w():
+def test_urgot_uses_engine_data_ai_without_the_panicking_input_gate():
     source = RUST_PATH.read_text(encoding="utf-8")
-    gate = re.search(
-        r"impl ModPlayerInputAi for UrgotAbilityInputGate \{(?P<body>.*?)\n\}",
-        source,
-        re.DOTALL,
-    )
-    assert gate
-    body = gate.group("body")
-    assert '"demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳"' in body
-    recall = body.index("matches!(base_input, Some(Input::Return))")
-    attack_gate = body.index("let Some(Input::Attack { target }) = base_input")
-    assert recall < attack_gate
-    assert "urgot_w_active_target_for_ai" not in body
-    assert "urgot_w_cancel_for_ai" not in body
-    assert "let ultimate = Input::Ult { target };" in body
-    assert "ctx.is_valid_input(&ultimate)" in body
-    assert "let purge = Input::Skill {" in body
-    assert "target: InputTarget::None" in body
-    assert "ctx.is_valid_input(&purge)" in body
-    assert body.index("Input::Ult") < body.index("Input::Skill")
-    assert "registration.add_player_input_ai(UrgotAbilityInputGate);" in source
+    # Mod API Input::Attack can carry Target, Dir, Pos or None. Reusing that
+    # value in a Targeting Ult/Skill validity call produced the first-contact
+    # Option::unwrap(None) path, so Urgot no longer has a Rust input AI at all.
+    for retired_gate_token in (
+        "struct UrgotAbilityInputGate",
+        "impl ModPlayerInputAi for UrgotAbilityInputGate",
+        "registration.add_player_input_ai(UrgotAbilityInputGate);",
+        '"lol_urgot_ability_input_gate"',
+    ):
+        assert retired_gate_token not in source
 
 
 def test_r_clears_persistent_purge_before_launching():
@@ -277,7 +323,7 @@ def test_r_clears_persistent_purge_before_launching():
     assert "lol_urgot_w_shot_ready" not in json.dumps(r)
 
 
-def test_e_restores_the_first_reviewed_rush_behind_and_flip_contract():
+def test_e_uses_a_pure_data_cross_then_knockback_flip_contract():
     champion = load_json("champion/demon.data_champion")
     e = champion["skill2"]
     assert e["cooltime"] == 420
@@ -303,21 +349,27 @@ def test_e_restores_the_first_reviewed_rush_behind_and_flip_contract():
     assert len(hit) == 1
     assert hit[0]["damage"] == 70
     assert hit[0]["attack_ratio"] == 90
-    assert len(find_effect(rush, "Native", effect_ref="lol_urgot_e_native")) == 1
     assert find_effect(rush, "Knockback") == [
         {"type": "Knockback", "speed": 2600, "tick": 8}
     ]
+    assert find_effect(rush, "Airborne") == [
+        {"type": "Airborne", "duration": 60}
+    ]
+    assert [effect["type"] for effect in rush["applied_effects"]] == [
+        "Attack",
+        "Knockback",
+        "Airborne",
+        "ViewEffect",
+        "TargetSfx",
+    ]
+    assert not find_effect(e, "Native")
+    assert not find_effect(e, "Delayed")
     assert not find_effect(e, "Grab")
 
     source = RUST_PATH.read_text(encoding="utf-8")
-    assert "const URGOT_E_STUN_TICKS: u64 = 60;" in source
-    assert re.search(
-        r"impl ModEffectType for UrgotENativeEffect.*?get_entity\(target_id\).*?"
-        r"is_some_and\(\|target\| target\.is_alive\(\)\).*?CCState::Stun\s*\{\s*"
-        r"tick: URGOT_E_STUN_TICKS",
-        source,
-        re.DOTALL,
-    )
+    assert "URGOT_E_STUN_TICKS" not in source
+    assert "UrgotENativeEffect" not in source
+    assert "lol_urgot_e_native" not in source
 
 
 def test_r_is_non_piercing_pull_and_true_25_percent_execute_check():
@@ -430,6 +482,20 @@ def test_r_fear_and_splash_exist_only_on_confirmed_successful_execution():
     assert "target_hp.current > execute_limit" in check_body
     assert 'ready.name = "lol_urgot_r_execute_ready"' in check_body
     assert "ctx.add_buff(caster_id, ready);" in check_body
+    threshold_reject = check_body.index("if target_hp.current > execute_limit")
+    check_caster = check_body.index(".get_entity(caster_id)")
+    check_caster_alive = check_body.index(
+        ".is_some_and(|caster| caster.is_alive())"
+    )
+    ready_marker = check_body.index('ready.name = "lol_urgot_r_execute_ready"')
+    ready_add_buff = check_body.index("ctx.add_buff(caster_id, ready);")
+    assert (
+        threshold_reject
+        < check_caster
+        < check_caster_alive
+        < ready_marker
+        < ready_add_buff
+    )
 
     execute_impl = re.search(
         r"impl ModEffectType for UrgotRExecuteNativeEffect \{(?P<body>.*?)\n\}",
@@ -438,18 +504,41 @@ def test_r_fear_and_splash_exist_only_on_confirmed_successful_execution():
     )
     assert execute_impl
     body = execute_impl.group("body")
+    caster_lookups = [
+        match.start() for match in re.finditer(r"\.get_entity\(caster_id\)", body)
+    ]
+    caster_alive_checks = [
+        match.start()
+        for match in re.finditer(
+            r"\.is_some_and\(\|caster\| caster\.is_alive\(\)\)", body
+        )
+    ]
+    assert len(caster_lookups) == 2
+    assert len(caster_alive_checks) == 2
+    deal_damage = body.index(
+        "ctx.deal_damage(caster_id, target_id, lethal_damage, 0, AttackType::Skill);"
+    )
     confirm = body.index(".is_some_and(|target| !target.is_alive())")
     reject = body.index("if !executed")
     marker = body.index('success.name = "lol_urgot_r_execute_success"')
     add_buff = body.index("ctx.add_buff(caster_id, success);")
-    assert confirm < reject < marker < add_buff
+    assert (
+        caster_lookups[0]
+        < caster_alive_checks[0]
+        < deal_damage
+        < confirm
+        < reject
+        < caster_lookups[1]
+        < caster_alive_checks[1]
+        < marker
+        < add_buff
+    )
 
 
-def test_all_four_urgot_native_effects_are_registered_without_replacing_champion():
+def test_only_passive_and_r_urgot_native_effects_remain_registered():
     source = RUST_PATH.read_text(encoding="utf-8")
     expected = {
         "lol_urgot_passive_native": "UrgotPassiveNativeEffect",
-        "lol_urgot_e_native": "UrgotENativeEffect",
         "lol_urgot_r_check_native": "UrgotRCheckNativeEffect",
         "lol_urgot_r_execute_native": "UrgotRExecuteNativeEffect",
     }
@@ -460,6 +549,10 @@ def test_all_four_urgot_native_effects_are_registered_without_replacing_champion
             source,
         )
         assert f"struct {implementation};" in source
+    assert "lol_urgot_w_pulse_native" not in source
+    assert "UrgotWPulseNativeEffect" not in source
+    assert "lol_urgot_e_native" not in source
+    assert "UrgotENativeEffect" not in source
     assert "replace_champion" not in source
 
 
@@ -478,12 +571,12 @@ def test_urgot_localization_view_style_and_vfx_routes_are_wired():
     serialized = json.dumps(champion, ensure_ascii=False)
     for effect_asset in (
         "asset/lol_mod/aseprite_resources/effects/urgot_attack",
-        "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon",
         "asset/lol_mod/aseprite_resources/effects/urgot_e_disdain",
         "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
         "asset/lol_mod/aseprite_resources/effects/urgot_r_execute",
     ):
         assert effect_asset in serialized
+    assert "asset/lol_mod/aseprite_resources/effects/urgot_w_cannon" not in serialized
 
     expected_sfx = {
         "lol_urgot_attack_cast",
@@ -502,6 +595,9 @@ def test_urgot_localization_view_style_and_vfx_routes_are_wired():
         {effect["name"] for effect in find_effect(champion, "Sfx")}
         | {effect["name"] for effect in find_effect(champion, "TargetSfx")}
     )
+    # The stable fallback has one cast cue and one immediate shot cue; neither
+    # is dispatched from a delayed/native/projectile callback.
+    assert len(find_effect(champion["skill"], "Sfx", name="lol_urgot_w_shot")) == 1
 
     for binding in [*champion["view_projectiles"], *champion["view_effects"]]:
         anim_path = (
