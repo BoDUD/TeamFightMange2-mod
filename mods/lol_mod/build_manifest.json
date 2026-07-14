@@ -34,13 +34,13 @@
     },
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 11534,
-      "sha256": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c"
+      "size": 18627,
+      "sha256": "10efb0757b6b5955777a9bc970b61703df90bb153cefbcf286d31a716feac6d2"
     },
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 344221,
-      "sha256": "c38bfb5b02f845d29ae85d3bf3f2497e6690c26793d30d449a251b8596eabbec"
+      "size": 360605,
+      "sha256": "4731b9b608ee8343f3bd949799b90ee91be3e272ba4cb439f22a15d433fab263"
     },
     {
       "path": "aseprite_resources/champions/orianna#anim.fanim",
@@ -1089,8 +1089,8 @@
     },
     {
       "path": "qa/legacy_battle_actor_scale_qa.json",
-      "size": 576503,
-      "sha256": "994bfc3b9c57a58b0a207b36e83fcd2899262e0ab5b376f44ca16da306df7f1e"
+      "size": 642868,
+      "sha256": "d6fb3328831807ea8622dd4c54278185dcbbea08bb73d8382169b9bdaec176ba"
     },
     {
       "path": "qa/urgot_actor_contact_final.png",
