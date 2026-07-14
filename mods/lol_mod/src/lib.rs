@@ -51,6 +51,18 @@ const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;
 const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;
 const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;
 const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
+// Official 009 Dual Blader's native idle frame is 43x55 and the Ban/Pick
+// surface renders it at 3x.  Keep its settled 129x165 actor centre distinct
+// from both the 90x122 hero-grid portrait and the generic 137x184 contract.
+const BP_DUAL_BLADER_ACTOR_WIDTH: f32 = 129.0;
+const BP_DUAL_BLADER_ACTOR_HEIGHT: f32 = 165.0;
+// Live 0.10.0 telemetry records Dual Blader's picked-side slide from
+// 114.4x134.1 through 129x165.  These limits deliberately remain disjoint
+// from the 84..96x108..130 centre-grid portrait contract below.
+const BP_DUAL_BLADER_TRANSITION_MIN_WIDTH: f32 = 112.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_WIDTH: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT: f32 = 168.0;
 const KLED_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/cavalry_knight#sheet",
     "asset/lol_mod/aseprite_resources/champions/kled#sheet",
@@ -69,7 +81,14 @@ const URGOT_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait
 const URGOT_SCOREBOARD_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_portrait/demon_scoreboard";
 const URGOT_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/demon_grid";
-const SPLASH_SPECS: [(&str, &str); 8] = [
+const YONE_ACTOR_SHEET_TEXTURES: [&str; 2] = [
+    "asset/base/aseprite_resources/champions/dual_blader#sheet",
+    "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+];
+const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dual_blader_compact";
+const YONE_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dual_blader_grid";
+const SPLASH_SPECS: [(&str, &str); 9] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -87,6 +106,7 @@ const SPLASH_SPECS: [(&str, &str); 8] = [
     ),
     ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
     ("demon", "asset/lol_mod/BanPickIllust/demon"),
+    ("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader"),
 ];
 const SHEN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_compact";
 const SHEN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
@@ -244,6 +264,7 @@ impl ModExtension for LolModExtension {
         rewrite_shen_lucian_portrait_render_commands(state);
         rewrite_orianna_briar_portrait_render_commands(state);
         rewrite_sivir_urgot_portrait_render_commands(state);
+        rewrite_yone_portrait_render_commands(state);
     }
 }
 
@@ -508,6 +529,86 @@ fn rewrite_legacy_portrait_render_commands(
                 *x = center_x - *w * 0.5;
                 *y = center_y - *h * 0.5;
                 grid
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
+    }
+}
+
+fn is_yone_actor_sheet_texture(texture: &str) -> bool {
+    YONE_ACTOR_SHEET_TEXTURES.contains(&texture)
+        || texture.contains("/aseprite_resources/champions/dual_blader")
+        || texture.contains("/aseprite_resources/champions/yone")
+}
+
+fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
+    if !(14.0..=52.0).contains(&width) || !(14.0..=64.0).contains(&height) {
+        return false;
+    }
+    let short_side = width.min(height);
+    let long_side = width.max(height);
+    short_side >= 14.0 && long_side / short_side <= 1.50
+}
+
+fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
+    (84.0..=96.0).contains(&width) && (108.0..=130.0).contains(&height)
+}
+
+fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !is_yone_actor_sheet_texture(texture.as_str()) {
+                continue;
+            }
+
+            // Scoreboard and battle-side-list commands preserve the native
+            // actor frame's slight portrait aspect ratio (for example 18x26
+            // and 30x38), so a square-only test silently left the tiny full
+            // body actor in place. Route both compact geometries to the
+            // dedicated head/shoulder crop and square the destination around
+            // its original centre to avoid stretching the face.
+            let is_compact = is_yone_compact_portrait_geometry(*w, *h);
+            let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);
+            let replacement = if is_compact {
+                let center_x = *x + *w * 0.5;
+                let center_y = *y + *h * 0.5;
+                let side = (*w).max(*h).min(52.0);
+                *w = side;
+                *h = side;
+                *x = center_x - side * 0.5;
+                *y = center_y - side * 0.5;
+                YONE_COMPACT_PORTRAIT_TEXTURE
+            } else if is_bp_grid {
+                YONE_BP_GRID_PORTRAIT_TEXTURE
             } else {
                 continue;
             };
@@ -897,6 +998,7 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("cavalry_knight", "lol_fullbody_kled"),
         ("dancer", "lol_fullbody_xayah"),
         ("demon", "lol_fullbody_urgot"),
+        ("dual_blader", "lol_fullbody_yone"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -977,7 +1079,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.9;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.10;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1248,6 +1350,16 @@ fn bp_actor_contract(champion_id: &str) -> BpActorContract {
             max_height: BP_DANCER_TRANSITION_MAX_HEIGHT,
         };
     }
+    if champion_id == "dual_blader" {
+        return BpActorContract {
+            width: BP_DUAL_BLADER_ACTOR_WIDTH,
+            height: BP_DUAL_BLADER_ACTOR_HEIGHT,
+            min_width: BP_DUAL_BLADER_TRANSITION_MIN_WIDTH,
+            max_width: BP_DUAL_BLADER_TRANSITION_MAX_WIDTH,
+            min_height: BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT,
+            max_height: BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT,
+        };
+    }
     BpActorContract {
         width: BP_NATIVE_ACTOR_WIDTH,
         height: BP_NATIVE_ACTOR_HEIGHT,
@@ -1357,6 +1469,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
         "xayah" | "dancer" => Some("dancer"),
         "urgot" | "demon" => Some("demon"),
+        "yone" | "dual_blader" => Some("dual_blader"),
         _ => None,
     }
 }

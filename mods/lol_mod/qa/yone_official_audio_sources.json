@@ -1,0 +1,1009 @@
+{
+  "schema_version": 1,
+  "champion": "Yone",
+  "replacement_id": "dual_blader",
+  "source_product": "League of Legends",
+  "source_wad": {
+    "path": "Game/DATA/FINAL/Champions/Yone.wad.client (local League install)",
+    "size_bytes": 167594017,
+    "sha256": "e2ba1213c33e90972369091d3cc5bc9dfc7e05dcf93bd5d2d2ea95f5eb8f2b86",
+    "role": "authoritative base-skin gameplay SFX source"
+  },
+  "localized_wad": {
+    "path": "Game/DATA/FINAL/Champions/Yone.en_US.wad.client (local League install)",
+    "size_bytes": 26048051,
+    "sha256": "1d890a865b381c8bcf23c8152a3fe4eb6527b4746515b3069d75126d33687511",
+    "role": "pinned localized source audited for provenance; no dialogue/VO is selected because this pass uses gameplay SFX only"
+  },
+  "base_registry": {
+    "virtual_path": "data/characters/yone/skins/skin0.bin",
+    "wad_path_hash": "75d1aee7cd24ec51",
+    "size_bytes": 242465,
+    "sha256": "aee952d9f131e420f63d763bf76c280230787cd19e89f43f9f432bd8834b8958",
+    "role": "authoritative source of exact Riot event-name strings"
+  },
+  "internal_audio_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/yone/skins/base/yone_base_sfx_audio.bnk",
+    "wad_path_hash": "11d9e5a6e935a89a",
+    "wad_offset": 111244233,
+    "size_bytes": 1593203,
+    "media_count": 78,
+    "sha256": "e3f5f4e8334d3779355fb861a9fa8bba284194b4e52a6610bdfc10724169caf5"
+  },
+  "internal_event_bank": {
+    "virtual_path": "assets/sounds/wwise2016/sfx/characters/yone/skins/base/yone_base_sfx_events.bnk",
+    "wad_path_hash": "ef999c04f1bf053b",
+    "size_bytes": 13992,
+    "sha256": "85862cb6095b9c0412be011be4eb567ed380694eaacc424ac00fb1a757a38934"
+  },
+  "mapping_tools": {
+    "wad_reader": {
+      "name": "LeagueToolkit wadtools",
+      "version": "0.5.6",
+      "sha256": "c11b60cc8016c3d986eceb91c3c9fd74e4440416ba2a215af1135f36bd0fa866"
+    },
+    "path_hashtable": {
+      "name": "CommunityDragon hashes.game.txt",
+      "size_bytes": 207968174,
+      "sha256": "f7d5e73ff1c4b7b4630cef6d4bafe3d1b7a80a2f51e3bf9d4db4e018954d041b"
+    },
+    "event_resolver": {
+      "name": "wwiser",
+      "version": "v20250928",
+      "sha256": "fdcb850ad19d827190a1eb137c2caa02c40671e15c379a6c9a477d2a5237bf53",
+      "contract": "each pinned Riot event ID resolves to its recorded complete WEM pool; attack-hit material switches are audited separately from the selected blade layer"
+    },
+    "decoder": {
+      "name": "vgmstream-cli",
+      "sha256": "894cff498bbb7d43fcbae63aac9dc19ebbef8f37c9889c4a9e51de407b5f3c07",
+      "arguments": [
+        "-i",
+        "-W",
+        "1"
+      ],
+      "output_contract": "mono 16-bit PCM 44100 Hz"
+    }
+  },
+  "dual_sword_attack_identity": {
+    "source_event_contract": "Riot's base skin exposes one shared randomized basic-attack cast event and one shared hit event; neither event labels variants as steel or Azakana.",
+    "stable_mod_assignment": {
+      "steel_cast": {
+        "runtime_event": "lol_yone_attack_steel_cast",
+        "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnCast",
+        "media_id": 71487904
+      },
+      "azakana_cast": {
+        "runtime_event": "lol_yone_attack_azakana_cast",
+        "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnCast",
+        "media_id": 2465604
+      },
+      "steel_hit": {
+        "runtime_event": "lol_yone_attack_steel_hit",
+        "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnHit",
+        "media_id": 4593285
+      },
+      "azakana_hit": {
+        "runtime_event": "lol_yone_attack_azakana_hit",
+        "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnHit",
+        "media_id": 52943608
+      }
+    },
+    "mod_contract": "The first two distinct official cast variants and first two distinct common blade-hit variants are pinned to alternating swords so steel and Azakana always remain audibly different across deterministic rebuilds."
+  },
+  "selection_policy": "Verified official base-skin one-shots only: two distinct basic-attack cast variants plus two distinct common blade-hit variants are assigned to steel and Azakana; normal Q cast/hit, empowered Q3 cast/hit, W cast/hit/shield, and R cast/dash/initial/residual stages retain their official events. The terminal R echo pins the unused second official base-skin R-cast variant as independent media and retains its complete tail. Continuous ambience, VO, skin variants, and material-specific attack surface layers are excluded.",
+  "r_runtime_audio_contract": {
+    "slash_target_frames": 8820,
+    "slash_target_duration_seconds": 0.2,
+    "slash_fade_out_frames": 1764,
+    "slash_fade_out_duration_seconds": 0.04,
+    "slash_volume": 0.55,
+    "echo_media_id": 862736579,
+    "echo_retains_complete_source": true,
+    "echo_volume": 0.55,
+    "reason": "Six rapid adapted R strikes need click-safe 0.20-second one-shots; the terminal echo instead uses independent official media with its full decay."
+  },
+  "native_audio_isolation": {
+    "reason": "The same-ID native Dual Blader action layer can auto-dispatch its original attack/Q/W/R audio in addition to explicit Yone effects.",
+    "strategy": "Remap all four native events and every discovered native Dual Blader clip to one deterministic physical-silence asset.",
+    "native_events": [
+      "dual_blader_attack",
+      "dual_blader_skill",
+      "dual_blader_skill2",
+      "dual_blader_ult"
+    ],
+    "native_clips": [
+      "duel_blader_attack0",
+      "duel_blader_attack1",
+      "duel_blader_skill0",
+      "duel_blader_skill1",
+      "dual_blader_skill_resource",
+      "dual_blader_skill2_resource",
+      "duel_blader_ult0"
+    ],
+    "silence": {
+      "sound_info": {
+        "path": "sound/sfx/yone_native_silence.sound_info",
+        "size_bytes": 73,
+        "sha256": "5813c5b2731e5a659c6c74abb46052739398b501c575f06557fdca7a13c07645",
+        "clip": "yone_native_silence_clip",
+        "volume": 1.0
+      },
+      "wav": {
+        "path": "sound/sfx/yone_native_silence_clip.wav",
+        "size_bytes": 4454,
+        "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 2205,
+        "duration_seconds": 0.05,
+        "compression": "NONE",
+        "pcm_contract": "all-zero samples"
+      }
+    }
+  },
+  "outputs": [
+    {
+      "event_key": "lol_yone_attack_steel_cast",
+      "runtime_event": "lol_yone_attack_steel_cast",
+      "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnCast",
+      "riot_event_id": 1242050256,
+      "event_media_pool": [
+        71487904,
+        2465604,
+        17265215,
+        504802946
+      ],
+      "selection_media_pool": [
+        71487904,
+        2465604,
+        17265215,
+        504802946
+      ],
+      "media_id": 71487904,
+      "source_wem_size_bytes": 10445,
+      "source_wem_sha256": "881a5e60b368681f43cda756d90ae06652101f59fdf58cabbd1eb8bc2305062e",
+      "selection_note": "first official shared attack-cast variant, deterministically assigned to the steel sword",
+      "dispatch_contract": "top-level Sfx on a committed steel-sword basic attack",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_attack_steel_cast.sound_info",
+        "size_bytes": 80,
+        "sha256": "40bfc3c60f2544e4d5bff847590de2854df14aa50abd61cf777e12db9ea45aff",
+        "clip": "lol_yone_attack_steel_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 105658,
+        "sha256": "8bfe795a23f2fe047ddc01f2a5b9a7950b77adf8c8df6bbf957274deba25d5eb",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 52807,
+        "duration_seconds": 1.197437641723356,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 52807
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_attack_steel_cast_clip.wav",
+        "size_bytes": 105658,
+        "sha256": "8bfe795a23f2fe047ddc01f2a5b9a7950b77adf8c8df6bbf957274deba25d5eb",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 52807,
+        "duration_seconds": 1.197437641723356,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_attack_azakana_cast",
+      "runtime_event": "lol_yone_attack_azakana_cast",
+      "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnCast",
+      "riot_event_id": 1242050256,
+      "event_media_pool": [
+        71487904,
+        2465604,
+        17265215,
+        504802946
+      ],
+      "selection_media_pool": [
+        71487904,
+        2465604,
+        17265215,
+        504802946
+      ],
+      "media_id": 2465604,
+      "source_wem_size_bytes": 9478,
+      "source_wem_sha256": "9658f7b1e5c64afee1bf333cf7913a6514539e851faf3623189ca3bc28367456",
+      "selection_note": "second official shared attack-cast variant, deterministically assigned to the Azakana sword",
+      "dispatch_contract": "top-level Sfx on a committed Azakana-sword basic attack",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_attack_azakana_cast.sound_info",
+        "size_bytes": 82,
+        "sha256": "826fb24e542f67d88121edba81d5710fff8b55520ce82dd11c85f2b49218a798",
+        "clip": "lol_yone_attack_azakana_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 97098,
+        "sha256": "8329b30c4d4265bb72ff75fc35b1dcd5e55a280ccc6d1e92cd4b2cba79445343",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 48527,
+        "duration_seconds": 1.1003854875283448,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 48527
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_attack_azakana_cast_clip.wav",
+        "size_bytes": 97098,
+        "sha256": "8329b30c4d4265bb72ff75fc35b1dcd5e55a280ccc6d1e92cd4b2cba79445343",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 48527,
+        "duration_seconds": 1.1003854875283448,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_attack_steel_hit",
+      "runtime_event": "lol_yone_attack_steel_hit",
+      "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnHit",
+      "riot_event_id": 1731923344,
+      "event_media_pool": [
+        4593285,
+        52943608,
+        121056189,
+        32292976,
+        919359318,
+        842472437,
+        281183040,
+        745450098,
+        741852174,
+        1004687225,
+        194476454,
+        828962726,
+        455681162,
+        291043766,
+        174690742,
+        179499491,
+        447192276,
+        1070249125,
+        916548822,
+        286640978
+      ],
+      "selection_media_pool": [
+        4593285,
+        52943608,
+        121056189,
+        32292976
+      ],
+      "media_id": 4593285,
+      "source_wem_size_bytes": 9132,
+      "source_wem_sha256": "ab9ac24263500d1046ebfb9046df03b47d1ae23bbc4cce43fa1d5cdf54a0edc4",
+      "selection_note": "first official common blade-hit variant, deterministically assigned to the steel sword; material layers excluded",
+      "dispatch_contract": "TargetSfx immediately after steel-sword basic-attack damage",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_attack_steel_hit.sound_info",
+        "size_bytes": 79,
+        "sha256": "7daa72bf94a946fb7e2499a241ef7dd0de509fa30ad35226cf5bc228f6a9af6f",
+        "clip": "lol_yone_attack_steel_hit_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 80764,
+        "sha256": "b64ba4ce48bb2f02e2e09abf3df19d12834631ea21f8d5f94fe12ecff22d1552",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 40360,
+        "duration_seconds": 0.9151927437641724,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 40360
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_attack_steel_hit_clip.wav",
+        "size_bytes": 80764,
+        "sha256": "b64ba4ce48bb2f02e2e09abf3df19d12834631ea21f8d5f94fe12ecff22d1552",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 40360,
+        "duration_seconds": 0.9151927437641724,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_attack_azakana_hit",
+      "runtime_event": "lol_yone_attack_azakana_hit",
+      "riot_event": "Play_sfx_Yone_YoneBasicAttack_OnHit",
+      "riot_event_id": 1731923344,
+      "event_media_pool": [
+        4593285,
+        52943608,
+        121056189,
+        32292976,
+        919359318,
+        842472437,
+        281183040,
+        745450098,
+        741852174,
+        1004687225,
+        194476454,
+        828962726,
+        455681162,
+        291043766,
+        174690742,
+        179499491,
+        447192276,
+        1070249125,
+        916548822,
+        286640978
+      ],
+      "selection_media_pool": [
+        4593285,
+        52943608,
+        121056189,
+        32292976
+      ],
+      "media_id": 52943608,
+      "source_wem_size_bytes": 8914,
+      "source_wem_sha256": "b0d76ed24a4b4194be23a2987d7001f657376cf7eb0ee23da37e761a1f625e33",
+      "selection_note": "second official common blade-hit variant, deterministically assigned to the Azakana sword; material layers excluded",
+      "dispatch_contract": "TargetSfx immediately after Azakana-sword basic-attack damage",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_attack_azakana_hit.sound_info",
+        "size_bytes": 81,
+        "sha256": "0f8a542675640b0b9862a111f048bff516f5962d2ae02464a2658e5ebbf9e4cf",
+        "clip": "lol_yone_attack_azakana_hit_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 75718,
+        "sha256": "dc6878f472a213a5bfbe04a729007f5cad071de9558e42e0375bdd64a7f89bf1",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 37837,
+        "duration_seconds": 0.8579818594104308,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 37837
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_attack_azakana_hit_clip.wav",
+        "size_bytes": 75718,
+        "sha256": "dc6878f472a213a5bfbe04a729007f5cad071de9558e42e0375bdd64a7f89bf1",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 37837,
+        "duration_seconds": 0.8579818594104308,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_q_cast",
+      "runtime_event": "lol_yone_q_cast",
+      "riot_event": "Play_sfx_Yone_YoneQ_OnCast",
+      "riot_event_id": 2588831761,
+      "event_media_pool": [
+        115778047,
+        924281416
+      ],
+      "selection_media_pool": [
+        115778047,
+        924281416
+      ],
+      "media_id": 115778047,
+      "source_wem_size_bytes": 16090,
+      "source_wem_sha256": "a930ea82bcf32c63ce3f3442007008bb374690aad086fb51f31da1944752035b",
+      "selection_note": "first official normal-Q cast variant in event order",
+      "dispatch_contract": "top-level Sfx once when normal Q launches",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_q_cast.sound_info",
+        "size_bytes": 69,
+        "sha256": "0f15889b1737f4d4b516471814c3cc2cf7f0b80f3401b728cb065b1efae1c3bd",
+        "clip": "lol_yone_q_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 176572,
+        "sha256": "dd9776d3950ccbb40917f2f822e17eec3b8b91dffebe4ee99c28929205146133",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 88264,
+        "duration_seconds": 2.001451247165533,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 88264
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_q_cast_clip.wav",
+        "size_bytes": 176572,
+        "sha256": "dd9776d3950ccbb40917f2f822e17eec3b8b91dffebe4ee99c28929205146133",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 88264,
+        "duration_seconds": 2.001451247165533,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_q_hit",
+      "runtime_event": "lol_yone_q_hit",
+      "riot_event": "Play_sfx_Yone_YoneQ_hit",
+      "riot_event_id": 4255270898,
+      "event_media_pool": [
+        200471654,
+        528184656
+      ],
+      "selection_media_pool": [
+        200471654,
+        528184656
+      ],
+      "media_id": 200471654,
+      "source_wem_size_bytes": 16982,
+      "source_wem_sha256": "5a620971be9b7a055dcd63d7f701e4940e56d29178943430cac9263c8992b0ff",
+      "selection_note": "first official normal-Q hit variant in event order",
+      "dispatch_contract": "TargetSfx only when normal Q hits",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_q_hit.sound_info",
+        "size_bytes": 68,
+        "sha256": "e598d18047c2746c7619bf638e9fcf9c4bffd25601c567bf76209e2a68c42add",
+        "clip": "lol_yone_q_hit_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 176644,
+        "sha256": "48c5b1782693c142544a0252b69916b5352d47d83acec9c38f2abe3960139838",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 88300,
+        "duration_seconds": 2.002267573696145,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 88300
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_q_hit_clip.wav",
+        "size_bytes": 176644,
+        "sha256": "48c5b1782693c142544a0252b69916b5352d47d83acec9c38f2abe3960139838",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 88300,
+        "duration_seconds": 2.002267573696145,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_q_empowered_cast",
+      "runtime_event": "lol_yone_q_empowered_cast",
+      "riot_event": "Play_sfx_Yone_YoneQ3_OnCast",
+      "riot_event_id": 1077941672,
+      "event_media_pool": [
+        667080352,
+        992100996,
+        828184909,
+        695270834
+      ],
+      "selection_media_pool": [
+        667080352,
+        992100996,
+        828184909,
+        695270834
+      ],
+      "media_id": 667080352,
+      "source_wem_size_bytes": 29019,
+      "source_wem_sha256": "2a56d3b19c38b0eb4d61ee24f7185c9413b527a086c0bea5836d165c842ef483",
+      "selection_note": "first official Q3 cast variant in event order",
+      "dispatch_contract": "top-level Sfx once when empowered Q launches",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_q_empowered_cast.sound_info",
+        "size_bytes": 79,
+        "sha256": "b578e6f8a4f502db8c62bcbf62bcd91b6f388992b87df0bc3637197cdbb87e29",
+        "clip": "lol_yone_q_empowered_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 312598,
+        "sha256": "ecb4bdb8ce1fb302b0aebb81685386b2dca5688a3b73e646fbac5b70937f2f6b",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 156277,
+        "duration_seconds": 3.5436961451247164,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 156277
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_q_empowered_cast_clip.wav",
+        "size_bytes": 312598,
+        "sha256": "ecb4bdb8ce1fb302b0aebb81685386b2dca5688a3b73e646fbac5b70937f2f6b",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 156277,
+        "duration_seconds": 3.5436961451247164,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_q_empowered_hit",
+      "runtime_event": "lol_yone_q_empowered_hit",
+      "riot_event": "Play_sfx_Yone_YoneQ3_hit",
+      "riot_event_id": 4037963813,
+      "event_media_pool": [
+        144577483
+      ],
+      "selection_media_pool": [
+        144577483
+      ],
+      "media_id": 144577483,
+      "source_wem_size_bytes": 15436,
+      "source_wem_sha256": "bac25106d5b2812eacf75c2f31871a7d0c3a1a747451bd72b52aaf8b3dc0f0f6",
+      "selection_note": "the official Q3-hit event has one media source",
+      "dispatch_contract": "TargetSfx only when empowered Q hits",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_q_empowered_hit.sound_info",
+        "size_bytes": 78,
+        "sha256": "9e16304cfd9fa33f10c6f91f4d09d8bfbe6508db5178bd576eef8b686030a792",
+        "clip": "lol_yone_q_empowered_hit_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 139472,
+        "sha256": "8ce74bd60c2d039d8706e37b45a231ba439ee0a81646d1dd94982355fe247ae6",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 69714,
+        "duration_seconds": 1.5808163265306123,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 69714
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_q_empowered_hit_clip.wav",
+        "size_bytes": 139472,
+        "sha256": "8ce74bd60c2d039d8706e37b45a231ba439ee0a81646d1dd94982355fe247ae6",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 69714,
+        "duration_seconds": 1.5808163265306123,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_w_cast",
+      "runtime_event": "lol_yone_w_cast",
+      "riot_event": "Play_sfx_Yone_YoneW_OnCast",
+      "riot_event_id": 2331891575,
+      "event_media_pool": [
+        1031367120
+      ],
+      "selection_media_pool": [
+        1031367120
+      ],
+      "media_id": 1031367120,
+      "source_wem_size_bytes": 19722,
+      "source_wem_sha256": "f2dffea55d2332702698cd9cda4589796f054b04f8f71c83ff3ef6c4ac45cb58",
+      "selection_note": "the official W-cast event has one media source",
+      "dispatch_contract": "top-level Sfx once when W begins",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_w_cast.sound_info",
+        "size_bytes": 69,
+        "sha256": "6855e1144d32f20a335643bff94b1c514f3e02af97cbb7cf435bf657aa284554",
+        "clip": "lol_yone_w_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 216542,
+        "sha256": "e01f668c92c33da10692045988198359b3dbf70e4b831957f280630a41a95e3a",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 108249,
+        "duration_seconds": 2.454625850340136,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 108249
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_w_cast_clip.wav",
+        "size_bytes": 216542,
+        "sha256": "e01f668c92c33da10692045988198359b3dbf70e4b831957f280630a41a95e3a",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 108249,
+        "duration_seconds": 2.454625850340136,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_w_hit",
+      "runtime_event": "lol_yone_w_hit",
+      "riot_event": "Play_sfx_Yone_YoneW_hit",
+      "riot_event_id": 3632890860,
+      "event_media_pool": [
+        117104795
+      ],
+      "selection_media_pool": [
+        117104795
+      ],
+      "media_id": 117104795,
+      "source_wem_size_bytes": 10120,
+      "source_wem_sha256": "0c85391d1f908de176d593acc7ebd587fbb2c9f0d7e3a147b374f1fe64d64cb7",
+      "selection_note": "the official W-hit event has one media source",
+      "dispatch_contract": "TargetSfx only when W connects",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_w_hit.sound_info",
+        "size_bytes": 68,
+        "sha256": "f173538a6256047ecf5185af67e40ee4230ae4d856202e59f41b3ec68306febc",
+        "clip": "lol_yone_w_hit_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 72594,
+        "sha256": "05455d6ed5698e4f662387a83cd50a76a9e5552e1c10d5ab35821173da03d8bf",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 36275,
+        "duration_seconds": 0.822562358276644,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 36275
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_w_hit_clip.wav",
+        "size_bytes": 72594,
+        "sha256": "05455d6ed5698e4f662387a83cd50a76a9e5552e1c10d5ab35821173da03d8bf",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 36275,
+        "duration_seconds": 0.822562358276644,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_w_shield",
+      "runtime_event": "lol_yone_w_shield",
+      "riot_event": "Play_sfx_Yone_YonePShield_buffactivate",
+      "riot_event_id": 2897062269,
+      "event_media_pool": [
+        197299419
+      ],
+      "selection_media_pool": [
+        197299419
+      ],
+      "media_id": 197299419,
+      "source_wem_size_bytes": 18832,
+      "source_wem_sha256": "552f244b4356567481209acb52c494bd59a36d7feb5fc9f3b75a4e5703ded0c6",
+      "selection_note": "official base-skin Yone shield activation; retained for complete W-phase coverage",
+      "dispatch_contract": "optional CasterSfx when a successful W grants its shield",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_w_shield.sound_info",
+        "size_bytes": 71,
+        "sha256": "4a569b8fc771456dda42b71300fff8a93484998d4dff1c60a9be0ab87db62390",
+        "clip": "lol_yone_w_shield_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 209394,
+        "sha256": "f9dadba4ed24767cae394876d1292634254f7802cfd686ed8d86fe3df8d5ca30",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 104675,
+        "duration_seconds": 2.373582766439909,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 104675
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_w_shield_clip.wav",
+        "size_bytes": 209394,
+        "sha256": "f9dadba4ed24767cae394876d1292634254f7802cfd686ed8d86fe3df8d5ca30",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 104675,
+        "duration_seconds": 2.373582766439909,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_r_cast",
+      "runtime_event": "lol_yone_r_cast",
+      "riot_event": "Play_sfx_Yone_YoneR_OnCast",
+      "riot_event_id": 2470223712,
+      "event_media_pool": [
+        57735016,
+        862736579
+      ],
+      "selection_media_pool": [
+        57735016,
+        862736579
+      ],
+      "media_id": 57735016,
+      "source_wem_size_bytes": 21006,
+      "source_wem_sha256": "eba722022d038b467d3cc37e5f1caa1316639f97fc3afdaaa8b3fd1d7f4356ce",
+      "selection_note": "first official R cast variant in event order",
+      "dispatch_contract": "top-level Sfx once when R begins",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_r_cast.sound_info",
+        "size_bytes": 69,
+        "sha256": "05ccdbcc064a2b257b7181fcc53a3b7e4a70855665570508eb8f4f74a615eb80",
+        "clip": "lol_yone_r_cast_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 222592,
+        "sha256": "98de932728df3507df27c8317b2269488356397d0e4531ea9c52b4cc1c1ef6e5",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 111274,
+        "duration_seconds": 2.523219954648526,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 111274
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_r_cast_clip.wav",
+        "size_bytes": 222592,
+        "sha256": "98de932728df3507df27c8317b2269488356397d0e4531ea9c52b4cc1c1ef6e5",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 111274,
+        "duration_seconds": 2.523219954648526,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_r_arrival",
+      "runtime_event": "lol_yone_r_arrival",
+      "riot_event": "Play_sfx_Yone_YoneR_cast_dash",
+      "riot_event_id": 2947435290,
+      "event_media_pool": [
+        583920156
+      ],
+      "selection_media_pool": [
+        583920156
+      ],
+      "media_id": 583920156,
+      "source_wem_size_bytes": 26986,
+      "source_wem_sha256": "fe252b5bf49d98d47e36f6387f247ef4122e78a5e919b74c2183f0617474ea07",
+      "selection_note": "the official R dash event has one media source",
+      "dispatch_contract": "TargetSfx once when the R rush reaches its target",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_r_arrival.sound_info",
+        "size_bytes": 72,
+        "sha256": "df2bf00157e84b6d02c73b63025fd74e442fc84fefa289965e31809d44c0528f",
+        "clip": "lol_yone_r_arrival_clip",
+        "volume": 1.0
+      },
+      "source_decoded_wav": {
+        "size_bytes": 279224,
+        "sha256": "5120573f6fbe11652bc942a5ae1e3e230260091bb901f2649eddb8bab65c10a3",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 139590,
+        "duration_seconds": 3.1653061224489796,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 139590
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_r_arrival_clip.wav",
+        "size_bytes": 279224,
+        "sha256": "5120573f6fbe11652bc942a5ae1e3e230260091bb901f2649eddb8bab65c10a3",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 139590,
+        "duration_seconds": 3.1653061224489796,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_r_slash_steel",
+      "runtime_event": "lol_yone_r_slash_steel",
+      "riot_event": "Play_sfx_Yone_YoneR_hit_initial",
+      "riot_event_id": 3008303652,
+      "event_media_pool": [
+        976342648
+      ],
+      "selection_media_pool": [
+        976342648
+      ],
+      "media_id": 976342648,
+      "source_wem_size_bytes": 18935,
+      "source_wem_sha256": "a6853685b743f20b7489f6416d6fe646519436f3dc38d56ab3c828a531eec8a7",
+      "selection_note": "the official R initial-hit event has one media source; runtime cadence uses a deterministic 0.20-second excerpt with a short click-safe tail",
+      "dispatch_contract": "TargetSfx on the first/steel R strike stage",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_r_slash_steel.sound_info",
+        "size_bytes": 77,
+        "sha256": "6964dfcb2b4bda8ea6a183b6cd74258a3d707aeb6f370d6f93724447bc528576",
+        "clip": "lol_yone_r_slash_steel_clip",
+        "volume": 0.55
+      },
+      "source_decoded_wav": {
+        "size_bytes": 203170,
+        "sha256": "6528e1455250513702f6320aeae569bcafffb0701b4009a6ba8731d99c70a00e",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 101563,
+        "duration_seconds": 2.303015873015873,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "prefix_trim_with_linear_pcm_fade_out",
+        "target_frames": 8820,
+        "target_duration_seconds": 0.2,
+        "fade_out_frames": 1764,
+        "fade_out_duration_seconds": 0.04,
+        "terminal_sample": 0
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_r_slash_steel_clip.wav",
+        "size_bytes": 17684,
+        "sha256": "4db973f0465e87a756b4946d36e1d2b1c445d5c848e1ef980fe247c68465ea40",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 8820,
+        "duration_seconds": 0.2,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_r_slash_azakana",
+      "runtime_event": "lol_yone_r_slash_azakana",
+      "riot_event": "Play_sfx_Yone_YoneR_hit_residual",
+      "riot_event_id": 4287662285,
+      "event_media_pool": [
+        79035825
+      ],
+      "selection_media_pool": [
+        79035825
+      ],
+      "media_id": 79035825,
+      "source_wem_size_bytes": 9436,
+      "source_wem_sha256": "d5e42b9cc8f0b0f2e18e3f919db9aea82de30856e823816b6b22b5ba92f60d42",
+      "selection_note": "the official R residual-hit event has one media source; runtime cadence uses a deterministic 0.20-second excerpt with a short click-safe tail",
+      "dispatch_contract": "TargetSfx on residual/Azakana R strike stages",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_r_slash_azakana.sound_info",
+        "size_bytes": 79,
+        "sha256": "d1cb0c9de6c47b4c116696c9f044349cb321d1fdee54aa3edea047bf6804e911",
+        "clip": "lol_yone_r_slash_azakana_clip",
+        "volume": 0.55
+      },
+      "source_decoded_wav": {
+        "size_bytes": 72834,
+        "sha256": "1a24c5b2808566960a10f2656145a4b31a88903c224c2f186ecd329a6a9bb11a",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 36395,
+        "duration_seconds": 0.8252834467120181,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "prefix_trim_with_linear_pcm_fade_out",
+        "target_frames": 8820,
+        "target_duration_seconds": 0.2,
+        "fade_out_frames": 1764,
+        "fade_out_duration_seconds": 0.04,
+        "terminal_sample": 0
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_r_slash_azakana_clip.wav",
+        "size_bytes": 17684,
+        "sha256": "af55b445d6c640c825e3fb1c0ae811d4d3037072cb9e5ee760c849f8c84552d0",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 8820,
+        "duration_seconds": 0.2,
+        "compression": "NONE"
+      }
+    },
+    {
+      "event_key": "lol_yone_r_echo",
+      "runtime_event": "lol_yone_r_echo",
+      "riot_event": "Play_sfx_Yone_YoneR_OnCast",
+      "riot_event_id": 2470223712,
+      "event_media_pool": [
+        57735016,
+        862736579
+      ],
+      "selection_media_pool": [
+        57735016,
+        862736579
+      ],
+      "media_id": 862736579,
+      "source_wem_size_bytes": 22682,
+      "source_wem_sha256": "1ebd2986a1a2b9d4a5e143b32a52ebe835bfb0d002b528409110261eec2986d5",
+      "selection_note": "second unused official base-skin R-cast variant, independently pinned and retained with its complete tail for the adapted terminal echo",
+      "dispatch_contract": "TargetSfx on the terminal fixed-damage echo",
+      "sound_info": {
+        "path": "sound/sfx/lol_yone_r_echo.sound_info",
+        "size_bytes": 70,
+        "sha256": "a4700f8e4fb85a113586c87dfd4f61fc83d732c6cbc422b6704f3de810e172d6",
+        "clip": "lol_yone_r_echo_clip",
+        "volume": 0.55
+      },
+      "source_decoded_wav": {
+        "size_bytes": 245316,
+        "sha256": "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 122636,
+        "duration_seconds": 2.780861678004535,
+        "compression": "NONE"
+      },
+      "runtime_transform": {
+        "kind": "none",
+        "retained_source_frames": 122636
+      },
+      "wav": {
+        "path": "sound/sfx/lol_yone_r_echo_clip.wav",
+        "size_bytes": 245316,
+        "sha256": "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9",
+        "channels": 1,
+        "sample_width_bytes": 2,
+        "sample_rate_hz": 44100,
+        "frame_count": 122636,
+        "duration_seconds": 2.780861678004535,
+        "compression": "NONE"
+      }
+    }
+  ]
+}

@@ -1,5 +1,10 @@
 # TeamFightMange2-mod
 
+## v0.10.10：本地厄加特 + 永恩联合测试包
+
+- 本地测试构建将厄加特与前五英雄高清重构内容同永恩合并，仅用于同时 review 官方槽位 008 与 009；不会合并或改写任一 PR 分支。
+- 同时保留下列厄加特与永恩修复记录，运行时版本统一为 0.10.10。
+
 ## v0.10.9：厄加特 W 安全回退与实战计分栏头像修复
 
 - W 回退为完全由游戏数据驱动的自施法：移除 Rust 原生通道状态、目标句柄、取消钩子、逐发短标记和 `SwitchByBuff`，仅保留一个可取消、可移动的 240 tick 父动作及其拥有的 12 发自动索敌子弹。
@@ -51,6 +56,12 @@
 - 以同 ID `demon` 覆盖官方 008 为厄加特，只保留 W/E/R 三个主动技能。E 会冲到目标身后并背摔；R 在拉回后按当前生命值 25% 做真实斩杀判断，只有确认击杀才触发范围伤害与恐惧。
 - 厄加特使用独立 ImageGen 六足模型、稳定 46px 战斗比例、W/E/R 特效与图标、BP 插画和多界面头像；普攻及 W/E/R 全阶段使用可审计的本地 League 基础皮肤音效。
 - 保留 v0.9.1 的霞 Q/E/R、克烈头像和每局随机元素龙修复，构建目标仍为 Teamfight Manager 2 v0.5.0 / Mod API 0.8。
+## v0.10.1：永恩动作、头像与 Q/W/R 视觉修复
+
+- 以 `dual_blader` 同 ID 覆盖官方英雄 009，只提供 Q「错玉切」、W「封尘追斩」和 R「破障之锋·六道断魂」三个主动槽；不会新增重复的 `lol_yone`，也不会混入厄加特分支。
+- Q 采用命中才获得状态的两段循环，强化形态先消耗状态、无伤害冲刺，再由同方向剑风造成一次伤害与击飞；W 只追击已受控英雄；R 只有一次击飞、六段物理斩击和一次固定伤害灵魂回响，全树不使用 `Native`。
+- 永恩主体、钢剑/亚扎卡纳普攻、Q/W/R 特效、图标、紧凑头像、90×122 BP 英雄格、百科全身图与 BP 插画均来自独立 ImageGen 源；严格保留官方 Dual Blader 的 13 个动画标签、帧矩形、帧数和时长，并为所有动作保留脚底安全区。
+- 技能和平 A 音效从本机 Yone 基础皮肤 Wwise 资源固定提取并按 SHA-256 审计；钢剑与亚扎卡纳剑使用不同的官方随机池变体，原 Dual Blader 自动音频全部重定向到物理静音资源，避免叠播。
 
 ## v0.9.1：霞模型与 Q/E/R 重制、克烈头像清晰度修复
 
@@ -227,6 +238,6 @@ python -m pytest -q
 powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\install_lol_mod.ps1
 ```
 
-本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir、Kled、Xayah 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
+本模组为同人作品。League of Legends、Shen、Lucian、Orianna、Briar、Sivir、Kled、Xayah、Yone 及相关原始音频素材归原权利人所有；模型、图标和 VFX 是为本模组生成的原创像素素材。
 
 TeamFightMange2-mod was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.

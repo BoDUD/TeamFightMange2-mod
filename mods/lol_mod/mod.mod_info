@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.9",
-  "description": "Adds Shen and reworks official champions 002-008 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, and Urgot. Version 0.10.9 restores Urgot W to a pure data-driven self-cast: one cancelable and movable 240-tick parent owns twelve direct auto-target Purge rounds, with no Rust channel state, target handle, native cancel hook, per-shot marker, SwitchByBuff, or attack lock. AI promotes W only from a legal engine-selected attack target and checks R first. Urgot E retains the first reviewed rush-behind and flip contract. The real 30px match scoreboard now uses the same approved head-and-shoulders crop and scale as the correct 40px battle sidebar portrait. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.10.10",
+  "description": "Local Urgot + Yone review bundle. Adds Shen and reworks official champions 002-009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, Urgot, and Yone. Version 0.10.10 combines the high-definition rebuilds for Shen, Lucian, Orianna, Briar, and Sivir plus Urgot W/E/R with Yone Q/W/R, compact portrait, Ban/Pick transition, recall and idle anchors, and independent follow-up effects. This local integration build is only for simultaneous review of official slots 008 and 009 and does not replace either PR branch. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-14",
   "dependencies": [
     {

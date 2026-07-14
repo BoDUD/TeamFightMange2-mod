@@ -18,6 +18,7 @@ from PIL import Image, ImageDraw
 from build_kled import build_all as build_kled_assets
 from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
+from build_yone import build_all as build_yone_assets
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -156,6 +157,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
     "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
     "dancer": ACTOR_DIR / "xayah#sheet.png",
+    "dual_blader": ACTOR_DIR / "yone#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -383,10 +385,10 @@ def build_champion_fullbody_portraits() -> list[Path]:
     CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
-        # Kled and Xayah retain tight native atlas geometry whose first idle
+        # Kled, Xayah and Yone retain tight native atlas geometry whose first idle
         # frame is not the sheet's top-left 64x64 cell. Their dedicated
         # builders export portraits from each exact native idle rectangle.
-        if champion_id in {"cavalry_knight", "dancer"}:
+        if champion_id in {"cavalry_knight", "dancer", "dual_blader"}:
             continue
         if champion_id == "lol_shen":
             source = source_direct_actor_cell(
@@ -4167,6 +4169,12 @@ def build_manifest() -> Path:
         QA_DIR / "urgot_vfx_contact_final.png",
         QA_DIR / "urgot_skill_icons_final.png",
         QA_DIR / "urgot_portrait_surface_final.png",
+        QA_DIR / "yone_visual_contract.json",
+        QA_DIR / "yone_imagegen_sources.json",
+        QA_DIR / "yone_visual_qa.md",
+        QA_DIR / "yone_visual_final.png",
+        QA_DIR / "yone_skill_contract_qa.md",
+        QA_DIR / "yone_official_audio_sources.json",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -4266,6 +4274,7 @@ def main() -> int:
     kled_outputs = build_kled_assets()
     xayah_outputs = build_xayah_assets()
     urgot_outputs = build_urgot_assets()
+    yone_outputs = build_yone_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     manifest = None if args.skip_manifest else build_manifest()
@@ -4304,6 +4313,7 @@ def main() -> int:
         *kled_outputs,
         *xayah_outputs,
         *urgot_outputs,
+        *yone_outputs,
         *champion_fullbody_portraits,
         *orianna_briar_hd_surface_qa,
         *([manifest] if manifest else []),
