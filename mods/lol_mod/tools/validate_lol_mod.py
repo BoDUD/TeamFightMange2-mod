@@ -600,7 +600,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "asset/lol_mod/icons/shen_skill2",
             "asset/lol_mod/icons/shen_ult",
         ],
-        "skill icon order must be Q/W/R",
+        "skill icon order must be Q/E/R",
     )
     expected_stats = {
         "hp": 1100,
@@ -616,45 +616,103 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
     attack = champion.get("attack", {})
     check(attack.get("range") == 25000, "basic attack range must use engine units (25000)")
     check(attack.get("cooltime") == 70, "basic attack cooltime must be 70 ticks")
+    q_switches = find_effect(attack, "SwitchByBuff")
+    check(
+        [effect.get("buff_name") for effect in q_switches]
+        == [
+            "lol_shen_twilight_assault_charge_3",
+            "lol_shen_twilight_assault_charge_2",
+            "lol_shen_twilight_assault_charge_1",
+        ],
+        "Q basic-attack state must consume exactly charge 3 -> 2 -> 1",
+    )
+    empowered_hits = find_effect(attack, "ApAttack")
+    check(len(empowered_hits) == 3, "Q must expose one empowered magic hit per charge")
+    for effect in empowered_hits:
+        check(
+            (effect.get("damage"), effect.get("attack_ratio")) == (20, 20),
+            "Q empowered hit must be 20 + 20% Ability Power magic damage",
+        )
+    for switch in q_switches:
+        buff_branch = switch.get("effect_buff", {})
+        delayed = [effect for effect in buff_branch.get("effects", []) if effect.get("type") == "Delayed"]
+        check(len(delayed) == 1, f"Q {switch.get('buff_name')} branch must have one direct delayed hit")
+        if delayed:
+            removed = [
+                effect.get("name")
+                for effect in delayed[0].get("effects", [])
+                if effect.get("type") == "RemoveCasterBuff"
+            ]
+            check(
+                removed == [switch.get("buff_name")],
+                f"Q {switch.get('buff_name')} branch must consume exactly its own marker",
+            )
+    check(not find_effect(attack, "AddCasterBuff"), "Q attacks must consume, not refresh, the shared charge window")
 
     q = champion.get("skill", {})
-    check(q.get("range") == 60000 and q.get("cooltime") == 360, "Q range/cooltime mismatch")
-    projectiles = find_effect(q, "LinearProjectile")
-    check(len(projectiles) == 1, "Q must contain exactly one LinearProjectile")
-    if projectiles:
-        check(projectiles[0].get("penetrate") is True, "Q projectile must penetrate")
-        check(projectiles[0].get("range") == 60000, "Q projectile range mismatch")
-    q_slow = [
-        effect
-        for effect in find_effect(q, "AddBuff")
-        if effect.get("buff_state", {}).get("name") == "lol_shen_twilight_assault_slow"
-    ]
-    check(bool(q_slow), "Q named slow marker is missing")
-    if q_slow:
-        check(q_slow[0]["buff_state"].get("move_speed_mult") == -25, "Q slow must be -25%")
-        check(q_slow[0]["buff_state"].get("duration", {}).get("Time", {}).get("tick") == 90, "Q slow must last 90 ticks")
-    q_shields = find_effect(q, "Shield", amount=120, tick=120)
-    check(bool(q_shields), "Q on-hit self shield must be 120 for 120 ticks")
+    check(
+        (
+            q.get("action_name"), q.get("cooltime"), q.get("duration"),
+            q.get("start_timing"), q.get("range"), q.get("casting_type"),
+            q.get("casting_target"),
+        )
+        == ("skill", 360, 24, 8, 0, "None", "AllyOnlySelf"),
+        "Q self-cast timing or target contract mismatch",
+    )
+    for unsafe_type in ("LinearProjectile", "RangeProjectile", "Attack", "ApAttack", "Shield"):
+        check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
+    check(
+        bool(find_effect(q, "CasterViewEffect", name="lol_shen_twilight_assault_recall_visual")),
+        "Q recall visual is missing",
+    )
+    q_grants = find_effect(q, "AddCasterBuff")
+    check(len(q_grants) == 3, "Q must grant exactly three shared-window markers")
+    q_windows = {
+        effect.get("buff_state", {}).get("name"): effect.get("buff_state", {}).get("duration")
+        for effect in q_grants
+    }
+    check(
+        q_windows
+        == {
+            "lol_shen_twilight_assault_charge_3": {"Time": {"tick": 480}},
+            "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
+            "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
+        },
+        "Q must grant three independently consumed markers with one shared 480-tick window",
+    )
 
-    w = champion.get("skill2", {})
-    check(w.get("cooltime") == 480, "W cooldown must be 480 ticks")
-    w_ranges = find_effect(w, "RangeEffect")
-    ally_ranges = [effect for effect in w_ranges if effect.get("target") == "AllyChampion"]
-    enemy_ranges = [effect for effect in w_ranges if effect.get("target") == "EnemyChampion"]
-    check(len(ally_ranges) == 1 and len(enemy_ranges) == 1, "W must have one ally and one enemy range effect")
-    for effect in w_ranges:
-        check(effect.get("shape", {}).get("Circle", {}).get("radius") == 35000, "W radius must be 35000")
-        check(effect.get("apply_type") == "AroundCaster", "W must apply around caster")
-    w_shields = find_effect(ally_ranges, "Shield", amount=150, ap_ratio=40, tick=150)
-    check(bool(w_shields), "W ally shield contract mismatch")
-    w_slows = [
-        effect
-        for effect in find_effect(enemy_ranges, "AddBuff")
-        if effect.get("buff_state", {}).get("name") == "lol_shen_spirit_refuge_as_slow"
-    ]
-    check(bool(w_slows), "W named attack-speed debuff is missing")
-    if w_slows:
-        check(w_slows[0]["buff_state"].get("attack_speed_mult") == -30, "W attack-speed debuff must be -30%")
+    e = champion.get("skill2", {})
+    check(
+        (
+            e.get("action_name"), e.get("cooltime"), e.get("duration"),
+            e.get("start_timing"), e.get("range"), e.get("casting_type"),
+            e.get("casting_target"),
+        )
+        == ("skill2", 720, 30, 4, 60000, "Direction", "EnemyChampion"),
+        "E direction-dash timing or target contract mismatch",
+    )
+    rushes = find_effect(e, "Rush")
+    check(len(rushes) == 1, "E must contain exactly one Rush")
+    if rushes:
+        rush = rushes[0]
+        check(
+            (
+                rush.get("speed"), rush.get("move_speed_ratio"), rush.get("range"),
+                rush.get("casting_target"), rush.get("penetrate"),
+            )
+            == (4000, 100, 10000, "EnemyChampion", True),
+            "E Rush speed, collision radius, target or penetration mismatch",
+        )
+        check(bool(find_effect(rush, "Attack", damage=60, attack_ratio=0)), "E physical hit mismatch")
+        check(bool(find_effect(rush, "Taunt", duration=90)), "E must taunt each crossed champion for 90 ticks")
+        taunt_markers = [
+            effect
+            for effect in find_effect(rush, "AddBuff")
+            if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_taunted"
+        ]
+        check(len(taunt_markers) == 1, "E named taunt marker is missing")
+    check(not find_effect(e, "RangeEffect"), "E must not retain W's caster-centered field")
+    check(not find_effect(e, "Shield"), "E must not retain W's ally shield")
 
     ult = champion.get("ult", {})
     check(ult.get("range") == 960000, "R range must be 960000")
@@ -665,22 +723,43 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
     check(len(delayed) == 1, "R must have one 48-tick arrival delay")
     if delayed:
         check(bool(find_effect(delayed[0], "Teleport")), "R delayed arrival must contain a real Teleport")
-        check(bool(find_effect(delayed[0], "Taunt", duration=45)), "R delayed arrival must taunt for 45 ticks")
+        check(not find_effect(delayed[0], "Taunt"), "R arrival must not carry E's taunt")
         arrive_sfx = [effect.get("name") for effect in find_effect(delayed[0], "Sfx")]
         check("lol_shen_r_arrive" in arrive_sfx, "R arrival SFX must be inside the 48-tick delay")
+    enemy_arrival_ranges = [
+        effect
+        for effect in find_effect(ult, "RangeEffect")
+        if effect.get("target") == "EnemyChampion"
+    ]
+    check(not enemy_arrival_ranges, "R must not retain the old circular arrival taunt")
 
     serialized = json.dumps(champion, ensure_ascii=False)
+    for retired in ("spirit_refuge", "lol_shen_w_", "shen_w"):
+        check(retired not in serialized, f"retired W payload remains active: {retired}")
     required_markers = {
-        "lol_shen_twilight_assault_slow",
-        "lol_shen_twilight_assault_guard",
-        "lol_shen_spirit_refuge_shield_window",
-        "lol_shen_spirit_refuge_as_slow",
+        "lol_shen_twilight_assault_charge_3",
+        "lol_shen_twilight_assault_charge_2",
+        "lol_shen_twilight_assault_charge_1",
+        "lol_shen_shadow_dash_taunted",
         "lol_shen_stand_united_channel",
         "lol_shen_stand_united_shield_window",
-        "lol_shen_stand_united_arrival_cc",
     }
     for marker in required_markers:
         check(marker in serialized, f"named state marker missing: {marker}")
+    check(champion.get("view_projectiles") == [], "Shen Q must not register a gameplay projectile view")
+    view_names = {effect.get("name") for effect in champion.get("view_effects", [])}
+    check(
+        {
+            "lol_shen_twilight_assault_recall_visual",
+            "lol_shen_twilight_assault_empowered_hit",
+            "lol_shen_shadow_dash_trail",
+            "lol_shen_shadow_dash_impact",
+            "lol_shen_stand_united_guard_visual",
+            "lol_shen_stand_united_arrival_visual",
+        }
+        == view_names,
+        "Shen Q/E/R view-effect registration mismatch",
+    )
 
 
 def validate_orianna_replacement_uniqueness() -> None:
@@ -2099,9 +2178,9 @@ def validate_orianna_v2_visual_contract() -> None:
     check(len(idle_frames) == 4, "Orianna v2 visual QA requires four idle frames")
     check(len(run_frames) == 8, "Orianna v2 visual QA requires eight run frames")
 
-    # The first two idle poses are the compact-card identity frames.  Their
-    # 38px body height and y=42 exclusive foot baseline keep the face large
-    # enough to read while leaving two complete boots above the UI crop.
+    # The first two idle poses use Orianna's native-like 34px battle class.
+    # Source-direct portrait assets remain independent, while the actor keeps
+    # two complete boots on the y=42 exclusive foot baseline.
     for index, frame in enumerate(idle_frames[:2]):
         alpha = frame.getchannel("A")
         bbox = alpha.getbbox()
@@ -2110,9 +2189,9 @@ def validate_orianna_v2_visual_contract() -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 38, f"Orianna primary idle {index} must retain the reviewed 38px visible height")
+        check(height == 36, f"Orianna primary idle {index} must retain the reviewed 36px battle height")
         check(bbox[3] == 42, f"Orianna primary idle {index} must end at the exclusive y=42 foot baseline")
-        check(16 <= width <= 24, f"Orianna primary idle {index} no longer has the compact full-body width")
+        check(17 <= width <= 26, f"Orianna primary idle {index} no longer has the compact full-body width")
 
         bottom_rows = range(max(bbox[1], bbox[3] - 3), bbox[3])
         bottom_x = sorted(
@@ -2205,8 +2284,9 @@ def validate_orianna_v2_visual_contract() -> None:
         check(dynamic_range >= 170, f"Orianna primary idle {index} face contrast regressed")
         check(edge_ratio >= 0.25, f"Orianna primary idle {index} face edges became too soft or muddy")
 
-    # Upright commands may squash slightly, but must stay in the same readable
-    # actor class and share the corrected exclusive y=42 baseline.
+    # All live upright commands use the final 34-36px state-stable class and
+    # y=42 baseline. The old 28px lower bound admitted the visible attack/hit
+    # shrink that prompted this full-frame repair.
     for tag in ("idle", "attack", "skill1", "skill2"):
         for index, frame in enumerate(frames_for(tag)):
             bbox = frame.getchannel("A").getbbox()
@@ -2214,7 +2294,7 @@ def validate_orianna_v2_visual_contract() -> None:
             if bbox is None:
                 continue
             height = bbox[3] - bbox[1]
-            check(34 <= height <= 39, f"Orianna {tag} frame {index} left the reviewed 34-39px actor scale class")
+            check(34 <= height <= 36, f"Orianna {tag} frame {index} left the reviewed 34-36px actor scale class")
             check(bbox[3] == 42, f"Orianna {tag} frame {index} changed the exclusive y=42 foot baseline")
 
     run_hashes: list[str] = []
@@ -2227,7 +2307,7 @@ def validate_orianna_v2_visual_contract() -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 38, f"Orianna run frame {index} must retain the reviewed 38px visible height")
+        check(height == 36, f"Orianna run frame {index} must retain the reviewed 36px visible height")
         check(bbox[3] == 42, f"Orianna run frame {index} must end at the exclusive y=42 foot baseline")
         check(18 <= width <= 30, f"Orianna run frame {index} left the compact 18-30px footprint")
         lower_area = sum(
@@ -2468,11 +2548,11 @@ def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 42, f"Briar primary idle {index} must retain the HD 42px actor height")
-        check(bbox[3] == 46, f"Briar primary idle {index} must end on the exclusive y=46 foot baseline")
-        check(22 <= width <= 30, f"Briar primary idle {index} left the HD 22-30px footprint")
+        check(height == 38, f"Briar primary idle {index} must retain the native-like 38px actor height")
+        check(bbox[3] == 45, f"Briar primary idle {index} must end on the exclusive y=45 foot baseline")
+        check(20 <= width <= 28, f"Briar primary idle {index} left the 20-28px terrain-safe footprint")
         check(bbox[0] >= 2 and bbox[2] <= 62, f"Briar primary idle {index} touches a side edge")
-        foot_x = [x for x in range(64) if alpha.getpixel((x, 45)) >= 128]
+        foot_x = [x for x in range(64) if alpha.getpixel((x, 44)) >= 128]
         foot_segments: list[list[int]] = []
         for x in foot_x:
             if not foot_segments or x > foot_segments[-1][-1] + 1:
@@ -2499,9 +2579,9 @@ def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(height == 42, f"Briar run frame {index} must retain the HD 42px actor height")
-        check(bbox[3] == 46, f"Briar run frame {index} must retain the y=45 foot pixels")
-        check(29 <= width <= 42, f"Briar run frame {index} left the HD 29-42px footprint")
+        check(height == 38, f"Briar run frame {index} must retain the native-like 38px actor height")
+        check(bbox[3] == 45, f"Briar run frame {index} must retain the y=44 foot pixels")
+        check(27 <= width <= 38, f"Briar run frame {index} left the 27-38px terrain-safe footprint")
         area = sum(alpha.getpixel((x, y)) >= 128 for y in range(64) for x in range(64))
         check(area >= 520, f"Briar run frame {index} loses too much body/lower-leg detail")
         run_areas.append(area)
@@ -2525,7 +2605,7 @@ def validate_briar_native_animation_and_actor(champion: dict[str, Any]) -> None:
             bbox = frame.getchannel("A").getbbox()
             check(bbox is not None, f"Briar core actor {tag} frame {index} is empty")
             if bbox is not None:
-                check(bbox[3] == 46, f"Briar core actor {tag} frame {index} changed the y=45 foot baseline")
+                check(bbox[3] == 45, f"Briar core actor {tag} frame {index} changed the y=44 foot baseline")
                 check(bbox[0] >= 2 and bbox[2] <= 62, f"Briar core actor {tag} frame {index} touches a side edge")
 
 
@@ -2621,7 +2701,7 @@ def validate_orianna_briar_hd_surfaces() -> None:
             "orianna_actor_contact_alpha.png",
             "orianna_hd_surface_qa.json",
             "orianna_portrait_surface_final.png",
-            [23, 4, 41, 42],
+            [23, 6, 40, 42],
             "ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE",
         ),
         (
@@ -2630,7 +2710,7 @@ def validate_orianna_briar_hd_surfaces() -> None:
             "briar_actor_contact_alpha.png",
             "briar_hd_surface_qa.json",
             "briar_portrait_surface_final.png",
-            [20, 4, 44, 46],
+            [21, 7, 43, 45],
             "BRIAR_SCOREBOARD_PORTRAIT_TEXTURE",
         ),
     )
@@ -2970,12 +3050,12 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
             if tag in core_tags:
                 visible_width = bbox[2] - bbox[0]
                 visible_height = bbox[3] - bbox[1]
-                check(bbox[3] == 46, f"Sivir core {tag} frame {index} must retain the exclusive y=46 foot baseline")
-                check(33 <= visible_height <= 45, f"Sivir core {tag} frame {index} changed HD actor scale")
+                check(bbox[3] == 45, f"Sivir core {tag} frame {index} must retain the exclusive y=45 foot baseline")
+                check(27 <= visible_height <= 38, f"Sivir core {tag} frame {index} left the native-like actor scale")
                 check(18 <= visible_width <= 58 and bbox[0] >= 2 and bbox[2] <= 62, f"Sivir core {tag} frame {index} left the battle-safe width")
             if tag == "run":
                 run_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
-                check(43 <= bbox[3] - bbox[1] <= 45, f"Sivir run frame {index} must remain in the 43..45px HD band")
+                check(35 <= bbox[3] - bbox[1] <= 37, f"Sivir run frame {index} must remain in the 35..37px terrain-safe band")
             if tag == "attack":
                 attack_hashes.append(hashlib.sha256(image.tobytes()).hexdigest())
                 check(len(alpha_component_sizes(image)) == 1, f"Sivir attack frame {index} contains detached pixels or a duplicate weapon")
@@ -2994,7 +3074,7 @@ def validate_sivir_native_animation_and_resources(champion: dict[str, Any]) -> N
                 )
             if tag == "idle_no_boomerang":
                 check(
-                    bbox[3] - bbox[1] >= 35,
+                    bbox[3] - bbox[1] >= 29,
                     "Sivir idle_no_boomerang must retain the full-scale empty-hand body",
                 )
     check(len(set(run_hashes)) == 8, "Sivir must keep eight distinct generated run phases")
@@ -3106,7 +3186,7 @@ def validate_sivir_hd_surfaces() -> None:
     check(battle.get("uniform_xy_scale") is True, "Sivir actor must use uniform x/y scale")
     check(battle.get("x_only_compression") is False, "Sivir actor must forbid x-only compression")
     check(
-        battle.get("first_idle_alpha_bbox") == [13, 2, 50, 46],
+        battle.get("first_idle_alpha_bbox") == [17, 9, 47, 45],
         "Sivir primary battle idle bbox changed",
     )
     face = battle.get("face_readability", {})
@@ -4112,8 +4192,8 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
         idle_height = idle[3] - idle[1]
         idle_width = idle[2] - idle[0]
         idle_center = (idle[0] + idle[2] - 1) / 2
-        check(idle_height == 40, "Lucian idle must use the high-definition 40px visible height")
-        check(24 <= idle_width <= 27, "Lucian idle must retain the rebuilt full-body gunslinger width")
+        check(idle_height == 36, "Lucian idle must use the reference-aligned 36px visible height")
+        check(20 <= idle_width <= 24, "Lucian idle must retain the compact full-body gunslinger width")
         check(44 <= idle[3] <= 46, "Lucian idle does not use the y=45 foot baseline")
         check(29 <= idle_center <= 34, "Lucian idle is not horizontally centered")
     for idle_index in (0, 1):
@@ -4172,8 +4252,8 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
         if bbox:
             width = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
-            check(30 <= width <= 35, f"Lucian run {index} must stay inside the 30-35px HD footprint")
-            check(38 <= height <= 40, f"Lucian run {index} must keep the uniform-scale 38-40px pose range")
+            check(27 <= width <= 31, f"Lucian run {index} must stay inside the 27-31px terrain-safe footprint")
+            check(height == 36, f"Lucian run {index} must keep the state-stable 36px pose height")
             check(bbox[3] == 45, f"Lucian run {index} must keep Shen's y=44 foot pixels")
         alpha = run_frames[index - 1].getchannel("A")
         run_areas.append(
@@ -4219,30 +4299,37 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
             check(icon.getchannel("A").getbbox() == (0, 0, 64, 64), f"{relative} must be full-bleed")
 
 
-def validate_compact_view_and_w_layout() -> None:
+def validate_compact_view_and_e_layout() -> None:
     style = load_json("style/champion_view.champion_view")
     shen = style.get("entries", {}).get("lol_shen", {})
     check(shen.get("face") == {"x": 6, "y": -34}, "compact portrait must center Shen's head at face x=6/y=-34")
     check(shen.get("center") == {"x": 0, "y": -12}, "battle/card center offset must remain x=0/y=-12")
 
-    w_path = MOD_ROOT / "aseprite_resources/effects/shen_w#sheet.png"
-    w_sheet = Image.open(w_path).convert("RGBA")
-    check(w_sheet.size == (672, 64), f"W sheet must be 672x64, got {w_sheet.size}")
+    e_path = MOD_ROOT / "aseprite_resources/effects/shen_e#sheet.png"
+    check(e_path.is_file(), "Shen E sheet is missing")
+    if not e_path.is_file():
+        return
+    e_sheet = Image.open(e_path).convert("RGBA")
+    check(e_sheet.size == (576, 64), f"E sheet must be 576x64, got {e_sheet.size}")
     for index in range(6):
-        frame = w_sheet.crop((index * 112, 0, (index + 1) * 112, 64))
+        frame = e_sheet.crop((index * 96, 0, (index + 1) * 96, 64))
         bbox = frame.getchannel("A").getbbox()
-        check(bbox is not None, f"W frame {index} is empty")
+        check(bbox is not None, f"E frame {index} is empty")
         if not bbox:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        center_x = (bbox[0] + bbox[2] - 1) / 2
-        center_y = (bbox[1] + bbox[3] - 1) / 2
-        check(96 <= width <= 106, f"W frame {index} must span a readable 96-106px field width")
-        check(24 <= height <= 34, f"W frame {index} must be a flat 24-34px ground ellipse")
-        check(54 <= center_x <= 57, f"W frame {index} is not horizontally centered")
-        check(42 <= center_y <= 45, f"W frame {index} is not centered on Shen's y=44 foot point")
-        check(bbox[0] >= 2 and bbox[2] <= 110 and bbox[1] >= 2 and bbox[3] <= 62, f"W frame {index} touches an atlas edge")
+        check(12 <= width <= 88, f"E frame {index} left the 12-88px readable width")
+        check(8 <= height <= 40, f"E frame {index} left the 8-40px readable height")
+        check(bbox[0] >= 2 and bbox[2] <= 94 and bbox[1] >= 2 and bbox[3] <= 62, f"E frame {index} touches an atlas edge")
+        if index < 3:
+            check(width >= height * 2, f"E dash frame {index} is not a horizontal wake")
+        else:
+            check(width <= height * 2, f"E impact frame {index} does not read as a compact collision")
+    e_anim = load_json("aseprite_resources/effects/shen_e#anim.fanim")
+    check(set(e_anim.get("anims", {})) == {"dash", "impact"}, "E animation must expose dash and impact tags")
+    check(len(e_anim.get("anims", {}).get("dash", {}).get("frames", [])) == 3, "E dash tag must have three frames")
+    check(len(e_anim.get("anims", {}).get("impact", {}).get("frames", [])) == 3, "E impact tag must have three frames")
 
     lucian = style.get("entries", {}).get("archer", {})
     check(lucian.get("face") == {"x": 0, "y": -34}, "Lucian compact portrait offset must be x=0/y=-34")
@@ -4324,7 +4411,19 @@ def validate_localization() -> None:
     check(text.get("zh-hant", {}).get("description", {}).get("lol_shen", {}).get("name") == "慎", "zh-hant name must be 慎")
     check(text.get("zh-hans", {}).get("description", {}).get("lol_lucian", {}).get("name") == "卢锡安", "zh-hans Lucian name must be 卢锡安")
     check(text.get("zh-hant", {}).get("description", {}).get("lol_lucian", {}).get("name") == "路西恩", "zh-hant Lucian name must be 路西恩")
-    check("lowest-health" in text.get("en", {}).get("description", {}).get("lol_shen", {}).get("ult", ""), "English R text must disclose the target-selection limitation")
+    shen_en = text.get("en", {}).get("description", {}).get("lol_shen", {})
+    shen_zh_hans = text.get("zh-hans", {}).get("description", {}).get("lol_shen", {})
+    shen_zh_hant = text.get("zh-hant", {}).get("description", {}).get("lol_shen", {})
+    check("Twilight Assault" in shen_en.get("skill", ""), "English Q text must name Twilight Assault")
+    check("next 3 basic attacks" in shen_en.get("skill", ""), "English Q text must disclose three empowered attacks")
+    check("Shadow Dash" in shen_en.get("skill2", ""), "English second slot must be Shadow Dash")
+    check("taunted for 1.5 seconds" in shen_en.get("skill2", ""), "English E text must disclose the 1.5-second taunt")
+    check("奥义！暮临" in shen_zh_hans.get("skill", ""), "zh-hans Q must use the localized Twilight Assault name")
+    check("奥义！影缚" in shen_zh_hans.get("skill2", ""), "zh-hans second slot must be Shadow Dash")
+    check("奧義！暮臨" in shen_zh_hant.get("skill", ""), "zh-hant Q must use the localized Twilight Assault name")
+    check("奧義！影縛" in shen_zh_hant.get("skill2", ""), "zh-hant second slot must be Shadow Dash")
+    check("lowest-health" in shen_en.get("ult", ""), "English R text must disclose the target-selection limitation")
+    check("taunt" not in shen_en.get("ult", "").lower(), "English R text must not retain the old arrival taunt")
     lucian_en = text.get("en", {}).get("description", {}).get("lol_lucian", {})
     check("15 shots" in lucian_en.get("ult", ""), "English Lucian R text must disclose 15 shots")
     check("45%" in lucian_en.get("attack", ""), "English Lucian passive text must disclose the 45% second shot")
@@ -4332,7 +4431,8 @@ def validate_localization() -> None:
 
 def validate_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
     sfx_names = sorted({effect.get("name") for effect in walk_effects(champion) if effect.get("type") in {"Sfx", "TargetSfx"}})
-    check(len(sfx_names) == 7, f"expected 7 wired Shen sound events, got {len(sfx_names)}")
+    check(len(sfx_names) == 5, f"expected 5 active Shen sound events after W retirement, got {len(sfx_names)}")
+    check("lol_shen_w_cast" not in sfx_names and "lol_shen_w_block" not in sfx_names, "retired W audio events remain active")
     for name in sfx_names:
         source_key = f"asset/base/sound/sfx/{name}"
         event_override = override.get(source_key, {})
@@ -5110,7 +5210,7 @@ def validate_sivir_imagegen_and_qa_files() -> None:
 
 def validate_imagegen_sources() -> None:
     expected = {
-        "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
+        "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "e_icon", "r_icon", "q_vfx", "e_vfx", "r_vfx"},
         "qa/lucian_imagegen_sources.json": {"actor_model", "run_cycle", "attack_vfx", "q_icon", "e_icon", "r_icon", "q_vfx", "r_vfx"},
         "qa/orianna_imagegen_sources.json": {
             "actor_model",
@@ -6711,6 +6811,225 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
     check(not missing, "Xayah runtime resources are missing from build_manifest.json: " + ", ".join(missing))
 
 
+def validate_urgot_w(champion: dict[str, Any]) -> None:
+    """Gate crash-safe Urgot W and the pure-data E flip implementation."""
+
+    w = champion.get("skill", {})
+    check(
+        (
+            w.get("action_name"),
+            w.get("cooltime"),
+            w.get("duration"),
+            w.get("start_timing"),
+            w.get("cancelable"),
+            w.get("range"),
+            w.get("casting_type"),
+            w.get("casting_target"),
+            w.get("can_use_with_move"),
+        )
+        == ("attack", 600, 16, 1, False, 60000, "Targeting", "EnemyWithoutTower", False),
+        "Urgot W must be a non-cancelable 16-tick targeted pure-data action",
+    )
+    w_effects = list(walk_effects(w))
+    w_types = [str(effect.get("type", "")) for effect in w_effects]
+    check(not any("Projectile" in effect_type for effect_type in w_types), "Urgot W must contain no projectile variant")
+    check("RangePeriod" not in w_types and "RangePeriodProjectile" not in w_types, "Urgot W must contain no periodic range entity")
+    check("AddCasted" not in w_types, "Urgot W must not reuse AddCasted/Bleed")
+    check("Delayed" not in w_types, "Urgot W must contain no delayed scheduler callback")
+    check("Native" not in w_types, "Urgot W must contain no native callback")
+    for visual_type in ("CasterAnimation", "CasterViewEffect", "ViewEffect", "TargetSfx"):
+        check(visual_type not in w_types, f"Urgot W must not render the rejected body/target visual: {visual_type}")
+
+    attacks = find_effect(w, "Attack")
+    check(
+        attacks == [{"type": "Attack", "damage": 96, "attack_ratio": 240}],
+        "Urgot W must compress the rejected twelve-pulse route into one 96 + 240% Attack hit",
+    )
+    check(
+        find_effect(w, "Sfx")
+        == [
+            {"type": "Sfx", "name": "lol_urgot_w_cast"},
+            {"type": "Sfx", "name": "lol_urgot_w_shot"},
+        ],
+        "Urgot W must retain exactly one cast cue and one immediate shot cue",
+    )
+    caster_buffs = find_effect(w, "AddCasterBuff")
+    check(
+        len(caster_buffs) == 1
+        and caster_buffs[0].get("buff_state")
+        == {
+            "name": "lol_urgot_w_purge",
+            "duration": {"Time": {"tick": 240}},
+            "move_speed_mult": -12,
+            "defence": 20,
+            "magic_resistance": 10,
+        },
+        "Urgot W must retain only the four-second Purge self buff",
+    )
+
+    runtime_views = [*champion.get("view_projectiles", []), *champion.get("view_effects", [])]
+    check(
+        all(not str(view.get("name", "")).startswith("lol_urgot_w_") for view in runtime_views),
+        "Urgot W runtime projectile/impact bindings must be removed",
+    )
+    check(
+        all("urgot_w_cannon" not in str(view.get("anim", "")) for view in runtime_views),
+        "Urgot W cannon sheet must not be reachable from runtime champion bindings",
+    )
+    check(not champion.get("view_buffs"), "Urgot W must not add a body-covering view buff")
+
+    e = champion.get("skill2", {})
+    check(
+        (
+            e.get("action_name"),
+            e.get("cooltime"),
+            e.get("duration"),
+            e.get("range"),
+            e.get("casting_type"),
+            e.get("casting_target"),
+        )
+        == ("transform", 420, 30, 45000, "Targeting", "EnemyChampion"),
+        "Urgot E timing or targeted champion contract changed",
+    )
+    e_rushes = find_effect(e, "RushMoveToBack")
+    check(len(e_rushes) == 1, "Urgot E must contain exactly one RushMoveToBack")
+    if e_rushes:
+        rush = e_rushes[0]
+        check(rush.get("speed") == 4500, "Urgot E RushMoveToBack speed must be 4500")
+        check(
+            rush.get("applied_effects")
+            == [
+                {"type": "Attack", "damage": 70, "attack_ratio": 90},
+                {"type": "Knockback", "speed": 2600, "tick": 8},
+                {"type": "Airborne", "duration": 60},
+                {"type": "ViewEffect", "name": "lol_urgot_e_flip_visual"},
+                {"type": "TargetSfx", "name": "lol_urgot_e_hit"},
+            ],
+            "Urgot E must cross the target, then use the proven Knockback/Airborne flip order",
+        )
+    check(not find_effect(e, "Native"), "Urgot E must not apply native Stun before displacement")
+    check(not find_effect(e, "Delayed"), "Urgot E flip must not retain a delayed target callback")
+    check(not find_effect(e, "Grab"), "Urgot E must throw past Urgot instead of pulling onto his body")
+
+    rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    for retired_rust_token in (
+        "struct UrgotAbilityInputGate",
+        "impl ModPlayerInputAi for UrgotAbilityInputGate",
+        "registration.add_player_input_ai(UrgotAbilityInputGate);",
+        '"lol_urgot_ability_input_gate"',
+        "struct UrgotWPulseNativeEffect",
+        "impl ModEffectType for UrgotWPulseNativeEffect",
+        '"lol_urgot_w_pulse_native"',
+        "URGOT_W_RANGE",
+        "URGOT_W_FLAT_DAMAGE",
+        "URGOT_W_ATTACK_RATIO_PERCENT",
+        "struct UrgotENativeEffect",
+        "impl ModEffectType for UrgotENativeEffect",
+        '"lol_urgot_e_native"',
+        "URGOT_E_STUN_TICKS",
+    ):
+        check(retired_rust_token not in rust, f"Urgot crash route must be removed from Rust: {retired_rust_token}")
+
+    def urgot_impl_block(start_marker: str, end_marker: str, label: str) -> str:
+        start = rust.find(start_marker)
+        end = rust.find(end_marker, start + len(start_marker)) if start >= 0 else -1
+        check(start >= 0 and end > start, f"Urgot {label} native implementation is missing")
+        return rust[start:end] if start >= 0 and end > start else ""
+
+    passive_rust = urgot_impl_block(
+        "impl ModEffectType for UrgotPassiveNativeEffect {",
+        "struct UrgotRCheckNativeEffect;",
+        "passive",
+    )
+    passive_tokens = (
+        ".map(|caster| (caster.handle(), caster.stat().attack, caster.is_alive()))",
+        "if !caster_alive",
+        ".map(|target| (target.hp().max, target.is_alive()))",
+        "if !target_alive || target_max_hp == 0",
+    )
+    passive_positions = [passive_rust.find(token) for token in passive_tokens]
+    check(
+        all(position >= 0 for position in passive_positions)
+        and passive_positions == sorted(passive_positions),
+        "Urgot passive must reacquire alive caster/target snapshots after the base Attack",
+    )
+    if passive_positions and all(position >= 0 for position in passive_positions):
+        guards_end = passive_positions[-1]
+        for mutation in (
+            "cooldown.ready_tick = now.saturating_add",
+            "cooldowns.push(UrgotPassiveCooldown",
+            "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
+        ):
+            check(
+                passive_rust.find(mutation) > guards_end,
+                f"Urgot passive must validate both live entities before {mutation}",
+            )
+
+    r_check_rust = urgot_impl_block(
+        "impl ModEffectType for UrgotRCheckNativeEffect {",
+        "struct UrgotRExecuteNativeEffect;",
+        "R threshold check",
+    )
+    r_check_positions = [
+        r_check_rust.find("if target_hp.current > execute_limit"),
+        r_check_rust.find(".get_entity(caster_id)"),
+        r_check_rust.find(".is_some_and(|caster| caster.is_alive())"),
+        r_check_rust.find('ready.name = "lol_urgot_r_execute_ready"'),
+        r_check_rust.find("ctx.add_buff(caster_id, ready);"),
+    ]
+    check(
+        all(position >= 0 for position in r_check_positions)
+        and r_check_positions == sorted(r_check_positions),
+        "Urgot R check must verify a live caster immediately before its ready marker",
+    )
+
+    r_execute_rust = urgot_impl_block(
+        "impl ModEffectType for UrgotRExecuteNativeEffect {",
+        "\nfn init(",
+        "R execute",
+    )
+    caster_lookup = ".get_entity(caster_id)"
+    caster_alive = ".is_some_and(|caster| caster.is_alive())"
+    first_lookup = r_execute_rust.find(caster_lookup)
+    second_lookup = r_execute_rust.find(caster_lookup, first_lookup + 1)
+    first_alive = r_execute_rust.find(caster_alive)
+    second_alive = r_execute_rust.find(caster_alive, first_alive + 1)
+    r_execute_positions = [
+        first_lookup,
+        first_alive,
+        r_execute_rust.find(
+            "ctx.deal_damage(caster_id, target_id, lethal_damage, 0, AttackType::Skill);"
+        ),
+        r_execute_rust.find(".is_some_and(|target| !target.is_alive())"),
+        r_execute_rust.find("if !executed"),
+        second_lookup,
+        second_alive,
+        r_execute_rust.find('success.name = "lol_urgot_r_execute_success"'),
+        r_execute_rust.find("ctx.add_buff(caster_id, success);"),
+    ]
+    check(
+        r_execute_rust.count(caster_lookup) == 2
+        and r_execute_rust.count(caster_alive) == 2
+        and all(position >= 0 for position in r_execute_positions)
+        and r_execute_positions == sorted(r_execute_positions),
+        "Urgot R execute must verify the caster before damage and again before its success marker",
+    )
+
+    text = load_json("text/champion.i18n")
+    required_copy = {
+        "en": ("one valid non-tower enemy", "96 + 240% Attack", "chosen direction", "reacquires", "12 rapid pulses"),
+        "zh-hans": ("一个合法的非防御塔敌人", "96 + 240%攻击力", "选定方向", "重新搜寻", "快速攻击12次"),
+        "zh-hant": ("一個合法的非防禦塔敵人", "96 + 240%攻擊力", "選定方向", "重新搜尋", "快速攻擊12次"),
+        "ja": ("有効なタワー以外の敵1体", "96 + 攻撃力の240%", "指定方向", "探し直す", "計12回"),
+        "ko": ("유효한 포탑이 아닌 적 하나", "96 + 공격력의 240%", "지정한 방향", "다시 찾습니다", "총 12회의"),
+    }
+    for locale, (target_copy, damage_copy, retired_direction_copy, retired_reacquire_copy, retired_pulse_copy) in required_copy.items():
+        skill_copy = str(text.get(locale, {}).get("description", {}).get("demon", {}).get("skill", ""))
+        check(target_copy in skill_copy and damage_copy in skill_copy, f"Urgot W {locale} copy must describe the compressed single hit")
+        check(retired_direction_copy not in skill_copy, f"Urgot W {locale} copy still describes the rejected direction route")
+        check(retired_pulse_copy not in skill_copy and retired_reacquire_copy not in skill_copy, f"Urgot W {locale} copy still describes the rejected pulse scheduler")
+
+
 def main() -> int:
     champion = load_json("champion/lol_shen.data_champion")
     lucian = load_json("champion/archer.data_champion")
@@ -6719,6 +7038,7 @@ def main() -> int:
     sivir = load_json("champion/boomerang_hunter.data_champion")
     kled = load_json("champion/cavalry_knight.data_champion")
     xayah = load_json("champion/dancer.data_champion")
+    urgot = load_json("champion/demon.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
     check(mod_info.get("version") == "0.10.9", "lol_mod version must be 0.10.9")
@@ -6754,7 +7074,7 @@ def main() -> int:
         {"idle": 7, "run": 9, "attack": 6, "skill": 7, "skill2": 5, "ult": 5, "hit": 1, "dead": 1},
     )
     validate_animation("aseprite_resources/effects/shen_q#sheet.png", "aseprite_resources/effects/shen_q#anim.fanim", {"projectile": 8})
-    validate_animation("aseprite_resources/effects/shen_w#sheet.png", "aseprite_resources/effects/shen_w#anim.fanim", {"field": 6})
+    validate_animation("aseprite_resources/effects/shen_e#sheet.png", "aseprite_resources/effects/shen_e#anim.fanim", {"dash": 3, "impact": 3})
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
     validate_animation(
         "aseprite_resources/champions/lucian#sheet.png",
@@ -6796,7 +7116,7 @@ def main() -> int:
     validate_animation("aseprite_resources/effects/lucian_r#sheet.png", "aseprite_resources/effects/lucian_r#anim.fanim", {"projectile": 8})
     validate_actor_and_icons(champion)
     validate_lucian_actor_and_icons(lucian)
-    validate_compact_view_and_w_layout()
+    validate_compact_view_and_e_layout()
     validate_native_lucian_localization()
     validate_orianna_localization()
     validate_briar_localization_and_style()
@@ -6808,6 +7128,7 @@ def main() -> int:
     validate_sivir_audio(sivir, override)
     validate_kled_audio(kled, override)
     validate_xayah_release(xayah, override)
+    validate_urgot_w(urgot)
     validate_briar_imagegen_and_qa_files()
     validate_sivir_imagegen_and_qa_files()
     validate_imagegen_sources()

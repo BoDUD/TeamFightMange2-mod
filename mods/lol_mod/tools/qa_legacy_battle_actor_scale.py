@@ -183,6 +183,15 @@ PRESERVED_UI_SHA256 = {
     "ui/champion_portrait/boomerang_hunter_grid.png": "852532e8af7f8573f81e708d54b7b5a51561ac4d3e4548f9e35fef52155bdd89",
 }
 
+# PR #9 can be built before or after the independent Yone/009 branch. Yone
+# adds one champion_view entry but does not touch any of the five audited
+# portrait cameras, so both exact pre-resize style hashes are valid baselines.
+PRESERVED_UI_SHA256_ALTERNATES = {
+    "style/champion_view.champion_view": {
+        "66539e56d720673c0311d1dbdb19a0ed9d4db619a1fb0746b2c9a0eb43ea5309",
+    },
+}
+
 PRESERVED_ANIMATION_SHA256 = {
     "shen": "4fcd4da62313dc2e5294310b2c1ba998f24ae063643b0bf0f29bd95845aa8e16",
     "lucian": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c",
@@ -883,10 +892,12 @@ def build_all() -> list[Path]:
     preserved: dict[str, Any] = {}
     for relative, expected in PRESERVED_UI_SHA256.items():
         actual = sha256(MOD_ROOT / relative)
+        accepted = {expected, *PRESERVED_UI_SHA256_ALTERNATES.get(relative, set())}
+        unchanged = actual in accepted
         preserved[relative] = {
-            "before_sha256": expected,
+            "before_sha256": actual if unchanged else expected,
             "after_sha256": actual,
-            "unchanged": actual == expected,
+            "unchanged": unchanged,
         }
     if not all(record["unchanged"] for record in preserved.values()):
         changed = [path for path, record in preserved.items() if not record["unchanged"]]
