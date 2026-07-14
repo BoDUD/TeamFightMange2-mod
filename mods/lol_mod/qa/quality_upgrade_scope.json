@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.10",
+  "release": "0.11.0",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -160,15 +160,50 @@
       "stable_id": "dual_blader",
       "native_force_pick_index": 16,
       "active_slots": [
-        "Q Mortal Steel",
-        "W Sealed Pursuit",
-        "R Soul Unbound: Sixfold Echo"
+        "Q Mortal Steel Q1/Q2/Q3",
+        "E Soul Unbound + W Spirit Cleave composite approximation",
+        "R Fate Sealed: Sixfold Echo approximation"
       ],
       "same_id_replacement": true,
-      "hit_gated_two_stage_q": true,
+      "hit_gated_three_stage_q": true,
+      "q_named_stacks": [
+        "lol_yone_mortal_steel_stack_1",
+        "lol_yone_mortal_steel_stack_2"
+      ],
+      "q_hit_dedup_guards": [
+        "lol_yone_mortal_steel_stack_1",
+        "lol_yone_mortal_steel_stack_2"
+      ],
       "empowered_q_dash_damage": false,
-      "w_target": "EnemyChampion",
-      "w_ai_gate": "removed_custom_gate_stock_engine_data_ai",
+      "q3_projectiles": 1,
+      "q3_airborne_ticks": 45,
+      "skill2_target": "EnemyChampion",
+      "skill2_range": 48000,
+      "skill2_runtime_body_tag": "skill2_attack",
+      "skill2_runtime_body_frames": 5,
+      "skill2_ai_gate": "removed_custom_gate_stock_engine_data_ai",
+      "e_spirit_return": "LinearProjectile -> BackToCasterLinearProjectile visual chain",
+      "e_real_coordinate_restore": false,
+      "e_coordinate_limit": "public data API exposes no writable hero coordinate snapshot/restore; hero stays at fixed body marker",
+      "w_damage_line_range": {
+        "width": 42000,
+        "length": 48000,
+        "apply": 1,
+        "applied_target": "EnemyWithoutTower",
+        "attack_count": 1,
+        "hit_sfx_count": 1
+      },
+      "w_champion_shield_probe": {
+        "width": 42000,
+        "length": 48000,
+        "apply": 1,
+        "applied_target": "EnemyChampion",
+        "attack_count": 0,
+        "shield_tiers": 2
+      },
+      "w_airborne_applications": 0,
+      "w_shield_hit_cap": 2,
+      "w_shield_counter_target": "EnemyChampion",
       "r_physical_slashes": 6,
       "r_final_fixed_echoes": 1,
       "r_airborne_applications": 1,

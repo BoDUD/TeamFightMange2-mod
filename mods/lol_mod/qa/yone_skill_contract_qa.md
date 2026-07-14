@@ -1,54 +1,49 @@
-# 永恩 009 Q/W/R 技能契约
+# 永恩 009 三主动槽技能契约
 
-本文件记录 `dual_blader` 的静态安全门禁。实机项目必须由人工测试确认，静态测试通过不等于已经完成实机验收。
+本文件记录 `dual_blader` 的静态安全门禁。公开 Mod API 只提供 Q、第二主动槽和 R，因此当前实现严格保留三个主动按钮：`skill=Q`、`skill2=E+W 组合近似`、`ult=R`，不会伪造第四个按钮。
 
-## 槽位
+## Q — 错玉切
 
-- `skill`：Q 错玉切，两段循环。
-- `skill2`：W 封尘追斩，选择 `EnemyChampion`。
-- `ult`：R 破障之锋·六道断魂。
-- 不增加 E、第四技能或合并技能。
+- [x] Q 使用清晰的 `Q1 → Q2 → Q3` 三段状态，而不是旧版两段循环。
+- [x] Q1 命中后才添加 `lol_yone_mortal_steel_stack_1`，持续 360 tick；未命中不会叠层。
+- [x] Q2 命中后才移除第一层并添加 `lol_yone_mortal_steel_stack_2`，持续 360 tick；未命中不会推进。
+- [x] Q1/Q2 的穿透命中 payload 各有内层 `SwitchByBuff` 同状态防重；多目标命中只允许首个目标推进层数。
+- [x] Q3 在施法开始立即移除第二层，即使命中失败也不会保留强化状态。
+- [x] Q3 只执行一次 `RushTime`，其 `applied_effects` 为空，因此冲刺本身无伤害。
+- [x] Q3 只生成一条 `lol_yone_q_empowered_projectile` 风道；命中只包含一次 `25 + 80% AD` 攻击与一次 45 tick `Airborne`。
+- [x] `lol_yone_q3_airborne_cue` 使用独立竖向击飞动画，目标身上会出现明显上升提示。
+- [x] Q 不含 `Delayed`、`Native` 或第二条强化风道。
 
-## Q
+## 第二主动槽 — E 灵体 + W 月牙组合近似
 
-- 普通 Q 只有弹体命中敌人后才添加 `lol_yone_gathering_storm`。
-- 穿透多个敌人时，内层 `SwitchByBuff` 保证状态不会重复叠加。
-- 强化 Q 的第一项效果必须移除状态，因此空技能也会消耗强化。
-- `RushTime` 的 `applied_effects` 为空，冲刺本身不造成伤害。
-- 伤害只来自强化剑风：`25 + 80% AD`，并击飞 45 tick。
+- [x] `skill2` 仍以 `EnemyChampion` 为目标，让游戏原生 AI 可以稳定选择并释放，不依赖自定义输入 AI；施法范围 `48000` 与 W 唯一含伤害的命中体长度一致，不会在无伤区间施放。
+- [x] `lol_yone_e_body_anchor` 是不跟随的固定本体标记，留在施法点。
+- [x] `lol_yone_e_spirit_outbound` 是无伤害的可见灵体投射物；抵达终点后只生成一个 `BackToCasterLinearProjectile`：`lol_yone_e_spirit_return`。
+- [x] 灵体往返投射物的 `applied_effects` 都为空，返回结束只播放 `lol_yone_e_return_burst`，不会重复伤害或控制。
+- [x] 公开数据 API 没有可写英雄坐标与安全位置快照，所以真实英雄坐标不会被伪造回溯；永恩本人留在本体标记处。文案明确说明这不是 LoL E 的真实位置回溯。
+- [x] 真实技能树使用五帧 `skill2_attack` 作为 42 tick `CasterAnimation`，QA contact 也展示同一 tag，不再用单帧 `skill2` 冻结身体。
+- [x] 同一组合动作创建两个完全同形状的短宽 `LineRangeProjectile`：均为宽 42000、长 48000、`apply=1`。
+- [x] `lol_yone_w_sweep_hitbox` 使用 `EnemyWithoutTower`，只包含一次 `45 + 90% AD` 攻击和命中 SFX；英雄、小兵与野怪都会受伤，防御塔除外。
+- [x] `lol_yone_w_champion_shield_probe` 使用 `EnemyChampion`，不含 `Attack` 或伤害命中 SFX，只负责护盾、计数和护盾视觉；第一名英雄命中获得 `70 + 20% AD` 护盾，第二名最多再增加 `35 + 10% AD`，之后不再增长。
+- [x] 英雄同时经过两个命中体但只由伤害体受到一次伤害；小兵与野怪只经过伤害体，不会触发护盾档位。
+- [x] W 无击飞：整个 `skill2` 不含 `Airborne`、`Knockback`、`Rush`、`RushTime` 或 `RushMoveToBack`。
+- [x] 已删除旧追背 W 的锁定、背后位移、交叉斩与击飞视觉命名；护盾只使用小型开放月牙，不覆盖英雄身体。
 
-## W
+## AI 与卡死回归门禁
 
-- 施法目标为 `EnemyChampion`，不再要求目标预先处于控制中。
-- 仅有一个 `RushMoveToBack`。
-- 到达后只结算一次 `45 + 90% AD`、一次 45 tick 击飞和一份 `90 + 30% AD`、90 tick 自盾。
-- W 不包含 `Delayed` 或 `Native`。
-- 最远移动预算：`start 4 + travel ceil(90000 / 5000) 18 = 22 < duration 36`。
+- [x] Rust 中不得恢复 `YoneWInputGate`、`lol_yone_w_input_gate` 或 `registration.add_player_input_ai(YoneWInputGate)`。
+- [x] Rust 中不得恢复 `ctx.is_valid_input(&sealed_pursuit)` 或任何对过期目标实体的二次校验。
+- [x] E/W 组合仅使用数据层投射物、范围命中与护盾，不新增 Rust 状态、互斥锁、实体缓存或解包路径。
 
-## W AI
+## R — 封尘绝念斩（数据近似）
 
-- W 的数据目标由 `EnemyChampionInCC` 修正为 `EnemyChampion`，由原生 AI 按技能冷却、距离、目标与动作状态选择释放，不再要求目标预先受控。
-- 退役整个 `YoneWInputGate` 及其注册。该门控把原生普攻目标提升成 R/W，并对同一个目标依次调用 `ctx.is_valid_input`；Mod API 0.8 的这个方法只是把输入转发给游戏，不提供过期实体 ID 的存在性保护。
-- 只检查 `InputTarget::Target` 变体并不安全：目标可能在普攻决策产生后、R/W 校验前死亡或消失，仍会让引擎解包缺失实体。`PlayerAiContext` 又没有公开的安全实体查询，因此不能在 mod 门控里可靠补齐这层生命周期检查。
-- W 的数据效果树、冲刺、伤害、击飞、护盾、动作和视效全部保持不变；修复只删除不安全的 AI 重校验层。
-- 回归门禁要求 Rust 中不存在 `YoneWInputGate`、`lol_yone_w_input_gate`、其注册以及 `ctx.is_valid_input(&sealed_pursuit)`。
+- [x] R 保留一次到达击飞、六次交替物理斩击和一次固定伤害灵魂回响。
+- [x] 延迟节点仍为 `8/16/24/32/40/48/60`；最坏路径 `start 4 + travel 8 + delayed 60 = 72 < duration 96`。
+- [x] R 不使用自动换目标、范围随机目标或 `Native` 效果。
 
-## R
+## 待人工实机确认
 
-- 只在到达目标身后时施加一次 60 tick 击飞。
-- 延迟必须严格为 `8/16/24/32/40/48/60`。
-- 前六次各造成 `12 + 16% AD` 物理伤害；第 60 tick 只造成一次 `30 + 25% AD` FixedAttack。
-- 生命周期预算：`start 4 + travel 8 + delayed 60 = 72 < duration 96`。
-- R 不使用自动换目标、范围重新选敌或 Native，因此不能把目标死亡后的余下斩击转移给其他英雄。
-
-## 防卡死约束
-
-- 2026-07-14 的实机复现中，战斗计时器停在 `01:32`；`log.log` 在 `17:49:58.857`、`17:49:59.100`、`17:49:59.107` 连续记录三次 `called Option::unwrap() on a None value`，窗口仍响应但模拟不再推进。这与已退役的厄加特 targeted 输入重校验故障形态一致。
-- 当前安全修复删除永恩自定义输入门控，让原生 AI 直接使用 `EnemyChampion` 数据契约；不再从普攻携带的可能过期实体目标构造 R/W 输入。
-- 重启游戏后，包含永恩与厄加特的新对局已推进至 `07:02`，超过原 `01:32` 卡死点且当前日志为 0 次 panic；W 稳定性路径通过本轮实机冒烟测试。
-- 永恩 Q/W/R 整棵效果树为零 `Native`，不新增 mutex、实体状态表或自定义目标生命周期。
-- Q 与 W 不使用延迟效果。
-- R 所有延迟均在动作持续时间内完成。
-- 实机需分别在 W 冲刺中以及 R 的 0/8/16/24/32/40/48 tick 杀死目标，确认不会锁动作、残留音效或更换目标。
-- 实机连续执行 50–100 次 W/R 压力测试，确认模拟时间继续、AI 能恢复移动与普攻。
-- `FixedAttack` 未实测前，技能文本只能写“固定伤害”，不能写“真实伤害”。
+- [ ] 连续观察 Q1/Q2 命中层数和 Q3 竖向击飞，确认风道只结算一次伤害。
+- [ ] 观察 E 的固定本体标记、蓝色灵体离体、红色灵体返回与返回闪光是否连续可读。
+- [ ] 在英雄、小兵与野怪目标下观察 W 月牙：三者各只受一次伤害，且只有前两名英雄触发两档封顶护盾；确认没有旧背后位移、击飞或身体覆盖特效。
+- [ ] 以 50 次以上第二主动槽/R 压力测试确认模拟时间持续推进，AI 能恢复移动与普攻。

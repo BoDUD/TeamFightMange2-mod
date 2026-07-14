@@ -1627,25 +1627,33 @@
       "yone_q",
       "empowered_hit"
     ],
-    "lol_yone_w_lock": [
-      "yone_followup",
-      "lock"
+    "lol_yone_q3_airborne_cue": [
+      "yone_q3_airborne",
+      "cue"
     ],
-    "lol_yone_w_dash_visual": [
-      "yone_followup",
-      "dash"
+    "lol_yone_e_spirit_outbound": [
+      "yone_spirit",
+      "outbound"
     ],
-    "lol_yone_w_cross": [
-      "yone_followup",
-      "cross"
+    "lol_yone_e_spirit_return": [
+      "yone_spirit",
+      "return"
     ],
-    "lol_yone_w_airborne": [
-      "yone_followup",
-      "airborne"
+    "lol_yone_e_body_anchor": [
+      "yone_spirit",
+      "anchor"
     ],
-    "lol_yone_w_guard": [
+    "lol_yone_e_return_burst": [
+      "yone_spirit",
+      "return_burst"
+    ],
+    "lol_yone_w_crescent": [
+      "yone_w",
+      "crescent"
+    ],
+    "lol_yone_w_shield_visual": [
       "yone_followup",
-      "guard"
+      "shield"
     ],
     "lol_yone_r_windup": [
       "yone_r",
@@ -1668,7 +1676,34 @@
       "echo"
     ]
   },
-  "large_vfx_policy": "Q/W/R feedback is isolated in yone_q/yone_followup/yone_r sheets; W uses narrow target, trail, cross, airborne and open guard cues instead of an enclosing ring.",
+  "runtime_body_actions": {
+    "skill2": {
+      "animation_tag": "skill2_attack",
+      "frame_count": 5,
+      "qa_contact_tag": "skill2_attack"
+    }
+  },
+  "runtime_w_resolution": {
+    "shared_geometry": {
+      "width": 42000,
+      "length": 48000,
+      "delay": 0,
+      "apply": 1
+    },
+    "damage_hitbox": {
+      "name": "lol_yone_w_sweep_hitbox",
+      "applied_target": "EnemyWithoutTower",
+      "attack_count": 1,
+      "hit_sfx_count": 1
+    },
+    "champion_shield_probe": {
+      "name": "lol_yone_w_champion_shield_probe",
+      "applied_target": "EnemyChampion",
+      "attack_count": 0,
+      "shield_tiers": 2
+    }
+  },
+  "large_vfx_policy": "Q3 knockup, E spirit/anchor/return, W crescent/shield and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
   "portrait_policy": {
     "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
     "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96"

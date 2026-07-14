@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.10.10"
+    assert load_json("mod.mod_info")["version"] == "0.11.0"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"

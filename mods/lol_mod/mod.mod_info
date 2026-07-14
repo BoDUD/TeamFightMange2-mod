@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.10",
-  "description": "Local Urgot + Yone review bundle. Adds Shen and reworks official champions 002-009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah, Urgot, and Yone. Version 0.10.10 combines the high-definition rebuilds for Shen, Lucian, Orianna, Briar, and Sivir plus Urgot W/E/R with Yone Q/W/R, compact portrait, Ban/Pick transition, recall and idle anchors, and independent follow-up effects. This local integration build is only for simultaneous review of official slots 008 and 009 and does not replace either PR branch. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.11.0",
+  "description": "Local Shen, Urgot, and Yone joint review bundle. It keeps the fixed battle scale and compact portraits for Shen, Lucian, Orianna, Briar, and Sivir; uses Shen's three-charge spirit-blade Q and native 1.5-second E taunt; keeps Urgot W on the crash-safe single-hit pure-data route and E on the rush-behind flip contract; and rebuilds Yone with guarded Q1/Q2/Q3 progression, one airborne Q3 wind lane, plus an E-spirit and W-crescent composite in the three active slots exposed by Mod API 0.8. Yone W has one non-tower-enemy damage hitbox and a separate champion-only capped shield probe. The public data API cannot restore real hero coordinates, so Yone E is explicitly a visual outbound/BackToCaster return approximation. This local integration build does not merge either Draft PR. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
   "last_updated": "2026-07-14",
   "dependencies": [
     {
