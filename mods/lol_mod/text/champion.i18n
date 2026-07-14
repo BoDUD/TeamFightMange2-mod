@@ -4,9 +4,9 @@
       "lol_shen": {
         "name": "Shen",
         "attack": "Ninja Blade: Shen makes a steady melee strike for 100% Attack physical damage.",
-        "skill": "Twilight Assault: Sends the spirit blade through enemies, dealing 40 + 60% Ability Power magic damage and slowing them by 25% for 1.5 seconds. Hitting an enemy grants Shen a 120 shield for 2 seconds.",
-        "skill2": "Spirit's Refuge: Creates a defensive field around Shen. Allied champions in the field gain a 150 + 40% Ability Power shield for 2.5 seconds, while enemy champions lose 30% Attack Speed for 2 seconds.",
-        "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After 0.8 seconds Shen teleports to the ally and taunts nearby enemy champions for 0.75 seconds. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
+        "skill": "Twilight Assault: Recalls Shen's spirit blade and empowers his next 3 basic attacks for 8 seconds. Each charge adds 20 + 20% Ability Power magic damage. This stable data implementation does not track a separate blade position or the conditional slow on enemies moving away from Shen.",
+        "skill2": "Shadow Dash: Dashes up to 600 range in the chosen direction, passing through enemy champions. Each champion hit takes 60 physical damage and is taunted for 1.5 seconds.",
+        "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After the 0.8-second engine-paced channel Shen teleports to the ally. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
       },
       "archer": {
         "name": "Lucian",
@@ -53,7 +53,7 @@
       "demon": {
         "name": "Urgot",
         "attack": "Echoing Flames: Fires a basic shot for 100% Attack physical damage. Once every 2 seconds per Urgot, the shotgun legs add 20 + 30% Attack + 2% of the target's maximum Health as physical damage.",
-        "skill": "W — Purge: For 4 seconds Urgot may move but cannot basic attack. He fires 12 auto-targeting cannon shots, one every 0.33 seconds, each dealing 8 + 20% Attack physical damage. During Purge he loses 12% Move Speed and gains 20 Defence and 10 Magic Resistance. Cooldown: 10 seconds.",
+        "skill": "W — Purge: Fires a stable compressed shot at one valid non-tower enemy, immediately dealing 96 + 240% Attack physical damage. Urgot then loses 12% Move Speed and gains 20 Defence and 10 Magic Resistance for 4 seconds. Cooldown: 10 seconds.",
         "skill2": "E — Disdain: Gains a 160 + 70% Attack shield for 3 seconds, rushes behind a targeted enemy champion, deals 70 + 90% Attack physical damage, stuns for 1 second and flings the target behind him. Cooldown: 7 seconds.",
         "ult": "R — Fear Beyond Death: Fires a non-piercing drill up to 900 range. The first enemy champion hit takes 80 + 60% Attack physical damage and is slowed by 35% for 1.5 seconds. After 0.75 seconds Urgot reels the victim in; if their current Health is 25% or lower at that moment, he executes them. Only a successful execution deals 30 + 30% Attack physical damage and fears enemy champions within 320 range for 0.75 seconds. Cooldown: 50 seconds."
       },
@@ -61,7 +61,7 @@
         "name": "Yone",
         "attack": "Way of the Hunter: Alternates between a blue-white steel slash and a red-black Azakana slash. Both deal 100% Attack physical damage in this data-only version.",
         "skill": "Q — Mortal Steel: Sends a narrow piercing thrust for 25 + 80% Attack physical damage. A hit grants Gathering Storm for 6 seconds; the next Q consumes it, dashes forward without dealing dash damage, releases a longer wind blade and knocks hit enemies airborne for 0.75 seconds. Cooldown: 4 seconds.",
-        "skill2": "W — Sealed Pursuit: Can target only a crowd-controlled enemy champion. Yone rushes behind the target, deals 45 + 90% Attack physical damage, knocks them airborne for 0.75 seconds and gains a 90 + 30% Attack shield for 1.5 seconds. Cooldown: 8 seconds.",
+        "skill2": "W — Sealed Pursuit: Targets an enemy champion. Yone rushes behind the target, deals 45 + 90% Attack physical damage, knocks them airborne for 0.75 seconds and gains a 90 + 30% Attack shield for 1.5 seconds. Cooldown: 8 seconds.",
         "ult": "R — Soul Unbound: Six alternating steel and Azakana slashes strike at 8-tick intervals for 12 + 16% Attack physical damage each. At tick 60, the soul mark echoes once for 30 + 25% Attack fixed damage. The target is knocked airborne once, not once per slash. Cooldown: 50 seconds."
       }
     }
@@ -71,9 +71,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
-        "skill": "暮光斩：灵刃穿过敌人，造成40 + 60%法术强度的魔法伤害，并使其减速25%，持续1.5秒。命中敌人后，慎获得120点护盾，持续2秒。",
-        "skill2": "灵佑领域：慎在身边展开防御领域。范围内友方英雄获得150 + 40%法术强度的护盾，持续2.5秒；敌方英雄的攻击速度降低30%，持续2秒。",
-        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。0.8秒后慎传送至其身边，并嘲讽附近敌方英雄0.75秒。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+        "skill": "奥义！暮临：召回慎的魂刃，并强化接下来3次普通攻击，持续8秒。每次消耗一层并额外造成20 + 20%法术强度的魔法伤害。为保证稳定，数据实现不追踪独立魂刃坐标，也不模拟仅对远离慎的敌人生效的减速。",
+        "skill2": "奥义！影缚：向所选方向冲刺最多600距离并穿过敌方英雄。每名命中的英雄受到60点物理伤害并被嘲讽1.5秒。",
+        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。经过引擎节奏压缩的0.8秒引导后，慎传送至其身边。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
       },
       "archer": {
         "name": "卢锡安",
@@ -120,7 +120,7 @@
       "demon": {
         "name": "厄加特",
         "attack": "回响烈焰：普攻造成100%攻击力的物理伤害。每个厄加特拥有独立的2秒散弹腿冷却；就绪时额外造成20 + 30%攻击力 + 目标2%最大生命值的物理伤害。",
-        "skill": "W—净除：持续4秒，厄加特可以移动但不能普通攻击；每0.33秒自动向敌人发射一枚炮弹，共12枚，每枚造成8 + 20%攻击力的物理伤害。期间移动速度降低12%，护甲提高20，魔抗提高10。冷却10秒。",
+        "skill": "W—净除：向一个合法的非防御塔敌人发射一次稳定的压缩射击，立即造成96 + 240%攻击力的物理伤害。随后厄加特在4秒内移动速度降低12%，护甲提高20，魔抗提高10。冷却10秒。",
         "skill2": "E—鄙弃：获得160 + 70%攻击力的护盾，持续3秒；随后冲到目标敌方英雄身后，造成70 + 90%攻击力的物理伤害、眩晕1秒，并把目标背摔到自己身后。冷却7秒。",
         "ult": "R—超越死亡的恐惧：发射一枚最远900距离、不可穿透的钻头。首名命中的敌方英雄受到80 + 60%攻击力的物理伤害，并被减速35%，持续1.5秒。0.75秒后将目标拉回；若此时目标当前生命值不高于25%，则真实斩杀。只有斩杀实际成功后，才会对自身320范围内敌方英雄造成30 + 30%攻击力的物理伤害并恐惧0.75秒。冷却50秒。"
       },
@@ -128,7 +128,7 @@
         "name": "永恩",
         "attack": "狩人之道：普攻在蓝白钢剑斩击与红黑亚扎卡纳剑斩击之间交替。数据版两种攻击都造成100%攻击力的物理伤害。",
         "skill": "Q—错玉切：向前释放狭窄且可穿透的剑气，造成25 + 80%攻击力的物理伤害。命中后获得持续6秒的剑风；下一次Q会消耗剑风，无伤害冲刺并释放更远的旋风剑气，将命中的敌人击飞0.75秒。冷却4秒。",
-        "skill2": "W—封尘追斩：只能选择处于控制中的敌方英雄。永恩冲到目标身后，造成45 + 90%攻击力的物理伤害并击飞0.75秒，同时获得90 + 30%攻击力的护盾，持续1.5秒。冷却8秒。",
+        "skill2": "W—封尘追斩：选择一名敌方英雄。永恩冲到目标身后，造成45 + 90%攻击力的物理伤害并击飞0.75秒，同时获得90 + 30%攻击力的护盾，持续1.5秒。冷却8秒。",
         "ult": "R—破障之锋·六道断魂：以8 tick间隔交替使用钢剑与亚扎卡纳之剑斩击六次，每次造成12 + 16%攻击力的物理伤害；第60 tick灵魂印记只回响一次，造成30 + 25%攻击力的固定伤害。目标只会被击飞一次。冷却50秒。"
       }
     }
@@ -138,9 +138,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
-        "skill": "暮光斬：靈刃穿過敵人，造成40 + 60%法術強度的魔法傷害，並使其減速25%，持續1.5秒。命中敵人後，慎獲得120點護盾，持續2秒。",
-        "skill2": "靈佑領域：慎在身邊展開防禦領域。範圍內友方英雄獲得150 + 40%法術強度的護盾，持續2.5秒；敵方英雄的攻擊速度降低30%，持續2秒。",
-        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。0.8秒後慎傳送至其身邊，並嘲諷附近敵方英雄0.75秒。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+        "skill": "奧義！暮臨：召回慎的魂刃，並強化接下來3次普通攻擊，持續8秒。每次消耗一層並額外造成20 + 20%法術強度的魔法傷害。為確保穩定，資料實作不追蹤獨立魂刃座標，也不模擬僅對遠離慎的敵人生效的減速。",
+        "skill2": "奧義！影縛：向所選方向衝刺最多600距離並穿過敵方英雄。每名命中的英雄受到60點物理傷害並被嘲諷1.5秒。",
+        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。經過引擎節奏壓縮的0.8秒引導後，慎傳送至其身邊。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
       },
       "archer": {
         "name": "路西恩",
@@ -187,7 +187,7 @@
       "demon": {
         "name": "厄加特",
         "attack": "迴響烈焰：普攻造成100%攻擊力的物理傷害。每個厄加特擁有獨立的2秒散彈腿冷卻；就緒時額外造成20 + 30%攻擊力 + 目標2%最大生命值的物理傷害。",
-        "skill": "W—淨除：持續4秒，厄加特可以移動但不能普通攻擊；每0.33秒自動向敵人發射一枚炮彈，共12枚，每枚造成8 + 20%攻擊力的物理傷害。期間移動速度降低12%，護甲提高20，魔抗提高10。冷卻10秒。",
+        "skill": "W—淨除：向一個合法的非防禦塔敵人發射一次穩定的壓縮射擊，立即造成96 + 240%攻擊力的物理傷害。隨後厄加特在4秒內移動速度降低12%，護甲提高20，魔抗提高10。冷卻10秒。",
         "skill2": "E—鄙棄：獲得160 + 70%攻擊力的護盾，持續3秒；隨後衝到目標敵方英雄身後，造成70 + 90%攻擊力的物理傷害、暈眩1秒，並把目標背摔到自己身後。冷卻7秒。",
         "ult": "R—超越死亡的恐懼：發射一枚最遠900距離、不可穿透的鑽頭。首名命中的敵方英雄受到80 + 60%攻擊力的物理傷害，並被減速35%，持續1.5秒。0.75秒後將目標拉回；若此時目標當前生命值不高於25%，則真正處決。只有處決實際成功後，才會對自身320範圍內敵方英雄造成30 + 30%攻擊力的物理傷害並恐懼0.75秒。冷卻50秒。"
       },
@@ -195,7 +195,7 @@
         "name": "犽凝",
         "attack": "狩人之道：普攻在藍白鋼劍斬擊與紅黑亞扎卡納劍斬擊之間交替。資料版兩種攻擊都造成100%攻擊力的物理傷害。",
         "skill": "Q—錯玉切：向前釋放狹窄且可穿透的劍氣，造成25 + 80%攻擊力的物理傷害。命中後獲得持續6秒的劍風；下一次Q會消耗劍風，無傷害衝刺並釋放更遠的旋風劍氣，將命中的敵人擊飛0.75秒。冷卻4秒。",
-        "skill2": "W—封塵追斬：只能選擇處於控制中的敵方英雄。犽凝衝到目標身後，造成45 + 90%攻擊力的物理傷害並擊飛0.75秒，同時獲得90 + 30%攻擊力的護盾，持續1.5秒。冷卻8秒。",
+        "skill2": "W—封塵追斬：選擇一名敵方英雄。犽凝衝到目標身後，造成45 + 90%攻擊力的物理傷害並擊飛0.75秒，同時獲得90 + 30%攻擊力的護盾，持續1.5秒。冷卻8秒。",
         "ult": "R—破障之鋒·六道斷魂：以8 tick間隔交替使用鋼劍與亞扎卡納之劍斬擊六次，每次造成12 + 16%攻擊力的物理傷害；第60 tick靈魂印記只回響一次，造成30 + 25%攻擊力的固定傷害。目標只會被擊飛一次。冷卻50秒。"
       }
     }
@@ -240,7 +240,7 @@
       "demon": {
         "name": "アーゴット",
         "attack": "エコーフレイム：通常攻撃は攻撃力100%の物理ダメージを与える。アーゴットごとに2秒のショットガン脚クールダウンを持ち、準備完了時は20 + 攻撃力30% + 対象の最大体力2%の追加物理ダメージを与える。",
-        "skill": "W—パージ：4秒間、移動可能だが通常攻撃不可になり、0.33秒ごとに自動照準砲弾を計12発撃つ。各弾は8 + 攻撃力20%の物理ダメージ。移動速度-12%、防御+20、魔法耐性+10。クールダウン10秒。",
+        "skill": "W—パージ：有効なタワー以外の敵1体に安定した圧縮射撃を行い、即座に96 + 攻撃力の240%の物理ダメージを与える。その後4秒間、移動速度-12%、防御+20、魔法耐性+10。クールダウン10秒。",
         "skill2": "E—ディスデイン：3秒間160 + 攻撃力70%のシールドを得て、対象の敵チャンピオンの背後へ突進する。70 + 攻撃力90%の物理ダメージ、1秒スタンを与え、対象を自分の背後へ投げる。クールダウン7秒。",
         "ult": "R—デスグラインダー：最大900の非貫通ドリルを撃ち、最初の敵チャンピオンへ80 + 攻撃力60%の物理ダメージと1.5秒間35%スロウを与える。0.75秒後に引き寄せ、その時点の現在体力が25%以下なら処刑する。実際に処刑できた場合のみ、周囲320の敵チャンピオンへ30 + 攻撃力30%の物理ダメージと0.75秒の恐怖を与える。クールダウン50秒。"
       },
@@ -248,7 +248,7 @@
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は青白い鋼の剣と赤黒いアザカナの剣を交互に使う。データ版ではどちらも攻撃力100%の物理ダメージを与える。",
         "skill": "Q—斬命刀：細く貫通する剣気を放ち、25 + 攻撃力80%の物理ダメージを与える。命中すると6秒間「つむじ風」を得る。次のQは状態を消費し、ダメージのない前進と長い風刃で命中した敵を0.75秒ノックアップする。クールダウン4秒。",
-        "skill2": "W—封塵追撃：行動妨害中の敵チャンピオンだけを対象にできる。対象の背後へ突進し、45 + 攻撃力90%の物理ダメージと0.75秒のノックアップを与え、自身は1.5秒間90 + 攻撃力30%のシールドを得る。クールダウン8秒。",
+        "skill2": "W—封塵追撃：敵チャンピオンを対象にできる。対象の背後へ突進し、45 + 攻撃力90%の物理ダメージと0.75秒のノックアップを与え、自身は1.5秒間90 + 攻撃力30%のシールドを得る。クールダウン8秒。",
         "ult": "R—縛魂の六連斬：8 tick間隔で鋼とアザカナの剣を交互に6回振り、各12 + 攻撃力16%の物理ダメージを与える。60 tick目に魂の印が一度だけ爆発し、30 + 攻撃力25%の固定ダメージを与える。ノックアップは一度だけ。クールダウン50秒。"
       }
     }
@@ -293,7 +293,7 @@
       "demon": {
         "name": "우르곳",
         "attack": "메아리치는 불꽃: 기본 공격으로 공격력의 100%만큼 물리 피해를 입힙니다. 우르곳마다 2초의 산탄포 다리 재사용 대기시간이 있으며, 준비되면 20 + 공격력의 30% + 대상 최대 체력의 2%만큼 추가 물리 피해를 입힙니다.",
-        "skill": "W—심판의 원: 4초 동안 이동할 수 있지만 기본 공격은 할 수 없습니다. 0.33초마다 자동 조준 포탄을 총 12발 발사하며 각 탄은 8 + 공격력의 20%만큼 물리 피해를 입힙니다. 이동 속도는 12% 감소하고 방어력 20, 마법 저항력 10을 얻습니다. 재사용 대기시간 10초입니다.",
+        "skill": "W—심판의 원: 유효한 포탑이 아닌 적 하나에게 안정적인 압축 사격을 가해 즉시 96 + 공격력의 240%만큼 물리 피해를 입힙니다. 이후 4초 동안 이동 속도가 12% 감소하고 방어력 20과 마법 저항력 10을 얻습니다. 재사용 대기시간 10초입니다.",
         "skill2": "E—경멸: 3초 동안 160 + 공격력의 70%만큼 보호막을 얻고 대상 적 챔피언의 뒤로 돌진합니다. 70 + 공격력의 90%만큼 물리 피해와 1초 기절을 주고 대상을 자신의 뒤로 넘깁니다. 재사용 대기시간 7초입니다.",
         "ult": "R—불사의 공포: 최대 900 사거리의 비관통 드릴을 발사합니다. 처음 적중한 적 챔피언에게 80 + 공격력의 60%만큼 물리 피해를 주고 1.5초 동안 35% 둔화시킵니다. 0.75초 후 끌어당기며 현재 체력이 25% 이하라면 처형합니다. 실제 처형에 성공한 경우에만 주변 320의 적 챔피언에게 30 + 공격력의 30%만큼 물리 피해와 0.75초 공포를 줍니다. 재사용 대기시간 50초입니다."
       },
@@ -301,7 +301,7 @@
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 청백색 강철검과 적흑색 아자카나 검을 번갈아 사용합니다. 데이터 버전에서는 둘 다 공격력의 100%만큼 물리 피해를 입힙니다.",
         "skill": "Q—필멸의 검: 가늘고 관통하는 검기를 날려 25 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 6초 동안 회오리 상태를 얻으며 다음 Q가 이를 소모해 피해 없는 돌진과 더 긴 바람 칼날로 적을 0.75초 공중에 띄웁니다. 재사용 대기시간은 4초입니다.",
-        "skill2": "W—봉진 추격: 군중 제어에 걸린 적 챔피언만 대상으로 삼습니다. 대상 뒤로 돌진해 45 + 공격력의 90%만큼 물리 피해를 입히고 0.75초 공중에 띄우며, 자신은 1.5초 동안 90 + 공격력의 30%만큼 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
+        "skill2": "W—봉진 추격: 적 챔피언을 대상으로 삼습니다. 대상 뒤로 돌진해 45 + 공격력의 90%만큼 물리 피해를 입히고 0.75초 공중에 띄우며, 자신은 1.5초 동안 90 + 공격력의 30%만큼 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
         "ult": "R—영혼의 육연참: 강철검과 아자카나 검으로 8 tick마다 번갈아 6회 베어 각각 12 + 공격력의 16%만큼 물리 피해를 입힙니다. 60 tick에 영혼 표식이 한 번만 폭발해 30 + 공격력의 25%만큼 고정 피해를 입힙니다. 공중에 띄우는 효과는 한 번만 적용됩니다. 재사용 대기시간은 50초입니다."
       }
     }

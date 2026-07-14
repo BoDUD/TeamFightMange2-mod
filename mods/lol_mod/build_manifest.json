@@ -10,7 +10,7 @@
     {
       "path": "aseprite_resources/champions/briar#sheet.png",
       "size": 458919,
-      "sha256": "56fc5dab378cc8e1145e2995625381e16330eb80048af5ded812d0ed23784db4"
+      "sha256": "c8d019e6bc425f25e7dc456a03a9521a4431e5a41ef65cff3f36569cf1c24693"
     },
     {
       "path": "aseprite_resources/champions/demon#anim.fanim",
@@ -40,7 +40,7 @@
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
       "size": 344221,
-      "sha256": "2f4ddfbc8743d49f91dc7be40f4c8e38724a51f8e73c38110552c10ffc2ec968"
+      "sha256": "c38bfb5b02f845d29ae85d3bf3f2497e6690c26793d30d449a251b8596eabbec"
     },
     {
       "path": "aseprite_resources/champions/orianna#anim.fanim",
@@ -50,7 +50,7 @@
     {
       "path": "aseprite_resources/champions/orianna#sheet.png",
       "size": 671926,
-      "sha256": "c37fac69ec1dffe052d847634076dd64a3545e2bfe815a125509f482e18b1de7"
+      "sha256": "9ade8303037d6c02871047802b094207129d1a04436b1a8b84ba2753dc2ba70e"
     },
     {
       "path": "aseprite_resources/champions/shen#anim.fanim",
@@ -60,7 +60,7 @@
     {
       "path": "aseprite_resources/champions/shen#sheet.png",
       "size": 295064,
-      "sha256": "8e92fe10e0b0b9d8dabb6a4667735c1fc67347d8cf460a65935efde1f233fde1"
+      "sha256": "cb49516adc7d4b238fcae7ab676b04157ea6fc0d2af5b1d447ae4c7a0ef02a79"
     },
     {
       "path": "aseprite_resources/champions/sivir#anim.fanim",
@@ -70,7 +70,7 @@
     {
       "path": "aseprite_resources/champions/sivir#sheet.png",
       "size": 508071,
-      "sha256": "86fe6e958b7d8095ae89ca25adcaf02b61cee3a7b1e9694c0ec8d5d8c832dc8c"
+      "sha256": "b985493fab0b8a3ea43332e6322ba707693056c9d61e62f82b9f3a49ac31167c"
     },
     {
       "path": "aseprite_resources/champions/xayah#anim.fanim",
@@ -281,6 +281,16 @@
       "path": "aseprite_resources/effects/orianna_r_ring#sheet.png",
       "size": 1229118,
       "sha256": "518b2a8226ddafac8407fbdf56cd069bcfd3d70627bdf2e95c997fd268360b95"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_e#anim.fanim",
+      "size": 1095,
+      "sha256": "f019236d7d787168227500bb2ea272f6fc608f4bbccefa6c25121515e0228acd"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_e#sheet.png",
+      "size": 147598,
+      "sha256": "8c082883fbf9970e8d8fa9bea92cb609deb68c0af12ad112d043969e20183958"
     },
     {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
@@ -884,18 +894,18 @@
     },
     {
       "path": "champion/demon.data_champion",
-      "size": 28989,
-      "sha256": "35d217d3289935077f9b8a02897eca37083006c1513e00832eed33d951dec31c"
+      "size": 15122,
+      "sha256": "91b6fc709d4db37003c22ecb99a4ce531262e604a2fd11b939be0235a4bde8c9"
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 17507,
-      "sha256": "8c0ab7ce9b1b36cbc0145db0caff8153b1e452615b37161b7246bcb7bd8cbb44"
+      "size": 17503,
+      "sha256": "2b4d7ba67d3a59003707aa0e8d7a18564eeb7bcbb90a3d26cd196062b3dbe27f"
     },
     {
       "path": "champion/lol_shen.data_champion",
-      "size": 10227,
-      "sha256": "7936836e40768beefb300826ecdd8c9b0ddfa20114886a3b518ce3f88a2195d8"
+      "size": 12796,
+      "sha256": "da8d9a9ad4934388484f98551a6f725ba886c0b6a5d02866d41a1c64813e0e3c"
     },
     {
       "path": "icons/briar_skill.png",
@@ -965,7 +975,7 @@
     {
       "path": "icons/shen_skill2.png",
       "size": 16516,
-      "sha256": "d57d69999a85b06f8526f3919d7d6c3a51ce1a95c6ee9b0bcf08550b512f911a"
+      "sha256": "d2021aab9454f3f25838bbd69a8d74d73dffdd1baf7e75790b917b88e0cd5f14"
     },
     {
       "path": "icons/shen_ult.png",
@@ -1034,8 +1044,8 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1021440,
-      "sha256": "3cb61d27c14fcc95b6463f5d35c42c04484939ef6d592f1e4960487a9d9c69ed"
+      "size": 1017856,
+      "sha256": "0521fd87aa4668979b20ded8704bedda597fa1d9b71ee0cfdaa0c3cd3a2b689b"
     },
     {
       "path": "mod.mod_info",
@@ -1046,6 +1056,11 @@
       "path": "mod.override_info",
       "size": 108323,
       "sha256": "710170c71a8b98f6182ac136e05623efb6d6cb6c0b038b60d49f862e62fe95a1"
+    },
+    {
+      "path": "qa/legacy_battle_actor_scale_qa.json",
+      "size": 576503,
+      "sha256": "f0607f63d2118ab9021e224af4b3545d53d9fcf91c2014f79e66b3490aa223e0"
     },
     {
       "path": "qa/urgot_actor_contact_final.png",
@@ -1109,8 +1124,8 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 2123,
-      "sha256": "eeb2fb555adfee81f9288355fb5c586d70c0cd59385be8a99041c5525c8c5b35"
+      "size": 3845,
+      "sha256": "517c4c403b462b054d97c83846e07a6e49572e4e39cc5fba044a248b247d41a8"
     },
     {
       "path": "qa/yone_visual_contract.json",
@@ -2124,8 +2139,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 53378,
-      "sha256": "343eac7cb6b54d266d3f3e800e9a1fb77a47745490551728742edfd0b24d89ac"
+      "size": 53319,
+      "sha256": "0f0d367930300223aaae587f67987e095f192090441ba4405b38f8d7774c2bef"
     },
     {
       "path": "text/item.i18n",
