@@ -1063,6 +1063,11 @@
       "sha256": "f0607f63d2118ab9021e224af4b3545d53d9fcf91c2014f79e66b3490aa223e0"
     },
     {
+      "path": "qa/legacy_battle_actor_scale_qa.json",
+      "size": 569760,
+      "sha256": "16ae665131a52762e9ae7e28e917c8c36a905e7efaeee70c1820fbbc5e6e128a"
+    },
+    {
       "path": "qa/urgot_actor_contact_final.png",
       "size": 1180190,
       "sha256": "3f3b8357d0f3331c469913f5ad0863fe76cfaf2737f6a72d278e8d074a3da2c0"
