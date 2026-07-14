@@ -18,6 +18,9 @@ from PIL import Image, ImageDraw
 from build_kled import build_all as build_kled_assets
 from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
+from qa_legacy_battle_actor_scale import (
+    build_all as build_legacy_battle_actor_scale_qa,
+)
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -48,12 +51,12 @@ ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
 ICON_SOURCES = {
     "shen_skill.png": SOURCE / "shen_q_icon_source_alpha.png",
-    "shen_skill2.png": SOURCE / "shen_w_icon_source_alpha.png",
+    "shen_skill2.png": SOURCE / "shen_e_icon_source_alpha.png",
     "shen_ult.png": SOURCE / "shen_r_icon_source_alpha.png",
 }
 VFX_SOURCES = {
     "shen_q": (SOURCE / "shen_q_vfx_contact_alpha.png", 4, 2, (64, 64), (58, 48)),
-    "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 30)),
+    "shen_e": (SOURCE / "shen_e_vfx_contact_alpha.png", 3, 2, (96, 64), (88, 40)),
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
@@ -148,6 +151,28 @@ SIVIR_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int]] = [
     (640, 915, 875, 1160),
     (885, 925, 1175, 1160),
 ]
+
+# Battle actors are sized independently from source-direct UI portraits.  The
+# five legacy 64x64 atlases previously drifted into a 38-44px scale class even
+# though their occupied native actors and the accepted Yone/Kled references
+# sit mostly in the mid/high 30s.  Keep explicit per-champion targets: weapons,
+# hair and body proportions differ too much for one roster-wide multiplier.
+SHEN_BATTLE_IDLE_HEIGHT = 36
+SHEN_BATTLE_FOOT_BASELINE = 45
+SHEN_BATTLE_MAX_SIZE = (40, 38)
+LUCIAN_BATTLE_IDLE_HEIGHT = 36
+LUCIAN_BATTLE_FOOT_BASELINE = 45
+LUCIAN_BATTLE_MAX_SIZE = (36, 40)
+ORIANNA_BATTLE_IDLE_HEIGHT = 36
+ORIANNA_BATTLE_FOOT_BASELINE = 42
+ORIANNA_BATTLE_MAX_SIZE = (36, 36)
+BRIAR_BATTLE_IDLE_HEIGHT = 38
+BRIAR_BATTLE_FOOT_BASELINE = 45
+BRIAR_BATTLE_MAX_SIZE = (42, 40)
+SIVIR_BATTLE_IDLE_HEIGHT = 36
+SIVIR_BATTLE_FOOT_BASELINE = 45
+SIVIR_BATTLE_MAX_SIZE = (44, 38)
+
 CHAMPION_FULLBODY_SHEETS = {
     "lol_shen": ACTOR_DIR / "shen#sheet.png",
     "archer": ACTOR_DIR / "lucian#sheet.png",
@@ -623,37 +648,76 @@ def fit_cell(
     return output
 
 
+def pack_stable_actor_pose(
+    subject: Image.Image,
+    *,
+    target_height: int,
+    max_visible: tuple[int, int],
+    foot_baseline: int,
+    palette_colors: int = 96,
+) -> Image.Image:
+    """Pack one live actor pose with a stable visible-height contract.
+
+    The earlier battle-only resize used one source-space multiplier. That keeps
+    geometry proportional, but it does not keep generated poses in one runtime
+    scale class: crouch/cast cells with a shorter source bbox became visibly
+    15-25% smaller in the 64x64 atlas. This helper normalizes the authored pose
+    height, preserves x/y aspect ratio, applies the champion footprint cap, and
+    keeps the same exclusive foot anchor. Death/fade and weapon-only frames stay
+    on their dedicated paths.
+    """
+
+    scale = min(
+        target_height / subject.height,
+        max_visible[0] / subject.width,
+        max_visible[1] / subject.height,
+    )
+    resized = subject.resize(
+        (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+        Image.Resampling.LANCZOS,
+    )
+    resized = palette_finish(resized, palette_colors)
+    frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    frame.alpha_composite(
+        resized,
+        ((64 - resized.width) // 2, foot_baseline - resized.height),
+    )
+    return frame
+
+
 def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     source = Image.open(ACTOR_SOURCE).convert("RGBA")
     cells = split_grid(source, 4, 3)
     base_frames: list[Image.Image] = []
     # The accepted high-resolution source already contains a clean face and
-    # silhouette. Use one 40px-idle scale for every pose (including run) so no
-    # action is independently squeezed or enlarged.  UI surfaces are now
-    # source-direct and therefore no longer constrain the battle actor scale.
+    # silhouette. Normalize every pose to Shen's narrow live-body height band
+    # with one aspect-preserving x/y scale. UI surfaces are source-direct and
+    # therefore do not constrain the battle actor scale.
     masked_subjects: list[Image.Image] = []
     for cell, keep_box in zip(cells, ACTOR_KEEP_BOXES, strict=True):
         masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
         kept = cell.crop(keep_box)
         masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
         masked = hard_alpha(masked)
+        # Preserve Shen's detached spirit blade (roughly 2k+ source pixels),
+        # but discard smaller generated Q/E sparks that otherwise enlarge the
+        # crop and shrink only those actor poses during packing.
+        masked = keep_alpha_components(masked, 2000)
         masked_subjects.append(masked.crop(alpha_bbox(masked)))
-    idle_height = max(subject.height for subject in masked_subjects[:2])
-    actor_scale = 40 / idle_height
-    for subject in masked_subjects:
-        resized = subject.resize(
-            (max(1, round(subject.width * actor_scale)), max(1, round(subject.height * actor_scale))),
-            Image.Resampling.LANCZOS,
+    # Keep standing/cast poses inside a narrow 33-36px band. The final hit pose
+    # remains compressed as a recoil, but no longer swaps to a tiny scale class.
+    base_pose_heights = (36, 36, 36, 36, 36, 35, 35, 35, 35, 35, 36, 33)
+    for subject, target_height in zip(
+        masked_subjects, base_pose_heights, strict=True
+    ):
+        base_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=target_height,
+                max_visible=SHEN_BATTLE_MAX_SIZE,
+                foot_baseline=SHEN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 96)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        x = (64 - resized.width) // 2
-        # The proven 64x64 additive contract keeps the actor's foot baseline at
-        # y=45. Bottom-aligning at y=62 makes the same model sit 17 px too low in
-        # encyclopedia cards, compact portraits, and the battle map.
-        y = 45 - resized.height
-        frame.alpha_composite(resized, (x, y))
-        base_frames.append(frame)
 
     # The original contact sheet only supplied three broad run poses. A second
     # image-gen pass supplies nine unique gait phases so the reduced sprite keeps
@@ -662,22 +726,29 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     run_frames: list[Image.Image] = []
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
+        cell = keep_alpha_components(cell, 2000)
         subject = cell.crop(alpha_bbox(cell))
-        resized = subject.resize(
-            (
-                max(1, round(subject.width * actor_scale)),
-                max(1, round(subject.height * actor_scale)),
-            ),
-            Image.Resampling.LANCZOS,
+        run_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=SHEN_BATTLE_IDLE_HEIGHT,
+                max_visible=SHEN_BATTLE_MAX_SIZE,
+                foot_baseline=SHEN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 96)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        run_frames.append(frame)
 
     # Runtime atlas order: two idles, nine generated run phases, then the seven
     # non-run actions from the accepted 4x3 actor source.
-    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[5:12]]
+    frames = [
+        base_frames[0],
+        base_frames[1],
+        *run_frames,
+        *base_frames[5:10],
+        # The authored R body cell has a connected ground ring. Shen already
+        # owns a separate R VFX sheet, so keep the clean channel pose here.
+        base_frames[9],
+        base_frames[11],
+    ]
 
     atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
     for index, frame in enumerate(frames):
@@ -714,7 +785,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack Lucian at Shen's 64x64 scale from separate actor and run masters."""
+    """Pack Lucian at his native-like 64x64 scale from actor/run masters."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
     source_cells: list[Image.Image] = []
     for index, (cell, keep_box) in enumerate(
@@ -726,29 +797,31 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
             kept = cell.crop(keep_box)
             masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
             cell = masked
-        if index == 10:
-            cell = keep_largest_alpha_component(cell)
+        # Actor flashes and isolated source-edge pixels belong to the dedicated
+        # projectile/VFX sheets. They must not influence Lucian's body crop.
+        cell = keep_largest_alpha_component(cell)
         source_cells.append(cell)
     source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
 
-    # Derive one uniform 40px idle scale from Lucian's accepted master and use
-    # it unchanged for every combat and run pose. Wide gun/cast poses keep the
-    # same body scale instead of silently entering a smaller scale class.
-    idle_height = max(subject.height for subject in source_subjects[:2])
-    actor_scale = 40 / idle_height
-    base_frames: list[Image.Image] = []
-    for subject in source_subjects:
-        resized = subject.resize(
-            (
-                max(1, round(subject.width * actor_scale)),
-                max(1, round(subject.height * actor_scale)),
-            ),
-            Image.Resampling.LANCZOS,
+    # Native Archer idles are about 31-33px high. Keep a small readability
+    # allowance for the accepted high-resolution Lucian model, then normalize
+    # every combat/run pose to the same narrow live-body height band. Wide gun
+    # poses remain aspect-preserving and never get a separate x/y multiplier.
+    # The two dash cells came from a shorter source crop and the raised-guns R
+    # cell from a taller one. Normalize those authored postures explicitly so
+    # E no longer shrinks Lucian and R no longer enlarges him on state entry.
+    base_pose_heights = (36, 36, 36, 36, 36, 36, 34, 34, 39, 36, 35, 14)
+    base_frames = [
+        pack_stable_actor_pose(
+            subject,
+            target_height=target_height,
+            max_visible=LUCIAN_BATTLE_MAX_SIZE,
+            foot_baseline=LUCIAN_BATTLE_FOOT_BASELINE,
         )
-        resized = palette_finish(resized, 96)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        base_frames.append(frame)
+        for subject, target_height in zip(
+            source_subjects, base_pose_heights, strict=True
+        )
+    ]
 
     # A dedicated image-gen 3x3 run loop supplies nine distinct alternating
     # contact/passing phases. It uses Shen's height, compact width and foot
@@ -757,18 +830,16 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
     run_frames: list[Image.Image] = []
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
+        cell = keep_largest_alpha_component(cell)
         subject = cell.crop(alpha_bbox(cell))
-        resized = subject.resize(
-            (
-                max(1, round(subject.width * actor_scale)),
-                max(1, round(subject.height * actor_scale)),
-            ),
-            Image.Resampling.LANCZOS,
+        run_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=LUCIAN_BATTLE_IDLE_HEIGHT,
+                max_visible=LUCIAN_BATTLE_MAX_SIZE,
+                foot_baseline=LUCIAN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 96)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        run_frames.append(frame)
 
     # Runtime contract: two idles, nine run phases, then ten actor actions.
     # Q stays a normal 64x64 pose; its direction-aware beam is a projectile
@@ -819,38 +890,79 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
 def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
     """Pack Orianna with the exact native Barrier Magician action contract."""
     source = Image.open(ORIANNA_ACTOR_SOURCE).convert("RGBA")
-    cells = [hard_alpha(cell) for cell in split_grid(source, 4, 4)]
+    # Several attack/hit cells contain opaque two-pixel strips on the top cell
+    # edge. They are invisible at source preview size but expand the alpha bbox
+    # by ~60px and make only those runtime bodies 20% smaller. Keep the actual
+    # connected actor silhouette; Orianna's ball and spell read live in VFX.
+    cells = [
+        keep_largest_alpha_component(hard_alpha(cell))
+        for cell in split_grid(source, 4, 4)
+    ]
     subjects = [cell.crop(alpha_bbox(cell)) for cell in cells]
 
-    # Live card review showed the first pass was too small in the face and sat
-    # low enough to clip its boots.  The corrected model is purpose-authored
-    # for a 38px silhouette and uses y=42 as its exclusive foot baseline.
-    # One scale is derived from all idle poses and preserved for every action.
+    # Native Barrier Magician idles occupy roughly 32-34px. Keep Orianna in
+    # that native-like class while preserving the reviewed y=42 exclusive foot
+    # baseline. One scale is derived from all idle poses and kept for every
+    # action; compact UI art is sourced independently.
     idle_height = max(subject.height for subject in subjects[:4])
-    actor_scale = 38 / idle_height
+    actor_scale = ORIANNA_BATTLE_IDLE_HEIGHT / idle_height
 
     def actor_frame(subject: Image.Image, *, target_height: int | None = None) -> Image.Image:
         scale = actor_scale if target_height is None else target_height / subject.height
-        scale = min(scale, 58 / subject.width, 43 / subject.height)
+        scale = min(
+            scale,
+            ORIANNA_BATTLE_MAX_SIZE[0] / subject.width,
+            ORIANNA_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        # Keep the accepted 38px battle footprint, but retain twice the prior
-        # palette budget so porcelain shading, cyan eyes and brass joints do
-        # not collapse into muddy blocks at the final scale.
+        # Retain the higher palette budget so porcelain shading, cyan eyes and
+        # brass joints do not collapse into muddy blocks at native-like scale.
         resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 42 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, ORIANNA_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    base_frames = [actor_frame(subject) for subject in subjects]
-    run_source = Image.open(ORIANNA_RUN_SOURCE).convert("RGBA")
-    run_subjects = [
-        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
-        for cell in split_grid(run_source, 3, 3)
+    # Generated attack/hit cells are visibly shorter than the idle model, while
+    # the wide second R pose hits the horizontal cap and shrinks the whole body.
+    # Normalize every live pose; keep only true death/ground poses on the source
+    # scale path. R's large silhouette remains in its separate ring VFX.
+    base_pose_heights: tuple[int | None, ...] = (
+        36,
+        36,
+        36,
+        36,
+        35,
+        35,
+        34,
+        None,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(subject, target_height=target_height)
+        for subject, target_height in zip(subjects, base_pose_heights, strict=True)
     ]
-    run_frames = [actor_frame(subject, target_height=38) for subject in run_subjects]
+    run_source = Image.open(ORIANNA_RUN_SOURCE).convert("RGBA")
+    run_subjects: list[Image.Image] = []
+    for cell in split_grid(run_source, 3, 3):
+        cleaned = keep_largest_alpha_component(hard_alpha(cell))
+        run_subjects.append(cleaned.crop(alpha_bbox(cleaned)))
+    run_frames = [
+        actor_frame(subject, target_height=ORIANNA_BATTLE_IDLE_HEIGHT)
+        for subject in run_subjects
+    ]
 
     def shifted(frame: Image.Image, dx: int, dy: int) -> Image.Image:
         result = Image.new("RGBA", frame.size, (0, 0, 0, 0))
@@ -894,7 +1006,12 @@ def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
             [0.080000006] * 5,
         ),
         "ult": (
-            [base_frames[12], shifted(base_frames[12], 0, -1), base_frames[13], shifted(base_frames[13], 0, -1)],
+            [
+                base_frames[12],
+                shifted(base_frames[12], 0, -1),
+                base_frames[12],
+                shifted(base_frames[12], 0, -1),
+            ],
             [0.080000006] * 4,
         ),
     }
@@ -930,29 +1047,66 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
     """Pack Briar while retaining every native Berserker animation tag."""
 
     actor_cells = [
-        hard_alpha(cell)
+        # Q/R projectiles and generated bottom-edge fragments are separate from
+        # Briar's connected body. Leaving them in the source bbox shrank only E
+        # charge and R throw even though the actor used the same nominal scale.
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(BRIAR_ACTOR_SOURCE).convert("RGBA"), 4, 4)
     ]
     actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    # Briar's first pass was only 38px high and lost one eye/cheek plane on the
-    # battle map.  A single 42px scale derived from the accepted idle is reused
-    # by every source pose; x and y are never resized independently.
-    actor_scale = 42 / idle_height
+    # Native Berserker and the accepted Yone/Kled references establish a 38px
+    # body class. Reuse Briar's own 38px scale for every source pose; x and y
+    # are never resized independently and compact UI art remains source-direct.
+    actor_scale = BRIAR_BATTLE_IDLE_HEIGHT / idle_height
 
     def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
         scale = actor_scale if fixed_height is None else fixed_height / subject.height
-        scale = min(scale, 58 / subject.width, 44 / subject.height)
+        scale = min(
+            scale,
+            BRIAR_BATTLE_MAX_SIZE[0] / subject.width,
+            BRIAR_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
         resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, BRIAR_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    # Normalize live upright/lunge poses without touching the genuine fall,
+    # grounded and defeated silhouettes. The R chase cell remains a horizontal
+    # dive at the shared source scale and is assessed by silhouette area rather
+    # than incorrectly stretched to standing height.
+    base_pose_heights: tuple[int | None, ...] = (
+        38,
+        38,
+        38,
+        37,
+        35,
+        37,
+        37,
+        37,
+        38,
+        36,
+        35,
+        None,
+        36,
+        None,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(subject, fixed_height=target_height)
+        for subject, target_height in zip(
+            actor_subjects, base_pose_heights, strict=True
+        )
+    ]
 
     # The accepted Q-break pose contains a handful of generated yellow/orange
     # pixels outside Briar's body. At runtime those isolated pixels read as a
@@ -974,11 +1128,14 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
                 q_pixels[x, y] = (0, 0, 0, 0)
     base_frames[6] = q_break
     run_cells = [
-        hard_alpha(cell)
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(BRIAR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
     run_frames = [
-        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=42) for cell in run_cells
+        actor_frame(
+            cell.crop(alpha_bbox(cell)), fixed_height=BRIAR_BATTLE_IDLE_HEIGHT
+        )
+        for cell in run_cells
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -1070,36 +1227,89 @@ def build_sivir_actor() -> tuple[Path, Path, list[Image.Image]]:
     r_subject = actor_subjects[7]
     actor_subjects[7] = r_subject.crop((0, 55, r_subject.width, r_subject.height))
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    actor_scale = 44 / idle_height
+    # Native Boomerang Hunter idles occupy 33-35px. A 36px Sivir target keeps
+    # the face/crossblade readable without returning to the oversized 44px
+    # legacy-HD body. Run poses are independently source-normalized to that same
+    # final live-body height.
+    actor_scale = SIVIR_BATTLE_IDLE_HEIGHT / idle_height
 
-    def actor_frame(subject: Image.Image, scale: float) -> Image.Image:
+    def actor_frame(
+        subject: Image.Image,
+        *,
+        target_height: int | None = None,
+        source_scale: float | None = None,
+    ) -> Image.Image:
+        if target_height is not None:
+            scale = target_height / subject.height
+        elif source_scale is not None:
+            scale = source_scale
+        else:
+            raise ValueError("Sivir actor pose needs target_height or source_scale")
+        scale = min(
+            scale,
+            SIVIR_BATTLE_MAX_SIZE[0] / subject.width,
+            SIVIR_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
         resized = palette_finish(resized, 96)
-        if resized.width > 60 or resized.height > 46:
+        if (
+            resized.width > SIVIR_BATTLE_MAX_SIZE[0]
+            or resized.height > SIVIR_BATTLE_MAX_SIZE[1]
+        ):
             raise ValueError(
                 f"Sivir actor subject {resized.size} exceeds the stable 64x64 contract"
             )
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, SIVIR_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    # One scale for every base action avoids pose-by-pose x/y squeezing and
-    # keeps the face/torso readable in battle.
-    base_frames = [actor_frame(subject, actor_scale) for subject in actor_subjects]
+    # Normalize every live pose into the same visible class. Horizontal fall,
+    # defeated, kneel and seated cells preserve their authored source scale.
+    base_pose_heights: tuple[int | None, ...] = (
+        36,
+        36,
+        34,
+        34,
+        36,
+        33,
+        35,
+        36,
+        35,
+        35,
+        33,
+        35,
+        None,
+        None,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(
+            subject,
+            target_height=target_height,
+            source_scale=actor_scale if target_height is None else None,
+        )
+        for subject, target_height in zip(
+            actor_subjects, base_pose_heights, strict=True
+        )
+    ]
     run_cells = [
-        hard_alpha(cell)
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(SIVIR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
     run_subjects = [cell.crop(alpha_bbox(cell)) for cell in run_cells]
-    run_heights = sorted(subject.height for subject in run_subjects)
-    # The run sheet was generated at a slightly different source-space scale.
-    # Normalize the whole run set once from its median pose, never per frame.
-    run_scale = 44 / run_heights[len(run_heights) // 2]
+    # The dedicated run source was authored at mixed crop heights; normalize its
+    # eight runtime phases to one visible height while preserving every pose's
+    # aspect ratio and the native frame timing.
     run_frames = [
-        actor_frame(subject, run_scale) for subject in run_subjects
+        actor_frame(subject, target_height=SIVIR_BATTLE_IDLE_HEIGHT)
+        for subject in run_subjects
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -1359,19 +1569,7 @@ def build_vfx() -> list[Path]:
     outputs: list[Path] = []
     for name, (source_path, columns, rows, frame_size, max_visible) in VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
-        if name == "shen_w":
-            frames = []
-            for cell in split_grid(source, columns, rows):
-                cell = hard_alpha(cell)
-                subject = cell.crop(alpha_bbox(cell)).resize(max_visible, Image.Resampling.LANCZOS)
-                subject = palette_finish(subject)
-                centered = Image.new("RGBA", frame_size, (0, 0, 0, 0))
-                x = (frame_size[0] - subject.width) // 2
-                y = round(44 - subject.height / 2)
-                centered.alpha_composite(subject, (x, y))
-                frames.append(centered)
-        else:
-            frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
+        frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -1380,8 +1578,11 @@ def build_vfx() -> list[Path]:
         save_png(sheet, atlas)
         if name == "shen_q":
             anims = {"projectile": effect_anim(64, 64, list(range(8)), [0.06] * 8)}
-        elif name == "shen_w":
-            anims = {"field": effect_anim(112, 64, list(range(6)), [0.42] * 6)}
+        elif name == "shen_e":
+            anims = {
+                "dash": effect_anim(96, 64, [0, 1, 2], [0.06, 0.06, 0.08]),
+                "impact": effect_anim(96, 64, [3, 4, 5], [0.06, 0.08, 0.12]),
+            }
         else:
             anims = {
                 "guard": effect_anim(112, 112, [0, 1, 2, 3, 4], [0.08, 0.10, 0.14, 0.22, 0.26]),
@@ -3358,7 +3559,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
     draw = ImageDraw.Draw(actor_contact)
     labels = [
         "idle A", "idle B", *[f"run {index}" for index in range(1, 10)],
-        "attack A", "attack B", "attack C", "Q cast", "W cast", "R cast", "hit/dead",
+        "attack A", "attack B", "attack C", "Q cast", "E cast", "R cast", "hit/dead",
     ]
     for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
         x = (index % 6) * 128
@@ -3371,7 +3572,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
 
     icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
     draw = ImageDraw.Draw(icon_contact)
-    for index, (path, label) in enumerate(zip(icons, ["Q", "W", "R"], strict=True)):
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
         icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
         icon_contact.alpha_composite(icon, (index * 192, 0))
         draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
@@ -3677,6 +3878,7 @@ def _hd_actor_record(
     foot_baseline: int,
     expected_idle_height: int,
     accent: str,
+    max_visible_width: int = 58,
     max_visible_height: int = 44,
 ) -> dict[str, object]:
     sheet = Image.open(actor_sheet).convert("RGBA")
@@ -3697,10 +3899,13 @@ def _hd_actor_record(
             bbox = frame.getchannel("A").getbbox()
             if bbox is None:
                 raise ValueError(f"{champion} HD actor {tag} contains an empty frame")
-            if bbox[2] - bbox[0] > 58 or bbox[3] - bbox[1] > max_visible_height:
+            if (
+                bbox[2] - bbox[0] > max_visible_width
+                or bbox[3] - bbox[1] > max_visible_height
+            ):
                 raise ValueError(
                     f"{champion} HD actor {tag} exceeds "
-                    f"58x{max_visible_height}: {bbox}"
+                    f"{max_visible_width}x{max_visible_height}: {bbox}"
                 )
             if bbox[3] > foot_baseline:
                 raise ValueError(
@@ -3865,9 +4070,10 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
             "actor_sheet": ACTOR_DIR / "shen#sheet.png",
             "actor_anim": ACTOR_DIR / "shen#anim.fanim",
             "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
-            "baseline": 45,
-            "idle_height": 40,
-            "max_visible_height": 45,
+            "baseline": SHEN_BATTLE_FOOT_BASELINE,
+            "idle_height": SHEN_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": SHEN_BATTLE_MAX_SIZE[0],
+            "max_visible_height": SHEN_BATTLE_MAX_SIZE[1],
             "accent": "cyan",
             "qa": QA_DIR / "shen_hd_surface_qa.json",
             "contact": QA_DIR / "shen_portrait_surface_final.png",
@@ -3889,9 +4095,10 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
                 "ult",
                 "hit",
             ),
-            "baseline": 45,
-            "idle_height": 40,
-            "max_visible_height": 45,
+            "baseline": LUCIAN_BATTLE_FOOT_BASELINE,
+            "idle_height": LUCIAN_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": LUCIAN_BATTLE_MAX_SIZE[0],
+            "max_visible_height": LUCIAN_BATTLE_MAX_SIZE[1],
             "accent": "cyan",
             "qa": QA_DIR / "lucian_hd_surface_qa.json",
             "contact": QA_DIR / "lucian_portrait_surface_final.png",
@@ -3903,8 +4110,10 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
             "actor_sheet": ACTOR_DIR / "orianna#sheet.png",
             "actor_anim": ACTOR_DIR / "orianna#anim.fanim",
             "tags": ("idle", "run", "attack", "skill1", "skill2", "ult", "hit"),
-            "baseline": 42,
-            "idle_height": 38,
+            "baseline": ORIANNA_BATTLE_FOOT_BASELINE,
+            "idle_height": ORIANNA_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": ORIANNA_BATTLE_MAX_SIZE[0],
+            "max_visible_height": ORIANNA_BATTLE_MAX_SIZE[1],
             "accent": "cyan",
             "qa": QA_DIR / "orianna_hd_surface_qa.json",
             "contact": QA_DIR / "orianna_portrait_surface_final.png",
@@ -3929,8 +4138,10 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
                 "ult",
                 "hit",
             ),
-            "baseline": 46,
-            "idle_height": 42,
+            "baseline": BRIAR_BATTLE_FOOT_BASELINE,
+            "idle_height": BRIAR_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": BRIAR_BATTLE_MAX_SIZE[0],
+            "max_visible_height": BRIAR_BATTLE_MAX_SIZE[1],
             "accent": "red",
             "qa": QA_DIR / "briar_hd_surface_qa.json",
             "contact": QA_DIR / "briar_portrait_surface_final.png",
@@ -3942,9 +4153,10 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
             "actor_sheet": ACTOR_DIR / "sivir#sheet.png",
             "actor_anim": ACTOR_DIR / "sivir#anim.fanim",
             "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
-            "baseline": 46,
-            "idle_height": 44,
-            "max_visible_height": 45,
+            "baseline": SIVIR_BATTLE_FOOT_BASELINE,
+            "idle_height": SIVIR_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": SIVIR_BATTLE_MAX_SIZE[0],
+            "max_visible_height": SIVIR_BATTLE_MAX_SIZE[1],
             "accent": "gold",
             "qa": QA_DIR / "sivir_hd_surface_qa.json",
             "contact": QA_DIR / "sivir_portrait_surface_final.png",
@@ -3987,6 +4199,7 @@ def build_orianna_briar_hd_surface_qa() -> list[Path]:
             foot_baseline=int(spec["baseline"]),
             expected_idle_height=int(spec["idle_height"]),
             accent=str(spec["accent"]),
+            max_visible_width=int(spec.get("max_visible_width", 58)),
             max_visible_height=int(spec.get("max_visible_height", 44)),
         )
         payload = {
@@ -4167,6 +4380,7 @@ def build_manifest() -> Path:
         QA_DIR / "urgot_vfx_contact_final.png",
         QA_DIR / "urgot_skill_icons_final.png",
         QA_DIR / "urgot_portrait_surface_final.png",
+        QA_DIR / "legacy_battle_actor_scale_qa.json",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -4268,6 +4482,7 @@ def main() -> int:
     urgot_outputs = build_urgot_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
+    legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
     manifest = None if args.skip_manifest else build_manifest()
     for path in [
         actor_sheet,
@@ -4306,6 +4521,7 @@ def main() -> int:
         *urgot_outputs,
         *champion_fullbody_portraits,
         *orianna_briar_hd_surface_qa,
+        *legacy_battle_actor_scale_qa,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

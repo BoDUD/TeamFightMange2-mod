@@ -2,12 +2,18 @@
 
 | Surface / ability | Source route | Result |
 | --- | --- | --- |
-| Actor model | accepted built-in image-gen 4x3 high-resolution character anchor, chroma-keyed and uniformly packed to 64x64 frames at a 40 px idle target with the official y=45 foot baseline | x/y scale is identical for every source pose; 96-color finish preserves helmet, eyeslit and armor separation without changing the model |
-| Idle/run/attack | accepted actor anchor plus the accepted image-gen 3x3 run refinement, all using the same actor scale | nine unique 0.08 s run phases; no per-frame squeeze, no loop-end duplicate |
-| Q | separate spectral blade projectile sheet | distinct |
-| W | separate image-gen refuge-field sheet, packed to a 104x30 ground ellipse centered at (56, 43.5) | distinct; caster foot point and field center aligned |
-| R | separate target shield / teleport arrival sheet | distinct |
-| Skill icons | three independent built-in image-gen sources, ordered Q/W/R | distinct |
-| UI surfaces | accepted high-resolution idle source, never the reduced battle atlas | independent 64x64 encyclopedia full-body, 64x64 side-list crop, 64x64 scoreboard crop and 90x122 BP-grid crop; grid pixels end at y=86 before the name band; picked side-card keeps the independent 1420x860 splash |
+| Actor model | accepted built-in image-gen 4x3 high-resolution character anchor, chroma-keyed and uniformly packed to 64x64 frames at the current Shen battle scale | x/y scale remains identical for every source pose; no actor-model or terrain-envelope change is part of the Q/E rework |
+| Idle/run/attack | accepted actor anchor plus accepted 3x3 run refinement | unchanged; nine unique run phases and stable foot baseline |
+| Q | existing separate spectral-blade sheet, now used only as a caster recall and empowered-hit effect | distinct; no gameplay projectile or direct Q damage callback |
+| E | new built-in image-gen 3x2 source: three cyan-violet dash-wake phases plus three taunt-impact phases, packed into independent `dash` and `impact` tags | distinct; no W refuge circle remains in the active payload |
+| R | existing separate target shield / teleport arrival sheet | distinct; arrival visual no longer carries an unrelated taunt |
+| Skill icons | independent Q source, new E dash/taunt source, independent R source, ordered Q/E/R | distinct |
+| UI surfaces | accepted high-resolution idle source, never the reduced battle atlas | unchanged; encyclopedia, side-list, scoreboard, BP-grid and side-card routes remain independent |
 
-Acceptance rule: generated cast effects may be masked out of actor cells because Q/W/R have dedicated VFX sheets. No code-drawn substitute body is allowed. The accepted actor sources are `source/imagegen/shen_actor_contact.png` and its model-consistent `source/imagegen/shen_run_contact.png` refinement. Source quality was sufficient, so this HD pass did not generate a new model or alter skill logic.
+Accepted E generation records:
+
+- Icon: `exec-50b58747-dec1-41d1-9494-f321d174200f` -> `source/imagegen/shen_e_icon_source.png` -> `source/processed/shen_e_icon_source_alpha.png`.
+- VFX: `exec-7537fd9a-649e-4628-b972-8cabb7ea6505` -> `source/imagegen/shen_e_vfx_contact.png` -> `source/processed/shen_e_vfx_contact_alpha.png`.
+- Both sources used the built-in image generation path and the installed chroma-key helper; no code-drawn body or VFX substitute is accepted.
+
+Acceptance rule: Q, E and R must remain visually distinguishable at native scale. The active `lol_shen.data_champion` must reference `shen_q` for Q, `shen_e` for E and `shen_r` for R, and must not reference `shen_w` or the old refuge-field view name.

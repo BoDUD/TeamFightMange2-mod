@@ -204,8 +204,9 @@
 ## v0.1：慎
 
 - 以独立数据英雄 `lol_shen` 注册。
-- 模型、Q/W/R 图标和特效素材由 image-gen 生成。
-- 攻击和技能音效来自本机 League of Legends 的 Shen Base Wwise 资源。
+- 模型、Q/E/R 图标和特效素材由 image-gen 生成；第二主动槽已从 W 重构为带路径碰撞与 1.5 秒嘲讽的 E 影缚。
+- Q 暮临使用三层稳定状态强化接下来三次普攻，不再把 Q 做成直接伤害弹体；R 抵达不再附带错误的圆形嘲讽。
+- 攻击和 Q/R 技能音效来自本机 League of Legends 的 Shen Base Wwise 资源；E 暂复用已验证的攻击挥砍事件。
 
 ## 构建与测试
 

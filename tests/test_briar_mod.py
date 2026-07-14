@@ -626,12 +626,12 @@ def test_briar_hd_actor_and_source_direct_surfaces_keep_face_scale_and_name_clea
             )
             bbox = frame.getchannel("A").getbbox()
             assert bbox is not None, tag
-            assert bbox[2] - bbox[0] <= 58, tag
+            assert bbox[2] - bbox[0] <= 42, tag
             # Horizontal lunge/throw poses can be shorter in visible height,
             # but they keep the same uniform source scale and never collapse
             # into the old tiny/effect-only class.
-            assert 28 <= bbox[3] - bbox[1] <= 44, tag
-            assert bbox[3] <= 46, tag
+            assert 25 <= bbox[3] - bbox[1] <= 40, tag
+            assert bbox[3] <= 45, tag
 
     first_idle = anim["idle"]["frames"][0]["data"]
     idle = actor.crop(
@@ -644,8 +644,8 @@ def test_briar_hd_actor_and_source_direct_surfaces_keep_face_scale_and_name_clea
     )
     idle_bbox = idle.getchannel("A").getbbox()
     assert idle_bbox is not None
-    assert idle_bbox[3] - idle_bbox[1] == 42
-    assert idle_bbox[3] == 46
+    assert idle_bbox[3] - idle_bbox[1] == 38
+    assert idle_bbox[3] == 45
 
     surfaces = {
         "encyclopedia": ("ui/champion_fullbody/berserker.png", (64, 64)),
