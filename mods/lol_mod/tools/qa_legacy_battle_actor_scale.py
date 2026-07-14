@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import binascii
 from dataclasses import dataclass
 import hashlib
 import io
@@ -210,6 +211,59 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _png_chunk(chunk_type: bytes, data: bytes) -> bytes:
+    checksum = binascii.crc32(chunk_type + data) & 0xFFFFFFFF
+    return (
+        struct.pack(">I", len(data))
+        + chunk_type
+        + data
+        + struct.pack(">I", checksum)
+    )
+
+
+def _stored_zlib(data: bytes) -> bytes:
+    """Encode deterministic RFC 1950 bytes without zlib-version variance."""
+
+    stream = bytearray(b"\x78\x01")
+    offset = 0
+    while offset < len(data):
+        block = data[offset : offset + 65535]
+        offset += len(block)
+        stream.append(1 if offset == len(data) else 0)
+        stream.extend(struct.pack("<HH", len(block), len(block) ^ 0xFFFF))
+        stream.extend(block)
+
+    adler_a = 1
+    adler_b = 0
+    for start in range(0, len(data), 5552):
+        for value in data[start : start + 5552]:
+            adler_a += value
+            adler_b += adler_a
+        adler_a %= 65521
+        adler_b %= 65521
+    stream.extend(struct.pack(">I", (adler_b << 16) | adler_a))
+    return bytes(stream)
+
+
+def save_png(path: Path, image: Image.Image) -> None:
+    """Write canonical RGBA PNG bytes across Pillow and zlib versions."""
+
+    rgba = image.convert("RGBA")
+    pixels = rgba.tobytes()
+    stride = rgba.width * 4
+    raw = bytearray()
+    for y in range(rgba.height):
+        raw.append(0)
+        raw.extend(pixels[y * stride : (y + 1) * stride])
+    ihdr = struct.pack(">IIBBBBB", rgba.width, rgba.height, 8, 6, 0, 0, 0)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(b"IHDR", ihdr)
+        + _png_chunk(b"IDAT", _stored_zlib(bytes(raw)))
+        + _png_chunk(b"IEND", b"")
+    )
 
 
 def load_actor(spec: ActorSpec) -> tuple[Image.Image, dict[str, Any]]:
@@ -809,7 +863,7 @@ def build_stability_contact() -> Path:
                 fill=(150, 230, 195, 255),
             )
     output = QA_DIR / "legacy_battle_actor_state_stability_contact.png"
-    contact.save(output)
+    save_png(output, contact)
     return output
 
 
@@ -852,7 +906,7 @@ def build_reference_scale_contact(
             fill=(245, 245, 248, 255),
         )
     output = QA_DIR / "legacy_battle_actor_reference_scale_contact.png"
-    contact.save(output)
+    save_png(output, contact)
     return output
 
 
