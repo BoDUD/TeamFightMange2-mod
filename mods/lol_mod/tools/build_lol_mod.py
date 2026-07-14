@@ -847,8 +847,11 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
     # Q stays a normal 64x64 pose; its direction-aware beam is a projectile
     # binding, so mirroring the actor can no longer put the beam behind him.
     frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
-    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
-    for index, frame in enumerate(frames):
+    r_source = Image.open(LUCIAN_VFX_SOURCES["lucian_r"][0]).convert("RGBA")
+    r_projectile = fit_cell(split_grid(r_source, 4, 2)[0], (64, 64), (48, 18))
+    atlas_frames = [*frames, r_projectile]
+    atlas = Image.new("RGBA", (64 * len(atlas_frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(atlas_frames):
         atlas.alpha_composite(frame, (index * 64, 0))
 
     ACTOR_DIR.mkdir(parents=True, exist_ok=True)
@@ -866,6 +869,26 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         "skill": ([0, 14, 14, 14, 14, 14, 14, 14, 14, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
         "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
         "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
+        # Same-ID Archer keeps native presentation paths even when Lucian's
+        # data-champion payload owns the action.  The engine requests these
+        # names directly; a missing alias eventually unwraps a nonexistent
+        # animation.  Reuse the accepted fixed-scale Lucian poses while
+        # preserving the official frame counts and durations.
+        "ult_old": (
+            [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
+            [0.080000006] * 7 + [0.1] * 4,
+        ),
+        "ult_pre": ([0, 17, 17], [0.080000006] * 3),
+        "ult_loop": ([18, 18, 18, 18], [0.030000001] * 4),
+        "ult_end": ([18, 17, 0], [0.080000006] * 3),
+        "ult_projectile": ([21], [0.080000006]),
+        "old_ult_buff_effect": ([18, 18, 17, 0], [0.1] * 4),
+        "skill_attack": ([13, 11, 0], [0.080000006] * 3),
+        "skill_dash": ([15, 16, 16], [0.080000006] * 3),
+        "old_ult_pre": (
+            [0, 17, 17, 18, 18, 18, 18],
+            [0.080000006] * 7,
+        ),
         "hit": ([19], [0.12]),
         "dead": ([20], [0.60]),
     }
