@@ -819,8 +819,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 17507,
-      "sha256": "8c0ab7ce9b1b36cbc0145db0caff8153b1e452615b37161b7246bcb7bd8cbb44"
+      "size": 17503,
+      "sha256": "2b4d7ba67d3a59003707aa0e8d7a18564eeb7bcbb90a3d26cd196062b3dbe27f"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -994,8 +994,8 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 2123,
-      "sha256": "eeb2fb555adfee81f9288355fb5c586d70c0cd59385be8a99041c5525c8c5b35"
+      "size": 3845,
+      "sha256": "517c4c403b462b054d97c83846e07a6e49572e4e39cc5fba044a248b247d41a8"
     },
     {
       "path": "qa/yone_visual_contract.json",
@@ -1889,8 +1889,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 46827,
-      "sha256": "29059615c2b25f7bef14b489316d7d1c6719b4c6de0df6f128def6fc299cc9d4"
+      "size": 46719,
+      "sha256": "c0183e92ae73d769559d6d7fb2888c6accd77d3299c74e3995e66bf8e640d650"
     },
     {
       "path": "text/item.i18n",

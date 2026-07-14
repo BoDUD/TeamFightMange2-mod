@@ -6651,8 +6651,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             w.get("action_name"), w.get("cooltime"), w.get("duration"), w.get("start_timing"),
             w.get("range"), w.get("casting_type"), w.get("casting_target"),
         )
-        == ("skill2", 480, 36, 4, 90000, "Targeting", "EnemyChampionInCC"),
-        "Yone W timing, range, or CC-only targeting changed",
+        == ("skill2", 480, 36, 4, 90000, "Targeting", "EnemyChampion"),
+        "Yone W timing, range, or enemy-champion targeting changed",
     )
     w_rushes = find_effect(w, "RushMoveToBack")
     check(len(w_rushes) == 1, "Yone W must contain exactly one RushMoveToBack")
@@ -6970,6 +6970,15 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(set(style) >= {"face", "center"}, "Yone champion_view must define independent face and center cameras")
 
     rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    for retired_token in (
+        "struct YoneWInputGate",
+        "impl ModPlayerInputAi for YoneWInputGate",
+        '"lol_yone_w_input_gate"',
+        "registration.add_player_input_ai(YoneWInputGate);",
+        "let sealed_pursuit = Input::Skill2 { target };",
+        "ctx.is_valid_input(&sealed_pursuit)",
+    ):
+        check(retired_token not in rust, f"Yone unsafe targeted input gate must stay removed: {retired_token}")
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")

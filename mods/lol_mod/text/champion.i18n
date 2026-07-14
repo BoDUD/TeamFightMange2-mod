@@ -54,7 +54,7 @@
         "name": "Yone",
         "attack": "Way of the Hunter: Alternates between a blue-white steel slash and a red-black Azakana slash. Both deal 100% Attack physical damage in this data-only version.",
         "skill": "Q — Mortal Steel: Sends a narrow piercing thrust for 25 + 80% Attack physical damage. A hit grants Gathering Storm for 6 seconds; the next Q consumes it, dashes forward without dealing dash damage, releases a longer wind blade and knocks hit enemies airborne for 0.75 seconds. Cooldown: 4 seconds.",
-        "skill2": "W — Sealed Pursuit: Can target only a crowd-controlled enemy champion. Yone rushes behind the target, deals 45 + 90% Attack physical damage, knocks them airborne for 0.75 seconds and gains a 90 + 30% Attack shield for 1.5 seconds. Cooldown: 8 seconds.",
+        "skill2": "W — Sealed Pursuit: Targets an enemy champion. Yone rushes behind the target, deals 45 + 90% Attack physical damage, knocks them airborne for 0.75 seconds and gains a 90 + 30% Attack shield for 1.5 seconds. Cooldown: 8 seconds.",
         "ult": "R — Soul Unbound: Six alternating steel and Azakana slashes strike at 8-tick intervals for 12 + 16% Attack physical damage each. At tick 60, the soul mark echoes once for 30 + 25% Attack fixed damage. The target is knocked airborne once, not once per slash. Cooldown: 50 seconds."
       }
     }
@@ -114,7 +114,7 @@
         "name": "永恩",
         "attack": "狩人之道：普攻在蓝白钢剑斩击与红黑亚扎卡纳剑斩击之间交替。数据版两种攻击都造成100%攻击力的物理伤害。",
         "skill": "Q—错玉切：向前释放狭窄且可穿透的剑气，造成25 + 80%攻击力的物理伤害。命中后获得持续6秒的剑风；下一次Q会消耗剑风，无伤害冲刺并释放更远的旋风剑气，将命中的敌人击飞0.75秒。冷却4秒。",
-        "skill2": "W—封尘追斩：只能选择处于控制中的敌方英雄。永恩冲到目标身后，造成45 + 90%攻击力的物理伤害并击飞0.75秒，同时获得90 + 30%攻击力的护盾，持续1.5秒。冷却8秒。",
+        "skill2": "W—封尘追斩：选择一名敌方英雄。永恩冲到目标身后，造成45 + 90%攻击力的物理伤害并击飞0.75秒，同时获得90 + 30%攻击力的护盾，持续1.5秒。冷却8秒。",
         "ult": "R—破障之锋·六道断魂：以8 tick间隔交替使用钢剑与亚扎卡纳之剑斩击六次，每次造成12 + 16%攻击力的物理伤害；第60 tick灵魂印记只回响一次，造成30 + 25%攻击力的固定伤害。目标只会被击飞一次。冷却50秒。"
       }
     }
@@ -174,7 +174,7 @@
         "name": "犽凝",
         "attack": "狩人之道：普攻在藍白鋼劍斬擊與紅黑亞扎卡納劍斬擊之間交替。資料版兩種攻擊都造成100%攻擊力的物理傷害。",
         "skill": "Q—錯玉切：向前釋放狹窄且可穿透的劍氣，造成25 + 80%攻擊力的物理傷害。命中後獲得持續6秒的劍風；下一次Q會消耗劍風，無傷害衝刺並釋放更遠的旋風劍氣，將命中的敵人擊飛0.75秒。冷卻4秒。",
-        "skill2": "W—封塵追斬：只能選擇處於控制中的敵方英雄。犽凝衝到目標身後，造成45 + 90%攻擊力的物理傷害並擊飛0.75秒，同時獲得90 + 30%攻擊力的護盾，持續1.5秒。冷卻8秒。",
+        "skill2": "W—封塵追斬：選擇一名敵方英雄。犽凝衝到目標身後，造成45 + 90%攻擊力的物理傷害並擊飛0.75秒，同時獲得90 + 30%攻擊力的護盾，持續1.5秒。冷卻8秒。",
         "ult": "R—破障之鋒·六道斷魂：以8 tick間隔交替使用鋼劍與亞扎卡納之劍斬擊六次，每次造成12 + 16%攻擊力的物理傷害；第60 tick靈魂印記只回響一次，造成30 + 25%攻擊力的固定傷害。目標只會被擊飛一次。冷卻50秒。"
       }
     }
@@ -220,7 +220,7 @@
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は青白い鋼の剣と赤黒いアザカナの剣を交互に使う。データ版ではどちらも攻撃力100%の物理ダメージを与える。",
         "skill": "Q—斬命刀：細く貫通する剣気を放ち、25 + 攻撃力80%の物理ダメージを与える。命中すると6秒間「つむじ風」を得る。次のQは状態を消費し、ダメージのない前進と長い風刃で命中した敵を0.75秒ノックアップする。クールダウン4秒。",
-        "skill2": "W—封塵追撃：行動妨害中の敵チャンピオンだけを対象にできる。対象の背後へ突進し、45 + 攻撃力90%の物理ダメージと0.75秒のノックアップを与え、自身は1.5秒間90 + 攻撃力30%のシールドを得る。クールダウン8秒。",
+        "skill2": "W—封塵追撃：敵チャンピオンを対象にできる。対象の背後へ突進し、45 + 攻撃力90%の物理ダメージと0.75秒のノックアップを与え、自身は1.5秒間90 + 攻撃力30%のシールドを得る。クールダウン8秒。",
         "ult": "R—縛魂の六連斬：8 tick間隔で鋼とアザカナの剣を交互に6回振り、各12 + 攻撃力16%の物理ダメージを与える。60 tick目に魂の印が一度だけ爆発し、30 + 攻撃力25%の固定ダメージを与える。ノックアップは一度だけ。クールダウン50秒。"
       }
     }
@@ -266,7 +266,7 @@
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 청백색 강철검과 적흑색 아자카나 검을 번갈아 사용합니다. 데이터 버전에서는 둘 다 공격력의 100%만큼 물리 피해를 입힙니다.",
         "skill": "Q—필멸의 검: 가늘고 관통하는 검기를 날려 25 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중하면 6초 동안 회오리 상태를 얻으며 다음 Q가 이를 소모해 피해 없는 돌진과 더 긴 바람 칼날로 적을 0.75초 공중에 띄웁니다. 재사용 대기시간은 4초입니다.",
-        "skill2": "W—봉진 추격: 군중 제어에 걸린 적 챔피언만 대상으로 삼습니다. 대상 뒤로 돌진해 45 + 공격력의 90%만큼 물리 피해를 입히고 0.75초 공중에 띄우며, 자신은 1.5초 동안 90 + 공격력의 30%만큼 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
+        "skill2": "W—봉진 추격: 적 챔피언을 대상으로 삼습니다. 대상 뒤로 돌진해 45 + 공격력의 90%만큼 물리 피해를 입히고 0.75초 공중에 띄우며, 자신은 1.5초 동안 90 + 공격력의 30%만큼 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
         "ult": "R—영혼의 육연참: 강철검과 아자카나 검으로 8 tick마다 번갈아 6회 베어 각각 12 + 공격력의 16%만큼 물리 피해를 입힙니다. 60 tick에 영혼 표식이 한 번만 폭발해 30 + 공격력의 25%만큼 고정 피해를 입힙니다. 공중에 띄우는 효과는 한 번만 적용됩니다. 재사용 대기시간은 50초입니다."
       }
     }
