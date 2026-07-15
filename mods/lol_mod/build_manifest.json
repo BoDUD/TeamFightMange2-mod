@@ -80,7 +80,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1232950,
-      "sha256": "991d005382697e0080116e2f4d1fcecf4455f3bc8616c2de5cc657e89c3d0705"
+      "sha256": "6c2ae2a769d80f227ed74b0959c3fec45d41c07b9dd1e5dae533906bb805782f"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -424,13 +424,13 @@
     },
     {
       "path": "aseprite_resources/effects/yone_q#anim.fanim",
-      "size": 3704,
-      "sha256": "398315329ed6facadf0ad11262cd0cdd25ca234d76be125a3baf6ae38d66a809"
+      "size": 2638,
+      "sha256": "26a2ff1a98447bfb171049cb706d4fb2a72a17c5043ac97a45fa049ee2b5dae5"
     },
     {
       "path": "aseprite_resources/effects/yone_q#sheet.png",
-      "size": 539460,
-      "sha256": "d9f7545f6d49adf8d929088c8ac8f2592949e0a18268b43a78a81ccd7d2611e6"
+      "size": 292080,
+      "sha256": "b7460e3c9e4ed09abb721bc83acce17c30eb46fd21a29c766fe19ba04dd3a1b5"
     },
     {
       "path": "aseprite_resources/effects/yone_q3_airborne#anim.fanim",
@@ -441,6 +441,26 @@
       "path": "aseprite_resources/effects/yone_q3_airborne#sheet.png",
       "size": 89753,
       "sha256": "e385d1c9a94639ac8e67544d3b42d58b6110efdfe2bb9e484cfd301f757607f2"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#anim.fanim",
+      "size": 1469,
+      "sha256": "9b3c688f319f0e0f3267bbf25ed77adb6a894a96c6b3db46bcf740c473cb08c3"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#sheet.png",
+      "size": 97009,
+      "sha256": "a6c6ec7a6f82489636b95440b1d9c01ca750ece86c9db0133ee93b81c8a1cf2c"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#anim.fanim",
+      "size": 2095,
+      "sha256": "dafc3e7666edf457a00d6e72b5ad58b16eb517d4ee95eabc252a6ba9b5a0413b"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#sheet.png",
+      "size": 408826,
+      "sha256": "e7d4c567b4867c9b75afab0034dac4c3a6c33812605ba33e93a4270061f24ac5"
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
@@ -454,13 +474,13 @@
     },
     {
       "path": "aseprite_resources/effects/yone_spirit#anim.fanim",
-      "size": 3528,
-      "sha256": "40ca30aad17ec7288c8542b498eeabd181a62450baa2f83244b7974a89f8f503"
+      "size": 5334,
+      "sha256": "5c8f976cb18540a3e28de48fff37439051c39d67932e7cbc45acfb0c8da582e1"
     },
     {
       "path": "aseprite_resources/effects/yone_spirit#sheet.png",
-      "size": 371525,
-      "sha256": "b35a07d986d4830562ea5383025fed601a65f706d3911201a2f5aeb510808ea0"
+      "size": 640513,
+      "sha256": "bba50112c942a1c336f01e56da8848b5946d8a1a9b1be250eabc52fb2075f126"
     },
     {
       "path": "aseprite_resources/effects/yone_w#anim.fanim",
@@ -849,8 +869,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 24963,
-      "sha256": "8b71f1568ec95641f924b1549156907fed27c7334db665afa156a7cca28f8232"
+      "size": 24503,
+      "sha256": "3ba58f8d1de7370f1697110130ca194bbb0d4bbf59c7fdd633df451fc426b85b"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -970,7 +990,7 @@
     {
       "path": "icons/yone_skill2.png",
       "size": 16516,
-      "sha256": "5d40a81ddfeeaa6a18c1d0d0bd9d357b625c51838c6f0519512f2d7875821a45"
+      "sha256": "95f224687d7b03ac2e62bbe463cecd9a71670b3055ccbb380a5511dd58a54a24"
     },
     {
       "path": "icons/yone_ult.png",
@@ -979,8 +999,8 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1006592,
-      "sha256": "49b99659384313e21f3ccd9e6028b9a7147e0497f083040efe4ecdd7f63d12a0"
+      "size": 1016320,
+      "sha256": "d51dce941f802b590cf60f75a0066c8f12fa78d1e908f1501507d1d7ca9f8421"
     },
     {
       "path": "mod.mod_info",
@@ -1014,8 +1034,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 13456,
-      "sha256": "c57a55364dfe3507f90ec660978c0ffa8c909c2ff20325d98523672d4e5d974c"
+      "size": 13275,
+      "sha256": "1c5c9f89ad0c4d61f5763adbe01c545155fef4b0731412f88db81da9edcc853b"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1024,23 +1044,23 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 4579,
-      "sha256": "e6793754a56e8e2edbef9e3e6738e67b6140dda035d98a719d1361e40ab0640b"
+      "size": 4183,
+      "sha256": "1db4931b10616cd17094bd10eca46035e61bcd58fe716edd079952a486ad1354"
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 27919,
-      "sha256": "7950c7b13d846a8694840df0462b64ea948dd7334b5cf3a9642222a52bdc26b5"
+      "size": 27732,
+      "sha256": "132a1516096e3ee9e8a81e679b04d9b4918e40e7037a03fe5902401b87c8a7b5"
     },
     {
       "path": "qa/yone_visual_final.png",
       "size": 2455173,
-      "sha256": "db98942230aa2fcf96df799ed27816a3c1019cffe4ef1b7cd7aead7c8f72eca7"
+      "sha256": "8e9e088bf60b190ff45bdb6b45c96b833bce4df48335933f20d41e998e0147c0"
     },
     {
       "path": "qa/yone_visual_qa.md",
-      "size": 1218,
-      "sha256": "a63f11520f47d7a4ac8e24f800ad68aa9597dee991496bc85f56e7e17fe50c25"
+      "size": 1133,
+      "sha256": "35cdc6398aa0a4ddfd6e30b6daab4ef15012289f8505c334e16649906eb34e52"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -1919,8 +1939,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 50282,
-      "sha256": "ff7a60316cfe4c922fd94883c2b4bf01ae120aa8bbf8eb7d52b786257535cd44"
+      "size": 44819,
+      "sha256": "c5f82c94182047d933b8023543f7023edcc64281305bbdbb0aca269e7739e143"
     },
     {
       "path": "text/item.i18n",
