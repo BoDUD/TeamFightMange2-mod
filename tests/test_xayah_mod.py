@@ -420,6 +420,14 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
 def test_xayah_visual_registry_is_distinct_for_attack_q_e_and_r() -> None:
     xayah = load_json("champion/dancer.data_champion")
     projectiles = {view["name"]: view for view in xayah["view_projectiles"]}
+    assert projectiles["lol_xayah_e_anchor"] == {
+        "type": "Animated",
+        "name": "lol_xayah_e_anchor",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+        "tag": "anchor",
+        "z": 0,
+        "repeat": True,
+    }
     assert projectiles["lol_xayah_attack_feather"]["anim"].endswith("/xayah_attack")
     assert projectiles["lol_xayah_q_feather"]["anim"].endswith("/xayah_q")
     for name, tag in {
@@ -588,6 +596,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
             "return_cluster": 4,
             "root": 4,
             "hit": 4,
+            "anchor": 1,
         },
         "xayah_r": {"fan": 4, "hit": 4, "guard": 4},
         "xayah_ground_feather": {"ground_single": 4, "ground_fan": 4},
@@ -599,6 +608,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
             "return_cluster": (80, 44),
             "root": (72, 72),
             "hit": (48, 48),
+            "anchor": (1, 1),
         },
         "xayah_r": {"fan": (104, 72), "hit": (96, 72), "guard": (72, 72)},
         "xayah_ground_feather": {
@@ -620,7 +630,10 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
                 data = frame["data"]
                 crop = sheet.crop((data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"]))
                 bbox = crop.getchannel("A").getbbox()
-                if name == "xayah_ground_feather" and frame_index == len(value["frames"]) - 1:
+                if (
+                    name == "xayah_ground_feather"
+                    and frame_index == len(value["frames"]) - 1
+                ) or (name == "xayah_e" and tag == "anchor"):
                     assert bbox is None, (name, tag, "terminal frame must hide bounded-TTL ghosts")
                 else:
                     assert bbox is not None, (name, tag, frame_index)

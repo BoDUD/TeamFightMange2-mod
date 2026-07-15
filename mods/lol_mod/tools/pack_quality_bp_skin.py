@@ -5,6 +5,7 @@ import json
 import math
 from pathlib import Path
 from statistics import median
+import struct
 from typing import Any
 
 from PIL import Image
@@ -41,31 +42,44 @@ QA_PATH = MOD_ROOT / "qa" / "quality_bp_skin_imagegen_pack.json"
 CONTACT_PATH = MOD_ROOT / "qa" / "quality_bp_component_contact.png"
 
 RUNTIME_SIZE = (1920, 1080)
-TIMER_PLATE_SIZE = (170, 20)
+TIMER_PLATE_SIZE = (220, 20)
 TIMER_ICON_SIZE = (20, 20)
-HEADER_CHROME_SIZE = (1920, 85)
-BOTTOM_CHROME_SIZE = (1920, 150)
-CHAMPION_FRAME_SIZE = (119, 130)
-CHAMPION_ICON_CANVAS_SIZE = (118, 88)
-CHAMPION_ICON_SAFE_TOP_PX = 4
+HEADER_CHROME_SIZE = (1920, 50)
+BOTTOM_CHROME_SIZE = (1920, 100)
+CHAMPION_FRAME_SIZE = (132, 130)
+CHAMPION_ICON_CANVAS_SIZE = (131.4444, 88)
+CHAMPION_ICON_SAFE_TOP_PX = 0
 CHAMPION_NAME_BAND_HEIGHT_PX = 38
-HEADER_CHROME_TARGET_MARGINS = (14, 18, 14, 18)
-BOTTOM_CHROME_TARGET_MARGINS = (16, 12, 16, 4)
-FILTER_TOOLBAR_SIZE = (1260, 50)
-CHAMPION_GRID_SIZE = (1250, 377)
-STAT_FRAME_SIZE = (549, 371)
-SKILL_FRAME_SIZE = (687, 115)
+HEADER_CHROME_TARGET_MARGINS = (14, 10, 14, 10)
+BOTTOM_CHROME_TARGET_MARGINS = (16, 8, 16, 4)
+FILTER_TOOLBAR_SIZE = (1310, 50)
+CHAMPION_GRID_SIZE = (1300, 570)
+STAT_FRAME_SIZE = (1300, 70)
+SKILL_FRAME_SIZE = (427, 200)
 SIDE_PICK_FRAME_SIZE = (300, 174)
 CHROMA_KEY = (255, 0, 255)
 CHROMA_TRANSPARENT_DISTANCE = 42.0
 CHROMA_OPAQUE_DISTANCE = 118.0
-NATIVE_LAYOUT_SHA256 = "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc"
+NATIVE_LAYOUT_SHA256 = "3cf90d1a4ea61b3aa40a2821af969654f37f08bc60d14c70306ef286b1e40522"
 NATIVE_LAYOUT_NORMALIZED_SHA256 = (
-    "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05"
+    "4ca21b5ef930e75602428a1951a68a60fa324e5b5a2b09da1748ed2080b95a93"
 )
 NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256 = (
-    "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a"
+    "25b28e532e443bcabb357ec1e223bed55a334f881d4a8a53ab24652de8174d72"
 )
+NATIVE_BLUE_PICK_SLOT_NORMALIZED_SHA256 = (
+    "bce47f951f8d469df30ba6daf35ee577f4a9fd01173793dcd6d8d8b9fe4e9c61"
+)
+NATIVE_RED_PICK_SLOT_NORMALIZED_SHA256 = (
+    "b0f0492d2666d44d582596e965efb0a232c7576daeb2e612d61b37314be7b4c4"
+)
+
+BP_LAYOUT_ASSETS = {
+    "layout": "asset/base/ui/layout/banpick/layout",
+    "blue_pick_slot": "asset/base/ui/layout/banpick/blue_pick_slot",
+    "red_pick_slot": "asset/base/ui/layout/banpick/red_pick_slot",
+    "champion_slot": "asset/base/ui/layout/banpick/champion_slot",
+}
 
 IMAGEGEN_PROMPT = (
     "Original 16:9 restrained fantasy MOBA champion-draft background: nearly black navy "
@@ -97,14 +111,14 @@ COMPONENT_IMAGEGEN_REQUESTS = [
     {
         "id": "panel_frame",
         "source_path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
-        "runtime_dimensions": [[1250, 377], [549, 371], [687, 115]],
+        "runtime_dimensions": [[1300, 570], [1300, 70], [427, 200]],
         "alpha": "keyed exterior; low-contrast dark centre; slim 9-slice-safe frame",
         "layout_reference": "champion grid, #champion_info #stat, and #skill1/#skill2/#ult",
     },
     {
         "id": "control_frame",
         "source_path": "source/imagegen/ui/lol_bp_control_frame_v1_source.png",
-        "runtime_dimensions": [[40, 40], [170, 40], [164, 40], [248, 40], [108, 40], [285, 40], [639, 67]],
+        "runtime_dimensions": [[40, 40], [220, 40], [170, 40], [260, 40], [110, 40], [290, 40], [645, 67]],
         "alpha": "keyed exterior; dark centre; 9-slice-safe 1-2px frame",
         "layout_reference": "category/position/search/delegate/swap controls",
     },
@@ -157,26 +171,13 @@ LOL_CHAMPION_FRAME_BLOCK = """\
   }
 """
 
-LOL_CHAMPION_ICON_SAFE_OFFSET = """\
-  #icon:canvas {
-    width: 118px;
-    height: 88px;
-    y: 4px;
-"""
-
-NATIVE_CHAMPION_ICON_BLOCK_START = """\
-  #icon:canvas {
-    width: 118px;
-    height: 88px;
-"""
-
 LOL_FILTER_TOOLBAR_BLOCK = """\
 
   #lol_bp_filter_toolbar:image {
     ignore_event: true;
-    x: 330px;
-    y: 90px;
-    width: 1260px;
+    x: 305px;
+    y: 55px;
+    width: 1310px;
     height: 50px;
     source: "asset/lol_mod/ui/banpick/lol_bp_filter_toolbar";
   }
@@ -202,15 +203,36 @@ LOL_STAT_FRAME_BLOCK = """\
       }
 """
 
-LOL_SKILL_FRAME_BLOCK = """\
-
-      #lol_bp_skill_frame:image {
+def lol_skill_frame_block(width: int) -> str:
+    return f"""
+      #lol_bp_skill_frame:image {{
         ignore_event: true;
         x: -10px;
         y: -10px;
-        width: 687px;
-        height: 115px;
-        source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame";
+        width: {width}px;
+        height: 200px;
+        source: \"asset/lol_mod/ui/banpick/lol_bp_skill_frame\";
+      }}
+"""
+
+
+LOL_TIMER_PLATE_BLOCK = """\
+
+      #lol_bp_timer_plate:image {
+        ignore_event: true;
+        width: 220px;
+        height: 20px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_timer_plate";
+      }
+"""
+
+LOL_TIMER_ICON_BLOCK = """\
+
+      #lol_bp_timer_icon:image {
+        ignore_event: true;
+        width: 20px;
+        height: 20px;
+        source: "asset/lol_mod/ui/banpick/lol_bp_timer_icon";
       }
 """
 
@@ -223,37 +245,6 @@ LOL_SIDE_PICK_FRAME_BLOCK = """\
     source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame";
   }
 """
-
-ALLOWED_COLOR_RESTORES = {
-    "#03070eff": "#07080bff",
-    "#08111dee": "#161721ff",
-    "#0a121fed": "#161721ff",
-    "#07101bf4": "#0f1016ff",
-    "#0a121ff0": "#161721ff",
-    "#163b64f5": "#192880ff",
-    "#642638f5": "#78221cff",
-    "#08111df5": "#161721ff",
-    "#9b7b42ff": "#4a4c56ff",
-    "#07131ff2": "#161721ff",
-    "#0ac8b9ff": "#37d5b3ff",
-    "#66e6d8ff": "#ecfbf8ff",
-    "#203848ff": "#4a4c56ff",
-    "#0b2130f8": "#0f1016ff",
-    "#0d1b29f5": "#1d1f2cff",
-    "#101f2cff": "#0f1016ff",
-    "#08131ef7": "#161721ff",
-    "#132435ff": "#1d1f2cff",
-    "#385266ff": "#4a4c56ff",
-}
-
-STYLE_REFERENCE_RESTORES = {
-    "asset/lol_mod/style/bp_controls#secondary_button": "asset/base/style/main#secondary_button",
-    "asset/lol_mod/style/bp_controls#tertiary_button": "asset/base/style/main#tertiary_button",
-    "asset/lol_mod/style/bp_controls#primary_button": "asset/base/style/main#primary_button",
-    "asset/lol_mod/style/bp_controls#dropdown": "asset/base/style/main#dropdown",
-    "asset/lol_mod/style/bp_controls#text_edit": "asset/base/style/main#text_edit",
-}
-
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -272,6 +263,162 @@ def image_record(path: Path) -> dict[str, Any]:
             "dimensions": list(image.size),
             "mode": image.mode,
         }
+
+
+def canonical_layout(text: str) -> str:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return "\n".join(line.rstrip() for line in normalized.splitlines()) + "\n"
+
+
+def find_bundle_path() -> Path:
+    candidates = (
+        MOD_ROOT.parents[2] / "bundle.game_data",
+        MOD_ROOT.parents[1] / "bundle.game_data",
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(
+        "Could not locate Teamfight Manager 2 bundle.game_data: "
+        + ", ".join(str(candidate) for candidate in candidates)
+    )
+
+
+def _read_u32(handle: Any) -> int:
+    raw = handle.read(4)
+    if len(raw) != 4:
+        raise EOFError("Unexpected end of bundle.game_data while reading u32")
+    return struct.unpack("<I", raw)[0]
+
+
+def read_native_bp_layouts(bundle_path: Path) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
+    wanted = {asset_key: name for name, asset_key in BP_LAYOUT_ASSETS.items()}
+    layouts: dict[str, str] = {}
+    records: dict[str, dict[str, Any]] = {}
+    with bundle_path.open("rb") as handle:
+        for _index in range(_read_u32(handle)):
+            type_length = _read_u32(handle)
+            asset_type = handle.read(type_length).decode("utf-8", "strict")
+            key_length = _read_u32(handle)
+            key = handle.read(key_length).decode("utf-8", "strict")
+            data_length = _read_u32(handle)
+            if key not in wanted:
+                handle.seek(data_length, 1)
+                continue
+            payload = handle.read(data_length)
+            if len(payload) != data_length:
+                raise EOFError(f"Truncated bundle entry: {key}")
+            if asset_type != "ui":
+                raise ValueError(f"Expected UI payload for {key}, got {asset_type!r}")
+            name = wanted[key]
+            text = canonical_layout(payload.decode("utf-8-sig", "strict"))
+            layouts[name] = text
+            records[name] = {
+                "asset_key": key,
+                "asset_type": asset_type,
+                "raw_size_bytes": data_length,
+                "raw_sha256": hashlib.sha256(payload).hexdigest(),
+                "normalized_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+                "line_count": len(text.splitlines()),
+            }
+    missing = sorted(set(BP_LAYOUT_ASSETS) - set(layouts))
+    if missing:
+        raise KeyError(f"Missing native BP layouts in bundle.game_data: {missing}")
+    return layouts, records
+
+
+def _inject_before(text: str, marker: str, block: str, *, start: int = 0) -> str:
+    index = text.find(marker, start)
+    if index < 0:
+        raise ValueError(f"BP 0.5.1 layout anchor not found: {marker!r}")
+    return text[:index] + block + text[index:]
+
+
+def _inject_before_in_node(text: str, node_marker: str, child_marker: str, block: str) -> str:
+    node_index = text.find(node_marker)
+    if node_index < 0:
+        raise ValueError(f"BP 0.5.1 node not found: {node_marker!r}")
+    child_index = text.find(child_marker, node_index)
+    if child_index < 0:
+        raise ValueError(
+            f"BP 0.5.1 child anchor {child_marker!r} not found after {node_marker!r}"
+        )
+    return text[:child_index] + block + text[child_index:]
+
+
+def _inject_child_before_close(text: str, node_marker: str, block: str) -> str:
+    node_index = text.find(node_marker)
+    if node_index < 0:
+        raise ValueError(f"BP 0.5.1 node not found: {node_marker!r}")
+    opening = text.find("{", node_index)
+    depth = 0
+    for index in range(opening, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                line_start = text.rfind("\n", opening, index) + 1
+                return text[:line_start] + block + text[line_start:]
+    raise ValueError(f"Unclosed BP 0.5.1 node: {node_marker!r}")
+
+
+def decorate_native_layout(native: str) -> str:
+    layout = canonical_layout(native)
+    layout = _inject_before(layout, "\n  #header:color {", LOL_BACKGROUND_BLOCK)
+    layout = _inject_before_in_node(
+        layout, "#header:color {", "\n    #step:label {", LOL_HEADER_CHROME_BLOCK
+    )
+    layout = _inject_before_in_node(
+        layout, "#bottom:color {", "\n    #matchup:label {", LOL_BOTTOM_CHROME_BLOCK
+    )
+    layout = _inject_before(
+        layout, "\n  #prev_champion_category:color_icon_button {", LOL_FILTER_TOOLBAR_BLOCK
+    )
+    layout = _inject_child_before_close(
+        layout, "#champions_bg:color {", LOL_CHAMPION_GRID_BLOCK
+    )
+    layout = _inject_before_in_node(
+        layout, "#stat:empty {", "\n      #header:color {", LOL_STAT_FRAME_BLOCK
+    )
+    for skill_id, width in (("skill1", 427), ("skill2", 426), ("ult", 427)):
+        layout = _inject_before_in_node(
+            layout,
+            f"#{skill_id}:color {{",
+            "\n      #data:empty {",
+            lol_skill_frame_block(width),
+        )
+    layout = _inject_before_in_node(
+        layout,
+        "#timer_bar_bg:color {",
+        "\n      #timer_bar:color {",
+        LOL_TIMER_PLATE_BLOCK,
+    )
+    layout = _inject_child_before_close(
+        layout, "#timer_icon:image {", LOL_TIMER_ICON_BLOCK
+    )
+    return layout
+
+
+def decorate_native_champion_slot(native: str) -> str:
+    return _inject_before(
+        canonical_layout(native), "\n  #icon:canvas {", LOL_CHAMPION_FRAME_BLOCK
+    )
+
+
+def decorate_native_pick_slot(native: str) -> str:
+    return _inject_before(
+        canonical_layout(native), "\n  #wait:empty {", LOL_SIDE_PICK_FRAME_BLOCK
+    )
+
+
+def _strip_exact_blocks(text: str, blocks: tuple[str, ...]) -> str:
+    restored = text
+    for block in blocks:
+        if block not in restored:
+            raise ValueError("Expected audited BP decoration block is missing")
+        restored = restored.replace(block, "")
+    return canonical_layout(restored)
 
 
 def has_transparency(path: Path) -> bool:
@@ -584,197 +731,36 @@ def build_component_contact() -> None:
     canvas.save(CONTACT_PATH, optimize=True)
 
 
-CHAMPION_SLOT_COLOR_RESTORES = {
-    "#07131ff2": "#161721ff",
-    "#06101aff": "#0f1016ff",
-    "#f0e6d2ff": "#e8e8e8ff",
-    "#0b2742ff": "#0d1440ff",
-    "#061424ff": "#05081aff",
-    "#9ed8ffff": "#adb9ffff",
-    "#34141dff": "#3b0f13ff",
-    "#19080dff": "#180608ff",
-    "#ffbbc1ff": "#f7b1b8ff",
-    "#30343bff": "#666666ff",
-    "#171a1fff": "#333333ff",
-    "#68717aff": "#666666ff",
-    "#29475cff": "#4a4c56ff",
-    "#c8aa6eff": "#e8e8e8ff",
-    "#2376a7ff": "#263cbfff",
-    "#b33b4bff": "#b02e3aff",
-    "#39566eff": "#4a4c56ff",
-    "#8090a0ff": "#8a8c96ff",
-}
-
-
 def restored_native_champion_slot_hash(layout: str) -> str:
-    restored = layout.replace(LOL_CHAMPION_FRAME_BLOCK, "")
-    restored = restored.replace(
-        LOL_CHAMPION_ICON_SAFE_OFFSET,
-        NATIVE_CHAMPION_ICON_BLOCK_START,
-    )
-    for styled, native in CHAMPION_SLOT_COLOR_RESTORES.items():
-        restored = restored.replace(styled, native)
-    restored = restored.replace(
-        """  line_width: 1;
-  rounding: 6;
-  down_height: 38;
-""",
-        """  line_width: 1;
-  rounding: 12;
-  down_height: 38;
-""",
-    )
-    canonical = "\n".join(line.rstrip() for line in restored.splitlines()) + "\n"
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    restored = _strip_exact_blocks(layout, (LOL_CHAMPION_FRAME_BLOCK,))
+    return hashlib.sha256(restored.encode("utf-8")).hexdigest()
 
 
 def restored_native_layout(layout: str) -> str:
-    restored = layout.replace(LOL_BACKGROUND_BLOCK, "")
-    restored = restored.replace(LOL_HEADER_CHROME_BLOCK, "")
-    restored = restored.replace(LOL_BOTTOM_CHROME_BLOCK, "")
-    restored = restored.replace(LOL_FILTER_TOOLBAR_BLOCK, "")
-    restored = restored.replace(LOL_CHAMPION_GRID_BLOCK, "")
-    restored = restored.replace(LOL_STAT_FRAME_BLOCK, "")
-    restored = restored.replace(LOL_SKILL_FRAME_BLOCK, "")
-    restored = restored.replace(
-        """    #timer_icon:image {
-      width: 20px;
-      height: 20px;
-      y: 10px;
-      source: \"asset/lol_mod/ui/banpick/lol_bp_timer_icon\";
-      color: #ffffffff;
-""",
-        """    #timer_icon:image {
-      width: 20px;
-      height: 20px;
-      y: 10px;
-      source: \"asset/base/ui/icons/time\";
-      color: #e8e8e8ff;
-""",
+    return _strip_exact_blocks(
+        layout,
+        (
+            LOL_BACKGROUND_BLOCK,
+            LOL_HEADER_CHROME_BLOCK,
+            LOL_BOTTOM_CHROME_BLOCK,
+            LOL_FILTER_TOOLBAR_BLOCK,
+            LOL_CHAMPION_GRID_BLOCK,
+            LOL_STAT_FRAME_BLOCK,
+            lol_skill_frame_block(427),
+            lol_skill_frame_block(426),
+            LOL_TIMER_PLATE_BLOCK,
+            LOL_TIMER_ICON_BLOCK,
+        ),
     )
-    restored = restored.replace(
-        """      size: 20;
-      color: #f0e6d2ff;
-      align_y: Center;
-""",
-        """      size: 20;
-      align_y: Center;
-""",
-        1,
-    )
-    restored = restored.replace(
-        """    #timer_bar_bg:image {
-      width: 170px;
-      height: 20px;
-      y: 10px;
-      source: \"asset/lol_mod/ui/banpick/lol_bp_timer_plate\";
-""",
-        """    #timer_bar_bg:color {
-      width: 170px;
-      height: 20px;
-      y: 10px;
-      color: #4a4c56ff;
-""",
-    )
-    for styled, native in STYLE_REFERENCE_RESTORES.items():
-        restored = restored.replace(styled, native)
-    for styled, native in ALLOWED_COLOR_RESTORES.items():
-        restored = restored.replace(styled, native)
-    restored = restored.replace(
-        """  #champions_bg:color {
-    width: 1250px;
-    height: 377px;
-
-    x: 335px;
-    y: 145px;
-
-    color: #161721ff;
-
-    rounding: Uniform {
-      rounding: 6;
-""",
-        """  #champions_bg:color {
-    width: 1250px;
-    height: 377px;
-
-    x: 335px;
-    y: 145px;
-
-    color: #161721ff;
-
-    rounding: Uniform {
-      rounding: 12;
-""",
-    )
-    restored = restored.replace(
-        """    #stat:color {
-      color: #161721ff;
-      rounding: Uniform {
-        rounding: 6;
-""",
-        """    #stat:color {
-      color: #161721ff;
-      rounding: Uniform {
-        rounding: 12;
-""",
-    )
-    restored = restored.replace(
-        """      #header:color {
-        color: #0f1016ff;
-
-        rounding: Individual {
-          top_left: 6;
-          top_right: 6;
-          bottom_left: 0;
-          bottom_right: 0;
-        }
-        width: 549px;
-""",
-        """      #header:color {
-        color: #0f1016ff;
-
-        rounding: Individual {
-          top_left: 12;
-          top_right: 12;
-          bottom_left: 0;
-          bottom_right: 0;
-        }
-        width: 549px;
-""",
-    )
-    for skill_id in ("skill1", "skill2", "ult"):
-        restored = restored.replace(
-            f"""    #{skill_id}:color {{
-      width: 687px;
-      height: 115px;
-"""
-            + ("      x: 563px;\n" if skill_id == "skill1" else ""),
-            f"""    #{skill_id}:color {{
-      width: 687px;
-      height: 115px;
-"""
-            + ("      x: 563px;\n" if skill_id == "skill1" else ""),
-        )
-    restored = restored.replace(
-        """      color: #161721ff;
-      rounding: Uniform {
-        rounding: 6;
-""",
-        """      color: #161721ff;
-      rounding: Uniform {
-        rounding: 12;
-""",
-        3,
-    )
-    # The bundle text contains whitespace-only padding on a few blank lines.
-    # Canonicalize it so the audit still proves the native UI tree/geometry
-    # while keeping the checked-in layout clean for git diff --check.
-    canonical = "\n".join(line.rstrip() for line in restored.splitlines()) + "\n"
-    return canonical
 
 
 def restored_native_layout_hash(layout: str) -> str:
     return hashlib.sha256(restored_native_layout(layout).encode("utf-8")).hexdigest()
+
+
+def restored_native_pick_slot_hash(layout: str) -> str:
+    restored = _strip_exact_blocks(layout, (LOL_SIDE_PICK_FRAME_BLOCK,))
+    return hashlib.sha256(restored.encode("utf-8")).hexdigest()
 
 
 def main() -> int:
@@ -788,15 +774,38 @@ def main() -> int:
         PANEL_FRAME_SOURCE,
         CONTROL_FRAME_SOURCE,
         SIDE_PICK_FRAME_SOURCE,
-        LAYOUT_PATH,
-        CHAMPION_SLOT_PATH,
-        BLUE_PICK_SLOT_PATH,
-        RED_PICK_SLOT_PATH,
         CONTROL_STYLE_PATH,
     )
     for required in required_files:
         if not required.is_file():
             raise FileNotFoundError(required)
+
+    bundle_path = find_bundle_path()
+    native_layouts, native_records = read_native_bp_layouts(bundle_path)
+    expected_native_hashes = {
+        "layout": NATIVE_LAYOUT_NORMALIZED_SHA256,
+        "blue_pick_slot": NATIVE_BLUE_PICK_SLOT_NORMALIZED_SHA256,
+        "red_pick_slot": NATIVE_RED_PICK_SLOT_NORMALIZED_SHA256,
+        "champion_slot": NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256,
+    }
+    for name, expected_hash in expected_native_hashes.items():
+        actual_hash = native_records[name]["normalized_sha256"]
+        if actual_hash != expected_hash:
+            raise ValueError(
+                f"Unsupported BP native layout for {name}: {actual_hash}; "
+                f"expected Teamfight Manager 2 base 0.5.1 hash {expected_hash}"
+            )
+
+    generated_layouts = {
+        "layout": decorate_native_layout(native_layouts["layout"]),
+        "blue_pick_slot": decorate_native_pick_slot(native_layouts["blue_pick_slot"]),
+        "red_pick_slot": decorate_native_pick_slot(native_layouts["red_pick_slot"]),
+        "champion_slot": decorate_native_champion_slot(native_layouts["champion_slot"]),
+    }
+    for name, text in generated_layouts.items():
+        target = MOD_ROOT / "ui" / "layout" / "banpick" / f"{name}.ui"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8", newline="\n")
 
     with Image.open(SOURCE_PATH) as opened:
         background = opened.convert("RGBA").resize(RUNTIME_SIZE, Image.Resampling.LANCZOS)
@@ -1103,6 +1112,170 @@ def main() -> int:
             "asset/base/ui/layout/banpick/layout" not in override
         ),
     }
+
+    # Base 0.5.1 replaced most Ban/Pick geometry.  The compatibility contract
+    # below intentionally supersedes the archived 0.5.0 checks above: every
+    # generated file is the current bundle payload plus audited ignore-event
+    # image children only.
+    geometry_contract = {
+        "header_50": "#header:color {\n    color: #161721ff;\n    width: 100%;\n    height: 50px;" in layout,
+        "bottom_100": "#bottom:color {\n    color: #161721ff;\n\n    width: 100%;\n    height: 100px;" in layout,
+        "blue_picks_0_5_1": "#blue_picks:empty {\n    y: 60px;\n\n    width: 300px;\n    height: 910px;" in layout,
+        "red_picks_0_5_1": "#red_picks:empty {\n    anchor_x: 1;\n    pivot_x: 1;\n    y: 60px;" in layout,
+        "champion_grid_0_5_1": (
+            "#champions_bg:color {\n    width: 1300px;\n    height: 570px;" in layout
+            and "#champions:scroll_view {\n    width: 1300px;\n    height: 570px;\n\n    x: 310px;\n    y: 110px;" in layout
+        ),
+        "champion_info_0_5_1": (
+            "#champion_info:empty {\n    width: 1300px;\n    height: 280px;" in layout
+            and "#stat:empty {" in layout
+            and "#stat:color {" not in layout
+        ),
+        "skill_cards_0_5_1": all(
+            marker in layout
+            for marker in (
+                "#skill1:color {\n      width: 427px;\n      height: 200px;\n      x: 0px;\n      y: 80px;",
+                "#skill2:color {\n      width: 426px;\n      height: 200px;\n      x: 437px;\n      y: 80px;",
+                "#ult:color {\n      width: 427px;\n      height: 200px;\n      x: 873px;\n      y: 80px;",
+            )
+        ),
+        "timer_0_5_1": (
+            "#timer_area:empty {\n    visible: false;\n    x: 1310px;\n    y: 60px;\n    width: 290px;" in layout
+            and "#timer_bar_bg:color {\n      width: 220px;" in layout
+        ),
+        "swap_0_5_1": (
+            "#swap:empty {\n    width: 1300px;\n    height: 910px;\n\n    x: 310px;\n    y: 60px;" in layout
+        ),
+        "champion_slot_0_5_1": (
+            "width: 132.4444px;\n  height: 130px;" in champion_slot
+            and "#icon:canvas {\n    width: 131.4444px;\n    height: 88px;" in champion_slot
+        ),
+        "pick_slots_0_5_1": all(
+            "width: 300px;" in slot
+            and "height: 174px;" in slot
+            and "width: 8px;" in slot
+            and "#turn_outline:color" in slot
+            for slot in (blue_pick_slot, red_pick_slot)
+        ),
+    }
+    expected_overrides = {
+        asset_key: {
+            "remapping": asset_key.replace("asset/base/", "asset/lol_mod/", 1),
+            "type": "override",
+        }
+        for asset_key in BP_LAYOUT_ASSETS.values()
+    }
+    static_checks = {
+        "bundle_is_current_base_0_5_1": all(
+            native_records[name]["normalized_sha256"] == expected_hash
+            for name, expected_hash in expected_native_hashes.items()
+        ),
+        "native_geometry_contract": all(geometry_contract.values()),
+        "required_0_5_1_runtime_nodes_present": (
+            "#champion_pool_wait_overlay:color" in layout
+            and 'text: "#asset/base/text/champion?stat.skill";' in layout
+            and 'text: "#asset/base/text/champion?stat.skill2";' in layout
+            and 'text: "#asset/base/text/champion?stat.ult";' in layout
+            and "#turn_outline:color" in blue_pick_slot
+            and "#turn_outline:color" in red_pick_slot
+        ),
+        "native_node_types_preserved": (
+            "#stat:empty" in layout
+            and "#stat:color" not in layout
+            and "#timer_bar_bg:color" in layout
+            and "#timer_bar_bg:image" not in layout
+        ),
+        "layout_restores_exact_native": restored_native_layout(layout) == native_layouts["layout"],
+        "champion_slot_restores_exact_native": (
+            _strip_exact_blocks(champion_slot, (LOL_CHAMPION_FRAME_BLOCK,))
+            == native_layouts["champion_slot"]
+        ),
+        "blue_pick_slot_restores_exact_native": (
+            _strip_exact_blocks(blue_pick_slot, (LOL_SIDE_PICK_FRAME_BLOCK,))
+            == native_layouts["blue_pick_slot"]
+        ),
+        "red_pick_slot_restores_exact_native": (
+            _strip_exact_blocks(red_pick_slot, (LOL_SIDE_PICK_FRAME_BLOCK,))
+            == native_layouts["red_pick_slot"]
+        ),
+        "all_four_overrides_registered": all(
+            override.get(asset_key) == expected
+            for asset_key, expected in expected_overrides.items()
+        ),
+        "decorative_nodes_are_noninteractive": all(
+            all(
+                "ignore_event: true;" in block.split("}", 1)[0]
+                for block in text.split(f"#{node}:image")[1:]
+            )
+            and text.count(f"#{node}:image") == expected_count
+            for node, text, expected_count in (
+                ("lol_bp_background", layout, 1),
+                ("lol_bp_header_chrome", layout, 1),
+                ("lol_bp_bottom_chrome", layout, 1),
+                ("lol_bp_filter_toolbar", layout, 1),
+                ("lol_bp_champion_grid_frame", layout, 1),
+                ("lol_bp_stat_frame", layout, 1),
+                ("lol_bp_skill_frame", layout, 3),
+                ("lol_bp_timer_plate", layout, 1),
+                ("lol_bp_timer_icon", layout, 1),
+                ("lol_bp_champion_card_frame", champion_slot, 1),
+                ("lol_bp_side_pick_frame", blue_pick_slot, 1),
+                ("lol_bp_side_pick_frame", red_pick_slot, 1),
+            )
+        ),
+        "native_control_styles_preserved": "asset/lol_mod/style/bp_controls" not in layout,
+        "turn_outline_draws_above_side_frame": all(
+            slot.index("#lol_bp_side_pick_frame:image")
+            < slot.index("#turn_outline:color")
+            for slot in (blue_pick_slot, red_pick_slot)
+        ),
+        "wait_overlay_keeps_native_order": (
+            layout.index("#champions:scroll_view")
+            < layout.index("#champion_pool_wait_overlay:color")
+            < layout.index("#champion_info:empty")
+        ),
+        "timer_decoration_keeps_native_dynamic_bar": (
+            layout.index("#timer_bar_bg:color")
+            < layout.index("#lol_bp_timer_plate:image")
+            < layout.index("#timer_bar:color")
+        ),
+        "component_imagegen_runtime_dimensions": (
+            header_chrome["runtime"]["dimensions"] == list(HEADER_CHROME_SIZE)
+            and bottom_chrome["runtime"]["dimensions"] == list(BOTTOM_CHROME_SIZE)
+            and champion_frame["runtime"]["dimensions"] == list(CHAMPION_FRAME_SIZE)
+            and filter_toolbar["runtime"]["dimensions"] == list(FILTER_TOOLBAR_SIZE)
+            and champion_grid_frame["runtime"]["dimensions"] == list(CHAMPION_GRID_SIZE)
+            and stat_frame["runtime"]["dimensions"] == list(STAT_FRAME_SIZE)
+            and skill_frame["runtime"]["dimensions"] == list(SKILL_FRAME_SIZE)
+            and side_pick_frame["runtime"]["dimensions"] == list(SIDE_PICK_FRAME_SIZE)
+            and timer_plate["runtime"]["dimensions"] == list(TIMER_PLATE_SIZE)
+            and timer_icon["runtime"]["dimensions"] == list(TIMER_ICON_SIZE)
+        ),
+        "component_imagegen_runtime_has_alpha": all(
+            has_transparency(path)
+            for path in (
+                HEADER_CHROME_RUNTIME,
+                BOTTOM_CHROME_RUNTIME,
+                CHAMPION_FRAME_RUNTIME,
+                FILTER_TOOLBAR_RUNTIME,
+                CHAMPION_GRID_RUNTIME,
+                STAT_FRAME_RUNTIME,
+                SKILL_FRAME_RUNTIME,
+                SIDE_PICK_FRAME_RUNTIME,
+                TIMER_PLATE_RUNTIME,
+                TIMER_ICON_RUNTIME,
+            )
+        ),
+        "header_footer_chrome_has_no_magenta_key_fringe": (
+            header_chrome["edge_defringe"]["magenta_dominant_partial_pixels_after"] == 0
+            and bottom_chrome["edge_defringe"]["magenta_dominant_partial_pixels_after"] == 0
+        ),
+        "component_contact_generated": (
+            CONTACT_PATH.is_file()
+            and image_record(CONTACT_PATH)["dimensions"] == [1200, 800]
+        ),
+        "bvp_runtime_nodes_absent": not any(marker in layout for marker in forbidden_bvp_ids),
+    }
     if not all(static_checks.values()):
         raise ValueError(
             f"BP skin static checks failed: {static_checks}; geometry={geometry_contract}; "
@@ -1121,8 +1294,9 @@ def main() -> int:
             "plate": timer_plate,
             "icon": timer_icon,
             "visibility_contract": (
-                "plate replaces #timer_bar_bg inside native #timer_area; no independent "
-                "always-visible root sibling"
+                "ignore-event plate is a child of native #timer_bar_bg:color and remains "
+                "behind native dynamic #timer_bar; the icon overlay is nested in the native "
+                "timer icon without adding a LeftToRight layout participant"
             ),
         },
         "components": {
@@ -1140,6 +1314,8 @@ def main() -> int:
             "control_style": {
                 "path": CONTROL_STYLE_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(CONTROL_STYLE_PATH),
+                "active_in_layout": False,
+                "reason": "base 0.5.1 native control style and interaction contract preserved",
             },
             "champion_slot": {
                 "path": CHAMPION_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
@@ -1147,7 +1323,8 @@ def main() -> int:
                 "native_baseline_normalized_sha256": NATIVE_CHAMPION_SLOT_NORMALIZED_SHA256,
                 "restored_native_sha256": restored_native_champion_slot_hash(champion_slot),
                 "preview_safe_area": {
-                    "root_dimensions": list(CHAMPION_FRAME_SIZE),
+                    "layout_root_dimensions": [132.4444, 130],
+                    "runtime_frame_dimensions": list(CHAMPION_FRAME_SIZE),
                     "icon_canvas_dimensions": list(CHAMPION_ICON_CANVAS_SIZE),
                     "top_inset_px": CHAMPION_ICON_SAFE_TOP_PX,
                     "name_band_height_px": CHAMPION_NAME_BAND_HEIGHT_PX,
@@ -1168,8 +1345,8 @@ def main() -> int:
                     "root_and_click_geometry_unchanged": True,
                     "render_camera_and_actor_contract_unchanged": True,
                     "purpose": (
-                        "keep tall weapons and head silhouettes below the ornate top rim "
-                        "without changing the 119x130 card hit target or actor animation"
+                        "draw the ornate frame behind the exact base 0.5.1 132.4444x130 "
+                        "card hit target without moving its native icon canvas"
                     ),
                 },
             },
@@ -1179,13 +1356,13 @@ def main() -> int:
                     "target_margins_px": list(HEADER_CHROME_TARGET_MARGINS),
                     "runtime_transparent_insets_px": [0, 0, 0, 0],
                     "native_control_bboxes_px": {
-                        "delegate": [15, 23, 300, 63],
-                        "step": [335, 0, 549, 85],
-                        "description": [418, 0, 1502, 85],
-                        "swap_phase": [1371, 1, 1877, 84],
+                        "delegate": [10, 5, 300, 45],
+                        "step": [310, 0, 524, 50],
+                        "description": [418, 0, 1502, 50],
+                        "swap_phase": [1371, 0, 1877, 50],
                     },
                     "straight_dark_backing_under_side_controls": True,
-                    "full_vertical_coverage": [0, 85],
+                    "full_vertical_coverage": [0, 50],
                     "native_header_control_geometry_unchanged": True,
                 },
                 "bottom": {
@@ -1193,26 +1370,26 @@ def main() -> int:
                     "target_margins_px": list(BOTTOM_CHROME_TARGET_MARGINS),
                     "runtime_transparent_insets_px": [0, 0, 0, 0],
                     "native_side_control_columns_px": {
-                        "blue": [0, 0, 300, 150],
-                        "red": [1620, 0, 1920, 150],
+                        "blue": [0, 0, 300, 100],
+                        "red": [1620, 0, 1920, 100],
                     },
                     "native_central_control_bboxes_px": {
-                        "blue_name": [348, 25, 770, 75],
-                        "blue_logo": [830, 25, 900, 95],
-                        "red_logo": [1020, 25, 1090, 95],
-                        "red_name": [1150, 25, 1572, 75],
-                        "blue_bans": [335, 85, 651, 145],
-                        "red_bans": [1269, 85, 1585, 145],
-                        "need_win": [927, 34, 993, 62],
-                        "versus": [950, 65, 970, 84],
-                        "matchup": [818, 112, 1103, 145],
+                        "blue_name": [500, 5, 816, 35],
+                        "blue_logo": [888, 40, 940, 92],
+                        "red_logo": [980, 40, 1032, 92],
+                        "red_name": [1104, 5, 1420, 35],
+                        "blue_bans": [515, 40, 801, 94],
+                        "red_bans": [1119, 40, 1405, 94],
+                        "need_win": [929, 69, 991, 89],
+                        "versus": [950, 43, 970, 63],
+                        "matchup": [826, 5, 1094, 35],
                     },
                     "bright_side_wings_confined_to_px": {
                         "left": [0, 16],
                         "right": [1904, 1920],
                     },
                     "straight_dark_backing_under_side_controls": True,
-                    "full_vertical_coverage": [0, 150],
+                    "full_vertical_coverage": [0, 100],
                     "native_footer_control_geometry_unchanged": True,
                 },
                 "background_asset_or_layout_rollback": False,
@@ -1222,18 +1399,70 @@ def main() -> int:
                     "interaction geometry"
                 ),
             },
+            "side_pick_runtime_geometry": {
+                "base_version": "0.5.1",
+                "pick_list": {
+                    "top_px": 60,
+                    "width_px": 300,
+                    "height_px": 910,
+                    "slot_width_px": 300,
+                    "slot_height_px": 174,
+                    "slot_spacing_px": 10,
+                    "slot_step_y_px": 184,
+                    "slot_top_formula": "60 + 184 * slot_index",
+                },
+                "native_actor": {
+                    "blue_local_x_px": 160,
+                    "red_local_x_px": 6,
+                    "red_global_x_formula": "map_width - 294",
+                    "local_y_px": -10,
+                    "width_px": 137,
+                    "height_px": 184,
+                    "icon_height_px": 172,
+                    "global_top_formula": "50 + 184 * slot_index",
+                },
+                "dynamic_splash": {
+                    "render_width_px": 284,
+                    "render_height_px": 172,
+                    "blue_command_x_px": 15,
+                    "red_command_x_formula": "map_width - 15",
+                    "red_flip_x": True,
+                    "command_y_formula": "61 + 184 * slot_index",
+                    "replaces_legacy_y_formula": "98 + 188 * slot_index",
+                    "rewrite_bp_render_commands_requires_0_5_1_anchor_update": True,
+                },
+                "derivation": (
+                    "native #blue_picks/#red_picks start at y=60; five 300x174 slots use "
+                    "TopToBottom spacing=10. Native #done/#champion is y=-10, while the "
+                    "284x172 splash stays one pixel inside each 174px card."
+                ),
+            },
             "blue_pick_slot": {
                 "path": BLUE_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(BLUE_PICK_SLOT_PATH),
+                "native_baseline_normalized_sha256": NATIVE_BLUE_PICK_SLOT_NORMALIZED_SHA256,
+                "restored_native_sha256": restored_native_pick_slot_hash(blue_pick_slot),
             },
             "red_pick_slot": {
                 "path": RED_PICK_SLOT_PATH.relative_to(MOD_ROOT).as_posix(),
                 "sha256": sha256(RED_PICK_SLOT_PATH),
+                "native_baseline_normalized_sha256": NATIVE_RED_PICK_SLOT_NORMALIZED_SHA256,
+                "restored_native_sha256": restored_native_pick_slot_hash(red_pick_slot),
             },
             "contact_sheet": image_record(CONTACT_PATH),
         },
         "component_source_contracts": COMPONENT_IMAGEGEN_REQUESTS,
         "imagegen_asset_requests": [],
+        "native_bundle": {
+            "path": str(bundle_path),
+            "base_version": "0.5.1",
+            "layouts": native_records,
+            "generation_contract": (
+                "each active BP override is generated from the current bundle payload; "
+                "stripping exact ignore-event decoration blocks restores the normalized "
+                "native payload byte-for-byte"
+            ),
+        },
         "layout": {
             "path": LAYOUT_PATH.relative_to(MOD_ROOT).as_posix(),
             "sha256": sha256(LAYOUT_PATH),
@@ -1241,11 +1470,8 @@ def main() -> int:
             "native_baseline_normalized_sha256": NATIVE_LAYOUT_NORMALIZED_SHA256,
             "restored_native_sha256": restored_native_layout_hash(layout),
             "allowed_changes": [
-                "one ignore_event image node",
-                "BP-local background/panel/border color values",
-                "BP-local style references",
-                "ImageGen timer plate/icon sources inside the native timer geometry",
-                "ignore_event component chrome overlays inside native BP nodes",
+                "ignore_event image decoration nodes only",
+                "no native node ids, types, geometry, events, visibility, text, or sources changed",
             ],
         },
         "geometry_contract": geometry_contract,

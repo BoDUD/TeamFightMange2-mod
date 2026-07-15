@@ -776,7 +776,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         "LinearProjectile",
         name="lol_shen_twilight_assault_blade_anchor",
     )
-    check(len(anchors) == 1, "Q must contain one invisible endpoint-only blade anchor")
+    check(len(anchors) == 1, "Q must contain one transparent endpoint-only blade anchor")
     if anchors:
         blade_anchor = anchors[0]
         check(
@@ -786,9 +786,9 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 blade_anchor.get("applied_target"), blade_anchor.get("applied_effects"),
             )
             == (False, 60000, 55000, {"Circle": {"radius": 1000}}, "EnemyChampion", []),
-            "Q invisible blade-anchor projectile contract mismatch",
+            "Q transparent blade-anchor projectile contract mismatch",
         )
-    check(len(find_effect(q, "LinearProjectile")) == 1, "Q may use only the one invisible endpoint anchor")
+    check(len(find_effect(q, "LinearProjectile")) == 1, "Q may use only the one transparent endpoint anchor")
     recalls = find_effect(
         q,
         "BackToCasterLinearProjectile",
@@ -808,7 +808,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         )
         check(
             bool(anchors) and anchors[0].get("end_effects") == [blade_recall],
-            "Q visible recall must be the invisible blade anchor's only direct end effect",
+            "Q visible recall must be the transparent blade anchor's only direct end effect",
         )
         check(
             bool(find_effect(
@@ -984,6 +984,14 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         == [
             {
                 "type": "Animated",
+                "name": "lol_shen_twilight_assault_blade_anchor",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "anchor",
+                "z": 0,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
                 "name": "lol_shen_twilight_assault_blade_recall",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
                 "tag": "recall",
@@ -991,7 +999,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "repeat": True,
             },
         ],
-        "Shen Q recall projectile visual is not registered exactly once",
+        "Shen transparent logic projectiles and visible Q recall are not registered exactly once",
     )
     view_effects = champion.get("view_effects", [])
     check(
@@ -6709,6 +6717,11 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
         checks = bp_qa.get("static_checks", {})
         check(bool(checks) and all(checks.values()), "BP-skin QA contains a failed check")
         check(all(bp_qa.get("geometry_contract", {}).values()), "BP-skin native layout geometry changed")
+        native_bundle = bp_qa.get("native_bundle", {})
+        check(
+            native_bundle.get("base_version") == "0.5.1",
+            "BP-skin native bundle baseline must be Teamfight Manager 2 v0.5.1",
+        )
         validate_recorded_file(bp_qa.get("source", {}), "BP-skin ImageGen source")
         runtime = bp_qa.get("runtime", {})
         check(runtime.get("dimensions") == [1920, 1080], "BP-skin runtime background must be 1920x1080")
@@ -6720,13 +6733,13 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
         )
         components = bp_qa.get("components", {})
         expected_component_sizes = {
-            "header_chrome": [1920, 85],
-            "bottom_chrome": [1920, 150],
-            "champion_card_frame": [119, 130],
-            "filter_toolbar": [1260, 50],
-            "champion_grid_frame": [1250, 377],
-            "stat_frame": [549, 371],
-            "skill_frame": [687, 115],
+            "header_chrome": [1920, 50],
+            "bottom_chrome": [1920, 100],
+            "champion_card_frame": [132, 130],
+            "filter_toolbar": [1310, 50],
+            "champion_grid_frame": [1300, 570],
+            "stat_frame": [1300, 70],
+            "skill_frame": [427, 200],
             "side_pick_frame": [300, 174],
         }
         imagegen_assets = components.get("imagegen_assets", {})
@@ -6739,12 +6752,51 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
                 f"BP-skin {name} runtime dimensions changed",
             )
             validate_recorded_file(runtime_record, f"BP-skin {name} runtime")
-        champion_slot = components.get("champion_slot", {})
+        for name in ("blue_pick_slot", "red_pick_slot", "champion_slot"):
+            component = components.get(name, {})
+            check(
+                component.get("restored_native_sha256")
+                == component.get("native_baseline_normalized_sha256"),
+                f"BP-skin {name} contains changes outside the audited visual delta",
+            )
+        side_geometry = components.get("side_pick_runtime_geometry", {})
         check(
-            champion_slot.get("restored_native_sha256")
-            == champion_slot.get("native_baseline_normalized_sha256"),
-            "BP-skin champion-slot contains changes outside the audited visual delta",
+            side_geometry.get("pick_list", {}).get("slot_top_formula")
+            == "60 + 184 * slot_index",
+            "BP-skin 0.5.1 side-pick slot anchor changed",
         )
+        check(
+            side_geometry.get("native_actor", {}).get("global_top_formula")
+            == "50 + 184 * slot_index",
+            "BP-skin 0.5.1 native side-pick actor anchor changed",
+        )
+        check(
+            side_geometry.get("dynamic_splash", {}).get("command_y_formula")
+            == "61 + 184 * slot_index",
+            "BP-skin 0.5.1 dynamic splash anchor changed",
+        )
+        timer_assets = bp_qa.get("timer_assets", {})
+        for name, dimensions in {"plate": [220, 20], "icon": [20, 20]}.items():
+            runtime_record = timer_assets.get(name, {}).get("runtime", {})
+            check(
+                runtime_record.get("dimensions") == dimensions,
+                f"BP-skin timer {name} runtime dimensions changed",
+            )
+            validate_recorded_file(runtime_record, f"BP-skin timer {name} runtime")
+        for asset_key in (
+            "asset/base/ui/layout/banpick/layout",
+            "asset/base/ui/layout/banpick/blue_pick_slot",
+            "asset/base/ui/layout/banpick/red_pick_slot",
+            "asset/base/ui/layout/banpick/champion_slot",
+        ):
+            check(
+                override.get(asset_key)
+                == {
+                    "remapping": asset_key.replace("asset/base/", "asset/lol_mod/", 1),
+                    "type": "override",
+                },
+                f"BP-skin override is missing or incorrect: {asset_key}",
+            )
         contact = components.get("contact_sheet", {})
         check(
             contact.get("dimensions") == [1200, 800],
@@ -7124,6 +7176,7 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
             "return_cluster": 4,
             "root": 4,
             "hit": 4,
+            "anchor": 1,
         },
         "xayah_r": {"fan": 4, "hit": 4, "guard": 4},
         "xayah_ground_feather": {"ground_single": 4, "ground_fan": 4},
@@ -7138,6 +7191,7 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
                 "xayah_e": {
                     "return_single": (64, 32), "return_double": (72, 36),
                     "return_cluster": (80, 44), "root": (72, 72), "hit": (48, 48),
+                    "anchor": (1, 1),
                 },
                 "xayah_r": {"fan": (104, 72), "hit": (96, 72), "guard": (72, 72)},
                 "xayah_ground_feather": {"ground_single": (48, 40), "ground_fan": (72, 48)},
@@ -7162,6 +7216,18 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
                     check(terminal.getchannel("A").getbbox() is None, f"Xayah {tag} marker must end transparent")
 
     projectiles = {view.get("name"): view for view in champion.get("view_projectiles", [])}
+    check(
+        projectiles.get("lol_xayah_e_anchor")
+        == {
+            "type": "Animated",
+            "name": "lol_xayah_e_anchor",
+            "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+            "tag": "anchor",
+            "z": 0,
+            "repeat": True,
+        },
+        "Xayah E endpoint anchor must resolve to one transparent projectile view",
+    )
     for name, tag in {
         "lol_xayah_e_recall_single": "return_single",
         "lol_xayah_e_recall_double": "return_double",
@@ -7491,7 +7557,8 @@ def validate_urgot_w(champion: dict[str, Any]) -> None:
         r_check_rust.find("if target_hp.current > execute_limit"),
         r_check_rust.find(".get_entity(caster_id)"),
         r_check_rust.find(".is_some_and(|caster| caster.is_alive())"),
-        r_check_rust.find('ready.name = "lol_urgot_r_execute_ready"'),
+        r_check_rust.find('let Ok(name) = "lol_urgot_r_execute_ready".try_into()'),
+        r_check_rust.find("ready.name = name;"),
         r_check_rust.find("ctx.add_buff(caster_id, ready);"),
     ]
     check(
@@ -7521,7 +7588,8 @@ def validate_urgot_w(champion: dict[str, Any]) -> None:
         r_execute_rust.find("if !executed"),
         second_lookup,
         second_alive,
-        r_execute_rust.find('success.name = "lol_urgot_r_execute_success"'),
+        r_execute_rust.find('let Ok(name) = "lol_urgot_r_execute_success".try_into()'),
+        r_execute_rust.find("success.name = name;"),
         r_execute_rust.find("ctx.add_buff(caster_id, success);"),
     ]
     check(
@@ -8559,37 +8627,41 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     for marker in (
         "const YONE_SOUL_UNBOUND_WINDOW_TICKS: usize = 240;",
         "const YONE_SOUL_UNBOUND_RETURN_TICKS: usize = 60;",
-        'const YONE_SOUL_UNBOUND_SERVICE_ID: &str = "yone_soul_unbound_context";',
-        "static NEXT_YONE_CONTEXT_TOKEN: AtomicUsize = AtomicUsize::new(1);",
-        "fn yone_context_token(ctx: &GameCtx) -> Option<usize>",
-        "ctx.query_service(MOD_ID, YONE_SOUL_UNBOUND_SERVICE_ID, \">=1.0.0\")",
-        "ctx.register_service(",
-        "ModServiceVersion::new(1, 0, 0)",
-        "context_token: usize,",
-        "last_tick_by_context: HashMap<usize, usize>",
-        "fn prepare_for_tick(&mut self, context_token: usize, now: usize)",
-        "state.context_token != context_token",
-        "registry.prepare_for_tick(context_token, now);",
+        "const YONE_SOUL_UNBOUND_MAX_STATES: usize = 128;",
+        "fn prune_expired(&mut self, now: usize)",
+        "fn make_room(&mut self)",
+        "now < state.started_tick",
+        ".max_by_key(|state| state.started_tick)",
         "struct YoneSoulUnboundBeginReturnNativeEffect;",
         "struct YoneSoulUnboundReturnInputAi;",
         "impl ModPlayerInputAi for YoneSoulUnboundReturnInputAi",
         '"lol_yone_e_return_input_ai"',
         "return_tick.saturating_add(YONE_SOUL_UNBOUND_RETURN_TICKS)",
-        "PlayerInputDecision::Replace(Input::Move { x, y })",
+        "let move_to_anchor = Input::Move { x, y };",
+        "if ctx.is_valid_input(&move_to_anchor)",
+        "PlayerInputDecision::Replace(move_to_anchor)",
         "registration.add_player_input_ai(YoneSoulUnboundReturnInputAi);",
     ):
         check(marker in rust, f"Yone bounded-return input-AI proof is missing: {marker}")
+    for unsafe_service_token in (
+        "YONE_SOUL_UNBOUND_SERVICE_ID",
+        "ctx.query_service(",
+        "ctx.register_service(",
+        "ModService::from_raw",
+        "context_token: usize",
+        "last_tick_by_context",
+    ):
+        check(
+            unsafe_service_token not in rust,
+            f"Yone combat runtime must not use the base-0.5.0 opaque service path: {unsafe_service_token}",
+        )
     check(
         "self.states.clear()" not in rust,
         "Yone E registry must never clear every GameCtx state bucket on one timeline reset",
     )
     check(
-        rust.count("let Some(context_token) = yone_context_token(ctx) else {") >= 5,
-        "Every Yone E GameCtx native callback must resolve its match-local service token",
-    )
-    check(
-        rust.count("registry.prepare_for_tick(context_token, now);") >= 5,
-        "Every Yone E GameCtx native callback must prepare only its context-local registry bucket",
+        rust.count("registry.prune_expired(now);") >= 4,
+        "Every Yone E stateful native callback must prune only definitely stale ledger entries",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
@@ -8927,7 +8999,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.11.1", "lol_mod version must be 0.11.1")
+    check(mod_info.get("version") == "0.11.2", "lol_mod version must be 0.11.2")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
@@ -8965,6 +9037,7 @@ def main() -> int:
         "aseprite_resources/effects/shen_q#sheet.png",
         "aseprite_resources/effects/shen_q#anim.fanim",
         {
+            "anchor": 1,
             "recall": 8,
             "empowered_hit": 4,
             "recall_arrival": 4,

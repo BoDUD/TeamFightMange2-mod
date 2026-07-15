@@ -480,14 +480,17 @@ def test_r_fear_and_splash_exist_only_on_confirmed_successful_execution():
     assert check_impl
     check_body = check_impl.group("body")
     assert "target_hp.current > execute_limit" in check_body
-    assert 'ready.name = "lol_urgot_r_execute_ready"' in check_body
+    assert 'let Ok(name) = "lol_urgot_r_execute_ready".try_into()' in check_body
+    assert "ready.name = name;" in check_body
     assert "ctx.add_buff(caster_id, ready);" in check_body
     threshold_reject = check_body.index("if target_hp.current > execute_limit")
     check_caster = check_body.index(".get_entity(caster_id)")
     check_caster_alive = check_body.index(
         ".is_some_and(|caster| caster.is_alive())"
     )
-    ready_marker = check_body.index('ready.name = "lol_urgot_r_execute_ready"')
+    ready_marker = check_body.index(
+        'let Ok(name) = "lol_urgot_r_execute_ready".try_into()'
+    )
     ready_add_buff = check_body.index("ctx.add_buff(caster_id, ready);")
     assert (
         threshold_reject
@@ -520,7 +523,9 @@ def test_r_fear_and_splash_exist_only_on_confirmed_successful_execution():
     )
     confirm = body.index(".is_some_and(|target| !target.is_alive())")
     reject = body.index("if !executed")
-    marker = body.index('success.name = "lol_urgot_r_execute_success"')
+    marker = body.index(
+        'let Ok(name) = "lol_urgot_r_execute_success".try_into()'
+    )
     add_buff = body.index("ctx.add_buff(caster_id, success);")
     assert (
         caster_lookups[0]

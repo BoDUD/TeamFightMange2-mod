@@ -1,17 +1,18 @@
 {
   "schema_version": 1,
-  "release": "0.11.1",
+  "release": "0.11.2",
   "runtime_compatibility": {
     "active_base_version": "0.5.1",
     "bundled_sdk_base_version": "0.5.0",
     "legacy_internal_extensions": "disabled_by_default",
-    "legacy_bp_layout_overrides": "disabled",
+    "bp_layout_overrides": "enabled_against_exact_base_0.5.1_native_layouts",
     "inactive_until_matching_sdk": [
       "dynamic Ban/Pick splash command rewriting",
       "client portrait command rewriting",
+      "client database mutation",
       "deterministic elemental dragon server rewriting"
     ],
-    "reason": "Base 0.5.1 changed required Ban/Pick UI nodes and internal client/server layouts; the 0.5.0 paths are retained only as dormant audit assets."
+    "reason": "Base 0.5.1 changed required Ban/Pick UI nodes and internal client/server layouts. The four BP overrides are regenerated from the exact 0.5.1 native files with ignore_event decoration-only nodes. All old client/server extension vtables, including render-only command rewriting, remain opt-in until a matching SDK or a complete live compatibility proof exists."
   },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
@@ -32,7 +33,7 @@
       "source_key": "suffix after /champions/ with terminal #sheet removed",
       "texture_uv": "normalized 0,0,1,1",
       "card_size": "284x172",
-      "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=98+188*slot",
+      "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=61+184*slot",
       "transition_geometry_is_detection_only": true,
       "transition_actor_sprite_removed": true,
       "one_overlay_per_side_slot": true,

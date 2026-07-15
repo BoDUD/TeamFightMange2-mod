@@ -514,6 +514,14 @@
   "view_projectiles": [
     {
       "type": "Animated",
+      "name": "lol_shen_twilight_assault_blade_anchor",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+      "tag": "anchor",
+      "z": 0,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
       "name": "lol_shen_twilight_assault_blade_recall",
       "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
       "tag": "recall",

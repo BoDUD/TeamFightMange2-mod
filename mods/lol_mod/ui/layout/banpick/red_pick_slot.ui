@@ -6,17 +6,17 @@ pick_slot:color_icon_button {
   pivot_x: 1;
 
   btn: {
-    color: #6b3442ff;
+    color: #00000000;
     stroke: 1;
-    back_color: #180a0ff2;
+    back_color: #1d1f2cff;
     rounding: Uniform {
-      rounding: 6;
+      rounding: 8;
     }
   }
 
   hover: {
     btn: {
-      color: #c89b3cff;
+      color: #e8e8e8ff;
     }
   }
 
@@ -37,8 +37,8 @@ pick_slot:color_icon_button {
     #bar:color {
       anchor_x: 1;
       pivot_x: 1;
-      color: #b33b4bff;
-      width: 15px;
+      color: #ef6471ff;
+      width: 8px;
       anchor_y: 0.5;
       pivot_y: 0.5;
       height: 172px;
@@ -111,7 +111,6 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
-      z: 50;
       text: "ABCD";
     }
   }
@@ -120,11 +119,24 @@ pick_slot:color_icon_button {
     width: 100%;
     height: 174px;
 
+    #turn_outline:color {
+      x: 2px;
+      y: 2px;
+      width: 296px;
+      height: 170px;
+      color: #ef6471ff;
+      stroke: 3;
+      back_color: #00000000;
+      rounding: Uniform { rounding: 7; }
+      ignore_event: true;
+      visible: false;
+    }
+
     #bar:color {
       anchor_x: 1;
       pivot_x: 1;
-      color: #c89b3cff;
-      width: 15px;
+      color: #e8e8e8ff;
+      width: 8px;
       anchor_y: 0.5;
       pivot_y: 0.5;
       height: 172px;
@@ -196,7 +208,6 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
-      z: 50;
       text: "ABCD";
     }
   }
@@ -208,8 +219,8 @@ pick_slot:color_icon_button {
     #bar:color {
       anchor_x: 1;
       pivot_x: 1;
-      color: #b33b4bff;
-      width: 15px;
+      color: #ef6471ff;
+      width: 8px;
       anchor_y: 0.5;
       pivot_y: 0.5;
       height: 172px;
@@ -319,7 +330,6 @@ pick_slot:color_icon_button {
       align_y: Center;
       color: #e8e8e8ff;
       size: 20;
-      z: 50;
       text: "ABCD";
     }
 
@@ -330,7 +340,7 @@ pick_slot:color_icon_button {
       width: 2px;
       height: 134px;
 
-      color: #39566eff;
+      color: #4a4c56ff;
 
       ignore_event: true;
     }

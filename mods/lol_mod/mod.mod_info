@@ -3,13 +3,13 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.11.1",
-  "description": "Local Shen, Urgot, and Yone joint review bundle for Teamfight Manager 2 v0.5.1. It keeps Shen's visible spirit-blade Q and native 1.5-second E taunt, Urgot's crash-safe W and flip E, and Yone's guarded Q3 plus E-only Soul Unbound. The game runtime updated to base 0.5.1 while its bundled SDK remains base 0.5.0, so legacy client/server extensions that directly touch internal GameUI, RenderState, ClientDatabase, and ServerModContext layouts are disabled by default. Combat-native Mod API 0.8 hooks remain enabled; dynamic BP splash, portrait-command, and deterministic-dragon rewrites stay off until a matching 0.5.1 SDK is available. Yone E uses fast CC-immune pathing because Mod API 0.8 cannot directly write hero coordinates.",
+  "version": "0.11.2",
+  "description": "Teamfight Manager 2 v0.5.1 compatibility build. It restores the League-style Ban/Pick chrome and illustration assets on top of exact native 0.5.1 layouts while preserving the new turn outline, wait overlay, and skill-name nodes. All stale 0.5.0 client/server extension vtables, including dynamic render-command rewrites, remain disabled by default to prevent the third-Ban Option::unwrap crash. Yone's E ledger no longer calls the legacy opaque GameCtx service registry during level-1 attacks, and Shen's transparent Q endpoint now has a complete projectile-view binding so base 0.5.1 cannot unwrap a missing runtime asset. Stable combat-native Mod API 0.8 hooks remain enabled.",
   "last_updated": "2026-07-15",
   "dependencies": [
     {
       "mod_id": "base",
-      "version": ">=0.5.0"
+      "version": ">=0.5.1"
     }
   ]
 }

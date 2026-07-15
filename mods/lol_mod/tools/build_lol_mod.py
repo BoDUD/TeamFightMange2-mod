@@ -1681,6 +1681,13 @@ def build_vfx() -> list[Path]:
                     ((frame_size[0] - subject.width) // 2, bbox[1]),
                 )
                 frames[index] = compact
+        if name == "shen_q":
+            # Projectile effects are looked up by name when their first frame
+            # is rendered.  The invisible endpoint helper still needs a valid
+            # view record, otherwise base 0.5.1 can unwrap a missing view and
+            # stall the whole simulation.  Reserve one truly transparent cell
+            # instead of relying on an unregistered "no-view" projectile.
+            frames.append(Image.new("RGBA", frame_size, (0, 0, 0, 0)))
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -1689,6 +1696,7 @@ def build_vfx() -> list[Path]:
         save_png(sheet, atlas)
         if name == "shen_q":
             anims = {
+                "anchor": effect_anim(64, 64, [len(frames) - 1], [0.01]),
                 # Skip the source's nearly empty opening cell in the moving
                 # recall.  Fade-only cells remain reserved for arrival/remove.
                 "recall": effect_anim(64, 64, [1, 2, 3, 4, 5, 4, 3, 2], [0.05] * 8),
@@ -2382,9 +2390,9 @@ def build_shen_q() -> dict[str, object]:
                 {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW},
                 {
                     # BackToCaster requires a projectile endpoint.  This
-                    # no-view, no-damage anchor reaches the selected direction
-                    # first; its endpoint then becomes the spirit blade's one
-                    # and only visible return origin.
+                    # transparent-view, no-damage anchor reaches the selected
+                    # direction first; its endpoint then becomes the spirit
+                    # blade's one and only visible return origin.
                     "type": "LinearProjectile",
                     "penetrate": False,
                     "speed": 60000,
@@ -2618,14 +2626,22 @@ def build_shen_data() -> Path:
         "skill2": build_shen_e(),
         "ult": build_shen_ult(),
         "view_projectiles": [
-        {
-            "type": "Animated",
-            "name": "lol_shen_twilight_assault_blade_recall",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "recall",
-            "z": 3,
-            "repeat": True,
-        },
+            {
+                "type": "Animated",
+                "name": SHEN_Q_ANCHOR_NAME,
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "anchor",
+                "z": 0,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_shen_twilight_assault_blade_recall",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "recall",
+                "z": 3,
+                "repeat": True,
+            },
         ],
         "view_effects": [
         {

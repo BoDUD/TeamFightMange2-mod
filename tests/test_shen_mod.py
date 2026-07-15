@@ -79,7 +79,8 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.11.1"
+    assert mod_info["version"] == "0.11.2"
+    assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.1"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -190,8 +191,8 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         "ViewEffect",
         name="lol_shen_twilight_assault_recall_arrival",
     )
-    # The anchor is deliberately not rendered or damaging. It only establishes
-    # the endpoint from which the one visible return blade can be created.
+    # The anchor is deliberately transparent and non-damaging. It still owns
+    # a valid renderer record so the 0.5.1 host cannot unwrap a missing view.
     assert len(find_effect(q, "LinearProjectile")) == 1
     assert not find_effect(q, "RangeProjectile")
     assert not find_effect(q, "Attack")
@@ -307,14 +308,24 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     serialized = json.dumps(shen, ensure_ascii=False)
     for retired in ("Spirit's Refuge", "spirit_refuge", "lol_shen_w_", "shen_w"):
         assert retired not in serialized
-    assert shen["view_projectiles"] == [{
-        "type": "Animated",
-        "name": "lol_shen_twilight_assault_blade_recall",
-        "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-        "tag": "recall",
-        "z": 3,
-        "repeat": True,
-    }]
+    assert shen["view_projectiles"] == [
+        {
+            "type": "Animated",
+            "name": "lol_shen_twilight_assault_blade_anchor",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "anchor",
+            "z": 0,
+            "repeat": True,
+        },
+        {
+            "type": "Animated",
+            "name": "lol_shen_twilight_assault_blade_recall",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "recall",
+            "z": 3,
+            "repeat": True,
+        },
+    ]
     assert shen["view_effects"] == [
         {
             "type": "Animation",
@@ -396,7 +407,8 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     ]
     # Keep the complete renderer records under contract: a valid name without
     # the matching renderer type/tag silently produces an invisible skill.
-    recall_view = shen["view_projectiles"][0]
+    projectile_views = {view["name"]: view for view in shen["view_projectiles"]}
+    recall_view = projectile_views["lol_shen_twilight_assault_blade_recall"]
     assert (recall_view["type"], recall_view["tag"], recall_view["repeat"]) == (
         "Animated", "recall", True,
     )
@@ -418,7 +430,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         (MOD / "aseprite_resources/effects/shen_e#anim.fanim").read_text(encoding="utf-8")
     )["anims"]
     assert {
-        "recall", "recall_arrival", "empowered_hit",
+        "anchor", "recall", "recall_arrival", "empowered_hit",
         "empower_pre", "empower_loop", "empower_remove",
     } <= q_anim.keys()
     assert {
@@ -750,7 +762,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.11.1;root=' in source
+    assert '"version=0.11.2;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -806,11 +818,16 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "registration.set_server_extension" in source
     assert "LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV" in source
     assert '"LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS"' in source
+    assert "fn rewrite_visual_commands(ui: &GameUI, state: &mut RenderState)" in source
+    assert "LolRenderOnlyExtension" not in source
     guard = source.index("if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV)")
     client_registration = source.index("registration.set_extension", guard)
     server_registration = source.index("registration.set_server_extension", guard)
     registration_return = source.index("\n    registration\n}", server_registration)
     assert guard < client_registration < server_registration < registration_return
+    guarded_registration = source[guard:registration_return]
+    assert guarded_registration.count("registration.set_extension") == 1
+    assert source[registration_return:].count("registration.set_extension") == 0
     assert "dragon_variant_index" in source
     for variant in variants:
         assert f'"dragon_variants/{variant}"' in source
@@ -832,12 +849,14 @@ def test_bp_overlay_is_card_anchored_and_deduplicated() -> None:
     )[0]
 
     # Ban/Pick View Plus uses a blue left anchor at x=15 and a flipped red
-    # right anchor at x=1905 on 1920px. Slot y is 98/286/474/662/850.
+    # right anchor at x=1905 on 1920px. Base 0.5.1 slot y is
+    # 61/245/429/613/797.
     assert "const BP_CARD_WIDTH: f32 = 284.0;" in source
     assert "const BP_CARD_HEIGHT: f32 = 172.0;" in source
     assert "const BP_CARD_EDGE_INSET: f32 = 15.0;" in source
-    assert "const BP_CARD_TOP: f32 = 98.0;" in source
-    assert "const BP_CARD_STEP_Y: f32 = 188.0;" in source
+    assert "const BP_CARD_TOP: f32 = 61.0;" in source
+    assert "const BP_CARD_STEP_Y: f32 = 184.0;" in source
+    assert "const BP_NATIVE_ACTOR_TOP: f32 = 50.0;" in source
     assert "BpRenderSide::Blue => BP_CARD_EDGE_INSET" in source
     assert "BpRenderSide::Red => map_width - BP_CARD_EDGE_INSET" in source
     assert "BP_CARD_TOP + BP_CARD_STEP_Y * slot_index as f32" in source
@@ -929,9 +948,10 @@ def test_bp_overlay_supports_xayahs_tight_native_dancer_rect_without_touching_gr
     assert "*h = 122.0;" in xayah_portrait_route
 
     # Replay the newest 1920px telemetry samples against the encoded bounds.
-    # Stable Dancer and the standard actor share one center at (1694.5,179).
-    standard_center = (1920.0 - 294.0 + 137.0 / 2, 87.0 + 184.0 / 2)
-    dancer_center = (1654.0 + 81.0 / 2, 108.5 + 141.0 / 2)
+    # Stable Dancer and the standard actor share one center at (1694.5,142)
+    # in the base 0.5.1 side-pick stack.
+    standard_center = (1920.0 - 294.0 + 137.0 / 2, 50.0 + 184.0 / 2)
+    dancer_center = (1654.0 + 81.0 / 2, 71.5 + 141.0 / 2)
     assert dancer_center == standard_center
     for width, height in ((81.0, 125.2), (81.0, 129.3), (81.0, 136.7), (81.0, 141.0)):
         assert 80.0 <= width <= 82.0

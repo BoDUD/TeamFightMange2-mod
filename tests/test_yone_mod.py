@@ -451,7 +451,7 @@ def test_skill2_uses_the_real_caster_as_a_free_spirit_with_one_lunge_and_bounded
         assert forbidden_token not in payload
 
 
-def test_yone_e_native_state_is_context_isolated_and_return_ai_is_bounded() -> None:
+def test_yone_e_native_state_avoids_unsafe_services_and_return_ai_is_bounded() -> None:
     source = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     for effect_ref in (
         "lol_yone_e_start_native",
@@ -473,13 +473,22 @@ def test_yone_e_native_state_is_context_isolated_and_return_ai_is_bounded() -> N
     assert "struct YoneSoulUnboundReturnInputAi" in source
     assert "const YONE_SOUL_UNBOUND_RETURN_TICKS: usize = 60;" in source
     assert "registration.add_player_input_ai(YoneSoulUnboundReturnInputAi);" in source
-    assert "YONE_SOUL_UNBOUND_SERVICE_ID" in source
-    assert "ctx.query_service(" in source
-    assert "ctx.register_service(" in source
-    assert "context_token: usize" in source
-    assert "last_tick_by_context: HashMap<usize, usize>" in source
-    assert "fn prepare_for_tick(&mut self, context_token: usize, now: usize)" in source
-    assert "state.context_token != context_token" in source
+    assert "let move_to_anchor = Input::Move { x, y };" in source
+    assert "if ctx.is_valid_input(&move_to_anchor)" in source
+    assert "const YONE_SOUL_UNBOUND_MAX_STATES: usize = 128;" in source
+    assert "fn prune_expired(&mut self, now: usize)" in source
+    assert "fn make_room(&mut self)" in source
+    assert "now < state.started_tick" in source
+    assert ".max_by_key(|state| state.started_tick)" in source
+    for unsafe_service_token in (
+        "YONE_SOUL_UNBOUND_SERVICE_ID",
+        "ctx.query_service(",
+        "ctx.register_service(",
+        "ModService::from_raw",
+        "context_token: usize",
+        "last_tick_by_context",
+    ):
+        assert unsafe_service_token not in source
     assert "self.states.clear()" not in source
 
 
