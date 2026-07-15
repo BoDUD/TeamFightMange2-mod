@@ -290,7 +290,7 @@
     {
       "path": "aseprite_resources/effects/shen_e#sheet.png",
       "size": 147598,
-      "sha256": "65c8625bafcb5d9396f0d87c436083a8c9e5348162ff72633a080ade7b810ed8"
+      "sha256": "9ad2a7bd341f550c8ff8b681a85aed60d714d341ee9a250c3c5e9fe1bbb6e4b3"
     },
     {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
@@ -955,7 +955,7 @@
     {
       "path": "champion/lol_shen.data_champion",
       "size": 14094,
-      "sha256": "fab85963fc690752d7fec42de8ad3fa56eee2c932f0e2d91292fe79d82a23305"
+      "sha256": "fbd02ff1da42f34999d15ab0b350c8e27f08bb791c9b00d06f8d317f9dd247ba"
     },
     {
       "path": "icons/briar_skill.png",

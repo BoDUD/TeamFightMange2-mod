@@ -1596,7 +1596,32 @@ def build_vfx() -> list[Path]:
     outputs: list[Path] = []
     for name, (source_path, columns, rows, frame_size, max_visible) in VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
-        frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
+        frames: list[Image.Image] = []
+        for index, cell in enumerate(split_grid(source, columns, rows)):
+            visible_size = (80, 52) if name == "shen_e" and index >= 3 else max_visible
+            frame = fit_cell(cell, frame_size, visible_size)
+            if name == "shen_e" and index >= 3:
+                # Shadow Dash itself stays cyan-violet, while its target-bound
+                # crowd-control read is deliberately red-magenta.  The color
+                # separation plus the larger foreground mask makes the full
+                # 90-tick taunt unmistakable in a crowded fight.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        if max(red, green, blue) >= 205 and max(red, green, blue) - min(red, green, blue) <= 70:
+                            pixels[x, y] = (255, max(155, min(225, green)), 255, alpha)
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(255, energy + 72)),
+                            min(112, round(green * 0.38)),
+                            max(blue, min(255, round(energy * 0.90))),
+                            alpha,
+                        )
+            frames.append(frame)
         if name == "shen_e":
             # The bottom row is impact/taunt feedback, not a second dash wake.
             # Keep any unusually wide generated spark compact so the collision
@@ -2572,7 +2597,7 @@ def build_shen_data() -> Path:
             "pre_tag": "taunt_pre",
             "loop_tag": "taunt_loop",
             "remove_tag": "taunt_remove",
-            "z": 2,
+            "z": 3,
         },
         ],
     }

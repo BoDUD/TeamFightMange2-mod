@@ -1015,7 +1015,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "pre_tag": "taunt_pre",
                 "loop_tag": "taunt_loop",
                 "remove_tag": "taunt_remove",
-                "z": 2,
+                "z": 3,
             },
         ],
         "Shen E dash-trail/taunt marker visuals are not registered",
@@ -4621,7 +4621,10 @@ def validate_compact_view_and_e_layout() -> None:
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
         check(12 <= width <= 88, f"E frame {index} left the 12-88px readable width")
-        check(8 <= height <= 40, f"E frame {index} left the 8-40px readable height")
+        if index < 3:
+            check(8 <= height <= 40, f"E dash frame {index} left the 8-40px readable height")
+        else:
+            check(24 <= height <= 52, f"E taunt frame {index} left the 24-52px readable height")
         check(bbox[0] >= 2 and bbox[2] <= 94 and bbox[1] >= 2 and bbox[3] <= 62, f"E frame {index} touches an atlas edge")
         if index < 3:
             check(width >= height * 2, f"E dash frame {index} is not a horizontal wake")

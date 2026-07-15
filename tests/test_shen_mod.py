@@ -332,7 +332,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
             "pre_tag": "taunt_pre",
             "loop_tag": "taunt_loop",
             "remove_tag": "taunt_remove",
-            "z": 2,
+            "z": 3,
         },
     ]
     # Keep the complete renderer records under contract: a valid name without

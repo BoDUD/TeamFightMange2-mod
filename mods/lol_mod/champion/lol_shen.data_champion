@@ -537,7 +537,7 @@
       "pre_tag": "taunt_pre",
       "loop_tag": "taunt_loop",
       "remove_tag": "taunt_remove",
-      "z": 2
+      "z": 3
     }
   ]
 }
