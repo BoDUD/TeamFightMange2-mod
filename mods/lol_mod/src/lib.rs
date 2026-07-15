@@ -1793,6 +1793,17 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
 const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
 
 #[derive(Clone, Copy, Debug, Default)]
+struct ShenShadowDashAiHintNativeEffect;
+
+impl ModEffectType for ShenShadowDashAiHintNativeEffect {
+    fn apply(&self, _ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, _input: InputTarget) {}
+
+    fn expected_cc_time(&self) -> Option<usize> {
+        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
 struct ShenShadowDashTauntNativeEffect;
 
 impl ModEffectType for ShenShadowDashTauntNativeEffect {
@@ -1821,6 +1832,39 @@ impl ModEffectType for ShenShadowDashTauntNativeEffect {
 
     fn expected_cc_time(&self) -> Option<usize> {
         Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct ShenShadowDashInputAi;
+
+impl ModPlayerInputAi for ShenShadowDashInputAi {
+    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
+        Box::new(self.clone())
+    }
+
+    fn id(&self) -> &str {
+        "lol_shen_shadow_dash_input_ai"
+    }
+
+    fn think(
+        &mut self,
+        ctx: &mut PlayerAiContext<'_, '_, '_>,
+        base_input: Option<Input>,
+    ) -> PlayerInputDecision {
+        if !matches!(ctx.champion_name(), "lol_shen" | "Shen" | "慎") {
+            return PlayerInputDecision::Pass;
+        }
+        let target = match base_input {
+            Some(Input::Skill { target }) | Some(Input::Attack { target }) => target,
+            _ => return PlayerInputDecision::Pass,
+        };
+        let shadow_dash = Input::Skill2 { target };
+        if ctx.is_valid_input(&shadow_dash) {
+            PlayerInputDecision::Replace(shadow_dash)
+        } else {
+            PlayerInputDecision::Pass
+        }
     }
 }
 
@@ -1855,9 +1899,14 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
     registration.add_native_effect(
+        "lol_shen_shadow_dash_ai_hint_native",
+        ShenShadowDashAiHintNativeEffect,
+    );
+    registration.add_native_effect(
         "lol_shen_shadow_dash_taunt_native",
         ShenShadowDashTauntNativeEffect,
     );
+    registration.add_player_input_ai(ShenShadowDashInputAi);
     registration.set_extension(LolModExtension);
     registration.set_server_extension(LolDragonServerExtension {
         announced: Mutex::new(HashSet::new()),

@@ -163,6 +163,10 @@
                   {
                     "type": "RemoveCasterBuff",
                     "name": "lol_shen_twilight_assault_charge_1"
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_shen_twilight_assault_empowered_window"
                   }
                 ]
               }
@@ -233,55 +237,86 @@
           "name": "lol_shen_twilight_assault_charge_1"
         },
         {
-          "type": "AddCasterBuff",
-          "buff_state": {
-            "name": "lol_shen_twilight_assault_charge_3",
-            "duration": {
-              "Time": {
-                "tick": 480
-              }
-            }
-          }
+          "type": "RemoveCasterBuff",
+          "name": "lol_shen_twilight_assault_empowered_window"
         },
         {
-          "type": "AddCasterBuff",
-          "buff_state": {
-            "name": "lol_shen_twilight_assault_charge_2",
-            "duration": {
-              "Time": {
-                "tick": 480
-              }
-            }
-          }
-        },
-        {
-          "type": "AddCasterBuff",
-          "buff_state": {
-            "name": "lol_shen_twilight_assault_charge_1",
-            "duration": {
-              "Time": {
-                "tick": 480
-              }
-            }
-          }
-        },
-        {
-          "type": "BackToCasterLinearProjectile",
-          "penetrate": true,
-          "speed": 12000,
-          "range": 130000,
-          "name": "lol_shen_twilight_assault_blade_recall",
+          "type": "LinearProjectile",
+          "penetrate": false,
+          "speed": 60000,
+          "range": 55000,
+          "name": "lol_shen_twilight_assault_blade_anchor",
           "shape": {
             "Circle": {
-              "radius": 7500
+              "radius": 1000
             }
           },
           "applied_target": "EnemyChampion",
           "applied_effects": [],
           "end_effects": [
             {
-              "type": "ViewEffect",
-              "name": "lol_shen_twilight_assault_recall_arrival"
+              "type": "BackToCasterLinearProjectile",
+              "penetrate": true,
+              "speed": 12000,
+              "range": 130000,
+              "name": "lol_shen_twilight_assault_blade_recall",
+              "shape": {
+                "Circle": {
+                  "radius": 7500
+                }
+              },
+              "applied_target": "EnemyChampion",
+              "applied_effects": [],
+              "end_effects": [
+                {
+                  "type": "ViewEffect",
+                  "name": "lol_shen_twilight_assault_recall_arrival"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_shen_twilight_assault_charge_3",
+                    "duration": {
+                      "Time": {
+                        "tick": 480
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_shen_twilight_assault_charge_2",
+                    "duration": {
+                      "Time": {
+                        "tick": 480
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_shen_twilight_assault_charge_1",
+                    "duration": {
+                      "Time": {
+                        "tick": 480
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "lol_shen_twilight_assault_empowered_window",
+                    "duration": {
+                      "Time": {
+                        "tick": 480
+                      }
+                    }
+                  }
+                }
+              ]
             }
           ]
         }
@@ -313,6 +348,10 @@
           "tick": 30
         },
         {
+          "type": "CasterViewEffect",
+          "name": "lol_shen_shadow_dash_cast_flash"
+        },
+        {
           "type": "AddCasterBuff",
           "buff_state": {
             "name": "lol_shen_shadow_dash_trail_window",
@@ -322,6 +361,10 @@
               }
             }
           }
+        },
+        {
+          "type": "Native",
+          "effect_ref": "lol_shen_shadow_dash_ai_hint_native"
         },
         {
           "type": "Rush",
@@ -474,7 +517,7 @@
       "name": "lol_shen_twilight_assault_blade_recall",
       "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
       "tag": "recall",
-      "z": 2,
+      "z": 3,
       "repeat": true
     }
   ],
@@ -493,6 +536,14 @@
       "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
       "tag": "recall_arrival",
       "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_shen_shadow_dash_cast_flash",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+      "tag": "dash_start",
+      "z": 3,
       "is_follow": true
     },
     {
@@ -523,12 +574,21 @@
   "view_buffs": [
     {
       "type": "ThreePhase",
+      "name": "lol_shen_twilight_assault_empowered_window",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+      "pre_tag": "empower_pre",
+      "loop_tag": "empower_loop",
+      "remove_tag": "empower_remove",
+      "z": 3
+    },
+    {
+      "type": "ThreePhase",
       "name": "lol_shen_shadow_dash_trail_window",
       "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
       "pre_tag": "trail_pre",
       "loop_tag": "trail_loop",
       "remove_tag": "trail_remove",
-      "z": -1
+      "z": 3
     },
     {
       "type": "ThreePhase",

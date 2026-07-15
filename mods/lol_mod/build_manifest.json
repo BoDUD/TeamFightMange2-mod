@@ -274,23 +274,23 @@
     },
     {
       "path": "aseprite_resources/effects/shen_e#anim.fanim",
-      "size": 2554,
-      "sha256": "a9f86f0906e786f71e1376e4050c70cdce84b0917669dda45d4246f16cfb0ed6"
+      "size": 3095,
+      "sha256": "7a6a3a45931faf9d13615c82e2546f93617c24b313248629c12793669322a68f"
     },
     {
       "path": "aseprite_resources/effects/shen_e#sheet.png",
       "size": 147598,
-      "sha256": "9ad2a7bd341f550c8ff8b681a85aed60d714d341ee9a250c3c5e9fe1bbb6e4b3"
+      "sha256": "c927f77d3ce5fbed3775ee2e44aa1958a3e07118b529bb61ceba6d07de5e0920"
     },
     {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
-      "size": 2798,
-      "sha256": "955561dd1bd98f41322640f31d6702bef1272279a1d3468ddea0f2b14789d4ea"
+      "size": 4272,
+      "sha256": "7f0f71bd7ece01a4d037eab8380c50bcf2777fc43dead9736cd5ee83685c2beb"
     },
     {
       "path": "aseprite_resources/effects/shen_q#sheet.png",
       "size": 131214,
-      "sha256": "a8774934cbe8b2227082573972bbd49a2b46299fc09c721c2427f1c587885a39"
+      "sha256": "64973f0ab883ce5248dbbae9b14b3616732b573cf691ed2d4fd576d7dd89a524"
     },
     {
       "path": "aseprite_resources/effects/shen_r#anim.fanim",
@@ -844,8 +844,8 @@
     },
     {
       "path": "champion/lol_shen.data_champion",
-      "size": 14094,
-      "sha256": "fbd02ff1da42f34999d15ab0b350c8e27f08bb791c9b00d06f8d317f9dd247ba"
+      "size": 16219,
+      "sha256": "46afbdc9063044083a3a48f15446f1fab452d86985347769a94add51e5852409"
     },
     {
       "path": "icons/briar_skill.png",
@@ -969,8 +969,8 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1017344,
-      "sha256": "dc682ddf378e79c46df891f0c7f9a9fb051f161ab7ffc98a8f8f192d3b9df390"
+      "size": 1017856,
+      "sha256": "211e025e67a8dec8f3086cacdd5a852e6e73f132ff7ad80f44191ef2b2952ccc"
     },
     {
       "path": "mod.mod_info",

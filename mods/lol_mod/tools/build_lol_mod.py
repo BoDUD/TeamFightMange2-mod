@@ -1598,6 +1598,43 @@ def build_vfx() -> list[Path]:
         for index, cell in enumerate(split_grid(source, columns, rows)):
             visible_size = (80, 52) if name == "shen_e" and index >= 3 else max_visible
             frame = fit_cell(cell, frame_size, visible_size)
+            if name == "shen_q":
+                # Twilight Assault must remain readable against the Rift's
+                # dark river and wall tiles.  The generated source contains a
+                # few almost-black outline/fade cells; a top-level return can
+                # otherwise render only those pixels before disappearing.
+                # Keep the source silhouette, but lift every opaque spirit
+                # blade pixel into a restrained cyan-blue emissive range.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(170, round(energy * 0.62))),
+                            max(green, min(255, energy + 76)),
+                            max(blue, min(255, energy + 112)),
+                            alpha,
+                        )
+            if name == "shen_e" and index < 3:
+                # The dash wake is a cast/readability cue, not terrain shadow.
+                # Lift the formerly near-black first phase so even the first
+                # rendered tick is visibly cyan before the looping wake begins.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(144, max(28, round(energy * 0.46)))),
+                            max(green, min(255, max(150, energy + 110))),
+                            max(blue, min(255, max(210, energy + 150))),
+                            alpha,
+                        )
             if name == "shen_e" and index >= 3:
                 # Shadow Dash itself stays cyan-violet, while its target-bound
                 # crowd-control read is deliberately red-magenta.  The color
@@ -1650,13 +1687,19 @@ def build_vfx() -> list[Path]:
         save_png(sheet, atlas)
         if name == "shen_q":
             anims = {
-                "recall": effect_anim(64, 64, list(range(8)), [0.05] * 8),
-                "empowered_hit": effect_anim(64, 64, [3, 4, 5, 6], [0.05, 0.06, 0.08, 0.10]),
+                # Skip the source's nearly empty opening cell in the moving
+                # recall.  Fade-only cells remain reserved for arrival/remove.
+                "recall": effect_anim(64, 64, [1, 2, 3, 4, 5, 4, 3, 2], [0.05] * 8),
+                "empowered_hit": effect_anim(64, 64, [3, 4, 5, 4], [0.05, 0.06, 0.08, 0.10]),
                 "recall_arrival": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
+                "empower_pre": effect_anim(64, 64, [1, 2], [0.06, 0.08]),
+                "empower_loop": effect_anim(64, 64, [2, 3, 4, 3], [0.09, 0.09, 0.10, 0.09]),
+                "empower_remove": effect_anim(64, 64, [6, 7], [0.06, 0.10]),
             }
         elif name == "shen_e":
             anims = {
                 "dash": effect_anim(96, 64, [0, 1, 2], [0.06, 0.06, 0.08]),
+                "dash_start": effect_anim(96, 64, [0, 1, 2], [0.05, 0.06, 0.08]),
                 "impact": effect_anim(96, 64, [3, 4, 5], [0.06, 0.08, 0.12]),
                 "trail_pre": effect_anim(96, 64, [0], [0.04]),
                 "trail_loop": effect_anim(96, 64, [1, 2], [0.05, 0.06]),
@@ -2231,15 +2274,35 @@ def shen_timed_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
 SHEN_Q_MARKERS = tuple(
     f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)
 )
+SHEN_Q_ANCHOR_NAME = "lol_shen_twilight_assault_blade_anchor"
+SHEN_Q_EMPOWERED_WINDOW = "lol_shen_twilight_assault_empowered_window"
 SHEN_SHADOW_DASH_DISTANCE = 60000
 # Rush.range is the swept collision radius, not the distance travelled.  The
 # action's top-level range owns Shadow Dash's travel distance.
 SHEN_SHADOW_DASH_COLLISION_RADIUS = 10000
+SHEN_SHADOW_DASH_AI_HINT_NATIVE = "lol_shen_shadow_dash_ai_hint_native"
+SHEN_SHADOW_DASH_CAST_FLASH = "lol_shen_shadow_dash_cast_flash"
 
 
 def shen_attack_branch(
     buff_name: str,
 ) -> dict[str, object]:
+    consume_effects: list[dict[str, object]] = [
+        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+        {"type": "ApAttack", "damage": 20, "attack_ratio": 20},
+        {
+            "type": "ViewEffect",
+            "name": "lol_shen_twilight_assault_empowered_hit",
+        },
+        {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+        {"type": "RemoveCasterBuff", "name": buff_name},
+    ]
+    if buff_name == SHEN_Q_MARKERS[-1]:
+        # The separate presentation marker survives the first two empowered
+        # attacks and disappears with the final charge.
+        consume_effects.append(
+            {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW}
+        )
     return {
         "type": "Combine",
         "effects": [
@@ -2247,16 +2310,7 @@ def shen_attack_branch(
             {
                 "type": "Delayed",
                 "tick": 10,
-                "effects": [
-                    {"type": "Attack", "damage": 0, "attack_ratio": 100},
-                    {"type": "ApAttack", "damage": 20, "attack_ratio": 20},
-                    {
-                        "type": "ViewEffect",
-                        "name": "lol_shen_twilight_assault_empowered_hit",
-                    },
-                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
-                    {"type": "RemoveCasterBuff", "name": buff_name},
-                ],
+                "effects": consume_effects,
             },
         ],
     }
@@ -2323,26 +2377,49 @@ def build_shen_q() -> dict[str, object]:
                     {"type": "RemoveCasterBuff", "name": name}
                     for name in SHEN_Q_MARKERS
                 ),
-                *(
-                    {
-                        "type": "AddCasterBuff",
-                        "buff_state": shen_timed_buff(name, 480),
-                    }
-                    for name in SHEN_Q_MARKERS
-                ),
+                {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW},
                 {
-                    "type": "BackToCasterLinearProjectile",
-                    "penetrate": True,
-                    "speed": 12000,
-                    "range": 130000,
-                    "name": "lol_shen_twilight_assault_blade_recall",
-                    "shape": {"Circle": {"radius": 7500}},
+                    # BackToCaster requires a projectile endpoint.  This
+                    # no-view, no-damage anchor reaches the selected direction
+                    # first; its endpoint then becomes the spirit blade's one
+                    # and only visible return origin.
+                    "type": "LinearProjectile",
+                    "penetrate": False,
+                    "speed": 60000,
+                    "range": 55000,
+                    "name": SHEN_Q_ANCHOR_NAME,
+                    "shape": {"Circle": {"radius": 1000}},
                     "applied_target": "EnemyChampion",
                     "applied_effects": [],
                     "end_effects": [
                         {
-                            "type": "ViewEffect",
-                            "name": "lol_shen_twilight_assault_recall_arrival",
+                            "type": "BackToCasterLinearProjectile",
+                            "penetrate": True,
+                            "speed": 12000,
+                            "range": 130000,
+                            "name": "lol_shen_twilight_assault_blade_recall",
+                            "shape": {"Circle": {"radius": 7500}},
+                            "applied_target": "EnemyChampion",
+                            "applied_effects": [],
+                            "end_effects": [
+                                {
+                                    "type": "ViewEffect",
+                                    "name": "lol_shen_twilight_assault_recall_arrival",
+                                },
+                                *(
+                                    {
+                                        "type": "AddCasterBuff",
+                                        "buff_state": shen_timed_buff(name, 480),
+                                    }
+                                    for name in SHEN_Q_MARKERS
+                                ),
+                                {
+                                    "type": "AddCasterBuff",
+                                    "buff_state": shen_timed_buff(
+                                        SHEN_Q_EMPOWERED_WINDOW, 480
+                                    ),
+                                },
+                            ],
                         }
                     ],
                 },
@@ -2370,8 +2447,20 @@ def build_shen_e() -> dict[str, object]:
                 {"type": "Sfx", "name": "lol_shen_attack_cast"},
                 {"type": "CasterAnimation", "name": "run", "tick": 30},
                 {
+                    "type": "CasterViewEffect",
+                    "name": SHEN_SHADOW_DASH_CAST_FLASH,
+                },
+                {
                     "type": "AddCasterBuff",
                     "buff_state": shen_timed_buff("lol_shen_shadow_dash_trail_window", 30),
+                },
+                {
+                    # RushEffect does not propagate expected_cc_time from its
+                    # collision payload.  Rust registers this no-op effect so
+                    # the root Combine exposes Shadow Dash's 90-tick taunt to
+                    # the stock AI without applying CC before a real hit.
+                    "type": "Native",
+                    "effect_ref": SHEN_SHADOW_DASH_AI_HINT_NATIVE,
                 },
                 {
                     "type": "Rush",
@@ -2532,7 +2621,7 @@ def build_shen_data() -> Path:
             "name": "lol_shen_twilight_assault_blade_recall",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
             "tag": "recall",
-            "z": 2,
+            "z": 3,
             "repeat": True,
         },
         ],
@@ -2551,6 +2640,14 @@ def build_shen_data() -> Path:
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
             "tag": "recall_arrival",
             "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": SHEN_SHADOW_DASH_CAST_FLASH,
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "tag": "dash_start",
+            "z": 3,
             "is_follow": True,
         },
         {
@@ -2581,12 +2678,21 @@ def build_shen_data() -> Path:
         "view_buffs": [
         {
             "type": "ThreePhase",
+            "name": SHEN_Q_EMPOWERED_WINDOW,
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "pre_tag": "empower_pre",
+            "loop_tag": "empower_loop",
+            "remove_tag": "empower_remove",
+            "z": 3,
+        },
+        {
+            "type": "ThreePhase",
             "name": "lol_shen_shadow_dash_trail_window",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
             "pre_tag": "trail_pre",
             "loop_tag": "trail_loop",
             "remove_tag": "trail_remove",
-            "z": -1,
+            "z": 3,
         },
         {
             "type": "ThreePhase",
