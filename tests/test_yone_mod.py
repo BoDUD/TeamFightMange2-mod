@@ -323,19 +323,22 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     assert not find_effect(q, "Delayed")
 
 
-def test_skill2_is_e_only_anchor_spirit_return_with_named_native_state() -> None:
+def test_skill2_uses_the_real_caster_as_a_free_spirit_with_one_lunge_and_bounded_return() -> None:
     skill2 = load_yone()["skill2"]
-    assert skill2["action_name"] == "skill2"
-    assert skill2["cooltime"] > 0
-    assert skill2["duration"] > 240
+    assert (
+        skill2["action_name"],
+        skill2["cooltime"],
+        skill2["duration"],
+        skill2["start_timing"],
+        skill2["range"],
+        skill2["casting_type"],
+        skill2["casting_target"],
+    ) == ("skill2", 720, 24, 4, 60000, "Direction", "EnemyChampion")
+    assert skill2["duration"] < 240
     assert 0 <= skill2["start_timing"] < skill2["duration"]
-    assert skill2["range"] > 0
-    assert (skill2["casting_type"], skill2["casting_target"]) == (
-        "Targeting", "EnemyChampion"
-    )
 
     assert find_effect(skill2, "CasterAnimation") == [
-        {"type": "CasterAnimation", "name": "skill2_attack", "tick": 42}
+        {"type": "CasterAnimation", "name": "skill2_attack", "tick": 24}
     ]
     actor_anims = json.loads(
         (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(encoding="utf-8")
@@ -352,18 +355,33 @@ def test_skill2_is_e_only_anchor_spirit_return_with_named_native_state() -> None
     }
     assert "runtime_w_resolution" not in visual_contract
 
-    # E is represented by a stationary body anchor and a visible spirit path.
-    # It must never move the real actor with a data-layer dash/teleport or sneak
-    # the removed W strike/shield back into the second slot.
+    # The real caster becomes the controllable spirit.  Only the initial
+    # direction lunge may move it at the data layer; no fake humanoid projectile
+    # or second damage payload may stand in for a spirit entity.
+    assert find_effect(skill2, "RushTime") == [
+        {
+            "type": "RushTime",
+            "penetrate": True,
+            "speed": 4500,
+            "tick": 8,
+            "range": 0,
+            "casting_target": "None",
+            "applied_effects": [],
+        }
+    ]
     for forbidden in (
-        "RushMoveToBack", "Rush", "RushTime", "Teleport", "Airborne",
-        "Knockback", "LineRangeProjectile", "Shield", "Attack", "FixedAttack",
-        "ApAttack",
+        "RushMoveToBack", "Rush", "Teleport", "Airborne", "Knockback",
+        "LineRangeProjectile", "LinearProjectile", "BackToCasterLinearProjectile",
+        "Shield", "Attack", "FixedAttack", "ApAttack",
     ):
         assert not find_effect(skill2, forbidden)
 
     native_refs = [effect["effect_ref"] for effect in find_effect(skill2, "Native")]
-    assert native_refs == ["lol_yone_e_start_native", "lol_yone_e_settle_native"]
+    assert native_refs == [
+        "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
+        "lol_yone_e_settle_native",
+    ]
 
     top = skill2["effect"]
     assert top["type"] == "Combine"
@@ -378,40 +396,42 @@ def test_skill2_is_e_only_anchor_spirit_return_with_named_native_state() -> None
         for index, effect in enumerate(top_effects)
         if effect == {"type": "CasterViewEffect", "name": "lol_yone_e_body_anchor"}
     )
-    outbound_index = next(
+    rush_index = next(
         index
         for index, effect in enumerate(top_effects)
-        if effect.get("type") == "LinearProjectile"
-        and effect.get("name") == "lol_yone_e_spirit_outbound"
+        if effect.get("type") == "RushTime"
     )
-    delayed_index = next(
-        index
-        for index, effect in enumerate(top_effects)
-        if effect.get("type") == "Delayed" and effect.get("tick") == 240
-    )
-    assert start_index < anchor_index < outbound_index < delayed_index
+    delayed = [effect for effect in top_effects if effect.get("type") == "Delayed"]
+    assert [effect["tick"] for effect in delayed] == [240, 300]
+    assert start_index < anchor_index < rush_index < top_effects.index(delayed[0])
 
-    outbound = find_effect(skill2, "LinearProjectile", name="lol_yone_e_spirit_outbound")
-    assert len(outbound) == 1
-    assert (
-        outbound[0]["penetrate"], outbound[0]["speed"], outbound[0]["range"],
-        outbound[0]["shape"], outbound[0]["applied_target"], outbound[0]["applied_effects"],
-    ) == (True, 6500, 70000, {"Circle": {"radius": 7000}}, "EnemyWithoutTower", [])
-    returns = find_effect(skill2, "BackToCasterLinearProjectile", name="lol_yone_e_spirit_return")
-    assert len(returns) == 1
-    assert (
-        returns[0]["penetrate"], returns[0]["speed"], returns[0]["range"],
-        returns[0]["shape"], returns[0]["applied_target"], returns[0]["applied_effects"],
-    ) == (True, 9000, 110000, {"Circle": {"radius": 7000}}, "EnemyWithoutTower", [])
-    max_return_travel = (returns[0]["range"] + returns[0]["speed"] - 1) // returns[0]["speed"]
-    assert skill2["start_timing"] + 240 + max_return_travel < skill2["duration"]
-    assert not find_effect(outbound[0], "Attack")
-    assert find_effect(returns[0], "CasterViewEffect", name="lol_yone_e_return_burst")
-    delayed = find_effect(skill2, "Delayed")
-    assert len(delayed) == 1 and delayed[0]["tick"] == 240
-    assert find_effect(delayed[0], "BackToCasterLinearProjectile") == returns
     assert find_effect(delayed[0], "Native") == [
+        {"type": "Native", "effect_ref": "lol_yone_e_begin_return_native"}
+    ]
+    assert find_effect(delayed[0], "RemoveCasterBuff") == [
+        {"type": "RemoveCasterBuff", "name": "lol_yone_e_spirit_form"}
+    ]
+    returning = [
+        effect["buff_state"]
+        for effect in find_effect(delayed[0], "AddCasterBuff")
+        if effect["buff_state"]["name"] == "lol_yone_e_returning"
+    ]
+    assert returning == [
+        {
+            "name": "lol_yone_e_returning",
+            "duration": {"Time": {"tick": 60}},
+            "move_speed_mult": 300,
+            "cc_immune": True,
+        }
+    ]
+    assert find_effect(delayed[1], "Native") == [
         {"type": "Native", "effect_ref": "lol_yone_e_settle_native"}
+    ]
+    assert find_effect(delayed[1], "RemoveCasterBuff") == [
+        {"type": "RemoveCasterBuff", "name": "lol_yone_e_returning"}
+    ]
+    assert find_effect(delayed[1], "CasterViewEffect") == [
+        {"type": "CasterViewEffect", "name": "lol_yone_e_return_burst"}
     ]
     skill2_view_names = {
         effect["name"]
@@ -424,14 +444,18 @@ def test_skill2_is_e_only_anchor_spirit_return_with_named_native_state() -> None
     } <= skill2_view_names
     assert all("yone_w" not in name.lower() for name in skill2_view_names)
     payload = json.dumps(skill2, ensure_ascii=False).lower()
-    for forbidden_token in ("yone_w", "crescent", "shield", "sweep_hitbox"):
+    for forbidden_token in (
+        "yone_w", "crescent", "shield", "sweep_hitbox",
+        "lol_yone_e_spirit_outbound", "lol_yone_e_spirit_return",
+    ):
         assert forbidden_token not in payload
 
 
-def test_yone_e_native_state_is_registered_without_unsafe_input_revalidation() -> None:
+def test_yone_e_native_state_is_context_isolated_and_return_ai_is_bounded() -> None:
     source = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     for effect_ref in (
         "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
         "lol_yone_e_damage_post_native",
         "lol_yone_e_settle_native",
@@ -446,6 +470,17 @@ def test_yone_e_native_state_is_registered_without_unsafe_input_revalidation() -
         "ctx.is_valid_input(&sealed_pursuit)",
     ):
         assert retired_token not in source
+    assert "struct YoneSoulUnboundReturnInputAi" in source
+    assert "const YONE_SOUL_UNBOUND_RETURN_TICKS: usize = 60;" in source
+    assert "registration.add_player_input_ai(YoneSoulUnboundReturnInputAi);" in source
+    assert "YONE_SOUL_UNBOUND_SERVICE_ID" in source
+    assert "ctx.query_service(" in source
+    assert "ctx.register_service(" in source
+    assert "context_token: usize" in source
+    assert "last_tick_by_context: HashMap<usize, usize>" in source
+    assert "fn prepare_for_tick(&mut self, context_token: usize, now: usize)" in source
+    assert "state.context_token != context_token" in source
+    assert "self.states.clear()" not in source
 
 
 def test_every_real_yone_damage_payload_is_wrapped_for_the_e_damage_ledger() -> None:
@@ -511,8 +546,6 @@ def test_yone_effect_and_audio_names_are_distinct_and_contain_no_retired_w_asset
     assert set(projectiles) == {
         "lol_yone_q_projectile",
         "lol_yone_q_empowered_projectile",
-        "lol_yone_e_spirit_outbound",
-        "lol_yone_e_spirit_return",
     }
     views = {view["name"]: view for view in yone["view_effects"]}
     required_views = {
@@ -540,7 +573,7 @@ def test_yone_effect_and_audio_names_are_distinct_and_contain_no_retired_w_asset
         )
     } == {
         "lol_yone_q3_airborne_cue": ("cue", 2),
-        "lol_yone_e_body_anchor": ("anchor", 0),
+        "lol_yone_e_body_anchor": ("anchor", 1),
         "lol_yone_e_return_burst": ("return_burst", 2),
     }
     assert views["lol_yone_q3_airborne_cue"]["anim"].endswith("/yone_q3_tornado")
@@ -551,6 +584,26 @@ def test_yone_effect_and_audio_names_are_distinct_and_contain_no_retired_w_asset
     assert all("yone_w" not in name.lower() for name in view_buffs)
     assert view_buffs["lol_yone_mortal_steel_stack_2"]["anim"].endswith(
         "/yone_q3_ready_wind"
+    )
+    assert {
+        name: (
+            view_buffs[name]["pre_tag"],
+            view_buffs[name]["loop_tag"],
+            view_buffs[name]["remove_tag"],
+            view_buffs[name]["z"],
+        )
+        for name in ("lol_yone_e_spirit_form", "lol_yone_e_returning")
+    } == {
+        "lol_yone_e_spirit_form": (
+            "spirit_pre", "spirit_loop", "spirit_remove", 2,
+        ),
+        "lol_yone_e_returning": (
+            "return_pre", "return_loop", "return_remove", 2,
+        ),
+    }
+    assert all(
+        view_buffs[name]["anim"].endswith("/yone_spirit")
+        for name in ("lol_yone_e_spirit_form", "lol_yone_e_returning")
     )
     used_view_names = {
         effect["name"]
@@ -590,6 +643,61 @@ def test_yone_effect_and_audio_names_are_distinct_and_contain_no_retired_w_asset
         if effect.get("type") in {"Sfx", "TargetSfx"}
     }
     assert all(name.startswith("lol_yone_e_") for name in skill2_audio)
+
+
+def test_yone_e_spirit_sheet_keeps_an_opaque_body_anchor_and_only_sparse_mobile_aura() -> None:
+    anim_path = MOD / "aseprite_resources/effects/yone_spirit#anim.fanim"
+    sheet_path = MOD / "aseprite_resources/effects/yone_spirit#sheet.png"
+    anims = json.loads(anim_path.read_text(encoding="utf-8"))["anims"]
+    assert set(anims) == {
+        "anchor",
+        "return_burst",
+        "spirit_pre",
+        "spirit_loop",
+        "spirit_remove",
+        "return_pre",
+        "return_loop",
+        "return_remove",
+    }
+    with Image.open(sheet_path) as opened:
+        sheet = opened.convert("RGBA")
+
+    def frame(tag: str, index: int) -> Image.Image:
+        frames = anims[tag]["frames"]
+        data = frames[index]["data"]
+        return sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+
+    anchor_frames = anims["anchor"]["frames"]
+    assert abs(sum(item["duration"] for item in anchor_frames) - 5.0) < 0.001
+    for index in range(len(anchor_frames) - 1):
+        alpha = list(frame("anchor", index).getchannel("A").get_flattened_data())
+        assert any(alpha)
+        assert {value for value in alpha if value} == {255}
+    assert frame("anchor", -1).getchannel("A").getbbox() is None
+
+    anchor_visible = sum(
+        value > 0
+        for value in frame("anchor", 0).getchannel("A").get_flattened_data()
+    )
+    for tag in ("spirit_pre", "spirit_loop", "return_pre", "return_loop"):
+        for index, _item in enumerate(anims[tag]["frames"]):
+            aura = frame(tag, index).getchannel("A")
+            bbox = aura.getbbox()
+            assert bbox is not None, (tag, index)
+            visible = sum(value > 0 for value in aura.get_flattened_data())
+            bbox_area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+            assert visible < anchor_visible * 0.58, (tag, index)
+            assert visible < bbox_area * 0.48, (tag, index)
+
+    for tag in ("spirit_remove", "return_remove", "return_burst"):
+        assert frame(tag, -1).getchannel("A").getbbox() is None
 
 
 def test_yone_q3_runtime_wind_sheets_are_transparent_blue_white_and_sparse() -> None:
@@ -670,12 +778,19 @@ def test_yone_skill_qa_records_hit_gated_q3_tornado_and_e_only_limits() -> None:
     assert "lol_yone_q3_ready_wind" in qa
     assert "lol_yone_q3_tornado" in qa
     assert "45 tick `Airborne`" in qa
-    assert "BackToCasterLinearProjectile" in qa
-    assert "不宣称真实坐标回溯" in qa
+    assert "BackToCasterLinearProjectile" not in qa
+    assert "真实施法者" in qa
+    assert "不透明本体" in qa
+    assert "稀疏轮廓" in qa
+    assert "60 tick" in qa
+    assert "300 tick" in qa
+    assert "GameCtx" in qa
+    assert "不能直接写英雄坐标" in qa
     assert "E-only" in qa
-    assert "绝无 `Rush` / `Teleport`" in qa
+    assert "恰好执行一次无伤害 `RushTime`" in qa
     for effect_ref in (
         "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
         "lol_yone_e_damage_post_native",
         "lol_yone_e_settle_native",
@@ -686,7 +801,8 @@ def test_yone_skill_qa_records_hit_gated_q3_tornado_and_e_only_limits() -> None:
     assert "最多 4 行" in qa
     for retired in (
         "E+W", "lol_yone_w_sweep_hitbox", "lol_yone_w_champion_shield_probe",
-        "W 月牙", "护盾档位",
+        "W 月牙", "护盾档位", "lol_yone_e_spirit_outbound",
+        "lol_yone_e_spirit_return",
     ):
         assert retired not in qa
 

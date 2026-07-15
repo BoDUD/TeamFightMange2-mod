@@ -703,29 +703,67 @@ def build_effect_sheet(
     return [sheet_path, anim_path]
 
 
-def spirit_actor_frame(
+def body_anchor_frame(
+    source: Image.Image,
+    frame_size: tuple[int, int],
+) -> Image.Image:
+    """Keep the abandoned mortal body opaque and readable at the cast point."""
+
+    return fit_actor(source, frame_size, target_height=42, bottom_margin=6)
+
+
+def spirit_outline_frame(
     source: Image.Image,
     frame_size: tuple[int, int],
     *,
     tint: tuple[int, int, int],
     alpha_scale: float,
+    phase: int,
 ) -> Image.Image:
-    """Turn an approved Yone body pose into a translucent spirit effect.
+    """Derive a thin soul outline and sparse particles from the approved body.
 
-    The spirit is derived from the accepted actor sources instead of drawing a
-    substitute body.  Only color/opacity changes; the silhouette remains Yone.
+    The real caster is the moving spirit during E.  A second filled actor on top
+    of it reads as a duplicated blue body, so only boundary pixels and a few
+    detached motes are retained from the approved Yone silhouette.
     """
 
     frame = fit_actor(source, frame_size, target_height=42, bottom_margin=6)
     output = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+    alpha_mask = frame.getchannel("A")
+    edge_pixels: list[tuple[int, int, int]] = []
     for y in range(frame.height):
         for x in range(frame.width):
             red, green, blue, alpha = frame.getpixel((x, y))
             if alpha == 0:
                 continue
+            is_edge = any(
+                nx < 0
+                or ny < 0
+                or nx >= frame.width
+                or ny >= frame.height
+                or alpha_mask.getpixel((nx, ny)) == 0
+                for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+            )
+            if not is_edge:
+                continue
             light = (red * 3 + green * 5 + blue * 2) // 10
             mixed = tuple(min(255, round(channel * 0.72 + light * 0.52)) for channel in tint)
-            output.putpixel((x, y), (*mixed, max(1, round(alpha * alpha_scale))))
+            aura_alpha = max(1, round(alpha * alpha_scale))
+            output.putpixel((x, y), (*mixed, aura_alpha))
+            edge_pixels.append((x, y, aura_alpha))
+
+    # Sparse motes make movement readable without recreating another body.
+    # Their deterministic placement keeps builds byte-for-byte reproducible.
+    for index, (x, y, aura_alpha) in enumerate(edge_pixels):
+        if (x * 17 + y * 31 + phase * 13 + index) % 47:
+            continue
+        particle_x = x - 3 - phase % 3
+        particle_y = y - 1 - (x + phase) % 3
+        if 0 <= particle_x < frame.width and 0 <= particle_y < frame.height:
+            output.putpixel(
+                (particle_x, particle_y),
+                (*tint, max(1, round(aura_alpha * 0.58))),
+            )
     return output
 
 
@@ -733,29 +771,105 @@ def build_spirit_effects() -> list[Path]:
     core = split_grid(Image.open(CORE_ALPHA).convert("RGBA"), 5, 4)
     wr = split_grid(Image.open(WR_BODY_ALPHA).convert("RGBA"), 5, 4)
     specs = [
-        # Four long-lived poses plus the transparent tail keep the abandoned
-        # body readable at the original cast point for the full E window.
-        ("anchor", core[0:4], (64, 56), 0.80, (100, 185, 238), 0.52),
-        ("outbound", wr[5:9], (72, 56), 0.065, (80, 205, 255), 0.68),
-        ("return", list(reversed(wr[5:9])), (72, 56), 0.065, (240, 84, 120), 0.68),
-        ("return_burst", [core[3], core[2], core[1], core[0]], (80, 64), 0.055, (190, 110, 245), 0.62),
-        ("spirit_pre", wr[18:20], (64, 56), 0.06, (92, 205, 255), 0.58),
-        ("spirit_loop", [wr[11], wr[1], wr[18]], (64, 56), 0.08, (92, 205, 255), 0.58),
-        ("spirit_remove", [wr[1], wr[19]], (64, 56), 0.06, (232, 92, 132), 0.48),
+        # Five opaque poses hold the mortal body for 4.95 seconds; a 0.05s
+        # transparent terminal frame clears the one-shot anchor at 5.0s.
+        (
+            "anchor",
+            [core[0], core[1], core[2], core[3], core[0], None],
+            [0.99, 0.99, 0.99, 0.99, 0.99, 0.05],
+            (64, 56),
+            "body",
+            (0, 0, 0),
+            1.0,
+        ),
+        (
+            "return_burst",
+            [core[3], core[2], core[1], core[0], None],
+            [0.055] * 5,
+            (80, 64),
+            "outline",
+            (236, 92, 154),
+            0.72,
+        ),
+        (
+            "spirit_pre",
+            wr[18:20],
+            [0.06, 0.06],
+            (64, 56),
+            "outline",
+            (96, 214, 255),
+            0.52,
+        ),
+        # The repeating phase intentionally has no transparent tail.  The old
+        # fourth blank frame made the entire blue duplicate blink every loop.
+        (
+            "spirit_loop",
+            [wr[11], wr[1], wr[18]],
+            [0.08, 0.08, 0.08],
+            (64, 56),
+            "outline",
+            (96, 214, 255),
+            0.48,
+        ),
+        (
+            "spirit_remove",
+            [wr[1], wr[19], None],
+            [0.06, 0.06, 0.03],
+            (64, 56),
+            "outline",
+            (232, 92, 132),
+            0.40,
+        ),
+        (
+            "return_pre",
+            [wr[18]],
+            [0.05],
+            (64, 56),
+            "outline",
+            (244, 82, 132),
+            0.70,
+        ),
+        (
+            "return_loop",
+            [wr[18], wr[11], wr[1]],
+            [0.06, 0.06, 0.06],
+            (64, 56),
+            "outline",
+            (244, 82, 132),
+            0.62,
+        ),
+        (
+            "return_remove",
+            [wr[1], wr[19], None],
+            [0.05, 0.05, 0.03],
+            (64, 56),
+            "outline",
+            (190, 110, 245),
+            0.44,
+        ),
     ]
-    width = max((len(sources) + 1) * size[0] for _, sources, size, *_ in specs)
-    height = sum(size[1] for _, _, size, *_ in specs)
+    width = max(len(sources) * size[0] for _, sources, _, size, *_ in specs)
+    height = sum(size[1] for _, _, _, size, *_ in specs)
     sheet = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     animations: dict[str, Any] = {}
     y = 0
-    for tag, sources, size, duration, tint, alpha_scale in specs:
+    for tag, sources, durations, size, mode, tint, alpha_scale in specs:
+        if len(sources) != len(durations):
+            raise ValueError(f"Yone spirit {tag}: source/duration count mismatch")
         frames: list[dict[str, Any]] = []
-        for index, source in enumerate([*sources, None]):
-            frame = (
-                Image.new("RGBA", size, (0, 0, 0, 0))
-                if source is None
-                else spirit_actor_frame(source, size, tint=tint, alpha_scale=alpha_scale)
-            )
+        for index, (source, duration) in enumerate(zip(sources, durations, strict=True)):
+            if source is None:
+                frame = Image.new("RGBA", size, (0, 0, 0, 0))
+            elif mode == "body":
+                frame = body_anchor_frame(source, size)
+            else:
+                frame = spirit_outline_frame(
+                    source,
+                    size,
+                    tint=tint,
+                    alpha_scale=alpha_scale,
+                    phase=index,
+                )
             x = index * size[0]
             sheet.alpha_composite(frame, (x, y))
             frames.append({"duration": duration, "data": {"x": x, "y": y, "w": size[0], "h": size[1]}})
@@ -922,11 +1036,10 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
     "lol_yone_q3_airborne_cue": ["yone_q3_tornado", "cue"],
     "lol_yone_mortal_steel_stack_2": ["yone_q3_ready_wind", "loop"],
-    "lol_yone_e_spirit_outbound": ["yone_spirit", "outbound"],
-    "lol_yone_e_spirit_return": ["yone_spirit", "return"],
     "lol_yone_e_body_anchor": ["yone_spirit", "anchor"],
     "lol_yone_e_return_burst": ["yone_spirit", "return_burst"],
     "lol_yone_e_spirit_form": ["yone_spirit", "spirit_loop"],
+    "lol_yone_e_returning": ["yone_spirit", "return_loop"],
     "lol_yone_r_windup": ["yone_r", "windup"],
     "lol_yone_r_arrival": ["yone_r", "arrival"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
@@ -985,10 +1098,12 @@ def build_qa(
             },
             "runtime_e_resolution": {
                 "window_ticks": 240,
-                "body_anchor": "fixed cast-point animation",
-                "moving_read": "caster-following translucent spirit buff",
-                "return": "single delayed BackToCaster projectile",
-                "damage_tracking": "native pre/post wrappers settle once at return",
+                "action_duration_ticks": 24,
+                "initial_movement": "single non-damaging RushTime",
+                "body_anchor": "fixed opaque cast-point animation",
+                "moving_read": "real caster with a thin outline-and-particle aura",
+                "return": "begin-return native at 240; 60-tick fast CC-immune path return; settle native at 300",
+                "damage_tracking": "native pre/post wrappers settle once after the bounded return phase",
             },
             "large_vfx_policy": "Q3 tornado/knockup, E spirit/anchor/return and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
@@ -1021,8 +1136,9 @@ def build_qa(
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/E/R/dead bodies retain one stable battle scale.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
-        "- [x] E uses approved-body spirit silhouettes for a fixed anchor, a caster-following spirit form, one outbound trace and one delayed return.\n"
-        "- [x] E binds runtime `CasterAnimation` to the five-frame `skill2_attack` leave-body motion; no W crescent motion remains.\n"
+        "- [x] E leaves one opaque approved-body anchor at the cast point; the real caster performs one short directional lunge and becomes the controllable spirit.\n"
+        "- [x] E's caster-following layer contains only a thin outline and sparse particles; no filled blue duplicate or fake humanoid projectile remains.\n"
+        "- [x] E binds runtime `CasterAnimation` to the five-frame `skill2_attack` leave-body motion and reserves a 60-tick fast, CC-immune return phase for the native anchor AI.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
         "- [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.\n"
@@ -1174,8 +1290,9 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         "yone_q3_tornado": ["tornado", "cue"],
         "yone_q3_ready_wind": ["pre", "loop", "remove"],
         "yone_spirit": [
-            "anchor", "outbound", "return", "return_burst",
+            "anchor", "return_burst",
             "spirit_pre", "spirit_loop", "spirit_remove",
+            "return_pre", "return_loop", "return_remove",
         ],
         "yone_r": ["windup", "arrival", "slash_blue", "slash_red", "echo"],
     }.items():
@@ -1186,11 +1303,58 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         for tag in required_tags:
             final = anims[tag]["frames"][-1]["data"]
             image = effect_sheet.crop((final["x"], final["y"], final["x"] + final["w"], final["y"] + final["h"]))
-            persistent_ready_wind = (
+            persistent_terminal = (
                 effect == "yone_q3_ready_wind" and tag in {"pre", "loop"}
-            )
-            if not persistent_ready_wind and image.getchannel("A").getbbox() is not None:
+            ) or effect == "yone_spirit"
+            if not persistent_terminal and image.getchannel("A").getbbox() is not None:
                 raise ValueError(f"Yone {effect}:{tag} must terminate transparent")
+
+    spirit_anims = json.loads(
+        (EFFECT_DIR / "yone_spirit#anim.fanim").read_text(encoding="utf-8")
+    )["anims"]
+    spirit_sheet = Image.open(EFFECT_DIR / "yone_spirit#sheet.png").convert("RGBA")
+
+    def spirit_frame(tag: str, index: int) -> Image.Image:
+        data = spirit_anims[tag]["frames"][index]["data"]
+        return spirit_sheet.crop(
+            (data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"])
+        )
+
+    anchor_frames = spirit_anims["anchor"]["frames"]
+    if abs(sum(frame["duration"] for frame in anchor_frames) - 5.0) > 0.001:
+        raise ValueError("Yone E opaque body anchor must last exactly 5.0 seconds")
+    for index in range(len(anchor_frames) - 1):
+        frame = spirit_frame("anchor", index)
+        visible_alpha = [
+            value for value in frame.getchannel("A").get_flattened_data() if value
+        ]
+        if not visible_alpha or max(visible_alpha) != 255 or min(visible_alpha) != 255:
+            raise ValueError(f"Yone E anchor[{index}] must remain fully opaque")
+    if spirit_frame("anchor", -1).getchannel("A").getbbox() is not None:
+        raise ValueError("Yone E anchor needs one short transparent cleanup frame")
+
+    anchor_visible = sum(
+        1
+        for value in spirit_frame("anchor", 0).getchannel("A").get_flattened_data()
+        if value
+    )
+    for tag in ("spirit_pre", "spirit_loop", "return_pre", "return_loop"):
+        for index in range(len(spirit_anims[tag]["frames"])):
+            frame = spirit_frame(tag, index)
+            alpha = frame.getchannel("A")
+            visible = sum(1 for value in alpha.get_flattened_data() if value)
+            bbox = alpha.getbbox()
+            if not visible or bbox is None:
+                raise ValueError(f"Yone E {tag}[{index}] cannot be a transparent loop frame")
+            bbox_area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+            if visible > anchor_visible * 0.58 or visible > bbox_area * 0.48:
+                raise ValueError(
+                    f"Yone E {tag}[{index}] filled too much of the caster body: "
+                    f"visible={visible}, anchor={anchor_visible}, bbox={bbox_area}"
+                )
+    for tag in ("spirit_remove", "return_remove", "return_burst"):
+        if spirit_frame(tag, -1).getchannel("A").getbbox() is not None:
+            raise ValueError(f"Yone E {tag} must end with a transparent cleanup frame")
 
     compact = Image.open(PORTRAIT_DIR / "dual_blader_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()

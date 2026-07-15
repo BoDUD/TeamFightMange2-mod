@@ -1,9 +1,11 @@
 use std::cell::RefCell;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::ffi::c_void;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -1537,8 +1539,42 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
 }
 
 const YONE_SOUL_UNBOUND_WINDOW_TICKS: usize = 240;
+const YONE_SOUL_UNBOUND_RETURN_TICKS: usize = 60;
 const YONE_SOUL_UNBOUND_STALE_GRACE_TICKS: usize = 600;
 const YONE_SOUL_UNBOUND_REPEAT_PERCENT: usize = 25;
+const YONE_SOUL_UNBOUND_SERVICE_ID: &str = "yone_soul_unbound_context";
+
+static NEXT_YONE_CONTEXT_TOKEN: AtomicUsize = AtomicUsize::new(1);
+static YONE_CONTEXT_SERVICE_VTABLE_SENTINEL: u8 = 0;
+
+fn yone_context_token(ctx: &GameCtx) -> Option<usize> {
+    if let Some(service) = ctx.query_service(MOD_ID, YONE_SOUL_UNBOUND_SERVICE_ID, ">=1.0.0") {
+        let token = service.data as usize;
+        return (token != 0).then_some(token);
+    }
+
+    let token = NEXT_YONE_CONTEXT_TOKEN.fetch_add(1, Ordering::Relaxed);
+    if token == 0 {
+        return None;
+    }
+    let service = ModService::from_raw(
+        token as *mut c_void,
+        (&YONE_CONTEXT_SERVICE_VTABLE_SENTINEL as *const u8).cast::<c_void>(),
+    );
+    if ctx.register_service(
+        YONE_SOUL_UNBOUND_SERVICE_ID,
+        ModServiceVersion::new(1, 0, 0),
+        service,
+    ) {
+        return Some(token);
+    }
+
+    ctx.query_service(MOD_ID, YONE_SOUL_UNBOUND_SERVICE_ID, ">=1.0.0")
+        .and_then(|registered| {
+            let registered_token = registered.data as usize;
+            (registered_token != 0).then_some(registered_token)
+        })
+}
 
 #[derive(Debug)]
 struct YoneSoulUnboundDamageMark {
@@ -1550,38 +1586,59 @@ struct YoneSoulUnboundDamageMark {
 
 #[derive(Debug)]
 struct YoneSoulUnboundState {
+    context_token: usize,
     caster: EntityHandle,
+    player_id: usize,
+    team: usize,
+    position: Position,
+    anchor: EntityPos,
     started_tick: usize,
     expiry_tick: usize,
+    return_started_tick: Option<usize>,
     damage_marks: Vec<YoneSoulUnboundDamageMark>,
 }
 
 #[derive(Debug, Default)]
 struct YoneSoulUnboundRegistry {
-    last_tick: Option<usize>,
+    last_tick_by_context: HashMap<usize, usize>,
     states: Vec<YoneSoulUnboundState>,
 }
 
 impl YoneSoulUnboundRegistry {
-    fn prepare_for_tick(&mut self, now: usize) {
-        // Native state outlives a single match. A lower tick therefore means
-        // that the engine has started a new timeline and every prior entity
-        // handle/window must be discarded before IDs can be reused.
-        if self.last_tick.is_some_and(|last_tick| now < last_tick) {
-            self.states.clear();
+    fn prepare_for_tick(&mut self, context_token: usize, now: usize) {
+        // Hidden/management simulations can interleave callbacks from several
+        // matches whose ticks move independently.  Reset only the current
+        // GameCtx service bucket; never clear another match's E ledger.
+        if self
+            .last_tick_by_context
+            .get(&context_token)
+            .is_some_and(|last_tick| now < *last_tick)
+        {
+            self.states
+                .retain(|state| state.context_token != context_token);
         }
-        self.last_tick = Some(now);
+        self.last_tick_by_context.insert(context_token, now);
 
-        // Keep a short grace interval so the delayed return callback can
-        // settle even if it runs just after the nominal 240-tick window. Any
-        // state that never receives its return callback is still collected.
+        // Collect stale state only inside this context bucket.  A lower tick
+        // from another simulation must not delete the foreground ledger.
         self.states.retain(|state| {
-            state.started_tick <= now
-                && now
-                    <= state
-                        .expiry_tick
-                        .saturating_add(YONE_SOUL_UNBOUND_STALE_GRACE_TICKS)
+            state.context_token != context_token
+                || (state.started_tick <= now
+                    && now
+                        <= state
+                            .expiry_tick
+                            .saturating_add(YONE_SOUL_UNBOUND_STALE_GRACE_TICKS))
         });
+    }
+
+    fn forget_context_if_idle(&mut self, context_token: usize) {
+        if !self
+            .states
+            .iter()
+            .any(|state| state.context_token == context_token)
+        {
+            self.last_tick_by_context.remove(&context_token);
+        }
     }
 }
 
@@ -1596,13 +1653,24 @@ struct YoneSoulUnboundStartNativeEffect;
 
 impl ModEffectType for YoneSoulUnboundStartNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
-        let Some((caster, caster_alive)) = ctx
+        let Some(context_token) = yone_context_token(ctx) else {
+            return;
+        };
+        let Some((caster, caster_alive, anchor)) = ctx
             .get_entity(caster_id)
-            .map(|entity| (entity.handle(), entity.is_alive()))
+            .map(|entity| (entity.handle(), entity.is_alive(), entity.pos()))
         else {
             return;
         };
         if !caster_alive {
+            return;
+        }
+        let Some((player_id, team, position, player_caster)) =
+            xayah_player_for_caster(ctx, caster_id)
+        else {
+            return;
+        };
+        if player_caster != caster {
             return;
         }
 
@@ -1610,16 +1678,106 @@ impl ModEffectType for YoneSoulUnboundStartNativeEffect {
         let Ok(mut registry) = yone_soul_unbound_state().lock() else {
             return;
         };
-        registry.prepare_for_tick(now);
+        registry.prepare_for_tick(context_token, now);
         // Recasting/re-entering E replaces the old window for this exact
-        // entity instead of allowing damage to be counted twice.
-        registry.states.retain(|state| state.caster != caster);
+        // entity in this match instead of counting damage twice.
+        registry
+            .states
+            .retain(|state| state.context_token != context_token || state.caster != caster);
         registry.states.push(YoneSoulUnboundState {
+            context_token,
             caster,
+            player_id,
+            team,
+            position,
+            anchor,
             started_tick: now,
             expiry_tick: now.saturating_add(YONE_SOUL_UNBOUND_WINDOW_TICKS),
+            return_started_tick: None,
             damage_marks: Vec::new(),
         });
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSoulUnboundBeginReturnNativeEffect;
+
+impl ModEffectType for YoneSoulUnboundBeginReturnNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        let Some(context_token) = yone_context_token(ctx) else {
+            return;
+        };
+        let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
+            return;
+        };
+        let now = ctx.tick();
+        let Ok(mut registry) = yone_soul_unbound_state().lock() else {
+            return;
+        };
+        registry.prepare_for_tick(context_token, now);
+        let Some(state) = registry.states.iter_mut().find(|state| {
+            state.context_token == context_token
+                && state.caster == caster
+                && state.started_tick <= now
+        }) else {
+            return;
+        };
+        state.return_started_tick = Some(now);
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct YoneSoulUnboundReturnInputAi;
+
+impl ModPlayerInputAi for YoneSoulUnboundReturnInputAi {
+    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
+        Box::new(self.clone())
+    }
+
+    fn id(&self) -> &str {
+        "lol_yone_e_return_input_ai"
+    }
+
+    fn think(
+        &mut self,
+        ctx: &mut PlayerAiContext<'_, '_, '_>,
+        _base_input: Option<Input>,
+    ) -> PlayerInputDecision {
+        if !matches!(ctx.champion_name(), "dual_blader" | "Yone" | "永恩") {
+            return PlayerInputDecision::Pass;
+        }
+
+        let now = ctx.tick();
+        let player_id = ctx.player_id();
+        let team = ctx.team();
+        let position = ctx.position();
+        let anchor = yone_soul_unbound_state().lock().ok().and_then(|registry| {
+            registry
+                .states
+                .iter()
+                .filter(|state| {
+                    state.player_id == player_id && state.team == team && state.position == position
+                })
+                .filter_map(|state| {
+                    state.return_started_tick.and_then(|return_tick| {
+                        (return_tick <= now
+                            && now < return_tick.saturating_add(YONE_SOUL_UNBOUND_RETURN_TICKS))
+                        .then_some((
+                            return_tick,
+                            state.context_token,
+                            state.anchor.x,
+                            state.anchor.y,
+                        ))
+                    })
+                })
+                .max_by_key(|(return_tick, context_token, _, _)| (*return_tick, *context_token))
+                .map(|(_, _, x, y)| (x, y))
+        });
+        let Some((x, y)) = anchor else {
+            return PlayerInputDecision::Pass;
+        };
+
+        PlayerInputDecision::Replace(Input::Move { x, y })
     }
 }
 
@@ -1628,6 +1786,9 @@ struct YoneSoulUnboundDamagePreNativeEffect;
 
 impl ModEffectType for YoneSoulUnboundDamagePreNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let Some(context_token) = yone_context_token(ctx) else {
+            return;
+        };
         let InputTarget::Target { target_id } = input else {
             return;
         };
@@ -1657,9 +1818,12 @@ impl ModEffectType for YoneSoulUnboundDamagePreNativeEffect {
         let Ok(mut registry) = yone_soul_unbound_state().lock() else {
             return;
         };
-        registry.prepare_for_tick(now);
+        registry.prepare_for_tick(context_token, now);
         let Some(state) = registry.states.iter_mut().find(|state| {
-            state.caster == caster && state.started_tick <= now && now < state.expiry_tick
+            state.context_token == context_token
+                && state.caster == caster
+                && state.started_tick <= now
+                && now < state.expiry_tick
         }) else {
             return;
         };
@@ -1690,6 +1854,9 @@ struct YoneSoulUnboundDamagePostNativeEffect;
 
 impl ModEffectType for YoneSoulUnboundDamagePostNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let Some(context_token) = yone_context_token(ctx) else {
+            return;
+        };
         let InputTarget::Target { target_id } = input else {
             return;
         };
@@ -1709,9 +1876,12 @@ impl ModEffectType for YoneSoulUnboundDamagePostNativeEffect {
         let Ok(mut registry) = yone_soul_unbound_state().lock() else {
             return;
         };
-        registry.prepare_for_tick(now);
+        registry.prepare_for_tick(context_token, now);
         let Some(state) = registry.states.iter_mut().find(|state| {
-            state.caster == caster && state.started_tick <= now && now < state.expiry_tick
+            state.context_token == context_token
+                && state.caster == caster
+                && state.started_tick <= now
+                && now < state.expiry_tick
         }) else {
             return;
         };
@@ -1736,6 +1906,9 @@ struct YoneSoulUnboundSettleNativeEffect;
 
 impl ModEffectType for YoneSoulUnboundSettleNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        let Some(context_token) = yone_context_token(ctx) else {
+            return;
+        };
         let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
             return;
         };
@@ -1747,15 +1920,17 @@ impl ModEffectType for YoneSoulUnboundSettleNativeEffect {
             let Ok(mut registry) = yone_soul_unbound_state().lock() else {
                 return;
             };
-            registry.prepare_for_tick(now);
-            let Some(state_index) = registry
-                .states
-                .iter()
-                .position(|state| state.caster == caster && state.started_tick <= now)
-            else {
+            registry.prepare_for_tick(context_token, now);
+            let Some(state_index) = registry.states.iter().position(|state| {
+                state.context_token == context_token
+                    && state.caster == caster
+                    && state.started_tick <= now
+            }) else {
                 return;
             };
-            registry.states.remove(state_index)
+            let state = registry.states.remove(state_index);
+            registry.forget_context_if_idle(context_token);
+            state
         };
 
         let caster_is_same_and_alive = ctx
@@ -1817,6 +1992,11 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         },
     );
     registration.add_native_effect("lol_yone_e_start_native", YoneSoulUnboundStartNativeEffect);
+    registration.add_native_effect(
+        "lol_yone_e_begin_return_native",
+        YoneSoulUnboundBeginReturnNativeEffect,
+    );
+    registration.add_player_input_ai(YoneSoulUnboundReturnInputAi);
     registration.add_native_effect(
         "lol_yone_e_damage_pre_native",
         YoneSoulUnboundDamagePreNativeEffect,
