@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import unicodedata
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -113,28 +114,22 @@ def test_generated_sources_and_official_audio_are_auditable() -> None:
     assert all(entry["volume"] >= 0.85 for entry in [*shen_audio["outputs"], *lucian_audio["outputs"]])
 
 
-def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> None:
+def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     shen = json.loads((MOD / "champion/lol_shen.data_champion").read_text(encoding="utf-8"))
 
     attack = shen["attack"]
     switches = find_effect(attack, "SwitchByBuff")
     assert [switch["buff_name"] for switch in switches] == [
-        "lol_shen_twilight_assault_through_charge_3",
-        "lol_shen_twilight_assault_through_charge_2",
-        "lol_shen_twilight_assault_through_charge_1",
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
     ]
     empowered = find_effect(attack, "ApAttack")
     assert [(effect["damage"], effect["attack_ratio"]) for effect in empowered] == [
-        (35, 30), (35, 30), (35, 30), (20, 20), (20, 20), (20, 20),
+        (20, 20), (20, 20), (20, 20),
     ]
     removed = {effect["name"] for effect in find_effect(attack, "RemoveCasterBuff")}
     assert removed == {
-        "lol_shen_twilight_assault_through_charge_3",
-        "lol_shen_twilight_assault_through_charge_2",
-        "lol_shen_twilight_assault_through_charge_1",
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
@@ -158,20 +153,26 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
         q["action_name"], q["cooltime"], q["duration"], q["start_timing"],
         q["range"], q["casting_type"], q["casting_target"],
     ) == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion")
-    outbound = find_effect(q, "LinearProjectile", name="lol_shen_twilight_assault_blade_outbound")
-    assert len(outbound) == 1
+    recalls = find_effect(
+        q,
+        "BackToCasterLinearProjectile",
+        name="lol_shen_twilight_assault_blade_recall",
+    )
+    assert len(recalls) == 1
+    blade_recall = recalls[0]
     assert (
-        outbound[0]["penetrate"], outbound[0]["speed"], outbound[0]["range"],
-        outbound[0]["shape"], outbound[0]["applied_target"], outbound[0]["applied_effects"],
-    ) == (True, 10000, 65000, {"Circle": {"radius": 4000}}, "EnemyChampion", [])
-    returns = find_effect(outbound[0], "BackToCasterLinearProjectile", name="lol_shen_twilight_assault_blade_return")
-    assert len(returns) == 1
-    blade_return = returns[0]
-    assert outbound[0]["end_effects"] == [blade_return]
-    assert (
-        blade_return["penetrate"], blade_return["speed"], blade_return["range"],
-        blade_return["shape"], blade_return["applied_target"], blade_return["end_effects"],
+        blade_recall["penetrate"], blade_recall["speed"], blade_recall["range"],
+        blade_recall["shape"], blade_recall["applied_target"],
+        blade_recall["applied_effects"],
     ) == (True, 12000, 130000, {"Circle": {"radius": 7500}}, "EnemyChampion", [])
+    assert find_effect(
+        blade_recall["end_effects"],
+        "ViewEffect",
+        name="lol_shen_twilight_assault_recall_arrival",
+    )
+    # Q is one visible recall from the cast target to Shen, never a fabricated
+    # outbound-then-return blade or a damaging projectile spell.
+    assert not find_effect(q, "LinearProjectile")
     assert not find_effect(q, "RangeProjectile")
     assert not find_effect(q, "Attack")
     assert not find_effect(q, "ApAttack")
@@ -193,75 +194,17 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
-        "lol_shen_twilight_assault_through_charge_3",
-        "lol_shen_twilight_assault_through_charge_2",
-        "lol_shen_twilight_assault_through_charge_1",
-        "lol_shen_twilight_assault_return_resolved",
     }
-    return_effect = blade_return["applied_effects"][0]["effect"]
-    assert return_effect["type"] == "SwitchByBuff"
-    assert return_effect["buff_name"] == "lol_shen_twilight_assault_return_resolved"
-    assert return_effect["effect_buff"] == {
-        "type": "AddCasterBuff",
-        "buff_state": {
-            "name": "lol_shen_twilight_assault_return_resolved",
-            "duration": {"Time": {"tick": 480}},
-        },
-    }
-    remaining_switch = return_effect["effect_none"]
-    expected_normal = [
-        "lol_shen_twilight_assault_charge_3",
-        "lol_shen_twilight_assault_charge_2",
-        "lol_shen_twilight_assault_charge_1",
-    ]
-    all_charge_names = {
-        *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
-        *(f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)),
-    }
-    for remaining, normal_marker in zip((3, 2, 1), expected_normal, strict=True):
-        assert remaining_switch["type"] == "SwitchByBuff"
-        assert remaining_switch["buff_name"] == normal_marker
-        branch = remaining_switch["effect_buff"]
-        assert branch["type"] == "Combine"
-        direct = branch["effects"]
-        assert {
-            effect["name"] for effect in direct if effect.get("type") == "RemoveCasterBuff"
-        } == all_charge_names
-        direct_grants = [
-            effect["buff_state"] for effect in direct if effect.get("type") == "AddCasterBuff"
-        ]
-        assert {
-            state["name"]
-            for state in direct_grants
-            if state["name"].startswith("lol_shen_twilight_assault_through_charge_")
-        } == {
-            f"lol_shen_twilight_assault_through_charge_{charge}"
-            for charge in range(remaining, 0, -1)
-        }
-        assert {
-            "name": "lol_shen_twilight_assault_return_resolved",
-            "duration": {"Time": {"tick": 480}},
-        } in direct_grants
-        assert {
-            "name": "lol_shen_twilight_assault_through_attack_speed",
-            "duration": {"Time": {"tick": 120}},
-            "attack_speed_mult": 35,
-        } in direct_grants
-        assert [
-            effect["buff_state"] for effect in direct if effect.get("type") == "AddBuff"
-        ] == [{
-            "name": "lol_shen_twilight_assault_pull_slow",
-            "duration": {"Time": {"tick": 90}},
-            "move_speed_mult": -30,
-        }]
-        remaining_switch = remaining_switch["effect_none"]
-    assert remaining_switch == {
-        "type": "AddCasterBuff",
-        "buff_state": {
-            "name": "lol_shen_twilight_assault_return_resolved",
-            "duration": {"Time": {"tick": 480}},
-        },
-    }
+    q_serialized = json.dumps(q, ensure_ascii=False)
+    for retired in (
+        "blade_outbound",
+        "blade_return",
+        "through_charge",
+        "return_resolved",
+        "through_attack_speed",
+        "pull_slow",
+    ):
+        assert retired not in q_serialized
 
     e = shen["skill2"]
     assert (
@@ -322,24 +265,14 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
     serialized = json.dumps(shen, ensure_ascii=False)
     for retired in ("Spirit's Refuge", "spirit_refuge", "lol_shen_w_", "shen_w"):
         assert retired not in serialized
-    assert shen["view_projectiles"] == [
-        {
-            "type": "Animated",
-            "name": "lol_shen_twilight_assault_blade_outbound",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "outbound",
-            "z": 2,
-            "repeat": True,
-        },
-        {
-            "type": "Animated",
-            "name": "lol_shen_twilight_assault_blade_return",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "return",
-            "z": 2,
-            "repeat": True,
-        },
-    ]
+    assert shen["view_projectiles"] == [{
+        "type": "Animated",
+        "name": "lol_shen_twilight_assault_blade_recall",
+        "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+        "tag": "recall",
+        "z": 2,
+        "repeat": True,
+    }]
     assert shen["view_effects"] == [
         {
             "type": "Animation",
@@ -351,17 +284,9 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
         },
         {
             "type": "Animation",
-            "name": "lol_shen_twilight_assault_through_empowered_hit",
+            "name": "lol_shen_twilight_assault_recall_arrival",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "through_hit",
-            "z": 2,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_twilight_assault_pass_through_visual",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "pass_through",
+            "tag": "recall_arrival",
             "z": 2,
             "is_follow": True,
         },
@@ -407,9 +332,37 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
             "pre_tag": "taunt_pre",
             "loop_tag": "taunt_loop",
             "remove_tag": "taunt_remove",
-            "z": 2,
+            "z": 3,
         },
     ]
+    # Keep the complete renderer records under contract: a valid name without
+    # the matching renderer type/tag silently produces an invisible skill.
+    recall_view = shen["view_projectiles"][0]
+    assert (recall_view["type"], recall_view["tag"], recall_view["repeat"]) == (
+        "Animated", "recall", True,
+    )
+    effect_views = {effect["name"]: effect for effect in shen["view_effects"]}
+    for name, tag in {
+        "lol_shen_twilight_assault_empowered_hit": "empowered_hit",
+        "lol_shen_twilight_assault_recall_arrival": "recall_arrival",
+        "lol_shen_shadow_dash_impact": "impact",
+        "lol_shen_stand_united_guard_visual": "guard",
+        "lol_shen_stand_united_arrival_visual": "arrival",
+    }.items():
+        assert effect_views[name]["type"] == "Animation"
+        assert effect_views[name]["tag"] == tag
+    q_anim = json.loads(
+        (MOD / "aseprite_resources/effects/shen_q#anim.fanim").read_text(encoding="utf-8")
+    )["anims"]
+    e_anim = json.loads(
+        (MOD / "aseprite_resources/effects/shen_e#anim.fanim").read_text(encoding="utf-8")
+    )["anims"]
+    assert {"recall", "recall_arrival", "empowered_hit"} <= q_anim.keys()
+    assert {
+        "impact",
+        "trail_pre", "trail_loop", "trail_remove",
+        "taunt_pre", "taunt_loop", "taunt_remove",
+    } <= e_anim.keys()
 
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     assert 'struct ShenShadowDashTauntNativeEffect;' in runtime
@@ -432,18 +385,75 @@ def test_shen_q_e_r_contract_uses_return_path_empowerment_and_native_taunt() -> 
     assert shen_native.count("target: caster_id") == 1
 
     text = json.loads((MOD / "text/champion.i18n").read_text(encoding="utf-8"))
-    assert "Twilight Assault" in text["en"]["description"]["lol_shen"]["skill"]
-    assert "first enemy champion crossed by the returning trace" in text["en"]["description"]["lol_shen"]["skill"]
-    assert "only the empowered attacks still unused" in text["en"]["description"]["lol_shen"]["skill"]
-    assert "does not retain an independently positioned blade" in text["en"]["description"]["lol_shen"]["skill"]
-    assert "Shadow Dash" in text["en"]["description"]["lol_shen"]["skill2"]
-    assert "forced to attack Shen for 1.5 seconds" in text["en"]["description"]["lol_shen"]["skill2"]
+    en = text["en"]["description"]["lol_shen"]
+    assert "Twilight Assault" in en["skill"]
+    assert "recall" in en["skill"].lower()
+    assert "next 3" in en["skill"]
+    assert "Shadow Dash" in en["skill2"]
+    assert "1.5 seconds" in en["skill2"]
+    assert "taunt" in en["skill2"].lower()
     assert "奥义！暮临" in text["zh-hans"]["description"]["lol_shen"]["skill"]
-    assert "仅将尚未使用的强化升级" in text["zh-hans"]["description"]["lol_shen"]["skill"]
+    assert "3次" in text["zh-hans"]["description"]["lol_shen"]["skill"]
     assert "奥义！影缚" in text["zh-hans"]["description"]["lol_shen"]["skill2"]
-    assert "强制攻击慎1.5秒" in text["zh-hans"]["description"]["lol_shen"]["skill2"]
+    assert "嘲讽" in text["zh-hans"]["description"]["lol_shen"]["skill2"]
     assert "奧義！暮臨" in text["zh-hant"]["description"]["lol_shen"]["skill"]
     assert "奧義！影縛" in text["zh-hant"]["description"]["lol_shen"]["skill2"]
+
+    # The encyclopedia uses fixed-height skill rows.  Count full-width glyphs
+    # as two columns and keep every Q/E/R description inside four conservative
+    # lines rather than relying on clipping or overflow.
+    columns_per_line = {
+        "en": 60,
+        "zh-hans": 52,
+        "zh-hant": 52,
+        "ja": 52,
+        "ko": 52,
+    }
+    forbidden_player_facing_notes = (
+        "api",
+        "engine",
+        "implementation",
+        "public api",
+        "public data",
+        "data surface",
+        "data-champion",
+        "engine-paced",
+        "approximation",
+        "backtocaster",
+        "does not retain",
+        "not guaranteed",
+        "引擎",
+        "近似",
+        "限制",
+        "接口",
+        "数据层",
+        "資料層",
+        "无法",
+        "無法",
+        "エンジン",
+        "実装上",
+        "近似実装",
+        "제한",
+        "엔진",
+        "구현상",
+        "근사",
+    )
+    for locale, line_columns in columns_per_line.items():
+        localized = text[locale]["description"]["lol_shen"]
+        for skill_key in ("skill", "skill2", "ult"):
+            description = localized[skill_key]
+            display_columns = sum(
+                2 if unicodedata.east_asian_width(character) in {"W", "F"} else 1
+                for character in description
+            )
+            assert description.count("\n") + 1 <= 4, (locale, skill_key, description)
+            assert display_columns <= line_columns * 4, (
+                locale, skill_key, display_columns, description,
+            )
+            lowered = description.casefold()
+            assert not any(note in lowered for note in forbidden_player_facing_notes), (
+                locale, skill_key, description,
+            )
 
     builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
     assert '"shen_skill2.png": SOURCE / "shen_e_icon_source_alpha.png"' in builder

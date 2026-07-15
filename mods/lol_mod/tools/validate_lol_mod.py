@@ -10,6 +10,7 @@ import json
 import math
 import subprocess
 import sys
+import unicodedata
 import wave
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -656,20 +657,17 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
     check(
         [effect.get("buff_name") for effect in q_switches]
         == [
-            "lol_shen_twilight_assault_through_charge_3",
-            "lol_shen_twilight_assault_through_charge_2",
-            "lol_shen_twilight_assault_through_charge_1",
             "lol_shen_twilight_assault_charge_3",
             "lol_shen_twilight_assault_charge_2",
             "lol_shen_twilight_assault_charge_1",
         ],
-        "Q basic-attack state must prefer through-blade 3 -> 2 -> 1, then normal 3 -> 2 -> 1",
+        "Q basic-attack state must consume the three recall charges in order",
     )
     empowered_hits = find_effect(attack, "ApAttack")
     check(
         [(effect.get("damage"), effect.get("attack_ratio")) for effect in empowered_hits]
-        == [(35, 30)] * 3 + [(20, 20)] * 3,
-        "Q must expose three 35+30% AP through-blade hits and three 20+20% AP normal hits",
+        == [(20, 20)] * 3,
+        "Q must expose exactly three 20 + 20% AP empowered attacks",
     )
     for switch in q_switches:
         buff_branch = switch.get("effect_buff", {})
@@ -697,36 +695,32 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion"),
         "Q must use a stock-AI enemy-gated direction cast instead of self-casting into empty space",
     )
-    for unsafe_type in ("RangeProjectile", "Attack", "ApAttack", "Shield"):
+    for unsafe_type in ("LinearProjectile", "RangeProjectile", "Attack", "ApAttack", "Shield"):
         check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
-    outbound = find_effect(q, "LinearProjectile", name="lol_shen_twilight_assault_blade_outbound")
-    check(len(outbound) == 1, "Q must own exactly one stable outbound spirit-blade anchor")
-    returns = find_effect(outbound[0], "BackToCasterLinearProjectile", name="lol_shen_twilight_assault_blade_return") if outbound else []
-    check(len(returns) == 1, "Q outbound anchor must own exactly one return-to-caster blade")
-    if outbound:
+    recalls = find_effect(
+        q,
+        "BackToCasterLinearProjectile",
+        name="lol_shen_twilight_assault_blade_recall",
+    )
+    check(len(recalls) == 1, "Q must contain one visible BackToCaster blade recall")
+    if recalls:
+        blade_recall = recalls[0]
         check(
             (
-                outbound[0].get("penetrate"), outbound[0].get("speed"),
-                outbound[0].get("range"), outbound[0].get("shape"),
-                outbound[0].get("applied_target"), outbound[0].get("applied_effects"),
-            )
-            == (True, 10000, 65000, {"Circle": {"radius": 4000}}, "EnemyChampion", []),
-            "Q outbound spirit-blade anchor contract mismatch",
-        )
-    if returns:
-        blade_return = returns[0]
-        check(
-            outbound[0].get("end_effects") == [blade_return],
-            "Q return blade must be the outbound projectile's single direct end_effect",
-        )
-        check(
-            (
-                blade_return.get("penetrate"), blade_return.get("speed"),
-                blade_return.get("range"), blade_return.get("shape"),
-                blade_return.get("applied_target"), blade_return.get("end_effects"),
+                blade_recall.get("penetrate"), blade_recall.get("speed"),
+                blade_recall.get("range"), blade_recall.get("shape"),
+                blade_recall.get("applied_target"), blade_recall.get("applied_effects"),
             )
             == (True, 12000, 130000, {"Circle": {"radius": 7500}}, "EnemyChampion", []),
-            "Q return spirit-blade path contract mismatch",
+            "Q blade-recall projectile contract mismatch",
+        )
+        check(
+            bool(find_effect(
+                blade_recall.get("end_effects", []),
+                "ViewEffect",
+                name="lol_shen_twilight_assault_recall_arrival",
+            )),
+            "Q blade recall must end with the dedicated arrival visual",
         )
     direct_q_effects = q.get("effect", {}).get("effects", [])
     q_grants = [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"]
@@ -752,99 +746,15 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         direct_q_removals
         == {
             *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
-            *(f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)),
-            "lol_shen_twilight_assault_return_resolved",
         },
-        "Q cast must clear both charge families and its once-per-cast return guard",
+        "Q cast must clear exactly the previous three recall charges",
     )
-    if returns:
-        return_effect = returns[0].get("applied_effects", [{}])[0].get("effect", {})
-        guard_state = {
-            "name": "lol_shen_twilight_assault_return_resolved",
-            "duration": {"Time": {"tick": 480}},
-        }
-        check(
-            return_effect.get("type") == "SwitchByBuff"
-            and return_effect.get("buff_name") == guard_state["name"]
-            and return_effect.get("effect_buff")
-            == {"type": "AddCasterBuff", "buff_state": guard_state},
-            "Q return must begin with an inert once-per-cast resolved guard",
-        )
-        remaining_switch = return_effect.get("effect_none", {})
-        all_charge_names = {
-            *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
-            *(f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)),
-        }
-        for remaining, normal_marker in zip(
-            (3, 2, 1),
-            (f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
-            strict=True,
-        ):
-            check(
-                remaining_switch.get("type") == "SwitchByBuff"
-                and remaining_switch.get("buff_name") == normal_marker,
-                f"Q return remaining-charge branch mismatch for {normal_marker}",
-            )
-            branch = remaining_switch.get("effect_buff", {})
-            direct = branch.get("effects", []) if branch.get("type") == "Combine" else []
-            removed = {
-                effect.get("name")
-                for effect in direct
-                if effect.get("type") == "RemoveCasterBuff"
-            }
-            check(
-                removed == all_charge_names,
-                f"Q {remaining}-charge return branch must replace, not append to, old charge markers",
-            )
-            caster_states = [
-                effect.get("buff_state", {})
-                for effect in direct
-                if effect.get("type") == "AddCasterBuff"
-            ]
-            upgraded = {
-                state.get("name")
-                for state in caster_states
-                if str(state.get("name", "")).startswith(
-                    "lol_shen_twilight_assault_through_charge_"
-                )
-            }
-            check(
-                upgraded
-                == {
-                    f"lol_shen_twilight_assault_through_charge_{charge}"
-                    for charge in range(remaining, 0, -1)
-                },
-                f"Q return must upgrade exactly the {remaining} still-unused charges",
-            )
-            check(guard_state in caster_states, "Q upgrade branch must set its once-per-cast guard")
-            check(
-                {
-                    "name": "lol_shen_twilight_assault_through_attack_speed",
-                    "duration": {"Time": {"tick": 120}},
-                    "attack_speed_mult": 35,
-                }
-                in caster_states,
-                "Q return-through must grant the short attack-speed branch",
-            )
-            pull_slows = [
-                effect.get("buff_state", {})
-                for effect in direct
-                if effect.get("type") == "AddBuff"
-            ]
-            check(
-                pull_slows
-                == [{
-                    "name": "lol_shen_twilight_assault_pull_slow",
-                    "duration": {"Time": {"tick": 90}},
-                    "move_speed_mult": -30,
-                }],
-                f"Q {remaining}-charge return branch must slow only its first crossed target",
-            )
-            remaining_switch = remaining_switch.get("effect_none", {})
-        check(
-            remaining_switch == {"type": "AddCasterBuff", "buff_state": guard_state},
-            "Q return with no charges remaining must only close the once-per-cast guard",
-        )
+    q_serialized = json.dumps(q, ensure_ascii=False)
+    for retired in (
+        "blade_outbound", "blade_return", "through_charge", "return_resolved",
+        "through_attack_speed", "pull_slow",
+    ):
+        check(retired not in q_serialized, f"retired Shen Q branch remains active: {retired}")
 
     e = champion.get("skill2", {})
     check(
@@ -899,7 +809,15 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             for effect in find_effect(rush, "AddBuff")
             if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_taunted"
         ]
-        check(len(taunt_markers) == 1, "E named taunt marker is missing")
+        check(
+            len(taunt_markers) == 1
+            and taunt_markers[0].get("buff_state")
+            == {
+                "name": "lol_shen_shadow_dash_taunted",
+                "duration": {"Time": {"tick": 90}},
+            },
+            "E named taunt marker must last exactly 90 ticks",
+        )
     trail_windows = [
         effect.get("buff_state", {})
         for effect in find_effect(e, "AddCasterBuff")
@@ -938,12 +856,6 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
-        "lol_shen_twilight_assault_through_charge_3",
-        "lol_shen_twilight_assault_through_charge_2",
-        "lol_shen_twilight_assault_through_charge_1",
-        "lol_shen_twilight_assault_return_resolved",
-        "lol_shen_twilight_assault_through_attack_speed",
-        "lol_shen_twilight_assault_pull_slow",
         "lol_shen_shadow_dash_trail_window",
         "lol_shen_shadow_dash_taunted",
         "lol_shen_stand_united_channel",
@@ -957,22 +869,14 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         == [
             {
                 "type": "Animated",
-                "name": "lol_shen_twilight_assault_blade_outbound",
+                "name": "lol_shen_twilight_assault_blade_recall",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "outbound",
-                "z": 2,
-                "repeat": True,
-            },
-            {
-                "type": "Animated",
-                "name": "lol_shen_twilight_assault_blade_return",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "return",
+                "tag": "recall",
                 "z": 2,
                 "repeat": True,
             },
         ],
-        "Shen Q outbound/return projectile visuals are not registered independently",
+        "Shen Q recall projectile visual is not registered exactly once",
     )
     view_effects = champion.get("view_effects", [])
     check(
@@ -988,17 +892,9 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             },
             {
                 "type": "Animation",
-                "name": "lol_shen_twilight_assault_through_empowered_hit",
+                "name": "lol_shen_twilight_assault_recall_arrival",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "through_hit",
-                "z": 2,
-                "is_follow": True,
-            },
-            {
-                "type": "Animation",
-                "name": "lol_shen_twilight_assault_pass_through_visual",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "pass_through",
+                "tag": "recall_arrival",
                 "z": 2,
                 "is_follow": True,
             },
@@ -1048,7 +944,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "pre_tag": "taunt_pre",
                 "loop_tag": "taunt_loop",
                 "remove_tag": "taunt_remove",
-                "z": 2,
+                "z": 3,
             },
         ],
         "Shen E dash-trail/taunt marker visuals are not registered",
@@ -1058,6 +954,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         "struct ShenShadowDashTauntNativeEffect;",
         "CCState::Taunt {",
         "target: caster_id",
+        "const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;",
         "fn expected_cc_time(&self) -> Option<usize>",
         "Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)",
         '"lol_shen_shadow_dash_taunt_native"',
@@ -4653,7 +4550,10 @@ def validate_compact_view_and_e_layout() -> None:
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
         check(12 <= width <= 88, f"E frame {index} left the 12-88px readable width")
-        check(8 <= height <= 40, f"E frame {index} left the 8-40px readable height")
+        if index < 3:
+            check(8 <= height <= 40, f"E dash frame {index} left the 8-40px readable height")
+        else:
+            check(24 <= height <= 52, f"E taunt frame {index} left the 24-52px readable height")
         check(bbox[0] >= 2 and bbox[2] <= 94 and bbox[1] >= 2 and bbox[3] <= 62, f"E frame {index} touches an atlas edge")
         if index < 3:
             check(width >= height * 2, f"E dash frame {index} is not a horizontal wake")
@@ -4756,17 +4656,38 @@ def validate_localization() -> None:
     shen_zh_hant = text.get("zh-hant", {}).get("description", {}).get("lol_shen", {})
     check("Twilight Assault" in shen_en.get("skill", ""), "English Q text must name Twilight Assault")
     check("next 3 basic attacks" in shen_en.get("skill", ""), "English Q text must disclose three empowered attacks")
-    check("only the empowered attacks still unused" in shen_en.get("skill", ""), "English Q text must disclose remaining-charge-only upgrade")
-    check("does not retain an independently positioned blade" in shen_en.get("skill", ""), "English Q text must disclose the persistent-blade limitation")
+    check("recall" in shen_en.get("skill", "").lower(), "English Q text must describe the blade recall")
     check("Shadow Dash" in shen_en.get("skill2", ""), "English second slot must be Shadow Dash")
     check("taunted for 1.5 seconds" in shen_en.get("skill2", ""), "English E text must disclose the 1.5-second taunt")
     check("奥义！暮临" in shen_zh_hans.get("skill", ""), "zh-hans Q must use the localized Twilight Assault name")
-    check("仅将尚未使用的强化升级" in shen_zh_hans.get("skill", ""), "zh-hans Q must disclose remaining-charge-only upgrade")
+    check("3次" in shen_zh_hans.get("skill", ""), "zh-hans Q must disclose three empowered attacks")
     check("奥义！影缚" in shen_zh_hans.get("skill2", ""), "zh-hans second slot must be Shadow Dash")
+    check("嘲讽" in shen_zh_hans.get("skill2", ""), "zh-hans E must disclose taunt")
     check("奧義！暮臨" in shen_zh_hant.get("skill", ""), "zh-hant Q must use the localized Twilight Assault name")
     check("奧義！影縛" in shen_zh_hant.get("skill2", ""), "zh-hant second slot must be Shadow Dash")
     check("lowest-health" in shen_en.get("ult", ""), "English R text must disclose the target-selection limitation")
     check("taunt" not in shen_en.get("ult", "").lower(), "English R text must not retain the old arrival taunt")
+
+    columns_per_line = {"en": 60, "zh-hans": 52, "zh-hant": 52, "ja": 52, "ko": 52}
+    forbidden_notes = (
+        "api", "engine", "implementation", "public data", "data surface",
+        "data-champion", "approximation", "backtocaster", "does not retain",
+        "not guaranteed", "引擎", "近似", "限制", "接口", "数据层",
+        "資料層", "无法", "無法", "エンジン", "実装上", "近似実装",
+        "제한", "엔진", "구현상", "근사",
+    )
+    for locale, line_columns in columns_per_line.items():
+        localized = text.get(locale, {}).get("description", {}).get("lol_shen", {})
+        for skill_key in ("skill", "skill2", "ult"):
+            description = str(localized.get(skill_key, ""))
+            display_columns = sum(
+                2 if unicodedata.east_asian_width(character) in {"W", "F"} else 1
+                for character in description
+            )
+            check(description.count("\n") + 1 <= 4, f"Shen {locale} {skill_key} must fit at most four explicit lines")
+            check(display_columns <= line_columns * 4, f"Shen {locale} {skill_key} copy exceeds the four-line panel budget")
+            lowered = description.casefold()
+            check(not any(note in lowered for note in forbidden_notes), f"Shen {locale} {skill_key} exposes implementation notes")
     lucian_en = text.get("en", {}).get("description", {}).get("lol_lucian", {})
     check("15 shots" in lucian_en.get("ult", ""), "English Lucian R text must disclose 15 shots")
     check("45%" in lucian_en.get("attack", ""), "English Lucian passive text must disclose the 45% second shot")
@@ -7421,7 +7342,7 @@ def main() -> int:
     validate_animation(
         "aseprite_resources/effects/shen_q#sheet.png",
         "aseprite_resources/effects/shen_q#anim.fanim",
-        {"outbound": 8, "return": 8, "empowered_hit": 4, "through_hit": 5, "pass_through": 4},
+        {"recall": 8, "empowered_hit": 4, "recall_arrival": 4},
     )
     validate_animation(
         "aseprite_resources/effects/shen_e#sheet.png",

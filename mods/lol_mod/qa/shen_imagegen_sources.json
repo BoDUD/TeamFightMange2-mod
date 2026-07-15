@@ -33,12 +33,12 @@
     {
       "role": "q_vfx",
       "path": "source/imagegen/shen_q_vfx_contact.png",
-      "sha256": "c0bdca5360bd16247f73179bddbe2fc4476746681a8f3a932ea35d7642a0a369"
+      "sha256": "1215d0b69c2539720acc594da74cc9700c268e186188c093aa40b7bf43eaa348"
     },
     {
       "role": "e_vfx",
       "path": "source/imagegen/shen_e_vfx_contact.png",
-      "sha256": "f19bcc802bfa6aa5140130331bb10ebb78d3e5b46eb205bc7038717e03fa3ee9"
+      "sha256": "f85411bf22fcb4dffbdecc9e86501ed6dc778f2df97d34fa7d8da69273e648b2"
     },
     {
       "role": "r_vfx",
