@@ -1597,6 +1597,28 @@ def build_vfx() -> list[Path]:
     for name, (source_path, columns, rows, frame_size, max_visible) in VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
         frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
+        if name == "shen_e":
+            # The bottom row is impact/taunt feedback, not a second dash wake.
+            # Keep any unusually wide generated spark compact so the collision
+            # reads at the target instead of looking like another projectile.
+            for index in range(3, len(frames)):
+                frame = frames[index]
+                bbox = frame.getchannel("A").getbbox()
+                if bbox is None:
+                    continue
+                width = bbox[2] - bbox[0]
+                height = bbox[3] - bbox[1]
+                if width <= height * 2:
+                    continue
+                subject = frame.crop(bbox).resize(
+                    (height * 2, height), Image.Resampling.LANCZOS
+                )
+                compact = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+                compact.alpha_composite(
+                    subject,
+                    ((frame_size[0] - subject.width) // 2, bbox[1]),
+                )
+                frames[index] = compact
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -1605,11 +1627,9 @@ def build_vfx() -> list[Path]:
         save_png(sheet, atlas)
         if name == "shen_q":
             anims = {
-                "outbound": effect_anim(64, 64, list(range(8)), [0.05] * 8),
-                "return": effect_anim(64, 64, list(reversed(range(8))), [0.05] * 8),
+                "recall": effect_anim(64, 64, list(range(8)), [0.05] * 8),
                 "empowered_hit": effect_anim(64, 64, [3, 4, 5, 6], [0.05, 0.06, 0.08, 0.10]),
-                "through_hit": effect_anim(64, 64, [2, 3, 4, 5, 6], [0.04, 0.05, 0.06, 0.08, 0.10]),
-                "pass_through": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
+                "recall_arrival": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
             }
         elif name == "shen_e":
             anims = {
@@ -2185,13 +2205,9 @@ def shen_timed_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
     }
 
 
-SHEN_Q_NORMAL_MARKERS = tuple(
+SHEN_Q_MARKERS = tuple(
     f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)
 )
-SHEN_Q_THROUGH_MARKERS = tuple(
-    f"lol_shen_twilight_assault_through_charge_{charge}" for charge in (3, 2, 1)
-)
-SHEN_Q_RETURN_RESOLVED_MARKER = "lol_shen_twilight_assault_return_resolved"
 SHEN_SHADOW_DASH_DISTANCE = 60000
 # Rush.range is the swept collision radius, not the distance travelled.  The
 # action's top-level range owns Shadow Dash's travel distance.
@@ -2200,10 +2216,6 @@ SHEN_SHADOW_DASH_COLLISION_RADIUS = 10000
 
 def shen_attack_branch(
     buff_name: str,
-    *,
-    damage: int,
-    ap_ratio: int,
-    visual: str,
 ) -> dict[str, object]:
     return {
         "type": "Combine",
@@ -2214,8 +2226,11 @@ def shen_attack_branch(
                 "tick": 10,
                 "effects": [
                     {"type": "Attack", "damage": 0, "attack_ratio": 100},
-                    {"type": "ApAttack", "damage": damage, "attack_ratio": ap_ratio},
-                    {"type": "ViewEffect", "name": visual},
+                    {"type": "ApAttack", "damage": 20, "attack_ratio": 20},
+                    {
+                        "type": "ViewEffect",
+                        "name": "lol_shen_twilight_assault_empowered_hit",
+                    },
                     {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
                     {"type": "RemoveCasterBuff", "name": buff_name},
                 ],
@@ -2239,26 +2254,13 @@ def build_shen_attack() -> dict[str, object]:
             },
         ],
     }
-    branches = [
-        (f"lol_shen_twilight_assault_through_charge_{charge}", 35, 30,
-         "lol_shen_twilight_assault_through_empowered_hit")
-        for charge in (3, 2, 1)
-    ] + [
-        (f"lol_shen_twilight_assault_charge_{charge}", 20, 20,
-         "lol_shen_twilight_assault_empowered_hit")
-        for charge in (3, 2, 1)
-    ]
+    branches = list(SHEN_Q_MARKERS)
     effect = normal_attack
-    for buff_name, damage, ap_ratio, visual in reversed(branches):
+    for buff_name in reversed(branches):
         effect = {
             "type": "SwitchByBuff",
             "buff_name": buff_name,
-            "effect_buff": shen_attack_branch(
-                buff_name,
-                damage=damage,
-                ap_ratio=ap_ratio,
-                visual=visual,
-            ),
+            "effect_buff": shen_attack_branch(buff_name),
             "effect_none": effect,
         }
     return {
@@ -2277,73 +2279,6 @@ def build_shen_attack() -> dict[str, object]:
 
 
 def build_shen_q() -> dict[str, object]:
-    def upgrade_remaining_charges(remaining: int) -> dict[str, object]:
-        return {
-            "type": "Combine",
-            "effects": [
-                *(
-                    {"type": "RemoveCasterBuff", "name": name}
-                    for name in [*SHEN_Q_NORMAL_MARKERS, *SHEN_Q_THROUGH_MARKERS]
-                ),
-                *(
-                    {
-                        "type": "AddCasterBuff",
-                        "buff_state": shen_timed_buff(name, 480),
-                    }
-                    for name in SHEN_Q_THROUGH_MARKERS[-remaining:]
-                ),
-                {
-                    "type": "AddCasterBuff",
-                    "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
-                },
-                {
-                    "type": "AddCasterBuff",
-                    "buff_state": shen_timed_buff(
-                        "lol_shen_twilight_assault_through_attack_speed",
-                        120,
-                        attack_speed_mult=35,
-                    ),
-                },
-                {
-                    "type": "AddBuff",
-                    "buff_state": shen_timed_buff(
-                        "lol_shen_twilight_assault_pull_slow",
-                        90,
-                        move_speed_mult=-30,
-                    ),
-                },
-                {
-                    "type": "ViewEffect",
-                    "name": "lol_shen_twilight_assault_pass_through_visual",
-                },
-            ],
-        }
-
-    # A penetrating return projectile can overlap several champions in one
-    # pass.  Resolve the upgrade once, and upgrade only the normal charges that
-    # remain at that instant instead of restoring all three on every hit.
-    remaining_switch: dict[str, object] = {
-        "type": "AddCasterBuff",
-        "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
-    }
-    for remaining in (1, 2, 3):
-        remaining_switch = {
-            "type": "SwitchByBuff",
-            "buff_name": SHEN_Q_NORMAL_MARKERS[3 - remaining],
-            "effect_buff": upgrade_remaining_charges(remaining),
-            "effect_none": remaining_switch,
-        }
-    return_once_gate = {
-        "type": "SwitchByBuff",
-        "buff_name": SHEN_Q_RETURN_RESOLVED_MARKER,
-        # Refreshing the guard is deliberately inert and remains valid for the
-        # SDK effect schema; an empty Combine is not used as a pseudo no-op.
-        "effect_buff": {
-            "type": "AddCasterBuff",
-            "buff_state": shen_timed_buff(SHEN_Q_RETURN_RESOLVED_MARKER, 480),
-        },
-        "effect_none": remaining_switch,
-    }
     return {
         "action_name": "skill",
         "description": "#asset/base/text/champion?description.lol_shen.skill",
@@ -2360,46 +2295,31 @@ def build_shen_q() -> dict[str, object]:
             "type": "Combine",
             "effects": [
                 {"type": "Sfx", "name": "lol_shen_q_cast"},
+                {"type": "CasterAnimation", "name": "skill", "tick": 28},
                 *(
                     {"type": "RemoveCasterBuff", "name": name}
-                    for name in [
-                        *SHEN_Q_NORMAL_MARKERS,
-                        *SHEN_Q_THROUGH_MARKERS,
-                        SHEN_Q_RETURN_RESOLVED_MARKER,
-                    ]
+                    for name in SHEN_Q_MARKERS
                 ),
                 *(
                     {
                         "type": "AddCasterBuff",
                         "buff_state": shen_timed_buff(name, 480),
                     }
-                    for name in SHEN_Q_NORMAL_MARKERS
+                    for name in SHEN_Q_MARKERS
                 ),
                 {
-                    "type": "LinearProjectile",
+                    "type": "BackToCasterLinearProjectile",
                     "penetrate": True,
-                    "speed": 10000,
-                    "range": 65000,
-                    "name": "lol_shen_twilight_assault_blade_outbound",
-                    "shape": {"Circle": {"radius": 4000}},
+                    "speed": 12000,
+                    "range": 130000,
+                    "name": "lol_shen_twilight_assault_blade_recall",
+                    "shape": {"Circle": {"radius": 7500}},
                     "applied_target": "EnemyChampion",
                     "applied_effects": [],
                     "end_effects": [
                         {
-                            "type": "BackToCasterLinearProjectile",
-                            "penetrate": True,
-                            "speed": 12000,
-                            "range": 130000,
-                            "name": "lol_shen_twilight_assault_blade_return",
-                            "shape": {"Circle": {"radius": 7500}},
-                            "applied_target": "EnemyChampion",
-                            "applied_effects": [
-                                {
-                                    "casting_type": "Targeting",
-                                    "effect": return_once_gate,
-                                }
-                            ],
-                            "end_effects": [],
+                            "type": "ViewEffect",
+                            "name": "lol_shen_twilight_assault_recall_arrival",
                         }
                     ],
                 },
@@ -2586,17 +2506,9 @@ def build_shen_data() -> Path:
         "view_projectiles": [
         {
             "type": "Animated",
-            "name": "lol_shen_twilight_assault_blade_outbound",
+            "name": "lol_shen_twilight_assault_blade_recall",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "outbound",
-            "z": 2,
-            "repeat": True,
-        },
-        {
-            "type": "Animated",
-            "name": "lol_shen_twilight_assault_blade_return",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "return",
+            "tag": "recall",
             "z": 2,
             "repeat": True,
         },
@@ -2612,17 +2524,9 @@ def build_shen_data() -> Path:
         },
         {
             "type": "Animation",
-            "name": "lol_shen_twilight_assault_through_empowered_hit",
+            "name": "lol_shen_twilight_assault_recall_arrival",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "through_hit",
-            "z": 2,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_twilight_assault_pass_through_visual",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "pass_through",
+            "tag": "recall_arrival",
             "z": 2,
             "is_follow": True,
         },

@@ -1246,13 +1246,13 @@
             43
           ],
           "alpha_bbox": [
-            1,
+            5,
             3,
-            29,
+            25,
             39
           ],
           "visible_size": [
-            28,
+            20,
             36
           ],
           "bottom_clearance": 4
@@ -1266,13 +1266,13 @@
             45
           ],
           "alpha_bbox": [
-            1,
+            4,
             3,
-            29,
+            26,
             40
           ],
           "visible_size": [
-            28,
+            22,
             37
           ],
           "bottom_clearance": 5
@@ -1286,13 +1286,13 @@
             53
           ],
           "alpha_bbox": [
-            12,
+            15,
             9,
-            46,
+            43,
             47
           ],
           "visible_size": [
-            34,
+            28,
             38
           ],
           "bottom_clearance": 6
@@ -1306,14 +1306,14 @@
             55
           ],
           "alpha_bbox": [
+            1,
             11,
-            10,
-            48,
+            58,
             48
           ],
           "visible_size": [
-            37,
-            38
+            57,
+            37
           ],
           "bottom_clearance": 7
         },
@@ -1326,13 +1326,13 @@
             51
           ],
           "alpha_bbox": [
+            14,
             8,
-            8,
-            48,
+            43,
             46
           ],
           "visible_size": [
-            40,
+            29,
             38
           ],
           "bottom_clearance": 5
@@ -1616,8 +1616,8 @@
       "projectile"
     ],
     "lol_yone_q_empowered_projectile": [
-      "yone_q",
-      "empowered_projectile"
+      "yone_q3_tornado",
+      "tornado"
     ],
     "lol_yone_q_hit": [
       "yone_q",
@@ -1628,8 +1628,12 @@
       "empowered_hit"
     ],
     "lol_yone_q3_airborne_cue": [
-      "yone_q3_airborne",
+      "yone_q3_tornado",
       "cue"
+    ],
+    "lol_yone_mortal_steel_stack_2": [
+      "yone_q3_ready_wind",
+      "loop"
     ],
     "lol_yone_e_spirit_outbound": [
       "yone_spirit",
@@ -1647,13 +1651,9 @@
       "yone_spirit",
       "return_burst"
     ],
-    "lol_yone_w_crescent": [
-      "yone_w",
-      "crescent"
-    ],
-    "lol_yone_w_shield_visual": [
-      "yone_followup",
-      "shield"
+    "lol_yone_e_spirit_form": [
+      "yone_spirit",
+      "spirit_loop"
     ],
     "lol_yone_r_windup": [
       "yone_r",
@@ -1683,27 +1683,14 @@
       "qa_contact_tag": "skill2_attack"
     }
   },
-  "runtime_w_resolution": {
-    "shared_geometry": {
-      "width": 42000,
-      "length": 48000,
-      "delay": 0,
-      "apply": 1
-    },
-    "damage_hitbox": {
-      "name": "lol_yone_w_sweep_hitbox",
-      "applied_target": "EnemyWithoutTower",
-      "attack_count": 1,
-      "hit_sfx_count": 1
-    },
-    "champion_shield_probe": {
-      "name": "lol_yone_w_champion_shield_probe",
-      "applied_target": "EnemyChampion",
-      "attack_count": 0,
-      "shield_tiers": 2
-    }
+  "runtime_e_resolution": {
+    "window_ticks": 240,
+    "body_anchor": "fixed cast-point animation",
+    "moving_read": "caster-following translucent spirit buff",
+    "return": "single delayed BackToCaster projectile",
+    "damage_tracking": "native pre/post wrappers settle once at return"
   },
-  "large_vfx_policy": "Q3 knockup, E spirit/anchor/return, W crescent/shield and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
+  "large_vfx_policy": "Q3 tornado/knockup, E spirit/anchor/return and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
   "portrait_policy": {
     "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
     "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96"

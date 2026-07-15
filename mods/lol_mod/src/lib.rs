@@ -1903,6 +1903,260 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
     }
 }
 
+const YONE_SOUL_UNBOUND_WINDOW_TICKS: usize = 240;
+const YONE_SOUL_UNBOUND_STALE_GRACE_TICKS: usize = 600;
+const YONE_SOUL_UNBOUND_REPEAT_PERCENT: usize = 25;
+
+#[derive(Debug)]
+struct YoneSoulUnboundDamageMark {
+    target_id: usize,
+    target: EntityHandle,
+    hp_and_shield_before_damage: Option<usize>,
+    recorded_damage: usize,
+}
+
+#[derive(Debug)]
+struct YoneSoulUnboundState {
+    caster: EntityHandle,
+    started_tick: usize,
+    expiry_tick: usize,
+    damage_marks: Vec<YoneSoulUnboundDamageMark>,
+}
+
+#[derive(Debug, Default)]
+struct YoneSoulUnboundRegistry {
+    last_tick: Option<usize>,
+    states: Vec<YoneSoulUnboundState>,
+}
+
+impl YoneSoulUnboundRegistry {
+    fn prepare_for_tick(&mut self, now: usize) {
+        // Native state outlives a single match. A lower tick therefore means
+        // that the engine has started a new timeline and every prior entity
+        // handle/window must be discarded before IDs can be reused.
+        if self.last_tick.is_some_and(|last_tick| now < last_tick) {
+            self.states.clear();
+        }
+        self.last_tick = Some(now);
+
+        // Keep a short grace interval so the delayed return callback can
+        // settle even if it runs just after the nominal 240-tick window. Any
+        // state that never receives its return callback is still collected.
+        self.states.retain(|state| {
+            state.started_tick <= now
+                && now
+                    <= state
+                        .expiry_tick
+                        .saturating_add(YONE_SOUL_UNBOUND_STALE_GRACE_TICKS)
+        });
+    }
+}
+
+static YONE_SOUL_UNBOUND_STATE: OnceLock<Mutex<YoneSoulUnboundRegistry>> = OnceLock::new();
+
+fn yone_soul_unbound_state() -> &'static Mutex<YoneSoulUnboundRegistry> {
+    YONE_SOUL_UNBOUND_STATE.get_or_init(|| Mutex::new(YoneSoulUnboundRegistry::default()))
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSoulUnboundStartNativeEffect;
+
+impl ModEffectType for YoneSoulUnboundStartNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        let Some((caster, caster_alive)) = ctx
+            .get_entity(caster_id)
+            .map(|entity| (entity.handle(), entity.is_alive()))
+        else {
+            return;
+        };
+        if !caster_alive {
+            return;
+        }
+
+        let now = ctx.tick();
+        let Ok(mut registry) = yone_soul_unbound_state().lock() else {
+            return;
+        };
+        registry.prepare_for_tick(now);
+        // Recasting/re-entering E replaces the old window for this exact
+        // entity instead of allowing damage to be counted twice.
+        registry.states.retain(|state| state.caster != caster);
+        registry.states.push(YoneSoulUnboundState {
+            caster,
+            started_tick: now,
+            expiry_tick: now.saturating_add(YONE_SOUL_UNBOUND_WINDOW_TICKS),
+            damage_marks: Vec::new(),
+        });
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSoulUnboundDamagePreNativeEffect;
+
+impl ModEffectType for YoneSoulUnboundDamagePreNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some((caster, caster_alive)) = ctx
+            .get_entity(caster_id)
+            .map(|entity| (entity.handle(), entity.is_alive()))
+        else {
+            return;
+        };
+        if !caster_alive {
+            return;
+        }
+        let Some((target, target_alive, hp_and_shield)) = ctx.get_entity(target_id).map(|entity| {
+            (
+                entity.handle(),
+                entity.is_alive(),
+                entity.hp().current.saturating_add(entity.shield()),
+            )
+        }) else {
+            return;
+        };
+        if !target_alive {
+            return;
+        }
+
+        let now = ctx.tick();
+        let Ok(mut registry) = yone_soul_unbound_state().lock() else {
+            return;
+        };
+        registry.prepare_for_tick(now);
+        let Some(state) = registry.states.iter_mut().find(|state| {
+            state.caster == caster && state.started_tick <= now && now < state.expiry_tick
+        }) else {
+            return;
+        };
+        let mark = if let Some(mark) = state
+            .damage_marks
+            .iter_mut()
+            .find(|mark| mark.target_id == target_id && mark.target == target)
+        {
+            mark
+        } else {
+            state.damage_marks.push(YoneSoulUnboundDamageMark {
+                target_id,
+                target,
+                hp_and_shield_before_damage: None,
+                recorded_damage: 0,
+            });
+            state
+                .damage_marks
+                .last_mut()
+                .expect("Yone E damage mark was just inserted")
+        };
+        mark.hp_and_shield_before_damage = Some(hp_and_shield);
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSoulUnboundDamagePostNativeEffect;
+
+impl ModEffectType for YoneSoulUnboundDamagePostNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
+            return;
+        };
+        let Some((target, hp_and_shield_after_damage)) = ctx.get_entity(target_id).map(|entity| {
+            (
+                entity.handle(),
+                entity.hp().current.saturating_add(entity.shield()),
+            )
+        }) else {
+            return;
+        };
+
+        let now = ctx.tick();
+        let Ok(mut registry) = yone_soul_unbound_state().lock() else {
+            return;
+        };
+        registry.prepare_for_tick(now);
+        let Some(state) = registry.states.iter_mut().find(|state| {
+            state.caster == caster && state.started_tick <= now && now < state.expiry_tick
+        }) else {
+            return;
+        };
+        let Some(mark) = state
+            .damage_marks
+            .iter_mut()
+            .find(|mark| mark.target_id == target_id && mark.target == target)
+        else {
+            return;
+        };
+        let Some(hp_and_shield_before_damage) = mark.hp_and_shield_before_damage.take() else {
+            return;
+        };
+        mark.recorded_damage = mark
+            .recorded_damage
+            .saturating_add(hp_and_shield_before_damage.saturating_sub(hp_and_shield_after_damage));
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSoulUnboundSettleNativeEffect;
+
+impl ModEffectType for YoneSoulUnboundSettleNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
+        let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
+            return;
+        };
+        let now = ctx.tick();
+
+        // Remove and own the complete settlement payload while locked. Engine
+        // queries and damage calls happen only after the mutex is released.
+        let state = {
+            let Ok(mut registry) = yone_soul_unbound_state().lock() else {
+                return;
+            };
+            registry.prepare_for_tick(now);
+            let Some(state_index) = registry
+                .states
+                .iter()
+                .position(|state| state.caster == caster && state.started_tick <= now)
+            else {
+                return;
+            };
+            registry.states.remove(state_index)
+        };
+
+        let caster_is_same_and_alive = ctx
+            .get_entity(caster_id)
+            .is_some_and(|entity| entity.handle() == state.caster && entity.is_alive());
+        if !caster_is_same_and_alive {
+            return;
+        }
+
+        for mark in state.damage_marks {
+            let target_is_same_and_alive = ctx
+                .get_entity(mark.target_id)
+                .is_some_and(|entity| entity.handle() == mark.target && entity.is_alive());
+            if !target_is_same_and_alive {
+                continue;
+            }
+            let repeated_damage = mark
+                .recorded_damage
+                .saturating_mul(YONE_SOUL_UNBOUND_REPEAT_PERCENT)
+                / 100;
+            if repeated_damage == 0 {
+                continue;
+            }
+            ctx.deal_damage(
+                caster_id,
+                mark.target_id,
+                repeated_damage,
+                0,
+                AttackType::Skill,
+            );
+        }
+    }
+}
+
 const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -1967,6 +2221,19 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
+    registration.add_native_effect("lol_yone_e_start_native", YoneSoulUnboundStartNativeEffect);
+    registration.add_native_effect(
+        "lol_yone_e_damage_pre_native",
+        YoneSoulUnboundDamagePreNativeEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_damage_post_native",
+        YoneSoulUnboundDamagePostNativeEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_settle_native",
+        YoneSoulUnboundSettleNativeEffect,
+    );
     registration.add_native_effect(
         "lol_shen_shadow_dash_taunt_native",
         ShenShadowDashTauntNativeEffect,

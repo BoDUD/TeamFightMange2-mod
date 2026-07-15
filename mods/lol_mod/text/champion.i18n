@@ -4,9 +4,9 @@
       "lol_shen": {
         "name": "Shen",
         "attack": "Ninja Blade: Shen makes a steady melee strike for 100% Attack physical damage.",
-        "skill": "Twilight Assault: With an enemy champion in range, sends a spirit-blade trace in that target's direction and recalls it to Shen, empowering his next 3 basic attacks for 8 seconds. Each normal charge adds 20 + 20% Ability Power magic damage. The first enemy champion crossed by the returning trace upgrades only the empowered attacks still unused to 35 + 30% Ability Power, grants Shen 35% Attack Speed for 2 seconds, and is slowed by 30% for 1.5 seconds. This is a target-directed path approximation; the engine does not retain an independently positioned blade between casts.",
-        "skill2": "Shadow Dash: Dashes up to 600 range in the chosen direction, passing through enemy champions. Each champion hit takes 60 physical damage and is forced to attack Shen for 1.5 seconds.",
-        "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After the 0.8-second engine-paced channel Shen teleports to the ally. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
+        "skill": "Q — Twilight Assault: Recalls Shen's spirit blade and empowers his next 3 basic attacks for 8 seconds. Each empowered strike deals 20 + 20% Ability Power bonus magic damage.",
+        "skill2": "E — Shadow Dash: Dashes in the chosen direction through enemy champions. Each champion hit takes 60 physical damage and is taunted for 1.5 seconds.",
+        "ult": "R — Stand United: Shields a distant allied champion for 900 + 80% Ability Power for 3 seconds, then teleports Shen to that ally."
       },
       "archer": {
         "name": "Lucian",
@@ -59,10 +59,10 @@
       },
       "dual_blader": {
         "name": "Yone",
-        "attack": "Way of the Hunter: Alternates between a blue-white steel slash and a red-black Azakana slash. Both deal 100% Attack physical damage in this data-only version.",
-        "skill": "Q — Mortal Steel: Q1 and Q2 each send one narrow piercing thrust for 25 + 80% Attack physical damage. A hit advances Mortal Steel from named stack 1 to named stack 2 for 6 seconds; a miss does not advance it. Q3 consumes stack 2 at cast, performs one damage-free lunge, then releases one wind lane that damages once and knocks hit enemies airborne for 0.75 seconds. Cooldown: 4 seconds.",
-        "skill2": "E+W composite approximation — Soul Unbound / Spirit Cleave: Targets an enemy champion so stock AI can cast it. A fixed body marker remains at the cast point while a visible spirit projectile travels out and returns through BackToCaster. The public data API cannot move and restore the real hero coordinate, so Yone remains at the marker; this is not true positional rollback. The same action swings one short, broad W crescent that hits enemy champions, minions and monsters, but not towers, once for 45 + 90% Attack physical damage. Only enemy-champion hits count for the shield: the first grants 70 + 20% Attack and a second can add at most 35 + 10% Attack. Minions and monsters take damage but cannot trigger either shield tier. W has no knock-up. Cooldown: 12 seconds.",
-        "ult": "R — Fate Sealed (data approximation): Six alternating steel and Azakana slashes strike at 8-tick intervals for 12 + 16% Attack physical damage each. At tick 60, the soul mark echoes once for 30 + 25% Attack fixed damage. The target is knocked airborne once, not once per slash. Cooldown: 50 seconds."
+        "attack": "Way of the Hunter: Basic attacks alternate between the steel blade and Azakana blade, each dealing 100% Attack physical damage.",
+        "skill": "Q — Mortal Steel: Q1 and Q2 thrust forward for 25 + 80% Attack physical damage. After both hit, Q3 dashes forward, launches a tornado, and knocks enemies airborne for 0.75 seconds.",
+        "skill2": "E — Soul Unbound: Leaves Yone's body and enters spirit form for 4 seconds. Damage dealt during the window is marked; returning to the body repeats 25% of that damage.",
+        "ult": "R — Fate Sealed: Strikes seven times while moving behind the target, deals physical and fixed damage, and knocks the target airborne once. Cooldown: 50 seconds."
       }
     }
   },
@@ -71,9 +71,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
-        "skill": "奥义！暮临：附近存在敌方英雄时，将魂刃轨迹送向目标方向后召回慎身边，并强化接下来3次普通攻击，持续8秒。普通强化每次额外造成20 + 20%法术强度的魔法伤害；回程轨迹首次穿过敌方英雄时，仅将尚未使用的强化升级为35 + 30%法术强度，慎获得35%攻击速度，持续2秒，并使该英雄减速30%，持续1.5秒。受引擎限制，这是朝目标方向施放的路径近似，不会在两次施法之间保留可独立定位的魂刃。",
-        "skill2": "奥义！影缚：向所选方向冲刺最多600距离并穿过敌方英雄。每名命中的英雄受到60点物理伤害，并被强制攻击慎1.5秒。",
-        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。经过引擎节奏压缩的0.8秒引导后，慎传送至其身边。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+        "skill": "Q—奥义！暮临：召回魂刃，强化接下来3次普攻，持续8秒。每次强化额外造成20 + 20%法术强度的魔法伤害。",
+        "skill2": "E—奥义！影缚：向指定方向冲刺并穿过敌方英雄。命中的英雄受到60点物理伤害，并被嘲讽1.5秒。",
+        "ult": "R—秘奥义！慈悲度魂落：为远处友方英雄提供900 + 80%法术强度的护盾，持续3秒，随后传送至其身边。"
       },
       "archer": {
         "name": "卢锡安",
@@ -126,10 +126,10 @@
       },
       "dual_blader": {
         "name": "永恩",
-        "attack": "狩人之道：普攻在蓝白钢剑斩击与红黑亚扎卡纳剑斩击之间交替。数据版两种攻击都造成100%攻击力的物理伤害。",
-        "skill": "Q—错玉切：Q1与Q2各释放一道狭窄且可穿透的剑气，造成25 + 80%攻击力的物理伤害。命中才会在6秒内从第一层剑风推进至第二层，未命中不会叠层。Q3施法时消耗第二层，执行一次无伤害突进，再释放唯一一道风道；风道只造成一次伤害，并将命中的敌人击飞0.75秒。冷却4秒。",
-        "skill2": "E+W组合近似—破障之锋／凛神斩：以敌方英雄为目标，便于原生AI稳定施放。施法点留下固定本体标记，可见灵体投射物离体后通过BackToCaster返回。公开数据API无法移动并恢复真实英雄坐标，因此永恩本人始终留在标记处；这不是真实的位置回溯。同一动作挥出一次短宽W月牙，对英雄、小兵与野怪（不含防御塔）各造成一次45 + 90%攻击力的物理伤害；护盾只按敌方英雄命中计数，命中第一名英雄获得70 + 20%攻击力护盾，命中第二名英雄最多再增加35 + 10%攻击力护盾。小兵与野怪会受到伤害，但不会触发任一档护盾。W无击飞。冷却12秒。",
-        "ult": "R—封尘绝念斩（数据近似）：以8 tick间隔交替使用钢剑与亚扎卡纳之剑斩击六次，每次造成12 + 16%攻击力的物理伤害；第60 tick灵魂印记只回响一次，造成30 + 25%攻击力的固定伤害。目标只会被击飞一次。冷却50秒。"
+        "attack": "狩人之道：普攻在钢剑与亚扎卡纳之剑间交替，每次造成100%攻击力的物理伤害。",
+        "skill": "Q—错玉切：向前突刺，造成25 + 80%攻击力的物理伤害。连续命中两次后，下一次向前突进并释放旋风，将敌人击飞0.75秒。",
+        "skill2": "E—破障之锋：留下本体并进入灵体，持续4秒。期间造成的伤害会被标记；灵体返回本体时，再结算标记伤害的25%。",
+        "ult": "R—封尘绝念斩：突进至目标身后并连续斩击七次，造成物理与固定伤害，并将目标击飞一次。冷却50秒。"
       }
     }
   },
@@ -138,9 +138,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
-        "skill": "奧義！暮臨：附近存在敵方英雄時，將魂刃軌跡送向目標方向後召回慎身邊，並強化接下來3次普通攻擊，持續8秒。普通強化每次額外造成20 + 20%法術強度的魔法傷害；回程軌跡首次穿過敵方英雄時，僅將尚未使用的強化升級為35 + 30%法術強度，慎獲得35%攻擊速度，持續2秒，並使該英雄減速30%，持續1.5秒。受引擎限制，這是朝目標方向施放的路徑近似，不會在兩次施法之間保留可獨立定位的魂刃。",
-        "skill2": "奧義！影縛：向所選方向衝刺最多600距離並穿過敵方英雄。每名命中的英雄受到60點物理傷害，並被強制攻擊慎1.5秒。",
-        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。經過引擎節奏壓縮的0.8秒引導後，慎傳送至其身邊。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+        "skill": "Q—奧義！暮臨：召回魂刃，強化接下來3次普攻，持續8秒。每次強化額外造成20 + 20%法術強度的魔法傷害。",
+        "skill2": "E—奧義！影縛：向指定方向衝刺並穿過敵方英雄。命中的英雄受到60點物理傷害，並被嘲諷1.5秒。",
+        "ult": "R—秘奧義！慈悲度魂落：為遠處友方英雄提供900 + 80%法術強度的護盾，持續3秒，隨後傳送至其身邊。"
       },
       "archer": {
         "name": "路西恩",
@@ -193,15 +193,22 @@
       },
       "dual_blader": {
         "name": "犽凝",
-        "attack": "狩人之道：普攻在藍白鋼劍斬擊與紅黑亞扎卡納劍斬擊之間交替。資料版兩種攻擊都造成100%攻擊力的物理傷害。",
-        "skill": "Q—錯玉切：Q1與Q2各釋放一道狹窄且可穿透的劍氣，造成25 + 80%攻擊力的物理傷害。命中才會在6秒內從第一層劍風推進至第二層，未命中不會疊層。Q3施法時消耗第二層，執行一次無傷害突進，再釋放唯一一道風道；風道只造成一次傷害，並將命中的敵人擊飛0.75秒。冷卻4秒。",
-        "skill2": "E+W組合近似—破障之鋒／凜神斬：以敵方英雄為目標，方便原生AI穩定施放。施法點留下固定本體標記，可見靈體投射物離體後透過BackToCaster返回。公開資料API無法移動並恢復真實英雄座標，因此犽凝本人始終留在標記處；這不是真實的位置回溯。同一動作揮出一次短寬W月牙，對英雄、小兵與野怪（不含防禦塔）各造成一次45 + 90%攻擊力的物理傷害；護盾只按敵方英雄命中計數，命中第一名英雄獲得70 + 20%攻擊力護盾，命中第二名英雄最多再增加35 + 10%攻擊力護盾。小兵與野怪會受到傷害，但不會觸發任一檔護盾。W無擊飛。冷卻12秒。",
-        "ult": "R—封塵絕念斬（資料近似）：以8 tick間隔交替使用鋼劍與亞扎卡納之劍斬擊六次，每次造成12 + 16%攻擊力的物理傷害；第60 tick靈魂印記只回響一次，造成30 + 25%攻擊力的固定傷害。目標只會被擊飛一次。冷卻50秒。"
+        "attack": "狩人之道：普攻在鋼劍與亞扎卡納之劍間交替，每次造成100%攻擊力的物理傷害。",
+        "skill": "Q—錯玉切：向前突刺，造成25 + 80%攻擊力的物理傷害。連續命中兩次後，下一次向前突進並釋放旋風，將敵人擊飛0.75秒。",
+        "skill2": "E—滅魂斬：留下本體並進入靈體，持續4秒。期間造成的傷害會被標記；靈體返回本體時，再結算標記傷害的25%。",
+        "ult": "R—封塵絕念斬：突進至目標身後並連續斬擊七次，造成物理與固定傷害，並將目標擊飛一次。冷卻50秒。"
       }
     }
   },
   "ja": {
     "description": {
+      "lol_shen": {
+        "name": "シェン",
+        "attack": "忍刀：攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—護刃招来：霊剣を呼び戻し、8秒間、次の通常攻撃3回を強化する。各攻撃は20 + 魔力20%の追加魔法ダメージを与える。",
+        "skill2": "E—殺気駆け：指定方向へダッシュして敵チャンピオンを通過する。命中時に60物理ダメージを与え、1.5秒間タウントする。",
+        "ult": "R—瞬身護法：遠くの味方に900 + 魔力80%のシールドを3秒間付与し、その味方の元へテレポートする。"
+      },
       "barrier_magician": {
         "name": "オリアナ",
         "attack": "ぜんまい仕掛け：オリアナの機械弾は攻撃力100%の物理ダメージに加え、10 + 魔力15%の魔法ダメージを与える。",
@@ -246,15 +253,22 @@
       },
       "dual_blader": {
         "name": "ヨネ",
-        "attack": "狩人の道：通常攻撃は青白い鋼の剣と赤黒いアザカナの剣を交互に使う。データ版ではどちらも攻撃力100%の物理ダメージを与える。",
-        "skill": "Q—斬命刀：Q1とQ2は細い貫通剣気で25 + 攻撃力80%の物理ダメージを与える。命中時だけ6秒間の第1スタックから第2スタックへ進み、外すと進まない。Q3は詠唱時に第2スタックを消費し、無ダメージの前進を1回行って風のレーンを1本だけ放つ。命中ダメージは1回で、敵を0.75秒ノックアップする。クールダウン4秒。",
-        "skill2": "E+W複合近似—縛魂の解放／霊断刀：標準AIが使えるよう敵チャンピオンを対象にする。発動地点に固定の本体マーカーを残し、可視の霊体投射物が前進してBackToCasterで戻る。公開データAPIでは実体座標の移動と復元ができないため、ヨネ本体はマーカー地点に残り、真の位置巻き戻しではない。同じ動作で短く幅広いWの三日月斬りを1回行い、敵チャンピオン、ミニオン、モンスター（タワーを除く）にそれぞれ1回、45 + 攻撃力90%の物理ダメージを与える。シールドは敵チャンピオンへの命中だけを数え、1人目で70 + 攻撃力20%、2人目で最大35 + 攻撃力10%を追加する。ミニオンとモンスターはダメージを受けるが、どちらのシールド段階も発動しない。Wにノックアップはない。クールダウン12秒。",
-        "ult": "R—運命の封印（データ近似）：8 tick間隔で鋼とアザカナの剣を交互に6回振り、各12 + 攻撃力16%の物理ダメージを与える。60 tick目に魂の印が一度だけ爆発し、30 + 攻撃力25%の固定ダメージを与える。ノックアップは一度だけ。クールダウン50秒。"
+        "attack": "狩人の道：通常攻撃は鋼の剣とアザカナの剣を交互に使い、攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—斬命刀：前方を突き、25 + 攻撃力80%の物理ダメージを与える。2回命中すると、次は前進して旋風を放ち、敵を0.75秒ノックアップする。",
+        "skill2": "E—縛魂の解放：肉体を残して4秒間霊体になる。霊体中に与えたダメージを記録し、肉体へ戻る時にその25%を再び与える。",
+        "ult": "R—運命の封印：対象の背後へ移動しながら7回斬り、物理・固定ダメージを与えて一度ノックアップする。クールダウン50秒。"
       }
     }
   },
   "ko": {
     "description": {
+      "lol_shen": {
+        "name": "쉔",
+        "attack": "닌자 검: 공격력의 100%만큼 물리 피해를 입힙니다.",
+        "skill": "Q—황혼 강습: 영혼의 검을 불러와 8초 동안 다음 기본 공격 3회를 강화합니다. 각 공격은 20 + 주문력의 20%만큼 추가 마법 피해를 입힙니다.",
+        "skill2": "E—그림자 돌진: 지정 방향으로 돌진해 적 챔피언을 통과합니다. 적중 시 60의 물리 피해를 입히고 1.5초 동안 도발합니다.",
+        "ult": "R—단결된 의지: 멀리 있는 아군에게 3초 동안 900 + 주문력의 80%만큼 보호막을 부여한 뒤 해당 아군에게 순간이동합니다."
+      },
       "barrier_magician": {
         "name": "오리아나",
         "attack": "시계태엽 감기: 오리아나의 기계 탄환이 공격력의 100%만큼 물리 피해를 입히고 10 + 주문력의 15%만큼 추가 마법 피해를 입힙니다.",
@@ -299,10 +313,10 @@
       },
       "dual_blader": {
         "name": "요네",
-        "attack": "사냥꾼의 길: 기본 공격은 청백색 강철검과 적흑색 아자카나 검을 번갈아 사용합니다. 데이터 버전에서는 둘 다 공격력의 100%만큼 물리 피해를 입힙니다.",
-        "skill": "Q—필멸의 검: Q1과 Q2는 각각 좁은 관통 검기를 하나 발사해 25 + 공격력의 80%만큼 물리 피해를 입힙니다. 적중해야만 6초 동안 1단계에서 2단계로 진행하며 빗나가면 중첩되지 않습니다. Q3는 시전 시 2단계를 소모하고 피해 없는 전진을 한 번 한 뒤 바람 통로 하나만 발사합니다. 적중 피해는 한 번이며 적을 0.75초 공중에 띄웁니다. 재사용 대기시간은 4초입니다.",
-        "skill2": "E+W 복합 근사—영혼해방／영혼 가르기: 기본 AI가 안정적으로 사용하도록 적 챔피언을 대상으로 합니다. 시전 지점에 고정된 본체 표식을 남기고 보이는 영체 투사체가 전진한 뒤 BackToCaster로 돌아옵니다. 공개 데이터 API는 실제 영웅 좌표를 이동하고 복원할 수 없으므로 요네 본체는 표식에 남으며 실제 위치 되감기는 아닙니다. 같은 동작에서 짧고 넓은 W 초승달을 한 번 휘둘러 적 챔피언, 미니언, 몬스터(포탑 제외)에게 각각 한 번 45 + 공격력의 90%만큼 물리 피해를 입힙니다. 보호막은 적 챔피언 적중만 계산하며 첫 챔피언 적중 시 70 + 공격력의 20%, 두 번째 챔피언 적중 시 최대 35 + 공격력의 10%를 추가합니다. 미니언과 몬스터는 피해를 받지만 어느 보호막 단계도 발동하지 않습니다. W에는 공중 띄우기가 없습니다. 재사용 대기시간은 12초입니다.",
-        "ult": "R—운명봉인(데이터 근사): 강철검과 아자카나 검으로 8 tick마다 번갈아 6회 베어 각각 12 + 공격력의 16%만큼 물리 피해를 입힙니다. 60 tick에 영혼 표식이 한 번만 폭발해 30 + 공격력의 25%만큼 고정 피해를 입힙니다. 공중에 띄우는 효과는 한 번만 적용됩니다. 재사용 대기시간은 50초입니다."
+        "attack": "사냥꾼의 길: 기본 공격은 강철검과 아자카나 검을 번갈아 사용하며 공격력의 100%만큼 물리 피해를 줍니다.",
+        "skill": "Q—필멸의 검: 전방을 찔러 25 + 공격력의 80%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 전진하며 회오리를 날려 적을 0.75초 띄웁니다.",
+        "skill2": "E—영혼해방: 육체를 남기고 4초 동안 영체가 됩니다. 그동안 준 피해를 기록하며, 육체로 돌아갈 때 기록한 피해의 25%를 다시 줍니다.",
+        "ult": "R—운명봉인: 대상 뒤로 이동하며 일곱 번 베어 물리 및 고정 피해를 주고 한 번 공중에 띄웁니다. 재사용 대기시간은 50초입니다."
       }
     }
   }

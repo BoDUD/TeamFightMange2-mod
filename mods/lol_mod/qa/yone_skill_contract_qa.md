@@ -1,49 +1,50 @@
 # 永恩 009 三主动槽技能契约
 
-本文件记录 `dual_blader` 的静态安全门禁。公开 Mod API 只提供 Q、第二主动槽和 R，因此当前实现严格保留三个主动按钮：`skill=Q`、`skill2=E+W 组合近似`、`ult=R`，不会伪造第四个按钮。
+`dual_blader` 只使用三个真实主动槽：`skill=Q`、`skill2=E`、`ult=R`。第二主动槽是 E-only；不会拼接、展示或结算其他主动技能。
 
 ## Q — 错玉切
 
-- [x] Q 使用清晰的 `Q1 → Q2 → Q3` 三段状态，而不是旧版两段循环。
-- [x] Q1 命中后才添加 `lol_yone_mortal_steel_stack_1`，持续 360 tick；未命中不会叠层。
-- [x] Q2 命中后才移除第一层并添加 `lol_yone_mortal_steel_stack_2`，持续 360 tick；未命中不会推进。
-- [x] Q1/Q2 的穿透命中 payload 各有内层 `SwitchByBuff` 同状态防重；多目标命中只允许首个目标推进层数。
-- [x] Q3 在施法开始立即移除第二层，即使命中失败也不会保留强化状态。
-- [x] Q3 只执行一次 `RushTime`，其 `applied_effects` 为空，因此冲刺本身无伤害。
-- [x] Q3 只生成一条 `lol_yone_q_empowered_projectile` 风道；命中只包含一次 `25 + 80% AD` 攻击与一次 45 tick `Airborne`。
-- [x] `lol_yone_q3_airborne_cue` 使用独立竖向击飞动画，目标身上会出现明显上升提示。
-- [x] Q 不含 `Delayed`、`Native` 或第二条强化风道。
+- [x] Q 使用 `Q1 → Q2 → Q3` 三段状态。
+- [x] Q1 命中后才添加 `lol_yone_mortal_steel_stack_1`，持续 360 tick；空放不叠层。
+- [x] Q2 命中后才移除第一层并添加 `lol_yone_mortal_steel_stack_2`，持续 360 tick；空放不推进。
+- [x] Q1/Q2 的穿透命中 payload 含同状态防重；一次穿透多个目标也只推进一次层数。
+- [x] 第二层同时注册 `ThreePhase` 风状态，使用独立 `lol_yone_q3_ready_wind` 动画；获得第二层后持续可见，消耗或超时后移除。
+- [x] Q3 施法时立即消耗第二层，并沿施法方向执行一次无伤害 `RushTime`。
+- [x] Q3 同时发射独立蓝白旋风弹道 `lol_yone_q_empowered_projectile`；其动画为 `lol_yone_q3_tornado`，不得复用 Q1/Q2 的窄剑气动画。
+- [x] Q3 弹道只结算一次 `25 + 80% AD` 物理伤害与一次 45 tick `Airborne`；冲刺本身不附带伤害。
+- [x] `lol_yone_q3_airborne_cue` 使用同一蓝白风系素材中的独立向上风柱，目标击飞方向必须清晰可读。
 
-## 第二主动槽 — E 灵体 + W 月牙组合近似
+## 第二主动槽 — E 破障之锋
 
-- [x] `skill2` 仍以 `EnemyChampion` 为目标，让游戏原生 AI 可以稳定选择并释放，不依赖自定义输入 AI；施法范围 `48000` 与 W 唯一含伤害的命中体长度一致，不会在无伤区间施放。
-- [x] `lol_yone_e_body_anchor` 是不跟随的固定本体标记，留在施法点。
-- [x] `lol_yone_e_spirit_outbound` 是无伤害的可见灵体投射物；抵达终点后只生成一个 `BackToCasterLinearProjectile`：`lol_yone_e_spirit_return`。
-- [x] 灵体往返投射物的 `applied_effects` 都为空，返回结束只播放 `lol_yone_e_return_burst`，不会重复伤害或控制。
-- [x] 公开数据 API 没有可写英雄坐标与安全位置快照，所以真实英雄坐标不会被伪造回溯；永恩本人留在本体标记处。文案明确说明这不是 LoL E 的真实位置回溯。
-- [x] 真实技能树使用五帧 `skill2_attack` 作为 42 tick `CasterAnimation`，QA contact 也展示同一 tag，不再用单帧 `skill2` 冻结身体。
-- [x] 同一组合动作创建两个完全同形状的短宽 `LineRangeProjectile`：均为宽 42000、长 48000、`apply=1`。
-- [x] `lol_yone_w_sweep_hitbox` 使用 `EnemyWithoutTower`，只包含一次 `45 + 90% AD` 攻击和命中 SFX；英雄、小兵与野怪都会受伤，防御塔除外。
-- [x] `lol_yone_w_champion_shield_probe` 使用 `EnemyChampion`，不含 `Attack` 或伤害命中 SFX，只负责护盾、计数和护盾视觉；第一名英雄命中获得 `70 + 20% AD` 护盾，第二名最多再增加 `35 + 10% AD`，之后不再增长。
-- [x] 英雄同时经过两个命中体但只由伤害体受到一次伤害；小兵与野怪只经过伤害体，不会触发护盾档位。
-- [x] W 无击飞：整个 `skill2` 不含 `Airborne`、`Knockback`、`Rush`、`RushTime` 或 `RushMoveToBack`。
-- [x] 已删除旧追背 W 的锁定、背后位移、交叉斩与击飞视觉命名；护盾只使用小型开放月牙，不覆盖英雄身体。
+- [x] `skill2` 是 E-only，以敌方英雄为施法目标，原生 AI 能正常选择与释放。
+- [x] `lol_yone_e_body_anchor` 是固定本体标记；视觉灵体离开时，真实演员仍保持稳定体型并播放五帧 `skill2_attack`。
+- [x] `lol_yone_e_spirit_outbound` 是无直接伤害的可见灵体弹道；240 tick 灵体作战窗口结束后，只生成一个 `BackToCasterLinearProjectile`：`lol_yone_e_spirit_return`。
+- [x] `lol_yone_e_start_native` 在施法开始建立一次伤害账本；`lol_yone_e_settle_native` 只在返回结束时结算并清理一次。
+- [x] 普攻、Q1/Q2/Q3 与 R 的每个实际伤害载荷都严格由 `lol_yone_e_damage_pre_native` 和 `lol_yone_e_damage_post_native` 前后包住；灵体窗口外两者为空操作，窗口内只累计该次真实伤害。
+- [x] 四个 Native 节点只负责建立、记录并结算本次灵体伤害窗口；不得混入额外直线斩击、护盾或击飞。
+- [x] 数据树绝无 `Rush` / `Teleport` / `RushTime` / `RushMoveToBack`，不会移动真实演员，也不宣称真实坐标回溯。
+- [x] `Delayed tick=240` 内只安排一次返回；返回结束只播放 `lol_yone_e_return_burst`，并执行 settle/清理，不得生成第二次灵体或循环返回。
 
 ## AI 与卡死回归门禁
 
-- [x] Rust 中不得恢复 `YoneWInputGate`、`lol_yone_w_input_gate` 或 `registration.add_player_input_ai(YoneWInputGate)`。
-- [x] Rust 中不得恢复 `ctx.is_valid_input(&sealed_pursuit)` 或任何对过期目标实体的二次校验。
-- [x] E/W 组合仅使用数据层投射物、范围命中与护盾，不新增 Rust 状态、互斥锁、实体缓存或解包路径。
+- [x] E 不注册自定义输入 AI，不保存可失效的目标实体引用，也不对旧目标做二次输入校验。
+- [x] 每次 E 只有一组 start/settle；pre/post 与每个真实伤害点一一成对，所有状态必须在 settle 后清理；死亡、目标消失和连续对局不得遗留状态。
+- [x] 压力测试必须证明模拟时间持续推进，施法者能恢复移动、普攻与后续技能。
 
-## R — 封尘绝念斩（数据近似）
+## 文案与原生面板门禁
+
+- [x] 原生技能行是 `624x95`，说明区最多 4 行；Q、E、R 的五种语言文案都必须通过保守字宽换行预算。
+- [x] 玩家文案只说明可见玩法，不出现内部 API、引擎类型、坐标接口、Native 名称或实现限制。
+- [x] 第二主动槽文案只描述 E，不出现组合技能、月牙斩、护盾或内部投射物名称。
+
+## R — 封尘绝念斩
 
 - [x] R 保留一次到达击飞、六次交替物理斩击和一次固定伤害灵魂回响。
-- [x] 延迟节点仍为 `8/16/24/32/40/48/60`；最坏路径 `start 4 + travel 8 + delayed 60 = 72 < duration 96`。
-- [x] R 不使用自动换目标、范围随机目标或 `Native` 效果。
+- [x] 延迟节点为 `8/16/24/32/40/48/60`；最坏路径仍小于 96 tick 动作时长。
 
 ## 待人工实机确认
 
-- [ ] 连续观察 Q1/Q2 命中层数和 Q3 竖向击飞，确认风道只结算一次伤害。
-- [ ] 观察 E 的固定本体标记、蓝色灵体离体、红色灵体返回与返回闪光是否连续可读。
-- [ ] 在英雄、小兵与野怪目标下观察 W 月牙：三者各只受一次伤害，且只有前两名英雄触发两档封顶护盾；确认没有旧背后位移、击飞或身体覆盖特效。
-- [ ] 以 50 次以上第二主动槽/R 压力测试确认模拟时间持续推进，AI 能恢复移动与普攻。
+- [ ] 连续空放与命中 Q1/Q2，确认只有命中才叠层，第二层风状态可见且不会覆盖身体。
+- [ ] Q3 朝不同方向释放，确认演员只突进一次、蓝白旋风只生成一条、命中目标只被击飞和结算一次。
+- [ ] 观察 E 的固定本体、灵体离体、返回与结算闪光是否连续可读，且没有其他主动技能的伤害、护盾或特效。
+- [ ] 连续施放 E 50 次以上并跨死亡、目标消失和下一场对局，确认不卡死且无残留状态。
