@@ -456,25 +456,25 @@
       "path": "aseprite_resources/effects/yone_spirit#sheet.png",
       "dimensions": [
         400,
-        400
+        456
       ],
-      "size_bytes": 640513,
-      "sha256": "bba50112c942a1c336f01e56da8848b5946d8a1a9b1be250eabc52fb2075f126",
+      "size_bytes": 730179,
+      "sha256": "e7267756913a5ef51e4b9abc9a7df802f98bef0a94884c6201a929fbdfae8e98",
       "alpha_bbox": [
         1,
         8,
-        302,
-        394
+        310,
+        450
       ],
       "alpha_extrema": [
         0,
-        173
+        255
       ]
     },
     {
       "path": "aseprite_resources/effects/yone_spirit#anim.fanim",
-      "size_bytes": 5334,
-      "sha256": "5c8f976cb18540a3e28de48fff37439051c39d67932e7cbc45acfb0c8da582e1"
+      "size_bytes": 4723,
+      "sha256": "8f259c0ede8df122dac755d761b1674ac5ebe1b111f0d46bf84ff59389788bd4"
     },
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",

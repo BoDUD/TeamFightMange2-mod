@@ -1635,14 +1635,6 @@
       "yone_q3_ready_wind",
       "loop"
     ],
-    "lol_yone_e_spirit_outbound": [
-      "yone_spirit",
-      "outbound"
-    ],
-    "lol_yone_e_spirit_return": [
-      "yone_spirit",
-      "return"
-    ],
     "lol_yone_e_body_anchor": [
       "yone_spirit",
       "anchor"
@@ -1654,6 +1646,10 @@
     "lol_yone_e_spirit_form": [
       "yone_spirit",
       "spirit_loop"
+    ],
+    "lol_yone_e_returning": [
+      "yone_spirit",
+      "return_loop"
     ],
     "lol_yone_r_windup": [
       "yone_r",
@@ -1685,10 +1681,12 @@
   },
   "runtime_e_resolution": {
     "window_ticks": 240,
-    "body_anchor": "fixed cast-point animation",
-    "moving_read": "caster-following translucent spirit buff",
-    "return": "single delayed BackToCaster projectile",
-    "damage_tracking": "native pre/post wrappers settle once at return"
+    "action_duration_ticks": 24,
+    "initial_movement": "single non-damaging RushTime",
+    "body_anchor": "fixed opaque cast-point animation",
+    "moving_read": "real caster with a thin outline-and-particle aura",
+    "return": "begin-return native at 240; 60-tick fast CC-immune path return; settle native at 300",
+    "damage_tracking": "native pre/post wrappers settle once after the bounded return phase"
   },
   "large_vfx_policy": "Q3 tornado/knockup, E spirit/anchor/return and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
   "portrait_policy": {

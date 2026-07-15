@@ -394,13 +394,13 @@
   "skill2": {
     "action_name": "skill2",
     "description": "#asset/base/text/champion?description.dual_blader.skill2",
-    "duration": 270,
+    "duration": 24,
     "cooltime": 720,
     "start_timing": 4,
     "cancelable": false,
     "range": 60000,
     "growth_range": 0,
-    "casting_type": "Targeting",
+    "casting_type": "Direction",
     "casting_target": "EnemyChampion",
     "attack_type": "Skill",
     "can_use_with_move": false,
@@ -410,7 +410,7 @@
         {
           "type": "CasterAnimation",
           "name": "skill2_attack",
-          "tick": 42
+          "tick": 24
         },
         {
           "type": "Native",
@@ -433,51 +433,56 @@
           }
         },
         {
-          "type": "LinearProjectile",
+          "type": "RushTime",
           "penetrate": true,
-          "speed": 6500,
-          "range": 70000,
-          "name": "lol_yone_e_spirit_outbound",
-          "shape": {
-            "Circle": {
-              "radius": 7000
-            }
-          },
-          "applied_target": "EnemyWithoutTower",
-          "applied_effects": [],
-          "end_effects": []
+          "speed": 4500,
+          "tick": 8,
+          "range": 0,
+          "casting_target": "None",
+          "applied_effects": []
         },
         {
           "type": "Delayed",
           "tick": 240,
           "effects": [
             {
-              "type": "BackToCasterLinearProjectile",
-              "penetrate": true,
-              "speed": 9000,
-              "range": 110000,
-              "name": "lol_yone_e_spirit_return",
-              "shape": {
-                "Circle": {
-                  "radius": 7000
-                }
-              },
-              "applied_target": "EnemyWithoutTower",
-              "applied_effects": [],
-              "end_effects": [
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_settle_native"
+              "type": "Native",
+              "effect_ref": "lol_yone_e_begin_return_native"
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "lol_yone_e_spirit_form"
+            },
+            {
+              "type": "AddCasterBuff",
+              "buff_state": {
+                "name": "lol_yone_e_returning",
+                "duration": {
+                  "Time": {
+                    "tick": 60
+                  }
                 },
-                {
-                  "type": "RemoveCasterBuff",
-                  "name": "lol_yone_e_spirit_form"
-                },
-                {
-                  "type": "CasterViewEffect",
-                  "name": "lol_yone_e_return_burst"
-                }
-              ]
+                "move_speed_mult": 300,
+                "cc_immune": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 300,
+          "effects": [
+            {
+              "type": "Native",
+              "effect_ref": "lol_yone_e_settle_native"
+            },
+            {
+              "type": "RemoveCasterBuff",
+              "name": "lol_yone_e_returning"
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_yone_e_return_burst"
             }
           ]
         }
@@ -739,22 +744,6 @@
       "tag": "tornado",
       "z": 2,
       "repeat": true
-    },
-    {
-      "type": "Animated",
-      "name": "lol_yone_e_spirit_outbound",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "tag": "outbound",
-      "z": 2,
-      "repeat": true
-    },
-    {
-      "type": "Animated",
-      "name": "lol_yone_e_spirit_return",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "tag": "return",
-      "z": 2,
-      "repeat": true
     }
   ],
   "view_effects": [
@@ -803,7 +792,7 @@
       "name": "lol_yone_e_body_anchor",
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
       "tag": "anchor",
-      "z": 0,
+      "z": 1,
       "is_follow": false
     },
     {
@@ -872,7 +861,16 @@
       "pre_tag": "spirit_pre",
       "loop_tag": "spirit_loop",
       "remove_tag": "spirit_remove",
-      "z": 1
+      "z": 2
+    },
+    {
+      "type": "ThreePhase",
+      "name": "lol_yone_e_returning",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
+      "pre_tag": "return_pre",
+      "loop_tag": "return_loop",
+      "remove_tag": "return_remove",
+      "z": 2
     }
   ]
 }

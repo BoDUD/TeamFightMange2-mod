@@ -750,9 +750,12 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 for effect in delayed[0].get("effects", [])
                 if effect.get("type") == "RemoveCasterBuff"
             ]
+            expected_removed = [switch.get("buff_name")]
+            if switch.get("buff_name") == "lol_shen_twilight_assault_charge_1":
+                expected_removed.append("lol_shen_twilight_assault_empowered_window")
             check(
-                removed == [switch.get("buff_name")],
-                f"Q {switch.get('buff_name')} branch must consume exactly its own marker",
+                removed == expected_removed,
+                f"Q {switch.get('buff_name')} branch must consume its marker and close the shared window after charge 1",
             )
     check(not find_effect(attack, "AddCasterBuff"), "Q attacks must consume, not refresh, the shared charge window")
 
@@ -766,8 +769,26 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion"),
         "Q must use a stock-AI enemy-gated direction cast instead of self-casting into empty space",
     )
-    for unsafe_type in ("LinearProjectile", "RangeProjectile", "Attack", "ApAttack", "Shield"):
+    for unsafe_type in ("RangeProjectile", "Attack", "ApAttack", "Shield"):
         check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
+    anchors = find_effect(
+        q,
+        "LinearProjectile",
+        name="lol_shen_twilight_assault_blade_anchor",
+    )
+    check(len(anchors) == 1, "Q must contain one invisible endpoint-only blade anchor")
+    if anchors:
+        blade_anchor = anchors[0]
+        check(
+            (
+                blade_anchor.get("penetrate"), blade_anchor.get("speed"),
+                blade_anchor.get("range"), blade_anchor.get("shape"),
+                blade_anchor.get("applied_target"), blade_anchor.get("applied_effects"),
+            )
+            == (False, 60000, 55000, {"Circle": {"radius": 1000}}, "EnemyChampion", []),
+            "Q invisible blade-anchor projectile contract mismatch",
+        )
+    check(len(find_effect(q, "LinearProjectile")) == 1, "Q may use only the one invisible endpoint anchor")
     recalls = find_effect(
         q,
         "BackToCasterLinearProjectile",
@@ -786,6 +807,10 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "Q blade-recall projectile contract mismatch",
         )
         check(
+            bool(anchors) and anchors[0].get("end_effects") == [blade_recall],
+            "Q visible recall must be the invisible blade anchor's only direct end effect",
+        )
+        check(
             bool(find_effect(
                 blade_recall.get("end_effects", []),
                 "ViewEffect",
@@ -794,7 +819,12 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "Q blade recall must end with the dedicated arrival visual",
         )
     direct_q_effects = q.get("effect", {}).get("effects", [])
-    q_grants = [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"]
+    check(
+        not [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"],
+        "Q must not grant empowerment before the visible blade has returned",
+    )
+    recall_end_effects = recalls[0].get("end_effects", []) if recalls else []
+    q_grants = [effect for effect in recall_end_effects if effect.get("type") == "AddCasterBuff"]
     q_windows = {
         effect.get("buff_state", {}).get("name"): effect.get("buff_state", {}).get("duration")
         for effect in q_grants
@@ -805,8 +835,9 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "lol_shen_twilight_assault_charge_3": {"Time": {"tick": 480}},
             "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
             "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
+            "lol_shen_twilight_assault_empowered_window": {"Time": {"tick": 480}},
         },
-        "Q cast must grant three normal markers with one shared 480-tick window",
+        "Q return must grant three attack charges and one shared 480-tick visible window",
     )
     direct_q_removals = {
         effect.get("name")
@@ -817,8 +848,9 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         direct_q_removals
         == {
             *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
+            "lol_shen_twilight_assault_empowered_window",
         },
-        "Q cast must clear exactly the previous three recall charges",
+        "Q cast must clear the previous three charges and their visible shared window",
     )
     q_serialized = json.dumps(q, ensure_ascii=False)
     for retired in (
@@ -898,6 +930,17 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         trail_windows == [{"name": "lol_shen_shadow_dash_trail_window", "duration": {"Time": {"tick": 30}}}],
         "E must keep a dash-length trail marker",
     )
+    direct_e_effects = e.get("effect", {}).get("effects", [])
+    check(
+        [effect for effect in direct_e_effects if effect.get("type") == "Native"]
+        == [{"type": "Native", "effect_ref": "lol_shen_shadow_dash_ai_hint_native"}],
+        "E root must contain exactly one no-op native CC-scoring hint",
+    )
+    check(
+        [effect for effect in direct_e_effects if effect.get("type") == "CasterViewEffect"]
+        == [{"type": "CasterViewEffect", "name": "lol_shen_shadow_dash_cast_flash"}],
+        "E root must show exactly one visible dash-start flash",
+    )
     check(not find_effect(e, "RangeEffect"), "E must not retain W's caster-centered field")
     check(not find_effect(e, "Shield"), "E must not retain W's ally shield")
 
@@ -927,6 +970,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
+        "lol_shen_twilight_assault_empowered_window",
         "lol_shen_shadow_dash_trail_window",
         "lol_shen_shadow_dash_taunted",
         "lol_shen_stand_united_channel",
@@ -943,7 +987,7 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "name": "lol_shen_twilight_assault_blade_recall",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
                 "tag": "recall",
-                "z": 2,
+                "z": 3,
                 "repeat": True,
             },
         ],
@@ -967,6 +1011,14 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
                 "tag": "recall_arrival",
                 "z": 2,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_shadow_dash_cast_flash",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+                "tag": "dash_start",
+                "z": 3,
                 "is_follow": True,
             },
             {
@@ -1001,12 +1053,21 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
         == [
             {
                 "type": "ThreePhase",
+                "name": "lol_shen_twilight_assault_empowered_window",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "pre_tag": "empower_pre",
+                "loop_tag": "empower_loop",
+                "remove_tag": "empower_remove",
+                "z": 3,
+            },
+            {
+                "type": "ThreePhase",
                 "name": "lol_shen_shadow_dash_trail_window",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
                 "pre_tag": "trail_pre",
                 "loop_tag": "trail_loop",
                 "remove_tag": "trail_remove",
-                "z": -1,
+                "z": 3,
             },
             {
                 "type": "ThreePhase",
@@ -1018,20 +1079,137 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "z": 3,
             },
         ],
-        "Shen E dash-trail/taunt marker visuals are not registered",
+        "Shen Q empowered-window and E dash-trail/taunt marker visuals are not registered",
     )
+    check(
+        find_effect(q, "Sfx", name="lol_shen_q_cast")
+        == [{"type": "Sfx", "name": "lol_shen_q_cast"}],
+        "Shen Q must play its verified cast event exactly once",
+    )
+    check(
+        find_effect(e, "Sfx", name="lol_shen_attack_cast")
+        == [{"type": "Sfx", "name": "lol_shen_attack_cast"}],
+        "Shen E must play its verified reused cast event exactly once",
+    )
+    check(
+        find_effect(e, "TargetSfx", name="lol_shen_attack_hit")
+        == [{"type": "TargetSfx", "name": "lol_shen_attack_hit"}],
+        "Shen E Rush collision must play its verified reused hit event exactly once",
+    )
+
+    shen_anims = {
+        "asset/lol_mod/aseprite_resources/effects/shen_q": load_json(
+            "aseprite_resources/effects/shen_q#anim.fanim"
+        ).get("anims", {}),
+        "asset/lol_mod/aseprite_resources/effects/shen_e": load_json(
+            "aseprite_resources/effects/shen_e#anim.fanim"
+        ).get("anims", {}),
+        "asset/lol_mod/aseprite_resources/effects/shen_r": load_json(
+            "aseprite_resources/effects/shen_r#anim.fanim"
+        ).get("anims", {}),
+    }
+    for view in [*projectile_views, *view_effects, *champion.get("view_buffs", [])]:
+        tags = shen_anims.get(str(view.get("anim", "")))
+        if tags is None:
+            continue
+        for field in ("tag", "pre_tag", "loop_tag", "remove_tag"):
+            if field in view:
+                check(
+                    view.get(field) in tags,
+                    f"Shen renderer {view.get('name')} references missing {field}={view.get(field)}",
+                )
+
+    def shen_tag_visibility(sheet_name: str, tag: str) -> list[tuple[int, int]]:
+        anims = shen_anims[
+            f"asset/lol_mod/aseprite_resources/effects/{sheet_name}"
+        ]
+        sheet = Image.open(
+            MOD_ROOT / f"aseprite_resources/effects/{sheet_name}#sheet.png"
+        ).convert("RGBA")
+        metrics: list[tuple[int, int]] = []
+        for frame in anims.get(tag, {}).get("frames", []):
+            data = frame.get("data", {})
+            cell = sheet.crop(
+                (
+                    data.get("x", 0), data.get("y", 0),
+                    data.get("x", 0) + data.get("w", 0),
+                    data.get("y", 0) + data.get("h", 0),
+                )
+            )
+            pixels = (
+                cell.get_flattened_data()
+                if hasattr(cell, "get_flattened_data")
+                else cell.getdata()
+            )
+            opaque = [pixel for pixel in pixels if pixel[3] >= 192]
+            bright = sum(
+                0.2126 * red + 0.7152 * green + 0.0722 * blue >= 105
+                for red, green, blue, _alpha in opaque
+            )
+            metrics.append((len(opaque), bright))
+        return metrics
+
+    for sheet_name, tag, minimum_opaque, minimum_bright in (
+        ("shen_q", "recall", 480, 200),
+        ("shen_q", "empower_loop", 480, 200),
+        ("shen_e", "dash_start", 300, 250),
+        ("shen_e", "trail_loop", 800, 700),
+    ):
+        metrics = shen_tag_visibility(sheet_name, tag)
+        check(bool(metrics), f"Shen visible runtime tag is empty: {sheet_name}:{tag}")
+        check(
+            all(opaque >= minimum_opaque and bright >= minimum_bright for opaque, bright in metrics),
+            f"Shen {sheet_name}:{tag} is too dim/sparse for live combat readability: {metrics}",
+        )
+
+    shen_live_qa_path = MOD_ROOT / "qa/shen_live_qa.md"
+    check(shen_live_qa_path.is_file(), "Shen live QA checklist is missing")
+    if shen_live_qa_path.is_file():
+        shen_live_qa = shen_live_qa_path.read_text(encoding="utf-8")
+        for marker in (
+            "lol_shen_twilight_assault_blade_anchor",
+            "lol_shen_twilight_assault_blade_recall",
+            "lol_shen_twilight_assault_empowered_window",
+            "lol_shen_shadow_dash_cast_flash",
+            "lol_shen_shadow_dash_ai_hint_native",
+            "lol_shen_shadow_dash_taunt_native",
+            "Repeated AI matches include E casts",
+            "1.5-second forced-target taunt",
+        ):
+            check(marker in shen_live_qa, f"Shen live QA is missing the current Q/E proof: {marker}")
+
     runtime = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
     for marker in (
+        "struct ShenShadowDashAiHintNativeEffect;",
         "struct ShenShadowDashTauntNativeEffect;",
         "CCState::Taunt {",
         "target: caster_id",
         "const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;",
         "fn expected_cc_time(&self) -> Option<usize>",
         "Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)",
+        '"lol_shen_shadow_dash_ai_hint_native"',
         '"lol_shen_shadow_dash_taunt_native"',
     ):
         check(marker in runtime, f"Shen native E runtime proof is missing: {marker}")
-    check("ShenShadowDashInput" not in runtime, "Shen E must not restore a custom input-AI validator")
+    if "impl ModEffectType for ShenShadowDashAiHintNativeEffect {" in runtime:
+        shen_ai_hint = runtime.split(
+            "impl ModEffectType for ShenShadowDashAiHintNativeEffect {", 1
+        )[1].split("\n#[derive", 1)[0]
+        check("fn apply(" in shen_ai_hint, "Shen E AI hint must implement a no-op apply")
+        check("_caster_id: usize" in shen_ai_hint and "_input: InputTarget" in shen_ai_hint, "Shen E AI hint must ignore its root payload safely")
+        check("Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)" in shen_ai_hint, "Shen E AI hint must advertise its 90-tick expected CC")
+        check("ctx." not in shen_ai_hint, "Shen E root AI hint must remain a gameplay no-op")
+    for marker in (
+        "struct ShenShadowDashInputAi;",
+        "impl ModPlayerInputAi for ShenShadowDashInputAi",
+        '"lol_shen_shadow_dash_input_ai"',
+        "Some(Input::Skill { target }) | Some(Input::Attack { target })",
+        "let shadow_dash = Input::Skill2 { target };",
+        "ctx.is_valid_input(&shadow_dash)",
+        "PlayerInputDecision::Replace(shadow_dash)",
+        "registration.add_player_input_ai(ShenShadowDashInputAi);",
+    ):
+        check(marker in runtime, f"Shen E input-AI liveness proof is missing: {marker}")
     if "impl ModEffectType for ShenShadowDashTauntNativeEffect {" in runtime:
         shen_native = runtime.split(
             "impl ModEffectType for ShenShadowDashTauntNativeEffect {", 1
@@ -4634,12 +4812,13 @@ def validate_compact_view_and_e_layout() -> None:
     check(
         set(e_anim.get("anims", {}))
         == {
-            "dash", "impact", "trail_pre", "trail_loop", "trail_remove",
+            "dash", "dash_start", "impact", "trail_pre", "trail_loop", "trail_remove",
             "taunt_pre", "taunt_loop", "taunt_remove",
         },
         "E animation must expose distinct dash, impact, trail and sustained-taunt tags",
     )
     check(len(e_anim.get("anims", {}).get("dash", {}).get("frames", [])) == 3, "E dash tag must have three frames")
+    check(len(e_anim.get("anims", {}).get("dash_start", {}).get("frames", [])) == 3, "E dash-start flash tag must have three frames")
     check(len(e_anim.get("anims", {}).get("impact", {}).get("frames", [])) == 3, "E impact tag must have three frames")
 
     lucian = style.get("entries", {}).get("archer", {})
@@ -7455,6 +7634,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )
     allowed_native_refs = {
         "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
         "lol_yone_e_damage_post_native",
         "lol_yone_e_settle_native",
@@ -7462,7 +7642,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     native_refs = [effect.get("effect_ref") for effect in find_effect(champion, "Native")]
     check(
         set(native_refs) <= allowed_native_refs,
-        "Yone may use only the four named E state/ledger native effects",
+        "Yone may use only the five named E state/return/ledger native effects",
     )
 
     attack = champion.get("attack", {})
@@ -7641,35 +7821,45 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(not find_effect(q, "Delayed"), "Yone Q must not use delayed target state")
 
     skill2 = champion.get("skill2", {})
-    check(skill2.get("action_name") == "skill2", "Yone E must use the native skill2 action")
-    check(int(skill2.get("cooltime", 0)) > 0, "Yone E must have a positive cooldown")
-    check(int(skill2.get("duration", 0)) > 240, "Yone E duration must outlive the 240-tick spirit window")
     check(
-        0 <= int(skill2.get("start_timing", -1)) < int(skill2.get("duration", 0)),
-        "Yone E start timing must be inside its action duration",
-    )
-    check(int(skill2.get("range", 0)) > 0, "Yone E must expose a positive AI target range")
-    check(
-        (skill2.get("casting_type"), skill2.get("casting_target"))
-        == ("Targeting", "EnemyChampion"),
-        "Yone E must target an enemy champion",
+        (
+            skill2.get("action_name"), skill2.get("cooltime"), skill2.get("duration"),
+            skill2.get("start_timing"), skill2.get("range"), skill2.get("casting_type"),
+            skill2.get("casting_target"),
+        )
+        == ("skill2", 720, 24, 4, 60000, "Direction", "EnemyChampion"),
+        "Yone E must be a short direction-cast release, not a 240-tick action lock",
     )
     check(
         find_effect(skill2, "CasterAnimation")
-        == [{"type": "CasterAnimation", "name": "skill2_attack", "tick": 42}],
-        "Yone E must play the five-frame leave-body motion",
+        == [{"type": "CasterAnimation", "name": "skill2_attack", "tick": 24}],
+        "Yone E must play the five-frame leave-body motion inside its 24-tick action",
+    )
+    e_rushes = find_effect(skill2, "RushTime")
+    check(
+        e_rushes
+        == [{
+            "type": "RushTime", "penetrate": True, "speed": 4500, "tick": 8,
+            "range": 0, "casting_target": "None", "applied_effects": [],
+        }],
+        "Yone E must move the real caster with one damage-free 8-tick initial lunge",
     )
     for forbidden_type in (
-        "RushMoveToBack", "Rush", "RushTime", "Teleport", "Airborne",
-        "Knockback", "LineRangeProjectile", "Shield", "Attack", "FixedAttack",
-        "ApAttack",
+        "RushMoveToBack", "Rush", "Teleport", "Airborne", "Knockback",
+        "LineRangeProjectile", "LinearProjectile", "BackToCasterLinearProjectile",
+        "Shield", "Attack", "FixedAttack", "ApAttack",
     ):
         check(not find_effect(skill2, forbidden_type), f"Yone E-only slot must not contain {forbidden_type}")
 
     e_native_refs = [effect.get("effect_ref") for effect in find_effect(skill2, "Native")]
     check(
-        e_native_refs == ["lol_yone_e_start_native", "lol_yone_e_settle_native"],
-        "Yone E must call start and settle native state exactly once and in order",
+        e_native_refs
+        == [
+            "lol_yone_e_start_native",
+            "lol_yone_e_begin_return_native",
+            "lol_yone_e_settle_native",
+        ],
+        "Yone E must start, begin its bounded return, then settle exactly once",
     )
     top = skill2.get("effect", {})
     top_effects = top.get("effects", []) if top.get("type") == "Combine" else []
@@ -7684,67 +7874,58 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     anchor_index = direct_index(
         lambda effect: effect == {"type": "CasterViewEffect", "name": "lol_yone_e_body_anchor"}
     )
-    outbound_index = direct_index(
-        lambda effect: effect.get("type") == "LinearProjectile"
-        and effect.get("name") == "lol_yone_e_spirit_outbound"
-    )
-    delayed_index = direct_index(
-        lambda effect: effect.get("type") == "Delayed" and effect.get("tick") == 240
-    )
+    rush_index = direct_index(lambda effect: effect.get("type") == "RushTime")
+    top_delayed = [effect for effect in top_effects if effect.get("type") == "Delayed"]
     check(
-        -1 < start_index < anchor_index < outbound_index < delayed_index,
-        "Yone E must start state, leave its anchor, show outbound spirit, then schedule return",
+        [effect.get("tick") for effect in top_delayed] == [240, 300],
+        "Yone E must begin return at tick 240 and settle at tick 300",
     )
-
-    outbound = find_effect(skill2, "LinearProjectile", name="lol_yone_e_spirit_outbound")
-    check(len(outbound) == 1, "Yone E must launch exactly one visible outbound spirit")
-    if outbound:
-        spirit = outbound[0]
+    first_delay_index = top_effects.index(top_delayed[0]) if top_delayed else -1
+    check(
+        -1 < start_index < anchor_index < rush_index < first_delay_index,
+        "Yone E must store state, leave an opaque body, then lunge the real caster before its timers",
+    )
+    if len(top_delayed) == 2:
+        begin_return, settle = top_delayed
         check(
-            (
-                spirit.get("penetrate"), spirit.get("speed"), spirit.get("range"),
-                spirit.get("shape"), spirit.get("applied_target"), spirit.get("applied_effects"),
-            )
-            == (True, 6500, 70000, {"Circle": {"radius": 7000}}, "EnemyWithoutTower", []),
-            "Yone E outbound spirit contract changed",
-        )
-        check(not find_effect(spirit, "Attack"), "Yone E outbound visual must not deal damage")
-    returns = find_effect(skill2, "BackToCasterLinearProjectile", name="lol_yone_e_spirit_return")
-    check(len(returns) == 1, "Yone E must create exactly one delayed BackToCaster return")
-    if returns:
-        returned = returns[0]
-        check(
-            (
-                returned.get("penetrate"), returned.get("speed"), returned.get("range"),
-                returned.get("shape"), returned.get("applied_target"), returned.get("applied_effects"),
-            )
-            == (True, 9000, 110000, {"Circle": {"radius": 7000}}, "EnemyWithoutTower", []),
-            "Yone E returning spirit contract changed",
-        )
-        check(not find_effect(returned, "Attack"), "Yone E return visual must not deal damage")
-        check(
-            len(find_effect(returned, "CasterViewEffect", name="lol_yone_e_return_burst")) == 1,
-            "Yone E return must end with one return burst",
-        )
-        max_return_travel = (
-            int(returned.get("range", 0)) + int(returned.get("speed", 1)) - 1
-        ) // int(returned.get("speed", 1))
-        check(
-            int(skill2.get("start_timing", 0)) + 240 + max_return_travel
-            < int(skill2.get("duration", 0)),
-            "Yone E action must outlive the spirit window and worst-case return travel",
-        )
-    delayed = find_effect(skill2, "Delayed")
-    check(len(delayed) == 1 and delayed[0].get("tick") == 240, "Yone E must schedule one return at 240 ticks")
-    if delayed:
-        check(
-            find_effect(delayed[0], "BackToCasterLinearProjectile") == returns,
-            "Yone E return projectile must live inside the 240-tick delayed branch",
+            find_effect(begin_return, "Native")
+            == [{"type": "Native", "effect_ref": "lol_yone_e_begin_return_native"}],
+            "Yone E tick-240 branch must begin the native bounded return once",
         )
         check(
-            find_effect(delayed[0], "Native")
+            find_effect(begin_return, "RemoveCasterBuff")
+            == [{"type": "RemoveCasterBuff", "name": "lol_yone_e_spirit_form"}],
+            "Yone E tick-240 branch must remove the outbound spirit aura once",
+        )
+        returning_states = [
+            effect.get("buff_state", {})
+            for effect in find_effect(begin_return, "AddCasterBuff")
+            if effect.get("buff_state", {}).get("name") == "lol_yone_e_returning"
+        ]
+        check(
+            returning_states
+            == [{
+                "name": "lol_yone_e_returning",
+                "duration": {"Time": {"tick": 60}},
+                "move_speed_mult": 300,
+                "cc_immune": True,
+            }],
+            "Yone E bounded return must use one 60-tick +300% CC-immune return aura/movement state",
+        )
+        check(
+            find_effect(settle, "Native")
             == [{"type": "Native", "effect_ref": "lol_yone_e_settle_native"}],
-            "Yone E delayed return must settle its native damage ledger once",
+            "Yone E tick-300 branch must settle the native ledger once",
+        )
+        check(
+            find_effect(settle, "RemoveCasterBuff")
+            == [{"type": "RemoveCasterBuff", "name": "lol_yone_e_returning"}],
+            "Yone E tick-300 branch must clear the return state once",
+        )
+        check(
+            find_effect(settle, "CasterViewEffect")
+            == [{"type": "CasterViewEffect", "name": "lol_yone_e_return_burst"}],
+            "Yone E tick-300 branch must show exactly one return burst",
         )
     check(
         len(find_effect(skill2, "CasterViewEffect", name="lol_yone_e_body_anchor")) == 1,
@@ -7756,17 +7937,20 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         if effect.get("buff_state", {}).get("name") == "lol_yone_e_spirit_form"
     ]
     check(
-        len(spirit_states) == 1
-        and spirit_states[0].get("duration") == {"Time": {"tick": 240}},
-        "Yone E must keep one visible spirit-form buff for the full 240-tick window",
-    )
-    check(
-        len(find_effect(skill2, "RemoveCasterBuff", name="lol_yone_e_spirit_form")) == 1,
-        "Yone E return must remove the spirit-form view once",
+        spirit_states
+        == [{
+            "name": "lol_yone_e_spirit_form",
+            "duration": {"Time": {"tick": 240}},
+            "move_speed_mult": 20,
+        }],
+        "Yone E must keep one 240-tick +20% mobile spirit state on the real caster",
     )
     serialized_e = json.dumps(skill2, ensure_ascii=False).casefold()
-    for forbidden_token in ("yone_w", "crescent", "shield", "sweep_hitbox"):
-        check(forbidden_token not in serialized_e, f"retired W payload remains in Yone E: {forbidden_token}")
+    for forbidden_token in (
+        "yone_w", "crescent", "shield", "sweep_hitbox",
+        "lol_yone_e_spirit_outbound", "lol_yone_e_spirit_return",
+    ):
+        check(forbidden_token not in serialized_e, f"retired fake-body payload remains in Yone E: {forbidden_token}")
 
     ult = champion.get("ult", {})
     check(
@@ -7905,12 +8089,14 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         visual_contract.get("runtime_e_resolution")
         == {
             "window_ticks": 240,
-            "body_anchor": "fixed cast-point animation",
-            "moving_read": "caster-following translucent spirit buff",
-            "return": "single delayed BackToCaster projectile",
-            "damage_tracking": "native pre/post wrappers settle once at return",
+            "action_duration_ticks": 24,
+            "initial_movement": "single non-damaging RushTime",
+            "body_anchor": "fixed opaque cast-point animation",
+            "moving_read": "real caster with a thin outline-and-particle aura",
+            "return": "begin-return native at 240; 60-tick fast CC-immune path return; settle native at 300",
+            "damage_tracking": "native pre/post wrappers settle once after the bounded return phase",
         },
-        "Yone generated QA must record the E-only anchor/spirit/return contract",
+        "Yone generated QA must record the real-caster E anchor/spirit/bounded-return contract",
     )
     if actor_sheet_path.is_file() and actor_anims:
         actor_sheet = Image.open(actor_sheet_path).convert("RGBA")
@@ -7989,7 +8175,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 "Yone idle/run foot anchors diverged by more than 2px",
             )
 
-    expected_vfx: dict[str, dict[str, tuple[int, float, bool]]] = {
+    expected_vfx: dict[str, dict[str, tuple[int, float | tuple[float, ...], bool]]] = {
         "yone_attack": {"steel_hit": (4, 0.05, True), "azakana_hit": (4, 0.05, True)},
         "yone_q": {
             "projectile": (5, 0.055, True),
@@ -8006,13 +8192,14 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "remove": (3, 0.06, True),
         },
         "yone_spirit": {
-            "anchor": (5, 0.80, True),
-            "outbound": (5, 0.065, True),
-            "return": (5, 0.065, True),
+            "anchor": (6, (0.99, 0.99, 0.99, 0.99, 0.99, 0.05), True),
             "return_burst": (5, 0.055, True),
-            "spirit_pre": (3, 0.06, True),
-            "spirit_loop": (4, 0.08, True),
-            "spirit_remove": (3, 0.06, True),
+            "spirit_pre": (2, 0.06, False),
+            "spirit_loop": (3, 0.08, False),
+            "spirit_remove": (3, (0.06, 0.06, 0.03), True),
+            "return_pre": (1, 0.05, False),
+            "return_loop": (3, 0.06, False),
+            "return_remove": (3, (0.05, 0.05, 0.03), True),
         },
         "yone_r": {
             "windup": (5, 0.065, True),
@@ -8030,8 +8217,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_q_hit": ("yone_q", "hit"),
         "lol_yone_q_empowered_hit": ("yone_q", "empowered_hit"),
         "lol_yone_q3_airborne_cue": ("yone_q3_tornado", "cue"),
-        "lol_yone_e_spirit_outbound": ("yone_spirit", "outbound"),
-        "lol_yone_e_spirit_return": ("yone_spirit", "return"),
         "lol_yone_e_body_anchor": ("yone_spirit", "anchor"),
         "lol_yone_e_return_burst": ("yone_spirit", "return_burst"),
         "lol_yone_r_windup": ("yone_r", "windup"),
@@ -8050,7 +8235,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }
     check(
         {
-            name: (effect_views.get(name, {}).get("tag"), effect_views.get(name, {}).get("z"))
+            name: (
+                effect_views.get(name, {}).get("type"),
+                effect_views.get(name, {}).get("tag"),
+                effect_views.get(name, {}).get("z"),
+                effect_views.get(name, {}).get("is_follow"),
+            )
             for name in (
                 "lol_yone_q3_airborne_cue",
                 "lol_yone_e_body_anchor",
@@ -8058,9 +8248,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             )
         }
         == {
-            "lol_yone_q3_airborne_cue": ("cue", 2),
-            "lol_yone_e_body_anchor": ("anchor", 0),
-            "lol_yone_e_return_burst": ("return_burst", 2),
+            "lol_yone_q3_airborne_cue": ("Animation", "cue", 2, True),
+            "lol_yone_e_body_anchor": ("Animation", "anchor", 1, False),
+            "lol_yone_e_return_burst": ("Animation", "return_burst", 2, True),
         },
         "Yone Q3/E effect tags or draw layers changed",
     )
@@ -8070,16 +8260,18 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             str(view.get("pre_tag", "")),
             str(view.get("loop_tag", "")),
             str(view.get("remove_tag", "")),
+            view.get("z"),
         )
         for view in champion.get("view_buffs", [])
     }
     check(
         declared_buffs
         == {
-            "lol_yone_mortal_steel_stack_2": ("yone_q3_ready_wind", "pre", "loop", "remove"),
-            "lol_yone_e_spirit_form": ("yone_spirit", "spirit_pre", "spirit_loop", "spirit_remove"),
+            "lol_yone_mortal_steel_stack_2": ("yone_q3_ready_wind", "pre", "loop", "remove", 1),
+            "lol_yone_e_spirit_form": ("yone_spirit", "spirit_pre", "spirit_loop", "spirit_remove", 2),
+            "lol_yone_e_returning": ("yone_spirit", "return_pre", "return_loop", "return_remove", 2),
         },
-        "Yone must register only the Q3-ready wind and E spirit-form buff views",
+        "Yone must register only the Q3-ready wind and the outbound/return E aura views",
     )
     used_views = {
         str(effect.get("name"))
@@ -8101,8 +8293,14 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             frames = anims.get(tag, {}).get("frames", [])
             check(len(frames) == expected_count, f"Yone {effect_name}:{tag} frame count changed")
             for index, frame in enumerate(frames):
+                expected_frame_duration = (
+                    expected_duration[index]
+                    if isinstance(expected_duration, tuple) and index < len(expected_duration)
+                    else expected_duration
+                )
                 check(
-                    math.isclose(float(frame.get("duration", -1)), expected_duration, rel_tol=0.0, abs_tol=1e-9),
+                    isinstance(expected_frame_duration, (int, float))
+                    and math.isclose(float(frame.get("duration", -1)), float(expected_frame_duration), rel_tol=0.0, abs_tol=1e-9),
                     f"Yone {effect_name}:{tag}[{index}] duration changed",
                 )
                 data = frame.get("data", {})
@@ -8114,6 +8312,55 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                     check(bbox is None, f"Yone {effect_name}:{tag} must terminate on a transparent cleanup frame")
                 else:
                     check(bbox is not None, f"Yone {effect_name}:{tag}[{index}] is empty")
+
+    spirit_sheet_path = MOD_ROOT / "aseprite_resources/effects/yone_spirit#sheet.png"
+    spirit_anims = load_json("aseprite_resources/effects/yone_spirit#anim.fanim").get("anims", {})
+    if spirit_sheet_path.is_file() and spirit_anims:
+        spirit_sheet = Image.open(spirit_sheet_path).convert("RGBA")
+
+        def spirit_frame(tag: str, index: int) -> Image.Image:
+            data = spirit_anims[tag]["frames"][index]["data"]
+            return spirit_sheet.crop(
+                (data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"])
+            )
+
+        def flattened_pixels(image: Image.Image) -> Any:
+            return (
+                image.get_flattened_data()
+                if hasattr(image, "get_flattened_data")
+                else image.getdata()
+            )
+
+        anchor_frames = spirit_anims.get("anchor", {}).get("frames", [])
+        check(
+            math.isclose(sum(float(frame.get("duration", 0)) for frame in anchor_frames), 5.0, rel_tol=0.0, abs_tol=1e-9),
+            "Yone E opaque body anchor must remain at the cast point for exactly 5.0 seconds",
+        )
+        for index in range(max(0, len(anchor_frames) - 1)):
+            alpha_values = list(flattened_pixels(spirit_frame("anchor", index).getchannel("A")))
+            check(bool(any(alpha_values)), f"Yone E body anchor frame {index} is empty")
+            check(
+                {value for value in alpha_values if value} == {255},
+                f"Yone E body anchor frame {index} must be fully opaque, not a cyan ghost",
+            )
+        if anchor_frames:
+            anchor_visible = sum(
+                value > 0
+                for value in flattened_pixels(spirit_frame("anchor", 0).getchannel("A"))
+            )
+            for tag in ("spirit_pre", "spirit_loop", "return_pre", "return_loop"):
+                for index, _frame in enumerate(spirit_anims.get(tag, {}).get("frames", [])):
+                    aura = spirit_frame(tag, index).getchannel("A")
+                    bbox = aura.getbbox()
+                    check(bbox is not None, f"Yone E {tag}[{index}] aura is empty")
+                    if bbox is None:
+                        continue
+                    visible = sum(value > 0 for value in flattened_pixels(aura))
+                    bbox_area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
+                    check(
+                        visible < anchor_visible * 0.58 and visible < bbox_area * 0.48,
+                        f"Yone E {tag}[{index}] must remain a sparse aura, not a second humanoid",
+                    )
 
     for relative in (
         "aseprite_resources/effects/yone_q3_tornado#sheet.png",
@@ -8258,11 +8505,21 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "lol_yone_q3_ready_wind",
             "lol_yone_q3_tornado",
             "45 tick `Airborne`",
-            "BackToCasterLinearProjectile",
-            "不宣称真实坐标回溯",
             "E-only",
-            "绝无 `Rush` / `Teleport`",
+            "lol_yone_e_body_anchor",
+            "RushTime",
+            "240 tick",
+            "真实施法者",
+            "不透明本体",
+            "稀疏轮廓",
+            "60 tick",
+            "300 tick",
+            "GameCtx",
+            "不能直接写英雄坐标",
+            "恰好执行一次无伤害 `RushTime`",
+            "YoneSoulUnboundReturnInputAi",
             "lol_yone_e_start_native",
+            "lol_yone_e_begin_return_native",
             "lol_yone_e_damage_pre_native",
             "lol_yone_e_damage_post_native",
             "lol_yone_e_settle_native",
@@ -8274,6 +8531,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         for retired in (
             "E+W", "lol_yone_w_sweep_hitbox", "lol_yone_w_champion_shield_probe",
             "W 月牙", "护盾档位",
+            "BackToCasterLinearProjectile", "lol_yone_e_spirit_outbound",
+            "lol_yone_e_spirit_return",
         ):
             check(retired not in skill_qa, f"Yone skill QA retains retired W contract: {retired}")
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("dual_blader", {})
@@ -8282,6 +8541,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
     for effect_ref in (
         "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
         "lol_yone_e_damage_post_native",
         "lol_yone_e_settle_native",
@@ -8296,6 +8556,41 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "ctx.is_valid_input(&sealed_pursuit)",
     ):
         check(retired_token not in rust, f"Yone unsafe targeted input gate must stay removed: {retired_token}")
+    for marker in (
+        "const YONE_SOUL_UNBOUND_WINDOW_TICKS: usize = 240;",
+        "const YONE_SOUL_UNBOUND_RETURN_TICKS: usize = 60;",
+        'const YONE_SOUL_UNBOUND_SERVICE_ID: &str = "yone_soul_unbound_context";',
+        "static NEXT_YONE_CONTEXT_TOKEN: AtomicUsize = AtomicUsize::new(1);",
+        "fn yone_context_token(ctx: &GameCtx) -> Option<usize>",
+        "ctx.query_service(MOD_ID, YONE_SOUL_UNBOUND_SERVICE_ID, \">=1.0.0\")",
+        "ctx.register_service(",
+        "ModServiceVersion::new(1, 0, 0)",
+        "context_token: usize,",
+        "last_tick_by_context: HashMap<usize, usize>",
+        "fn prepare_for_tick(&mut self, context_token: usize, now: usize)",
+        "state.context_token != context_token",
+        "registry.prepare_for_tick(context_token, now);",
+        "struct YoneSoulUnboundBeginReturnNativeEffect;",
+        "struct YoneSoulUnboundReturnInputAi;",
+        "impl ModPlayerInputAi for YoneSoulUnboundReturnInputAi",
+        '"lol_yone_e_return_input_ai"',
+        "return_tick.saturating_add(YONE_SOUL_UNBOUND_RETURN_TICKS)",
+        "PlayerInputDecision::Replace(Input::Move { x, y })",
+        "registration.add_player_input_ai(YoneSoulUnboundReturnInputAi);",
+    ):
+        check(marker in rust, f"Yone bounded-return input-AI proof is missing: {marker}")
+    check(
+        "self.states.clear()" not in rust,
+        "Yone E registry must never clear every GameCtx state bucket on one timeline reset",
+    )
+    check(
+        rust.count("let Some(context_token) = yone_context_token(ctx) else {") >= 5,
+        "Every Yone E GameCtx native callback must resolve its match-local service token",
+    )
+    check(
+        rust.count("registry.prepare_for_tick(context_token, now);") >= 5,
+        "Every Yone E GameCtx native callback must prepare only its context-local registry bucket",
+    )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
@@ -8669,13 +8964,21 @@ def main() -> int:
     validate_animation(
         "aseprite_resources/effects/shen_q#sheet.png",
         "aseprite_resources/effects/shen_q#anim.fanim",
-        {"recall": 8, "empowered_hit": 4, "recall_arrival": 4},
+        {
+            "recall": 8,
+            "empowered_hit": 4,
+            "recall_arrival": 4,
+            "empower_pre": 2,
+            "empower_loop": 4,
+            "empower_remove": 2,
+        },
     )
     validate_animation(
         "aseprite_resources/effects/shen_e#sheet.png",
         "aseprite_resources/effects/shen_e#anim.fanim",
         {
             "dash": 3,
+            "dash_start": 3,
             "impact": 3,
             "trail_pre": 1,
             "trail_loop": 2,

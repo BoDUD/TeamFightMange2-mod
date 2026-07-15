@@ -5,8 +5,9 @@
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
 - [x] Idle/run/attack/Q/E/R/dead bodies retain one stable battle scale.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
-- [x] E uses approved-body spirit silhouettes for a fixed anchor, a caster-following spirit form, one outbound trace and one delayed return.
-- [x] E binds runtime `CasterAnimation` to the five-frame `skill2_attack` leave-body motion; no W crescent motion remains.
+- [x] E leaves one opaque approved-body anchor at the cast point; the real caster performs one short directional lunge and becomes the controllable spirit.
+- [x] E's caster-following layer contains only a thin outline and sparse particles; no filled blue duplicate or fake humanoid projectile remains.
+- [x] E binds runtime `CasterAnimation` to the five-frame `skill2_attack` leave-body motion and reserves a 60-tick fast, CC-immune return phase for the native anchor AI.
 - [x] Compact portrait is face-focused with transparent safety margins.
 - [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.
 - [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.

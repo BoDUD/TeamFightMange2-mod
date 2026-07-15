@@ -7,6 +7,8 @@ import subprocess
 import sys
 import unicodedata
 
+from PIL import Image
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
@@ -133,6 +135,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
+        "lol_shen_twilight_assault_empowered_window",
     }
     for switch in switches:
         delayed = [
@@ -141,11 +144,15 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
             if effect.get("type") == "Delayed"
         ]
         assert len(delayed) == 1
-        assert [
+        removals = [
             effect["name"]
             for effect in delayed[0]["effects"]
             if effect.get("type") == "RemoveCasterBuff"
-        ] == [switch["buff_name"]]
+        ]
+        expected_removals = [switch["buff_name"]]
+        if switch["buff_name"] == "lol_shen_twilight_assault_charge_1":
+            expected_removals.append("lol_shen_twilight_assault_empowered_window")
+        assert removals == expected_removals
     assert not find_effect(attack, "AddCasterBuff")
 
     q = shen["skill"]
@@ -153,6 +160,17 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         q["action_name"], q["cooltime"], q["duration"], q["start_timing"],
         q["range"], q["casting_type"], q["casting_target"],
     ) == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion")
+    anchors = find_effect(
+        q,
+        "LinearProjectile",
+        name="lol_shen_twilight_assault_blade_anchor",
+    )
+    assert len(anchors) == 1
+    anchor = anchors[0]
+    assert (
+        anchor["penetrate"], anchor["speed"], anchor["range"],
+        anchor["shape"], anchor["applied_target"], anchor["applied_effects"],
+    ) == (False, 60000, 55000, {"Circle": {"radius": 1000}}, "EnemyChampion", [])
     recalls = find_effect(
         q,
         "BackToCasterLinearProjectile",
@@ -160,25 +178,30 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     )
     assert len(recalls) == 1
     blade_recall = recalls[0]
+    assert anchor["end_effects"] == [blade_recall]
     assert (
         blade_recall["penetrate"], blade_recall["speed"], blade_recall["range"],
         blade_recall["shape"], blade_recall["applied_target"],
         blade_recall["applied_effects"],
     ) == (True, 12000, 130000, {"Circle": {"radius": 7500}}, "EnemyChampion", [])
+    recall_end = blade_recall["end_effects"]
     assert find_effect(
-        blade_recall["end_effects"],
+        recall_end,
         "ViewEffect",
         name="lol_shen_twilight_assault_recall_arrival",
     )
-    # Q is one visible recall from the cast target to Shen, never a fabricated
-    # outbound-then-return blade or a damaging projectile spell.
-    assert not find_effect(q, "LinearProjectile")
+    # The anchor is deliberately not rendered or damaging. It only establishes
+    # the endpoint from which the one visible return blade can be created.
+    assert len(find_effect(q, "LinearProjectile")) == 1
     assert not find_effect(q, "RangeProjectile")
     assert not find_effect(q, "Attack")
     assert not find_effect(q, "ApAttack")
     assert not find_effect(q, "Shield")
     direct_q_effects = q["effect"]["effects"]
-    q_grants = [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"]
+    assert not [
+        effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"
+    ]
+    q_grants = [effect for effect in recall_end if effect.get("type") == "AddCasterBuff"]
     assert {
         effect["buff_state"]["name"]: effect["buff_state"]["duration"]
         for effect in q_grants
@@ -186,6 +209,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         "lol_shen_twilight_assault_charge_3": {"Time": {"tick": 480}},
         "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
         "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
+        "lol_shen_twilight_assault_empowered_window": {"Time": {"tick": 480}},
     }
     direct_removals = {
         effect["name"] for effect in direct_q_effects if effect.get("type") == "RemoveCasterBuff"
@@ -194,6 +218,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         "lol_shen_twilight_assault_charge_3",
         "lol_shen_twilight_assault_charge_2",
         "lol_shen_twilight_assault_charge_1",
+        "lol_shen_twilight_assault_empowered_window",
     }
     q_serialized = json.dumps(q, ensure_ascii=False)
     for retired in (
@@ -211,6 +236,23 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         e["action_name"], e["cooltime"], e["duration"], e["start_timing"],
         e["range"], e["casting_type"], e["casting_target"],
     ) == ("skill2", 720, 30, 4, 60000, "Direction", "EnemyChampion")
+    direct_e_effects = e["effect"]["effects"]
+    assert [
+        effect
+        for effect in direct_e_effects
+        if effect.get("type") == "Native"
+    ] == [{
+        "type": "Native",
+        "effect_ref": "lol_shen_shadow_dash_ai_hint_native",
+    }]
+    assert [
+        effect
+        for effect in direct_e_effects
+        if effect.get("type") == "CasterViewEffect"
+    ] == [{
+        "type": "CasterViewEffect",
+        "name": "lol_shen_shadow_dash_cast_flash",
+    }]
     rushes = find_effect(e, "Rush")
     assert len(rushes) == 1
     rush = rushes[0]
@@ -270,7 +312,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
         "name": "lol_shen_twilight_assault_blade_recall",
         "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
         "tag": "recall",
-        "z": 2,
+        "z": 3,
         "repeat": True,
     }]
     assert shen["view_effects"] == [
@@ -288,6 +330,14 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
             "tag": "recall_arrival",
             "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_shadow_dash_cast_flash",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "tag": "dash_start",
+            "z": 3,
             "is_follow": True,
         },
         {
@@ -318,12 +368,21 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     assert shen["view_buffs"] == [
         {
             "type": "ThreePhase",
+            "name": "lol_shen_twilight_assault_empowered_window",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "pre_tag": "empower_pre",
+            "loop_tag": "empower_loop",
+            "remove_tag": "empower_remove",
+            "z": 3,
+        },
+        {
+            "type": "ThreePhase",
             "name": "lol_shen_shadow_dash_trail_window",
             "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
             "pre_tag": "trail_pre",
             "loop_tag": "trail_loop",
             "remove_tag": "trail_remove",
-            "z": -1,
+            "z": 3,
         },
         {
             "type": "ThreePhase",
@@ -345,6 +404,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     for name, tag in {
         "lol_shen_twilight_assault_empowered_hit": "empowered_hit",
         "lol_shen_twilight_assault_recall_arrival": "recall_arrival",
+        "lol_shen_shadow_dash_cast_flash": "dash_start",
         "lol_shen_shadow_dash_impact": "impact",
         "lol_shen_stand_united_guard_visual": "guard",
         "lol_shen_stand_united_arrival_visual": "arrival",
@@ -357,21 +417,100 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     e_anim = json.loads(
         (MOD / "aseprite_resources/effects/shen_e#anim.fanim").read_text(encoding="utf-8")
     )["anims"]
-    assert {"recall", "recall_arrival", "empowered_hit"} <= q_anim.keys()
     assert {
-        "impact",
+        "recall", "recall_arrival", "empowered_hit",
+        "empower_pre", "empower_loop", "empower_remove",
+    } <= q_anim.keys()
+    assert {
+        "dash_start", "impact",
         "trail_pre", "trail_loop", "trail_remove",
         "taunt_pre", "taunt_loop", "taunt_remove",
     } <= e_anim.keys()
 
+    # Every declared renderer tag must resolve inside its bound FANIM. This is
+    # stricter than checking names alone: an enum/type/tag mismatch silently
+    # turns an otherwise valid skill into an invisible effect.
+    anim_by_asset = {
+        "asset/lol_mod/aseprite_resources/effects/shen_q": q_anim,
+        "asset/lol_mod/aseprite_resources/effects/shen_e": e_anim,
+    }
+    for view in [*shen["view_projectiles"], *shen["view_effects"], *shen["view_buffs"]]:
+        if view["anim"] not in anim_by_asset:
+            continue
+        tags = anim_by_asset[view["anim"]]
+        for field in ("tag", "pre_tag", "loop_tag", "remove_tag"):
+            if field in view:
+                assert view[field] in tags, (view["name"], field, view[field])
+
+    def tag_visibility(sheet_name: str, anims: dict, tag: str) -> list[tuple[int, int]]:
+        sheet = Image.open(
+            MOD / "aseprite_resources" / "effects" / f"{sheet_name}#sheet.png"
+        ).convert("RGBA")
+        metrics = []
+        for frame in anims[tag]["frames"]:
+            data = frame["data"]
+            cell = sheet.crop((
+                data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"],
+            ))
+            pixels = (
+                cell.get_flattened_data()
+                if hasattr(cell, "get_flattened_data")
+                else cell.getdata()
+            )
+            opaque = [pixel for pixel in pixels if pixel[3] >= 192]
+            bright = sum(
+                0.2126 * red + 0.7152 * green + 0.0722 * blue >= 105
+                for red, green, blue, alpha in opaque
+            )
+            metrics.append((len(opaque), bright))
+        return metrics
+
+    assert all(
+        opaque >= 480 and bright >= 200
+        for opaque, bright in tag_visibility("shen_q", q_anim, "recall")
+    )
+    assert all(
+        opaque >= 480 and bright >= 200
+        for opaque, bright in tag_visibility("shen_q", q_anim, "empower_loop")
+    )
+    assert all(
+        opaque >= 300 and bright >= 250
+        for opaque, bright in tag_visibility("shen_e", e_anim, "dash_start")
+    )
+    assert all(
+        opaque >= 800 and bright >= 700
+        for opaque, bright in tag_visibility("shen_e", e_anim, "trail_loop")
+    )
+
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    assert 'struct ShenShadowDashAiHintNativeEffect;' in runtime
     assert 'struct ShenShadowDashTauntNativeEffect;' in runtime
     assert 'CCState::Taunt {' in runtime
     assert 'target: caster_id' in runtime
     assert 'fn expected_cc_time(&self) -> Option<usize>' in runtime
     assert 'Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)' in runtime
+    assert '"lol_shen_shadow_dash_ai_hint_native"' in runtime
     assert '"lol_shen_shadow_dash_taunt_native"' in runtime
-    assert "ShenShadowDashInput" not in runtime
+    shen_ai_hint = runtime.split(
+        "impl ModEffectType for ShenShadowDashAiHintNativeEffect {", 1
+    )[1].split("\n#[derive", 1)[0]
+    assert "fn apply(" in shen_ai_hint
+    assert "_caster_id: usize" in shen_ai_hint
+    assert "_input: InputTarget" in shen_ai_hint
+    assert "Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)" in shen_ai_hint
+    assert "ctx." not in shen_ai_hint
+
+    # The root expected-CC hint makes E scoreable.  The input AI is the final
+    # liveness guard: when stock AI proposes an attack/Q on a valid target and
+    # Shadow Dash is ready, Shen must actually replace that decision with E.
+    assert "struct ShenShadowDashInputAi;" in runtime
+    assert "impl ModPlayerInputAi for ShenShadowDashInputAi" in runtime
+    assert '"lol_shen_shadow_dash_input_ai"' in runtime
+    assert "Some(Input::Skill { target }) | Some(Input::Attack { target })" in runtime
+    assert "let shadow_dash = Input::Skill2 { target };" in runtime
+    assert "ctx.is_valid_input(&shadow_dash)" in runtime
+    assert "PlayerInputDecision::Replace(shadow_dash)" in runtime
+    assert "registration.add_player_input_ai(ShenShadowDashInputAi);" in runtime
     shen_native = runtime.split("impl ModEffectType for ShenShadowDashTauntNativeEffect {", 1)[1].split(
         "\nfn init(", 1
     )[0]
