@@ -1320,13 +1320,20 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             (data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"])
         )
 
+    def flattened(image: Image.Image):
+        return (
+            image.get_flattened_data()
+            if hasattr(image, "get_flattened_data")
+            else image.getdata()
+        )
+
     anchor_frames = spirit_anims["anchor"]["frames"]
     if abs(sum(frame["duration"] for frame in anchor_frames) - 5.0) > 0.001:
         raise ValueError("Yone E opaque body anchor must last exactly 5.0 seconds")
     for index in range(len(anchor_frames) - 1):
         frame = spirit_frame("anchor", index)
         visible_alpha = [
-            value for value in frame.getchannel("A").get_flattened_data() if value
+            value for value in flattened(frame.getchannel("A")) if value
         ]
         if not visible_alpha or max(visible_alpha) != 255 or min(visible_alpha) != 255:
             raise ValueError(f"Yone E anchor[{index}] must remain fully opaque")
@@ -1335,14 +1342,14 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
     anchor_visible = sum(
         1
-        for value in spirit_frame("anchor", 0).getchannel("A").get_flattened_data()
+        for value in flattened(spirit_frame("anchor", 0).getchannel("A"))
         if value
     )
     for tag in ("spirit_pre", "spirit_loop", "return_pre", "return_loop"):
         for index in range(len(spirit_anims[tag]["frames"])):
             frame = spirit_frame(tag, index)
             alpha = frame.getchannel("A")
-            visible = sum(1 for value in alpha.get_flattened_data() if value)
+            visible = sum(1 for value in flattened(alpha) if value)
             bbox = alpha.getbbox()
             if not visible or bbox is None:
                 raise ValueError(f"Yone E {tag}[{index}] cannot be a transparent loop frame")

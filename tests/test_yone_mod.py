@@ -674,24 +674,31 @@ def test_yone_e_spirit_sheet_keeps_an_opaque_body_anchor_and_only_sparse_mobile_
             )
         )
 
+    def flattened(image: Image.Image):
+        return (
+            image.get_flattened_data()
+            if hasattr(image, "get_flattened_data")
+            else image.getdata()
+        )
+
     anchor_frames = anims["anchor"]["frames"]
     assert abs(sum(item["duration"] for item in anchor_frames) - 5.0) < 0.001
     for index in range(len(anchor_frames) - 1):
-        alpha = list(frame("anchor", index).getchannel("A").get_flattened_data())
+        alpha = list(flattened(frame("anchor", index).getchannel("A")))
         assert any(alpha)
         assert {value for value in alpha if value} == {255}
     assert frame("anchor", -1).getchannel("A").getbbox() is None
 
     anchor_visible = sum(
         value > 0
-        for value in frame("anchor", 0).getchannel("A").get_flattened_data()
+        for value in flattened(frame("anchor", 0).getchannel("A"))
     )
     for tag in ("spirit_pre", "spirit_loop", "return_pre", "return_loop"):
         for index, _item in enumerate(anims[tag]["frames"]):
             aura = frame(tag, index).getchannel("A")
             bbox = aura.getbbox()
             assert bbox is not None, (tag, index)
-            visible = sum(value > 0 for value in aura.get_flattened_data())
+            visible = sum(value > 0 for value in flattened(aura))
             bbox_area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])
             assert visible < anchor_visible * 0.58, (tag, index)
             assert visible < bbox_area * 0.48, (tag, index)
