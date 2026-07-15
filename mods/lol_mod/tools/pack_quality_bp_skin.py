@@ -984,13 +984,14 @@ def main() -> int:
             and "text_edit:" in control_style
             and "asset/base/style/main" not in override
         ),
-        "champion_slot_override_registered": override.get(
-            "asset/base/ui/layout/banpick/champion_slot"
-        )
-        == {
-            "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
-            "type": "override",
-        },
+        "legacy_bp_component_overrides_disabled_for_base_0_5_1": all(
+            key not in override
+            for key in (
+                "asset/base/ui/layout/banpick/blue_pick_slot",
+                "asset/base/ui/layout/banpick/red_pick_slot",
+                "asset/base/ui/layout/banpick/champion_slot",
+            )
+        ),
         "champion_preview_uses_safe_top_inset": (
             f"width: {CHAMPION_ICON_CANVAS_SIZE[0]}px;\n"
             f"    height: {CHAMPION_ICON_CANVAS_SIZE[1]}px;\n"
@@ -1098,11 +1099,9 @@ def main() -> int:
         "native_layout_restores_after_skin_delta": (
             restored_native_layout_hash(layout) == NATIVE_LAYOUT_NORMALIZED_SHA256
         ),
-        "layout_override_registered": override.get("asset/base/ui/layout/banpick/layout")
-        == {
-            "remapping": "asset/lol_mod/ui/layout/banpick/layout",
-            "type": "override",
-        },
+        "legacy_bp_layout_override_disabled_for_base_0_5_1": (
+            "asset/base/ui/layout/banpick/layout" not in override
+        ),
     }
     if not all(static_checks.values()):
         raise ValueError(

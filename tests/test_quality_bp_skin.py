@@ -28,10 +28,18 @@ def test_bp_skin_uses_an_imagegen_background_without_replacing_interactions() ->
     assert qa["layout"]["restored_native_sha256"] == qa["layout"][
         "native_baseline_normalized_sha256"
     ]
-    assert override["asset/base/ui/layout/banpick/layout"] == {
-        "remapping": "asset/lol_mod/ui/layout/banpick/layout",
-        "type": "override",
-    }
+    # Base 0.5.1 owns the active BP tree. Its layout added required skill-name,
+    # turn-outline, and champion-pool-wait nodes that the archived 0.5.0 skin
+    # does not contain, so overriding it can crash the host during draft.
+    assert all(
+        key not in override
+        for key in (
+            "asset/base/ui/layout/banpick/blue_pick_slot",
+            "asset/base/ui/layout/banpick/red_pick_slot",
+            "asset/base/ui/layout/banpick/champion_slot",
+            "asset/base/ui/layout/banpick/layout",
+        )
+    )
     assert qa["source"]["path"].endswith("lol_bp_background_v2_source.png")
     assert not (MOD / "source/imagegen/ui/lol_bp_background_v1_source.png").exists()
 
@@ -98,10 +106,7 @@ def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
     layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
     champion_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(encoding="utf-8")
     style = (MOD / "style/bp_controls.style").read_text(encoding="utf-8")
-    assert override["asset/base/ui/layout/banpick/champion_slot"] == {
-        "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
-        "type": "override",
-    }
+    assert "asset/base/ui/layout/banpick/champion_slot" not in override
     assert "asset/base/style/main" not in override
     assert 'asset/lol_mod/style/bp_controls#dropdown' in layout
     assert 'asset/lol_mod/style/bp_controls#text_edit' in layout

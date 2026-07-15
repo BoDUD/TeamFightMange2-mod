@@ -858,7 +858,7 @@
     "timer_runtime_dimensions": true,
     "timer_runtime_has_alpha": true,
     "bp_controls_use_local_style_only": true,
-    "champion_slot_override_registered": true,
+    "legacy_bp_component_overrides_disabled_for_base_0_5_1": true,
     "champion_preview_uses_safe_top_inset": true,
     "champion_preview_stops_before_name_band": true,
     "champion_frame_uses_proven_native_sibling_order": true,
@@ -871,6 +871,6 @@
     "champion_slot_restores_after_skin_delta": true,
     "component_contact_generated": true,
     "native_layout_restores_after_skin_delta": true,
-    "layout_override_registered": true
+    "legacy_bp_layout_override_disabled_for_base_0_5_1": true
   }
 }

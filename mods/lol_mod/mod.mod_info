@@ -3,9 +3,9 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.11.0",
-  "description": "Local Shen, Urgot, and Yone joint review bundle. It keeps the fixed battle scale and compact portraits for Shen, Lucian, Orianna, Briar, and Sivir; uses Shen's visible spirit-blade Q return and native 1.5-second E taunt; keeps Urgot W on the crash-safe single-hit pure-data route and E on the rush-behind flip contract; and rebuilds Yone with guarded Q1/Q2/Q3 progression, one airborne Q3 wind lane, and an E-only Soul Unbound slot. Yone E leaves an opaque body at the cast point while the real caster fights as a sparsely outlined spirit; its damage ledger is isolated per simulation and its bounded return uses fast CC-immune pathing. Mod API 0.8 cannot directly write hero coordinates, so this build does not claim an instantaneous terrain-ignoring position snap. This local integration build does not merge either Draft PR. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
-  "last_updated": "2026-07-14",
+  "version": "0.11.1",
+  "description": "Local Shen, Urgot, and Yone joint review bundle for Teamfight Manager 2 v0.5.1. It keeps Shen's visible spirit-blade Q and native 1.5-second E taunt, Urgot's crash-safe W and flip E, and Yone's guarded Q3 plus E-only Soul Unbound. The game runtime updated to base 0.5.1 while its bundled SDK remains base 0.5.0, so legacy client/server extensions that directly touch internal GameUI, RenderState, ClientDatabase, and ServerModContext layouts are disabled by default. Combat-native Mod API 0.8 hooks remain enabled; dynamic BP splash, portrait-command, and deterministic-dragon rewrites stay off until a matching 0.5.1 SDK is available. Yone E uses fast CC-immune pathing because Mod API 0.8 cannot directly write hero coordinates.",
+  "last_updated": "2026-07-15",
   "dependencies": [
     {
       "mod_id": "base",

@@ -79,7 +79,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.11.0"
+    assert mod_info["version"] == "0.11.1"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -750,7 +750,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.11.0;root=' in source
+    assert '"version=0.11.1;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -804,6 +804,13 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]
     assert "snapshot.seed" in source
     assert "registration.set_server_extension" in source
+    assert "LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV" in source
+    assert '"LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS"' in source
+    guard = source.index("if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV)")
+    client_registration = source.index("registration.set_extension", guard)
+    server_registration = source.index("registration.set_server_extension", guard)
+    registration_return = source.index("\n    registration\n}", server_registration)
+    assert guard < client_registration < server_registration < registration_return
     assert "dragon_variant_index" in source
     for variant in variants:
         assert f'"dragon_variants/{variant}"' in source

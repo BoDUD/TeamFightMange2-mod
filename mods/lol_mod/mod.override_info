@@ -11,22 +11,6 @@
                                            "remapping":  "asset/lol_mod/style/champion_view",
                                            "type":  "merge"
                                        },
-    "asset/base/ui/layout/banpick/blue_pick_slot":  {
-                                                        "remapping":  "asset/lol_mod/ui/layout/banpick/blue_pick_slot",
-                                                        "type":  "override"
-                                                    },
-    "asset/base/ui/layout/banpick/red_pick_slot":  {
-                                                       "remapping":  "asset/lol_mod/ui/layout/banpick/red_pick_slot",
-                                                       "type":  "override"
-                                                   },
-    "asset/base/ui/layout/banpick/champion_slot":  {
-                                                       "remapping":  "asset/lol_mod/ui/layout/banpick/champion_slot",
-                                                       "type":  "override"
-                                                   },
-    "asset/base/ui/layout/banpick/layout":  {
-                                                "remapping":  "asset/lol_mod/ui/layout/banpick/layout",
-                                                "type":  "override"
-                                            },
     "asset/base/ui/layout/champion_info_component/champion_slot":  {
                                                                        "remapping":  "asset/lol_mod/ui/layout/champion_info_component/champion_slot",
                                                                        "type":  "override"

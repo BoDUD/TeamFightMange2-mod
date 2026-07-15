@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
-  "release": "0.11.0",
+  "release": "0.11.1",
+  "runtime_compatibility": {
+    "active_base_version": "0.5.1",
+    "bundled_sdk_base_version": "0.5.0",
+    "legacy_internal_extensions": "disabled_by_default",
+    "legacy_bp_layout_overrides": "disabled",
+    "inactive_until_matching_sdk": [
+      "dynamic Ban/Pick splash command rewriting",
+      "client portrait command rewriting",
+      "deterministic elemental dragon server rewriting"
+    ],
+    "reason": "Base 0.5.1 changed required Ban/Pick UI nodes and internal client/server layouts; the 0.5.0 paths are retained only as dormant audit assets."
+  },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [

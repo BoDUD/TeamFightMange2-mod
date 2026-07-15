@@ -1094,18 +1094,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1037312,
-      "sha256": "88257b5fd242c588d0b0490c13123df77ecaa91d18e70826de7efe294b449e5c"
+      "size": 1037824,
+      "sha256": "03c034b69963c6fdaed1b63c0e821cd760c0f4905a46cbbe99b4d829d2c240f5"
     },
     {
       "path": "mod.mod_info",
-      "size": 1214,
-      "sha256": "6c8a26c5b5ea0f91ac249d0e5e555a89607809823ba379d643a6c340512e644f"
+      "size": 1067,
+      "sha256": "0c07aa2db0da5a90713ff75a3c62b8ef3190c720028990c32f890a3b2ee8048b"
     },
     {
       "path": "mod.override_info",
-      "size": 108323,
-      "sha256": "710170c71a8b98f6182ac136e05623efb6d6cb6c0b038b60d49f862e62fe95a1"
+      "size": 107153,
+      "sha256": "4db26ab9e2e1a56f9200fbd63136efd2f651e957d3f8c555ef7162dbab32a771"
     },
     {
       "path": "qa/legacy_battle_actor_scale_qa.json",

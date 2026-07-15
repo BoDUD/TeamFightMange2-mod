@@ -15,6 +15,14 @@ use mod_api::MatchType;
 use mod_api::*;
 
 const MOD_ID: &str = "lol_mod";
+// Teamfight Manager 2 updated its runtime to base 0.5.1 on 2026-07-15, while
+// the bundled SDK still identifies itself as base 0.5.0.  The client/server
+// extension traits expose internal game_view/game_core structures whose ABI
+// is not covered by the stable Mod API version.  Calling those old extension
+// vtables during 0.5.1 Ban/Pick caused the host renderer to unwrap a missing
+// value and terminate.  Keep combat-native Mod API hooks enabled, but require
+// an explicit developer opt-in before registering the stale internal ABI.
+const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
 const DRAGON_EVENT_VERSION: &str = "v1";
 const DRAGON_TELEMETRY_ENV: &str = "LOL_QA_DRAGON_VARIANT_TELEMETRY";
@@ -1081,7 +1089,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.11.0;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.11.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -2467,10 +2475,12 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         ShenShadowDashTauntNativeEffect,
     );
     registration.add_player_input_ai(ShenShadowDashInputAi);
-    registration.set_extension(LolModExtension);
-    registration.set_server_extension(LolDragonServerExtension {
-        announced: Mutex::new(HashSet::new()),
-    });
+    if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
+        registration.set_extension(LolModExtension);
+        registration.set_server_extension(LolDragonServerExtension {
+            announced: Mutex::new(HashSet::new()),
+        });
+    }
     registration
 }
 
