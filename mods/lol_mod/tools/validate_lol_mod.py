@@ -2051,62 +2051,64 @@ def validate_native_setting_override(override: dict[str, Any]) -> None:
 
 
 def validate_native_archer_animation() -> None:
-    sheet_path = MOD_ROOT / "aseprite_resources/champions/archer#sheet.png"
-    anim = load_json("aseprite_resources/champions/archer#anim.fanim")
+    """Gate every native Archer alias needed by same-ID Lucian."""
+
+    sheet_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
+    anim = load_json("aseprite_resources/champions/lucian#anim.fanim")
     sheet = Image.open(sheet_path).convert("RGBA")
     expected = {
         "ult_old": [0.080000006] * 7 + [0.1] * 4,
-        "skill": [0.080000006] * 6,
+        "ult_pre": [0.080000006] * 3,
+        "ult_loop": [0.030000001] * 4,
         "ult_end": [0.080000006] * 3,
         "ult_projectile": [0.080000006],
-        "hit": [0.1],
-        "run": [0.080000006] * 8,
-        "ult_loop": [0.030000001] * 4,
-        "skill2": [0.080000006] * 7,
-        "ult_pre": [0.080000006] * 3,
-        "dead": [0.1] * 4 + [0.15] * 5,
         "old_ult_buff_effect": [0.1] * 4,
         "skill_attack": [0.080000006] * 3,
-        "idle": [0.18, 0.14, 0.14, 0.14],
         "skill_dash": [0.080000006] * 3,
-        "attack": [0.060000002] * 6,
         "old_ult_pre": [0.080000006] * 7,
     }
-    check(set(anim.get("anims", {})) == set(expected), "Lucian must preserve every native Archer animation key")
-    total_frames = sum(len(durations) for durations in expected.values())
-    check(sheet.size == (total_frames * 64, 64), f"native Archer sheet must be {total_frames * 64}x64, got {sheet.size}")
+    expected_indexes = {
+        "ult_old": [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
+        "ult_pre": [0, 17, 17],
+        "ult_loop": [18, 18, 18, 18],
+        "ult_end": [18, 17, 0],
+        "ult_projectile": [21],
+        "old_ult_buff_effect": [18, 18, 17, 0],
+        "skill_attack": [13, 11, 0],
+        "skill_dash": [15, 16, 16],
+        "old_ult_pre": [0, 17, 17, 18, 18, 18, 18],
+    }
+    available = set(anim.get("anims", {}))
+    check(
+        set(expected).issubset(available),
+        "same-ID Lucian must expose every native Archer compatibility alias",
+    )
+    check(
+        sheet.height == 64 and sheet.width % 64 == 0,
+        f"Lucian actor sheet must remain a row of 64x64 frames, got {sheet.size}",
+    )
     for tag, durations in expected.items():
         frames = anim.get("anims", {}).get(tag, {}).get("frames", [])
-        check(len(frames) == len(durations), f"native Archer tag {tag} frame count changed")
-        for frame, duration in zip(frames, durations):
-            check(abs(float(frame.get("duration", -1)) - duration) < 1e-8, f"native Archer tag {tag} duration changed")
+        check(
+            len(frames) == len(durations),
+            f"native Archer compatibility tag {tag} frame count changed",
+        )
+        for frame, duration, index in zip(
+            frames, durations, expected_indexes[tag], strict=True
+        ):
+            check(
+                abs(float(frame.get("duration", -1)) - duration) < 1e-8,
+                f"native Archer compatibility tag {tag} duration changed",
+            )
             data = frame.get("data", {})
-            check(data.get("w") == 64 and data.get("h") == 64, f"native Archer tag {tag} must use 64x64 safe frames")
-            check(data.get("x", -1) + 64 <= sheet.width, f"native Archer tag {tag} frame is out of bounds")
-
-    run_frames = []
-    for frame in anim.get("anims", {}).get("run", {}).get("frames", []):
-        data = frame["data"]
-        run_frames.append(sheet.crop((data["x"], 0, data["x"] + 64, 64)))
-    hashes = [hashlib.sha256(frame.tobytes()).hexdigest() for frame in run_frames]
-    check(len(set(hashes)) == 8, "native Archer run contract must contain eight unique Lucian phases")
-    lower_sets = []
-    for frame in run_frames:
-        alpha = frame.getchannel("A")
-        lower_sets.append({(x, y) for y in range(31, 46) for x in range(64) if alpha.getpixel((x, y)) >= 128})
-    differences = []
-    for current, following in zip(lower_sets, lower_sets[1:] + lower_sets[:1], strict=True):
-        union = current | following
-        differences.append(len(current ^ following) / len(union) if union else 0.0)
-    if differences:
-        check(min(differences) >= 0.06, "native Archer run phases are too similar to show crossing steps")
-
-    idle = anim.get("anims", {}).get("idle", {}).get("frames", [])[0]["data"]
-    idle_frame = sheet.crop((idle["x"], 0, idle["x"] + 64, 64))
-    bbox = idle_frame.getchannel("A").getbbox()
-    check(bbox is not None and 34 <= bbox[3] - bbox[1] <= 37, "native Archer idle is outside the 34-37px Lucian scale")
-    if bbox:
-        check(bbox[3] <= 46 and bbox[0] >= 2 and bbox[2] <= 62, "native Archer idle violates the safe frame/baseline")
+            check(
+                data == {"x": index * 64, "y": 0, "w": 64, "h": 64},
+                f"native Archer compatibility tag {tag} frame mapping changed",
+            )
+            check(
+                data.get("x", -1) + 64 <= sheet.width,
+                f"native Archer compatibility tag {tag} frame is out of bounds",
+            )
 
 
 def validate_orianna_native_animation(champion: dict[str, Any]) -> None:
@@ -3936,7 +3938,7 @@ def validate_actor_and_icons(champion: dict[str, Any]) -> None:
 def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
     actor_path = MOD_ROOT / "aseprite_resources/champions/lucian#sheet.png"
     actor = Image.open(actor_path).convert("RGBA")
-    check(actor.size == (1344, 64), f"Lucian actor sheet must be 1344x64, got {actor.size}")
+    check(actor.size == (1408, 64), f"Lucian actor sheet must be 1408x64, got {actor.size}")
     actor_anim = load_json("aseprite_resources/champions/lucian#anim.fanim").get("anims", {})
     skill_frames = actor_anim.get("skill", {}).get("frames", [])
     check(
@@ -3955,6 +3957,15 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
             check(bbox[3] <= 46, f"Lucian actor frame {index} crosses the y=45 foot baseline")
             check(bbox[0] >= 2 and bbox[2] <= 62, f"Lucian actor frame {index} touches a side edge")
         hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
+    r_projectile = actor.crop((21 * 64, 0, 22 * 64, 64))
+    r_projectile_bbox = r_projectile.getchannel("A").getbbox()
+    check(r_projectile_bbox is not None, "Lucian native ult_projectile alias frame is empty")
+    if r_projectile_bbox:
+        check(
+            r_projectile_bbox[2] - r_projectile_bbox[0] <= 48
+            and r_projectile_bbox[3] - r_projectile_bbox[1] <= 18,
+            "Lucian native ult_projectile alias exceeds its 48x18 effect-only bounds",
+        )
     if bboxes:
         idle = bboxes[0]
         idle_height = idle[3] - idle[1]
@@ -6850,15 +6861,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         effect.get("effect_ref")
         for effect in find_effect(champion, "Native")
     ]
-    expected_native_refs = {
-        "lol_yone_w_begin_native",
-        "lol_yone_w_collect_hit_native",
-        "lol_yone_w_settle_native",
-    }
+    expected_native_refs = {"lol_yone_w_cone_native"}
     check(
         set(native_refs) == expected_native_refs
         and all(native_refs.count(name) == 1 for name in expected_native_refs),
-        f"Yone W must call begin/collect/settle exactly once, got {native_refs}",
+        f"Yone W must call one stateless cone native exactly once, got {native_refs}",
     )
 
     skill2 = champion.get("skill2", {})
@@ -6896,79 +6903,38 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     top_effects = skill2.get("effect", {}).get("effects", [])
     check(
-        [effect.get("type") for effect in top_effects]
+        [effect.get("type") for effect in top_effects[:4]]
         == [
             "CasterAnimation",
-            "Native",
             "Sfx",
             "CasterViewEffect",
-            "LineRangeProjectile",
-            "Delayed",
+            "Native",
         ],
-        "Yone W top-level begin/cast/hitbox/settle order changed",
+        "Yone W top-level animation/cast/cone order changed",
     )
-    if len(top_effects) >= 6:
+    if len(top_effects) >= 4:
         check(
             top_effects[0]
             == {"type": "CasterAnimation", "name": "skill2_attack", "tick": 30},
             "Yone W must use the five-frame planted skill2_attack body",
         )
         check(
-            top_effects[1]
-            == {"type": "Native", "effect_ref": "lol_yone_w_begin_native"},
-            "Yone W must begin its hit ledger before the hitbox",
-        )
-        check(
-            top_effects[2] == {"type": "Sfx", "name": "lol_yone_w_cast"}
-            and top_effects[3]
+            top_effects[1] == {"type": "Sfx", "name": "lol_yone_w_cast"}
+            and top_effects[2]
             == {"type": "CasterViewEffect", "name": "lol_yone_w_crescent_cast"},
             "Yone W cast feedback changed",
         )
-
-    sweeps = find_effect(skill2, "LineRangeProjectile", name="lol_yone_w_hitbox")
-    check(len(sweeps) == 1, "Yone W must have exactly one shared forward hitbox")
-    if sweeps:
-        sweep = sweeps[0]
         check(
-            {
-                key: sweep.get(key)
-                for key in ("width", "length", "delay", "apply", "applied_target")
-            }
-            == {
-                "width": 36000,
-                "length": 42000,
-                "delay": 0,
-                "apply": 1,
-                "applied_target": "EnemyWithoutTower",
-            },
-            "Yone W single-hitbox geometry changed",
+            top_effects[3]
+            == {"type": "Native", "effect_ref": "lol_yone_w_cone_native"},
+            "Yone W must resolve through the one GameCtx cone callback",
         )
-        applications = sweep.get("applied_effects", [])
-        check(len(applications) == 1, "Yone W hitbox must own one targeting payload")
-        if applications:
-            payload = applications[0].get("effect", {})
-            ordered = payload.get("effects", [])
-            check(
-                [effect.get("type") for effect in ordered]
-                == ["Native", "Attack", "ViewEffect", "TargetSfx"],
-                "Yone W target payload must collect before damage, then play hit feedback",
-            )
-            if len(ordered) == 4:
-                check(
-                    ordered[0]
-                    == {
-                        "type": "Native",
-                        "effect_ref": "lol_yone_w_collect_hit_native",
-                    },
-                    "Yone W must collect the exact damaged target before Attack",
-                )
-                check(
-                    ordered[1] == {"type": "Attack", "damage": 50, "attack_ratio": 90},
-                    "Yone W damage must remain 50 + 90% Attack",
-                )
+    for forbidden_type in ("LineRangeProjectile", "RangeProjectile", "Attack", "Delayed"):
+        check(
+            not find_effect(skill2, forbidden_type),
+            f"Yone W must not retain the retired rectangular/data payload: {forbidden_type}",
+        )
 
-    delayed = find_effect(skill2, "Delayed")
-    check(len(delayed) == 1, "Yone W must settle once")
     expected_tiers = [
         (0, 50, 20),
         (1, 100, 40),
@@ -6977,72 +6943,78 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         (4, 175, 70),
         (5, 200, 80),
     ]
-    if delayed:
-        settle_effects = delayed[0].get("effects", [])
+    switches = top_effects[4:]
+    check(len(switches) == 6, "Yone W must expose mutually exclusive tiers 0..5")
+    for switch, (tier, amount, attack_ratio) in zip(switches, expected_tiers):
+        marker = f"lol_yone_w_shield_tier_{tier}"
         check(
-            delayed[0].get("tick") == 2
-            and settle_effects[:1]
-            == [{"type": "Native", "effect_ref": "lol_yone_w_settle_native"}],
-            "Yone W must settle its complete target set at tick 2",
+            switch.get("type") == "SwitchByBuff"
+            and switch.get("buff_name") == marker,
+            f"Yone W shield tier {tier} marker changed",
         )
-        switches = settle_effects[1:]
-        check(len(switches) == 6, "Yone W must expose mutually exclusive tiers 0..5")
-        for switch, (tier, amount, attack_ratio) in zip(switches, expected_tiers):
-            marker = f"lol_yone_w_shield_tier_{tier}"
+        check(
+            switch.get("effect_none") == {"type": "Combine", "effects": []},
+            f"Yone W shield tier {tier} miss branch must be empty",
+        )
+        branch = switch.get("effect_buff", {}).get("effects", [])
+        check(
+            [effect.get("type") for effect in branch]
+            == [
+                "WithSelf",
+                "RemoveCasterBuff",
+                "CasterViewEffect",
+                "CasterViewEffect",
+                "Sfx",
+                "Sfx",
+            ],
+            f"Yone W shield tier {tier} must apply once, clear, then play hit/shield feedback",
+        )
+        if len(branch) == 6:
+            shield = branch[0].get("effects", [])
             check(
-                switch.get("type") == "SwitchByBuff"
-                and switch.get("buff_name") == marker,
-                f"Yone W shield tier {tier} marker changed",
+                shield
+                == [
+                    {
+                        "type": "Shield",
+                        "amount": amount,
+                        "attack_ratio": attack_ratio,
+                        "ap_ratio": 0,
+                        "tick": 90,
+                    }
+                ],
+                f"Yone W shield tier {tier} formula changed",
             )
             check(
-                switch.get("effect_none") == {"type": "Combine", "effects": []},
-                f"Yone W shield tier {tier} miss branch must be empty",
+                branch[1] == {"type": "RemoveCasterBuff", "name": marker},
+                f"Yone W shield tier {tier} must consume its own marker",
             )
-            branch = switch.get("effect_buff", {}).get("effects", [])
             check(
-                [effect.get("type") for effect in branch]
-                == ["WithSelf", "RemoveCasterBuff", "CasterViewEffect", "Sfx"],
-                f"Yone W shield tier {tier} must settle once and clear its marker",
+                branch[2]
+                == {"type": "CasterViewEffect", "name": "lol_yone_w_hit"}
+                and branch[3]
+                == {"type": "CasterViewEffect", "name": "lol_yone_w_shield"}
+                and branch[4] == {"type": "Sfx", "name": "lol_yone_w_hit"}
+                and branch[5] == {"type": "Sfx", "name": "lol_yone_w_shield"},
+                f"Yone W shield tier {tier} feedback changed",
             )
-            if len(branch) == 4:
-                shield = branch[0].get("effects", [])
-                check(
-                    shield
-                    == [
-                        {
-                            "type": "Shield",
-                            "amount": amount,
-                            "attack_ratio": attack_ratio,
-                            "ap_ratio": 0,
-                            "tick": 90,
-                        }
-                    ],
-                    f"Yone W shield tier {tier} formula changed",
-                )
-                check(
-                    branch[1] == {"type": "RemoveCasterBuff", "name": marker},
-                    f"Yone W shield tier {tier} must consume its own marker",
-                )
-                check(
-                    branch[2]
-                    == {"type": "CasterViewEffect", "name": "lol_yone_w_shield"}
-                    and branch[3] == {"type": "Sfx", "name": "lol_yone_w_shield"},
-                    f"Yone W shield tier {tier} feedback changed",
-                )
     check(len(find_effect(skill2, "Shield")) == 6, "Yone W data must contain six mutually exclusive Shield tiers")
 
     for marker in (
-        "struct YoneSpiritCleaveBeginNativeEffect;",
-        "struct YoneSpiritCleaveCollectHitNativeEffect;",
-        "struct YoneSpiritCleaveSettleNativeEffect;",
+        "struct YoneSpiritCleaveConeNativeEffect;",
+        "const YONE_W_RANGE: i128 = 42_000;",
+        "const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;",
+        "const YONE_W_FLAT_DAMAGE: usize = 35;",
+        "const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;",
+        "const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;",
         "YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5",
-        "hit.target_id == target_id && hit.target == target",
-        ".min(YONE_W_MAX_ENEMY_CHAMPIONS)",
-        '"lol_yone_w_begin_native"',
-        '"lol_yone_w_collect_hit_native"',
-        '"lol_yone_w_settle_native"',
+        "for index in 0..ctx.entity_count()",
+        "hits.push((target_id, damage));",
+        "for (target_id, damage) in hits",
+        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
+        "champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS)",
+        '"lol_yone_w_cone_native"',
     ):
-        check(marker in rust, f"Yone W native isolation/dedup proof is missing: {marker}")
+        check(marker in rust, f"Yone W stateless cone proof is missing: {marker}")
 
     view_effects = {
         row.get("name"): row for row in champion.get("view_effects", [])
@@ -7071,10 +7043,15 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_rows = visual.get("face_readability", {}).get("all_battle_body_frames", {})
     check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
     for frame_name, quality in face_rows.items():
+        warm_bbox = quality.get("warm_bbox")
         check(
             quality.get("dark_feature_pixels") == 2
-            and quality.get("dark_feature_adjacent_pair") is True
-            and quality.get("warm_pixels", 0) >= 2
+            and quality.get("dark_feature_horizontal_pair") is True
+            and quality.get("warm_pixels", 0) >= 12
+            and isinstance(warm_bbox, list)
+            and len(warm_bbox) == 4
+            and warm_bbox[2] - warm_bbox[0] >= 4
+            and warm_bbox[3] - warm_bbox[1] >= 5
             and quality.get("near_white_pixels") == 0,
             f"Yone final-scale face is unreadable in {frame_name}: {quality}",
         )
@@ -7159,7 +7136,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.4", "lol_mod version must be 0.10.4")
+    check(mod_info.get("version") == "0.10.5", "lol_mod version must be 0.10.5")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7170,9 +7147,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "mod metadata must document base 0.5.1 and saved-season compatibility",
     )
 
-    # Preserve the complete official-009 actor contract.  The final-scale
-    # face repair is RGB-only, so every native rectangle, duration, alpha
-    # footprint and battle-scale anchor must remain unchanged.
+    # Preserve the complete official-009 actor contract. The final-scale face
+    # template may redraw pixels inside the existing actor bbox, but every
+    # native rectangle, duration, overall bbox and battle-scale anchor stays.
     expected_actor_contract: dict[str, tuple[list[float], list[tuple[int, int, int, int]]]] = {
         "skill2": ([0.060000002], [(1970, 0, 31, 49)]),
         "hit": ([0.1], [(874, 0, 43, 53)]),
@@ -7230,11 +7207,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "action_duration_ticks": 30,
             "cooldown_ticks": 480,
             "movement": "none",
-            "shape": "one stationary caster-following crescent plus one instant 36000x42000 forward hitbox",
-            "damage": "50 + 90% Attack physical damage",
-            "shield": "one unified settle grants a 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+            "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
+            "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
+            "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+            "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
+            "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
         },
-        "Yone generated QA must record the unified planted W contract",
+        "Yone generated QA must record the stateless native cone W contract",
     )
     if actor_sheet_path.is_file() and actor_anims:
         actor_sheet = Image.open(actor_sheet_path).convert("RGBA")
@@ -7296,6 +7275,49 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             attack_hashes.add(hashlib.sha256(crop.tobytes()).hexdigest())
         check(len(attack_hashes) >= 5, f"Yone attack lost pose variation: {len(attack_hashes)}/6 unique frames")
 
+        w_pose_hashes: set[str] = set()
+        w_bottoms: list[int] = []
+        w_relative_foot: list[float] = []
+        w_face_x: list[float] = []
+        w_face_y: list[float] = []
+        for index, frame in enumerate(actor_anims.get("skill2_attack", {}).get("frames", [])):
+            data = frame.get("data", {})
+            width = int(data.get("w", 0))
+            height = int(data.get("h", 0))
+            crop = actor_sheet.crop(
+                (
+                    data.get("x", 0),
+                    data.get("y", 0),
+                    data.get("x", 0) + width,
+                    data.get("y", 0) + height,
+                )
+            )
+            normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
+            normalized.alpha_composite(crop, ((61 - width) // 2, (55 - height) // 2))
+            w_pose_hashes.add(hashlib.sha256(normalized.tobytes()).hexdigest())
+            bbox = crop.getchannel("A").getbbox()
+            if bbox is not None:
+                w_bottoms.append(height - bbox[3])
+                w_relative_foot.append(bbox[3] - height / 2)
+            face = face_rows.get(f"skill2_attack[{index}]", {})
+            warm_bbox = face.get("warm_bbox")
+            if isinstance(warm_bbox, list) and len(warm_bbox) == 4:
+                w_face_x.append((warm_bbox[0] + warm_bbox[2] - width) / 2)
+                w_face_y.append((warm_bbox[1] + warm_bbox[3] - height) / 2)
+        check(len(w_pose_hashes) >= 3, "Yone W must retain at least three visible forearm/blade poses")
+        check(w_bottoms == [3, 4, 8, 9, 7], f"Yone W centred bottom profile changed: {w_bottoms}")
+        check(
+            len(w_relative_foot) == 5
+            and max(w_relative_foot) - min(w_relative_foot) == 0,
+            f"Yone W foot pivot moved: {w_relative_foot}",
+        )
+        check(
+            len(w_face_x) == 5
+            and max(w_face_x) - min(w_face_x) == 0
+            and max(w_face_y) - min(w_face_y) == 0,
+            f"Yone W face pivot moved: x={w_face_x}, y={w_face_y}",
+        )
+
         expected_core_bottoms = {
             "idle": [11, 10, 9, 10],
             "run": [9, 10, 11, 10, 9, 10, 11, 10],
@@ -7333,10 +7355,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "final-scale RGB-only face repaint; actor alpha/native rectangles and body scale are unchanged",
+        == "final-scale 1x pixel face repair; native rectangles, overall actor bbox, foot anchors, and body scale are unchanged",
         "Yone face-repaint policy changed",
     )
-    check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone two-pixel facial feature color changed")
+    check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
 
     expected_vfx: dict[str, dict[str, tuple[int, float | tuple[float, ...], bool]]] = {
         "yone_attack": {"steel_hit": (4, 0.05, True), "azakana_hit": (4, 0.05, True)},
@@ -7600,6 +7622,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             f"Yone {locale} second-slot copy must disclose W, its 1.5-second shield and active name",
         )
         check(
+            all(value in w_copy for value in ("80", "6%", "0.5", "8")),
+            f"Yone {locale} W copy must disclose cone, max-HP damage and fixed timing",
+        )
+        check(
             not any(term.casefold() in folded_w for term in retired_e_terms),
             f"Yone {locale} W copy retains retired E wording",
         )
@@ -7611,9 +7637,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         for marker in (
             "skill=Q", "skill2=W", "ult=R", "W-only", "Q1 → Q2 → Q3", "360 tick",
             "RushTime", "45 tick `Airborne`",
-            "LineRangeProjectile", "EnemyWithoutTower", "lol_yone_w_begin_native",
-            "lol_yone_w_collect_hit_native", "lol_yone_w_settle_native",
-            "lol_yone_w_shield_tier_0..5", "ModService", "EntityHandle", "128", "54",
+            "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
+            "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "4×5", "最终 `1x`", "54",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -7676,7 +7702,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }.items():
         check(override.get(source) == {"remapping": remapping, "type": "override"}, f"Yone actor override is missing: {source}")
 
-    yone_w_runtime = rust.split("const YONE_W_STATE_TTL_TICKS", 1)[-1].split(
+    check("const YONE_W_RANGE: i128 = 42_000;" in rust, "Yone W cone runtime is missing")
+    yone_w_runtime = rust.split("const YONE_W_RANGE", 1)[-1].split(
         "// Saved seasons embed their champion definitions.", 1
     )[0]
     for forbidden in (
@@ -7685,48 +7712,79 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "ModService",
         "c_void",
         "context_token",
+        "OnceLock",
+        "Mutex",
+        "static YONE_",
+        "started_tick",
+        "max_by_key",
+        "EntityHandle",
+        "YoneSpiritCleaveRegistry",
+        "YoneSpiritCleaveState",
+        "YONE_W_STATE_TTL_TICKS",
+        "YONE_W_MAX_STATES",
     ):
-        check(forbidden not in yone_w_runtime, f"Yone W uses unsafe opaque service token: {forbidden}")
+        check(forbidden not in yone_w_runtime, f"Yone W retains cross-context mutable state: {forbidden}")
     for marker in (
-        "const YONE_W_STATE_TTL_TICKS: usize = 120;",
+        "const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;",
+        "const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;",
+        "const YONE_W_FLAT_DAMAGE: usize = 35;",
+        "const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;",
+        "const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;",
         "const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;",
-        "const YONE_W_MAX_STATES: usize = 128;",
-        "caster: EntityHandle,",
-        "player_id: usize,",
-        "team: usize,",
-        "position: Position,",
-        "started_tick: usize,",
-        "if self.states.len() >= YONE_W_MAX_STATES",
-        "self.states.drain(0..remove_count);",
-        "registry.make_room();",
-        "state.caster == caster",
-        "state.player_id == player_id",
-        "state.team == team",
-        "state.position == position",
-        "state.started_tick <= now",
-        ".max_by_key(|state| state.started_tick)",
-        ".max_by_key(|(_, state)| state.started_tick)",
-        "struct YoneSpiritCleaveHit {",
-        "target_id: usize,",
-        "target: EntityHandle,",
-        "is_champion: bool,",
-        "hit.target_id == target_id && hit.target == target",
-        "Collection precedes Attack, so lethal hits still grant the shield.",
-        ".min(YONE_W_MAX_ENEMY_CHAMPIONS);",
-        'format!("lol_yone_w_shield_tier_{champion_count}")',
+        "InputTarget::Dir { dir_x, dir_y }",
+        "InputTarget::Pos { x, y }",
+        "InputTarget::Target { target_id }",
+        "for index in 0..ctx.entity_count()",
+        "target.team() == caster_team",
+        "!target.is_targetable()",
+        "target.is_tower()",
+        "dot * dot * YONE_W_COS_SQ_SCALE",
+        "distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE",
+        ".saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT)",
+        "champion_hits += usize::from(target.is_champion());",
+        "hits.push((target_id, damage));",
+        "for (target_id, damage) in hits",
+        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
+        "champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS)",
+        'format!("lol_yone_w_shield_tier_{shield_tier}")',
         "marker.duration = BuffType::Time { tick: 3 };",
-        '"lol_yone_w_begin_native"',
-        '"lol_yone_w_collect_hit_native"',
-        '"lol_yone_w_settle_native"',
+        "ctx.add_buff(caster_id, marker);",
     ):
-        check(marker in yone_w_runtime or marker in rust, f"Yone unified W isolation/dedup proof is missing: {marker}")
-    check(yone_w_runtime.count("max_by_key") == 2, "Yone W collect/settle must each select the nearest started_tick")
-    check("self.states.clear()" not in yone_w_runtime, "Yone W registry must never clear all state buckets")
+        check(marker in yone_w_runtime, f"Yone stateless cone proof is missing: {marker}")
     check(
-        yone_w_runtime.find("registry.make_room();")
-        < yone_w_runtime.find("registry.states.push(YoneSpiritCleaveState"),
-        "Yone W must enforce the 128-ledger bound before pushing a state",
+        yone_w_runtime.find("hits.push((target_id, damage));")
+        < yone_w_runtime.find("for (target_id, damage) in hits"),
+        "Yone W must finish its immutable cone scan before combat mutation",
     )
+    check(
+        yone_w_runtime.count("ctx.add_buff(caster_id, marker);") == 1,
+        "Yone W must emit exactly one shield-tier marker",
+    )
+    check(
+        bool(
+            re.search(
+                r'registration\.add_native_effect\(\s*"lol_yone_w_cone_native",\s*'
+                r"YoneSpiritCleaveConeNativeEffect,\s*\);",
+                rust,
+            )
+        ),
+        "Yone active cone native registration is missing",
+    )
+    for legacy_w_name in (
+        "lol_yone_w_begin_native",
+        "lol_yone_w_collect_hit_native",
+        "lol_yone_w_settle_native",
+    ):
+        check(
+            bool(
+                re.search(
+                    rf'registration\.add_native_effect\(\s*"{legacy_w_name}",\s*'
+                    r"LegacySavedNativeCompatibilityEffect,\s*\);",
+                    rust,
+                )
+            ),
+            f"Yone 0.10.4 save alias is not a no-op shim: {legacy_w_name}",
+        )
 
     init_source = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[-1].split(
         "declare_mod!(init);", 1
@@ -8102,7 +8160,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.4", "lol_mod version must be 0.10.4")
+    check(mod_info.get("version") == "0.10.5", "lol_mod version must be 0.10.5")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
@@ -8111,6 +8169,7 @@ def main() -> int:
     validate_quality_ingame_hud(override)
     validate_data_contract(champion)
     validate_lucian_data_contract(lucian)
+    validate_native_archer_animation()
     validate_orianna_replacement_uniqueness()
     validate_orianna_data_contract(orianna)
     validate_orianna_native_animation(orianna)
@@ -8148,6 +8207,15 @@ def main() -> int:
             "skill": 10,
             "skill2": 5,
             "ult": 17,
+            "ult_old": 11,
+            "ult_pre": 3,
+            "ult_loop": 4,
+            "ult_end": 3,
+            "ult_projectile": 1,
+            "old_ult_buff_effect": 4,
+            "skill_attack": 3,
+            "skill_dash": 3,
+            "old_ult_pre": 7,
             "hit": 1,
             "dead": 1,
         },

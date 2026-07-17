@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.4",
+  "release": "0.10.5",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -170,20 +170,18 @@
       "skill2_runtime_body_frames": 5,
       "skill2_ai_gate": "removed_custom_gate_stock_engine_data_ai",
       "e_runtime_present": false,
-      "w_single_hit_set": {
-        "width": 36000,
-        "length": 42000,
-        "apply": 1,
-        "applied_target": "EnemyWithoutTower",
-        "attack_count": 1,
-        "hit_sfx_count_per_target": 1,
-        "native_order": [
-          "lol_yone_w_begin_native",
-          "lol_yone_w_collect_hit_native before Attack",
-          "lol_yone_w_settle_native at tick 2"
-        ],
-        "target_identity": "deduplicated target id plus EntityHandle",
-        "damage": "50 + 90% Attack"
+      "w_cone_single_pass": {
+        "native_effect": "lol_yone_w_cone_native",
+        "full_angle_degrees": 80,
+        "range": 42000,
+        "applied_target": "alive, targetable, non-allied, non-tower enemies in the current GameCtx",
+        "applications_per_target": 1,
+        "damage_type": "physical",
+        "damage": "35 + 45% Attack + 6% target maximum health",
+        "line_range_projectile_present": false,
+        "second_hitbox_or_champion_probe": false,
+        "process_global_ledger": false,
+        "resolution": "damage, any-enemy qualification, champion count and one shield marker are resolved inside the same GameCtx invocation"
       },
       "w_shield_settle": {
         "applications_per_cast": 1,
@@ -192,23 +190,28 @@
         "first_champion_tier": "100 + 40% Attack",
         "each_additional_champion": "25 + 10% Attack",
         "champion_tiers": 5,
+        "marker_range": "lol_yone_w_shield_tier_0..5",
         "second_hitbox_or_champion_probe": false
       },
       "w_airborne_applications": 0,
       "w_attack_speed_scaled_timing": false,
-      "w_attack_speed_limit": "Mod API 0.8 exposes no attack-speed-scaled action/cooldown expression; fixed 30/480 tick approximation",
+      "w_attack_speed_limit": "Mod API 0.8 exposes no W-only attack-speed-scaled action/cooldown expression; fixed 0.5-second cast and 8-second cooldown (30/480 ticks) are explicitly disclosed",
       "r_physical_slashes": 6,
       "r_final_fixed_echoes": 1,
       "r_airborne_applications": 1,
-      "native_state_isolated_by_game_context": false,
-      "native_state_isolation": "bounded to 128 ledgers and matched by caster/player/team/position plus nearest eligible started_tick; opaque ModService calls are forbidden on base 0.5.1",
-      "saved_season_compatibility": "exactly five retired Yone E and two retired Shen dash native names resolve to a no-op compatibility effect; active Yone data and resources remain Q/W/R-only",
+      "native_state_isolated_by_game_context": true,
+      "native_state_isolation": "one native invocation scans only its supplied GameCtx and uses no static, OnceLock, Mutex, caster/player/team/position/tick matching, or process-global W registry",
+      "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
+      "new_save_required_for_current_w": "0.10.5",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 54,
-        "rgb_only_idempotent_repaint": true,
-        "alpha_geometry_changed": false,
-        "dark_eye_brow_pixels_per_frame": 2,
+        "final_one_x_face_templates": true,
+        "template_stage": "after final scaling and palette conversion",
+        "minimum_warm_face_plane": "4x5 and at least 12 pixels per active frame",
+        "two_adjacent_dark_pixel_proxy_retired": true,
+        "head_window_alpha_or_rgb_adjustment_allowed": true,
+        "whole_body_bbox_and_foot_anchor_changed": false,
         "near_white_face_pixels": 0
       },
       "native_dual_blader_animation_contract_preserved": true,

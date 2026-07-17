@@ -75,10 +75,13 @@ RETIRED_YONE_SOURCE_PATHS = (
 )
 
 # Yone's accepted ImageGen body is deliberately kept at the reviewed battle
-# scale.  At that scale a face is only a handful of pixels, so the smooth
-# source reduction needs one final-scale pixel-art pass.  These colors are
-# warm (never ivory white) and the two dark pixels form a stable eye/brow cue.
+# scale. At that scale a face is only a handful of pixels, so the smooth
+# source reduction needs one final-scale pixel-art pass. These colors are
+# warm (never ivory white). The outline is deliberately distinct from the two
+# eye pixels so QA can prove that the eyes are horizontal instead of accepting
+# the old vertical two-pixel blur proxy.
 YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
+YONE_FACE_OUTLINE_RGBA = (24, 22, 31, 255)
 YONE_FACE_SHADOW_RGBA = (169, 96, 79, 255)
 YONE_FACE_MID_RGBA = (211, 136, 108, 255)
 YONE_FACE_LIGHT_RGBA = (239, 184, 150, 255)
@@ -87,8 +90,52 @@ YONE_NEAR_WHITE_MIN = 218
 # Normalized against the final alpha bbox, not the native frame rectangle.
 # Full-body frames keep the head in the upper/right half; compact/scoreboard
 # crops remove the lower body and therefore need a slightly wider focus.
-YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.90, 0.58)
+YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
+
+# Final native-frame coordinates for the poses whose reduced face plane is
+# smaller than 4x5/12 warm pixels. These are intentionally applied after
+# resizing, palette quantization and the generic face pass: doing this at the
+# generated-source scale allowed the final downsample to erase the eyes again.
+# The 5x6 template is right-facing and keeps a 4x5 connected skin plane with
+# two separated horizontal eyes. Coordinates are top-left in the native frame.
+YONE_FACE_REPAIR_OVERRIDES: dict[tuple[str, int], tuple[int, int]] = {
+    ("idle", 2): (19, 12),
+    ("run", 2): (25, 14),
+    ("run", 3): (25, 14),
+    ("run", 4): (28, 13),
+    ("run", 5): (26, 14),
+    ("run", 7): (26, 14),
+    ("attack", 1): (27, 12),
+    ("attack", 2): (22, 12),
+    ("attack", 4): (24, 13),
+    ("skill", 1): (16, 9),
+    ("skill", 2): (14, 20),
+    ("skill2", 0): (16, 14),
+    ("skill2_dash", 0): (28, 13),
+    ("ult", 0): (27, 20),
+    ("ult", 2): (27, 17),
+    ("ult", 3): (30, 12),
+    ("ult", 4): (27, 9),
+    ("ult", 5): (34, 10),
+    ("ult", 6): (28, 14),
+    ("ult", 7): (32, 14),
+    ("ult", 9): (27, 13),
+    ("skill", 4): (35, 27),
+    ("dead", 0): (19, 16),
+    ("dead", 1): (21, 19),
+    ("dead", 3): (28, 20),
+    ("dead", 4): (28, 23),
+}
+
+YONE_FACE_REPAIR_TEMPLATE = (
+    "OOOO.",
+    "OSLLS",
+    "OFMFS",
+    "OSMS.",
+    ".OS..",
+    ".OSS.",
+)
 
 
 # Exact tag insertion order, rectangles, counts, and durations extracted from
@@ -199,7 +246,10 @@ BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
     "skill": [5, 4, 7, 6, 8, 10, 8],
     "skill2": [5],
     "skill2_dash": [4],
-    "skill2_attack": [4, 5, 6, 7, 5],
+    # The W body is centred in every differently-sized native frame. This is
+    # the exact bottom clearance produced by y=(frame_h-subject_h)//2 for the
+    # locked 22x38 body and therefore keeps both x and y pivots invariant.
+    "skill2_attack": [3, 4, 8, 9, 7],
     "ult": [5, 6, 8, 10, 12, 11, 9, 7, 6, 7, 8, 6, 5],
 }
 
@@ -673,11 +723,11 @@ def repaint_yone_face(
         for x in range(face_window[0], face_window[2])
         if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     }
-    existing_adjacent = len(existing_feature) == 2 and any(
-        (x + 1, y) in existing_feature or (x, y + 1) in existing_feature
-        for x, y in existing_feature
+    existing_horizontal = (
+        len(existing_feature) == 2
+        and len({y for _, y in existing_feature}) == 1
     )
-    if existing_adjacent:
+    if existing_horizontal:
         local = _feature_local_rect(existing_feature, face_window)
         for y in range(local[1], local[3]):
             for x in range(local[0], local[2]):
@@ -689,7 +739,11 @@ def repaint_yone_face(
         if output.size != size_before or output.getchannel("A").tobytes() != alpha_before:
             raise ValueError("Yone final-scale face repaint changed actor alpha geometry")
         quality = yone_face_readability(output, window)
-        if quality["near_white_pixels"] != 0 or quality["warm_pixels"] < 2:
+        if (
+            quality["near_white_pixels"] != 0
+            or quality["warm_pixels"] < 2
+            or not quality["dark_feature_horizontal_pair"]
+        ):
             raise ValueError(f"Yone idempotent face repaint failed: {quality}")
         return output
 
@@ -760,16 +814,18 @@ def repaint_yone_face(
         for adjacent in ((x + 1, y), (x, y + 1)):
             if adjacent not in face_points:
                 continue
+            # A vertical pair was the old blur regression: at 1x it reads as
+            # a dark seam, not eyes. Only horizontal candidates are valid.
+            if adjacent[1] != y:
+                continue
             midpoint_x = (x + adjacent[0]) / 2.0
             midpoint_y = (y + adjacent[1]) / 2.0
-            vertical_penalty = 0.35 if adjacent[1] != y else 0.0
             pairs.append(
                 (
                     (x, y),
                     adjacent,
                     (midpoint_x - target_x) ** 2
-                    + (midpoint_y - target_y) ** 2
-                    + vertical_penalty,
+                    + (midpoint_y - target_y) ** 2,
                 )
             )
     if not pairs:
@@ -806,7 +862,7 @@ def repaint_yone_face(
     quality = yone_face_readability(output, window)
     if (
         quality["dark_feature_pixels"] != 2
-        or not quality["dark_feature_adjacent_pair"]
+        or not quality["dark_feature_horizontal_pair"]
         or quality["near_white_pixels"] != 0
         or quality["warm_pixels"] < 2
     ):
@@ -831,6 +887,7 @@ def yone_face_readability(
         (x + 1, y) in feature or (x, y + 1) in feature
         for x, y in feature
     )
+    horizontal_pair = len(feature) == 2 and len({y for _, y in feature}) == 1
     local = _feature_local_rect(feature, (x0, y0, x1, y1))
     warm = {
         (x, y)
@@ -855,8 +912,76 @@ def yone_face_readability(
         "warm_bbox": list(warm_box) if warm_box else None,
         "dark_feature_pixels": len(feature),
         "dark_feature_adjacent_pair": adjacent_pair,
+        "dark_feature_horizontal_pair": horizontal_pair,
         "near_white_pixels": near_white,
     }
+
+
+def finalize_yone_battle_face(
+    image: Image.Image,
+    frame_key: tuple[str, int],
+) -> Image.Image:
+    """Finish one native battle face, including explicit low-resolution repairs."""
+
+    output = repaint_yone_face(image)
+    anchor = YONE_FACE_REPAIR_OVERRIDES.get(frame_key)
+    if anchor is None:
+        return output
+
+    bbox_before = output.getchannel("A").getbbox()
+    if bbox_before is None:
+        raise ValueError(f"Yone {frame_key} has no actor before face repair")
+
+    # Retire the generic adjacent cue even when it landed on a hand/chest in a
+    # foreshortened pose, then stamp the reviewed final-scale face plane.
+    for y in range(output.height):
+        for x in range(output.width):
+            if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA:
+                output.putpixel((x, y), YONE_FACE_OUTLINE_RGBA)
+
+    colors = {
+        "O": YONE_FACE_OUTLINE_RGBA,
+        "S": YONE_FACE_SHADOW_RGBA,
+        "M": YONE_FACE_MID_RGBA,
+        "L": YONE_FACE_LIGHT_RGBA,
+        "F": YONE_FACE_FEATURE_RGBA,
+    }
+    anchor_x, anchor_y = anchor
+    for offset_y, row in enumerate(YONE_FACE_REPAIR_TEMPLATE):
+        for offset_x, code in enumerate(row):
+            if code == ".":
+                continue
+            x = anchor_x + offset_x
+            y = anchor_y + offset_y
+            if not (0 <= x < output.width and 0 <= y < output.height):
+                raise ValueError(
+                    f"Yone {frame_key} face template leaves native frame at {(x, y)}"
+                )
+            output.putpixel((x, y), colors[code])
+
+    # Lanczos can leave one ivory cheek pixel immediately beside the stamped
+    # plane. Clamp only this compact reviewed head window, never the blades.
+    for y in range(max(0, anchor_y - 1), min(output.height, anchor_y + 9)):
+        for x in range(max(0, anchor_x - 2), min(output.width, anchor_x + 9)):
+            pixel = output.getpixel((x, y))
+            if _is_yone_near_white(pixel):
+                output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], pixel[3]))
+
+    if output.getchannel("A").getbbox() != bbox_before:
+        raise ValueError(f"Yone {frame_key} face repair changed the actor bbox")
+    quality = yone_face_readability(output)
+    warm_box = quality["warm_bbox"]
+    if (
+        quality["dark_feature_pixels"] != 2
+        or not quality["dark_feature_horizontal_pair"]
+        or quality["near_white_pixels"] != 0
+        or quality["warm_pixels"] < 12
+        or warm_box is None
+        or warm_box[2] - warm_box[0] < 4
+        or warm_box[3] - warm_box[1] < 5
+    ):
+        raise ValueError(f"Yone {frame_key} explicit face repair failed: {quality}")
+    return output
 
 
 def fit_subject(
@@ -896,7 +1021,13 @@ def fit_subject(
     return output
 
 
-def fit_actor(source: Image.Image, frame_size: tuple[int, int], target_height: int, bottom_margin: int) -> Image.Image:
+def fit_actor(
+    source: Image.Image,
+    frame_size: tuple[int, int],
+    target_height: int,
+    bottom_margin: int,
+    frame_key: tuple[str, int],
+) -> Image.Image:
     frame = fit_subject(
         source,
         frame_size,
@@ -906,7 +1037,57 @@ def fit_actor(source: Image.Image, frame_size: tuple[int, int], target_height: i
         component_minimum=24,
         final_component_minimum=3,
     )
-    return repaint_yone_face(frame)
+    return finalize_yone_battle_face(frame, frame_key)
+
+
+def add_yone_w_weapon_pose(
+    frame: Image.Image,
+    pose_index: int,
+    body_origin: tuple[int, int],
+) -> Image.Image:
+    """Animate W's forearm/azakana blade without moving the planted body."""
+
+    output = frame.copy()
+    draw = ImageDraw.Draw(output)
+    body_x, body_y = body_origin
+    shoulder = (body_x + 14, body_y + 13)
+    pivots = (
+        (body_x + 23, body_y + 15),
+        (body_x + 23, body_y + 13),
+        (body_x + 23, body_y + 14),
+        (body_x + 23, body_y + 16),
+        (body_x + 23, body_y + 18),
+    )
+    endpoints = (
+        (body_x - 2, body_y + 5),
+        (body_x - 1, max(1, body_y - 2)),
+        (frame.width - 4, body_y + 7),
+        (frame.width - 3, body_y + 18),
+        (frame.width - 5, min(frame.height - 4, body_y + 31)),
+    )
+    pivot = pivots[pose_index]
+    endpoint = endpoints[pose_index]
+
+    arm_outline = (35, 25, 31, 255)
+    arm_mid = (151, 89, 73, 255)
+    blade_outline = (35, 8, 16, 255)
+    blade_red = (198, 25, 29, 255)
+    blade_light = (244, 65, 48, 255)
+    draw.line((shoulder, pivot), fill=arm_outline, width=3)
+    draw.line((shoulder, pivot), fill=arm_mid, width=1)
+    draw.line((pivot, endpoint), fill=blade_outline, width=3)
+    draw.line((pivot, endpoint), fill=blade_red, width=1)
+    highlight_end = (
+        endpoint[0] - (1 if endpoint[0] >= pivot[0] else -1),
+        endpoint[1],
+    )
+    draw.line((pivot, highlight_end), fill=blade_light, width=1)
+    draw.rectangle(
+        (pivot[0] - 1, pivot[1] - 1, pivot[0] + 1, pivot[1] + 1),
+        fill=blade_outline,
+    )
+    draw.point(pivot, fill=(214, 160, 92, 255))
+    return output
 
 
 def fit_effect(source: Image.Image, frame_size: tuple[int, int], padding: int = 2) -> Image.Image:
@@ -990,21 +1171,41 @@ def build_actor() -> tuple[Path, Path]:
         ],
         "skill2": [trim_actor_width(wr[0], 0.70)],
         "skill2_dash": [wr[5]],
-        # W is a planted dual-blade sweep.  Keep both feet around the native
-        # actor anchor and avoid the retired E/run poses that visually looked
-        # like the AI had teleported even though the entity never moved.
+        # W is a planted dual-blade sweep. Reuse one reviewed upright guard
+        # source so feet, torso and face cannot jump between incompatible
+        # lunge/crouch poses. A final 1x forearm/azakana overlay below supplies
+        # guard -> windup -> impact -> recovery motion while the independent
+        # crescent sheet carries the broad sweep.
         "skill2_attack": [
-            trim_actor_width(wr[9], 0.72),
-            trim_actor_width(wr[8], 0.62),
-            wr[17],
-            wr[4],
-            wr[9],
+            trim_actor_width(wr[19], 0.72),
+            trim_actor_width(wr[19], 0.72),
+            trim_actor_width(wr[19], 0.72),
+            trim_actor_width(wr[19], 0.72),
+            trim_actor_width(wr[19], 0.72),
         ],
-        "ult": wr[7:20],
+        # The generated wr[13] overhead pose is wider than the native ult[6]
+        # rectangle and would shrink the whole body. Reuse the adjacent
+        # airborne cross-slash phase here; the independent R sheet carries the
+        # large slash while the actor retains a stable 37-38px scale.
+        "ult": [*wr[7:13], wr[12], *wr[14:20]],
     }
 
     sheet = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
     placements: dict[tuple[int, int, int, int], bytes] = {}
+    # Pack W from one already-finished 1x pixel subject. Re-running the same
+    # source through five slightly different native rectangles made the face
+    # component detector choose different skin clusters and produced a 6px
+    # apparent vertical jump. A single final-scale subject preserves every
+    # facial/body pixel; only transparent padding changes per native slot.
+    w_master_rect = NATIVE_CONTRACT["skill2_attack"]["rects"][2]
+    w_master = fit_actor(
+        body_sequences["skill2_attack"][0],
+        (w_master_rect[2], w_master_rect[3]),
+        BODY_TARGET_HEIGHTS["skill2_attack"][2],
+        BODY_BOTTOM_MARGINS["skill2_attack"][2],
+        ("skill2_attack", 2),
+    )
+    w_master_subject = w_master.crop(alpha_bbox(w_master))
     for tag in ("idle", "run", "attack", "hit", "skill", "skill2", "skill2_dash", "skill2_attack", "ult"):
         sources = body_sequences[tag]
         rects = NATIVE_CONTRACT[tag]["rects"]
@@ -1012,8 +1213,36 @@ def build_actor() -> tuple[Path, Path]:
         bottoms = BODY_BOTTOM_MARGINS[tag]
         if not (len(sources) == len(rects) == len(heights) == len(bottoms)):
             raise ValueError(f"Yone {tag}: {len(sources)} source poses for {len(rects)} frames")
-        for source, rect, height, bottom in zip(sources, rects, heights, bottoms, strict=True):
-            _paste_unique(sheet, placements, rect, fit_actor(source, (rect[2], rect[3]), height, bottom))
+        if tag == "skill2_attack":
+            for index, rect in enumerate(rects):
+                frame = Image.new("RGBA", (rect[2], rect[3]), (0, 0, 0, 0))
+                x = (rect[2] - w_master_subject.width) // 2
+                y = (rect[3] - w_master_subject.height) // 2
+                if x < 0 or y < 0:
+                    raise ValueError(
+                        f"Yone planted W subject {w_master_subject.size} does not fit {rect}"
+                    )
+                frame = add_yone_w_weapon_pose(frame, index, (x, y))
+                # The planted body is composited last so the animated rear
+                # azakana blade can never paint across Yone's face or torso.
+                frame.alpha_composite(w_master_subject, (x, y))
+                _paste_unique(sheet, placements, rect, frame)
+            continue
+        for index, (source, rect, height, bottom) in enumerate(
+            zip(sources, rects, heights, bottoms, strict=True)
+        ):
+            _paste_unique(
+                sheet,
+                placements,
+                rect,
+                fit_actor(
+                    source,
+                    (rect[2], rect[3]),
+                    height,
+                    bottom,
+                    (tag, index),
+                ),
+            )
 
     # Official hit_effect_area aliases ult[1:12]; assigning the same bytes is
     # deliberate and proves the overlap remains contract-safe.
@@ -1023,9 +1252,27 @@ def build_actor() -> tuple[Path, Path]:
 
     # Eight generated fall/ground poses feed the eight visible dead frames;
     # the mandatory final 3x3 terminal frame remains transparent.
-    for source, rect, bottom in zip(defeat, NATIVE_CONTRACT["dead"]["rects"][:-1], DEAD_BOTTOM_MARGINS, strict=True):
+    for index, (source, rect, bottom) in enumerate(
+        zip(
+            defeat,
+            NATIVE_CONTRACT["dead"]["rects"][:-1],
+            DEAD_BOTTOM_MARGINS,
+            strict=True,
+        )
+    ):
         target = min(37, rect[3] - bottom - 1)
-        _paste_unique(sheet, placements, rect, fit_actor(source, (rect[2], rect[3]), target, bottom))
+        _paste_unique(
+            sheet,
+            placements,
+            rect,
+            fit_actor(
+                source,
+                (rect[2], rect[3]),
+                target,
+                bottom,
+                ("dead", index),
+            ),
+        )
 
     # Compact native projectile slots remain readable, while full Q variants
     # live in the independent yone_q sheet.
@@ -1425,12 +1672,14 @@ def build_qa(
                 "action_duration_ticks": 30,
                 "cooldown_ticks": 480,
                 "movement": "none",
-                "shape": "one stationary caster-following crescent plus one instant 36000x42000 forward hitbox",
-                "damage": "50 + 90% Attack physical damage",
-                "shield": "one unified settle grants a 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+                "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
+                "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
+                "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+                "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
+                "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "final-scale RGB-only face repaint; actor alpha/native rectangles and body scale are unchanged",
+                "policy": "final-scale 1x pixel face repair; native rectangles, overall actor bbox, foot anchors, and body scale are unchanged",
                 "feature_rgba": list(YONE_FACE_FEATURE_RGBA),
                 "all_battle_body_frames": actor_face_readability,
                 "ui_surfaces": ui_face_readability,
@@ -1452,7 +1701,7 @@ def build_qa(
             "champion": "Yone",
             "generator": "built-in image_gen",
             "generated_on": "2026-07-17",
-            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent RGB-only final-scale face repaint with unchanged alpha geometry",
+            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent final-scale 1x face template inside the unchanged overall actor bbox",
             "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
@@ -1466,11 +1715,11 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] All 54 visible battle-body frames plus the focused UI faces use a warm three-tone plane and exactly one two-pixel eye/brow cue; the idempotent pass changes RGB only and preserves every alpha bbox.\n"
+        "- [x] All 54 visible battle-body frames use newly generated larger, high-contrast head/face sources before the final warm-plane pixel pass; focused UI portraits remain independently packed.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
-        "- [x] W keeps at most 128 ledgers, matches caster/player/team/position to the nearest eligible `started_tick`, and does not call opaque `ModService` APIs across the base 0.5.0 SDK / base 0.5.1 host boundary.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, resolves one instant wide forward hitbox, and settles exactly one shield from that same deduplicated target set.\n"
+        "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
+        "- [x] W keeps Yone planted, plays one full caster-following crescent, and reuses one final-scale actor subject across all five native frames so transparent padding cannot create an E-like body jump.\n"
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
@@ -1541,7 +1790,9 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             if bbox is None:
                 raise ValueError(f"Yone {tag}[{index}] is empty")
             actual_bottom = data["h"] - bbox[3]
-            if actual_bottom != expected_bottom or actual_bottom < 4:
+            if actual_bottom != expected_bottom or (
+                tag != "skill2_attack" and actual_bottom < 4
+            ):
                 raise ValueError(f"Yone {tag}[{index}] bottom anchor {actual_bottom} != {expected_bottom}")
             visible_height = bbox[3] - bbox[1]
             if visible_height < target_height - 3:
@@ -1580,6 +1831,39 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"Yone attack lost pose variation: only {len(attack_hashes)}/6 unique frames"
         )
 
+    w_pose_hashes: set[str] = set()
+    w_face_x: list[float] = []
+    w_face_y: list[float] = []
+    for row in payload["skill2_attack"]["frames"]:
+        data = row["data"]
+        frame = sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+        normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
+        normalized.alpha_composite(
+            frame,
+            ((61 - data["w"]) // 2, (55 - data["h"]) // 2),
+        )
+        w_pose_hashes.add(hashlib.sha256(normalized.tobytes()).hexdigest())
+        face = yone_face_readability(frame)
+        warm_bbox = face["warm_bbox"]
+        if warm_bbox is not None:
+            w_face_x.append((warm_bbox[0] + warm_bbox[2] - data["w"]) / 2)
+            w_face_y.append((warm_bbox[1] + warm_bbox[3] - data["h"]) / 2)
+    if len(w_pose_hashes) < 3:
+        raise ValueError("Yone W must show at least three forearm/blade poses")
+    if not (
+        len(w_face_x) == 5
+        and max(w_face_x) - min(w_face_x) == 0
+        and max(w_face_y) - min(w_face_y) == 0
+    ):
+        raise ValueError(f"Yone W face pivot moved: x={w_face_x}, y={w_face_y}")
+
     core_foot_anchors = [
         bottom
         for tag in ("idle", "run", "attack", "hit")
@@ -1590,16 +1874,9 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     if max(BODY_BOTTOM_MARGINS["idle"]) - min(BODY_BOTTOM_MARGINS["run"]) > 2:
         raise ValueError("Yone idle/run foot anchors diverged by more than 2px")
 
-    # The old check counted Yone's exposed chest as a face. Inspect every
-    # battle body frame at final atlas scale instead: each one must retain the
-    # planted two-pixel eye/brow cue and must not regress to an ivory blur.
-    representative_faces = {
-        ("idle", 0),
-        ("run", 1),
-        ("attack", 1),
-        ("skill2_attack", 2),
-        ("ult", 4),
-    }
+    # Inspect all 54 battle body frames at final atlas scale. Every face needs
+    # a real 4x5/12-pixel warm plane and horizontal eyes; a vertical two-pixel
+    # seam is explicitly insufficient.
     face_frame_count = 0
     for tag, index, entry in iter_actor_body_frames(payload):
         face_frame_count += 1
@@ -1614,23 +1891,17 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         )
         face = yone_face_readability(frame)
         warm_bbox = face["warm_bbox"]
-        is_representative = (tag, index) in representative_faces
         if (
             face["dark_feature_pixels"] != 2
-            or not face["dark_feature_adjacent_pair"]
-            or face["warm_pixels"] < (5 if is_representative else 2)
+            or not face["dark_feature_horizontal_pair"]
+            or face["warm_pixels"] < 12
             or face["near_white_pixels"] != 0
             or warm_bbox is None
-            or (
-                is_representative
-                and (
-                    warm_bbox[2] - warm_bbox[0] < 2
-                    or warm_bbox[3] - warm_bbox[1] < 2
-                )
-            )
+            or warm_bbox[2] - warm_bbox[0] < 4
+            or warm_bbox[3] - warm_bbox[1] < 5
         ):
             raise ValueError(f"Yone {tag}[{index}] face is not readable: {face}")
-        if repaint_yone_face(frame).tobytes() != frame.tobytes():
+        if finalize_yone_battle_face(frame, (tag, index)).tobytes() != frame.tobytes():
             raise ValueError(f"Yone {tag}[{index}] face repaint is not idempotent")
     if face_frame_count != 54:
         raise ValueError(f"Yone face validation covered {face_frame_count}/54 frames")

@@ -54,7 +54,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.10.4"
+    assert mod_info["version"] == "0.10.5"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -117,7 +117,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.10.4;root=' in source
+    assert '"version=0.10.5;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -389,3 +389,47 @@ def test_lucian_q_locks_an_enemy_unit_and_shares_one_piercing_projectile() -> No
     dead_bbox = actor_sheet.crop((20 * 64, 0, 21 * 64, 64)).getchannel("A").getbbox()
     assert hit_bbox is not None and hit_bbox[2] - hit_bbox[0] <= 28
     assert dead_bbox is not None and dead_bbox[2] - dead_bbox[0] <= 40
+
+
+def test_lucian_exposes_every_native_archer_alias_that_hidden_simulation_can_request() -> None:
+    actor_anim = json.loads(
+        (MOD / "aseprite_resources" / "champions" / "lucian#anim.fanim").read_text(
+            encoding="utf-8"
+        )
+    )["anims"]
+    expected = {
+        "ult_old": (
+            [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
+            [0.080000006] * 7 + [0.1] * 4,
+        ),
+        "ult_pre": ([0, 17, 17], [0.080000006] * 3),
+        "ult_loop": ([18, 18, 18, 18], [0.030000001] * 4),
+        "ult_end": ([18, 17, 0], [0.080000006] * 3),
+        "ult_projectile": ([21], [0.080000006]),
+        "old_ult_buff_effect": ([18, 18, 17, 0], [0.1] * 4),
+        "skill_attack": ([13, 11, 0], [0.080000006] * 3),
+        "skill_dash": ([15, 16, 16], [0.080000006] * 3),
+        "old_ult_pre": (
+            [0, 17, 17, 18, 18, 18, 18],
+            [0.080000006] * 7,
+        ),
+    }
+    for tag, (indexes, durations) in expected.items():
+        frames = actor_anim[tag]["frames"]
+        assert [frame["duration"] for frame in frames] == durations
+        assert [frame["data"] for frame in frames] == [
+            {"x": index * 64, "y": 0, "w": 64, "h": 64}
+            for index in indexes
+        ]
+
+    from PIL import Image
+
+    actor_sheet = Image.open(
+        MOD / "aseprite_resources" / "champions" / "lucian#sheet.png"
+    ).convert("RGBA")
+    assert actor_sheet.size == (1408, 64)
+    assert actor_sheet.crop((21 * 64, 0, 22 * 64, 64)).getchannel("A").getbbox()
+
+    builder = (MOD / "tools" / "build_lol_mod.py").read_text(encoding="utf-8")
+    for tag in expected:
+        assert f'"{tag}":' in builder

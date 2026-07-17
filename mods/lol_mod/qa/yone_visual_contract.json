@@ -673,13 +673,13 @@
           ],
           "alpha_bbox": [
             1,
-            6,
-            42,
+            5,
+            41,
             44
           ],
           "visible_size": [
-            41,
-            38
+            40,
+            39
           ],
           "bottom_clearance": 11
         },
@@ -692,13 +692,13 @@
             53
           ],
           "alpha_bbox": [
-            2,
+            3,
             5,
             40,
             43
           ],
           "visible_size": [
-            38,
+            37,
             38
           ],
           "bottom_clearance": 10
@@ -712,13 +712,13 @@
             51
           ],
           "alpha_bbox": [
-            1,
+            2,
             5,
             41,
             42
           ],
           "visible_size": [
-            40,
+            39,
             37
           ],
           "bottom_clearance": 9
@@ -774,13 +774,13 @@
             51
           ],
           "alpha_bbox": [
-            4,
+            5,
             7,
             34,
             41
           ],
           "visible_size": [
-            30,
+            29,
             34
           ],
           "bottom_clearance": 10
@@ -796,11 +796,11 @@
           "alpha_bbox": [
             5,
             9,
-            34,
+            33,
             42
           ],
           "visible_size": [
-            29,
+            28,
             33
           ],
           "bottom_clearance": 11
@@ -814,13 +814,13 @@
             51
           ],
           "alpha_bbox": [
-            4,
+            5,
             7,
-            34,
+            33,
             41
           ],
           "visible_size": [
-            30,
+            28,
             34
           ],
           "bottom_clearance": 10
@@ -836,11 +836,11 @@
           "alpha_bbox": [
             5,
             5,
-            35,
+            36,
             40
           ],
           "visible_size": [
-            30,
+            31,
             35
           ],
           "bottom_clearance": 9
@@ -918,11 +918,11 @@
           "alpha_bbox": [
             9,
             5,
-            35,
+            36,
             43
           ],
           "visible_size": [
-            26,
+            27,
             38
           ],
           "bottom_clearance": 8
@@ -938,11 +938,11 @@
           "alpha_bbox": [
             7,
             5,
-            42,
+            41,
             43
           ],
           "visible_size": [
-            35,
+            34,
             38
           ],
           "bottom_clearance": 8
@@ -1016,13 +1016,13 @@
             51
           ],
           "alpha_bbox": [
-            12,
+            13,
             5,
             38,
             43
           ],
           "visible_size": [
-            26,
+            25,
             38
           ],
           "bottom_clearance": 8
@@ -1040,11 +1040,11 @@
           "alpha_bbox": [
             2,
             5,
-            41,
+            40,
             43
           ],
           "visible_size": [
-            39,
+            38,
             38
           ],
           "bottom_clearance": 10
@@ -1060,13 +1060,13 @@
             49
           ],
           "alpha_bbox": [
-            2,
+            3,
             6,
             28,
             44
           ],
           "visible_size": [
-            26,
+            25,
             38
           ],
           "bottom_clearance": 5
@@ -1082,11 +1082,11 @@
           "alpha_bbox": [
             5,
             2,
-            26,
+            25,
             39
           ],
           "visible_size": [
-            21,
+            20,
             37
           ],
           "bottom_clearance": 4
@@ -1122,11 +1122,11 @@
           "alpha_bbox": [
             13,
             12,
-            58,
+            57,
             51
           ],
           "visible_size": [
-            45,
+            44,
             39
           ],
           "bottom_clearance": 6
@@ -1142,11 +1142,11 @@
           "alpha_bbox": [
             20,
             20,
-            63,
+            62,
             59
           ],
           "visible_size": [
-            43,
+            42,
             39
           ],
           "bottom_clearance": 8
@@ -1160,13 +1160,13 @@
             77
           ],
           "alpha_bbox": [
-            16,
+            17,
             28,
             68,
             67
           ],
           "visible_size": [
-            52,
+            51,
             39
           ],
           "bottom_clearance": 10
@@ -1182,11 +1182,11 @@
           "alpha_bbox": [
             19,
             40,
-            72,
+            71,
             79
           ],
           "visible_size": [
-            53,
+            52,
             39
           ],
           "bottom_clearance": 8
@@ -1246,16 +1246,16 @@
             43
           ],
           "alpha_bbox": [
-            1,
-            3,
+            2,
+            2,
             29,
-            39
+            40
           ],
           "visible_size": [
-            28,
-            36
+            27,
+            38
           ],
-          "bottom_clearance": 4
+          "bottom_clearance": 3
         },
         {
           "frame": 1,
@@ -1266,16 +1266,16 @@
             45
           ],
           "alpha_bbox": [
-            1,
-            6,
-            30,
-            40
+            2,
+            0,
+            29,
+            41
           ],
           "visible_size": [
-            29,
-            34
+            27,
+            41
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 4
         },
         {
           "frame": 2,
@@ -1286,16 +1286,16 @@
             53
           ],
           "alpha_bbox": [
-            3,
-            9,
+            18,
+            7,
             56,
-            47
+            45
           ],
           "visible_size": [
-            53,
+            38,
             38
           ],
-          "bottom_clearance": 6
+          "bottom_clearance": 8
         },
         {
           "frame": 3,
@@ -1306,16 +1306,16 @@
             55
           ],
           "alpha_bbox": [
-            9,
-            10,
-            49,
-            48
+            18,
+            8,
+            57,
+            46
           ],
           "visible_size": [
-            40,
+            39,
             38
           ],
-          "bottom_clearance": 7
+          "bottom_clearance": 9
         },
         {
           "frame": 4,
@@ -1326,16 +1326,16 @@
             51
           ],
           "alpha_bbox": [
-            8,
-            8,
-            49,
-            46
+            17,
+            6,
+            54,
+            44
           ],
           "visible_size": [
-            41,
+            37,
             38
           ],
-          "bottom_clearance": 5
+          "bottom_clearance": 7
         }
       ],
       "ult": [
@@ -1408,13 +1408,13 @@
             53
           ],
           "alpha_bbox": [
-            9,
+            10,
             5,
             51,
             43
           ],
           "visible_size": [
-            42,
+            41,
             38
           ],
           "bottom_clearance": 10
@@ -1468,13 +1468,13 @@
             49
           ],
           "alpha_bbox": [
-            12,
+            3,
             2,
-            46,
+            55,
             40
           ],
           "visible_size": [
-            34,
+            52,
             38
           ],
           "bottom_clearance": 9
@@ -1510,11 +1510,11 @@
           "alpha_bbox": [
             7,
             13,
-            47,
+            48,
             51
           ],
           "visible_size": [
-            40,
+            41,
             38
           ],
           "bottom_clearance": 6
@@ -1530,11 +1530,11 @@
           "alpha_bbox": [
             5,
             8,
-            53,
+            54,
             46
           ],
           "visible_size": [
-            48,
+            49,
             38
           ],
           "bottom_clearance": 7
@@ -1590,11 +1590,11 @@
           "alpha_bbox": [
             12,
             9,
-            40,
+            41,
             46
           ],
           "visible_size": [
-            28,
+            29,
             37
           ],
           "bottom_clearance": 5
@@ -1612,11 +1612,11 @@
           "alpha_bbox": [
             1,
             10,
-            42,
+            41,
             47
           ],
           "visible_size": [
-            41,
+            40,
             37
           ],
           "bottom_clearance": 4
@@ -1631,13 +1631,13 @@
           ],
           "alpha_bbox": [
             1,
-            14,
+            15,
             40,
             45
           ],
           "visible_size": [
             39,
-            31
+            30
           ],
           "bottom_clearance": 4
         },
@@ -1651,13 +1651,13 @@
           ],
           "alpha_bbox": [
             1,
-            18,
+            16,
             40,
             42
           ],
           "visible_size": [
             39,
-            24
+            26
           ],
           "bottom_clearance": 3
         },
@@ -1671,13 +1671,13 @@
           ],
           "alpha_bbox": [
             1,
-            14,
+            13,
             40,
             36
           ],
           "visible_size": [
             39,
-            22
+            23
           ],
           "bottom_clearance": 3
         },
@@ -1691,13 +1691,13 @@
           ],
           "alpha_bbox": [
             1,
-            18,
+            19,
             40,
             37
           ],
           "visible_size": [
             39,
-            19
+            18
           ],
           "bottom_clearance": 2
         },
@@ -1731,13 +1731,13 @@
           ],
           "alpha_bbox": [
             1,
-            22,
+            23,
             40,
             37
           ],
           "visible_size": [
             39,
-            15
+            14
           ],
           "bottom_clearance": 2
         },
@@ -1853,12 +1853,14 @@
     "action_duration_ticks": 30,
     "cooldown_ticks": 480,
     "movement": "none",
-    "shape": "one stationary caster-following crescent plus one instant 36000x42000 forward hitbox",
-    "damage": "50 + 90% Attack physical damage",
-    "shield": "one unified settle grants a 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit"
+    "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
+    "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
+    "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+    "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
+    "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed"
   },
   "face_readability": {
-    "policy": "final-scale RGB-only face repaint; actor alpha/native rectangles and body scale are unchanged",
+    "policy": "final-scale 1x pixel face repair; native rectangles, overall actor bbox, foot anchors, and body scale are unchanged",
     "feature_rgba": [
       54,
       24,
@@ -1869,44 +1871,45 @@
       "idle[0]": {
         "body_bbox": [
           1,
-          6,
-          42,
+          5,
+          41,
           44
         ],
         "face_window": [
           8,
-          6,
-          38,
+          5,
+          40,
           28
         ],
         "local_face_bbox": [
-          17,
-          14,
-          26,
-          22
+          18,
+          13,
+          27,
+          21
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 15,
         "warm_bbox": [
           19,
-          14,
+          16,
           24,
-          19
+          21
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "idle[1]": {
         "body_bbox": [
-          2,
+          3,
           5,
           40,
           43
         ],
         "face_window": [
-          9,
+          10,
           5,
-          36,
+          39,
           27
         ],
         "local_face_bbox": [
@@ -1915,45 +1918,47 @@
           28,
           20
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 20,
         "warm_bbox": [
-          19,
-          15,
-          24,
-          20
+          20,
+          12,
+          26,
+          19
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "idle[2]": {
         "body_bbox": [
-          1,
+          2,
           5,
           41,
           42
         ],
         "face_window": [
-          8,
+          9,
           5,
-          37,
+          40,
           26
         ],
         "local_face_bbox": [
-          18,
+          17,
           12,
-          26,
-          21
+          27,
+          20
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 21,
         "warm_bbox": [
-          18,
-          15,
-          23,
-          21
+          19,
+          12,
+          24,
+          19
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "idle[3]": {
@@ -1966,24 +1971,25 @@
         "face_window": [
           8,
           5,
-          38,
+          41,
           27
         ],
         "local_face_bbox": [
-          18,
+          17,
           12,
           26,
-          21
+          20
         ],
-        "warm_pixels": 10,
+        "warm_pixels": 21,
         "warm_bbox": [
-          19,
-          15,
-          23,
-          18
+          18,
+          12,
+          24,
+          19
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[0]": {
@@ -1996,144 +2002,149 @@
         "face_window": [
           11,
           5,
-          33,
+          35,
           25
         ],
         "local_face_bbox": [
-          24,
-          15,
+          23,
+          16,
           32,
           24
         ],
-        "warm_pixels": 22,
+        "warm_pixels": 18,
         "warm_bbox": [
-          24,
+          23,
           16,
-          30,
+          29,
           22
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[1]": {
         "body_bbox": [
-          4,
+          5,
           7,
           34,
           41
         ],
         "face_window": [
-          9,
+          10,
           7,
-          31,
+          33,
           27
         ],
         "local_face_bbox": [
-          22,
+          21,
           17,
-          31,
+          30,
           25
         ],
         "warm_pixels": 19,
         "warm_bbox": [
-          22,
+          21,
           18,
-          28,
-          24
+          27,
+          23
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[2]": {
         "body_bbox": [
           5,
           9,
-          34,
+          33,
           42
         ],
         "face_window": [
           10,
           9,
-          31,
+          32,
           28
         ],
         "local_face_bbox": [
-          22,
-          19,
-          31,
-          27
+          23,
+          14,
+          32,
+          22
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          22,
-          19,
-          28,
-          25
+          26,
+          15,
+          31,
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[3]": {
         "body_bbox": [
-          4,
+          5,
           7,
-          34,
+          33,
           41
         ],
         "face_window": [
-          9,
+          10,
           7,
-          31,
+          32,
           27
         ],
         "local_face_bbox": [
-          21,
-          17,
-          30,
-          25
+          23,
+          14,
+          32,
+          22
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 18,
         "warm_bbox": [
-          21,
-          17,
-          27,
-          23
+          26,
+          14,
+          31,
+          20
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[4]": {
         "body_bbox": [
           5,
           5,
-          35,
+          36,
           40
         ],
         "face_window": [
-          10,
+          11,
           5,
-          32,
+          35,
           25
         ],
         "local_face_bbox": [
-          27,
+          26,
           13,
-          32,
+          35,
           21
         ],
-        "warm_pixels": 6,
+        "warm_pixels": 16,
         "warm_bbox": [
           29,
-          15,
-          32,
-          18
+          13,
+          34,
+          19
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[5]": {
@@ -2146,24 +2157,25 @@
         "face_window": [
           10,
           7,
-          31,
+          33,
           27
         ],
         "local_face_bbox": [
-          22,
-          17,
-          31,
-          25
+          24,
+          14,
+          33,
+          22
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 18,
         "warm_bbox": [
-          22,
-          18,
-          28,
-          24
+          27,
+          14,
+          32,
+          20
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[6]": {
@@ -2176,14 +2188,14 @@
         "face_window": [
           11,
           9,
-          30,
+          32,
           28
         ],
         "local_face_bbox": [
           19,
-          19,
+          20,
           28,
-          27
+          28
         ],
         "warm_pixels": 19,
         "warm_bbox": [
@@ -2194,6 +2206,7 @@
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "run[7]": {
@@ -2206,84 +2219,87 @@
         "face_window": [
           9,
           7,
-          31,
+          33,
           27
         ],
         "local_face_bbox": [
-          26,
-          15,
-          31,
-          23
+          24,
+          14,
+          33,
+          22
         ],
-        "warm_pixels": 6,
+        "warm_pixels": 18,
         "warm_bbox": [
-          26,
-          20,
-          28,
-          23
+          27,
+          14,
+          32,
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[0]": {
         "body_bbox": [
           9,
           5,
-          35,
+          36,
           43
         ],
         "face_window": [
           14,
           5,
-          32,
+          35,
           27
         ],
         "local_face_bbox": [
-          25,
-          13,
-          32,
-          21
+          26,
+          12,
+          35,
+          20
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 20,
         "warm_bbox": [
-          25,
-          15,
-          30,
-          21
+          27,
+          12,
+          32,
+          19
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[1]": {
         "body_bbox": [
           7,
           5,
-          42,
+          41,
           43
         ],
         "face_window": [
           13,
           5,
-          39,
+          40,
           27
         ],
         "local_face_bbox": [
           25,
-          13,
-          33,
-          22
+          12,
+          35,
+          20
         ],
-        "warm_pixels": 6,
+        "warm_pixels": 20,
         "warm_bbox": [
-          26,
-          17,
-          29,
-          19
+          25,
+          13,
+          32,
+          20
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[2]": {
@@ -2296,24 +2312,25 @@
         "face_window": [
           20,
           3,
-          42,
+          44,
           24
         ],
         "local_face_bbox": [
           20,
-          13,
-          28,
-          21
+          12,
+          30,
+          20
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 16,
         "warm_bbox": [
-          20,
-          13,
-          26,
-          19
+          22,
+          12,
+          27,
+          18
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[3]": {
@@ -2326,24 +2343,25 @@
         "face_window": [
           16,
           3,
-          46,
+          49,
           25
         ],
         "local_face_bbox": [
-          38,
-          14,
-          46,
-          22
+          30,
+          12,
+          39,
+          20
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 14,
         "warm_bbox": [
-          38,
-          14,
-          45,
-          22
+          31,
+          12,
+          36,
+          20
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[4]": {
@@ -2356,29 +2374,30 @@
         "face_window": [
           15,
           3,
-          48,
+          52,
           25
         ],
         "local_face_bbox": [
-          23,
-          9,
-          31,
-          18
+          22,
+          13,
+          32,
+          21
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 27,
         "warm_bbox": [
-          23,
-          11,
+          22,
+          13,
           29,
-          18
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "attack[5]": {
         "body_bbox": [
-          12,
+          13,
           5,
           38,
           43
@@ -2386,37 +2405,38 @@
         "face_window": [
           17,
           5,
-          35,
+          37,
           27
         ],
         "local_face_bbox": [
-          27,
-          7,
+          26,
+          14,
           35,
-          16
+          22
         ],
-        "warm_pixels": 25,
+        "warm_pixels": 26,
         "warm_bbox": [
-          27,
-          7,
-          33,
-          16
+          26,
+          15,
+          32,
+          22
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "hit[0]": {
         "body_bbox": [
           2,
           5,
-          41,
+          40,
           43
         ],
         "face_window": [
           9,
           5,
-          37,
+          39,
           27
         ],
         "local_face_bbox": [
@@ -2425,20 +2445,21 @@
           26,
           17
         ],
-        "warm_pixels": 31,
+        "warm_pixels": 23,
         "warm_bbox": [
           17,
           9,
-          23,
+          22,
           17
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[0]": {
         "body_bbox": [
-          2,
+          3,
           6,
           28,
           44
@@ -2446,54 +2467,56 @@
         "face_window": [
           7,
           6,
-          25,
+          27,
           28
         ],
         "local_face_bbox": [
-          17,
-          8,
+          16,
+          15,
           25,
-          17
+          23
         ],
-        "warm_pixels": 25,
+        "warm_pixels": 26,
         "warm_bbox": [
-          17,
-          8,
-          23,
-          17
+          16,
+          16,
+          22,
+          23
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[1]": {
         "body_bbox": [
           5,
           2,
-          26,
+          25,
           39
         ],
         "face_window": [
           9,
           2,
-          24,
+          25,
           23
         ],
         "local_face_bbox": [
           14,
           9,
-          23,
+          24,
           17
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 18,
         "warm_bbox": [
           15,
           10,
-          20,
+          21,
           17
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[2]": {
@@ -2506,144 +2529,149 @@
         "face_window": [
           9,
           10,
-          23,
+          25,
           32
         ],
         "local_face_bbox": [
           12,
-          18,
-          21,
-          26
+          20,
+          22,
+          28
         ],
-        "warm_pixels": 4,
+        "warm_pixels": 16,
         "warm_bbox": [
-          14,
+          15,
           21,
-          17,
-          23
+          19,
+          28
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[3]": {
         "body_bbox": [
           13,
           12,
-          58,
+          57,
           51
         ],
         "face_window": [
           21,
           12,
-          53,
+          56,
           35
         ],
         "local_face_bbox": [
           26,
-          17,
-          34,
-          26
+          19,
+          35,
+          27
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 14,
         "warm_bbox": [
           26,
-          19,
+          22,
           31,
-          26
+          27
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[4]": {
         "body_bbox": [
           20,
           20,
-          63,
+          62,
           59
         ],
         "face_window": [
           28,
           20,
-          59,
+          61,
           43
         ],
         "local_face_bbox": [
-          35,
-          26,
-          44,
-          34
+          33,
+          27,
+          43,
+          35
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 29,
         "warm_bbox": [
-          35,
-          29,
-          40,
-          34
+          33,
+          28,
+          41,
+          35
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[5]": {
         "body_bbox": [
-          16,
+          17,
           28,
           68,
           67
         ],
         "face_window": [
-          25,
+          26,
           28,
-          63,
+          67,
           51
         ],
         "local_face_bbox": [
-          51,
-          35,
-          60,
-          43
+          50,
+          37,
+          59,
+          45
         ],
-        "warm_pixels": 12,
+        "warm_pixels": 16,
         "warm_bbox": [
           52,
-          38,
-          56,
+          37,
+          57,
           42
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill[6]": {
         "body_bbox": [
           19,
           40,
-          72,
+          71,
           79
         ],
         "face_window": [
-          29,
+          28,
           40,
-          67,
+          70,
           63
         ],
         "local_face_bbox": [
           42,
-          44,
-          51,
-          52
-        ],
-        "warm_pixels": 16,
-        "warm_bbox": [
-          43,
           45,
-          48,
-          52
+          51,
+          53
+        ],
+        "warm_pixels": 21,
+        "warm_bbox": [
+          42,
+          46,
+          49,
+          53
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2[0]": {
@@ -2656,24 +2684,25 @@
         "face_window": [
           9,
           6,
-          24,
+          26,
           28
         ],
         "local_face_bbox": [
-          15,
           14,
-          23,
-          23
+          14,
+          24,
+          22
         ],
-        "warm_pixels": 7,
+        "warm_pixels": 17,
         "warm_bbox": [
           16,
-          18,
-          20,
-          20
+          15,
+          21,
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_dash[0]": {
@@ -2686,174 +2715,180 @@
         "face_window": [
           10,
           3,
-          36,
+          39,
           24
         ],
         "local_face_bbox": [
-          31,
+          26,
           13,
           36,
-          22
+          21
         ],
-        "warm_pixels": 15,
+        "warm_pixels": 29,
         "warm_bbox": [
-          31,
-          15,
+          28,
+          14,
           36,
-          22
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_attack[0]": {
         "body_bbox": [
-          1,
-          3,
+          2,
+          2,
           29,
-          39
+          40
         ],
         "face_window": [
-          6,
-          3,
-          26,
+          7,
+          2,
+          28,
           24
         ],
         "local_face_bbox": [
-          11,
-          9,
           20,
-          17
+          6,
+          28,
+          14
         ],
-        "warm_pixels": 15,
+        "warm_pixels": 16,
         "warm_bbox": [
-          11,
-          10,
-          17,
-          17
+          20,
+          9,
+          25,
+          14
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_attack[1]": {
         "body_bbox": [
-          1,
-          6,
-          30,
-          40
+          2,
+          0,
+          29,
+          41
         ],
         "face_window": [
-          6,
-          6,
-          27,
-          26
+          7,
+          0,
+          28,
+          24
         ],
         "local_face_bbox": [
-          14,
-          15,
-          23,
-          23
+          20,
+          7,
+          28,
+          15
         ],
         "warm_pixels": 16,
         "warm_bbox": [
-          14,
-          15,
-          21,
-          23
+          20,
+          10,
+          25,
+          15
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_attack[2]": {
         "body_bbox": [
-          3,
-          9,
+          18,
+          7,
           56,
-          47
+          45
         ],
         "face_window": [
-          13,
-          9,
-          51,
-          31
+          25,
+          7,
+          55,
+          29
         ],
         "local_face_bbox": [
-          29,
-          17,
-          37,
-          26
+          34,
+          11,
+          43,
+          19
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 16,
         "warm_bbox": [
-          29,
-          18,
-          35,
-          26
+          34,
+          14,
+          39,
+          19
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_attack[3]": {
         "body_bbox": [
-          9,
-          10,
-          49,
-          48
+          18,
+          8,
+          57,
+          46
         ],
         "face_window": [
-          16,
-          10,
-          45,
-          32
+          25,
+          8,
+          56,
+          30
         ],
         "local_face_bbox": [
-          29,
-          18,
-          38,
-          26
-        ],
-        "warm_pixels": 12,
-        "warm_bbox": [
-          29,
-          21,
           34,
-          26
+          12,
+          43,
+          20
+        ],
+        "warm_pixels": 16,
+        "warm_bbox": [
+          34,
+          15,
+          39,
+          20
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "skill2_attack[4]": {
         "body_bbox": [
-          8,
-          8,
-          49,
-          46
+          17,
+          6,
+          54,
+          44
         ],
         "face_window": [
-          15,
-          8,
-          45,
-          30
+          24,
+          6,
+          53,
+          28
         ],
         "local_face_bbox": [
-          25,
-          15,
-          34,
-          23
+          33,
+          10,
+          42,
+          18
         ],
-        "warm_pixels": 9,
+        "warm_pixels": 16,
         "warm_bbox": [
-          26,
-          18,
-          30,
-          21
+          33,
+          13,
+          38,
+          18
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[0]": {
@@ -2866,24 +2901,25 @@
         "face_window": [
           9,
           10,
-          43,
+          47,
           31
         ],
         "local_face_bbox": [
-          19,
-          16,
-          27,
-          25
+          25,
+          20,
+          35,
+          28
         ],
-        "warm_pixels": 8,
+        "warm_pixels": 19,
         "warm_bbox": [
+          25,
           21,
-          17,
-          24,
-          21
+          32,
+          27
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[1]": {
@@ -2896,24 +2932,25 @@
         "face_window": [
           14,
           9,
-          48,
+          52,
           31
         ],
         "local_face_bbox": [
-          31,
+          32,
           20,
-          40,
+          41,
           28
         ],
-        "warm_pixels": 11,
+        "warm_pixels": 14,
         "warm_bbox": [
           33,
           20,
-          37,
-          27
+          38,
+          25
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[2]": {
@@ -2926,29 +2963,30 @@
         "face_window": [
           16,
           11,
-          46,
+          49,
           33
         ],
         "local_face_bbox": [
-          26,
-          18,
+          25,
+          17,
           35,
-          26
+          25
         ],
-        "warm_pixels": 9,
+        "warm_pixels": 21,
         "warm_bbox": [
           27,
-          21,
-          31,
-          24
+          18,
+          32,
+          25
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[3]": {
         "body_bbox": [
-          9,
+          10,
           5,
           51,
           43
@@ -2956,24 +2994,25 @@
         "face_window": [
           17,
           5,
-          47,
+          50,
           27
         ],
         "local_face_bbox": [
-          29,
-          14,
-          37,
-          23
+          28,
+          12,
+          38,
+          20
         ],
-        "warm_pixels": 7,
+        "warm_pixels": 19,
         "warm_bbox": [
           30,
-          17,
-          34,
+          13,
+          35,
           20
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[4]": {
@@ -2986,24 +3025,25 @@
         "face_window": [
           17,
           2,
-          36,
+          38,
           23
         ],
         "local_face_bbox": [
-          24,
-          11,
-          33,
-          19
+          25,
+          9,
+          35,
+          17
         ],
-        "warm_pixels": 9,
+        "warm_pixels": 18,
         "warm_bbox": [
           27,
-          14,
+          10,
           32,
           16
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[5]": {
@@ -3016,54 +3056,56 @@
         "face_window": [
           14,
           1,
-          48,
+          52,
           21
         ],
         "local_face_bbox": [
-          26,
-          13,
-          35,
-          21
-        ],
-        "warm_pixels": 12,
-        "warm_bbox": [
-          28,
-          13,
-          33,
+          32,
+          10,
+          42,
           18
         ],
+        "warm_pixels": 16,
+        "warm_bbox": [
+          35,
+          11,
+          42,
+          17
+        ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[6]": {
         "body_bbox": [
-          12,
+          3,
           2,
-          46,
+          55,
           40
         ],
         "face_window": [
-          18,
+          12,
           2,
-          43,
+          54,
           24
         ],
         "local_face_bbox": [
           26,
-          5,
-          34,
-          14
+          14,
+          36,
+          22
         ],
-        "warm_pixels": 6,
+        "warm_pixels": 23,
         "warm_bbox": [
           28,
-          8,
-          31,
-          11
+          14,
+          34,
+          21
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[7]": {
@@ -3076,37 +3118,38 @@
         "face_window": [
           20,
           8,
-          42,
+          44,
           30
         ],
         "local_face_bbox": [
-          32,
-          19,
+          30,
+          14,
           40,
-          28
+          22
         ],
-        "warm_pixels": 2,
+        "warm_pixels": 15,
         "warm_bbox": [
           33,
-          20,
-          35,
+          15,
+          37,
           22
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[8]": {
         "body_bbox": [
           7,
           13,
-          47,
+          48,
           51
         ],
         "face_window": [
           14,
           13,
-          43,
+          47,
           35
         ],
         "local_face_bbox": [
@@ -3115,45 +3158,47 @@
           32,
           30
         ],
-        "warm_pixels": 7,
+        "warm_pixels": 12,
         "warm_bbox": [
-          24,
           25,
-          29,
+          22,
+          30,
           27
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[9]": {
         "body_bbox": [
           5,
           8,
-          53,
+          54,
           46
         ],
         "face_window": [
           14,
           8,
-          48,
+          53,
           30
         ],
         "local_face_bbox": [
           25,
-          16,
-          34,
-          24
+          13,
+          35,
+          21
         ],
-        "warm_pixels": 26,
+        "warm_pixels": 17,
         "warm_bbox": [
-          25,
-          16,
-          31,
-          24
+          27,
+          13,
+          32,
+          20
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[10]": {
@@ -3166,24 +3211,25 @@
         "face_window": [
           13,
           5,
-          51,
+          55,
           27
         ],
         "local_face_bbox": [
           29,
-          13,
-          37,
+          14,
+          38,
           22
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 22,
         "warm_bbox": [
-          29,
+          30,
           14,
-          35,
+          36,
           22
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[11]": {
@@ -3196,204 +3242,211 @@
         "face_window": [
           19,
           5,
-          45,
+          48,
           27
         ],
         "local_face_bbox": [
-          38,
-          15,
-          45,
-          23
+          39,
+          13,
+          48,
+          21
         ],
-        "warm_pixels": 12,
+        "warm_pixels": 19,
         "warm_bbox": [
           40,
-          15,
-          45,
+          13,
+          46,
           20
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "ult[12]": {
         "body_bbox": [
           12,
           9,
-          40,
+          41,
           46
         ],
         "face_window": [
           17,
           9,
-          37,
+          40,
           30
         ],
         "local_face_bbox": [
-          30,
-          13,
-          37,
-          21
+          31,
+          12,
+          40,
+          20
         ],
-        "warm_pixels": 14,
+        "warm_pixels": 19,
         "warm_bbox": [
           31,
-          16,
-          35,
-          21
+          12,
+          37,
+          20
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[0]": {
         "body_bbox": [
           1,
           10,
-          42,
+          41,
           47
         ],
         "face_window": [
           8,
           10,
-          38,
+          40,
           31
         ],
         "local_face_bbox": [
-          18,
+          17,
           16,
           27,
           24
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 26,
         "warm_bbox": [
-          18,
-          19,
-          23,
+          17,
+          16,
+          24,
           24
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[1]": {
         "body_bbox": [
           1,
-          14,
+          15,
           40,
           45
         ],
         "face_window": [
           8,
-          14,
-          36,
+          15,
+          39,
           32
         ],
         "local_face_bbox": [
-          18,
-          21,
-          27,
-          29
+          19,
+          19,
+          29,
+          27
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          18,
-          21,
-          25,
-          29
+          22,
+          20,
+          27,
+          27
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[2]": {
         "body_bbox": [
           1,
-          18,
+          16,
           40,
           42
         ],
         "face_window": [
           8,
-          18,
-          36,
-          32
+          16,
+          39,
+          31
         ],
         "local_face_bbox": [
-          20,
-          24,
-          29,
-          32
+          18,
+          22,
+          27,
+          30
         ],
-        "warm_pixels": 14,
+        "warm_pixels": 25,
         "warm_bbox": [
-          20,
-          26,
+          18,
+          22,
           25,
-          32
+          30
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[3]": {
         "body_bbox": [
           1,
-          14,
+          13,
           40,
           36
         ],
         "face_window": [
           8,
-          14,
-          36,
-          27
+          13,
+          39,
+          26
         ],
         "local_face_bbox": [
-          16,
-          22,
-          25,
-          27
+          26,
+          20,
+          36,
+          26
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 12,
         "warm_bbox": [
-          17,
-          22,
-          24,
-          27
+          29,
+          21,
+          33,
+          26
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[4]": {
         "body_bbox": [
           1,
-          18,
+          19,
           40,
           37
         ],
         "face_window": [
           8,
-          18,
-          36,
+          19,
+          39,
           29
         ],
         "local_face_bbox": [
-          19,
-          24,
-          28,
+          26,
+          23,
+          36,
           29
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 12,
         "warm_bbox": [
-          20,
+          29,
           24,
-          26,
+          33,
           29
         ],
         "dark_feature_pixels": 2,
-        "dark_feature_adjacent_pair": true,
+        "dark_feature_adjacent_pair": false,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[5]": {
@@ -3406,7 +3459,7 @@
         "face_window": [
           8,
           23,
-          36,
+          39,
           31
         ],
         "local_face_bbox": [
@@ -3415,7 +3468,7 @@
           25,
           31
         ],
-        "warm_pixels": 20,
+        "warm_pixels": 22,
         "warm_bbox": [
           17,
           26,
@@ -3424,36 +3477,38 @@
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[6]": {
         "body_bbox": [
           1,
-          22,
+          23,
           40,
           37
         ],
         "face_window": [
           8,
-          22,
-          36,
+          23,
+          39,
           31
         ],
         "local_face_bbox": [
           17,
-          25,
+          26,
           26,
           31
         ],
-        "warm_pixels": 27,
+        "warm_pixels": 23,
         "warm_bbox": [
           18,
-          25,
+          26,
           25,
           31
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "dead[7]": {
@@ -3466,7 +3521,7 @@
         "face_window": [
           8,
           26,
-          36,
+          39,
           32
         ],
         "local_face_bbox": [
@@ -3475,15 +3530,16 @@
           27,
           32
         ],
-        "warm_pixels": 27,
+        "warm_pixels": 25,
         "warm_bbox": [
           19,
           26,
-          26,
+          25,
           32
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       }
     },
@@ -3502,80 +3558,83 @@
           43
         ],
         "local_face_bbox": [
-          37,
-          23,
-          46,
-          31
+          40,
+          24,
+          49,
+          32
         ],
         "warm_pixels": 37,
         "warm_bbox": [
-          39,
-          23,
-          46,
-          31
+          40,
+          24,
+          47,
+          32
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "scoreboard": {
         "body_bbox": [
-          4,
+          5,
           6,
-          44,
+          43,
           60
         ],
         "face_window": [
           18,
           10,
-          43,
+          42,
           44
         ],
         "local_face_bbox": [
-          27,
+          29,
+          21,
+          38,
+          29
+        ],
+        "warm_pixels": 36,
+        "warm_bbox": [
+          29,
           21,
           36,
           29
         ],
-        "warm_pixels": 38,
-        "warm_bbox": [
-          27,
-          21,
-          35,
-          29
-        ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       },
       "grid": {
         "body_bbox": [
           7,
-          15,
+          12,
           83,
           86
         ],
         "face_window": [
           21,
-          15,
-          75,
-          56
+          12,
+          81,
+          55
         ],
         "local_face_bbox": [
-          42,
-          30,
-          50,
-          39
+          45,
+          26,
+          54,
+          34
         ],
-        "warm_pixels": 43,
+        "warm_pixels": 31,
         "warm_bbox": [
-          42,
-          30,
-          50,
-          39
+          45,
+          26,
+          51,
+          34
         ],
         "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": true,
+        "dark_feature_horizontal_pair": true,
         "near_white_pixels": 0
       }
     }

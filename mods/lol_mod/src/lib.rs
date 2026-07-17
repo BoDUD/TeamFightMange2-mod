@@ -893,7 +893,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.4;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.5;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1540,250 +1540,121 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
     }
 }
 
-const YONE_W_STATE_TTL_TICKS: usize = 120;
+const YONE_W_RANGE: i128 = 42_000;
+const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;
+// cos(40 degrees)^2: Spirit Cleave is an 80-degree forward cone.
+const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;
+const YONE_W_FLAT_DAMAGE: usize = 35;
+const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;
+const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;
 const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;
-const YONE_W_MAX_STATES: usize = 128;
-
-#[derive(Clone, Copy, Debug)]
-struct YoneSpiritCleaveHit {
-    target_id: usize,
-    target: EntityHandle,
-    is_champion: bool,
-}
-
-#[derive(Debug)]
-struct YoneSpiritCleaveState {
-    caster: EntityHandle,
-    player_id: usize,
-    team: usize,
-    position: Position,
-    started_tick: usize,
-    hits: Vec<YoneSpiritCleaveHit>,
-}
-
-#[derive(Debug, Default)]
-struct YoneSpiritCleaveRegistry {
-    states: Vec<YoneSpiritCleaveState>,
-}
-
-impl YoneSpiritCleaveRegistry {
-    fn prune_expired(&mut self, now: usize) {
-        // Hidden simulations can report lower ticks than the foreground match.
-        // Preserve future-tick states and discard only ledgers that are
-        // definitely stale for the current timeline. This deliberately avoids
-        // GameCtx's opaque service registry, whose base-0.5.0 SDK ABI is unsafe
-        // to call from the base-0.5.1 host.
-        self.states.retain(|state| {
-            now < state.started_tick
-                || now <= state.started_tick.saturating_add(YONE_W_STATE_TTL_TICKS)
-        });
-    }
-
-    fn make_room(&mut self) {
-        if self.states.len() >= YONE_W_MAX_STATES {
-            let remove_count = self
-                .states
-                .len()
-                .saturating_add(1)
-                .saturating_sub(YONE_W_MAX_STATES);
-            self.states.drain(0..remove_count);
-        }
-    }
-}
-
-static YONE_SPIRIT_CLEAVE_STATE: OnceLock<Mutex<YoneSpiritCleaveRegistry>> = OnceLock::new();
-
-fn yone_spirit_cleave_state() -> &'static Mutex<YoneSpiritCleaveRegistry> {
-    YONE_SPIRIT_CLEAVE_STATE.get_or_init(|| Mutex::new(YoneSpiritCleaveRegistry::default()))
-}
 
 #[derive(Clone, Copy, Debug, Default)]
-struct YoneSpiritCleaveBeginNativeEffect;
+struct YoneSpiritCleaveConeNativeEffect;
 
-impl ModEffectType for YoneSpiritCleaveBeginNativeEffect {
-    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
-        let Some((caster, caster_alive)) = ctx
-            .get_entity(caster_id)
-            .map(|entity| (entity.handle(), entity.is_alive()))
-        else {
-            return;
-        };
-        if !caster_alive {
-            return;
-        }
-        let Some((player_id, team, position, player_caster)) =
-            xayah_player_for_caster(ctx, caster_id)
-        else {
-            return;
-        };
-        if player_caster != caster {
-            return;
-        }
-
-        let now = ctx.tick();
-        let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
-            return;
-        };
-        registry.prune_expired(now);
-        // Make duplicate begin callbacks for one cast idempotent without
-        // deleting a future state owned by an interleaved hidden simulation.
-        registry.states.retain(|state| {
-            state.caster != caster
-                || state.player_id != player_id
-                || state.team != team
-                || state.position != position
-                || state.started_tick != now
-        });
-        registry.make_room();
-        registry.states.push(YoneSpiritCleaveState {
-            caster,
-            player_id,
-            team,
-            position,
-            started_tick: now,
-            hits: Vec::new(),
-        });
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default)]
-struct YoneSpiritCleaveCollectHitNativeEffect;
-
-impl ModEffectType for YoneSpiritCleaveCollectHitNativeEffect {
+impl ModEffectType for YoneSpiritCleaveConeNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
-        let InputTarget::Target { target_id } = input else {
-            return;
-        };
-        let Some((caster, caster_alive)) = ctx
+        let Some((caster_pos, caster_team, caster_attack, true)) = ctx
             .get_entity(caster_id)
-            .map(|entity| (entity.handle(), entity.is_alive()))
-        else {
-            return;
-        };
-        if !caster_alive {
-            return;
-        }
-        let Some((player_id, team, position, player_caster)) =
-            xayah_player_for_caster(ctx, caster_id)
-        else {
-            return;
-        };
-        if player_caster != caster {
-            return;
-        }
-        let Some((target, target_alive)) = ctx
-            .get_entity(target_id)
-            .map(|entity| (entity.handle(), entity.is_alive()))
-        else {
-            return;
-        };
-        if !target_alive {
-            return;
-        }
-
-        // Collection precedes Attack, so lethal hits still grant the shield.
-        let is_champion = (0..ctx.player_count()).any(|player_id| {
-            let Some(player) = ctx.player_at(player_id) else {
-                return false;
-            };
-            player
-                .champion()
-                .is_some_and(|champion| champion.handle() == target)
-        });
-        let now = ctx.tick();
-        let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
-            return;
-        };
-        registry.prune_expired(now);
-        let Some(state) = registry
-            .states
-            .iter_mut()
-            .filter(|state| {
-                state.caster == caster
-                    && state.player_id == player_id
-                    && state.team == team
-                    && state.position == position
-                    && state.started_tick <= now
+            .map(|caster| {
+                (
+                    caster.pos(),
+                    caster.team(),
+                    caster.stat().attack,
+                    caster.is_alive(),
+                )
             })
-            .max_by_key(|state| state.started_tick)
         else {
             return;
         };
-        if let Some(hit) = state
-            .hits
-            .iter_mut()
-            .find(|hit| hit.target_id == target_id && hit.target == target)
-        {
-            hit.is_champion |= is_champion;
-        } else {
-            state.hits.push(YoneSpiritCleaveHit {
-                target_id,
-                target,
-                is_champion,
-            });
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default)]
-struct YoneSpiritCleaveSettleNativeEffect;
-
-impl ModEffectType for YoneSpiritCleaveSettleNativeEffect {
-    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
-        let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
-            return;
+        let (dir_x, dir_y) = match input {
+            InputTarget::Dir { dir_x, dir_y } => (i128::from(dir_x), i128::from(dir_y)),
+            InputTarget::Pos { x, y } => (
+                i128::from(x) - i128::from(caster_pos.x),
+                i128::from(y) - i128::from(caster_pos.y),
+            ),
+            InputTarget::Target { target_id } => {
+                let Some(target_pos) = ctx.get_entity(target_id).map(|target| target.pos()) else {
+                    return;
+                };
+                (
+                    i128::from(target_pos.x) - i128::from(caster_pos.x),
+                    i128::from(target_pos.y) - i128::from(caster_pos.y),
+                )
+            }
+            InputTarget::None => return,
         };
-        let Some((player_id, team, position, player_caster)) =
-            xayah_player_for_caster(ctx, caster_id)
-        else {
-            return;
-        };
-        if player_caster != caster {
+        if dir_x == 0 && dir_y == 0 {
             return;
         }
-        let now = ctx.tick();
-        let state = {
-            let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
-                return;
+
+        let dir_sq = dir_x * dir_x + dir_y * dir_y;
+        let mut hits: Vec<(usize, usize)> = Vec::new();
+        let mut champion_hits = 0usize;
+        for index in 0..ctx.entity_count() {
+            let Some(target) = ctx.entity_at(index) else {
+                continue;
             };
-            registry.prune_expired(now);
-            let Some(state_index) = registry
-                .states
-                .iter()
-                .enumerate()
-                .filter(|(_, state)| {
-                    state.caster == caster
-                        && state.player_id == player_id
-                        && state.team == team
-                        && state.position == position
-                        && state.started_tick <= now
-                })
-                .max_by_key(|(_, state)| state.started_tick)
-                .map(|(index, _)| index)
-            else {
-                return;
-            };
-            registry.states.remove(state_index)
-        };
+            let target_id = target.id();
+            if target_id == caster_id
+                || target.team() == caster_team
+                || !target.is_alive()
+                || !target.is_targetable()
+                || target.is_tower()
+            {
+                continue;
+            }
 
-        if state.hits.is_empty()
-            || !ctx
-                .get_entity(caster_id)
-                .is_some_and(|entity| entity.handle() == state.caster && entity.is_alive())
+            let target_pos = target.pos();
+            let dx = i128::from(target_pos.x) - i128::from(caster_pos.x);
+            let dy = i128::from(target_pos.y) - i128::from(caster_pos.y);
+            let distance_sq = dx * dx + dy * dy;
+            let hit_range = YONE_W_RANGE + target.radius() as i128;
+            if distance_sq > hit_range * hit_range {
+                continue;
+            }
+
+            let dot = dx * dir_x + dy * dir_y;
+            if dot <= 0
+                || dot * dot * YONE_W_COS_SQ_SCALE
+                    < distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE
+            {
+                continue;
+            }
+
+            let damage = YONE_W_FLAT_DAMAGE
+                .saturating_add(
+                    caster_attack.saturating_mul(YONE_W_ATTACK_RATIO_PERCENT) / 100,
+                )
+                .saturating_add(
+                    target
+                        .hp()
+                        .max
+                        .saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT)
+                        / 100,
+                );
+            champion_hits += usize::from(target.is_champion());
+            hits.push((target_id, damage));
+        }
+        if hits.is_empty() {
+            return;
+        }
+
+        // Scan first and mutate second so every target is resolved from one
+        // immutable cone snapshot. No process-global ledger means hidden and
+        // foreground GameCtx instances cannot share or steal W state.
+        for (target_id, damage) in hits {
+            ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
         {
             return;
         }
 
-        // The data API applies exactly one Shield. Native code emits one tier
-        // marker after deduplicating the complete W hit set. Tier 0 is a
-        // minion/monster-only hit; tiers 1..5 count all enemy champions.
-        let champion_count = state
-            .hits
-            .iter()
-            .filter(|hit| hit.is_champion)
-            .count()
-            .min(YONE_W_MAX_ENEMY_CHAMPIONS);
-        let marker_name = format!("lol_yone_w_shield_tier_{champion_count}");
+        let shield_tier = champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS);
+        let marker_name = format!("lol_yone_w_shield_tier_{shield_tier}");
         let Ok(name) = marker_name.as_str().try_into() else {
             return;
         };
@@ -1830,14 +1701,24 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             change: XayahFeatherStateChange::Clear,
         },
     );
-    registration.add_native_effect("lol_yone_w_begin_native", YoneSpiritCleaveBeginNativeEffect);
+    registration.add_native_effect(
+        "lol_yone_w_cone_native",
+        YoneSpiritCleaveConeNativeEffect,
+    );
+    // 0.10.4 saves embed the retired three-stage rectangular W tree. Keep its
+    // native names resolvable for load/BP compatibility, but current saves use
+    // the stateless cone callback above and never enter these aliases.
+    registration.add_native_effect(
+        "lol_yone_w_begin_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
     registration.add_native_effect(
         "lol_yone_w_collect_hit_native",
-        YoneSpiritCleaveCollectHitNativeEffect,
+        LegacySavedNativeCompatibilityEffect,
     );
     registration.add_native_effect(
         "lol_yone_w_settle_native",
-        YoneSpiritCleaveSettleNativeEffect,
+        LegacySavedNativeCompatibilityEffect,
     );
     registration.add_native_effect(
         "lol_yone_e_start_native",

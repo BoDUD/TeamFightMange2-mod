@@ -16,14 +16,14 @@ COMPACT = MOD / "ui" / "champion_portrait" / "dual_blader_compact.png"
 SCOREBOARD = MOD / "ui" / "champion_portrait" / "dual_blader_scoreboard.png"
 GRID = MOD / "ui" / "champion_portrait" / "dual_blader_grid.png"
 YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
-YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.90, 0.58)
+YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
 
 
 def _portrait_face_metrics(
     image: Image.Image,
     window: tuple[float, float, float, float],
-) -> dict[str, int | bool]:
+) -> dict[str, object]:
     body = image.getchannel("A").getbbox()
     assert body is not None
     left, top, right, bottom = body
@@ -82,13 +82,28 @@ def _portrait_face_metrics(
                         component.add(point)
                         queue.append(point)
         components.append(component)
+    largest_warm = max(components, key=len) if components else set()
+    warm_bbox = (
+        None
+        if not largest_warm
+        else (
+            min(x for x, _ in largest_warm),
+            min(y for _, y in largest_warm),
+            max(x for x, _ in largest_warm) + 1,
+            max(y for _, y in largest_warm) + 1,
+        )
+    )
     return {
         "feature_pixels": len(feature),
         "feature_pair": any(
             (x + 1, y) in feature or (x, y + 1) in feature
             for x, y in feature
         ),
-        "warm_component": max((len(item) for item in components), default=0),
+        "feature_horizontal_pair": (
+            len(feature) == 2 and len({y for _, y in feature}) == 1
+        ),
+        "warm_component": len(largest_warm),
+        "warm_bbox": warm_bbox,
         "near_white": sum(
             1
             for y in range(local[1], local[3])
@@ -174,7 +189,7 @@ def test_yone_ui_faces_keep_warm_planes_and_two_pixel_eye_cues() -> None:
     for name, (image, window, minimum_warm) in surfaces.items():
         metrics = _portrait_face_metrics(image, window)
         assert metrics["feature_pixels"] == 2, (name, metrics)
-        assert metrics["feature_pair"] is True, (name, metrics)
+        assert metrics["feature_horizontal_pair"] is True, (name, metrics)
         assert metrics["warm_component"] >= minimum_warm, (name, metrics)
         assert metrics["near_white"] == 0, (name, metrics)
 
@@ -211,10 +226,16 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
         )
         metrics = _portrait_face_metrics(frame, YONE_ACTOR_FACE_WINDOW)
         assert metrics["feature_pixels"] == 2, (tag, index, metrics)
-        assert metrics["feature_pair"] is True, (tag, index, metrics)
-        assert metrics["warm_component"] >= 2, (tag, index, metrics)
+        assert metrics["feature_horizontal_pair"] is True, (tag, index, metrics)
+        assert metrics["warm_component"] >= 12, (tag, index, metrics)
+        warm_bbox = metrics["warm_bbox"]
+        assert isinstance(warm_bbox, tuple), (tag, index, metrics)
+        assert warm_bbox[2] - warm_bbox[0] >= 4, (tag, index, metrics)
+        assert warm_bbox[3] - warm_bbox[1] >= 5, (tag, index, metrics)
         assert metrics["near_white"] == 0, (tag, index, metrics)
-        assert build_yone.repaint_yone_face(frame).tobytes() == frame.tobytes(), (
+        assert build_yone.finalize_yone_battle_face(
+            frame, (tag, index)
+        ).tobytes() == frame.tobytes(), (
             tag,
             index,
         )

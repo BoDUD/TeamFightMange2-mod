@@ -3,7 +3,7 @@
   "champion": "Yone",
   "generator": "built-in image_gen",
   "generated_on": "2026-07-17",
-  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent RGB-only final-scale face repaint with unchanged alpha geometry",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent final-scale 1x face template inside the unchanged overall actor bbox",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
@@ -11,8 +11,8 @@
         1402,
         1122
       ],
-      "size_bytes": 1945904,
-      "sha256": "6ea7f8649e243407637aa22aba5c99f42a3a0b0e888fbe7fb4b15e5f4e5c84d5",
+      "size_bytes": 1926826,
+      "sha256": "05f3922049eea629b489a6c0e01c747a901fa11de4323e1981709807cbb05d43",
       "alpha_bbox": [
         0,
         0,
@@ -30,8 +30,8 @@
         1536,
         1024
       ],
-      "size_bytes": 1815437,
-      "sha256": "837643dd7dc6303c09f747bd20a391863b2e8c8c8d1078296f6612a4f2dd7cf4",
+      "size_bytes": 1825762,
+      "sha256": "727c2fdf2879cf6a33bcf440201113fc4c63283b324e05829879619e1ab6281e",
       "alpha_bbox": [
         0,
         0,
@@ -49,8 +49,8 @@
         1402,
         1122
       ],
-      "size_bytes": 1873765,
-      "sha256": "1202e47c6dc2db833ce2fbe0b13e7fc6dfdea34f7b65543f24512000d345f0a5",
+      "size_bytes": 1861896,
+      "sha256": "76bf430043eaaa1905f318b7e127ee2fb44d11c08894e6c81dd9d1b42ebef3de",
       "alpha_bbox": [
         0,
         0,
@@ -68,8 +68,8 @@
         1619,
         972
       ],
-      "size_bytes": 1458656,
-      "sha256": "ada8a7b8221c2372cc9cc34d2d23fdd312255ed9a5c3d2e698d7b8b7b1728cbf",
+      "size_bytes": 1505567,
+      "sha256": "2b27bd819fd1d10bac40663fe1d4c6480906854c210c5fc69aac18144127533d",
       "alpha_bbox": [
         0,
         0,
@@ -203,13 +203,13 @@
         1402,
         1122
       ],
-      "size_bytes": 1214813,
-      "sha256": "794bfea423ac4be05c5962778b5b2598625d7e5b89ad57c7e3c8f039196a8d61",
+      "size_bytes": 1209626,
+      "sha256": "306eb250c9cf1b20ad5b2c4cc043b4a91a43fb8587f48c02e8d92585b400ed7b",
       "alpha_bbox": [
-        17,
-        38,
-        1395,
-        1048
+        18,
+        35,
+        1394,
+        1049
       ],
       "alpha_extrema": [
         0,
@@ -222,13 +222,13 @@
         1536,
         1024
       ],
-      "size_bytes": 939933,
-      "sha256": "db1d458191b6e53bab585ea7266158c3548594bac7a247c3d3d5a1c43300b2a7",
+      "size_bytes": 992508,
+      "sha256": "54e3f5c5fec4b340493806e137e689b236ff308cffe150b901268423af897600",
       "alpha_bbox": [
-        67,
-        91,
-        1448,
-        916
+        54,
+        75,
+        1447,
+        919
       ],
       "alpha_extrema": [
         0,
@@ -241,13 +241,13 @@
         1402,
         1122
       ],
-      "size_bytes": 1134225,
-      "sha256": "7ad8012fc65009873ae2e86e0560f500851d8521dce9d82762456b98ea708d15",
+      "size_bytes": 1136599,
+      "sha256": "815e5ed10a1ab8c79b37aeced0b2c611ae67a020145895cea578d426ff95b678",
       "alpha_bbox": [
-        20,
-        27,
+        19,
+        26,
         1368,
-        1063
+        1058
       ],
       "alpha_extrema": [
         0,
@@ -260,13 +260,13 @@
         1619,
         972
       ],
-      "size_bytes": 690460,
-      "sha256": "4cf8fc3d79c3f75bab7af08a8a8f297c40a96bef1136ecfa31b945943593b53e",
+      "size_bytes": 756810,
+      "sha256": "89fdb188c555d08bf2a8b51174832f6f11aa3babf2861872b3552637e72a6887",
       "alpha_bbox": [
-        30,
-        98,
-        1599,
-        829
+        27,
+        95,
+        1613,
+        816
       ],
       "alpha_extrema": [
         0,
@@ -358,10 +358,10 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "51ce5d394eb7f8758ee8caecaade5e605dfc3598485c16b3d2b45502422af7ca",
+      "sha256": "01520d896d6a7cdaa165b72fe5fa079f0a89e9e49f387e9ffeb557f27c25b13f",
       "alpha_bbox": [
         45,
-        1,
+        0,
         3500,
         79
       ],
@@ -602,10 +602,10 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "c3d067cfe5fa48b28f78afeb2fcf75c4a0b56a19df8340025278d6de9fce61fa",
+      "sha256": "4b19fe1e7ce5ded189d97a842f9de53eb6199e85e5e6a446f11af15385a2cf73",
       "alpha_bbox": [
         5,
-        9,
+        8,
         59,
         60
       ],
@@ -621,7 +621,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "6c222d352db53ffe21248f3b292fb1409f749d29e36fceaad1b85e87ef5e253f",
+      "sha256": "70b2cba29fa42c5d610c968eaaa1bdf86d19666380b0bf97f8c9d309850bf2ac",
       "alpha_bbox": [
         10,
         8,
@@ -640,11 +640,11 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "dce8de17faaa1a57bb94112707f80f3d0ab1666bea527da18e7e560a82b9155a",
+      "sha256": "afece9b62c1eec06f48ca92ae7f021bf85f1d9d6bbcc0c43986db8b7b9f8560f",
       "alpha_bbox": [
-        4,
+        5,
         6,
-        44,
+        43,
         60
       ],
       "alpha_extrema": [
@@ -659,10 +659,10 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "8072a6746038975d38db11d454fed0fd8c24bbe20b246c30164c79f68307727d",
+      "sha256": "60dd51fac4c296012067d9aa2b71416d39bf2c9c3ec63a43362e47b0865d7ce2",
       "alpha_bbox": [
         7,
-        15,
+        12,
         83,
         86
       ],

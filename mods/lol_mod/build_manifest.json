@@ -24,13 +24,13 @@
     },
     {
       "path": "aseprite_resources/champions/lucian#anim.fanim",
-      "size": 11534,
-      "sha256": "0c627dfc303f226262e72ad3871d0e763c53209199a020fa10860d56523dc88c"
+      "size": 18627,
+      "sha256": "10efb0757b6b5955777a9bc970b61703df90bb153cefbcf286d31a716feac6d2"
     },
     {
       "path": "aseprite_resources/champions/lucian#sheet.png",
-      "size": 344221,
-      "sha256": "566826c77590bb7310bf49ae7443492d505389f6dc2e5ba2431344ba8921498c"
+      "size": 360605,
+      "sha256": "b44ee1236ce104f7919eba5f1fd9cc65f4ea142dd48a2e8fcb68efd5f15a5b44"
     },
     {
       "path": "aseprite_resources/champions/orianna#anim.fanim",
@@ -80,7 +80,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1232950,
-      "sha256": "51ce5d394eb7f8758ee8caecaade5e605dfc3598485c16b3d2b45502422af7ca"
+      "sha256": "01520d896d6a7cdaa165b72fe5fa079f0a89e9e49f387e9ffeb557f27c25b13f"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -839,8 +839,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 27280,
-      "sha256": "770c9577b68dd22b314635bfb2e9ca05dae4bf1d5f87ac8e0ab086bc6f342c01"
+      "size": 27544,
+      "sha256": "6a2d7a64102484c6c068373f7bc1ad53773265b2f1c8c0564de7f7e3807d387e"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -969,13 +969,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 1019392,
-      "sha256": "b887d478c29465718e5f84fc85d7bdabf08d1aa53b5a8066452b3cedb9caee12"
+      "size": 1016320,
+      "sha256": "53d4b17b4c7f1036103abc3d00d96cd6737f252020fceba215ab87f9599ee2fb"
     },
     {
       "path": "mod.mod_info",
-      "size": 1205,
-      "sha256": "2ae5f30e726df7da8da988192aed958cb13ea46e942481764b9c74be2010037b"
+      "size": 1362,
+      "sha256": "3fc3e54e741b4600341baab77723fc6fe495dd4d164a4d5be9cce28c43d9148e"
     },
     {
       "path": "mod.override_info",
@@ -1004,8 +1004,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 14085,
-      "sha256": "8ee5e4e3372ffaee9e5c918d415828bdba9a6c598fa11b3cb969c8f72e73315f"
+      "size": 14090,
+      "sha256": "96b4b2719137c1d5518c123ae0106f6400a5fd7c2f845ec9c098100af0cc8cf7"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1014,23 +1014,23 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 3602,
-      "sha256": "8c51cca4aa44931d1b552df6e07830534f1b6e8f7d1bfa123febb4b52ed93e72"
+      "size": 5041,
+      "sha256": "569d2999f050d9fc0d9ed80203d860c49cf5c39e2164d8533648592bdf83cce0"
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 61130,
-      "sha256": "5ad8cc2583becf0515c6032bad3cd4a59fa931d94bae55c342a028c607563ff2"
+      "size": 64222,
+      "sha256": "1b8bc339ea3c3ce9a68b1e2bd08f4ade87ed18d619e91609adefa0ad1e0ee125"
     },
     {
       "path": "qa/yone_visual_final.png",
       "size": 2455173,
-      "sha256": "e0d20bb148f7ba1278c6924bdc0b83820171806577b95711e5c2abb435bbb652"
+      "sha256": "98ace5dbf73314d2d6484c8083179855e48426040a21d83b13839b3641edb768"
     },
     {
       "path": "qa/yone_visual_qa.md",
-      "size": 2078,
-      "sha256": "96278b7c9aab96a5127a01dd6029920b850a9a9df75f9f051617d26c7400379c"
+      "size": 2080,
+      "sha256": "4fb06d0760931d657b45618d94eabcdf1f4e5e0a5147ca8b6ea1641fd531c11b"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -1909,8 +1909,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 45273,
-      "sha256": "f759747872ab284e07cd81f9f21bf16980595fa2bc123d84755e5bdb4d1e12eb"
+      "size": 45213,
+      "sha256": "52820125c496f7a9660cbd878fe66d8ee4bf80bffebb7b7e249af75a61e27d78"
     },
     {
       "path": "text/item.i18n",
@@ -2015,7 +2015,7 @@
     {
       "path": "ui/champion_fullbody/dual_blader.png",
       "size": 16516,
-      "sha256": "c3d067cfe5fa48b28f78afeb2fcf75c4a0b56a19df8340025278d6de9fce61fa"
+      "sha256": "4b19fe1e7ce5ded189d97a842f9de53eb6199e85e5e6a446f11af15385a2cf73"
     },
     {
       "path": "ui/champion_fullbody/lol_shen.png",
@@ -2045,17 +2045,17 @@
     {
       "path": "ui/champion_portrait/dual_blader_compact.png",
       "size": 16516,
-      "sha256": "6c222d352db53ffe21248f3b292fb1409f749d29e36fceaad1b85e87ef5e253f"
+      "sha256": "70b2cba29fa42c5d610c968eaaa1bdf86d19666380b0bf97f8c9d309850bf2ac"
     },
     {
       "path": "ui/champion_portrait/dual_blader_grid.png",
       "size": 44110,
-      "sha256": "8072a6746038975d38db11d454fed0fd8c24bbe20b246c30164c79f68307727d"
+      "sha256": "60dd51fac4c296012067d9aa2b71416d39bf2c9c3ec63a43362e47b0865d7ce2"
     },
     {
       "path": "ui/champion_portrait/dual_blader_scoreboard.png",
       "size": 12420,
-      "sha256": "dce8de17faaa1a57bb94112707f80f3d0ab1666bea527da18e7e560a82b9155a"
+      "sha256": "afece9b62c1eec06f48ca92ae7f021bf85f1d9d6bbcc0c43986db8b7b9f8560f"
     },
     {
       "path": "ui/icons/morgard.svg",

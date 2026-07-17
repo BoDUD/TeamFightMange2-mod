@@ -207,7 +207,7 @@ def test_legacy_saved_native_compatibility_allowlist_is_exact_and_noop() -> None
     )
 
 
-def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
+def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> None:
     w = load_yone()["skill2"]
     assert (
         w["cooltime"],
@@ -221,47 +221,22 @@ def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
     assert find_effect(w, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "skill2_attack", "tick": 30}
     ]
-    hitboxes = find_effect(
-        w, "LineRangeProjectile", name="lol_yone_w_hitbox"
-    )
-    assert len(hitboxes) == 1
-    hitbox = hitboxes[0]
-    assert (
-        hitbox["width"],
-        hitbox["length"],
-        hitbox["delay"],
-        hitbox["apply"],
-        hitbox["applied_target"],
-    ) == (
-        36000,
-        42000,
-        0,
-        1,
-        "EnemyWithoutTower",
-    )
-    payload = hitbox["applied_effects"]
-    assert len(payload) == 1
-    ordered = payload[0]["effect"]["effects"]
-    assert [effect["type"] for effect in ordered] == [
+    assert not find_effect(w, "LineRangeProjectile")
+    assert not find_effect(w, "RangeProjectile")
+    assert not find_effect(w, "Attack")
+    assert not find_effect(w, "Delayed")
+    top = w["effect"]["effects"]
+    assert [effect["type"] for effect in top[:4]] == [
+        "CasterAnimation",
+        "Sfx",
+        "CasterViewEffect",
         "Native",
-        "Attack",
-        "ViewEffect",
-        "TargetSfx",
     ]
-    assert ordered[0] == {
+    assert top[3] == {
         "type": "Native",
-        "effect_ref": "lol_yone_w_collect_hit_native",
+        "effect_ref": "lol_yone_w_cone_native",
     }
-    assert ordered[1] == {"type": "Attack", "damage": 50, "attack_ratio": 90}
-
-    delayed = find_effect(w, "Delayed")
-    assert len(delayed) == 1
-    assert delayed[0]["tick"] == 2
-    settle = delayed[0]["effects"]
-    assert settle[0] == {
-        "type": "Native",
-        "effect_ref": "lol_yone_w_settle_native",
-    }
+    settle = top[4:]
     tiers = [
         (0, 50, 20),
         (1, 100, 40),
@@ -270,8 +245,8 @@ def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
         (4, 175, 70),
         (5, 200, 80),
     ]
-    assert len(settle[1:]) == 6
-    for switch, (tier, amount, attack_ratio) in zip(settle[1:], tiers, strict=True):
+    assert len(settle) == 6
+    for switch, (tier, amount, attack_ratio) in zip(settle, tiers, strict=True):
         marker = f"lol_yone_w_shield_tier_{tier}"
         assert switch["type"] == "SwitchByBuff"
         assert switch["buff_name"] == marker
@@ -291,15 +266,15 @@ def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
         }
         assert branch[1] == {"type": "RemoveCasterBuff", "name": marker}
         assert branch[2:] == [
+            {"type": "CasterViewEffect", "name": "lol_yone_w_hit"},
             {"type": "CasterViewEffect", "name": "lol_yone_w_shield"},
+            {"type": "Sfx", "name": "lol_yone_w_hit"},
             {"type": "Sfx", "name": "lol_yone_w_shield"},
         ]
 
     assert len(find_effect(w, "Shield")) == 6
     assert [effect["effect_ref"] for effect in find_effect(w, "Native")] == [
-        "lol_yone_w_begin_native",
-        "lol_yone_w_collect_hit_native",
-        "lol_yone_w_settle_native",
+        "lol_yone_w_cone_native",
     ]
     forbidden = {
         "Rush",
@@ -317,19 +292,26 @@ def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
 
     rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     for proof in (
-        "YoneSpiritCleaveBeginNativeEffect",
-        "YoneSpiritCleaveCollectHitNativeEffect",
-        "YoneSpiritCleaveSettleNativeEffect",
+        "YoneSpiritCleaveConeNativeEffect",
+        "const YONE_W_RANGE: i128 = 42_000;",
+        "const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;",
+        "const YONE_W_FLAT_DAMAGE: usize = 35;",
+        "const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;",
+        "const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;",
         "YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5",
-        "hit.target_id == target_id && hit.target == target",
-        ".min(YONE_W_MAX_ENEMY_CHAMPIONS)",
+        "for index in 0..ctx.entity_count()",
+        "let Some(target) = ctx.entity_at(index)",
+        ".saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT)",
+        "champion_hits += usize::from(target.is_champion());",
+        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
+        "champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS)",
     ):
         assert proof in rust
 
 
-def test_w_runtime_is_bounded_and_matches_the_nearest_cast_without_opaque_services() -> None:
+def test_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
     rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    runtime = rust.split("const YONE_W_STATE_TTL_TICKS", 1)[1].split(
+    runtime = rust.split("const YONE_W_RANGE", 1)[1].split(
         "// Saved seasons embed their champion definitions.", 1
     )[0]
 
@@ -339,36 +321,55 @@ def test_w_runtime_is_bounded_and_matches_the_nearest_cast_without_opaque_servic
         "ModService",
         "c_void",
         "context_token",
+        "OnceLock",
+        "Mutex",
+        "static YONE_",
+        "started_tick",
+        "max_by_key",
+        "EntityHandle",
     ):
         assert forbidden not in runtime
 
     for proof in (
-        "const YONE_W_MAX_STATES: usize = 128;",
-        "caster: EntityHandle,",
-        "player_id: usize,",
-        "team: usize,",
-        "position: Position,",
-        "started_tick: usize,",
-        "if self.states.len() >= YONE_W_MAX_STATES",
-        "self.states.drain(0..remove_count);",
-        "registry.make_room();",
-        "state.caster == caster",
-        "state.player_id == player_id",
-        "state.team == team",
-        "state.position == position",
-        "state.started_tick <= now",
+        "InputTarget::Dir { dir_x, dir_y }",
+        "InputTarget::Pos { x, y }",
+        "InputTarget::Target { target_id }",
+        "for index in 0..ctx.entity_count()",
+        "target.team() == caster_team",
+        "!target.is_targetable()",
+        "target.is_tower()",
+        "dot * dot * YONE_W_COS_SQ_SCALE",
+        "distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE",
+        "hits.push((target_id, damage));",
+        "for (target_id, damage) in hits",
+        "ctx.add_buff(caster_id, marker);",
     ):
         assert proof in runtime
 
-    # Collect and settle both choose the newest eligible cast for the same
-    # caster/player/team/position identity. Interleaved hidden simulations
-    # therefore cannot attach a hit to an arbitrary older W ledger.
-    assert runtime.count("max_by_key") == 2
-    assert ".max_by_key(|state| state.started_tick)" in runtime
-    assert ".max_by_key(|(_, state)| state.started_tick)" in runtime
-    assert runtime.index("registry.make_room();") < runtime.index(
-        "registry.states.push(YoneSpiritCleaveState"
+    # The immutable entity scan completes before combat mutation and the one
+    # shield marker is derived from that same local vector. There is no state
+    # for a hidden simulation or second GameCtx to observe.
+    assert runtime.index("hits.push((target_id, damage));") < runtime.index(
+        "for (target_id, damage) in hits"
     )
+    assert runtime.count("ctx.add_buff(caster_id, marker);") == 1
+
+    registrations = dict(
+        re.findall(
+            r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
+            r"([A-Za-z0-9_]+),\s*\);",
+            rust,
+        )
+    )
+    assert registrations["lol_yone_w_cone_native"] == (
+        "YoneSpiritCleaveConeNativeEffect"
+    )
+    for legacy_name in (
+        "lol_yone_w_begin_native",
+        "lol_yone_w_collect_hit_native",
+        "lol_yone_w_settle_native",
+    ):
+        assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
 def test_legacy_base_050_extensions_require_an_explicit_env_value_of_one() -> None:
@@ -839,9 +840,11 @@ def test_localized_copy_describes_w_and_removes_soul_unbound() -> None:
         assert "E—" not in skill2 and "E —" not in skill2
         assert "Soul Unbound" not in skill2
         assert "灵体" not in skill2 and "靈體" not in skill2
+        for disclosed_value in ("80", "6%", "1.5", "0.5", "8"):
+            assert disclosed_value in skill2
 
 
-def test_visual_qa_records_the_w_fallback_contract() -> None:
+def test_visual_qa_records_the_stateless_cone_contract() -> None:
     contract = json.loads(
         (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")
     )
@@ -850,9 +853,11 @@ def test_visual_qa_records_the_w_fallback_contract() -> None:
         "action_duration_ticks": 30,
         "cooldown_ticks": 480,
         "movement": "none",
-        "shape": "one stationary caster-following crescent plus one instant 36000x42000 forward hitbox",
-        "damage": "50 + 90% Attack physical damage",
-        "shield": "one unified settle grants a 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+        "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
+        "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
+        "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
+        "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
+        "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
     }
     runtime = contract["runtime_effect_map"]
     assert runtime["lol_yone_w_crescent_cast"] == ["yone_w", "crescent"]
@@ -863,8 +868,11 @@ def test_visual_qa_records_the_w_fallback_contract() -> None:
     assert len(faces) == 54
     assert all(
         row["dark_feature_pixels"] == 2
-        and row["dark_feature_adjacent_pair"]
-        and row["warm_pixels"] >= 2
+        and row["dark_feature_horizontal_pair"]
+        and row["warm_pixels"] >= 12
+        and row["warm_bbox"] is not None
+        and row["warm_bbox"][2] - row["warm_bbox"][0] >= 4
+        and row["warm_bbox"][3] - row["warm_bbox"][1] >= 5
         and row["near_white_pixels"] == 0
         for row in faces.values()
     )
@@ -880,31 +888,88 @@ def test_w_actor_sequence_is_planted_and_does_not_reuse_retired_e_lunges() -> No
     source = (MOD / "tools/build_yone.py").read_text(encoding="utf-8")
     body_sequences = source.split("body_sequences:", 1)[1]
     sequence = body_sequences.split('"skill2_attack": [', 1)[1].split('"ult":', 1)[0]
-    assert "wr[9]" in sequence
-    assert "wr[8]" in sequence
-    assert "wr[17]" in sequence
-    assert "wr[4]" in sequence
-    assert "wr[1]" not in sequence
-    assert "wr[11]" not in sequence
+    assert sequence.count("trim_actor_width(wr[19], 0.72)") == 5
+    assert all(
+        f"wr[{retired}]" not in sequence
+        for retired in (1, 4, 8, 9, 11, 17)
+    )
+
+    anim = json.loads(
+        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
+            encoding="utf-8"
+        )
+    )["anims"]["skill2_attack"]["frames"]
+    sheet = Image.open(
+        MOD / "aseprite_resources/champions/yone#sheet.png"
+    ).convert("RGBA")
+    visible_poses = []
+    relative_foot_anchors = []
+    bottom_clearances = []
+    for frame in anim:
+        data = frame["data"]
+        image = sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+        normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
+        normalized.alpha_composite(
+            image,
+            ((61 - data["w"]) // 2, (55 - data["h"]) // 2),
+        )
+        visible_poses.append(hashlib.sha256(normalized.tobytes()).hexdigest())
+        bbox = image.getchannel("A").getbbox()
+        assert bbox is not None
+        relative_foot_anchors.append(bbox[3] - data["h"] / 2)
+        bottom_clearances.append(data["h"] - bbox[3])
+
+    # The planted body is packed once at one frame-centred pivot while the rear
+    # arm/azakana layer supplies visible poses. Face and foot landmarks remain
+    # fixed even though the moving rear blade is visible through hair gaps.
+    assert len(set(visible_poses)) >= 3
+    assert max(relative_foot_anchors) - min(relative_foot_anchors) == 0
+    assert bottom_clearances == [3, 4, 8, 9, 7]
+    contract = json.loads(
+        (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")
+    )
+    face_rows = contract["face_readability"]["all_battle_body_frames"]
+    face_x = []
+    face_y = []
+    for index, frame in enumerate(anim):
+        data = frame["data"]
+        warm_bbox = face_rows[f"skill2_attack[{index}]"]["warm_bbox"]
+        face_x.append((warm_bbox[0] + warm_bbox[2] - data["w"]) / 2)
+        face_y.append((warm_bbox[1] + warm_bbox[3] - data["h"]) / 2)
+    assert max(face_x) - min(face_x) == 0
+    assert max(face_y) - min(face_y) == 0
+    assert "w_master_subject" in source
+    assert "add_yone_w_weapon_pose" in source
+    assert "y = (rect[3] - w_master_subject.height) // 2" in source
 
 
 def test_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.4"
+    assert mod_info["version"] == "0.10.5"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
     assert "saved" in mod_info["description"].casefold()
+    assert "no process-global ledger" in mod_info["description"]
+    assert "newly created 0.10.5 save" in mod_info["description"]
     assert mod_info["dependencies"] == [
         {"mod_id": "base", "version": ">=0.5.1"}
     ]
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "v0.10.4" in readme
+    assert "v0.10.5" in readme
     assert "0.5.1" in readme
-    assert "旧存档" in readme
-    assert "skill2=W 凛神斩" in readme
-    assert "54个可见战斗身体帧" in readme
+    assert "新建 `0.10.5` 存档" in readme
+    assert "80°" in readme
+    assert "35 + 45% Attack + 6%" in readme
+    assert "最终 `1x`" in readme
 
     manifest = json.loads(
         (MOD / "build_manifest.json").read_text(encoding="utf-8")

@@ -7,6 +7,7 @@ Automated/build gates:
 - [x] Lightslinger contains exactly two generated projectiles six ticks apart and consumes its marker.
 - [x] Q is unit-targeted, contains no delayed/one-tick line, and binds damage plus a forward-pivoted gold visual to one penetrating `LinearProjectile`; every frame stays a 60-80px beam and cannot end as a tracking spark. E is a damage-free directional dash with no release VFX; R emits exactly 15 non-piercing shots.
 - [x] Actor skill frames are body-only 64x64 frames; the rejected 192px actor-embedded Q beam cannot return.
+- [x] Same-ID Archer compatibility is explicit: Lucian's actor FANIM contains `ult_old`, `ult_pre`, `ult_loop`, `ult_end`, `ult_projectile`, `old_ult_buff_effect`, `skill_attack`, `skill_dash`, and `old_ult_pre` with the native frame counts and durations. This prevents the missing-`ult_loop` unwrap reproduced in hidden simulation after Ban/Pick.
 - [x] The v3 actor, v2 run master, attack/Q/R visual sources, and Q/E/R icons are image-gen assets with recorded hashes.
 - [x] Hit and defeated frames use compact one-pistol silhouettes; rejected duplicated/floating-pistol poses are absent.
 - [x] The v2 run gate matches Shen's 36px/y=44 scale class and rejects missing-lower-body, residual-anchor, horizontal-flight and abrupt-stride frames.

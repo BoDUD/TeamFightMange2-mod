@@ -373,10 +373,6 @@
           "tick": 30
         },
         {
-          "type": "Native",
-          "effect_ref": "lol_yone_w_begin_native"
-        },
-        {
           "type": "Sfx",
           "name": "lol_yone_w_cast"
         },
@@ -385,51 +381,11 @@
           "name": "lol_yone_w_crescent_cast"
         },
         {
-          "type": "LineRangeProjectile",
-          "width": 36000,
-          "length": 42000,
-          "delay": 0,
-          "apply": 1,
-          "name": "lol_yone_w_hitbox",
-          "applied_target": "EnemyWithoutTower",
-          "applied_effects": [
-            {
-              "casting_type": "Targeting",
-              "effect": {
-                "type": "Combine",
-                "effects": [
-                  {
-                    "type": "Native",
-                    "effect_ref": "lol_yone_w_collect_hit_native"
-                  },
-                  {
-                    "type": "Attack",
-                    "damage": 50,
-                    "attack_ratio": 90
-                  },
-                  {
-                    "type": "ViewEffect",
-                    "name": "lol_yone_w_hit"
-                  },
-                  {
-                    "type": "TargetSfx",
-                    "name": "lol_yone_w_hit"
-                  }
-                ]
-              }
-            }
-          ]
+          "type": "Native",
+          "effect_ref": "lol_yone_w_cone_native"
         },
         {
-          "type": "Delayed",
-          "tick": 2,
-          "effects": [
-            {
-              "type": "Native",
-              "effect_ref": "lol_yone_w_settle_native"
-            },
-            {
-              "type": "SwitchByBuff",
+          "type": "SwitchByBuff",
               "buff_name": "lol_yone_w_shield_tier_0",
               "effect_none": {
                 "type": "Combine",
@@ -456,7 +412,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -493,7 +457,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -530,7 +502,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -567,7 +547,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -604,7 +592,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -641,7 +637,15 @@
                   },
                   {
                     "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
                     "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
                   },
                   {
                     "type": "Sfx",
@@ -650,8 +654,6 @@
                 ]
               }
             }
-          ]
-        }
       ]
     }
   },
