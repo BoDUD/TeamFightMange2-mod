@@ -396,6 +396,7 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
     assert "let Some(Input::Skill2 { target }) = base_input else" in runtime
     assert "if feather_count >= XAYAH_AI_MIN_RECALL_FEATHERS" in runtime
     assert "PlayerInputDecision::Replace(attack)" in runtime
+    assert "get_run_away_without_skill_input" not in runtime
     assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
 
     qa = load_json("qa/xayah_replacement_qa.json")

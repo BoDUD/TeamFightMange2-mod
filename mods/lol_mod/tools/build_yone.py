@@ -1747,7 +1747,7 @@ def build_qa(
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
-                "default_runtime": "ABI-safe actor-atlas path: idle[0] plus champion_view face/center cameras; no per-champion BP camera override",
+                "default_runtime": "ABI-safe actor-atlas path: idle[0] plus champion_view face/center/banpick_center cameras",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 fallback portrait; default runtime uses the audited 15x15 idle[0] face crop rendered at 2x nearest",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",

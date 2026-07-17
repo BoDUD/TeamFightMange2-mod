@@ -6272,6 +6272,10 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
         "registration.add_player_input_ai(XayahFeatherInputGate);",
     ):
         check(token in runtime_source, f"Xayah AI Bladecaller gate is missing: {token}")
+    check(
+        "get_run_away_without_skill_input" not in runtime_source,
+        "Xayah AI gate must not call the SDK fallback helper that aborts 0.5.1 hidden simulations",
+    )
 
     actor_path = MOD_ROOT / "aseprite_resources/champions/xayah#sheet.png"
     anim_path = MOD_ROOT / "aseprite_resources/champions/xayah#anim.fanim"
@@ -7651,8 +7655,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         == {
             "face": {"x": 2, "y": -32},
             "center": {"x": 0, "y": -8},
+            "banpick_center": {"x": 0, "y": -8},
         },
-        "Yone champion_view must keep the audited face/card cameras without a BP override",
+        "Yone champion_view must keep the audited face/card/BP cameras",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")

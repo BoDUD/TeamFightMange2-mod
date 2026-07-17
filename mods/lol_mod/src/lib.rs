@@ -1529,14 +1529,11 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
         // DataActionDef has no buff-based cast predicate in Mod API 0.8.
         // Replace an empty Bladecaller decision before it reaches the action,
         // so its cooldown, cast animation, SFX and effect tree are not spent.
+        // Do not call PlayerAiContext fallback helpers here: the 0.5.0 SDK
+        // helper can cross into a missing 0.5.1 hidden-simulation score state
+        // and abort the host while BP is transitioning into the match.
         let attack = Input::Attack { target };
-        if ctx.is_valid_input(&attack) {
-            PlayerInputDecision::Replace(attack)
-        } else if let Some(retreat) = ctx.get_run_away_without_skill_input() {
-            PlayerInputDecision::Replace(retreat)
-        } else {
-            PlayerInputDecision::Replace(attack)
-        }
+        PlayerInputDecision::Replace(attack)
     }
 }
 
