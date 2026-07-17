@@ -76,17 +76,63 @@ RETIRED_YONE_SOURCE_PATHS = (
 
 # Yone's accepted ImageGen body is deliberately kept at the reviewed battle
 # scale. At that scale a face is only a handful of pixels, so the smooth
-# source reduction needs one final-scale color pass. These colors are warm
-# (never ivory white). Keep the source-derived alpha silhouette, then carve a
-# small tapered face plane inside the already-opaque head: separated eyes,
-# warm pixels on every side of each eye, a nose plane and one subdued mouth.
-# Eye dots alone still joined the hair mass and rendered as black slits at 2x.
-YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
-YONE_FACE_MOUTH_RGBA = (118, 46, 51, 255)
-YONE_FACE_OUTLINE_RGBA = (24, 22, 31, 255)
-YONE_FACE_SHADOW_RGBA = (169, 96, 79, 255)
-YONE_FACE_MID_RGBA = (211, 136, 108, 255)
-YONE_FACE_LIGHT_RGBA = (239, 184, 150, 255)
+# source reduction needs one final-scale color pass. Keep the source-derived
+# alpha silhouette, then carve a compact front/three-quarter face inside the
+# already-opaque head.  The actual card renderer turns every source pixel into
+# roughly a 2x2 block.  Two isolated near-black pixels technically survived
+# that transform, but the battle shader merged them into Yone's hair on side
+# poses.  Keep the far pupil at one source pixel and give only the near eye a
+# muted Lucian-style warm-gray sclera plus dark pupil.  Profile poses use the
+# same two-pixel warm-gray/dark eye bar, so the face stays readable without
+# growing into goggles.  The eye row and nose highlight are deliberately
+# staggered so the rejected bright cross cannot return.
+YONE_FACE_FEATURE_RGBA = (24, 14, 19, 255)
+YONE_FACE_SCLERA_RGBA = (212, 178, 157, 255)
+YONE_FACE_MOUTH_RGBA = (124, 50, 53, 255)
+YONE_FACE_OUTLINE_RGBA = (18, 16, 23, 255)
+YONE_FACE_SHADOW_RGBA = (122, 62, 54, 255)
+YONE_FACE_MID_RGBA = (178, 101, 77, 255)
+YONE_FACE_LIGHT_RGBA = (202, 129, 98, 255)
+YONE_FACE_FRONT_TEMPLATE = (
+    "..smm..",
+    ".smmms.",
+    "smemwes",
+    "smmlmms",
+    ".smmms.",
+    "..mnm..",
+    "..sss..",
+)
+YONE_FACE_PROFILE_TEMPLATE = (
+    "..smm..",
+    ".smmms.",
+    "smmmwes",
+    "smmlmms",
+    ".smmms.",
+    "..mnm..",
+    "..sss..",
+)
+YONE_LIVE_CARD_SCALE = 2.2
+YONE_LIVE_CARD_DIVIDER_TOP = 99
+YONE_LIVE_CARD_AUDITED_CENTER_Y = -16
+YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE = 10
+YONE_RETIRED_FACE_RGBA = {
+    (54, 27, 30, 255),
+    (232, 192, 158, 255),
+    (108, 44, 49, 255),
+    (154, 84, 69, 255),
+    (200, 124, 95, 255),
+    (226, 164, 130, 255),
+    (54, 24, 29, 255),
+    (118, 46, 51, 255),
+    (169, 96, 79, 255),
+    (211, 136, 108, 255),
+    (239, 184, 150, 255),
+    # Retired two-dark-eye pass.  Keeping these here makes a rebuild
+    # idempotently fold an installed/intermediate atlas back into skin.
+    (250, 224, 188, 255),
+    (98, 32, 39, 255),
+    (218, 151, 115, 255),
+}
 YONE_NEAR_WHITE_MIN = 218
 
 # Normalized against the final alpha bbox, not the native frame rectangle.
@@ -95,13 +141,32 @@ YONE_NEAR_WHITE_MIN = 218
 YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
 
-# These five extreme side/profile poses do not retain three contiguous warm
-# pixels on one upper-face row after final-scale packing. They may keep one eye;
-# card, idle, run, attack, hit, W, dead and every UI surface must keep two.
+# Every non-empty native body frame is assigned one reviewed face pose.  Front
+# poses retain two one-pixel pupils while adding only one warm-gray near-eye
+# pixel.  Side poses use one warm-gray/dark eye bar.  The last two extreme R
+# frames expose too little head alpha for a 31/33-pixel plane, so they retain a
+# single dark cue rather than painting fragmented skin into the VFX silhouette.
+YONE_FRONT_FACE_FRAMES = {
+    *(('idle', index) for index in range(4)),
+    ('attack', 0),
+    ('attack', 3),
+    ('attack', 5),
+    ('skill', 0),
+    *(('skill2_attack', index) for index in range(5)),
+}
+YONE_PROFILE_FACE_FRAMES = {
+    *(('run', index) for index in range(8)),
+    ('attack', 1),
+    ('attack', 2),
+    ('attack', 4),
+    ('hit', 0),
+    *(('skill', index) for index in range(1, 7)),
+    ('skill2', 0),
+    ('skill2_dash', 0),
+    *(('ult', index) for index in range(13) if index not in {5, 7}),
+    *(('dead', index) for index in range(8)),
+}
 YONE_SINGLE_EYE_PROFILE_FRAMES = {
-    ("skill", 2),
-    ("skill", 4),
-    ("ult", 3),
     ("ult", 5),
     ("ult", 7),
 }
@@ -605,80 +670,110 @@ def _feature_local_rect(
         return bounds
     left, top, right, bottom = bounds
     return (
-        max(left, min(x for x, _ in points) - 3),
-        max(top, min(y for _, y in points) - 2),
-        min(right, max(x for x, _ in points) + 5),
-        min(bottom, max(y for _, y in points) + 6),
+        max(left, min(x for x, _ in points) - 5),
+        max(top, min(y for _, y in points) - 4),
+        min(right, max(x for x, _ in points) + 6),
+        min(bottom, max(y for _, y in points) + 7),
     )
 
 
-def _paint_yone_tapered_face(
+def _paint_yone_face_plane(
     image: Image.Image,
-    eye_points: tuple[tuple[int, int], tuple[int, int]],
+    eye_guides: tuple[tuple[int, int], ...],
+    variant: str,
 ) -> Image.Image:
-    """Paint a readable final-1x face without adding silhouette pixels.
+    """Paint one reviewed front/profile face without changing alpha.
 
-    The live card scales the actor by 2x nearest-neighbour.  A bare pair of
-    eye dots still merged vertically into the generated model's dark hair.
-    This six-row tapered plane gives both eyes warm orthogonal neighbours,
-    keeps a light nose bridge and separates one muted mouth by three rows.
-    Every write is restricted to a pixel that was already opaque.
+    ``eye_guides`` are placement hints selected from existing warm pixels.
+    Most poses expose a two-pixel warm row; skill[2], skill[4] and ult[3]
+    expose only one reliable guide but still retain at least 31/33 opaque
+    template pixels.  Front faces keep two one-pixel pupils and add a single
+    warm-gray near-eye pixel.  Profile faces use one adjacent warm-gray/pupil
+    pair.  Neither route increases the dark pupil footprint.
     """
 
+    if variant not in {"front", "profile"}:
+        raise ValueError(f"Unknown Yone face variant: {variant}")
+    if len(eye_guides) not in {1, 2}:
+        raise ValueError(f"Yone face needs one or two eye guides: {eye_guides}")
+
     output = image.convert("RGBA").copy()
-    left_eye, right_eye = sorted(eye_points)
-    if left_eye[1] != right_eye[1]:
-        raise ValueError(f"Yone tapered face eyes are not level: {eye_points}")
-    left_x, eye_y = left_eye
-    right_x, _ = right_eye
-    if right_x - left_x != 2:
-        raise ValueError(
-            f"Yone tapered face requires a two-pixel eye separation: {eye_points}"
-        )
-
-    # Dots preserve the underlying hair/outline pixel.  The warm widths are
-    # deliberately sparse (1/3/5/3/3/2): only the eye row spans five pixels.
-    # The hair therefore cuts back into the forehead, cheek and jaw instead of
-    # letting the 2x card turn four warm rows into a peach rectangle.
-    template = [
-        "..M..",
-        ".SLS.",
-        "SELES",
-        ".SLM.",
-        ".SMS.",
-        "..SN.",
-    ]
-    palette = {
-        "S": YONE_FACE_SHADOW_RGBA,
-        "M": YONE_FACE_MID_RGBA,
-        "L": YONE_FACE_LIGHT_RGBA,
-        "E": YONE_FACE_FEATURE_RGBA,
-        "N": YONE_FACE_MOUTH_RGBA,
-    }
-    anchor_x = left_x - 1
-    anchor_y = eye_y - 2
-
-    preferred_mouth = (anchor_x + 3, anchor_y + 5)
-    fallback_mouth = (anchor_x + 2, anchor_y + 5)
-    if not (
-        0 <= preferred_mouth[0] < output.width
-        and 0 <= preferred_mouth[1] < output.height
-        and output.getpixel(preferred_mouth)[3] >= 128
-    ):
-        if not (
-            0 <= fallback_mouth[0] < output.width
-            and 0 <= fallback_mouth[1] < output.height
-            and output.getpixel(fallback_mouth)[3] >= 128
-        ):
+    guides = tuple(sorted(eye_guides))
+    if len(guides) == 2:
+        left_eye, right_eye = guides
+        if left_eye[1] != right_eye[1]:
+            raise ValueError(f"Yone face target eyes are not level: {eye_guides}")
+        if right_eye[0] - left_eye[0] != 2:
             raise ValueError(
-                "Yone tapered face has no opaque mouth pixel at "
-                f"{preferred_mouth} or {fallback_mouth}"
+                f"Yone face target requires a two-pixel guide separation: {eye_guides}"
             )
-        template[-1] = "..NS."
 
-    # Fold only stale pale face pixels around the six-row stencil back into
-    # the existing hair color. Alpha never changes, and non-face source pixels
-    # remain untouched. This removes the source's wide lower T-shaped cheeks.
+    template = (
+        YONE_FACE_FRONT_TEMPLATE
+        if variant == "front"
+        else YONE_FACE_PROFILE_TEMPLATE
+    )
+    palette = {
+        "s": YONE_FACE_SHADOW_RGBA,
+        "m": YONE_FACE_MID_RGBA,
+        "l": YONE_FACE_LIGHT_RGBA,
+        "w": YONE_FACE_SCLERA_RGBA,
+        "e": YONE_FACE_FEATURE_RGBA,
+        "n": YONE_FACE_MOUTH_RGBA,
+    }
+    # Two-guide placement preserves the audited idle[0] anchor (18,7).  A
+    # single guide denotes the right/near pupil directly, which lets the three
+    # sufficiently opaque former single-eye poses receive the complete profile
+    # plane without guessing a second guide outside their warm component.
+    if len(guides) == 2:
+        right_eye = guides[1]
+        target_anchor = (right_eye[0] - 5, right_eye[1] - 3)
+        minimum_coverage = 24
+    else:
+        eye = guides[0]
+        target_anchor = (eye[0] - 5, eye[1] - 2)
+        minimum_coverage = 31
+    candidates: list[tuple[float, int, tuple[int, int]]] = []
+    for delta_y in (-1, 0, 1):
+        for delta_x in (-2, -1, 0, 1, 2):
+            anchor = (
+                target_anchor[0] + delta_x,
+                target_anchor[1] + delta_y,
+            )
+            required = [
+                (anchor[0] + x, anchor[1] + y)
+                for y, row in enumerate(template)
+                for x, code in enumerate(row)
+                if code in {"e", "w", "l", "n"}
+            ]
+            if any(
+                not (0 <= x < output.width and 0 <= y < output.height)
+                or output.getpixel((x, y))[3] < 128
+                for x, y in required
+            ):
+                continue
+            coverage = sum(
+                1
+                for y, row in enumerate(template)
+                for x, code in enumerate(row)
+                if code != "."
+                and 0 <= anchor[0] + x < output.width
+                and 0 <= anchor[1] + y < output.height
+                and output.getpixel((anchor[0] + x, anchor[1] + y))[3] >= 128
+            )
+            if coverage < minimum_coverage:
+                continue
+            distance = delta_x * delta_x + 4.0 * delta_y * delta_y
+            candidates.append((distance * 8.0 + (33 - coverage), -coverage, anchor))
+    if not candidates:
+        raise ValueError(
+            "Yone readable face has no alpha-safe eyes/nose/mouth placement "
+            f"near {target_anchor}"
+        )
+    _, _, (anchor_x, anchor_y) = min(candidates)
+
+    # Fold stale face pixels around the stencil into the existing hair color.
+    # Alpha never changes, and non-face source pixels remain untouched.
     for y in range(anchor_y, anchor_y + len(template)):
         for x in range(anchor_x - 1, anchor_x + len(template[0]) + 1):
             if not (0 <= x < output.width and 0 <= y < output.height):
@@ -687,11 +782,19 @@ def _paint_yone_tapered_face(
             if (
                 _is_yone_warm_face_pixel(pixel)
                 or _is_yone_near_white(pixel)
-                or pixel in {YONE_FACE_FEATURE_RGBA, YONE_FACE_MOUTH_RGBA}
+                or pixel
+                in {
+                    YONE_FACE_SHADOW_RGBA,
+                    YONE_FACE_MID_RGBA,
+                    YONE_FACE_LIGHT_RGBA,
+                    YONE_FACE_FEATURE_RGBA,
+                    YONE_FACE_SCLERA_RGBA,
+                    YONE_FACE_MOUTH_RGBA,
+                    *YONE_RETIRED_FACE_RGBA,
+                }
             ):
                 output.putpixel((x, y), (*YONE_FACE_OUTLINE_RGBA[:3], pixel[3]))
 
-    required_codes = {"E", "N"}
     for offset_y, row in enumerate(template):
         for offset_x, code in enumerate(row):
             if code == ".":
@@ -703,12 +806,51 @@ def _paint_yone_tapered_face(
                 and 0 <= y < output.height
                 and output.getpixel(point)[3] >= 128
             )
-            if code in required_codes and not opaque:
-                raise ValueError(
-                    f"Yone tapered face requires opaque {code} pixel {point}"
-                )
             if opaque:
                 output.putpixel(point, palette[code])
+    # Required points were screened before cleanup.  Verify the exact source
+    # topology rather than accepting a technically present but visually blank
+    # dark mark.
+    sclera_points = [
+        (x, y)
+        for y in range(output.height)
+        for x in range(output.width)
+        if output.getpixel((x, y)) == YONE_FACE_SCLERA_RGBA
+    ]
+    pupil_points = [
+        (x, y)
+        for y in range(output.height)
+        for x in range(output.width)
+        if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    ]
+    mouth_points = [
+        (x, y)
+        for y in range(output.height)
+        for x in range(output.width)
+        if output.getpixel((x, y)) == YONE_FACE_MOUTH_RGBA
+    ]
+    ordered_pupils = sorted(pupil_points)
+    ordered_sclera = sorted(sclera_points)
+    if variant == "front":
+        readable_eye_row = (
+            len(ordered_pupils) == 2
+            and len(ordered_sclera) == 1
+            and len({y for _, y in (*ordered_pupils, *ordered_sclera)}) == 1
+            and ordered_pupils[1][0] - ordered_pupils[0][0] == 3
+            and ordered_sclera[0][0] == ordered_pupils[1][0] - 1
+        )
+    else:
+        readable_eye_row = (
+            len(ordered_pupils) == 1
+            and len(ordered_sclera) == 1
+            and ordered_sclera[0][1] == ordered_pupils[0][1]
+            and ordered_sclera[0][0] == ordered_pupils[0][0] - 1
+        )
+    if not readable_eye_row or len(mouth_points) != 1:
+        raise ValueError(
+            f"Yone readable {variant} face topology is ambiguous: "
+            f"sclera={sclera_points}, pupil={pupil_points}, mouth={mouth_points}"
+        )
     return output
 
 
@@ -820,9 +962,13 @@ def repaint_yone_face(
     image: Image.Image,
     window: FaceWindow = YONE_ACTOR_FACE_WINDOW,
     preferred_eye: tuple[int, int] | None = None,
+    variant: str = "front",
     allow_single_eye: bool = False,
 ) -> Image.Image:
     """Repaint only opaque final-scale facial pixels; geometry is unchanged."""
+
+    if variant not in {"front", "profile"}:
+        raise ValueError(f"Unknown Yone face variant: {variant}")
 
     output = image.convert("RGBA").copy()
     size_before = output.size
@@ -834,8 +980,14 @@ def repaint_yone_face(
         for x in range(face_window[0], face_window[2])
         if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     }
+    existing_sclera = {
+        (x, y)
+        for y in range(face_window[1], face_window[3])
+        for x in range(face_window[0], face_window[2])
+        if output.getpixel((x, y)) == YONE_FACE_SCLERA_RGBA
+    }
     existing_local = _feature_local_rect(
-        existing_feature,
+        existing_feature | existing_sclera,
         (face_window[0], face_window[1], face_window[2], output.height),
     )
     existing_mouth = {
@@ -844,57 +996,49 @@ def repaint_yone_face(
         for x in range(existing_local[0], existing_local[2])
         if output.getpixel((x, y)) == YONE_FACE_MOUTH_RGBA
     }
-    existing_horizontal_pair = (
-        len(existing_feature) == 2
-        and len({y for _, y in existing_feature}) == 1
-        and 2
-        <= max(x for x, _ in existing_feature)
-        - min(x for x, _ in existing_feature)
-        <= 4
-    )
-    existing_reviewed = (existing_horizontal_pair and len(existing_mouth) == 1) or (
-        allow_single_eye and len(existing_feature) == 1
+    existing_quality = yone_face_readability(output, window)
+    existing_reviewed = (
+        variant == "front"
+        and existing_quality["front_eye_pair"]
+        and existing_quality["mouth_pixels"] == 1
+    ) or (
+        variant == "profile"
+        and existing_quality["profile_eye_pair"]
+        and existing_quality["mouth_pixels"] == 1
+    ) or (
+        allow_single_eye
+        and existing_quality["dark_feature_pixels"] == 1
+        and existing_quality["sclera_pixels"] == 0
+        and existing_quality["mouth_pixels"] == 0
     )
     if existing_reviewed:
-        if existing_horizontal_pair:
-            output = _paint_yone_tapered_face(
-                output,
-                tuple(sorted(existing_feature)),
-            )
         local = existing_local
         for y in range(local[1], local[3]):
             for x in range(local[0], local[2]):
                 red, green, blue, alpha = output.getpixel((x, y))
                 if _is_yone_near_white((red, green, blue, alpha)):
                     output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], alpha))
-        for x, y in existing_feature:
-            output.putpixel((x, y), YONE_FACE_FEATURE_RGBA)
         if output.size != size_before or output.getchannel("A").tobytes() != alpha_before:
             raise ValueError("Yone final-scale face repaint changed actor alpha geometry")
         quality = yone_face_readability(output, window)
-        separated_eyes = (
-            quality["dark_feature_pixels"] == 2
-            and quality["dark_feature_horizontal_pair"]
-            and 2 <= quality["dark_feature_horizontal_separation"] <= 4
-            and not quality["dark_feature_adjacent_pair"]
-        )
-        allowed_profile_eye = (
-            allow_single_eye and quality["dark_feature_pixels"] == 1
-        )
-        structured_face = (
-            quality["template_sparse"]
+        detailed_face = (
+            quality[f"{variant}_eye_pair"]
+            and quality["template_three_quarter"]
             and quality["mouth_pixels"] == 1
             and quality["mouth_below_eyes"]
             and quality["eye_under_skin"]
-            and min(quality["eye_warm_neighbor_counts"], default=0) >= 3
+            and quality["max_vertical_light_run"] <= 1
+            and not quality["cross_junction"]
+        )
+        allowed_profile_eye = (
+            allow_single_eye
+            and quality["dark_feature_pixels"] == 1
+            and quality["sclera_pixels"] == 0
         )
         if (
             quality["near_white_pixels"] != 0
-            or quality["warm_pixels"] < 2
-            or not (
-                (separated_eyes and structured_face)
-                or allowed_profile_eye
-            )
+            or quality["warm_pixels"] < (1 if allowed_profile_eye else 2)
+            or not (detailed_face or allowed_profile_eye)
         ):
             raise ValueError(f"Yone idempotent face repaint failed: {quality}")
         return output
@@ -907,7 +1051,9 @@ def repaint_yone_face(
             red, green, blue, alpha = output.getpixel((x, y))
             if (red, green, blue, alpha) in {
                 YONE_FACE_FEATURE_RGBA,
+                YONE_FACE_SCLERA_RGBA,
                 YONE_FACE_MOUTH_RGBA,
+                *YONE_RETIRED_FACE_RGBA,
             }:
                 output.putpixel((x, y), (*YONE_FACE_SHADOW_RGBA[:3], alpha))
     component, (left, top, right, bottom) = _locate_yone_face_component(
@@ -955,12 +1101,8 @@ def repaint_yone_face(
     if len(face_points) < 2:
         raise ValueError(f"Yone face plane is too small for an eye cue: {face_points}")
 
-    # The live card renders the final actor at roughly 2x. Select the outside
-    # pixels of a contiguous warm row so each eye remains distinct and the
-    # untouched middle pixel becomes a visible skin bridge. The upper-face line
-    # is two source pixels below the located component top for the accepted
-    # Yone model; idle[0] therefore lands at (21,10)/(23,10), not the retired
-    # low single cue at (22,12).
+    # Select a compact warm row only as a placement guide.  The final stencil
+    # replaces it with two dark eyes on a continuous warm face.
     target_x = (
         preferred_eye[0]
         if preferred_eye is not None
@@ -982,10 +1124,20 @@ def repaint_yone_face(
                 + 4.0 * (y - target_y) ** 2
             )
             eye_candidates.append(((x, y), right_eye, score))
-    if eye_candidates:
+    if allow_single_eye:
+        eye_points = (
+            min(
+                face_points,
+                key=lambda point: (
+                    (point[0] - target_x) ** 2
+                    + 4.0 * (point[1] - target_y) ** 2
+                ),
+            ),
+        )
+    elif eye_candidates:
         left_eye, right_eye, _ = min(eye_candidates, key=lambda row: row[2])
         eye_points = (left_eye, right_eye)
-    elif allow_single_eye:
+    elif variant == "profile":
         eye_points = (
             min(
                 face_points,
@@ -1015,36 +1167,54 @@ def repaint_yone_face(
             if _is_yone_near_white((red, green, blue, alpha)):
                 output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], alpha))
 
-    if len(eye_points) == 2:
-        output = _paint_yone_tapered_face(
+    if not allow_single_eye:
+        output = _paint_yone_face_plane(
             output,
-            (eye_points[0], eye_points[1]),
+            eye_points,
+            variant,
         )
     else:
         for eye in eye_points:
             output.putpixel(eye, YONE_FACE_FEATURE_RGBA)
 
+    final_eye_points = {
+        (x, y)
+        for y in range(face_window[1], face_window[3])
+        for x in range(face_window[0], face_window[2])
+        if output.getpixel((x, y))
+        in {YONE_FACE_FEATURE_RGBA, YONE_FACE_SCLERA_RGBA}
+    }
+    final_local = _feature_local_rect(
+        final_eye_points,
+        (face_window[0], face_window[1], face_window[2], output.height),
+    )
+    for y in range(final_local[1], final_local[3]):
+        for x in range(final_local[0], final_local[2]):
+            pixel = output.getpixel((x, y))
+            if _is_yone_near_white(pixel):
+                output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], pixel[3]))
+
     if output.size != size_before or output.getchannel("A").tobytes() != alpha_before:
         raise ValueError("Yone final-scale face repaint changed actor alpha geometry")
     quality = yone_face_readability(output, window)
-    separated_eyes = (
-        quality["dark_feature_pixels"] == 2
-        and quality["dark_feature_horizontal_pair"]
-        and 2 <= quality["dark_feature_horizontal_separation"] <= 4
-        and not quality["dark_feature_adjacent_pair"]
-    )
-    allowed_profile_eye = allow_single_eye and quality["dark_feature_pixels"] == 1
-    structured_face = (
-        quality["template_sparse"]
+    detailed_face = (
+        quality[f"{variant}_eye_pair"]
+        and quality["template_three_quarter"]
         and quality["mouth_pixels"] == 1
         and quality["mouth_below_eyes"]
         and quality["eye_under_skin"]
-        and min(quality["eye_warm_neighbor_counts"], default=0) >= 3
+        and quality["max_vertical_light_run"] <= 1
+        and not quality["cross_junction"]
+    )
+    allowed_profile_eye = (
+        allow_single_eye
+        and quality["dark_feature_pixels"] == 1
+        and quality["sclera_pixels"] == 0
     )
     if (
-        not ((separated_eyes and structured_face) or allowed_profile_eye)
+        not (detailed_face or allowed_profile_eye)
         or quality["near_white_pixels"] != 0
-        or quality["warm_pixels"] < 2
+        or quality["warm_pixels"] < (1 if allowed_profile_eye else 2)
     ):
         raise ValueError(f"Yone final-scale face repaint failed: {quality}")
     return output
@@ -1063,16 +1233,36 @@ def yone_face_readability(
         for x in range(x0, x1)
         if image.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     }
-    adjacent_pair = any(
-        (x + 1, y) in feature or (x, y + 1) in feature
-        for x, y in feature
-    )
+    sclera = {
+        (x, y)
+        for y in range(y0, y1)
+        for x in range(x0, x1)
+        if image.getpixel((x, y)) == YONE_FACE_SCLERA_RGBA
+    }
+    adjacent_pair = any((x + 1, y) in feature for x, y in feature)
     horizontal_pair = len(feature) == 2 and len({y for _, y in feature}) == 1
     horizontal_separation = (
         max(x for x, _ in feature) - min(x for x, _ in feature)
         if horizontal_pair
         else 0
     )
+    ordered_feature = sorted(feature)
+    ordered_sclera = sorted(sclera)
+    front_eye_pair = (
+        horizontal_pair
+        and horizontal_separation == 3
+        and len(ordered_sclera) == 1
+        and len({y for _, y in (*ordered_feature, *ordered_sclera)}) == 1
+        and ordered_sclera[0][0] == ordered_feature[1][0] - 1
+    )
+    profile_eye_pair = (
+        len(ordered_feature) == 1
+        and len(ordered_sclera) == 1
+        and ordered_feature[0][1] == ordered_sclera[0][1]
+        and ordered_sclera[0][0] == ordered_feature[0][0] - 1
+    )
+    warm_gray_near_eye_pair = front_eye_pair or profile_eye_pair
+    eye_orientation = "front" if front_eye_pair else "profile"
     eye_warm_neighbor_counts = [
         sum(
             1
@@ -1089,14 +1279,17 @@ def yone_face_readability(
         for x, y in sorted(feature)
     ]
     eye_under_skin = (
-        len(feature) == 2
+        bool(feature)
         and all(
             y + 1 < image.height
             and _is_yone_warm_face_pixel(image.getpixel((x, y + 1)))
             for x, y in feature
         )
     )
-    local = _feature_local_rect(feature, (x0, y0, x1, image.height))
+    local = _feature_local_rect(
+        feature | sclera,
+        (x0, y0, x1, image.height),
+    )
     mouth = {
         (x, y)
         for y in range(local[1], local[3])
@@ -1109,36 +1302,75 @@ def yone_face_readability(
         and next(iter(mouth))[1] >= max(y for _, y in feature) + 3
     )
     template_row_counts: list[int] = []
-    if horizontal_pair:
-        left_eye, right_eye = sorted(feature)
+    nose_highlight_offset = False
+    template_bounds = local
+    if front_eye_pair or profile_eye_pair:
+        if front_eye_pair:
+            left_eye = ordered_feature[0]
+            anchor_x = left_eye[0] - 2
+            anchor_y = left_eye[1] - 2
+        else:
+            near_pupil = ordered_feature[0]
+            anchor_x = near_pupil[0] - 5
+            anchor_y = near_pupil[1] - 2
+        nose_point = (anchor_x + 3, anchor_y + 3)
+        template_bounds = (
+            max(0, anchor_x),
+            max(0, anchor_y),
+            min(image.width, anchor_x + 7),
+            min(image.height, anchor_y + 7),
+        )
         palette = {
             YONE_FACE_SHADOW_RGBA,
             YONE_FACE_MID_RGBA,
             YONE_FACE_LIGHT_RGBA,
             YONE_FACE_FEATURE_RGBA,
+            YONE_FACE_SCLERA_RGBA,
             YONE_FACE_MOUTH_RGBA,
         }
         template_row_counts = [
             sum(
                 1
-                for x in range(left_eye[0] - 1, right_eye[0] + 2)
+                for x in range(anchor_x, anchor_x + 7)
                 if 0 <= x < image.width
                 and 0 <= y < image.height
                 and image.getpixel((x, y)) in palette
             )
-            for y in range(left_eye[1] - 2, left_eye[1] + 4)
+            for y in range(anchor_y, anchor_y + 7)
         ]
-    template_sparse = (
-        len(template_row_counts) == 6
-        and template_row_counts[0] == 1
-        and template_row_counts[1] == 3
-        and 4 <= template_row_counts[2] <= 5
-        and template_row_counts[3] == 3
-        and 2 <= template_row_counts[4] <= 3
-        and 1 <= template_row_counts[5] <= 2
-        and sum(template_row_counts) <= 17
-        and template_row_counts.count(5) <= 1
+        nose_highlight_offset = (
+            0 <= nose_point[0] < image.width
+            and 0 <= nose_point[1] < image.height
+            and image.getpixel(nose_point) == YONE_FACE_LIGHT_RGBA
+        )
+    template_three_quarter = (
+        len(template_row_counts) == 7
+        and 0 <= template_row_counts[0] <= 3
+        and 3 <= template_row_counts[1] <= 6
+        and 5 <= template_row_counts[2] <= 7
+        and 5 <= template_row_counts[3] <= 7
+        and 3 <= template_row_counts[4] <= 5
+        and 2 <= template_row_counts[5] <= 4
+        and 1 <= template_row_counts[6] <= 3
+        and 22 <= sum(template_row_counts) <= 35
+        and nose_highlight_offset
     )
+    light = {
+        (x, y)
+        for y in range(template_bounds[1], template_bounds[3])
+        for x in range(template_bounds[0], template_bounds[2])
+        if image.getpixel((x, y))
+        in {YONE_FACE_LIGHT_RGBA, YONE_FACE_SCLERA_RGBA}
+    }
+    max_vertical_light_run = 0
+    for x in {point[0] for point in light}:
+        run = 0
+        previous_y: int | None = None
+        for y in sorted(point[1] for point in light if point[0] == x):
+            run = run + 1 if previous_y is not None and y == previous_y + 1 else 1
+            previous_y = y
+            max_vertical_light_run = max(max_vertical_light_run, run)
+    cross_junction = max_vertical_light_run > 1
     warm = {
         (x, y)
         for y in range(local[1], local[3])
@@ -1164,13 +1396,321 @@ def yone_face_readability(
         "dark_feature_adjacent_pair": adjacent_pair,
         "dark_feature_horizontal_pair": horizontal_pair,
         "dark_feature_horizontal_separation": horizontal_separation,
+        "sclera_pixels": len(sclera),
+        "sclera_positions": [list(point) for point in ordered_sclera],
+        "near_eye_pair": warm_gray_near_eye_pair,
+        "warm_gray_near_eye_pair": warm_gray_near_eye_pair,
+        "front_eye_pair": front_eye_pair,
+        "profile_eye_pair": profile_eye_pair,
+        # Compatibility name retained for contract readers; a front pair now
+        # means two dark pupils plus one muted near-eye sclera.
+        "dark_eye_pair": front_eye_pair,
+        "eye_orientation": eye_orientation,
         "eye_warm_neighbor_counts": eye_warm_neighbor_counts,
         "eye_under_skin": eye_under_skin,
         "mouth_pixels": len(mouth),
         "mouth_below_eyes": mouth_below_eyes,
         "template_row_counts": template_row_counts,
-        "template_sparse": template_sparse,
+        "template_three_quarter": template_three_quarter,
+        "nose_highlight_offset": nose_highlight_offset,
+        "max_vertical_light_run": max_vertical_light_run,
+        "cross_junction": cross_junction,
         "near_white_pixels": near_white,
+    }
+
+
+def yone_live_card_idle_metrics(
+    image: Image.Image,
+    *,
+    stage_height: int,
+    center_y: int,
+    variant: str = "front",
+) -> dict[str, Any]:
+    """Measure one body frame at the uniform scale proven by live capture.
+
+    The game does not stretch every idle rectangle to one fixed 86x121 box.
+    It scales each native rectangle by about 2.2x and vertically centers the
+    result on the tallest idle stage.  Measuring that route keeps idle[2]
+    (the frame visible in the rejected screenshot) in the gate instead of
+    accidentally proving only idle[0].
+    """
+
+    source = image.convert("RGBA")
+    rendered = source.resize(
+        (
+            round(source.width * YONE_LIVE_CARD_SCALE),
+            round(source.height * YONE_LIVE_CARD_SCALE),
+        ),
+        Image.Resampling.NEAREST,
+    )
+    alpha_bbox = rendered.getchannel("A").getbbox()
+    if alpha_bbox is None:
+        raise ValueError("Yone live-card idle frame is empty")
+    if rendered.height > stage_height:
+        raise ValueError(
+            f"Yone live-card frame height {rendered.height} exceeds stage {stage_height}"
+        )
+
+    source_feature = {
+        (x, y)
+        for y in range(source.height)
+        for x in range(source.width)
+        if source.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    }
+    source_quality = yone_face_readability(source)
+    if not source_quality[f"{variant}_eye_pair"]:
+        raise ValueError(
+            f"Yone live-card source lost its {variant} face topology: "
+            f"eyes={sorted(source_feature)}, quality={source_quality}"
+        )
+    ordered_source_feature = sorted(source_feature)
+    if variant == "front":
+        anchor_x = ordered_source_feature[0][0] - 2
+        anchor_y = ordered_source_feature[0][1] - 2
+    else:
+        anchor_x = ordered_source_feature[0][0] - 5
+        anchor_y = ordered_source_feature[0][1] - 2
+    nose_source_point = (anchor_x + 3, anchor_y + 3)
+
+    rendered_feature = {
+        (x, y)
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    }
+    rendered_sclera = {
+        (x, y)
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered.getpixel((x, y)) == YONE_FACE_SCLERA_RGBA
+    }
+    eye_boxes = sorted(
+        (_component_bbox(component) for component in _point_components(rendered_feature)),
+        key=lambda box: box[0],
+    )
+    sclera_boxes = sorted(
+        (_component_bbox(component) for component in _point_components(rendered_sclera)),
+        key=lambda box: box[0],
+    )
+    minimum_pixel_span = max(1, int(YONE_LIVE_CARD_SCALE))
+    maximum_pixel_span = minimum_pixel_span + (
+        0 if YONE_LIVE_CARD_SCALE == minimum_pixel_span else 1
+    )
+    distinct_dark_eyes = variant == "front" and len(eye_boxes) == 2
+    if distinct_dark_eyes:
+        left_eye_box, right_eye_box = eye_boxes
+        distinct_dark_eyes = (
+            left_eye_box[1] == right_eye_box[1]
+            and left_eye_box[3] == right_eye_box[3]
+            and all(
+                minimum_pixel_span <= box[2] - box[0] <= maximum_pixel_span
+                and minimum_pixel_span <= box[3] - box[1] <= maximum_pixel_span
+                for box in eye_boxes
+            )
+            and right_eye_box[0] - left_eye_box[2] >= minimum_pixel_span
+        )
+    expected_pupil_count = 2 if variant == "front" else 1
+    pupil_spans_valid = len(eye_boxes) == expected_pupil_count and all(
+        minimum_pixel_span <= box[2] - box[0] <= maximum_pixel_span
+        and minimum_pixel_span <= box[3] - box[1] <= maximum_pixel_span
+        for box in eye_boxes
+    )
+    warm_gray_near_eye = False
+    if pupil_spans_valid and len(sclera_boxes) == 1:
+        near_pupil_box = eye_boxes[-1]
+        sclera_box = sclera_boxes[0]
+        warm_gray_near_eye = (
+            sclera_box[1] == near_pupil_box[1]
+            and sclera_box[3] == near_pupil_box[3]
+            and minimum_pixel_span <= sclera_box[2] - sclera_box[0] <= maximum_pixel_span
+            and minimum_pixel_span <= sclera_box[3] - sclera_box[1] <= maximum_pixel_span
+            and sclera_box[2] == near_pupil_box[0]
+        )
+
+    rendered_mouth = {
+        (x, y)
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered.getpixel((x, y)) == YONE_FACE_MOUTH_RGBA
+    }
+    mouth_boxes = sorted(
+        (_component_bbox(component) for component in _point_components(rendered_mouth)),
+        key=lambda box: box[0],
+    )
+    mouth_below_eyes = False
+    if eye_boxes and len(mouth_boxes) == 1:
+        eye_group_boxes = (*eye_boxes, *sclera_boxes)
+        eye_left = min(box[0] for box in eye_group_boxes)
+        eye_right = max(box[2] for box in eye_group_boxes)
+        mouth_box = mouth_boxes[0]
+        mouth_center_x = (mouth_box[0] + mouth_box[2]) / 2
+        mouth_below_eyes = (
+            mouth_box[1] >= max(box[3] for box in eye_group_boxes) + 4
+            and eye_left - maximum_pixel_span
+            <= mouth_center_x
+            <= eye_right + maximum_pixel_span
+        )
+
+    nose_mask = Image.new("L", source.size, 0)
+    nose_mask.putpixel(nose_source_point, 255)
+    rendered_nose_mask = nose_mask.resize(rendered.size, Image.Resampling.NEAREST)
+    nose_box = rendered_nose_mask.getbbox()
+    nose_highlight_present = bool(nose_box) and all(
+        rendered.getpixel((x, y)) == YONE_FACE_LIGHT_RGBA
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered_nose_mask.getpixel((x, y))
+    )
+    nose_offset_below_right_eye = False
+    if nose_box is not None and eye_boxes:
+        eye_left = min(box[0] for box in (*eye_boxes, *sclera_boxes))
+        eye_right = max(box[2] for box in (*eye_boxes, *sclera_boxes))
+        nose_offset_below_right_eye = (
+            nose_box[1] >= max(box[3] for box in (*eye_boxes, *sclera_boxes))
+            and eye_left - maximum_pixel_span
+            <= (nose_box[0] + nose_box[2]) / 2
+            <= eye_right + maximum_pixel_span
+        )
+
+    template_mask = Image.new("L", source.size, 0)
+    ImageDraw.Draw(template_mask).rectangle(
+        (anchor_x, anchor_y, anchor_x + 6, anchor_y + 6),
+        fill=255,
+    )
+    rendered_template_box = template_mask.resize(
+        rendered.size,
+        Image.Resampling.NEAREST,
+    ).getbbox()
+    if rendered_template_box is None:
+        raise ValueError("Yone live-card face template vanished during scaling")
+    max_face_vertical_light_run = 0
+    for x in range(rendered_template_box[0], rendered_template_box[2]):
+        run = 0
+        for y in range(rendered_template_box[1], rendered_template_box[3]):
+            if rendered.getpixel((x, y)) in {
+                YONE_FACE_LIGHT_RGBA,
+                YONE_FACE_SCLERA_RGBA,
+            }:
+                run += 1
+                max_face_vertical_light_run = max(max_face_vertical_light_run, run)
+            else:
+                run = 0
+    vertical_highlight_cross = max_face_vertical_light_run > maximum_pixel_span
+
+    stage_y = (
+        (stage_height - rendered.height) // 2
+        + center_y
+        - YONE_LIVE_CARD_AUDITED_CENTER_Y
+    )
+    projected_bbox = (
+        alpha_bbox[0],
+        alpha_bbox[1] + stage_y,
+        alpha_bbox[2],
+        alpha_bbox[3] + stage_y,
+    )
+    divider_clearance = YONE_LIVE_CARD_DIVIDER_TOP - projected_bbox[3]
+    source_bottom_clearance = source.height - source.getchannel("A").getbbox()[3]
+    rendered_bottom_clearance = rendered.height - alpha_bbox[3]
+
+    return {
+        "source_size": list(source.size),
+        "rendered_size": list(rendered.size),
+        "stage_y": stage_y,
+        "alpha_bbox": list(alpha_bbox),
+        "projected_alpha_bbox": list(projected_bbox),
+        "divider_clearance": divider_clearance,
+        "source_bottom_clearance": source_bottom_clearance,
+        "rendered_bottom_clearance": rendered_bottom_clearance,
+        "face_variant": variant,
+        "dark_eye_pixels": len(rendered_feature),
+        "dark_eye_component_boxes": [list(box) for box in eye_boxes],
+        "two_distinct_dark_eye_components": distinct_dark_eyes,
+        "sclera_pixels": len(rendered_sclera),
+        "sclera_component_boxes": [list(box) for box in sclera_boxes],
+        "warm_gray_near_eye_pair": warm_gray_near_eye,
+        "mouth_component_boxes": [list(box) for box in mouth_boxes],
+        "mouth_below_eyes": mouth_below_eyes,
+        "nose_source_point": list(nose_source_point),
+        "nose_render_box": list(nose_box) if nose_box else None,
+        "nose_highlight_present": nose_highlight_present,
+        "nose_offset_below_right_eye": nose_offset_below_right_eye,
+        "max_face_vertical_light_run": max_face_vertical_light_run,
+        "vertical_highlight_cross": vertical_highlight_cross,
+    }
+
+
+def yone_live_idle_card_contract(
+    sheet: Image.Image,
+    anims: dict[str, Any],
+    *,
+    center_y: int,
+) -> dict[str, Any]:
+    idle_entries = anims["idle"]["frames"]
+    stage_height = max(
+        round(entry["data"]["h"] * YONE_LIVE_CARD_SCALE)
+        for entry in idle_entries
+    )
+    frames: dict[str, dict[str, Any]] = {}
+    for index, entry in enumerate(idle_entries):
+        data = entry["data"]
+        frame = sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+        frames[f"idle[{index}]"] = yone_live_card_idle_metrics(
+            frame,
+            stage_height=stage_height,
+            center_y=center_y,
+            variant="front",
+        )
+    return {
+        "scale": YONE_LIVE_CARD_SCALE,
+        "resampling": "nearest",
+        "stage_height": stage_height,
+        "audited_center_y": YONE_LIVE_CARD_AUDITED_CENTER_Y,
+        "divider_top": YONE_LIVE_CARD_DIVIDER_TOP,
+        "minimum_divider_clearance": YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE,
+        "frames": frames,
+    }
+
+
+def yone_live_run_profile_contract(
+    sheet: Image.Image,
+    anims: dict[str, Any],
+) -> dict[str, Any]:
+    """Replay the live 2.2x transform for every battle run profile."""
+
+    run_entries = anims["run"]["frames"]
+    stage_height = max(
+        round(entry["data"]["h"] * YONE_LIVE_CARD_SCALE)
+        for entry in run_entries
+    )
+    frames: dict[str, dict[str, Any]] = {}
+    for index, entry in enumerate(run_entries):
+        data = entry["data"]
+        frame = sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+        frames[f"run[{index}]"] = yone_live_card_idle_metrics(
+            frame,
+            stage_height=stage_height,
+            center_y=YONE_LIVE_CARD_AUDITED_CENTER_Y,
+            variant="profile",
+        )
+    return {
+        "scale": YONE_LIVE_CARD_SCALE,
+        "resampling": "nearest",
+        "stage_height": stage_height,
+        "frames": frames,
     }
 
 
@@ -1180,11 +1720,20 @@ def finalize_yone_battle_face(
 ) -> Image.Image:
     """Finish one native battle face without changing its source silhouette."""
 
+    classified = (
+        YONE_FRONT_FACE_FRAMES
+        | YONE_PROFILE_FACE_FRAMES
+        | YONE_SINGLE_EYE_PROFILE_FRAMES
+    )
+    if frame_key not in classified:
+        raise ValueError(f"Yone {frame_key} has no reviewed face-pose assignment")
+    variant = "front" if frame_key in YONE_FRONT_FACE_FRAMES else "profile"
     alpha_before = image.convert("RGBA").getchannel("A").tobytes()
     try:
         output = repaint_yone_face(
             image,
             preferred_eye=YONE_FACE_EYE_OVERRIDES.get(frame_key),
+            variant=variant,
             allow_single_eye=frame_key in YONE_SINGLE_EYE_PROFILE_FRAMES,
         )
     except ValueError as exc:
@@ -1192,27 +1741,25 @@ def finalize_yone_battle_face(
     if output.getchannel("A").tobytes() != alpha_before:
         raise ValueError(f"Yone {frame_key} face repair changed alpha geometry")
     quality = yone_face_readability(output)
-    separated_eyes = (
-        quality["dark_feature_pixels"] == 2
-        and quality["dark_feature_horizontal_pair"]
-        and 2 <= quality["dark_feature_horizontal_separation"] <= 4
-        and not quality["dark_feature_adjacent_pair"]
+    detailed_face = (
+        quality[f"{variant}_eye_pair"]
+        and quality["template_three_quarter"]
+        and quality["mouth_pixels"] == 1
+        and quality["mouth_below_eyes"]
+        and quality["eye_under_skin"]
+        and min(quality["eye_warm_neighbor_counts"], default=0) >= 2
+        and quality["max_vertical_light_run"] <= 1
+        and not quality["cross_junction"]
     )
     allowed_profile_eye = (
         frame_key in YONE_SINGLE_EYE_PROFILE_FRAMES
         and quality["dark_feature_pixels"] == 1
-    )
-    structured_face = (
-        quality["template_sparse"]
-        and quality["mouth_pixels"] == 1
-        and quality["mouth_below_eyes"]
-        and quality["eye_under_skin"]
-        and min(quality["eye_warm_neighbor_counts"], default=0) >= 3
+        and quality["sclera_pixels"] == 0
     )
     if (
-        not ((separated_eyes and structured_face) or allowed_profile_eye)
+        not (detailed_face or allowed_profile_eye)
         or quality["near_white_pixels"] != 0
-        or quality["warm_pixels"] < 2
+        or quality["warm_pixels"] < (1 if allowed_profile_eye else 2)
     ):
         raise ValueError(f"Yone {frame_key} source-preserving face repair failed: {quality}")
     return output
@@ -1877,6 +2424,15 @@ def build_qa(
             YONE_ACTOR_FACE_WINDOW,
         ),
     }
+    style = json.loads(
+        (MOD_ROOT / "style/champion_view.champion_view").read_text(encoding="utf-8")
+    )["entries"]["dual_blader"]
+    live_idle_card = yone_live_idle_card_contract(
+        sheet,
+        anims,
+        center_y=style["center"]["y"],
+    )
+    live_run_profile = yone_live_run_profile_contract(sheet, anims)
 
     contract_path = QA_DIR / "yone_visual_contract.json"
     write_json(
@@ -1913,21 +2469,33 @@ def build_qa(
                 "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "source-preserving 1x tapered-face repair; isolated eyes, nose and mouth stay inside unchanged alpha geometry",
+                "policy": "source-preserving 1x warm-gray near-eye face; front poses keep two one-pixel pupils while profile poses use one warm-gray/pupil eye bar, with offset nose and mouth inside unchanged alpha geometry",
                 "feature_rgba": list(YONE_FACE_FEATURE_RGBA),
+                "sclera_rgba": list(YONE_FACE_SCLERA_RGBA),
+                "light_rgba": list(YONE_FACE_LIGHT_RGBA),
                 "mouth_rgba": list(YONE_FACE_MOUTH_RGBA),
+                "front_frames": [
+                    f"{tag}[{index}]"
+                    for tag, index in sorted(YONE_FRONT_FACE_FRAMES)
+                ],
+                "profile_frames": [
+                    f"{tag}[{index}]"
+                    for tag, index in sorted(YONE_PROFILE_FACE_FRAMES)
+                ],
                 "single_eye_profile_frames": [
                     f"{tag}[{index}]"
                     for tag, index in sorted(YONE_SINGLE_EYE_PROFILE_FRAMES)
                 ],
                 "all_battle_body_frames": actor_face_readability,
                 "ui_surfaces": ui_face_readability,
+                "live_idle_card": live_idle_card,
+                "live_run_profile": live_run_profile,
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
                 "default_runtime": "ABI-safe actor-atlas path: idle[0] plus champion_view face/center/banpick_center cameras",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
-                "scoreboard": "48x64 fallback portrait; default runtime uses the audited 15x15 idle[0] face crop rendered at 2x nearest",
+                "scoreboard": "48x64 fallback portrait; default runtime scales every native idle frame uniformly by about 2.2x and centers it on the 121px idle stage",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
             },
         },
@@ -1941,7 +2509,7 @@ def build_qa(
             "champion": "Yone",
             "generator": "built-in image_gen",
             "generated_on": "2026-07-17",
-            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent source-preserving 1x tapered-face repaint, and official Dual Blader core foot baselines",
+            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent source-preserving 1x warm-gray near-eye front/profile repaint, and official Dual Blader core foot baselines",
             "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
@@ -1955,8 +2523,8 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] Card/idle/run/attack/hit/W/dead and every UI portrait keep unchanged alpha geometry while receiving a tapered warm face, two hair-isolated eyes, a nose plane and a separate mouth; only five extreme profile frames retain one eye.\n"
-        "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the 2x card/BP camera is restored to y=-12 so legs and weapons remain above the black divider.\n"
+        "- [x] Card/UI/front poses keep two one-pixel pupils plus one muted warm-gray near-eye pixel; run/profile poses use one warm-gray/pupil eye bar, an offset nose and a separate low-contrast mouth inside unchanged alpha geometry; only ult[5] and ult[7] retain a single dark cue.\n"
+        "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
@@ -1964,7 +2532,7 @@ def build_qa(
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
-        "- [x] Default-runtime scoreboard QA replays the observed `idle[0]` source crop `(15,4,15,15)` at 2x nearest; both isolated eyes, nose and mouth are fully inside the 30x30 slot.\n"
+        "- [x] Default-runtime QA replays the observed uniform 2.2x nearest-neighbor enlargement for all four idle and all eight run frames; the warm-gray near eye, pupil, nose and mouth stay distinct, no centered highlight cross is allowed, and source foot clearances remain intact.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
         "- [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.\n"
         "\nRuntime effect IDs and sheet tags are recorded in `qa/yone_visual_contract.json`.\n",
@@ -2121,9 +2689,28 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"{actual_core_bottoms}"
         )
 
-    # Inspect all 54 battle body frames at final atlas scale. Normal poses need
-    # a tapered face, isolated eyes, a warm under-eye row and a separate mouth;
-    # only the five audited extreme profile frames may retain one eye.
+    # Inspect all 54 battle body frames at final atlas scale. Front poses keep
+    # two one-pixel pupils and one warm-gray near-eye pixel; normal profiles
+    # use a warm-gray/pupil eye bar. Only the two alpha-starved R profiles keep
+    # a single dark eye without synthetic face fill.
+    classified_face_frames = (
+        YONE_FRONT_FACE_FRAMES
+        | YONE_PROFILE_FACE_FRAMES
+        | YONE_SINGLE_EYE_PROFILE_FRAMES
+    )
+    if (
+        len(YONE_FRONT_FACE_FRAMES) != 13
+        or len(YONE_PROFILE_FACE_FRAMES) != 39
+        or len(YONE_SINGLE_EYE_PROFILE_FRAMES) != 2
+        or len(classified_face_frames) != 54
+    ):
+        raise ValueError(
+            "Yone face-pose classification must be disjoint 13/39/2 frames: "
+            f"front={len(YONE_FRONT_FACE_FRAMES)}, "
+            f"profile={len(YONE_PROFILE_FACE_FRAMES)}, "
+            f"single={len(YONE_SINGLE_EYE_PROFILE_FRAMES)}, "
+            f"union={len(classified_face_frames)}"
+        )
     face_frame_count = 0
     for tag, index, entry in iter_actor_body_frames(payload):
         face_frame_count += 1
@@ -2138,26 +2725,25 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         )
         face = yone_face_readability(frame)
         warm_bbox = face["warm_bbox"]
-        separated_eyes = (
-            face["dark_feature_pixels"] == 2
-            and face["dark_feature_horizontal_pair"]
-            and 2 <= face["dark_feature_horizontal_separation"] <= 4
-            and not face["dark_feature_adjacent_pair"]
+        variant = "front" if (tag, index) in YONE_FRONT_FACE_FRAMES else "profile"
+        detailed_face = (
+            face[f"{variant}_eye_pair"]
+            and face["template_three_quarter"]
+            and face["mouth_pixels"] == 1
+            and face["mouth_below_eyes"]
+            and face["eye_under_skin"]
+            and min(face["eye_warm_neighbor_counts"], default=0) >= 2
+            and face["max_vertical_light_run"] <= 1
+            and not face["cross_junction"]
         )
         allowed_profile_eye = (
             (tag, index) in YONE_SINGLE_EYE_PROFILE_FRAMES
             and face["dark_feature_pixels"] == 1
-        )
-        structured_face = (
-            face["template_sparse"]
-            and face["mouth_pixels"] == 1
-            and face["mouth_below_eyes"]
-            and face["eye_under_skin"]
-            and min(face["eye_warm_neighbor_counts"], default=0) >= 3
+            and face["sclera_pixels"] == 0
         )
         if (
-            not ((separated_eyes and structured_face) or allowed_profile_eye)
-            or face["warm_pixels"] < 2
+            not (detailed_face or allowed_profile_eye)
+            or face["warm_pixels"] < (1 if allowed_profile_eye else 2)
             or face["near_white_pixels"] != 0
             or warm_bbox is None
         ):
@@ -2167,38 +2753,92 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     if face_frame_count != 54:
         raise ValueError(f"Yone face validation covered {face_frame_count}/54 frames")
 
-    # Replay the measured 2x card placement from the user's latest screenshot.
-    # The best source-to-screen match is frame origin y=12 at center.y=-12;
-    # the actor viewport ends at y=96 and the black divider starts at y=99.
+    # Replay the measured renderer route from the user's screenshots.  Every
+    # idle rectangle is scaled uniformly by about 2.2x, then centered on the
+    # tallest idle stage.  The rejected screenshot showed idle[2], so proving
+    # a stretched idle[0]-only 86x121 helper would miss the real regression.
     style = json.loads(
         (MOD_ROOT / "style/champion_view.champion_view").read_text(encoding="utf-8")
     )["entries"]["dual_blader"]
     expected_style = {
         "face": {"x": 2, "y": -32},
-        "center": {"x": 0, "y": -12},
-        "banpick_center": {"x": 0, "y": -12},
+        "center": {"x": 0, "y": -16},
+        "banpick_center": {"x": 0, "y": -16},
     }
     if style != expected_style:
         raise ValueError(f"Yone card/BP camera changed: {style} != {expected_style}")
-    idle_data = payload["idle"]["frames"][0]["data"]
-    idle_frame = sheet.crop(
-        (
-            idle_data["x"],
-            idle_data["y"],
-            idle_data["x"] + idle_data["w"],
-            idle_data["y"] + idle_data["h"],
-        )
+    live_idle_card = yone_live_idle_card_contract(
+        sheet,
+        payload,
+        center_y=style["center"]["y"],
     )
-    idle_bbox = idle_frame.getchannel("A").getbbox()
-    if idle_bbox is None:
-        raise ValueError("Yone idle[0] is empty during card placement QA")
-    card_frame_top = 36 + 2 * style["center"]["y"]
-    last_card_pixel = card_frame_top + 2 * idle_bbox[3] - 1
-    if last_card_pixel > 93:
+    if set(live_idle_card["frames"]) != {
+        "idle[0]",
+        "idle[1]",
+        "idle[2]",
+        "idle[3]",
+    }:
         raise ValueError(
-            "Yone feet/weapon enter the card divider viewport: "
-            f"last pixel y={last_card_pixel}, expected <=93"
+            f"Yone live-card idle coverage changed: {set(live_idle_card['frames'])}"
         )
+    for frame_name, quality in live_idle_card["frames"].items():
+        if not quality["two_distinct_dark_eye_components"]:
+            raise ValueError(
+                f"Yone {frame_name} eyes collapse at 2.2x: "
+                f"{quality['dark_eye_component_boxes']}"
+            )
+        if not quality["warm_gray_near_eye_pair"]:
+            raise ValueError(
+                f"Yone {frame_name} lost its warm-gray near eye at 2.2x: {quality}"
+            )
+        if not (
+            quality["mouth_below_eyes"]
+            and quality["nose_highlight_present"]
+            and quality["nose_offset_below_right_eye"]
+        ):
+            raise ValueError(
+                f"Yone {frame_name} mouth/nose topology is unreadable at 2.2x: {quality}"
+            )
+        if quality["vertical_highlight_cross"]:
+            raise ValueError(
+                f"Yone {frame_name} reintroduced the vertical face cross at 2.2x: "
+                f"run={quality['max_face_vertical_light_run']}"
+            )
+        if quality["divider_clearance"] < YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE:
+            raise ValueError(
+                f"Yone {frame_name} feet/weapon enter the card divider: "
+                f"clearance={quality['divider_clearance']}"
+            )
+
+    live_run_profile = yone_live_run_profile_contract(sheet, payload)
+    expected_run_frames = {f"run[{index}]" for index in range(8)}
+    if set(live_run_profile["frames"]) != expected_run_frames:
+        raise ValueError(
+            "Yone live run-profile coverage changed: "
+            f"{set(live_run_profile['frames'])}"
+        )
+    for index, (frame_name, quality) in enumerate(
+        live_run_profile["frames"].items()
+    ):
+        if (
+            quality["face_variant"] != "profile"
+            or not quality["warm_gray_near_eye_pair"]
+            or quality["dark_eye_pixels"] < 4
+            or not quality["mouth_below_eyes"]
+            or not quality["nose_highlight_present"]
+            or not quality["nose_offset_below_right_eye"]
+            or quality["vertical_highlight_cross"]
+        ):
+            raise ValueError(
+                f"Yone {frame_name} profile face is unreadable at 2.2x: {quality}"
+            )
+        if (
+            quality["source_bottom_clearance"] != BODY_BOTTOM_MARGINS["run"][index]
+            or quality["rendered_bottom_clearance"] <= 0
+        ):
+            raise ValueError(
+                f"Yone {frame_name} lost its run-foot clearance at 2.2x: {quality}"
+            )
 
     terminal_rect = NATIVE_CONTRACT["dead"]["rects"][-1]
     terminal = sheet.crop((terminal_rect[0], terminal_rect[1], terminal_rect[0] + terminal_rect[2], terminal_rect[1] + terminal_rect[3]))
@@ -2265,19 +2905,18 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         ("grid", grid, YONE_ACTOR_FACE_WINDOW, 12),
     ):
         face = yone_face_readability(image, window)
-        structured_face = (
-            face["template_sparse"]
+        detailed_face = (
+            face["dark_eye_pair"]
+            and face["template_three_quarter"]
             and face["mouth_pixels"] == 1
             and face["mouth_below_eyes"]
             and face["eye_under_skin"]
-            and min(face["eye_warm_neighbor_counts"], default=0) >= 3
+            and min(face["eye_warm_neighbor_counts"], default=0) >= 2
+            and face["max_vertical_light_run"] <= 1
+            and not face["cross_junction"]
         )
         if (
-            face["dark_feature_pixels"] != 2
-            or not face["dark_feature_horizontal_pair"]
-            or not (2 <= face["dark_feature_horizontal_separation"] <= 4)
-            or face["dark_feature_adjacent_pair"]
-            or not structured_face
+            not detailed_face
             or face["warm_pixels"] < minimum_warm
             or face["near_white_pixels"] != 0
         ):

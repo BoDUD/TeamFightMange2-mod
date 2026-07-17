@@ -868,45 +868,180 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     faces = face_contract["all_battle_body_frames"]
     assert len(faces) == 54
     assert face_contract["policy"] == (
-        "source-preserving 1x tapered-face repair; isolated eyes, nose and mouth "
-        "stay inside unchanged alpha geometry"
+        "source-preserving 1x warm-gray near-eye face; front poses keep two one-pixel "
+        "pupils while profile poses use one warm-gray/pupil eye bar, with offset nose "
+        "and mouth inside unchanged alpha geometry"
     )
-    assert face_contract["feature_rgba"] == [54, 24, 29, 255]
-    assert face_contract["mouth_rgba"] == [118, 46, 51, 255]
-    profile_frames = {"skill[2]", "skill[4]", "ult[3]", "ult[5]", "ult[7]"}
-    assert set(face_contract["single_eye_profile_frames"]) == profile_frames
+    assert face_contract["feature_rgba"] == [24, 14, 19, 255]
+    assert face_contract["sclera_rgba"] == [212, 178, 157, 255]
+    assert face_contract["light_rgba"] == [202, 129, 98, 255]
+    assert face_contract["mouth_rgba"] == [124, 50, 53, 255]
+    front_frames = set(face_contract["front_frames"])
+    profile_frames = set(face_contract["profile_frames"])
+    single_eye_frames = set(face_contract["single_eye_profile_frames"])
+    assert len(front_frames) == 13
+    assert len(profile_frames) == 39
+    assert single_eye_frames == {"ult[5]", "ult[7]"}
+    assert not (front_frames & profile_frames)
+    assert not (front_frames & single_eye_frames)
+    assert not (profile_frames & single_eye_frames)
+    assert front_frames | profile_frames | single_eye_frames == set(faces)
+    assert {f"idle[{index}]" for index in range(4)} <= front_frames
+    assert {f"run[{index}]" for index in range(8)} <= profile_frames
     for frame_name, row in faces.items():
-        if frame_name in profile_frames:
+        if frame_name in single_eye_frames:
             assert row["dark_feature_pixels"] == 1, (frame_name, row)
-        else:
+            assert row["sclera_pixels"] == 0, (frame_name, row)
+            assert not row["near_eye_pair"], (frame_name, row)
+            assert row["eye_orientation"] == "profile", (frame_name, row)
+        elif frame_name in front_frames:
             assert row["dark_feature_pixels"] == 2, (frame_name, row)
+            assert row["sclera_pixels"] == 1, (frame_name, row)
             assert row["dark_feature_horizontal_pair"], (frame_name, row)
-            assert row["dark_feature_horizontal_separation"] == 2, (
-                frame_name,
-                row,
-            )
-            assert not row["dark_feature_adjacent_pair"], (frame_name, row)
+            assert row["dark_feature_horizontal_separation"] == 3, (frame_name, row)
+            assert row["near_eye_pair"], (frame_name, row)
+            assert row["warm_gray_near_eye_pair"], (frame_name, row)
+            assert row["front_eye_pair"], (frame_name, row)
+            assert not row["profile_eye_pair"], (frame_name, row)
+            assert row["dark_eye_pair"], (frame_name, row)
+            assert row["eye_orientation"] == "front", (frame_name, row)
+        else:
+            assert frame_name in profile_frames
+            assert row["dark_feature_pixels"] == 1, (frame_name, row)
+            assert row["sclera_pixels"] == 1, (frame_name, row)
+            assert not row["dark_feature_horizontal_pair"], (frame_name, row)
+            assert row["near_eye_pair"], (frame_name, row)
+            assert row["warm_gray_near_eye_pair"], (frame_name, row)
+            assert not row["front_eye_pair"], (frame_name, row)
+            assert row["profile_eye_pair"], (frame_name, row)
+            assert not row["dark_eye_pair"], (frame_name, row)
+            assert row["eye_orientation"] == "profile", (frame_name, row)
+        if frame_name not in single_eye_frames:
             assert row["mouth_pixels"] == 1, (frame_name, row)
             assert row["mouth_below_eyes"], (frame_name, row)
             assert row["eye_under_skin"], (frame_name, row)
-            assert min(row["eye_warm_neighbor_counts"]) >= 3, (frame_name, row)
-            assert row["template_sparse"], (frame_name, row)
-        assert row["warm_pixels"] >= 2, (frame_name, row)
+            assert min(row["eye_warm_neighbor_counts"]) >= 2, (frame_name, row)
+            assert row["template_three_quarter"], (frame_name, row)
+            assert row["nose_highlight_offset"], (frame_name, row)
+            assert row["max_vertical_light_run"] <= 1, (frame_name, row)
+            assert not row["cross_junction"], (frame_name, row)
+        assert row["warm_pixels"] >= (1 if frame_name in single_eye_frames else 2), (
+            frame_name,
+            row,
+        )
         assert row["warm_bbox"] is not None, (frame_name, row)
         assert row["near_white_pixels"] == 0, (frame_name, row)
     assert set(face_contract["ui_surfaces"]) == {"compact", "scoreboard", "grid"}
     for surface, row in face_contract["ui_surfaces"].items():
         assert row["dark_feature_pixels"] == 2, (surface, row)
+        assert row["sclera_pixels"] == 1, (surface, row)
         assert row["dark_feature_horizontal_pair"], (surface, row)
-        assert row["dark_feature_horizontal_separation"] == 2, (surface, row)
+        assert row["dark_feature_horizontal_separation"] == 3, (surface, row)
+        assert row["near_eye_pair"], (surface, row)
+        assert row["warm_gray_near_eye_pair"], (surface, row)
+        assert row["front_eye_pair"], (surface, row)
+        assert not row["profile_eye_pair"], (surface, row)
+        assert row["dark_eye_pair"], (surface, row)
+        assert row["eye_orientation"] == "front", (surface, row)
         assert not row["dark_feature_adjacent_pair"], (surface, row)
         assert row["mouth_pixels"] == 1, (surface, row)
         assert row["mouth_below_eyes"], (surface, row)
         assert row["eye_under_skin"], (surface, row)
-        assert min(row["eye_warm_neighbor_counts"]) >= 3, (surface, row)
-        assert row["template_sparse"], (surface, row)
-        assert row["template_row_counts"] == [1, 3, 5, 3, 3, 2], (surface, row)
-    assert faces["idle[0]"]["template_row_counts"] == [1, 3, 5, 3, 3, 2]
+        assert min(row["eye_warm_neighbor_counts"]) >= 2, (surface, row)
+        assert row["template_three_quarter"], (surface, row)
+        assert row["nose_highlight_offset"], (surface, row)
+        assert len(row["template_row_counts"]) == 7, (surface, row)
+        assert row["max_vertical_light_run"] <= 1, (surface, row)
+        assert not row["cross_junction"], (surface, row)
+    live_card = face_contract["live_idle_card"]
+    assert live_card == {
+        **live_card,
+        "scale": 2.2,
+        "resampling": "nearest",
+        "stage_height": 121,
+        "audited_center_y": -16,
+        "divider_top": 99,
+        "minimum_divider_clearance": 10,
+    }
+    live_frames = live_card["frames"]
+    assert set(live_frames) == {"idle[0]", "idle[1]", "idle[2]", "idle[3]"}
+    assert [row["rendered_size"] for row in live_frames.values()] == [
+        [95, 121],
+        [95, 117],
+        [95, 112],
+        [95, 117],
+    ]
+    assert [row["stage_y"] for row in live_frames.values()] == [0, 2, 4, 2]
+    assert [row["projected_alpha_bbox"][3] for row in live_frames.values()] == [
+        86,
+        86,
+        85,
+        86,
+    ]
+    assert [row["divider_clearance"] for row in live_frames.values()] == [
+        13,
+        13,
+        14,
+        13,
+    ]
+    for frame_name, row in live_frames.items():
+        assert row["face_variant"] == "front", (frame_name, row)
+        assert row["two_distinct_dark_eye_components"], (frame_name, row)
+        assert len(row["dark_eye_component_boxes"]) == 2, (frame_name, row)
+        assert row["sclera_pixels"] >= 4, (frame_name, row)
+        assert len(row["sclera_component_boxes"]) == 1, (frame_name, row)
+        assert row["warm_gray_near_eye_pair"], (frame_name, row)
+        assert len(row["mouth_component_boxes"]) == 1, (frame_name, row)
+        assert row["mouth_below_eyes"], (frame_name, row)
+        assert row["nose_highlight_present"], (frame_name, row)
+        assert row["nose_offset_below_right_eye"], (frame_name, row)
+        assert row["max_face_vertical_light_run"] <= 3, (frame_name, row)
+        assert not row["vertical_highlight_cross"], (frame_name, row)
+        assert row["divider_clearance"] >= live_card["minimum_divider_clearance"], (
+            frame_name,
+            row,
+        )
+    live_run = face_contract["live_run_profile"]
+    assert {
+        key: live_run[key] for key in ("scale", "resampling", "stage_height")
+    } == {"scale": 2.2, "resampling": "nearest", "stage_height": 117}
+    run_frames = live_run["frames"]
+    assert set(run_frames) == {f"run[{index}]" for index in range(8)}
+    assert [row["rendered_size"] for row in run_frames.values()] == [
+        [90, 108],
+        [86, 112],
+        [86, 117],
+        [86, 112],
+        [90, 108],
+        [86, 112],
+        [86, 117],
+        [86, 112],
+    ]
+    assert [row["source_bottom_clearance"] for row in run_frames.values()] == [
+        13,
+        18,
+        21,
+        18,
+        13,
+        17,
+        21,
+        17,
+    ]
+    for frame_name, row in run_frames.items():
+        assert row["face_variant"] == "profile", (frame_name, row)
+        assert len(row["dark_eye_component_boxes"]) == 1, (frame_name, row)
+        assert len(row["sclera_component_boxes"]) == 1, (frame_name, row)
+        assert row["warm_gray_near_eye_pair"], (frame_name, row)
+        assert len(row["mouth_component_boxes"]) == 1, (frame_name, row)
+        assert row["mouth_below_eyes"], (frame_name, row)
+        assert row["nose_highlight_present"], (frame_name, row)
+        assert row["nose_offset_below_right_eye"], (frame_name, row)
+        assert row["max_face_vertical_light_run"] <= 3, (frame_name, row)
+        assert not row["vertical_highlight_cross"], (frame_name, row)
+        assert row["rendered_bottom_clearance"] > 0, (frame_name, row)
+        assert row["divider_clearance"] >= 10, (frame_name, row)
+    assert faces["idle[0]"]["eye_orientation"] == "front"
+    assert faces["idle[0]"]["template_row_counts"] == [3, 5, 7, 7, 5, 3, 3]
 
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:

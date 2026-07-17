@@ -3,7 +3,7 @@
   "champion": "Yone",
   "generator": "built-in image_gen",
   "generated_on": "2026-07-17",
-  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent source-preserving 1x tapered-face repaint, and official Dual Blader core foot baselines",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent source-preserving 1x warm-gray near-eye front/profile repaint, and official Dual Blader core foot baselines",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
@@ -358,7 +358,7 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "c3a9b0930243af859d56799992d783a94d068824ebdbc81549fdd723c78b67fc",
+      "sha256": "39085febca72d2494efc14d6032192cf8ea770eae1a6c742ce7f830283b2a7d3",
       "alpha_bbox": [
         46,
         0,
@@ -602,7 +602,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "e2207672e9f4aa0f5eb6de58889ea36c737b5f938a254ff5ab805791b2831099",
+      "sha256": "6563bc9cf56a331a64a1729b392d6953964dc4600ef5ee524c9011f3e6a44523",
       "alpha_bbox": [
         5,
         8,
@@ -621,7 +621,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "75bf2934c3cc3b69c0ce1180b9d72601a26e4e133a21530f23e0f1909f043b6d",
+      "sha256": "a6553cf2b8c82d8d3a4c1194c089307a6266f93e326999a8a3cfd0cad227e89e",
       "alpha_bbox": [
         10,
         8,
@@ -640,7 +640,7 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "3b09b1197d179a49198987dca800571de56da16c6ea22dc6f7c5961b37ee9c5b",
+      "sha256": "0f784127668499b9ad1a1a2626de73538c2936d0e20b3b9600834f91b7e3498a",
       "alpha_bbox": [
         5,
         6,
@@ -659,7 +659,7 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "07b12893ce335cabf8d7a95e47878c1eb23c550ad5b4d6c427ec799b350ec77d",
+      "sha256": "94fd8ec4e993204502397a60edc527fa8c5a3d9f139de23a21c4123d6250b341",
       "alpha_bbox": [
         7,
         12,

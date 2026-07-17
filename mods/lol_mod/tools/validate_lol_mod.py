@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Iterable
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -7046,40 +7046,98 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(runtime_map.get(name) == ["yone_w", tag], f"Yone W visual map changed: {name}")
     face_readability = visual.get("face_readability", {})
     face_rows = face_readability.get("all_battle_body_frames", {})
-    single_eye_profile_frames = set(
-        face_readability.get("single_eye_profile_frames", [])
-    )
-    expected_profile_frames = {"skill[2]", "skill[4]", "ult[3]", "ult[5]", "ult[7]"}
+    front_frames = set(face_readability.get("front_frames", []))
+    profile_frames = set(face_readability.get("profile_frames", []))
+    single_eye_profile_frames = set(face_readability.get("single_eye_profile_frames", []))
     check(
-        single_eye_profile_frames == expected_profile_frames,
+        len(front_frames) == 13
+        and len(profile_frames) == 39
+        and single_eye_profile_frames == {"ult[5]", "ult[7]"}
+        and not (front_frames & profile_frames)
+        and not (front_frames & single_eye_profile_frames)
+        and not (profile_frames & single_eye_profile_frames)
+        and front_frames | profile_frames | single_eye_profile_frames == set(face_rows),
+        "Yone face-pose contract must remain disjoint 13 front / 39 profile / 2 single-dark: "
+        f"front={len(front_frames)}, profile={len(profile_frames)}, "
         f"Yone single-eye profile exceptions changed: {single_eye_profile_frames}",
     )
+    check(
+        {f"idle[{index}]" for index in range(4)} <= front_frames
+        and {f"run[{index}]" for index in range(8)} <= profile_frames,
+        "Yone live idle/run face orientations changed",
+    )
+
+    def has_yone_face_row_profile(quality: dict[str, Any]) -> bool:
+        rows = quality.get("template_row_counts")
+        return (
+            isinstance(rows, list)
+            and len(rows) == 7
+            and 0 <= rows[0] <= 3
+            and 3 <= rows[1] <= 6
+            and 5 <= rows[2] <= 7
+            and 5 <= rows[3] <= 7
+            and 3 <= rows[4] <= 5
+            and 2 <= rows[5] <= 4
+            and 1 <= rows[6] <= 3
+            and 22 <= sum(rows) <= 35
+        )
+
     check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
     for frame_name, quality in face_rows.items():
         warm_bbox = quality.get("warm_bbox")
         eye_neighbors = quality.get("eye_warm_neighbor_counts")
-        separated_eyes = (
+        front_eye = (
             quality.get("dark_feature_pixels") == 2
+            and quality.get("sclera_pixels") == 1
             and quality.get("dark_feature_horizontal_pair") is True
-            and quality.get("dark_feature_horizontal_separation") == 2
+            and quality.get("dark_feature_horizontal_separation") == 3
+            and quality.get("near_eye_pair") is True
+            and quality.get("warm_gray_near_eye_pair") is True
+            and quality.get("front_eye_pair") is True
+            and quality.get("profile_eye_pair") is False
+            and quality.get("dark_eye_pair") is True
+            and quality.get("eye_orientation") == "front"
             and quality.get("dark_feature_adjacent_pair") is False
         )
+        profile_eye = (
+            quality.get("dark_feature_pixels") == 1
+            and quality.get("sclera_pixels") == 1
+            and quality.get("dark_feature_horizontal_pair") is False
+            and quality.get("near_eye_pair") is True
+            and quality.get("warm_gray_near_eye_pair") is True
+            and quality.get("front_eye_pair") is False
+            and quality.get("profile_eye_pair") is True
+            and quality.get("dark_eye_pair") is False
+            and quality.get("eye_orientation") == "profile"
+        )
+        expected_eye_count = 2 if frame_name in front_frames else 1
         structured_face = (
-            quality.get("template_sparse") is True
+            quality.get("template_three_quarter") is True
+            and has_yone_face_row_profile(quality)
+            and quality.get("nose_highlight_offset") is True
             and quality.get("mouth_pixels") == 1
             and quality.get("mouth_below_eyes") is True
             and quality.get("eye_under_skin") is True
             and isinstance(eye_neighbors, list)
-            and len(eye_neighbors) == 2
-            and min(eye_neighbors, default=0) >= 3
+            and len(eye_neighbors) == expected_eye_count
+            and min(eye_neighbors, default=0) >= 2
+            and quality.get("max_vertical_light_run", 99) <= 1
+            and quality.get("cross_junction") is False
         )
         allowed_profile_eye = (
             frame_name in single_eye_profile_frames
             and quality.get("dark_feature_pixels") == 1
+            and quality.get("sclera_pixels") == 0
+            and quality.get("near_eye_pair") is False
+            and quality.get("eye_orientation") == "profile"
         )
         check(
-            ((separated_eyes and structured_face) or allowed_profile_eye)
-            and quality.get("warm_pixels", 0) >= 2
+            (
+                (frame_name in front_frames and front_eye and structured_face)
+                or (frame_name in profile_frames and profile_eye and structured_face)
+                or allowed_profile_eye
+            )
+            and quality.get("warm_pixels", 0) >= (1 if allowed_profile_eye else 2)
             and isinstance(warm_bbox, list)
             and len(warm_bbox) == 4
             and quality.get("near_white_pixels") == 0,
@@ -7094,27 +7152,35 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         eye_neighbors = quality.get("eye_warm_neighbor_counts")
         check(
             quality.get("dark_feature_pixels") == 2
+            and quality.get("sclera_pixels") == 1
             and quality.get("dark_feature_horizontal_pair") is True
-            and quality.get("dark_feature_horizontal_separation") == 2
+            and quality.get("dark_feature_horizontal_separation") == 3
+            and quality.get("near_eye_pair") is True
+            and quality.get("warm_gray_near_eye_pair") is True
+            and quality.get("front_eye_pair") is True
+            and quality.get("profile_eye_pair") is False
+            and quality.get("dark_eye_pair") is True
+            and quality.get("eye_orientation") == "front"
             and quality.get("dark_feature_adjacent_pair") is False
             and quality.get("mouth_pixels") == 1
             and quality.get("mouth_below_eyes") is True
             and quality.get("eye_under_skin") is True
-            and quality.get("template_sparse") is True
+            and quality.get("template_three_quarter") is True
+            and has_yone_face_row_profile(quality)
+            and quality.get("nose_highlight_offset") is True
             and isinstance(eye_neighbors, list)
             and len(eye_neighbors) == 2
-            and min(eye_neighbors, default=0) >= 3
+            and min(eye_neighbors, default=0) >= 2
+            and quality.get("max_vertical_light_run", 99) <= 1
+            and quality.get("cross_junction") is False
             and quality.get("near_white_pixels") == 0,
-            f"Yone tapered face is unreadable on {surface}: {quality}",
-        )
-        check(
-            quality.get("template_row_counts") == [1, 3, 5, 3, 3, 2],
-            f"Yone {surface} tapered-face row profile changed: {quality}",
+            f"Yone warm-gray near-eye face is unreadable on {surface}: {quality}",
         )
     check(
         face_rows.get("idle[0]", {}).get("template_row_counts")
-        == [1, 3, 5, 3, 3, 2],
-        "Yone idle[0] tapered-face row profile changed",
+        == [3, 5, 7, 7, 5, 3, 3]
+        and face_rows.get("idle[0]", {}).get("eye_orientation") == "front",
+        "Yone idle[0] Lucian-style warm-gray face profile changed",
     )
 
     retired_paths = (
@@ -7410,11 +7476,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "source-preserving 1x tapered-face repair; isolated eyes, nose and mouth stay inside unchanged alpha geometry",
+        == "source-preserving 1x warm-gray near-eye face; front poses keep two one-pixel pupils while profile poses use one warm-gray/pupil eye bar, with offset nose and mouth inside unchanged alpha geometry",
         "Yone face-repaint policy changed",
     )
-    check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
-    check(face_contract.get("mouth_rgba") == [118, 46, 51, 255], "Yone facial mouth color changed")
+    check(face_contract.get("feature_rgba") == [24, 14, 19, 255], "Yone facial pupil color changed")
+    check(face_contract.get("sclera_rgba") == [212, 178, 157, 255], "Yone warm-gray sclera color changed")
+    check(face_contract.get("light_rgba") == [202, 129, 98, 255], "Yone facial highlight color changed")
+    check(face_contract.get("mouth_rgba") == [124, 50, 53, 255], "Yone facial mouth color changed")
 
     expected_vfx: dict[str, dict[str, tuple[int, float | tuple[float, ...], bool]]] = {
         "yone_attack": {"steel_hit": (4, 0.05, True), "azakana_hit": (4, 0.05, True)},
@@ -7712,33 +7780,527 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         style
         == {
             "face": {"x": 2, "y": -32},
-            "center": {"x": 0, "y": -12},
-            "banpick_center": {"x": 0, "y": -12},
+            "center": {"x": 0, "y": -16},
+            "banpick_center": {"x": 0, "y": -16},
         },
         "Yone champion_view must keep the audited face/card/BP cameras",
     )
-    idle_data = actor_anims.get("idle", {}).get("frames", [{}])[0].get("data", {})
-    idle_bbox = None
-    if actor_sheet_path.is_file():
-        card_sheet = Image.open(actor_sheet_path).convert("RGBA")
-        idle_crop = card_sheet.crop(
-            (
-                int(idle_data.get("x", 0)),
-                int(idle_data.get("y", 0)),
-                int(idle_data.get("x", 0)) + int(idle_data.get("w", 0)),
-                int(idle_data.get("y", 0)) + int(idle_data.get("h", 0)),
-            )
+    # Replay the live-capture renderer route independently of the builder:
+    # uniformly scale every idle rectangle by 2.2x with nearest-neighbour,
+    # then vertically center it on the tallest (121px) idle stage.  The user's
+    # rejected capture showed idle[2], so idle[0]-only fixed-canvas QA is not
+    # an acceptable proxy for the animated card.
+    live_scale = 2.2
+    divider_top = 99
+    audited_center_y = -16
+    minimum_divider_clearance = 10
+    idle_entries = actor_anims.get("idle", {}).get("frames", [])
+    stage_height = max(
+        (round(int(entry.get("data", {}).get("h", 0)) * live_scale) for entry in idle_entries),
+        default=0,
+    )
+    recorded_live = face_contract.get("live_idle_card", {})
+    check(
+        {
+            "scale": recorded_live.get("scale"),
+            "resampling": recorded_live.get("resampling"),
+            "stage_height": recorded_live.get("stage_height"),
+            "audited_center_y": recorded_live.get("audited_center_y"),
+            "divider_top": recorded_live.get("divider_top"),
+            "minimum_divider_clearance": recorded_live.get("minimum_divider_clearance"),
+        }
+        == {
+            "scale": live_scale,
+            "resampling": "nearest",
+            "stage_height": 121,
+            "audited_center_y": audited_center_y,
+            "divider_top": divider_top,
+            "minimum_divider_clearance": minimum_divider_clearance,
+        },
+        f"Yone live-card rendering contract changed: {recorded_live}",
+    )
+    check(len(idle_entries) == 4 and stage_height == 121, "Yone live-card QA must cover four idle frames on a 121px stage")
+
+    def yone_pixel_components(
+        points: set[tuple[int, int]],
+    ) -> list[set[tuple[int, int]]]:
+        remaining = set(points)
+        components: list[set[tuple[int, int]]] = []
+        while remaining:
+            seed = remaining.pop()
+            component = {seed}
+            queue = [seed]
+            while queue:
+                x, y = queue.pop()
+                for yy in range(y - 1, y + 2):
+                    for xx in range(x - 1, x + 2):
+                        point = (xx, yy)
+                        if point in remaining:
+                            remaining.remove(point)
+                            component.add(point)
+                            queue.append(point)
+            components.append(component)
+        return components
+
+    def yone_component_bbox(
+        component: set[tuple[int, int]],
+    ) -> tuple[int, int, int, int]:
+        return (
+            min(x for x, _ in component),
+            min(y for _, y in component),
+            max(x for x, _ in component) + 1,
+            max(y for _, y in component) + 1,
         )
-        idle_bbox = idle_crop.getchannel("A").getbbox()
-    center_y = int(style.get("center", {}).get("y", 0))
-    last_card_pixel = (
-        None
-        if idle_bbox is None
-        else 36 + 2 * center_y + 2 * idle_bbox[3] - 1
+
+    card_sheet = Image.open(actor_sheet_path).convert("RGBA") if actor_sheet_path.is_file() else None
+    recorded_frames = recorded_live.get("frames", {})
+    check(
+        set(recorded_frames) == {"idle[0]", "idle[1]", "idle[2]", "idle[3]"},
+        f"Yone recorded live-card idle coverage changed: {set(recorded_frames)}",
+    )
+    rendered_sizes: list[tuple[int, int]] = []
+    projected_bottoms: list[int] = []
+    divider_clearances: list[int] = []
+    if card_sheet is not None:
+        pupil_rgba = (24, 14, 19, 255)
+        sclera_rgba = (212, 178, 157, 255)
+        mouth_rgba = (124, 50, 53, 255)
+        light_rgba = (202, 129, 98, 255)
+        center_y = int(style.get("center", {}).get("y", 0))
+        for index, entry in enumerate(idle_entries):
+            data = entry.get("data", {})
+            idle_crop = card_sheet.crop(
+                (
+                    int(data.get("x", 0)),
+                    int(data.get("y", 0)),
+                    int(data.get("x", 0)) + int(data.get("w", 0)),
+                    int(data.get("y", 0)) + int(data.get("h", 0)),
+                )
+            )
+            live_idle = idle_crop.resize(
+                (
+                    round(idle_crop.width * live_scale),
+                    round(idle_crop.height * live_scale),
+                ),
+                Image.Resampling.NEAREST,
+            )
+            rendered_sizes.append(live_idle.size)
+            live_bbox = live_idle.getchannel("A").getbbox()
+            frame_name = f"idle[{index}]"
+            check(live_bbox is not None, f"Yone {frame_name} live-card frame is empty")
+            if live_bbox is None:
+                continue
+            stage_y = (stage_height - live_idle.height) // 2 + center_y - audited_center_y
+            projected_bbox = (
+                live_bbox[0],
+                live_bbox[1] + stage_y,
+                live_bbox[2],
+                live_bbox[3] + stage_y,
+            )
+            projected_bottoms.append(projected_bbox[3])
+            divider_clearance = divider_top - projected_bbox[3]
+            divider_clearances.append(divider_clearance)
+            check(
+                divider_clearance >= minimum_divider_clearance,
+                f"Yone {frame_name} feet/weapon enter the title divider: clearance={divider_clearance}",
+            )
+
+            live_feature = {
+                (x, y)
+                for y in range(live_idle.height)
+                for x in range(live_idle.width)
+                if live_idle.getpixel((x, y)) == pupil_rgba
+            }
+            live_sclera = {
+                (x, y)
+                for y in range(live_idle.height)
+                for x in range(live_idle.width)
+                if live_idle.getpixel((x, y)) == sclera_rgba
+            }
+            eye_boxes = sorted(
+                (yone_component_bbox(component) for component in yone_pixel_components(live_feature)),
+                key=lambda box: box[0],
+            )
+            sclera_boxes = sorted(
+                (yone_component_bbox(component) for component in yone_pixel_components(live_sclera)),
+                key=lambda box: box[0],
+            )
+            distinct_eyes = len(eye_boxes) == 2 and len(sclera_boxes) == 1
+            if distinct_eyes:
+                left_eye_box, right_eye_box = eye_boxes
+                sclera_box = sclera_boxes[0]
+                distinct_eyes = (
+                    left_eye_box[1] == right_eye_box[1]
+                    and left_eye_box[3] == right_eye_box[3]
+                    and all(
+                        2 <= box[2] - box[0] <= 3 and 2 <= box[3] - box[1] <= 3
+                        for box in eye_boxes
+                    )
+                    and right_eye_box[0] - left_eye_box[2] >= 2
+                    and sclera_box[1] == right_eye_box[1]
+                    and sclera_box[3] == right_eye_box[3]
+                    and 2 <= sclera_box[2] - sclera_box[0] <= 3
+                    and 2 <= sclera_box[3] - sclera_box[1] <= 3
+                    and sclera_box[2] == right_eye_box[0]
+                )
+            check(
+                distinct_eyes,
+                f"Yone {frame_name} live 2.2x face lost its warm-gray near eye: eyes={eye_boxes}, sclera={sclera_boxes}",
+            )
+
+            live_mouth = {
+                (x, y)
+                for y in range(live_idle.height)
+                for x in range(live_idle.width)
+                if live_idle.getpixel((x, y)) == mouth_rgba
+            }
+            mouth_boxes = [
+                yone_component_bbox(component)
+                for component in yone_pixel_components(live_mouth)
+            ]
+            mouth_topology = False
+            if len(eye_boxes) == 2 and len(sclera_boxes) == 1 and len(mouth_boxes) == 1:
+                eye_group = (*eye_boxes, *sclera_boxes)
+                mouth_box = mouth_boxes[0]
+                mouth_topology = (
+                    mouth_box[1] >= max(box[3] for box in eye_group) + 4
+                    and min(box[0] for box in eye_group) - 3
+                    <= (mouth_box[0] + mouth_box[2]) / 2
+                    <= max(box[2] for box in eye_group) + 3
+                )
+            check(
+                mouth_topology,
+                f"Yone {frame_name} live 2.2x mouth is not separated below the eyes: eyes={eye_boxes}, mouth={mouth_boxes}",
+            )
+
+            source_eyes = sorted(
+                (x, y)
+                for y in range(idle_crop.height)
+                for x in range(idle_crop.width)
+                if idle_crop.getpixel((x, y)) == pupil_rgba
+            )
+            source_sclera = sorted(
+                (x, y)
+                for y in range(idle_crop.height)
+                for x in range(idle_crop.width)
+                if idle_crop.getpixel((x, y)) == sclera_rgba
+            )
+            check(
+                len(source_eyes) == 2
+                and source_eyes[1][0] - source_eyes[0][0] == 3
+                and source_sclera == [(source_eyes[1][0] - 1, source_eyes[1][1])],
+                f"Yone {frame_name} source eye topology changed: eyes={source_eyes}, sclera={source_sclera}",
+            )
+            if len(source_eyes) != 2:
+                continue
+            anchor_x = source_eyes[0][0] - 2
+            anchor_y = source_eyes[0][1] - 2
+            nose_point = (anchor_x + 3, anchor_y + 3)
+            nose_mask = Image.new("L", idle_crop.size, 0)
+            nose_mask.putpixel(nose_point, 255)
+            live_nose_mask = nose_mask.resize(live_idle.size, Image.Resampling.NEAREST)
+            nose_box = live_nose_mask.getbbox()
+            nose_topology = bool(nose_box) and all(
+                live_idle.getpixel((x, y)) == light_rgba
+                for y in range(live_idle.height)
+                for x in range(live_idle.width)
+                if live_nose_mask.getpixel((x, y))
+            )
+            if nose_topology and len(eye_boxes) == 2 and len(sclera_boxes) == 1 and nose_box is not None:
+                eye_group = (*eye_boxes, *sclera_boxes)
+                nose_topology = (
+                    nose_box[1] >= max(box[3] for box in eye_group)
+                    and min(box[0] for box in eye_group) - 3
+                    <= (nose_box[0] + nose_box[2]) / 2
+                    <= max(box[2] for box in eye_group) + 3
+                )
+            check(
+                nose_topology,
+                f"Yone {frame_name} live 2.2x nose highlight lost its offset topology: eyes={eye_boxes}, nose={nose_box}",
+            )
+
+            template_mask = Image.new("L", idle_crop.size, 0)
+            ImageDraw.Draw(template_mask).rectangle(
+                (anchor_x, anchor_y, anchor_x + 6, anchor_y + 6),
+                fill=255,
+            )
+            template_box = template_mask.resize(
+                live_idle.size,
+                Image.Resampling.NEAREST,
+            ).getbbox()
+            max_live_light_run = 0
+            if template_box is not None:
+                for x in range(template_box[0], template_box[2]):
+                    run = 0
+                    for y in range(template_box[1], template_box[3]):
+                        if live_idle.getpixel((x, y)) in {light_rgba, sclera_rgba}:
+                            run += 1
+                            max_live_light_run = max(max_live_light_run, run)
+                        else:
+                            run = 0
+            check(
+                template_box is not None and max_live_light_run <= 3,
+                f"Yone {frame_name} live 2.2x face reintroduced a vertical highlight cross: run={max_live_light_run}",
+            )
+
+            recorded = recorded_frames.get(frame_name, {})
+            check(
+                recorded.get("rendered_size") == list(live_idle.size)
+                and recorded.get("stage_y") == stage_y
+                and recorded.get("projected_alpha_bbox") == list(projected_bbox)
+                and recorded.get("divider_clearance") == divider_clearance
+                and recorded.get("dark_eye_component_boxes") == [list(box) for box in eye_boxes]
+                and recorded.get("two_distinct_dark_eye_components") is True
+                and recorded.get("sclera_component_boxes") == [list(box) for box in sclera_boxes]
+                and recorded.get("warm_gray_near_eye_pair") is True
+                and recorded.get("mouth_component_boxes") == [list(box) for box in mouth_boxes]
+                and recorded.get("mouth_below_eyes") is True
+                and recorded.get("nose_highlight_present") is True
+                and recorded.get("nose_offset_below_right_eye") is True
+                and recorded.get("max_face_vertical_light_run") == max_live_light_run
+                and recorded.get("vertical_highlight_cross") is False,
+                f"Yone {frame_name} recorded live-card metrics are stale: {recorded}",
+            )
+    check(
+        rendered_sizes == [(95, 121), (95, 117), (95, 112), (95, 117)]
+        and projected_bottoms == [86, 86, 85, 86]
+        and divider_clearances == [13, 13, 14, 13],
+        "Yone live-card 2.2x idle projection changed: "
+        f"sizes={rendered_sizes}, bottoms={projected_bottoms}, clearances={divider_clearances}",
+    )
+
+    # Independently replay all eight run profiles at the same 2.2x nearest
+    # scale.  These are one warm-gray pixel immediately left of one pupil,
+    # with nose/mouth offset to the left/below rather than forced into the
+    # front-face horizontal range.
+    recorded_run = face_contract.get("live_run_profile", {})
+    run_entries = actor_anims.get("run", {}).get("frames", [])
+    run_stage_height = max(
+        (round(int(entry.get("data", {}).get("h", 0)) * live_scale) for entry in run_entries),
+        default=0,
+    )
+    recorded_run_frames = recorded_run.get("frames", {})
+    check(
+        {
+            "scale": recorded_run.get("scale"),
+            "resampling": recorded_run.get("resampling"),
+            "stage_height": recorded_run.get("stage_height"),
+        }
+        == {"scale": live_scale, "resampling": "nearest", "stage_height": 117},
+        f"Yone live-run rendering contract changed: {recorded_run}",
     )
     check(
-        last_card_pixel is not None and last_card_pixel <= 93,
-        f"Yone feet/weapon overlap the 2x card viewport/divider: last y={last_card_pixel}",
+        len(run_entries) == 8
+        and set(recorded_run_frames) == {f"run[{index}]" for index in range(8)},
+        f"Yone live-run profile coverage changed: {set(recorded_run_frames)}",
+    )
+    expected_run_bottoms = [13, 18, 21, 18, 13, 17, 21, 17]
+    run_sizes: list[tuple[int, int]] = []
+    run_clearances: list[int] = []
+    if card_sheet is not None:
+        for index, entry in enumerate(run_entries):
+            data = entry.get("data", {})
+            run_crop = card_sheet.crop(
+                (
+                    int(data.get("x", 0)),
+                    int(data.get("y", 0)),
+                    int(data.get("x", 0)) + int(data.get("w", 0)),
+                    int(data.get("y", 0)) + int(data.get("h", 0)),
+                )
+            )
+            live_run = run_crop.resize(
+                (
+                    round(run_crop.width * live_scale),
+                    round(run_crop.height * live_scale),
+                ),
+                Image.Resampling.NEAREST,
+            )
+            run_sizes.append(live_run.size)
+            frame_name = f"run[{index}]"
+            source_bbox = run_crop.getchannel("A").getbbox()
+            run_bbox = live_run.getchannel("A").getbbox()
+            check(
+                source_bbox is not None and run_bbox is not None,
+                f"Yone {frame_name} run profile is empty",
+            )
+            if source_bbox is None or run_bbox is None:
+                continue
+            stage_y = (run_stage_height - live_run.height) // 2
+            divider_clearance = divider_top - (stage_y + run_bbox[3])
+            run_clearances.append(divider_clearance)
+
+            pupil_pixels = {
+                (x, y)
+                for y in range(live_run.height)
+                for x in range(live_run.width)
+                if live_run.getpixel((x, y)) == pupil_rgba
+            }
+            sclera_pixels = {
+                (x, y)
+                for y in range(live_run.height)
+                for x in range(live_run.width)
+                if live_run.getpixel((x, y)) == sclera_rgba
+            }
+            pupil_boxes = [
+                yone_component_bbox(component)
+                for component in yone_pixel_components(pupil_pixels)
+            ]
+            sclera_boxes = [
+                yone_component_bbox(component)
+                for component in yone_pixel_components(sclera_pixels)
+            ]
+            profile_eye = len(pupil_boxes) == len(sclera_boxes) == 1
+            if profile_eye:
+                pupil_box, sclera_box = pupil_boxes[0], sclera_boxes[0]
+                profile_eye = (
+                    pupil_box[1] == sclera_box[1]
+                    and pupil_box[3] == sclera_box[3]
+                    and sclera_box[2] == pupil_box[0]
+                    and all(
+                        2 <= box[2] - box[0] <= 3
+                        and 2 <= box[3] - box[1] <= 3
+                        for box in (pupil_box, sclera_box)
+                    )
+                )
+            check(
+                profile_eye,
+                f"Yone {frame_name} live profile eye bar changed: pupil={pupil_boxes}, sclera={sclera_boxes}",
+            )
+
+            source_pupils = sorted(
+                (x, y)
+                for y in range(run_crop.height)
+                for x in range(run_crop.width)
+                if run_crop.getpixel((x, y)) == pupil_rgba
+            )
+            source_sclera = sorted(
+                (x, y)
+                for y in range(run_crop.height)
+                for x in range(run_crop.width)
+                if run_crop.getpixel((x, y)) == sclera_rgba
+            )
+            check(
+                len(source_pupils) == len(source_sclera) == 1
+                and (source_sclera[0][0] + 1, source_sclera[0][1]) == source_pupils[0],
+                f"Yone {frame_name} source profile eye changed: pupil={source_pupils}, sclera={source_sclera}",
+            )
+            if len(source_pupils) != 1 or not profile_eye:
+                continue
+            pupil_box, sclera_box = pupil_boxes[0], sclera_boxes[0]
+            eye_left, eye_right = sclera_box[0], pupil_box[2]
+            anchor_x = source_pupils[0][0] - 5
+            anchor_y = source_pupils[0][1] - 2
+
+            mouth_pixels = {
+                (x, y)
+                for y in range(live_run.height)
+                for x in range(live_run.width)
+                if live_run.getpixel((x, y)) == mouth_rgba
+            }
+            mouth_boxes = [
+                yone_component_bbox(component)
+                for component in yone_pixel_components(mouth_pixels)
+            ]
+            mouth_topology = len(mouth_boxes) == 1
+            if mouth_topology:
+                mouth_box = mouth_boxes[0]
+                mouth_topology = (
+                    mouth_box[1] >= max(pupil_box[3], sclera_box[3]) + 4
+                    and eye_left - 3
+                    <= (mouth_box[0] + mouth_box[2]) / 2
+                    <= eye_right + 3
+                )
+            check(
+                mouth_topology,
+                f"Yone {frame_name} live profile mouth topology changed: {mouth_boxes}",
+            )
+
+            nose_point = (anchor_x + 3, anchor_y + 3)
+            nose_mask = Image.new("L", run_crop.size, 0)
+            nose_mask.putpixel(nose_point, 255)
+            live_nose_mask = nose_mask.resize(live_run.size, Image.Resampling.NEAREST)
+            nose_box = live_nose_mask.getbbox()
+            nose_topology = bool(nose_box) and all(
+                live_run.getpixel((x, y)) == light_rgba
+                for y in range(live_run.height)
+                for x in range(live_run.width)
+                if live_nose_mask.getpixel((x, y))
+            )
+            if nose_topology and nose_box is not None:
+                nose_topology = (
+                    nose_box[1] >= max(pupil_box[3], sclera_box[3])
+                    and eye_left - 3
+                    <= (nose_box[0] + nose_box[2]) / 2
+                    <= eye_right + 3
+                )
+            check(
+                nose_topology,
+                f"Yone {frame_name} live profile nose topology changed: {nose_box}",
+            )
+
+            template_mask = Image.new("L", run_crop.size, 0)
+            ImageDraw.Draw(template_mask).rectangle(
+                (anchor_x, anchor_y, anchor_x + 6, anchor_y + 6),
+                fill=255,
+            )
+            template_box = template_mask.resize(
+                live_run.size,
+                Image.Resampling.NEAREST,
+            ).getbbox()
+            max_light_run = 0
+            if template_box is not None:
+                for x in range(template_box[0], template_box[2]):
+                    run = 0
+                    for y in range(template_box[1], template_box[3]):
+                        if live_run.getpixel((x, y)) in {light_rgba, sclera_rgba}:
+                            run += 1
+                            max_light_run = max(max_light_run, run)
+                        else:
+                            run = 0
+            check(
+                template_box is not None and max_light_run <= 3,
+                f"Yone {frame_name} live profile reintroduced a four-way light cross: run={max_light_run}",
+            )
+
+            source_bottom = run_crop.height - source_bbox[3]
+            rendered_bottom = live_run.height - run_bbox[3]
+            check(
+                source_bottom == expected_run_bottoms[index]
+                and rendered_bottom > 0
+                and divider_clearance >= minimum_divider_clearance,
+                f"Yone {frame_name} live run foot clearance changed: source={source_bottom}, rendered={rendered_bottom}, divider={divider_clearance}",
+            )
+            recorded = recorded_run_frames.get(frame_name, {})
+            check(
+                recorded.get("rendered_size") == list(live_run.size)
+                and recorded.get("stage_y") == stage_y
+                and recorded.get("dark_eye_component_boxes") == [list(box) for box in pupil_boxes]
+                and recorded.get("sclera_component_boxes") == [list(box) for box in sclera_boxes]
+                and recorded.get("warm_gray_near_eye_pair") is True
+                and recorded.get("mouth_component_boxes") == [list(box) for box in mouth_boxes]
+                and recorded.get("mouth_below_eyes") is True
+                and recorded.get("nose_highlight_present") is True
+                and recorded.get("nose_offset_below_right_eye") is True
+                and recorded.get("max_face_vertical_light_run") == max_light_run
+                and recorded.get("vertical_highlight_cross") is False
+                and recorded.get("source_bottom_clearance") == source_bottom
+                and recorded.get("rendered_bottom_clearance") == rendered_bottom,
+                f"Yone {frame_name} recorded live-run metrics are stale: {recorded}",
+            )
+    check(
+        run_sizes
+        == [
+            (90, 108),
+            (86, 112),
+            (86, 117),
+            (86, 112),
+            (90, 108),
+            (86, 112),
+            (86, 117),
+            (86, 112),
+        ]
+        and all(clearance >= minimum_divider_clearance for clearance in run_clearances),
+        f"Yone live 2.2x run projection changed: sizes={run_sizes}, clearances={run_clearances}",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
