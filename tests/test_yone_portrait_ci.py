@@ -244,7 +244,14 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
 def _runtime_scoreboard_metrics(size: tuple[int, int]) -> dict[str, int]:
     portrait = Image.open(SCOREBOARD).convert("RGBA")
     rendered = portrait.resize(size, Image.Resampling.NEAREST)
-    pixels = list(rendered.get_flattened_data())
+    # Pillow 14 renamed getdata() to get_flattened_data(), while GitHub's
+    # Python 3.12 image still carries the older Pillow API.  Keep the regression
+    # gate executable on both versions until the CI dependency floor moves.
+    pixels = list(
+        rendered.get_flattened_data()
+        if hasattr(rendered, "get_flattened_data")
+        else rendered.getdata()
+    )
     opaque = [pixel for pixel in pixels if pixel[3] >= 128]
     luminance = [round(0.299 * red + 0.587 * green + 0.114 * blue) for red, green, blue, _ in opaque]
     red_mask = [
