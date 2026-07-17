@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.3",
+  "release": "0.10.4",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -16,6 +16,8 @@
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
       "implementation": "post_render actor NinePatch replacement: remove the selected-card actor (including 120-140x140-190 transition poses), then append one illustration overlay",
+      "base_0_5_1_default": "disabled because this client extension was compiled against base 0.5.0 internal structures",
+      "legacy_opt_in": "register only when the dedicated legacy-extension environment variable equals 1",
       "source_key": "suffix after /champions/ with terminal #sheet removed",
       "texture_uv": "normalized 0,0,1,1",
       "card_size": "284x172",
@@ -27,6 +29,8 @@
       "static_splash_nodes": false
     },
     "banpick_skin": {
+      "base_0_5_1_active_layout_overrides": [],
+      "status": "artifacts retained for audit; four base-0.5.0 layout overrides are not registered on base 0.5.1",
       "imagegen_background": "ui/banpick/lol_bp_background.png",
       "imagegen_timer_plate": "ui/banpick/lol_bp_timer_plate.png",
       "imagegen_timer_icon": "ui/banpick/lol_bp_timer_icon.png",
@@ -196,7 +200,9 @@
       "r_physical_slashes": 6,
       "r_final_fixed_echoes": 1,
       "r_airborne_applications": 1,
-      "native_state_isolated_by_game_context": true,
+      "native_state_isolated_by_game_context": false,
+      "native_state_isolation": "bounded to 128 ledgers and matched by caster/player/team/position plus nearest eligible started_tick; opaque ModService calls are forbidden on base 0.5.1",
+      "saved_season_compatibility": "exactly five retired Yone E and two retired Shen dash native names resolve to a no-op compatibility effect; active Yone data and resources remain Q/W/R-only",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 54,

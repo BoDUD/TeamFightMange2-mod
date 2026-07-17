@@ -23,6 +23,22 @@ MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
 EXPECTED_MOD_API_VERSION = 8
 
+LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
+    "lol_yone_e_start_native",
+    "lol_yone_e_begin_return_native",
+    "lol_yone_e_damage_pre_native",
+    "lol_yone_e_damage_post_native",
+    "lol_yone_e_settle_native",
+    "lol_shen_shadow_dash_ai_hint_native",
+    "lol_shen_shadow_dash_taunt_native",
+}
+LEGACY_BASE_050_BP_OVERRIDES = (
+    "asset/base/ui/layout/banpick/blue_pick_slot",
+    "asset/base/ui/layout/banpick/red_pick_slot",
+    "asset/base/ui/layout/banpick/champion_slot",
+    "asset/base/ui/layout/banpick/layout",
+)
+
 NEXUS_NATIVE_SHEET_SIZES: dict[str, tuple[int, int]] = {
     "nexus": (836, 81),
     "nexus_orb": (526, 81),
@@ -5910,6 +5926,18 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
             bp_qa.get("imagegen_asset_requests") == [],
             "BP-skin still lists unfulfilled ImageGen component requests",
         )
+        checks = bp_qa.get("static_checks", {})
+        check(
+            checks.get("legacy_bp_component_overrides_disabled_for_base_0_5_1") is True
+            and checks.get("legacy_bp_layout_override_disabled_for_base_0_5_1") is True,
+            "BP-skin QA must record that base-0.5.0 layout overrides are disabled on base 0.5.1",
+        )
+
+    for source_key in LEGACY_BASE_050_BP_OVERRIDES:
+        check(
+            source_key not in override,
+            f"legacy base-0.5.0 BP override must be absent on base 0.5.1: {source_key}",
+        )
 
 
 def validate_quality_ingame_hud(override: dict[str, Any]) -> None:
@@ -6778,8 +6806,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     serialized = json.dumps(champion, ensure_ascii=False)
     rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    check("lol_yone_e_" not in serialized, "Yone active champion data retains retired E native refs")
     for retired in (
-        "lol_yone_e_",
         "YoneSoulUnbound",
         "YONE_SOUL_UNBOUND",
         "YoneSoulUnboundReturnInputAi",
@@ -6788,6 +6816,35 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ):
         check(retired not in serialized, f"Yone champion data retains retired contract: {retired}")
         check(retired not in rust, f"Yone native runtime retains retired contract: {retired}")
+
+    discovered_legacy_names = set(
+        re.findall(r"lol_(?:yone_e|shen_shadow_dash)[a-z0-9_]*", rust)
+    )
+    check(
+        discovered_legacy_names == LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES,
+        "saved-season native compatibility allowlist changed: "
+        + ", ".join(sorted(discovered_legacy_names)),
+    )
+    for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES:
+        check(rust.count(f'"{name}"') == 1, f"saved-season native name must occur once: {name}")
+        registration = re.search(
+            rf'registration\.add_native_effect\(\s*"{re.escape(name)}",\s*'
+            r"LegacySavedNativeCompatibilityEffect,\s*\);",
+            rust,
+        )
+        check(registration is not None, f"saved-season native name is not bound to the no-op shim: {name}")
+    compatibility_impl = rust.split(
+        "impl ModEffectType for LegacySavedNativeCompatibilityEffect", 1
+    )[-1].split("\nfn init", 1)[0]
+    check(
+        bool(re.search(r"fn apply\([^)]*\) \{\}", compatibility_impl)),
+        "LegacySavedNativeCompatibilityEffect must remain an empty no-op",
+    )
+    for forbidden in ("ctx.", "add_buff", "Attack", "Shield", "Rush", "Teleport"):
+        check(
+            forbidden not in compatibility_impl,
+            f"saved-season compatibility shim gained behavior: {forbidden}",
+        )
 
     native_refs = [
         effect.get("effect_ref")
@@ -7035,6 +7092,33 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
     manifest = load_json("build_manifest.json")
     manifest_paths = {row.get("path") for row in manifest.get("files", [])}
+    check(
+        not any(
+            isinstance(path, str)
+            and ("yone_e" in path.casefold() or "yone_spirit" in path.casefold())
+            for path in manifest_paths
+        ),
+        "active manifest must not publish retired Yone E/spirit resources",
+    )
+    for runtime_root in (
+        "aseprite_resources",
+        "champion",
+        "icons",
+        "sound",
+        "text",
+        "ui",
+    ):
+        retired_runtime_paths = [
+            path.relative_to(MOD_ROOT).as_posix()
+            for path in (MOD_ROOT / runtime_root).rglob("*")
+            if "yone_e" in path.as_posix().casefold()
+            or "yone_spirit" in path.as_posix().casefold()
+        ]
+        check(
+            not retired_runtime_paths,
+            "active runtime resource tree retains Yone E/spirit paths: "
+            + ", ".join(retired_runtime_paths),
+        )
     for relative in retired_paths:
         check(not (MOD_ROOT / relative).exists(), f"Retired Yone file remains on disk: {relative}")
         check(relative not in manifest_paths, f"Retired Yone file remains in manifest: {relative}")
@@ -7075,7 +7159,16 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.3", "lol_mod version must be 0.10.3")
+    check(mod_info.get("version") == "0.10.4", "lol_mod version must be 0.10.4")
+    check(
+        mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
+        "lol_mod must declare base >=0.5.1",
+    )
+    description = str(mod_info.get("description", ""))
+    check(
+        "0.5.1" in description and "saved" in description.casefold(),
+        "mod metadata must document base 0.5.1 and saved-season compatibility",
+    )
 
     # Preserve the complete official-009 actor contract.  The final-scale
     # face repair is RGB-only, so every native rectangle, duration, alpha
@@ -7520,7 +7613,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "LineRangeProjectile", "EnemyWithoutTower", "lol_yone_w_begin_native",
             "lol_yone_w_collect_hit_native", "lol_yone_w_settle_native",
-            "lol_yone_w_shield_tier_0..5", "GameCtx", "EntityHandle", "54",
+            "lol_yone_w_shield_tier_0..5", "ModService", "EntityHandle", "128", "54",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -7583,20 +7676,36 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }.items():
         check(override.get(source) == {"remapping": remapping, "type": "override"}, f"Yone actor override is missing: {source}")
 
+    yone_w_runtime = rust.split("const YONE_W_STATE_TTL_TICKS", 1)[-1].split(
+        "// Saved seasons embed their champion definitions.", 1
+    )[0]
+    for forbidden in (
+        "query_service",
+        "register_service",
+        "ModService",
+        "c_void",
+        "context_token",
+    ):
+        check(forbidden not in yone_w_runtime, f"Yone W uses unsafe opaque service token: {forbidden}")
     for marker in (
         "const YONE_W_STATE_TTL_TICKS: usize = 120;",
         "const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;",
-        'const YONE_W_CONTEXT_SERVICE_ID: &str = "yone_spirit_cleave_context";',
-        "static NEXT_YONE_W_CONTEXT_TOKEN: AtomicUsize = AtomicUsize::new(1);",
-        "fn yone_w_context_token(ctx: &GameCtx) -> Option<usize>",
-        "ctx.query_service(MOD_ID, YONE_W_CONTEXT_SERVICE_ID, \">=1.0.0\")",
-        "ctx.register_service(",
-        "ModServiceVersion::new(1, 0, 0)",
-        "context_token: usize,",
-        "last_tick_by_context: HashMap<usize, usize>",
-        "fn prepare_for_tick(&mut self, context_token: usize, now: usize)",
-        "state.context_token != context_token",
-        "registry.prepare_for_tick(context_token, now);",
+        "const YONE_W_MAX_STATES: usize = 128;",
+        "caster: EntityHandle,",
+        "player_id: usize,",
+        "team: usize,",
+        "position: Position,",
+        "started_tick: usize,",
+        "if self.states.len() >= YONE_W_MAX_STATES",
+        "self.states.drain(0..remove_count);",
+        "registry.make_room();",
+        "state.caster == caster",
+        "state.player_id == player_id",
+        "state.team == team",
+        "state.position == position",
+        "state.started_tick <= now",
+        ".max_by_key(|state| state.started_tick)",
+        ".max_by_key(|(_, state)| state.started_tick)",
         "struct YoneSpiritCleaveHit {",
         "target_id: usize,",
         "target: EntityHandle,",
@@ -7610,20 +7719,38 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         '"lol_yone_w_collect_hit_native"',
         '"lol_yone_w_settle_native"',
     ):
-        check(marker in rust, f"Yone unified W native isolation/dedup proof is missing: {marker}")
-    check("self.states.clear()" not in rust, "Yone W registry must never clear every GameCtx state bucket on one timeline reset")
+        check(marker in yone_w_runtime or marker in rust, f"Yone unified W isolation/dedup proof is missing: {marker}")
+    check(yone_w_runtime.count("max_by_key") == 2, "Yone W collect/settle must each select the nearest started_tick")
+    check("self.states.clear()" not in yone_w_runtime, "Yone W registry must never clear all state buckets")
     check(
-        rust.count("let Some(context_token) = yone_w_context_token(ctx) else {") >= 3,
-        "Every Yone W GameCtx native callback must resolve its match-local service token",
+        yone_w_runtime.find("registry.make_room();")
+        < yone_w_runtime.find("registry.states.push(YoneSpiritCleaveState"),
+        "Yone W must enforce the 128-ledger bound before pushing a state",
     )
+
+    init_source = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[-1].split(
+        "declare_mod!(init);", 1
+    )[0]
+    extension_guard = re.search(
+        r"if\s+std::env::var\(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV\)"
+        r"\s*\.is_ok_and\(\|value\| value == \"1\"\)\s*\{"
+        r"(?P<body>.*?)\n    \}",
+        init_source,
+        flags=re.DOTALL,
+    )
+    check(extension_guard is not None, "legacy base-0.5.0 extensions must require env=1")
+    extension_body = extension_guard.group("body") if extension_guard else ""
     check(
-        rust.count("registry.prepare_for_tick(context_token, now);") >= 3,
-        "Every Yone W GameCtx native callback must prepare only its context-local registry bucket",
+        "registration.set_extension(LolModExtension);" in extension_body
+        and "registration.set_server_extension(LolDragonServerExtension" in extension_body
+        and init_source.count("registration.set_extension(") == 1
+        and init_source.count("registration.set_server_extension(") == 1,
+        "client/server legacy extensions escaped their env=1 guard",
     )
     for retired_token in (
         "struct YoneWInputGate", "impl ModPlayerInputAi for YoneWInputGate",
         '"lol_yone_w_input_gate"', "registration.add_player_input_ai(YoneWInputGate);",
-        "YoneSoulUnbound", "YONE_SOUL_UNBOUND", "lol_yone_e_",
+        "YoneSoulUnbound", "YONE_SOUL_UNBOUND",
     ):
         check(retired_token not in rust, f"Yone retired input/E runtime must stay removed: {retired_token}")
 
@@ -7975,7 +8102,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.3", "lol_mod version must be 0.10.3")
+    check(mod_info.get("version") == "0.10.4", "lol_mod version must be 0.10.4")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from PIL import Image
@@ -10,6 +11,16 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
+
+LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
+    "lol_yone_e_start_native",
+    "lol_yone_e_begin_return_native",
+    "lol_yone_e_damage_pre_native",
+    "lol_yone_e_damage_post_native",
+    "lol_yone_e_settle_native",
+    "lol_shen_shadow_dash_ai_hint_native",
+    "lol_shen_shadow_dash_taunt_native",
+}
 
 
 def load_yone() -> dict:
@@ -104,16 +115,38 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
     } == {"lol_yone_attack_steel_hit", "lol_yone_attack_azakana_hit"}
 
 
-def test_soul_unbound_is_not_referenced_or_registered() -> None:
+def test_soul_unbound_is_absent_from_active_data_resources_and_manifest() -> None:
     champion_text = (
         MOD / "champion/dual_blader.data_champion"
     ).read_text(encoding="utf-8")
     assert "lol_yone_e_" not in champion_text
     assert "Soul Unbound" not in champion_text
 
+    manifest = json.loads(
+        (MOD / "build_manifest.json").read_text(encoding="utf-8")
+    )
+    manifest_paths = {row["path"].lower() for row in manifest["files"]}
+    assert not any(
+        "yone_e" in path or "yone_spirit" in path
+        for path in manifest_paths
+    )
+
+    for runtime_root in (
+        "aseprite_resources",
+        "champion",
+        "icons",
+        "sound",
+        "text",
+        "ui",
+    ):
+        assert not any(
+            "yone_e" in path.as_posix().lower()
+            or "yone_spirit" in path.as_posix().lower()
+            for path in (MOD / runtime_root).rglob("*")
+        )
+
     rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    for retired in (
-        "lol_yone_e_",
+    for retired_runtime in (
         "YONE_SOUL_UNBOUND",
         "YoneSoulUnboundStartNativeEffect",
         "YoneSoulUnboundBeginReturnNativeEffect",
@@ -122,7 +155,7 @@ def test_soul_unbound_is_not_referenced_or_registered() -> None:
         "YoneSoulUnboundSettleNativeEffect",
         "YoneSoulUnboundInputGate",
     ):
-        assert retired not in rust
+        assert retired_runtime not in rust
 
     for retired_path in (
         "aseprite_resources/effects/yone_spirit#anim.fanim",
@@ -136,6 +169,42 @@ def test_soul_unbound_is_not_referenced_or_registered() -> None:
         "source/processed/yone_followup_vfx_contact_alpha.png",
     ):
         assert not (MOD / retired_path).exists()
+
+
+def test_legacy_saved_native_compatibility_allowlist_is_exact_and_noop() -> None:
+    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    discovered_names = set(
+        re.findall(r"lol_(?:yone_e|shen_shadow_dash)[a-z0-9_]*", rust)
+    )
+    assert discovered_names == LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
+    assert all(rust.count(f'"{name}"') == 1 for name in discovered_names)
+
+    registrations = dict(
+        re.findall(
+            r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
+            r"([A-Za-z0-9_]+),\s*\);",
+            rust,
+        )
+    )
+    assert {
+        name: registrations.get(name)
+        for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
+    } == {
+        name: "LegacySavedNativeCompatibilityEffect"
+        for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
+    }
+
+    compatibility_impl = rust.split(
+        "impl ModEffectType for LegacySavedNativeCompatibilityEffect", 1
+    )[1].split("\nfn init", 1)[0]
+    assert re.search(
+        r"fn apply\([^)]*\) \{\}",
+        compatibility_impl,
+    )
+    assert not any(
+        token in compatibility_impl
+        for token in ("ctx.", "add_buff", "Attack", "Shield", "Rush", "Teleport")
+    )
 
 
 def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
@@ -256,6 +325,71 @@ def test_w_uses_one_target_set_and_one_tiered_shield_settle() -> None:
         ".min(YONE_W_MAX_ENEMY_CHAMPIONS)",
     ):
         assert proof in rust
+
+
+def test_w_runtime_is_bounded_and_matches_the_nearest_cast_without_opaque_services() -> None:
+    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    runtime = rust.split("const YONE_W_STATE_TTL_TICKS", 1)[1].split(
+        "// Saved seasons embed their champion definitions.", 1
+    )[0]
+
+    for forbidden in (
+        "query_service",
+        "register_service",
+        "ModService",
+        "c_void",
+        "context_token",
+    ):
+        assert forbidden not in runtime
+
+    for proof in (
+        "const YONE_W_MAX_STATES: usize = 128;",
+        "caster: EntityHandle,",
+        "player_id: usize,",
+        "team: usize,",
+        "position: Position,",
+        "started_tick: usize,",
+        "if self.states.len() >= YONE_W_MAX_STATES",
+        "self.states.drain(0..remove_count);",
+        "registry.make_room();",
+        "state.caster == caster",
+        "state.player_id == player_id",
+        "state.team == team",
+        "state.position == position",
+        "state.started_tick <= now",
+    ):
+        assert proof in runtime
+
+    # Collect and settle both choose the newest eligible cast for the same
+    # caster/player/team/position identity. Interleaved hidden simulations
+    # therefore cannot attach a hit to an arbitrary older W ledger.
+    assert runtime.count("max_by_key") == 2
+    assert ".max_by_key(|state| state.started_tick)" in runtime
+    assert ".max_by_key(|(_, state)| state.started_tick)" in runtime
+    assert runtime.index("registry.make_room();") < runtime.index(
+        "registry.states.push(YoneSpiritCleaveState"
+    )
+
+
+def test_legacy_base_050_extensions_require_an_explicit_env_value_of_one() -> None:
+    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    assert "const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str =" in rust
+    init = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1].split(
+        "declare_mod!(init);", 1
+    )[0]
+    guard = re.search(
+        r"if\s+std::env::var\(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV\)"
+        r"\s*\.is_ok_and\(\|value\| value == \"1\"\)\s*\{"
+        r"(?P<body>.*?)\n    \}",
+        init,
+        flags=re.DOTALL,
+    )
+    assert guard is not None
+    guard_body = guard.group("body")
+    assert "registration.set_extension(LolModExtension);" in guard_body
+    assert "registration.set_server_extension(LolDragonServerExtension" in guard_body
+    assert init.count("registration.set_extension(") == 1
+    assert init.count("registration.set_server_extension(") == 1
 
 
 def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
@@ -756,12 +890,19 @@ def test_w_actor_sequence_is_planted_and_does_not_reuse_retired_e_lunges() -> No
 
 def test_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.3"
+    assert mod_info["version"] == "0.10.4"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
+    assert "0.5.1" in mod_info["description"]
+    assert "saved" in mod_info["description"].casefold()
+    assert mod_info["dependencies"] == [
+        {"mod_id": "base", "version": ">=0.5.1"}
+    ]
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "v0.10.3" in readme
+    assert "v0.10.4" in readme
+    assert "0.5.1" in readme
+    assert "旧存档" in readme
     assert "skill2=W 凛神斩" in readme
     assert "54个可见战斗身体帧" in readme
 

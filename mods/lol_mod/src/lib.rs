@@ -1,11 +1,9 @@
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::ffi::c_void;
+use std::collections::HashSet;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -15,6 +13,11 @@ use mod_api::MatchType;
 use mod_api::*;
 
 const MOD_ID: &str = "lol_mod";
+// Teamfight Manager 2 base 0.5.1 is newer than the bundled base 0.5.0 SDK.
+// Client/server extensions expose internal game structures outside the stable
+// Mod API ABI, so require an explicit developer opt-in before registering
+// either extension through the stale interface.
+const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
 const DRAGON_EVENT_VERSION: &str = "v1";
 const DRAGON_TELEMETRY_ENV: &str = "LOL_QA_DRAGON_VARIANT_TELEMETRY";
@@ -890,7 +893,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.3;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.4;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1539,37 +1542,7 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
 
 const YONE_W_STATE_TTL_TICKS: usize = 120;
 const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;
-const YONE_W_CONTEXT_SERVICE_ID: &str = "yone_spirit_cleave_context";
-
-static NEXT_YONE_W_CONTEXT_TOKEN: AtomicUsize = AtomicUsize::new(1);
-static YONE_W_CONTEXT_SERVICE_VTABLE_SENTINEL: u8 = 0;
-
-fn yone_w_context_token(ctx: &GameCtx) -> Option<usize> {
-    if let Some(service) = ctx.query_service(MOD_ID, YONE_W_CONTEXT_SERVICE_ID, ">=1.0.0") {
-        let token = service.data as usize;
-        return (token != 0).then_some(token);
-    }
-    let token = NEXT_YONE_W_CONTEXT_TOKEN.fetch_add(1, Ordering::Relaxed);
-    if token == 0 {
-        return None;
-    }
-    let service = ModService::from_raw(
-        token as *mut c_void,
-        (&YONE_W_CONTEXT_SERVICE_VTABLE_SENTINEL as *const u8).cast::<c_void>(),
-    );
-    if ctx.register_service(
-        YONE_W_CONTEXT_SERVICE_ID,
-        ModServiceVersion::new(1, 0, 0),
-        service,
-    ) {
-        return Some(token);
-    }
-    ctx.query_service(MOD_ID, YONE_W_CONTEXT_SERVICE_ID, ">=1.0.0")
-        .and_then(|registered| {
-            let registered_token = registered.data as usize;
-            (registered_token != 0).then_some(registered_token)
-        })
-}
+const YONE_W_MAX_STATES: usize = 128;
 
 #[derive(Clone, Copy, Debug)]
 struct YoneSpiritCleaveHit {
@@ -1580,48 +1553,40 @@ struct YoneSpiritCleaveHit {
 
 #[derive(Debug)]
 struct YoneSpiritCleaveState {
-    context_token: usize,
     caster: EntityHandle,
+    player_id: usize,
+    team: usize,
+    position: Position,
     started_tick: usize,
     hits: Vec<YoneSpiritCleaveHit>,
 }
 
 #[derive(Debug, Default)]
 struct YoneSpiritCleaveRegistry {
-    last_tick_by_context: HashMap<usize, usize>,
     states: Vec<YoneSpiritCleaveState>,
 }
 
 impl YoneSpiritCleaveRegistry {
-    fn prepare_for_tick(&mut self, context_token: usize, now: usize) {
-        // Hidden simulations can interleave with the visible match. Keep each
-        // W hit ledger isolated by its GameCtx service token.
-        if self
-            .last_tick_by_context
-            .get(&context_token)
-            .is_some_and(|last_tick| now < *last_tick)
-        {
-            self.states
-                .retain(|state| state.context_token != context_token);
-        }
-        self.last_tick_by_context.insert(context_token, now);
+    fn prune_expired(&mut self, now: usize) {
+        // Hidden simulations can report lower ticks than the foreground match.
+        // Preserve future-tick states and discard only ledgers that are
+        // definitely stale for the current timeline. This deliberately avoids
+        // GameCtx's opaque service registry, whose base-0.5.0 SDK ABI is unsafe
+        // to call from the base-0.5.1 host.
         self.states.retain(|state| {
-            state.context_token != context_token
-                || (state.started_tick <= now
-                    && now
-                        <= state
-                            .started_tick
-                            .saturating_add(YONE_W_STATE_TTL_TICKS))
+            now < state.started_tick
+                || now <= state.started_tick.saturating_add(YONE_W_STATE_TTL_TICKS)
         });
     }
 
-    fn forget_context_if_idle(&mut self, context_token: usize) {
-        if !self
-            .states
-            .iter()
-            .any(|state| state.context_token == context_token)
-        {
-            self.last_tick_by_context.remove(&context_token);
+    fn make_room(&mut self) {
+        if self.states.len() >= YONE_W_MAX_STATES {
+            let remove_count = self
+                .states
+                .len()
+                .saturating_add(1)
+                .saturating_sub(YONE_W_MAX_STATES);
+            self.states.drain(0..remove_count);
         }
     }
 }
@@ -1637,9 +1602,6 @@ struct YoneSpiritCleaveBeginNativeEffect;
 
 impl ModEffectType for YoneSpiritCleaveBeginNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
-        let Some(context_token) = yone_w_context_token(ctx) else {
-            return;
-        };
         let Some((caster, caster_alive)) = ctx
             .get_entity(caster_id)
             .map(|entity| (entity.handle(), entity.is_alive()))
@@ -1649,18 +1611,35 @@ impl ModEffectType for YoneSpiritCleaveBeginNativeEffect {
         if !caster_alive {
             return;
         }
+        let Some((player_id, team, position, player_caster)) =
+            xayah_player_for_caster(ctx, caster_id)
+        else {
+            return;
+        };
+        if player_caster != caster {
+            return;
+        }
 
         let now = ctx.tick();
         let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
             return;
         };
-        registry.prepare_for_tick(context_token, now);
-        registry
-            .states
-            .retain(|state| state.context_token != context_token || state.caster != caster);
+        registry.prune_expired(now);
+        // Make duplicate begin callbacks for one cast idempotent without
+        // deleting a future state owned by an interleaved hidden simulation.
+        registry.states.retain(|state| {
+            state.caster != caster
+                || state.player_id != player_id
+                || state.team != team
+                || state.position != position
+                || state.started_tick != now
+        });
+        registry.make_room();
         registry.states.push(YoneSpiritCleaveState {
-            context_token,
             caster,
+            player_id,
+            team,
+            position,
             started_tick: now,
             hits: Vec::new(),
         });
@@ -1672,9 +1651,6 @@ struct YoneSpiritCleaveCollectHitNativeEffect;
 
 impl ModEffectType for YoneSpiritCleaveCollectHitNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
-        let Some(context_token) = yone_w_context_token(ctx) else {
-            return;
-        };
         let InputTarget::Target { target_id } = input else {
             return;
         };
@@ -1685,6 +1661,14 @@ impl ModEffectType for YoneSpiritCleaveCollectHitNativeEffect {
             return;
         };
         if !caster_alive {
+            return;
+        }
+        let Some((player_id, team, position, player_caster)) =
+            xayah_player_for_caster(ctx, caster_id)
+        else {
+            return;
+        };
+        if player_caster != caster {
             return;
         }
         let Some((target, target_alive)) = ctx
@@ -1710,12 +1694,19 @@ impl ModEffectType for YoneSpiritCleaveCollectHitNativeEffect {
         let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
             return;
         };
-        registry.prepare_for_tick(context_token, now);
-        let Some(state) = registry.states.iter_mut().find(|state| {
-            state.context_token == context_token
-                && state.caster == caster
-                && state.started_tick <= now
-        }) else {
+        registry.prune_expired(now);
+        let Some(state) = registry
+            .states
+            .iter_mut()
+            .filter(|state| {
+                state.caster == caster
+                    && state.player_id == player_id
+                    && state.team == team
+                    && state.position == position
+                    && state.started_tick <= now
+            })
+            .max_by_key(|state| state.started_tick)
+        else {
             return;
         };
         if let Some(hit) = state
@@ -1739,28 +1730,40 @@ struct YoneSpiritCleaveSettleNativeEffect;
 
 impl ModEffectType for YoneSpiritCleaveSettleNativeEffect {
     fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, _input: InputTarget) {
-        let Some(context_token) = yone_w_context_token(ctx) else {
-            return;
-        };
         let Some(caster) = ctx.get_entity(caster_id).map(|entity| entity.handle()) else {
             return;
         };
+        let Some((player_id, team, position, player_caster)) =
+            xayah_player_for_caster(ctx, caster_id)
+        else {
+            return;
+        };
+        if player_caster != caster {
+            return;
+        }
         let now = ctx.tick();
         let state = {
             let Ok(mut registry) = yone_spirit_cleave_state().lock() else {
                 return;
             };
-            registry.prepare_for_tick(context_token, now);
-            let Some(state_index) = registry.states.iter().position(|state| {
-                state.context_token == context_token
-                    && state.caster == caster
-                    && state.started_tick <= now
-            }) else {
+            registry.prune_expired(now);
+            let Some(state_index) = registry
+                .states
+                .iter()
+                .enumerate()
+                .filter(|(_, state)| {
+                    state.caster == caster
+                        && state.player_id == player_id
+                        && state.team == team
+                        && state.position == position
+                        && state.started_tick <= now
+                })
+                .max_by_key(|(_, state)| state.started_tick)
+                .map(|(index, _)| index)
+            else {
                 return;
             };
-            let state = registry.states.remove(state_index);
-            registry.forget_context_if_idle(context_token);
-            state
+            registry.states.remove(state_index)
         };
 
         if state.hits.is_empty()
@@ -1791,6 +1794,16 @@ impl ModEffectType for YoneSpiritCleaveSettleNativeEffect {
     }
 }
 
+// Saved seasons embed their champion definitions. Keep retired native names
+// resolvable so a pre-W save can enter Ban/Pick on the current runtime without
+// restoring any of the deleted E or legacy Shen behavior.
+#[derive(Clone, Copy, Debug, Default)]
+struct LegacySavedNativeCompatibilityEffect;
+
+impl ModEffectType for LegacySavedNativeCompatibilityEffect {
+    fn apply(&self, _ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, _input: InputTarget) {}
+}
+
 fn init(_ctx: &GameCtx) -> ModRegistration {
     let mut registration = ModRegistration::new(MOD_ID);
     registration.add_native_effect(
@@ -1817,10 +1830,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             change: XayahFeatherStateChange::Clear,
         },
     );
-    registration.add_native_effect(
-        "lol_yone_w_begin_native",
-        YoneSpiritCleaveBeginNativeEffect,
-    );
+    registration.add_native_effect("lol_yone_w_begin_native", YoneSpiritCleaveBeginNativeEffect);
     registration.add_native_effect(
         "lol_yone_w_collect_hit_native",
         YoneSpiritCleaveCollectHitNativeEffect,
@@ -1829,11 +1839,41 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         "lol_yone_w_settle_native",
         YoneSpiritCleaveSettleNativeEffect,
     );
+    registration.add_native_effect(
+        "lol_yone_e_start_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_begin_return_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_damage_pre_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_damage_post_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_settle_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_ai_hint_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_taunt_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
     registration.add_player_input_ai(XayahFeatherInputGate);
-    registration.set_extension(LolModExtension);
-    registration.set_server_extension(LolDragonServerExtension {
-        announced: Mutex::new(HashSet::new()),
-    });
+    if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
+        registration.set_extension(LolModExtension);
+        registration.set_server_extension(LolDragonServerExtension {
+            announced: Mutex::new(HashSet::new()),
+        });
+    }
     registration
 }
 

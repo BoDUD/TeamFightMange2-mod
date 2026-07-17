@@ -23,9 +23,9 @@
 
 ## 状态隔离与退役逻辑
 
-- [x] W账本按每个 `GameCtx` 的服务token隔离，并以施法者 `EntityHandle` 区分；后台模拟、重复实体ID和时间线回退不会串账。
+- [x] W账本不调用跨版本不安全的 `ModService`；最多保留128条，并以施法者 `EntityHandle`、player、team、position和最近的 `started_tick` 匹配。
 - [x] 目标以 `target_id + EntityHandle` 去重；记录发生在伤害前，因此致死命中仍能获得护盾。
-- [x] 仓库、运行时注册、技能数据和发布清单均不得包含 `lol_yone_e_*`、`YoneSoulUnbound`、`yone_spirit` 或 `yone_e_icon_source`。
+- [x] 当前技能数据、素材路径和发布清单不得包含 `YoneSoulUnbound`、`yone_spirit` 或 `yone_e_icon_source`；仅允许五个精确的 `lol_yone_e_*` 名称作为旧存档无行为兼容别名，不能恢复E逻辑。
 
 ## 战斗脸部与视觉合同
 

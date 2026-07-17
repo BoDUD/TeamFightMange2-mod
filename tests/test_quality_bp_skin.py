@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
 
 
-def test_bp_skin_uses_an_imagegen_background_without_replacing_interactions() -> None:
+def test_bp_skin_assets_are_audited_but_legacy_overrides_stay_disabled() -> None:
     qa = json.loads(
         (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(
             encoding="utf-8"
@@ -28,10 +28,19 @@ def test_bp_skin_uses_an_imagegen_background_without_replacing_interactions() ->
     assert qa["layout"]["restored_native_sha256"] == qa["layout"][
         "native_baseline_normalized_sha256"
     ]
-    assert override["asset/base/ui/layout/banpick/layout"] == {
-        "remapping": "asset/lol_mod/ui/layout/banpick/layout",
-        "type": "override",
-    }
+    for legacy_bp_override in (
+        "asset/base/ui/layout/banpick/blue_pick_slot",
+        "asset/base/ui/layout/banpick/red_pick_slot",
+        "asset/base/ui/layout/banpick/champion_slot",
+        "asset/base/ui/layout/banpick/layout",
+    ):
+        assert legacy_bp_override not in override
+    assert qa["static_checks"][
+        "legacy_bp_component_overrides_disabled_for_base_0_5_1"
+    ] is True
+    assert qa["static_checks"][
+        "legacy_bp_layout_override_disabled_for_base_0_5_1"
+    ] is True
     assert qa["source"]["path"].endswith("lol_bp_background_v2_source.png")
     assert not (MOD / "source/imagegen/ui/lol_bp_background_v1_source.png").exists()
 
@@ -90,7 +99,7 @@ def test_bp_timer_uses_imagegen_assets_inside_native_visibility_scope() -> None:
             assert image.getchannel("A").getextrema()[0] == 0
 
 
-def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
+def test_bp_component_skin_artifacts_preserve_component_geometry() -> None:
     qa = json.loads(
         (MOD / "qa" / "quality_bp_skin_imagegen_pack.json").read_text(encoding="utf-8")
     )
@@ -98,10 +107,7 @@ def test_bp_component_skin_is_local_and_preserves_component_geometry() -> None:
     layout = (MOD / "ui/layout/banpick/layout.ui").read_text(encoding="utf-8")
     champion_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(encoding="utf-8")
     style = (MOD / "style/bp_controls.style").read_text(encoding="utf-8")
-    assert override["asset/base/ui/layout/banpick/champion_slot"] == {
-        "remapping": "asset/lol_mod/ui/layout/banpick/champion_slot",
-        "type": "override",
-    }
+    assert "asset/base/ui/layout/banpick/champion_slot" not in override
     assert "asset/base/style/main" not in override
     assert 'asset/lol_mod/style/bp_controls#dropdown' in layout
     assert 'asset/lol_mod/style/bp_controls#text_edit' in layout

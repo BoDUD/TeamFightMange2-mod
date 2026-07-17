@@ -6,7 +6,8 @@
 - [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.
 - [x] All 54 visible battle-body frames plus the focused UI faces use a warm three-tone plane and exactly one two-pixel eye/brow cue; the idempotent pass changes RGB only and preserves every alpha bbox.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
-- [x] The unstable Soul Unbound runtime is not registered or referenced by champion data.
+- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.
+- [x] W keeps at most 128 ledgers, matches caster/player/team/position to the nearest eligible `started_tick`, and does not call opaque `ModService` APIs across the base 0.5.0 SDK / base 0.5.1 host boundary.
 - [x] W keeps Yone planted, plays one full caster-following crescent, resolves one instant wide forward hitbox, and settles exactly one shield from that same deduplicated target set.
 - [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.
 - [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.

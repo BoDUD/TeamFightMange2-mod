@@ -3,13 +3,13 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.3",
-  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.3 uses Yone's three Mod API 0.8 active slots as Q/W/R. W Spirit Cleave is one planted wide slash and one deduplicated target set: any enemy hit grants a base shield, every enemy champion hit raises its tier through the normal five-champion roster, and one delayed settle applies the shield exactly once. Retired Soul Unbound state, body anchors, return AI and E damage ledgers are removed. W attack-speed timing remains a documented fixed-cooldown API approximation. The battle actor keeps all 13 native tags, rectangles and timings while an idempotent RGB-only final-scale pass gives all 54 visible body frames a readable warm face and two-pixel eye cue without changing alpha geometry. Official audio and the existing Rift quality and League-style UI pack remain intact. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "version": "0.10.4",
+  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.4 targets Teamfight Manager 2 base 0.5.1 and keeps Yone's active contract Q/W/R. It fixes the post-draft crash from saved seasons that embed retired Yone E and Shen native-effect names by resolving exactly those seven saved references through a no-op compatibility effect; active champion data, resources and the release manifest still contain no Yone E implementation. W Spirit Cleave keeps one bounded, deduplicated target ledger and settles one shield, while avoiding opaque ModService calls across the base 0.5.0 SDK to 0.5.1 host boundary. Legacy base-0.5.0 client/server extensions and four Ban/Pick layout overrides are disabled by default. Official audio, the native actor contract and the readable 54-frame battle face remain intact.",
   "last_updated": "2026-07-17",
   "dependencies": [
     {
       "mod_id": "base",
-      "version": ">=0.5.0"
+      "version": ">=0.5.1"
     }
   ]
 }
