@@ -7051,11 +7051,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(
             quality.get("dark_feature_pixels") == 1
             and quality.get("dark_feature_adjacent_pair") is False
-            and quality.get("warm_pixels", 0) >= 18
+            and quality.get("warm_pixels", 0) >= 2
             and isinstance(warm_bbox, list)
             and len(warm_bbox) == 4
-            and warm_bbox[2] - warm_bbox[0] >= 5
-            and warm_bbox[3] - warm_bbox[1] >= 5
             and quality.get("near_white_pixels") == 0,
             f"Yone final-scale face is unreadable in {frame_name}: {quality}",
         )
@@ -7152,8 +7150,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
 
     # Preserve the complete official-009 actor contract. The final-scale face
-    # template may redraw pixels inside the existing actor bbox, but every
-    # native rectangle, duration, overall bbox and battle-scale anchor stays.
+    # repaint changes RGB only; every alpha pixel, native rectangle, duration,
+    # overall bbox and battle-scale anchor stays fixed.
     expected_actor_contract: dict[str, tuple[list[float], list[tuple[int, int, int, int]]]] = {
         "skill2": ([0.060000002], [(1970, 0, 31, 49)]),
         "hit": ([0.1], [(874, 0, 43, 53)]),
@@ -7353,7 +7351,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "final-scale 1x tapered profile repair; native rectangles stay fixed and core foot anchors match official Dual Blader baselines",
+        == "source-preserving 1x profile-eye repair; alpha geometry stays fixed and the card camera keeps feet above the native divider",
         "Yone face-repaint policy changed",
     )
     check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
@@ -7654,10 +7652,29 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         style
         == {
             "face": {"x": 2, "y": -32},
-            "center": {"x": 0, "y": -8},
-            "banpick_center": {"x": 0, "y": -8},
+            "center": {"x": 0, "y": -12},
+            "banpick_center": {"x": 0, "y": -12},
         },
         "Yone champion_view must keep the audited face/card/BP cameras",
+    )
+    idle_data = actor_anims.get("idle", {}).get("frames", [{}])[0].get("data", {})
+    idle_bbox = None
+    if actor_sheet_path.is_file():
+        card_sheet = Image.open(actor_sheet_path).convert("RGBA")
+        idle_crop = card_sheet.crop(
+            (
+                int(idle_data.get("x", 0)),
+                int(idle_data.get("y", 0)),
+                int(idle_data.get("x", 0)) + int(idle_data.get("w", 0)),
+                int(idle_data.get("y", 0)) + int(idle_data.get("h", 0)),
+            )
+        )
+        idle_bbox = idle_crop.getchannel("A").getbbox()
+    center_y = int(style.get("center", {}).get("y", 0))
+    last_card_pixel = None if idle_bbox is None else 30 + center_y + 2 * idle_bbox[3] - 1
+    check(
+        last_card_pixel is not None and last_card_pixel <= 95,
+        f"Yone feet/weapon overlap the 2x card viewport/divider: last y={last_card_pixel}",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")

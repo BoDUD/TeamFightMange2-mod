@@ -1246,9 +1246,9 @@
             43
           ],
           "alpha_bbox": [
-            1,
             2,
-            28,
+            2,
+            29,
             40
           ],
           "visible_size": [
@@ -1266,9 +1266,9 @@
             45
           ],
           "alpha_bbox": [
-            1,
+            2,
             0,
-            28,
+            29,
             41
           ],
           "visible_size": [
@@ -1286,13 +1286,13 @@
             53
           ],
           "alpha_bbox": [
-            17,
+            18,
             7,
             56,
             45
           ],
           "visible_size": [
-            39,
+            38,
             38
           ],
           "bottom_clearance": 8
@@ -1306,13 +1306,13 @@
             55
           ],
           "alpha_bbox": [
-            17,
+            18,
             8,
             57,
             46
           ],
           "visible_size": [
-            40,
+            39,
             38
           ],
           "bottom_clearance": 9
@@ -1326,13 +1326,13 @@
             51
           ],
           "alpha_bbox": [
-            16,
+            17,
             6,
             54,
             44
           ],
           "visible_size": [
-            38,
+            37,
             38
           ],
           "bottom_clearance": 7
@@ -1751,13 +1751,13 @@
           ],
           "alpha_bbox": [
             1,
-            25,
+            26,
             40,
             37
           ],
           "visible_size": [
             39,
-            12
+            11
           ],
           "bottom_clearance": 2
         },
@@ -1860,7 +1860,7 @@
     "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed"
   },
   "face_readability": {
-    "policy": "final-scale 1x tapered profile repair; native rectangles stay fixed and core foot anchors match official Dual Blader baselines",
+    "policy": "source-preserving 1x profile-eye repair; alpha geometry stays fixed and the card camera keeps feet above the native divider",
     "feature_rgba": [
       54,
       24,
@@ -1882,17 +1882,17 @@
           23
         ],
         "local_face_bbox": [
-          18,
+          19,
           10,
-          26,
+          27,
           18
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 16,
         "warm_bbox": [
-          20,
+          19,
           10,
-          25,
-          16
+          24,
+          15
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -1914,16 +1914,16 @@
           22
         ],
         "local_face_bbox": [
-          19,
+          20,
           9,
-          27,
+          28,
           17
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
-          21,
+          20,
           9,
-          26,
+          25,
           15
         ],
         "dark_feature_pixels": 1,
@@ -1946,17 +1946,17 @@
           22
         ],
         "local_face_bbox": [
-          17,
-          7,
-          25,
-          15
+          18,
+          6,
+          26,
+          14
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 17,
         "warm_bbox": [
           19,
-          7,
+          8,
           24,
-          13
+          14
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -1978,17 +1978,17 @@
           22
         ],
         "local_face_bbox": [
-          17,
+          18,
           8,
-          25,
+          26,
           16
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          19,
+          18,
           8,
-          24,
-          14
+          23,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2010,16 +2010,16 @@
           21
         ],
         "local_face_bbox": [
-          23,
+          24,
           12,
-          31,
+          32,
           20
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 16,
         "warm_bbox": [
-          25,
-          12,
-          30,
+          24,
+          13,
+          29,
           18
         ],
         "dark_feature_pixels": 1,
@@ -2042,17 +2042,17 @@
           20
         ],
         "local_face_bbox": [
-          21,
+          22,
           11,
-          29,
+          30,
           19
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 13,
         "warm_bbox": [
-          23,
-          11,
-          28,
-          17
+          22,
+          12,
+          27,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2074,17 +2074,17 @@
           19
         ],
         "local_face_bbox": [
-          23,
-          4,
-          31,
-          12
+          26,
+          5,
+          32,
+          13
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 14,
         "warm_bbox": [
-          25,
-          4,
-          30,
-          10
+          26,
+          7,
+          31,
+          13
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2106,17 +2106,17 @@
           20
         ],
         "local_face_bbox": [
-          23,
-          6,
+          24,
+          8,
           31,
-          14
+          16
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 11,
         "warm_bbox": [
-          25,
-          6,
+          26,
+          8,
           30,
-          12
+          13
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2138,17 +2138,17 @@
           21
         ],
         "local_face_bbox": [
-          26,
+          27,
           9,
-          34,
+          35,
           17
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 13,
         "warm_bbox": [
-          28,
+          29,
           9,
-          33,
-          15
+          34,
+          14
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2170,15 +2170,15 @@
           20
         ],
         "local_face_bbox": [
-          24,
-          7,
+          25,
+          9,
           32,
-          15
+          17
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 8,
         "warm_bbox": [
-          26,
-          7,
+          27,
+          9,
           31,
           13
         ],
@@ -2202,17 +2202,17 @@
           19
         ],
         "local_face_bbox": [
-          18,
+          19,
           11,
-          26,
+          27,
           19
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 19,
         "warm_bbox": [
-          20,
+          19,
           11,
-          25,
-          17
+          26,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2234,17 +2234,17 @@
           20
         ],
         "local_face_bbox": [
-          24,
-          7,
-          32,
-          15
-        ],
-        "warm_pixels": 21,
-        "warm_bbox": [
           26,
-          7,
-          31,
-          13
+          9,
+          33,
+          17
+        ],
+        "warm_pixels": 10,
+        "warm_bbox": [
+          28,
+          9,
+          32,
+          14
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2266,17 +2266,17 @@
           22
         ],
         "local_face_bbox": [
-          26,
+          27,
           8,
           34,
           16
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          28,
+          27,
           8,
-          33,
-          14
+          32,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2299,16 +2299,16 @@
         ],
         "local_face_bbox": [
           25,
-          6,
+          9,
           33,
-          14
+          17
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 16,
         "warm_bbox": [
-          27,
-          6,
-          32,
-          12
+          25,
+          10,
+          30,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2330,17 +2330,17 @@
           21
         ],
         "local_face_bbox": [
-          20,
-          7,
-          28,
-          15
-        ],
-        "warm_pixels": 21,
-        "warm_bbox": [
           22,
           7,
+          30,
+          15
+        ],
+        "warm_pixels": 16,
+        "warm_bbox": [
+          22,
+          9,
           27,
-          13
+          15
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2362,17 +2362,17 @@
           21
         ],
         "local_face_bbox": [
-          30,
+          31,
           11,
-          38,
+          39,
           19
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 24,
         "warm_bbox": [
-          32,
+          31,
           11,
-          37,
-          17
+          39,
+          19
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2394,17 +2394,17 @@
           21
         ],
         "local_face_bbox": [
-          22,
-          8,
-          30,
-          16
-        ],
-        "warm_pixels": 21,
-        "warm_bbox": [
           24,
-          8,
-          29,
-          14
+          7,
+          32,
+          15
+        ],
+        "warm_pixels": 17,
+        "warm_bbox": [
+          25,
+          9,
+          30,
+          15
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2426,17 +2426,17 @@
           22
         ],
         "local_face_bbox": [
-          25,
+          26,
           10,
-          33,
+          34,
           18
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          27,
-          10,
-          32,
-          16
+          26,
+          11,
+          31,
+          17
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2458,17 +2458,17 @@
           22
         ],
         "local_face_bbox": [
-          16,
+          17,
           3,
-          24,
+          25,
           11
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 25,
         "warm_bbox": [
-          18,
-          3,
+          17,
+          4,
           23,
-          9
+          11
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2490,17 +2490,17 @@
           28
         ],
         "local_face_bbox": [
-          16,
+          17,
           15,
-          24,
+          25,
           23
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 24,
         "warm_bbox": [
-          18,
-          15,
-          23,
-          21
+          17,
+          17,
+          22,
+          23
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2522,17 +2522,17 @@
           23
         ],
         "local_face_bbox": [
-          14,
+          15,
           9,
-          22,
+          23,
           17
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
-          16,
-          9,
-          21,
-          15
+          15,
+          10,
+          20,
+          17
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2555,16 +2555,16 @@
         ],
         "local_face_bbox": [
           12,
+          19,
           20,
-          20,
-          28
+          27
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 6,
         "warm_bbox": [
           14,
-          20,
           19,
-          26
+          17,
+          23
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2586,17 +2586,17 @@
           35
         ],
         "local_face_bbox": [
-          26,
+          27,
           19,
-          34,
+          35,
           27
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 16,
         "warm_bbox": [
-          28,
-          19,
-          33,
-          25
+          27,
+          20,
+          32,
+          26
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2618,17 +2618,17 @@
           43
         ],
         "local_face_bbox": [
-          33,
-          27,
-          41,
-          35
+          34,
+          29,
+          42,
+          37
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
-          35,
-          27,
+          34,
+          29,
           40,
-          33
+          35
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2650,17 +2650,17 @@
           51
         ],
         "local_face_bbox": [
-          50,
+          51,
           37,
-          58,
+          59,
           45
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 17,
         "warm_bbox": [
           52,
           37,
           57,
-          43
+          42
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2682,17 +2682,17 @@
           63
         ],
         "local_face_bbox": [
-          42,
+          43,
           45,
-          50,
+          51,
           53
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          44,
-          45,
+          43,
+          46,
           49,
-          51
+          53
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2714,17 +2714,17 @@
           28
         ],
         "local_face_bbox": [
+          16,
           14,
-          14,
-          22,
+          24,
           22
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
           16,
           14,
           21,
-          20
+          21
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2746,17 +2746,17 @@
           24
         ],
         "local_face_bbox": [
-          26,
+          32,
           13,
-          34,
+          39,
           21
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
-          28,
-          13,
-          33,
-          19
+          32,
+          15,
+          37,
+          21
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2766,29 +2766,29 @@
       },
       "skill2_attack[0]": {
         "body_bbox": [
-          1,
           2,
-          28,
+          2,
+          29,
           40
         ],
         "face_window": [
-          6,
+          7,
           2,
-          27,
+          28,
           24
         ],
         "local_face_bbox": [
-          19,
+          21,
           6,
-          27,
+          28,
           14
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
           21,
           6,
           26,
-          12
+          14
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2798,29 +2798,29 @@
       },
       "skill2_attack[1]": {
         "body_bbox": [
-          1,
+          2,
           0,
-          28,
+          29,
           41
         ],
         "face_window": [
-          6,
+          7,
           0,
-          27,
+          28,
           24
         ],
         "local_face_bbox": [
-          19,
+          21,
           7,
-          27,
+          28,
           15
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
           21,
           7,
           26,
-          13
+          15
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2830,29 +2830,29 @@
       },
       "skill2_attack[2]": {
         "body_bbox": [
-          17,
+          18,
           7,
           56,
           45
         ],
         "face_window": [
-          24,
+          25,
           7,
           55,
           29
         ],
         "local_face_bbox": [
-          33,
+          35,
           11,
-          41,
+          43,
           19
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
           35,
           11,
           40,
-          17
+          19
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2862,29 +2862,29 @@
       },
       "skill2_attack[3]": {
         "body_bbox": [
-          17,
+          18,
           8,
           57,
           46
         ],
         "face_window": [
-          24,
+          25,
           8,
           56,
           30
         ],
         "local_face_bbox": [
-          33,
+          35,
           12,
-          41,
+          43,
           20
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
           35,
           12,
           40,
-          18
+          20
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2894,29 +2894,29 @@
       },
       "skill2_attack[4]": {
         "body_bbox": [
-          16,
+          17,
           6,
           54,
           44
         ],
         "face_window": [
-          23,
+          24,
           6,
           53,
           28
         ],
         "local_face_bbox": [
-          32,
+          34,
           10,
-          40,
+          42,
           18
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
           34,
           10,
           39,
-          16
+          18
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2938,17 +2938,17 @@
           31
         ],
         "local_face_bbox": [
-          25,
+          26,
           20,
-          33,
+          34,
           28
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 13,
         "warm_bbox": [
-          27,
-          20,
-          32,
-          26
+          26,
+          21,
+          30,
+          27
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -2970,17 +2970,17 @@
           31
         ],
         "local_face_bbox": [
-          32,
+          33,
           20,
-          40,
+          41,
           28
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 15,
         "warm_bbox": [
-          34,
+          33,
           20,
-          39,
-          26
+          38,
+          25
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3002,17 +3002,17 @@
           33
         ],
         "local_face_bbox": [
-          25,
-          17,
-          33,
-          25
-        ],
-        "warm_pixels": 21,
-        "warm_bbox": [
           27,
           17,
+          35,
+          25
+        ],
+        "warm_pixels": 17,
+        "warm_bbox": [
+          27,
+          19,
           32,
-          23
+          25
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3034,17 +3034,17 @@
           27
         ],
         "local_face_bbox": [
-          28,
-          12,
-          36,
-          20
+          30,
+          14,
+          38,
+          22
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 13,
         "warm_bbox": [
           30,
-          12,
+          14,
           35,
-          18
+          20
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3066,17 +3066,17 @@
           23
         ],
         "local_face_bbox": [
-          25,
-          9,
-          33,
-          17
-        ],
-        "warm_pixels": 21,
-        "warm_bbox": [
-          27,
-          9,
+          24,
+          10,
           32,
-          15
+          18
+        ],
+        "warm_pixels": 17,
+        "warm_bbox": [
+          24,
+          11,
+          32,
+          16
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3098,16 +3098,16 @@
           21
         ],
         "local_face_bbox": [
-          32,
+          39,
           10,
-          40,
+          47,
           18
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 5,
         "warm_bbox": [
-          34,
-          10,
           39,
+          11,
+          43,
           16
         ],
         "dark_feature_pixels": 1,
@@ -3130,17 +3130,17 @@
           24
         ],
         "local_face_bbox": [
-          26,
-          14,
-          34,
-          22
+          28,
+          13,
+          36,
+          21
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 23,
         "warm_bbox": [
           28,
           14,
-          33,
-          20
+          34,
+          21
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3162,17 +3162,17 @@
           30
         ],
         "local_face_bbox": [
-          30,
-          14,
-          38,
-          22
+          31,
+          18,
+          39,
+          26
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 3,
         "warm_bbox": [
-          32,
-          14,
+          35,
+          21,
           37,
-          20
+          23
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3194,17 +3194,17 @@
           35
         ],
         "local_face_bbox": [
-          23,
+          24,
           22,
-          31,
+          32,
           30
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 13,
         "warm_bbox": [
           25,
           22,
           30,
-          28
+          27
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3226,17 +3226,17 @@
           30
         ],
         "local_face_bbox": [
-          25,
+          27,
           13,
-          33,
+          35,
           21
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 18,
         "warm_bbox": [
           27,
           13,
           32,
-          19
+          20
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3258,17 +3258,17 @@
           27
         ],
         "local_face_bbox": [
-          29,
+          30,
           14,
-          37,
+          38,
           22
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 23,
         "warm_bbox": [
-          31,
+          30,
           14,
           36,
-          20
+          22
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3290,17 +3290,17 @@
           27
         ],
         "local_face_bbox": [
-          39,
+          40,
           13,
-          47,
+          48,
           21
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 20,
         "warm_bbox": [
-          41,
+          40,
           13,
           46,
-          19
+          20
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3322,17 +3322,17 @@
           30
         ],
         "local_face_bbox": [
-          31,
+          32,
           12,
-          39,
+          40,
           20
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 19,
         "warm_bbox": [
-          33,
+          32,
           12,
-          38,
-          18
+          37,
+          20
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3355,16 +3355,16 @@
         ],
         "local_face_bbox": [
           17,
-          16,
+          17,
           25,
-          24
+          25
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 30,
         "warm_bbox": [
-          19,
-          16,
+          17,
+          17,
           24,
-          22
+          25
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3386,17 +3386,17 @@
           32
         ],
         "local_face_bbox": [
-          19,
-          19,
-          27,
-          27
+          20,
+          22,
+          28,
+          30
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 23,
         "warm_bbox": [
-          21,
-          19,
-          26,
-          25
+          20,
+          22,
+          27,
+          30
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3418,17 +3418,17 @@
           31
         ],
         "local_face_bbox": [
-          18,
+          19,
           22,
-          26,
+          27,
           30
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 22,
         "warm_bbox": [
-          20,
+          19,
           22,
           25,
-          28
+          30
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3450,16 +3450,16 @@
           26
         ],
         "local_face_bbox": [
-          26,
-          20,
-          34,
+          24,
+          21,
+          32,
           26
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 12,
         "warm_bbox": [
-          28,
-          20,
-          33,
+          24,
+          21,
+          29,
           26
         ],
         "dark_feature_pixels": 1,
@@ -3482,16 +3482,16 @@
           29
         ],
         "local_face_bbox": [
-          26,
-          23,
-          34,
+          21,
+          25,
+          29,
           29
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 12,
         "warm_bbox": [
-          28,
-          23,
-          33,
+          21,
+          25,
+          25,
           29
         ],
         "dark_feature_pixels": 1,
@@ -3514,14 +3514,14 @@
           31
         ],
         "local_face_bbox": [
-          16,
+          17,
           26,
-          24,
+          25,
           31
         ],
-        "warm_pixels": 20,
+        "warm_pixels": 23,
         "warm_bbox": [
-          18,
+          17,
           26,
           23,
           31
@@ -3546,16 +3546,16 @@
           31
         ],
         "local_face_bbox": [
-          17,
+          18,
           26,
-          25,
+          26,
           31
         ],
-        "warm_pixels": 20,
+        "warm_pixels": 24,
         "warm_bbox": [
-          19,
+          18,
           26,
-          24,
+          25,
           31
         ],
         "dark_feature_pixels": 1,
@@ -3567,25 +3567,25 @@
       "dead[7]": {
         "body_bbox": [
           1,
-          25,
+          26,
           40,
           37
         ],
         "face_window": [
           8,
-          25,
+          26,
           39,
           32
         ],
         "local_face_bbox": [
-          18,
+          19,
           26,
-          26,
+          27,
           32
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 26,
         "warm_bbox": [
-          20,
+          19,
           26,
           25,
           32
@@ -3612,17 +3612,17 @@
           43
         ],
         "local_face_bbox": [
-          40,
-          25,
-          48,
-          33
+          41,
+          24,
+          49,
+          32
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 32,
         "warm_bbox": [
-          42,
-          25,
+          41,
+          24,
           47,
-          31
+          32
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3644,17 +3644,17 @@
           44
         ],
         "local_face_bbox": [
-          29,
-          22,
-          37,
-          30
+          30,
+          21,
+          38,
+          29
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 32,
         "warm_bbox": [
-          31,
-          22,
+          30,
+          21,
           36,
-          28
+          29
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3676,17 +3676,17 @@
           55
         ],
         "local_face_bbox": [
-          45,
-          27,
-          53,
-          35
+          46,
+          26,
+          54,
+          34
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 25,
         "warm_bbox": [
-          47,
+          46,
           27,
-          52,
-          33
+          51,
+          34
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,

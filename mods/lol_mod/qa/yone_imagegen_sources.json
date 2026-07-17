@@ -3,7 +3,7 @@
   "champion": "Yone",
   "generator": "built-in image_gen",
   "generated_on": "2026-07-17",
-  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent tapered 1x profile template, and official Dual Blader core foot baselines",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent source-preserving 1x profile-eye repaint, and official Dual Blader core foot baselines",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
@@ -358,7 +358,7 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "7601d5ca2098847a8e6ae836b75b11ca852a92d3d67aecea89b76e1506aa8e0d",
+      "sha256": "0d6556676a15169554707599d80eb1487f6c3ba3873d13613d2eba2591a324cb",
       "alpha_bbox": [
         46,
         0,
@@ -602,7 +602,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "5f497105084748ac5d0fcfd5eaab91df319f424e46f24ad62cb8a82b032012bb",
+      "sha256": "41124871b4fcb18323bb63b1a846019d012ddc01f264c75644588f548c69fd67",
       "alpha_bbox": [
         5,
         8,
@@ -621,7 +621,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "684b6b83f82a814e54337fad939d2fc7d5a0ef7a461873553e1ceb95a5ad10cd",
+      "sha256": "fe3063724c6e2b43e31b3398efe9a20b73f9c1f5bb83acfc21f2d690adebc2a7",
       "alpha_bbox": [
         10,
         8,
@@ -640,7 +640,7 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "363a502d1e1c48e4b6dada8022d251b140085c78a920702d0868818ceb186fc0",
+      "sha256": "22bef7f64539c923ab4a190e76e3f3751f531e63aaefb8ac05a53bedde1038ba",
       "alpha_bbox": [
         5,
         6,
@@ -659,7 +659,7 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "279987361b67085f2d9d0be35920b8bb402a86999288d002e558905be77489b0",
+      "sha256": "fa96b764f2317b6fce9103fb23b70f0e906a85b293a13a5d331d1077eebea4a6",
       "alpha_bbox": [
         7,
         12,
