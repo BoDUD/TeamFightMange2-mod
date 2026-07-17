@@ -7049,27 +7049,73 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     single_eye_profile_frames = set(
         face_readability.get("single_eye_profile_frames", [])
     )
+    expected_profile_frames = {"skill[2]", "skill[4]", "ult[3]", "ult[5]", "ult[7]"}
+    check(
+        single_eye_profile_frames == expected_profile_frames,
+        f"Yone single-eye profile exceptions changed: {single_eye_profile_frames}",
+    )
     check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
     for frame_name, quality in face_rows.items():
         warm_bbox = quality.get("warm_bbox")
+        eye_neighbors = quality.get("eye_warm_neighbor_counts")
         separated_eyes = (
             quality.get("dark_feature_pixels") == 2
             and quality.get("dark_feature_horizontal_pair") is True
-            and 2 <= quality.get("dark_feature_horizontal_separation", 0) <= 4
+            and quality.get("dark_feature_horizontal_separation") == 2
             and quality.get("dark_feature_adjacent_pair") is False
+        )
+        structured_face = (
+            quality.get("template_sparse") is True
+            and quality.get("mouth_pixels") == 1
+            and quality.get("mouth_below_eyes") is True
+            and quality.get("eye_under_skin") is True
+            and isinstance(eye_neighbors, list)
+            and len(eye_neighbors) == 2
+            and min(eye_neighbors, default=0) >= 3
         )
         allowed_profile_eye = (
             frame_name in single_eye_profile_frames
             and quality.get("dark_feature_pixels") == 1
         )
         check(
-            (separated_eyes or allowed_profile_eye)
+            ((separated_eyes and structured_face) or allowed_profile_eye)
             and quality.get("warm_pixels", 0) >= 2
             and isinstance(warm_bbox, list)
             and len(warm_bbox) == 4
             and quality.get("near_white_pixels") == 0,
             f"Yone final-scale face is unreadable in {frame_name}: {quality}",
         )
+    ui_face_rows = face_readability.get("ui_surfaces", {})
+    check(
+        set(ui_face_rows) == {"compact", "scoreboard", "grid"},
+        f"Yone UI face QA surfaces changed: {set(ui_face_rows)}",
+    )
+    for surface, quality in ui_face_rows.items():
+        eye_neighbors = quality.get("eye_warm_neighbor_counts")
+        check(
+            quality.get("dark_feature_pixels") == 2
+            and quality.get("dark_feature_horizontal_pair") is True
+            and quality.get("dark_feature_horizontal_separation") == 2
+            and quality.get("dark_feature_adjacent_pair") is False
+            and quality.get("mouth_pixels") == 1
+            and quality.get("mouth_below_eyes") is True
+            and quality.get("eye_under_skin") is True
+            and quality.get("template_sparse") is True
+            and isinstance(eye_neighbors, list)
+            and len(eye_neighbors) == 2
+            and min(eye_neighbors, default=0) >= 3
+            and quality.get("near_white_pixels") == 0,
+            f"Yone tapered face is unreadable on {surface}: {quality}",
+        )
+        check(
+            quality.get("template_row_counts") == [1, 3, 5, 3, 3, 2],
+            f"Yone {surface} tapered-face row profile changed: {quality}",
+        )
+    check(
+        face_rows.get("idle[0]", {}).get("template_row_counts")
+        == [1, 3, 5, 3, 3, 2],
+        "Yone idle[0] tapered-face row profile changed",
+    )
 
     retired_paths = (
         "aseprite_resources/effects/yone_spirit#anim.fanim",
@@ -7364,10 +7410,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "source-preserving 1x separated-eye repair; alpha geometry stays fixed and the 2x card camera keeps feet above the native divider",
+        == "source-preserving 1x tapered-face repair; isolated eyes, nose and mouth stay inside unchanged alpha geometry",
         "Yone face-repaint policy changed",
     )
     check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
+    check(face_contract.get("mouth_rgba") == [118, 46, 51, 255], "Yone facial mouth color changed")
 
     expected_vfx: dict[str, dict[str, tuple[int, float | tuple[float, ...], bool]]] = {
         "yone_attack": {"steel_hit": (4, 0.05, True), "azakana_hit": (4, 0.05, True)},

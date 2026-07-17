@@ -19,10 +19,11 @@ ACTOR_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
 ACTOR_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
 CHAMPION_VIEW = MOD / "style/champion_view.champion_view"
 YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
+YONE_FACE_MOUTH_RGBA = (118, 46, 51, 255)
+YONE_FACE_OUTLINE_RGBA = (24, 22, 31, 255)
 YONE_FACE_SHADOW_RGBA = (169, 96, 79, 255)
 YONE_FACE_MID_RGBA = (211, 136, 108, 255)
 YONE_FACE_LIGHT_RGBA = (239, 184, 150, 255)
-RETIRED_FACE_OUTLINE_RGBA = (24, 22, 31, 255)
 YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
 
@@ -59,7 +60,7 @@ def _portrait_face_metrics(
         max(roi[0], feature_box[0] - 3),
         max(roi[1], feature_box[1] - 2),
         min(roi[2], feature_box[2] + 4),
-        min(roi[3], feature_box[3] + 5),
+        min(image.height, feature_box[3] + 5),
     )
     warm = {
         (x, y)
@@ -106,6 +107,56 @@ def _portrait_face_metrics(
         if horizontal_pair
         else 0
     )
+    mouth = {
+        (x, y)
+        for y in range(local[1], local[3])
+        for x in range(local[0], local[2])
+        if image.getpixel((x, y)) == YONE_FACE_MOUTH_RGBA
+    }
+    template_row_counts: list[int] = []
+    if horizontal_pair:
+        left_eye, right_eye = sorted(feature)
+        template_palette = {
+            YONE_FACE_SHADOW_RGBA,
+            YONE_FACE_MID_RGBA,
+            YONE_FACE_LIGHT_RGBA,
+            YONE_FACE_FEATURE_RGBA,
+            YONE_FACE_MOUTH_RGBA,
+        }
+        template_row_counts = [
+            sum(
+                1
+                for x in range(left_eye[0] - 1, right_eye[0] + 2)
+                if 0 <= x < image.width
+                and 0 <= y < image.height
+                and image.getpixel((x, y)) in template_palette
+            )
+            for y in range(left_eye[1] - 2, left_eye[1] + 4)
+        ]
+    template_sparse = (
+        len(template_row_counts) == 6
+        and template_row_counts[0] == 1
+        and template_row_counts[1] == 3
+        and 4 <= template_row_counts[2] <= 5
+        and template_row_counts[3] == 3
+        and 2 <= template_row_counts[4] <= 3
+        and 1 <= template_row_counts[5] <= 2
+        and sum(template_row_counts) <= 17
+        and template_row_counts.count(5) <= 1
+    )
+    eye_warm_neighbor_counts = [
+        sum(
+            1
+            for point in (
+                (x - 1, y),
+                (x + 1, y),
+                (x, y - 1),
+                (x, y + 1),
+            )
+            if point in largest_warm
+        )
+        for x, y in sorted(feature)
+    ]
     return {
         "feature_pixels": len(feature),
         "feature_pair": any(
@@ -114,6 +165,16 @@ def _portrait_face_metrics(
         ),
         "feature_horizontal_pair": horizontal_pair,
         "feature_horizontal_separation": horizontal_separation,
+        "eye_warm_neighbor_counts": eye_warm_neighbor_counts,
+        "eye_under_skin": len(feature) == 2
+        and all((x, y + 1) in largest_warm for x, y in feature),
+        "mouth_pixels": len(mouth),
+        "mouth_positions": sorted(mouth),
+        "mouth_below_eyes": len(mouth) == 1
+        and bool(feature)
+        and next(iter(mouth))[1] >= max(y for _, y in feature) + 3,
+        "template_row_counts": template_row_counts,
+        "template_sparse": template_sparse,
         "warm_component": len(largest_warm),
         "warm_bbox": warm_bbox,
         "near_white": sum(
@@ -203,7 +264,13 @@ def test_yone_ui_faces_use_two_separated_eyes_and_the_source_face_plane() -> Non
         assert metrics["feature_pixels"] == 2, (name, metrics)
         assert metrics["feature_pair"] is False, (name, metrics)
         assert metrics["feature_horizontal_pair"] is True, (name, metrics)
-        assert 2 <= metrics["feature_horizontal_separation"] <= 3, (
+        assert metrics["feature_horizontal_separation"] == 2, (name, metrics)
+        assert metrics["mouth_pixels"] == 1, (name, metrics)
+        assert metrics["mouth_below_eyes"] is True, (name, metrics)
+        assert metrics["eye_under_skin"] is True, (name, metrics)
+        assert min(metrics["eye_warm_neighbor_counts"]) >= 3, (name, metrics)
+        assert metrics["template_sparse"] is True, (name, metrics)
+        assert metrics["template_row_counts"] == [1, 3, 5, 3, 3, 2], (
             name,
             metrics,
         )
@@ -217,6 +284,8 @@ def test_yone_ui_faces_use_two_separated_eyes_and_the_source_face_plane() -> Non
     assert "YONE_FACE_REPAIR_TEMPLATE" not in generator
     assert "face repair changed alpha geometry" in generator
     assert "YONE_FOCUSED_UI_FACE_WINDOW" in generator
+    assert "_paint_yone_tapered_face" in generator
+    assert "YONE_FACE_MOUTH_RGBA" in generator
 
 
 def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
@@ -260,11 +329,20 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
                 index,
                 metrics,
             )
-            assert 2 <= metrics["feature_horizontal_separation"] <= 4, (
+            assert metrics["feature_horizontal_separation"] == 2, (
                 tag,
                 index,
                 metrics,
             )
+            assert metrics["mouth_pixels"] == 1, (tag, index, metrics)
+            assert metrics["mouth_below_eyes"] is True, (tag, index, metrics)
+            assert metrics["eye_under_skin"] is True, (tag, index, metrics)
+            assert min(metrics["eye_warm_neighbor_counts"]) >= 3, (
+                tag,
+                index,
+                metrics,
+            )
+            assert metrics["template_sparse"] is True, (tag, index, metrics)
         assert metrics["warm_component"] >= 2, (tag, index, metrics)
         assert isinstance(metrics["warm_bbox"], tuple), (tag, index, metrics)
         assert metrics["near_white"] == 0, (tag, index, metrics)
@@ -430,7 +508,7 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
     assert crop_metrics["feature_pair"] is False
     assert crop_metrics["feature_horizontal_pair"] is True
     assert crop_metrics["feature_horizontal_separation"] == 2
-    assert crop_metrics["warm_component"] >= 18
+    assert crop_metrics["warm_component"] >= 14
     warm_bbox = crop_metrics["warm_bbox"]
     assert isinstance(warm_bbox, tuple)
     assert warm_bbox[2] - warm_bbox[0] >= 5
@@ -442,6 +520,12 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
         if face_crop.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     ]
     assert eyes == [(6, 6), (8, 6)]
+    assert crop_metrics["mouth_positions"] == [(8, 9)]
+    assert crop_metrics["mouth_below_eyes"] is True
+    assert crop_metrics["eye_under_skin"] is True
+    assert crop_metrics["eye_warm_neighbor_counts"] == [4, 4]
+    assert crop_metrics["template_sparse"] is True
+    assert crop_metrics["template_row_counts"] == [1, 3, 5, 3, 3, 2]
     assert face_crop.getpixel((7, 6)) in {
         YONE_FACE_SHADOW_RGBA,
         YONE_FACE_MID_RGBA,
@@ -453,10 +537,10 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
         if hasattr(face_crop, "get_flattened_data")
         else face_crop.getdata()
     )
-    assert pixels.count(YONE_FACE_SHADOW_RGBA) >= 4
-    assert pixels.count(YONE_FACE_MID_RGBA) >= 2
-    assert pixels.count(YONE_FACE_LIGHT_RGBA) >= 8
-    assert RETIRED_FACE_OUTLINE_RGBA not in pixels
+    assert pixels.count(YONE_FACE_SHADOW_RGBA) == 8
+    assert pixels.count(YONE_FACE_MID_RGBA) == 3
+    assert pixels.count(YONE_FACE_LIGHT_RGBA) == 3
+    assert pixels.count(YONE_FACE_OUTLINE_RGBA) >= 5
 
     rendered = face_crop.resize((30, 30), Image.Resampling.NEAREST)
     eye_pixels = sum(
@@ -469,6 +553,29 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
         if pixel == YONE_FACE_FEATURE_RGBA
     )
     assert eye_pixels == 8
+    rendered_pixels = list(
+        rendered.get_flattened_data()
+        if hasattr(rendered, "get_flattened_data")
+        else rendered.getdata()
+    )
+    assert rendered_pixels.count(YONE_FACE_MOUTH_RGBA) == 4
+    rendered_eyes = {
+        (x, y)
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    }
+    rendered_mouth = {
+        (x, y)
+        for y in range(rendered.height)
+        for x in range(rendered.width)
+        if rendered.getpixel((x, y)) == YONE_FACE_MOUTH_RGBA
+    }
+    assert all(
+        abs(eye_x - mouth_x) + abs(eye_y - mouth_y) >= 5
+        for eye_x, eye_y in rendered_eyes
+        for mouth_x, mouth_y in rendered_mouth
+    )
 
 
 def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> None:

@@ -868,9 +868,11 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     faces = face_contract["all_battle_body_frames"]
     assert len(faces) == 54
     assert face_contract["policy"] == (
-        "source-preserving 1x separated-eye repair; alpha geometry stays fixed "
-        "and the 2x card camera keeps feet above the native divider"
+        "source-preserving 1x tapered-face repair; isolated eyes, nose and mouth "
+        "stay inside unchanged alpha geometry"
     )
+    assert face_contract["feature_rgba"] == [54, 24, 29, 255]
+    assert face_contract["mouth_rgba"] == [118, 46, 51, 255]
     profile_frames = {"skill[2]", "skill[4]", "ult[3]", "ult[5]", "ult[7]"}
     assert set(face_contract["single_eye_profile_frames"]) == profile_frames
     for frame_name, row in faces.items():
@@ -879,14 +881,32 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         else:
             assert row["dark_feature_pixels"] == 2, (frame_name, row)
             assert row["dark_feature_horizontal_pair"], (frame_name, row)
-            assert 2 <= row["dark_feature_horizontal_separation"] <= 4, (
+            assert row["dark_feature_horizontal_separation"] == 2, (
                 frame_name,
                 row,
             )
             assert not row["dark_feature_adjacent_pair"], (frame_name, row)
+            assert row["mouth_pixels"] == 1, (frame_name, row)
+            assert row["mouth_below_eyes"], (frame_name, row)
+            assert row["eye_under_skin"], (frame_name, row)
+            assert min(row["eye_warm_neighbor_counts"]) >= 3, (frame_name, row)
+            assert row["template_sparse"], (frame_name, row)
         assert row["warm_pixels"] >= 2, (frame_name, row)
         assert row["warm_bbox"] is not None, (frame_name, row)
         assert row["near_white_pixels"] == 0, (frame_name, row)
+    assert set(face_contract["ui_surfaces"]) == {"compact", "scoreboard", "grid"}
+    for surface, row in face_contract["ui_surfaces"].items():
+        assert row["dark_feature_pixels"] == 2, (surface, row)
+        assert row["dark_feature_horizontal_pair"], (surface, row)
+        assert row["dark_feature_horizontal_separation"] == 2, (surface, row)
+        assert not row["dark_feature_adjacent_pair"], (surface, row)
+        assert row["mouth_pixels"] == 1, (surface, row)
+        assert row["mouth_below_eyes"], (surface, row)
+        assert row["eye_under_skin"], (surface, row)
+        assert min(row["eye_warm_neighbor_counts"]) >= 3, (surface, row)
+        assert row["template_sparse"], (surface, row)
+        assert row["template_row_counts"] == [1, 3, 5, 3, 3, 2], (surface, row)
+    assert faces["idle[0]"]["template_row_counts"] == [1, 3, 5, 3, 3, 2]
 
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:
