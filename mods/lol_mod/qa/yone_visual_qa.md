@@ -4,7 +4,8 @@
 - [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
 - [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.
-- [x] All 54 visible battle-body frames use newly generated larger, high-contrast head/face sources before the final warm-plane pixel pass; focused UI portraits remain independently packed.
+- [x] All 54 visible battle-body frames receive one final-scale tapered three-quarter face with a single visible eye; the retired adjacent-eye dark bar is absent.
+- [x] Idle/run/attack/hit use the official Dual Blader bottom clearances, keeping legs above terrain, card borders, and the name band.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
 - [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.
 - [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.
@@ -12,7 +13,7 @@
 - [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.
 - [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.
 - [x] Compact portrait is face-focused with transparent safety margins.
-- [x] Scoreboard portrait is an independent source-direct `48x64` crop for native `18x26` and `30x38` rectangles; runtime geometry must remain unchanged.
+- [x] Default-runtime scoreboard QA replays the observed `idle[0]` source crop `(15,4,15,15)` at 2x nearest; the eye and tapered jaw are fully inside the 30x30 slot.
 - [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.
 - [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.
 

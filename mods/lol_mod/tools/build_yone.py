@@ -76,10 +76,10 @@ RETIRED_YONE_SOURCE_PATHS = (
 
 # Yone's accepted ImageGen body is deliberately kept at the reviewed battle
 # scale. At that scale a face is only a handful of pixels, so the smooth
-# source reduction needs one final-scale pixel-art pass. These colors are
-# warm (never ivory white). The outline is deliberately distinct from the two
-# eye pixels so QA can prove that the eyes are horizontal instead of accepting
-# the old vertical two-pixel blur proxy.
+# source reduction needs one final-scale pixel-art pass. These colors are warm
+# (never ivory white). A readable three-quarter face needs one deliberate
+# visible eye, a shadowed jaw and a hair outline; the retired adjacent
+# two-pixel cue became a single dark bar when the game rendered the actor at 2x.
 YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
 YONE_FACE_OUTLINE_RGBA = (24, 22, 31, 255)
 YONE_FACE_SHADOW_RGBA = (169, 96, 79, 255)
@@ -93,48 +93,48 @@ YONE_NEAR_WHITE_MIN = 218
 YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
 
-# Final native-frame coordinates for the poses whose reduced face plane is
-# smaller than 4x5/12 warm pixels. These are intentionally applied after
-# resizing, palette quantization and the generic face pass: doing this at the
-# generated-source scale allowed the final downsample to erase the eyes again.
-# The 5x6 template is right-facing and keeps a 4x5 connected skin plane with
-# two separated horizontal eyes. Coordinates are top-left in the native frame.
+# Final native-frame coordinates for poses where automatic component selection
+# can lock onto a foreshortened hand or chest. The same reviewed 9x8 face is
+# applied to every frame; these entries only override its automatically derived
+# anchor. Coordinates are top-left in the native frame.
 YONE_FACE_REPAIR_OVERRIDES: dict[tuple[str, int], tuple[int, int]] = {
-    ("idle", 2): (19, 12),
-    ("run", 2): (25, 14),
-    ("run", 3): (25, 14),
-    ("run", 4): (28, 13),
-    ("run", 5): (26, 14),
-    ("run", 7): (26, 14),
-    ("attack", 1): (27, 12),
-    ("attack", 2): (22, 12),
-    ("attack", 4): (24, 13),
-    ("skill", 1): (16, 9),
-    ("skill", 2): (14, 20),
-    ("skill2", 0): (16, 14),
-    ("skill2_dash", 0): (28, 13),
-    ("ult", 0): (27, 20),
-    ("ult", 2): (27, 17),
-    ("ult", 3): (30, 12),
-    ("ult", 4): (27, 9),
-    ("ult", 5): (34, 10),
-    ("ult", 6): (28, 14),
-    ("ult", 7): (32, 14),
-    ("ult", 9): (27, 13),
-    ("skill", 4): (35, 27),
-    ("dead", 0): (19, 16),
-    ("dead", 1): (21, 19),
-    ("dead", 3): (28, 20),
-    ("dead", 4): (28, 23),
+    ("idle", 2): (17, 6),
+    ("run", 2): (23, 3),
+    ("run", 3): (23, 5),
+    ("run", 4): (26, 8),
+    ("run", 5): (24, 6),
+    ("run", 7): (24, 6),
+    ("attack", 1): (25, 5),
+    ("attack", 2): (20, 6),
+    ("attack", 4): (22, 7),
+    ("skill", 1): (14, 8),
+    ("skill", 2): (12, 19),
+    ("skill2", 0): (14, 13),
+    ("skill2_dash", 0): (26, 12),
+    ("ult", 0): (25, 19),
+    ("ult", 2): (25, 16),
+    ("ult", 3): (28, 11),
+    ("ult", 4): (25, 8),
+    ("ult", 5): (32, 9),
+    ("ult", 6): (26, 13),
+    ("ult", 7): (30, 13),
+    ("ult", 9): (25, 12),
+    ("skill", 4): (33, 26),
+    ("dead", 0): (17, 15),
+    ("dead", 1): (19, 18),
+    ("dead", 3): (26, 19),
+    ("dead", 4): (26, 22),
 }
 
 YONE_FACE_REPAIR_TEMPLATE = (
-    "OOOO.",
-    "OSLLS",
-    "OFMFS",
-    "OSMS.",
-    ".OS..",
-    ".OSS.",
+    ".OOOOOO..",
+    ".OSMMMLO.",
+    ".OSMMMLO.",
+    ".OSFMMLO.",
+    "..OSMML..",
+    "...OSM...",
+    "....OS...",
+    ".....O...",
 )
 
 
@@ -224,10 +224,13 @@ NATIVE_CONTRACT: dict[str, dict[str, Any]] = {
 
 
 BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
-    "idle": [39, 38, 37, 38],
-    "run": [35, 34, 33, 34, 35, 34, 33, 34],
-    "attack": [38, 38, 37, 38, 38, 38],
-    "hit": [38],
+    # Match the official Dual Blader's visible core footprint. This restores
+    # the same terrain/name-plate clearance used by Lucian and Orianna instead
+    # of lowering Yone's longer generated legs into the foreground mask.
+    "idle": [38, 37, 36, 37],
+    "run": [35, 32, 31, 32, 35, 33, 31, 33],
+    "attack": [36, 36, 34, 35, 35, 36],
+    "hit": [37],
     "skill": [38, 37, 38, 39, 39, 39, 39],
     "skill2": [38],
     "skill2_dash": [36],
@@ -236,13 +239,12 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
 }
 
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
-    # Keep the feet above the battle HP/name plate.  The first version used
-    # the lower edge of Dual Blader's native rectangles too literally, which
-    # put Yone's longer generated legs through the plate while recalling.
-    "idle": [11, 10, 9, 10],
-    "run": [9, 10, 11, 10, 9, 10, 11, 10],
-    "attack": [8, 8, 7, 8, 8, 8],
-    "hit": [10],
+    # Bundle-derived official Dual Blader baselines for the common movement
+    # states. These are the frames used by battle, cards and face crops.
+    "idle": [16, 15, 14, 15],
+    "run": [13, 18, 21, 18, 13, 17, 21, 17],
+    "attack": [14, 14, 12, 13, 13, 14],
+    "hit": [15],
     "skill": [5, 4, 7, 6, 8, 10, 8],
     "skill2": [5],
     "skill2_dash": [4],
@@ -723,11 +725,12 @@ def repaint_yone_face(
         for x in range(face_window[0], face_window[2])
         if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     }
-    existing_horizontal = (
+    existing_reviewed = len(existing_feature) == 1 or (
         len(existing_feature) == 2
         and len({y for _, y in existing_feature}) == 1
+        and max(x for x, _ in existing_feature) - min(x for x, _ in existing_feature) >= 3
     )
-    if existing_horizontal:
+    if existing_reviewed:
         local = _feature_local_rect(existing_feature, face_window)
         for y in range(local[1], local[3]):
             for x in range(local[0], local[2]):
@@ -742,7 +745,7 @@ def repaint_yone_face(
         if (
             quality["near_white_pixels"] != 0
             or quality["warm_pixels"] < 2
-            or not quality["dark_feature_horizontal_pair"]
+            or quality["dark_feature_pixels"] not in {1, 2}
         ):
             raise ValueError(f"Yone idempotent face repaint failed: {quality}")
         return output
@@ -814,8 +817,9 @@ def repaint_yone_face(
         for adjacent in ((x + 1, y), (x, y + 1)):
             if adjacent not in face_points:
                 continue
-            # A vertical pair was the old blur regression: at 1x it reads as
-            # a dark seam, not eyes. Only horizontal candidates are valid.
+            # This provisional pair locates the face before the final profile
+            # template replaces it. Keep it horizontal so the detector cannot
+            # lock onto a vertical hair/chest seam.
             if adjacent[1] != y:
                 continue
             midpoint_x = (x + adjacent[0]) / 2.0
@@ -853,7 +857,8 @@ def repaint_yone_face(
             if _is_yone_near_white((red, green, blue, alpha)):
                 output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], alpha))
 
-    # Draw after the white clamp so the cue remains exactly two pixels.
+    # Draw the provisional two-pixel locator after the white clamp. The final
+    # template replaces it with one visible three-quarter-profile eye.
     for x, y in feature_pair:
         output.putpixel((x, y), YONE_FACE_FEATURE_RGBA)
 
@@ -888,6 +893,11 @@ def yone_face_readability(
         for x, y in feature
     )
     horizontal_pair = len(feature) == 2 and len({y for _, y in feature}) == 1
+    horizontal_separation = (
+        max(x for x, _ in feature) - min(x for x, _ in feature)
+        if horizontal_pair
+        else 0
+    )
     local = _feature_local_rect(feature, (x0, y0, x1, y1))
     warm = {
         (x, y)
@@ -913,27 +923,25 @@ def yone_face_readability(
         "dark_feature_pixels": len(feature),
         "dark_feature_adjacent_pair": adjacent_pair,
         "dark_feature_horizontal_pair": horizontal_pair,
+        "dark_feature_horizontal_separation": horizontal_separation,
         "near_white_pixels": near_white,
     }
 
 
-def finalize_yone_battle_face(
+def stamp_yone_face_template(
     image: Image.Image,
-    frame_key: tuple[str, int],
+    anchor: tuple[int, int],
+    label: str,
 ) -> Image.Image:
-    """Finish one native battle face, including explicit low-resolution repairs."""
+    """Stamp the reviewed final-scale face without changing the actor bounds."""
 
-    output = repaint_yone_face(image)
-    anchor = YONE_FACE_REPAIR_OVERRIDES.get(frame_key)
-    if anchor is None:
-        return output
-
+    output = image.convert("RGBA").copy()
     bbox_before = output.getchannel("A").getbbox()
     if bbox_before is None:
-        raise ValueError(f"Yone {frame_key} has no actor before face repair")
+        raise ValueError(f"Yone {label} has no subject before face repair")
 
-    # Retire the generic adjacent cue even when it landed on a hand/chest in a
-    # foreshortened pose, then stamp the reviewed final-scale face plane.
+    # Remove the generic adjacent cue first. It was the direct source of the
+    # continuous 4x2 dark bar visible in the user's 2x scoreboard capture.
     for y in range(output.height):
         for x in range(output.width):
             if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA:
@@ -947,6 +955,16 @@ def finalize_yone_battle_face(
         "F": YONE_FACE_FEATURE_RGBA,
     }
     anchor_x, anchor_y = anchor
+    # Erase the old pale rectangular plane inside this reviewed head window.
+    # Transparent pixels stay transparent; only prior skin/eye colors are
+    # folded back into the dark hair silhouette before the tapered face lands.
+    for y in range(anchor_y, anchor_y + len(YONE_FACE_REPAIR_TEMPLATE)):
+        for x in range(anchor_x, anchor_x + len(YONE_FACE_REPAIR_TEMPLATE[0])):
+            if not (0 <= x < output.width and 0 <= y < output.height):
+                continue
+            pixel = output.getpixel((x, y))
+            if _is_yone_warm_face_pixel(pixel) or _is_yone_near_white(pixel):
+                output.putpixel((x, y), (*YONE_FACE_OUTLINE_RGBA[:3], pixel[3]))
     for offset_y, row in enumerate(YONE_FACE_REPAIR_TEMPLATE):
         for offset_x, code in enumerate(row):
             if code == ".":
@@ -955,29 +973,56 @@ def finalize_yone_battle_face(
             y = anchor_y + offset_y
             if not (0 <= x < output.width and 0 <= y < output.height):
                 raise ValueError(
-                    f"Yone {frame_key} face template leaves native frame at {(x, y)}"
+                    f"Yone {label} face template leaves canvas at {(x, y)}"
                 )
             output.putpixel((x, y), colors[code])
 
-    # Lanczos can leave one ivory cheek pixel immediately beside the stamped
-    # plane. Clamp only this compact reviewed head window, never the blades.
-    for y in range(max(0, anchor_y - 1), min(output.height, anchor_y + 9)):
-        for x in range(max(0, anchor_x - 2), min(output.width, anchor_x + 9)):
+    # Clamp only the reviewed head neighborhood. Hair, body, weapons and every
+    # native animation rectangle remain untouched.
+    for y in range(max(0, anchor_y - 2), min(output.height, anchor_y + 11)):
+        for x in range(max(0, anchor_x - 2), min(output.width, anchor_x + 11)):
             pixel = output.getpixel((x, y))
             if _is_yone_near_white(pixel):
                 output.putpixel((x, y), (*YONE_FACE_LIGHT_RGBA[:3], pixel[3]))
 
-    if output.getchannel("A").getbbox() != bbox_before:
-        raise ValueError(f"Yone {frame_key} face repair changed the actor bbox")
+    bbox_after = output.getchannel("A").getbbox()
+    if bbox_after is None or bbox_after[3] != bbox_before[3]:
+        raise ValueError(f"Yone {label} face repair changed the foot/bottom anchor")
+    return output
+
+
+def finalize_yone_battle_face(
+    image: Image.Image,
+    frame_key: tuple[str, int],
+) -> Image.Image:
+    """Finish one native battle face, including explicit low-resolution repairs."""
+
+    output = repaint_yone_face(image)
+    generic_features = sorted(
+        (x, y)
+        for y in range(output.height)
+        for x in range(output.width)
+        if output.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    )
+    if len(generic_features) not in {1, 2}:
+        raise ValueError(
+            f"Yone {frame_key} needs an eye cue to locate its face: "
+            f"{generic_features}"
+        )
+    first_eye_x, eye_y = generic_features[0]
+    anchor = YONE_FACE_REPAIR_OVERRIDES.get(
+        frame_key,
+        (first_eye_x - 3, eye_y - 3),
+    )
+    output = stamp_yone_face_template(output, anchor, str(frame_key))
     quality = yone_face_readability(output)
     warm_box = quality["warm_bbox"]
     if (
-        quality["dark_feature_pixels"] != 2
-        or not quality["dark_feature_horizontal_pair"]
+        quality["dark_feature_pixels"] != 1
         or quality["near_white_pixels"] != 0
-        or quality["warm_pixels"] < 12
+        or quality["warm_pixels"] < 18
         or warm_box is None
-        or warm_box[2] - warm_box[0] < 4
+        or warm_box[2] - warm_box[0] < 5
         or warm_box[3] - warm_box[1] < 5
     ):
         raise ValueError(f"Yone {frame_key} explicit face repair failed: {quality}")
@@ -1475,13 +1520,17 @@ def build_splash_and_portraits() -> list[Path]:
     first_idle = split_grid(Image.open(CORE_ALPHA).convert("RGBA"), 5, 4)[0]
     full_body = first_idle.crop(alpha_bbox(first_idle))
 
-    fullbody = render_ui_subject(
-        full_body,
-        (64, 64),
-        max_subject=(54, 56),
-        bottom=60,
-        colors=96,
-        face_window=YONE_ACTOR_FACE_WINDOW,
+    fullbody = stamp_yone_face_template(
+        render_ui_subject(
+            full_body,
+            (64, 64),
+            max_subject=(54, 56),
+            bottom=60,
+            colors=96,
+            face_window=YONE_ACTOR_FACE_WINDOW,
+        ),
+        (30, 18),
+        "ui/fullbody",
     )
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
@@ -1491,13 +1540,17 @@ def build_splash_and_portraits() -> list[Path]:
     # border at 18/26/34/46px runtime sizes.
     width, height = full_body.size
     face_focus = full_body.crop((round(width * 0.12), 0, round(width * 0.88), round(height * 0.62)))
-    compact = render_ui_subject(
-        face_focus,
-        (64, 64),
-        max_subject=(50, 50),
-        bottom=58,
-        colors=112,
-        face_window=YONE_FOCUSED_UI_FACE_WINDOW,
+    compact = stamp_yone_face_template(
+        render_ui_subject(
+            face_focus,
+            (64, 64),
+            max_subject=(50, 50),
+            bottom=58,
+            colors=112,
+            face_window=YONE_FOCUSED_UI_FACE_WINDOW,
+        ),
+        (40, 24),
+        "ui/compact",
     )
     compact_path = PORTRAIT_DIR / "dual_blader_compact.png"
     save_png(compact_path, compact)
@@ -1517,26 +1570,34 @@ def build_splash_and_portraits() -> list[Path]:
             round(height * 0.70),
         )
     )
-    scoreboard = render_ui_subject(
-        scoreboard_focus,
-        (48, 64),
-        max_subject=(40, 54),
-        bottom=60,
-        colors=112,
-        face_window=YONE_FOCUSED_UI_FACE_WINDOW,
+    scoreboard = stamp_yone_face_template(
+        render_ui_subject(
+            scoreboard_focus,
+            (48, 64),
+            max_subject=(40, 54),
+            bottom=60,
+            colors=112,
+            face_window=YONE_FOCUSED_UI_FACE_WINDOW,
+        ),
+        (29, 21),
+        "ui/scoreboard",
     )
     scoreboard_path = PORTRAIT_DIR / "dual_blader_scoreboard.png"
     save_png(scoreboard_path, scoreboard)
 
     # The native 90x122 grid texture reserves y=96..121 for the name band.
     # End the silhouette by y=86 to leave ten transparent pixels above it.
-    grid = render_ui_subject(
-        full_body,
-        (90, 122),
-        max_subject=(76, 82),
-        bottom=86,
-        colors=128,
-        face_window=YONE_ACTOR_FACE_WINDOW,
+    grid = stamp_yone_face_template(
+        render_ui_subject(
+            full_body,
+            (90, 122),
+            max_subject=(76, 82),
+            bottom=86,
+            colors=128,
+            face_window=YONE_ACTOR_FACE_WINDOW,
+        ),
+        (45, 26),
+        "ui/grid",
     )
     grid_path = PORTRAIT_DIR / "dual_blader_grid.png"
     save_png(grid_path, grid)
@@ -1679,15 +1740,16 @@ def build_qa(
                 "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "final-scale 1x pixel face repair; native rectangles, overall actor bbox, foot anchors, and body scale are unchanged",
+                "policy": "final-scale 1x tapered profile repair; native rectangles stay fixed and core foot anchors match official Dual Blader baselines",
                 "feature_rgba": list(YONE_FACE_FEATURE_RGBA),
                 "all_battle_body_frames": actor_face_readability,
                 "ui_surfaces": ui_face_readability,
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
+                "default_runtime": "ABI-safe actor-atlas path: idle[0] plus champion_view face/center/banpick_center cameras",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
-                "scoreboard": "48x64 source-direct portrait crop for unchanged native 18x26 and 30x38 rectangles",
+                "scoreboard": "48x64 fallback portrait; default runtime uses the audited 15x15 idle[0] face crop rendered at 2x nearest",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
             },
         },
@@ -1701,7 +1763,7 @@ def build_qa(
             "champion": "Yone",
             "generator": "built-in image_gen",
             "generated_on": "2026-07-17",
-            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent final-scale 1x face template inside the unchanged overall actor bbox",
+            "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent tapered 1x profile template, and official Dual Blader core foot baselines",
             "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
@@ -1715,7 +1777,8 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] All 54 visible battle-body frames use newly generated larger, high-contrast head/face sources before the final warm-plane pixel pass; focused UI portraits remain independently packed.\n"
+        "- [x] All 54 visible battle-body frames receive one final-scale tapered three-quarter face with a single visible eye; the retired adjacent-eye dark bar is absent.\n"
+        "- [x] Idle/run/attack/hit use the official Dual Blader bottom clearances, keeping legs above terrain, card borders, and the name band.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
@@ -1723,7 +1786,7 @@ def build_qa(
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
-        "- [x] Scoreboard portrait is an independent source-direct `48x64` crop for native `18x26` and `30x38` rectangles; runtime geometry must remain unchanged.\n"
+        "- [x] Default-runtime scoreboard QA replays the observed `idle[0]` source crop `(15,4,15,15)` at 2x nearest; the eye and tapered jaw are fully inside the 30x30 slot.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
         "- [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.\n"
         "\nRuntime effect IDs and sheet tags are recorded in `qa/yone_visual_contract.json`.\n",
@@ -1864,19 +1927,25 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     ):
         raise ValueError(f"Yone W face pivot moved: x={w_face_x}, y={w_face_y}")
 
-    core_foot_anchors = [
-        bottom
-        for tag in ("idle", "run", "attack", "hit")
-        for bottom in BODY_BOTTOM_MARGINS[tag]
-    ]
-    if min(core_foot_anchors) < 7 or max(core_foot_anchors) > 11:
-        raise ValueError(f"Yone core foot anchors left the battle-safe 7..11px band: {core_foot_anchors}")
-    if max(BODY_BOTTOM_MARGINS["idle"]) - min(BODY_BOTTOM_MARGINS["run"]) > 2:
-        raise ValueError("Yone idle/run foot anchors diverged by more than 2px")
+    native_core_bottoms = {
+        "idle": [16, 15, 14, 15],
+        "run": [13, 18, 21, 18, 13, 17, 21, 17],
+        "attack": [14, 14, 12, 13, 13, 14],
+        "hit": [15],
+    }
+    actual_core_bottoms = {
+        tag: BODY_BOTTOM_MARGINS[tag]
+        for tag in native_core_bottoms
+    }
+    if actual_core_bottoms != native_core_bottoms:
+        raise ValueError(
+            "Yone core foot anchors diverged from the official Dual Blader: "
+            f"{actual_core_bottoms}"
+        )
 
-    # Inspect all 54 battle body frames at final atlas scale. Every face needs
-    # a real 4x5/12-pixel warm plane and horizontal eyes; a vertical two-pixel
-    # seam is explicitly insufficient.
+    # Inspect all 54 battle body frames at final atlas scale. A single profile
+    # eye prevents the game's 2x nearest render from producing the old dark
+    # horizontal bar; the cheek must taper into a real jaw.
     face_frame_count = 0
     for tag, index, entry in iter_actor_body_frames(payload):
         face_frame_count += 1
@@ -1892,12 +1961,11 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         face = yone_face_readability(frame)
         warm_bbox = face["warm_bbox"]
         if (
-            face["dark_feature_pixels"] != 2
-            or not face["dark_feature_horizontal_pair"]
-            or face["warm_pixels"] < 12
+            face["dark_feature_pixels"] != 1
+            or face["warm_pixels"] < 18
             or face["near_white_pixels"] != 0
             or warm_bbox is None
-            or warm_bbox[2] - warm_bbox[0] < 4
+            or warm_bbox[2] - warm_bbox[0] < 5
             or warm_bbox[3] - warm_bbox[1] < 5
         ):
             raise ValueError(f"Yone {tag}[{index}] face is not readable: {face}")
@@ -1966,14 +2034,13 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     if grid.size != (90, 122) or grid_bbox is None or grid_bbox[3] > 86:
         raise ValueError(f"Yone BP-grid portrait overlaps name band: {grid_bbox}")
     for label, image, window, minimum_warm in (
-        ("compact", compact, YONE_FOCUSED_UI_FACE_WINDOW, 10),
-        ("scoreboard", scoreboard, YONE_FOCUSED_UI_FACE_WINDOW, 8),
-        ("grid", grid, YONE_ACTOR_FACE_WINDOW, 16),
+        ("compact", compact, YONE_FOCUSED_UI_FACE_WINDOW, 18),
+        ("scoreboard", scoreboard, YONE_FOCUSED_UI_FACE_WINDOW, 18),
+        ("grid", grid, YONE_ACTOR_FACE_WINDOW, 18),
     ):
         face = yone_face_readability(image, window)
         if (
-            face["dark_feature_pixels"] < 2
-            or not face["dark_feature_adjacent_pair"]
+            face["dark_feature_pixels"] != 1
             or face["warm_pixels"] < minimum_warm
             or face["near_white_pixels"] != 0
         ):

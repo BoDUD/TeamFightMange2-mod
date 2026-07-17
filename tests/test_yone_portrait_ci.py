@@ -15,6 +15,9 @@ GENERATOR = MOD / "tools" / "build_yone.py"
 COMPACT = MOD / "ui" / "champion_portrait" / "dual_blader_compact.png"
 SCOREBOARD = MOD / "ui" / "champion_portrait" / "dual_blader_scoreboard.png"
 GRID = MOD / "ui" / "champion_portrait" / "dual_blader_grid.png"
+ACTOR_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
+ACTOR_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
+CHAMPION_VIEW = MOD / "style/champion_view.champion_view"
 YONE_FACE_FEATURE_RGBA = (54, 24, 29, 255)
 YONE_ACTOR_FACE_WINDOW = (0.18, 0.00, 0.98, 0.58)
 YONE_FOCUSED_UI_FACE_WINDOW = (0.35, 0.08, 0.98, 0.70)
@@ -168,33 +171,38 @@ def test_yone_compact_is_head_shoulders_and_grid_keeps_the_name_band_clear() -> 
     assert grid_alpha.crop((0, 96, 90, 122)).getbbox() is None
 
 
-def test_yone_ui_faces_keep_warm_planes_and_two_pixel_eye_cues() -> None:
+def test_yone_ui_faces_use_one_profile_eye_and_a_tapered_warm_plane() -> None:
     surfaces = {
         "compact": (
             Image.open(COMPACT).convert("RGBA"),
             YONE_FOCUSED_UI_FACE_WINDOW,
-            10,
+            18,
         ),
         "scoreboard": (
             Image.open(SCOREBOARD).convert("RGBA"),
             YONE_FOCUSED_UI_FACE_WINDOW,
-            8,
+            18,
         ),
         "grid": (
             Image.open(GRID).convert("RGBA"),
             YONE_ACTOR_FACE_WINDOW,
-            16,
+            18,
         ),
     }
     for name, (image, window, minimum_warm) in surfaces.items():
         metrics = _portrait_face_metrics(image, window)
-        assert metrics["feature_pixels"] == 2, (name, metrics)
-        assert metrics["feature_horizontal_pair"] is True, (name, metrics)
+        assert metrics["feature_pixels"] == 1, (name, metrics)
+        assert metrics["feature_pair"] is False, (name, metrics)
         assert metrics["warm_component"] >= minimum_warm, (name, metrics)
+        warm_bbox = metrics["warm_bbox"]
+        assert isinstance(warm_bbox, tuple), (name, metrics)
+        assert warm_bbox[2] - warm_bbox[0] >= 5, (name, metrics)
+        assert warm_bbox[3] - warm_bbox[1] >= 5, (name, metrics)
         assert metrics["near_white"] == 0, (name, metrics)
 
     generator = GENERATOR.read_text(encoding="utf-8")
     assert "return repaint_yone_face(output, face_window)" in generator
+    assert "stamp_yone_face_template(" in generator
     assert "YONE_FOCUSED_UI_FACE_WINDOW" in generator
 
 
@@ -205,10 +213,10 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
     spec.loader.exec_module(build_yone)
 
     sheet = Image.open(
-        MOD / "aseprite_resources/champions/yone#sheet.png"
+        ACTOR_SHEET
     ).convert("RGBA")
     anims = json.loads(
-        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
+        ACTOR_ANIM.read_text(
             encoding="utf-8"
         )
     )["anims"]
@@ -225,12 +233,12 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
             )
         )
         metrics = _portrait_face_metrics(frame, YONE_ACTOR_FACE_WINDOW)
-        assert metrics["feature_pixels"] == 2, (tag, index, metrics)
-        assert metrics["feature_horizontal_pair"] is True, (tag, index, metrics)
-        assert metrics["warm_component"] >= 12, (tag, index, metrics)
+        assert metrics["feature_pixels"] == 1, (tag, index, metrics)
+        assert metrics["feature_pair"] is False, (tag, index, metrics)
+        assert metrics["warm_component"] >= 18, (tag, index, metrics)
         warm_bbox = metrics["warm_bbox"]
         assert isinstance(warm_bbox, tuple), (tag, index, metrics)
-        assert warm_bbox[2] - warm_bbox[0] >= 4, (tag, index, metrics)
+        assert warm_bbox[2] - warm_bbox[0] >= 5, (tag, index, metrics)
         assert warm_bbox[3] - warm_bbox[1] >= 5, (tag, index, metrics)
         assert metrics["near_white"] == 0, (tag, index, metrics)
         assert build_yone.finalize_yone_battle_face(
@@ -315,12 +323,92 @@ def test_yone_scoreboard_is_source_direct_portrait_geometry_with_clear_face() ->
     source = GENERATOR.read_text(encoding="utf-8")
     assert "first_idle = split_grid(Image.open(CORE_ALPHA)" in source
     assert "scoreboard_focus = full_body.crop(" in source
-    assert "scoreboard = render_ui_subject(" in source
+    assert "scoreboard = stamp_yone_face_template(" in source
+    assert "render_ui_subject(" in source
     assert 'scoreboard_path = PORTRAIT_DIR / "dual_blader_scoreboard.png"' in source
     assert source.index("scoreboard_focus = full_body.crop(") < source.index(
-        "scoreboard = render_ui_subject("
+        "scoreboard = stamp_yone_face_template("
     )
     assert "compact.resize" not in source
+
+
+def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> None:
+    """Replay the user's real Sprite crop instead of testing dead UI PNG routes."""
+
+    style = json.loads(CHAMPION_VIEW.read_text(encoding="utf-8"))["entries"][
+        "dual_blader"
+    ]
+    assert style == {
+        "face": {"x": 2, "y": -32},
+        "center": {"x": 0, "y": -8},
+        "banpick_center": {"x": 0, "y": -8},
+    }
+
+    anims = json.loads(ACTOR_ANIM.read_text(encoding="utf-8"))["anims"]
+    sheet = Image.open(ACTOR_SHEET).convert("RGBA")
+
+    native_bottoms = {
+        "idle": [16, 15, 14, 15],
+        "run": [13, 18, 21, 18, 13, 17, 21, 17],
+        "attack": [14, 14, 12, 13, 13, 14],
+        "hit": [15],
+    }
+    for tag, expected in native_bottoms.items():
+        actual = []
+        for entry in anims[tag]["frames"]:
+            data = entry["data"]
+            frame = sheet.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            bbox = frame.getchannel("A").getbbox()
+            assert bbox is not None
+            actual.append(data["h"] - bbox[3])
+        assert actual == expected, tag
+
+    idle = anims["idle"]["frames"][0]["data"]
+    idle_frame = sheet.crop(
+        (
+            idle["x"],
+            idle["y"],
+            idle["x"] + idle["w"],
+            idle["y"] + idle["h"],
+        )
+    )
+    # Pixel-perfect reconstruction of the 30x30 screenshot surface: the game
+    # crops this 15x15 source window and displays it at 2x nearest-neighbor.
+    face_crop = idle_frame.crop((15, 4, 30, 19))
+    crop_metrics = _portrait_face_metrics(face_crop, (0.0, 0.0, 1.0, 1.0))
+    assert crop_metrics["feature_pixels"] == 1
+    assert crop_metrics["warm_component"] >= 18
+    warm_bbox = crop_metrics["warm_bbox"]
+    assert isinstance(warm_bbox, tuple)
+    assert warm_bbox[2] - warm_bbox[0] >= 5
+    assert warm_bbox[3] - warm_bbox[1] >= 6
+    eye = [
+        (x, y)
+        for y in range(face_crop.height)
+        for x in range(face_crop.width)
+        if face_crop.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
+    ]
+    assert len(eye) == 1
+    assert 5 <= eye[0][0] <= 9 and 5 <= eye[0][1] <= 10
+
+    rendered = face_crop.resize((30, 30), Image.Resampling.NEAREST)
+    eye_pixels = sum(
+        1
+        for pixel in (
+            rendered.get_flattened_data()
+            if hasattr(rendered, "get_flattened_data")
+            else rendered.getdata()
+        )
+        if pixel == YONE_FACE_FEATURE_RGBA
+    )
+    assert eye_pixels == 4
 
 
 def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> None:

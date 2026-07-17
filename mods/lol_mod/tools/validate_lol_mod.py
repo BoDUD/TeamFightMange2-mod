@@ -7045,12 +7045,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     for frame_name, quality in face_rows.items():
         warm_bbox = quality.get("warm_bbox")
         check(
-            quality.get("dark_feature_pixels") == 2
-            and quality.get("dark_feature_horizontal_pair") is True
-            and quality.get("warm_pixels", 0) >= 12
+            quality.get("dark_feature_pixels") == 1
+            and quality.get("dark_feature_adjacent_pair") is False
+            and quality.get("warm_pixels", 0) >= 18
             and isinstance(warm_bbox, list)
             and len(warm_bbox) == 4
-            and warm_bbox[2] - warm_bbox[0] >= 4
+            and warm_bbox[2] - warm_bbox[0] >= 5
             and warm_bbox[3] - warm_bbox[1] >= 5
             and quality.get("near_white_pixels") == 0,
             f"Yone final-scale face is unreadable in {frame_name}: {quality}",
@@ -7319,10 +7319,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )
 
         expected_core_bottoms = {
-            "idle": [11, 10, 9, 10],
-            "run": [9, 10, 11, 10, 9, 10, 11, 10],
-            "attack": [8, 8, 7, 8, 8, 8],
-            "hit": [10],
+            "idle": [16, 15, 14, 15],
+            "run": [13, 18, 21, 18, 13, 17, 21, 17],
+            "attack": [14, 14, 12, 13, 13, 14],
+            "hit": [15],
         }
         measured_core_bottoms: dict[str, list[int]] = {}
         for tag, expected_bottoms in expected_core_bottoms.items():
@@ -7343,19 +7343,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                     continue
                 bottom = int(data.get("h", 0)) - bbox[3]
                 measured.append(bottom)
-                check(7 <= bottom <= 11, f"Yone {tag}[{index}] left the 7..11px foot-safety band: {bottom}")
             measured_core_bottoms[tag] = measured
             check(measured == expected_bottoms, f"Yone {tag} foot anchors changed: {measured} != {expected_bottoms}")
-        if measured_core_bottoms.get("idle") and measured_core_bottoms.get("run"):
-            check(
-                max(measured_core_bottoms["idle"]) - min(measured_core_bottoms["run"]) <= 2,
-                "Yone idle/run foot anchors diverged by more than 2px",
-            )
 
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "final-scale 1x pixel face repair; native rectangles, overall actor bbox, foot anchors, and body scale are unchanged",
+        == "final-scale 1x tapered profile repair; native rectangles stay fixed and core foot anchors match official Dual Blader baselines",
         "Yone face-repaint policy changed",
     )
     check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
@@ -7652,7 +7646,15 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(retired not in skill_qa, f"Yone skill QA retains retired E/composite contract: {retired}")
 
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("dual_blader", {})
-    check(set(style) >= {"face", "center"}, "Yone champion_view must define independent face and center cameras")
+    check(
+        style
+        == {
+            "face": {"x": 2, "y": -32},
+            "center": {"x": 0, "y": -8},
+            "banpick_center": {"x": 0, "y": -8},
+        },
+        "Yone champion_view must keep the audited face/card/BP cameras",
+    )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")

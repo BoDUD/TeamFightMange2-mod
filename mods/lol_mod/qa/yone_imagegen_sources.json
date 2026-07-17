@@ -3,7 +3,7 @@
   "champion": "Yone",
   "generator": "built-in image_gen",
   "generated_on": "2026-07-17",
-  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent final-scale 1x face template inside the unchanged overall actor bbox",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, an idempotent tapered 1x profile template, and official Dual Blader core foot baselines",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
@@ -358,9 +358,9 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "01520d896d6a7cdaa165b72fe5fa079f0a89e9e49f387e9ffeb557f27c25b13f",
+      "sha256": "7601d5ca2098847a8e6ae836b75b11ca852a92d3d67aecea89b76e1506aa8e0d",
       "alpha_bbox": [
-        45,
+        46,
         0,
         3500,
         79
@@ -602,7 +602,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "4b19fe1e7ce5ded189d97a842f9de53eb6199e85e5e6a446f11af15385a2cf73",
+      "sha256": "5f497105084748ac5d0fcfd5eaab91df319f424e46f24ad62cb8a82b032012bb",
       "alpha_bbox": [
         5,
         8,
@@ -621,7 +621,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "70b2cba29fa42c5d610c968eaaa1bdf86d19666380b0bf97f8c9d309850bf2ac",
+      "sha256": "684b6b83f82a814e54337fad939d2fc7d5a0ef7a461873553e1ceb95a5ad10cd",
       "alpha_bbox": [
         10,
         8,
@@ -640,7 +640,7 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "afece9b62c1eec06f48ca92ae7f021bf85f1d9d6bbcc0c43986db8b7b9f8560f",
+      "sha256": "363a502d1e1c48e4b6dada8022d251b140085c78a920702d0868818ceb186fc0",
       "alpha_bbox": [
         5,
         6,
@@ -659,7 +659,7 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "60dd51fac4c296012067d9aa2b71416d39bf2c9c3ec63a43362e47b0865d7ce2",
+      "sha256": "279987361b67085f2d9d0be35920b8bb402a86999288d002e558905be77489b0",
       "alpha_bbox": [
         7,
         12,

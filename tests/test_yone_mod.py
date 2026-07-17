@@ -866,12 +866,16 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     assert not any(name.startswith("lol_yone_e_") for name in runtime)
     faces = contract["face_readability"]["all_battle_body_frames"]
     assert len(faces) == 54
+    assert contract["face_readability"]["policy"] == (
+        "final-scale 1x tapered profile repair; native rectangles stay fixed "
+        "and core foot anchors match official Dual Blader baselines"
+    )
     assert all(
-        row["dark_feature_pixels"] == 2
-        and row["dark_feature_horizontal_pair"]
-        and row["warm_pixels"] >= 12
+        row["dark_feature_pixels"] == 1
+        and not row["dark_feature_adjacent_pair"]
+        and row["warm_pixels"] >= 18
         and row["warm_bbox"] is not None
-        and row["warm_bbox"][2] - row["warm_bbox"][0] >= 4
+        and row["warm_bbox"][2] - row["warm_bbox"][0] >= 5
         and row["warm_bbox"][3] - row["warm_bbox"][1] >= 5
         and row["near_white_pixels"] == 0
         for row in faces.values()
