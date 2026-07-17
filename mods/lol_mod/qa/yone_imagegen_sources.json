@@ -2,8 +2,8 @@
   "schema_version": 1,
   "champion": "Yone",
   "generator": "built-in image_gen",
-  "generated_on": "2026-07-14",
-  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, no generated repaint",
+  "generated_on": "2026-07-17",
+  "processing": "deterministic green-screen soft matte, despill, hard-alpha final packing, palette reduction, and an idempotent RGB-only final-scale face repaint with unchanged alpha geometry",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
@@ -101,6 +101,25 @@
       ]
     },
     {
+      "path": "source/imagegen/yone_w_vfx_contact_v2.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 1442156,
+      "sha256": "87edf0c1db70f49f42960e4891e0dde109f135733bc54bc5917102d8e4182c59",
+      "alpha_bbox": [
+        0,
+        0,
+        1983,
+        793
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
       "path": "source/imagegen/yone_q3_vfx_contact.png",
       "dimensions": [
         1983,
@@ -151,25 +170,6 @@
         0,
         1983,
         793
-      ],
-      "alpha_extrema": [
-        255,
-        255
-      ]
-    },
-    {
-      "path": "source/imagegen/yone_e_icon_source.png",
-      "dimensions": [
-        1254,
-        1254
-      ],
-      "size_bytes": 1676673,
-      "sha256": "58bc105cc28dc32d371d7a68a1c8f5fd50ce7103e364ad5a62fc7e71938366d6",
-      "alpha_bbox": [
-        0,
-        0,
-        1254,
-        1254
       ],
       "alpha_extrema": [
         255,
@@ -293,6 +293,25 @@
       ]
     },
     {
+      "path": "source/processed/yone_w_vfx_contact_v2_alpha.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 676853,
+      "sha256": "1e479de44162cffd3f611b9e57f36b30c1d1b6b7cb8b70866e13b8747b57708d",
+      "alpha_bbox": [
+        7,
+        7,
+        1976,
+        786
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
       "path": "source/processed/yone_r_vfx_contact_alpha.png",
       "dimensions": [
         1619,
@@ -339,7 +358,7 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "6c2ae2a769d80f227ed74b0959c3fec45d41c07b9dd1e5dae533906bb805782f",
+      "sha256": "51ce5d394eb7f8758ee8caecaade5e605dfc3598485c16b3d2b45502422af7ca",
       "alpha_bbox": [
         45,
         1,
@@ -453,18 +472,18 @@
       "sha256": "9b3c688f319f0e0f3267bbf25ed77adb6a894a96c6b3db46bcf740c473cb08c3"
     },
     {
-      "path": "aseprite_resources/effects/yone_spirit#sheet.png",
+      "path": "aseprite_resources/effects/yone_w#sheet.png",
       "dimensions": [
-        400,
-        456
+        576,
+        156
       ],
-      "size_bytes": 730179,
-      "sha256": "e7267756913a5ef51e4b9abc9a7df802f98bef0a94884c6201a929fbdfae8e98",
+      "size_bytes": 359673,
+      "sha256": "aa12ee513a48a816b80b9bb99e6d07a49270da13cecaf6cd0fa627a0351dcc83",
       "alpha_bbox": [
-        1,
-        8,
-        310,
-        450
+        4,
+        2,
+        458,
+        154
       ],
       "alpha_extrema": [
         0,
@@ -472,9 +491,9 @@
       ]
     },
     {
-      "path": "aseprite_resources/effects/yone_spirit#anim.fanim",
-      "size_bytes": 4723,
-      "sha256": "8f259c0ede8df122dac755d761b1674ac5ebe1b111f0d46bf84ff59389788bd4"
+      "path": "aseprite_resources/effects/yone_w#anim.fanim",
+      "size_bytes": 2802,
+      "sha256": "899605de9590163d6419a3a62cd137bff628f53465c9e15ae9b6c382c5e27228"
     },
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",
@@ -526,7 +545,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "95f224687d7b03ac2e62bbe463cecd9a71670b3055ccbb380a5511dd58a54a24",
+      "sha256": "5d40a81ddfeeaa6a18c1d0d0bd9d357b625c51838c6f0519512f2d7875821a45",
       "alpha_bbox": [
         0,
         0,
@@ -583,7 +602,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "d4ec001c0c0c6ec718a25fe8ba2f937b1cd0c2da110be31added195130086f59",
+      "sha256": "c3d067cfe5fa48b28f78afeb2fcf75c4a0b56a19df8340025278d6de9fce61fa",
       "alpha_bbox": [
         5,
         9,
@@ -602,12 +621,31 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "a8fc28725d98c87e4c939a27e2d069433515fd175459551a64dae3bdf3b9b9c7",
+      "sha256": "6c222d352db53ffe21248f3b292fb1409f749d29e36fceaad1b85e87ef5e253f",
       "alpha_bbox": [
         10,
         8,
         54,
         58
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_scoreboard.png",
+      "dimensions": [
+        48,
+        64
+      ],
+      "size_bytes": 12420,
+      "sha256": "dce8de17faaa1a57bb94112707f80f3d0ab1666bea527da18e7e560a82b9155a",
+      "alpha_bbox": [
+        4,
+        6,
+        44,
+        60
       ],
       "alpha_extrema": [
         0,
@@ -621,7 +659,7 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "ab887454bb1d43f40da459144ea2541384624e9715496a186fd242e4f444a75f",
+      "sha256": "8072a6746038975d38db11d454fed0fd8c24bbe20b246c30164c79f68307727d",
       "alpha_bbox": [
         7,
         15,

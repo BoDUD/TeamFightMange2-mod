@@ -54,7 +54,7 @@
         "name": "Yone",
         "attack": "Way of the Hunter: Basic attacks alternate between the steel blade and Azakana blade, each dealing 100% Attack physical damage.",
         "skill": "Q — Mortal Steel: Q1 and Q2 thrust forward for 25 + 80% Attack physical damage. After both hit, Q3 dashes forward, launches a tornado, and knocks enemies airborne for 0.75 seconds.",
-        "skill2": "E — Soul Unbound: Leaves Yone's body and enters spirit form for 4 seconds. Damage dealt during the window is marked; returning to the body repeats 25% of that damage.",
+        "skill2": "W — Spirit Cleave: Slashes a wide area ahead for 50 + 90% Attack damage. Hitting any enemy grants a 1.5-second shield of 50 + 20% Attack; hitting a champion raises it to 100 + 40% Attack, then each additional champion adds 25 + 10% Attack.",
         "ult": "R — Fate Sealed: Strikes seven times while moving behind the target, deals physical and fixed damage, and knocks the target airborne once. Cooldown: 50 seconds."
       }
     }
@@ -114,7 +114,7 @@
         "name": "永恩",
         "attack": "狩人之道：普攻在钢剑与亚扎卡纳之剑间交替，每次造成100%攻击力的物理伤害。",
         "skill": "Q—错玉切：向前突刺，造成25 + 80%攻击力的物理伤害。连续命中两次后，下一次向前突进并释放旋风，将敌人击飞0.75秒。",
-        "skill2": "E—破障之锋：留下本体并进入灵体，持续4秒。期间造成的伤害会被标记；灵体返回本体时，再结算标记伤害的25%。",
+        "skill2": "W—凛神斩：向前方大范围挥斩，造成50+90%攻击力的伤害。命中任意敌人后获得持续1.5秒的50+20%攻击力护盾；命中英雄时提高至100+40%攻击力，之后每多命中一名英雄再提高25+10%攻击力。",
         "ult": "R—封尘绝念斩：突进至目标身后并连续斩击七次，造成物理与固定伤害，并将目标击飞一次。冷却50秒。"
       }
     }
@@ -174,7 +174,7 @@
         "name": "犽凝",
         "attack": "狩人之道：普攻在鋼劍與亞扎卡納之劍間交替，每次造成100%攻擊力的物理傷害。",
         "skill": "Q—錯玉切：向前突刺，造成25 + 80%攻擊力的物理傷害。連續命中兩次後，下一次向前突進並釋放旋風，將敵人擊飛0.75秒。",
-        "skill2": "E—滅魂斬：留下本體並進入靈體，持續4秒。期間造成的傷害會被標記；靈體返回本體時，再結算標記傷害的25%。",
+        "skill2": "W—凜神斬：向前方大範圍揮斬，造成50+90%攻擊力的傷害。命中任意敵人後獲得持續1.5秒的50+20%攻擊力護盾；命中英雄時提高至100+40%攻擊力，之後每多命中一名英雄再提高25+10%攻擊力。",
         "ult": "R—封塵絕念斬：突進至目標身後並連續斬擊七次，造成物理與固定傷害，並將目標擊飛一次。冷卻50秒。"
       }
     }
@@ -220,7 +220,7 @@
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は鋼の剣とアザカナの剣を交互に使い、攻撃力100%の物理ダメージを与える。",
         "skill": "Q—斬命刀：前方を突き、25 + 攻撃力80%の物理ダメージを与える。2回命中すると、次は前進して旋風を放ち、敵を0.75秒ノックアップする。",
-        "skill2": "E—縛魂の解放：肉体を残して4秒間霊体になる。霊体中に与えたダメージを記録し、肉体へ戻る時にその25%を再び与える。",
+        "skill2": "W—霊断刀：前方の広範囲を斬り、攻撃力50+90%のダメージを与える。敵に命中すると1.5秒間、攻撃力50+20%のシールドを得る。チャンピオン命中時は100+40%になり、さらに1体ごとに25+10%増加する。",
         "ult": "R—運命の封印：対象の背後へ移動しながら7回斬り、物理・固定ダメージを与えて一度ノックアップする。クールダウン50秒。"
       }
     }
@@ -266,7 +266,7 @@
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 강철검과 아자카나 검을 번갈아 사용하며 공격력의 100%만큼 물리 피해를 줍니다.",
         "skill": "Q—필멸의 검: 전방을 찔러 25 + 공격력의 80%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 전진하며 회오리를 날려 적을 0.75초 띄웁니다.",
-        "skill2": "E—영혼해방: 육체를 남기고 4초 동안 영체가 됩니다. 그동안 준 피해를 기록하며, 육체로 돌아갈 때 기록한 피해의 25%를 다시 줍니다.",
+        "skill2": "W—영혼 가르기: 전방 넓은 범위를 베어 공격력 50+90%의 피해를 줍니다. 적에게 적중하면 1.5초 동안 공격력 50+20%의 보호막을 얻습니다. 챔피언 적중 시 100+40%로 증가하고, 이후 챔피언 한 명마다 25+10%씩 증가합니다.",
         "ult": "R—운명봉인: 대상 뒤로 이동하며 일곱 번 베어 물리 및 고정 피해를 주고 한 번 공중에 띄웁니다. 재사용 대기시간은 50초입니다."
       }
     }

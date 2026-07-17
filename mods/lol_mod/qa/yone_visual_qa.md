@@ -3,12 +3,15 @@
 - [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).
 - [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
-- [x] Idle/run/attack/Q/E/R/dead bodies retain one stable battle scale.
+- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.
+- [x] All 54 visible battle-body frames plus the focused UI faces use a warm three-tone plane and exactly one two-pixel eye/brow cue; the idempotent pass changes RGB only and preserves every alpha bbox.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
-- [x] E leaves one opaque approved-body anchor at the cast point; the real caster performs one short directional lunge and becomes the controllable spirit.
-- [x] E's caster-following layer contains only a thin outline and sparse particles; no filled blue duplicate or fake humanoid projectile remains.
-- [x] E binds runtime `CasterAnimation` to the five-frame `skill2_attack` leave-body motion and reserves a 60-tick fast, CC-immune return phase for the native anchor AI.
+- [x] The unstable Soul Unbound runtime is not registered or referenced by champion data.
+- [x] W keeps Yone planted, plays one full caster-following crescent, resolves one instant wide forward hitbox, and settles exactly one shield from that same deduplicated target set.
+- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.
+- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.
 - [x] Compact portrait is face-focused with transparent safety margins.
+- [x] Scoreboard portrait is an independent source-direct `48x64` crop for native `18x26` and `30x38` rectangles; runtime geometry must remain unchanged.
 - [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.
 - [x] BP illustration is `1420x860`; the three active-slot icons are independent `64x64` assets.
 

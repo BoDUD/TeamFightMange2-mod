@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.2",
+  "release": "0.10.3",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -144,7 +144,7 @@
       "native_force_pick_index": 16,
       "active_slots": [
         "Q Mortal Steel Q1/Q2/Q3",
-        "E Soul Unbound + W Spirit Cleave composite approximation",
+        "W Spirit Cleave",
         "R Fate Sealed: Sixfold Echo approximation"
       ],
       "same_id_replacement": true,
@@ -160,38 +160,51 @@
       "empowered_q_dash_damage": false,
       "q3_projectiles": 1,
       "q3_airborne_ticks": 45,
-      "skill2_target": "EnemyChampion",
-      "skill2_range": 48000,
+      "skill2_target": "EnemyWithoutTower",
+      "skill2_range": 42000,
       "skill2_runtime_body_tag": "skill2_attack",
       "skill2_runtime_body_frames": 5,
       "skill2_ai_gate": "removed_custom_gate_stock_engine_data_ai",
-      "e_spirit_return": "LinearProjectile -> BackToCasterLinearProjectile visual chain",
-      "e_real_coordinate_restore": false,
-      "e_coordinate_limit": "public data API exposes no writable hero coordinate snapshot/restore; hero stays at fixed body marker",
-      "w_damage_line_range": {
-        "width": 42000,
-        "length": 48000,
+      "e_runtime_present": false,
+      "w_single_hit_set": {
+        "width": 36000,
+        "length": 42000,
         "apply": 1,
         "applied_target": "EnemyWithoutTower",
         "attack_count": 1,
-        "hit_sfx_count": 1
+        "hit_sfx_count_per_target": 1,
+        "native_order": [
+          "lol_yone_w_begin_native",
+          "lol_yone_w_collect_hit_native before Attack",
+          "lol_yone_w_settle_native at tick 2"
+        ],
+        "target_identity": "deduplicated target id plus EntityHandle",
+        "damage": "50 + 90% Attack"
       },
-      "w_champion_shield_probe": {
-        "width": 42000,
-        "length": 48000,
-        "apply": 1,
-        "applied_target": "EnemyChampion",
-        "attack_count": 0,
-        "shield_tiers": 2
+      "w_shield_settle": {
+        "applications_per_cast": 1,
+        "duration_ticks": 90,
+        "non_champion_enemy_tier": "50 + 20% Attack",
+        "first_champion_tier": "100 + 40% Attack",
+        "each_additional_champion": "25 + 10% Attack",
+        "champion_tiers": 5,
+        "second_hitbox_or_champion_probe": false
       },
       "w_airborne_applications": 0,
-      "w_shield_hit_cap": 2,
-      "w_shield_counter_target": "EnemyChampion",
+      "w_attack_speed_scaled_timing": false,
+      "w_attack_speed_limit": "Mod API 0.8 exposes no attack-speed-scaled action/cooldown expression; fixed 30/480 tick approximation",
       "r_physical_slashes": 6,
       "r_final_fixed_echoes": 1,
       "r_airborne_applications": 1,
-      "data_only_no_native_effects": true,
+      "native_state_isolated_by_game_context": true,
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
+      "battle_face_readability": {
+        "visible_body_frames_checked": 54,
+        "rgb_only_idempotent_repaint": true,
+        "alpha_geometry_changed": false,
+        "dark_eye_brow_pixels_per_frame": 2,
+        "near_white_face_pixels": 0
+      },
       "native_dual_blader_animation_contract_preserved": true,
       "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json"
     },

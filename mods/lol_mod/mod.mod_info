@@ -3,9 +3,9 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
   "author": "BoDUD",
-  "version": "0.10.2",
-  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.2 keeps Yone on the three active slots exposed by Mod API 0.8: hit-gated Q1/Q2/Q3 with one airborne Q3 wind lane, E-only Soul Unbound, and the existing six-slash R approximation. E is now a short direction cast: it leaves one fully opaque body at the cast point while the real caster lunges out and fights for 240 ticks with only a sparse spirit outline, then enters a bounded 60-tick fast CC-immune path return and settles the isolated damage ledger exactly once at tick 300. Match-local GameCtx service tokens prevent hidden simulations from clearing or sharing another match's E state. Mod API 0.8 cannot directly write hero coordinates, so this build does not claim an instantaneous terrain-ignoring snap. It preserves official audio, all 13 native animation tags, frame rectangles and timings, compact portrait fixes, and the existing Rift quality pack and League-style UI/audio. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
-  "last_updated": "2026-07-14",
+  "version": "0.10.3",
+  "description": "Adds Shen and reworks official champions 002-007 and 009 as Lucian, Orianna, Briar, Sivir, Kled, Xayah and Yone. Version 0.10.3 uses Yone's three Mod API 0.8 active slots as Q/W/R. W Spirit Cleave is one planted wide slash and one deduplicated target set: any enemy hit grants a base shield, every enemy champion hit raises its tier through the normal five-champion roster, and one delayed settle applies the shield exactly once. Retired Soul Unbound state, body anchors, return AI and E damage ledgers are removed. W attack-speed timing remains a documented fixed-cooldown API approximation. The battle actor keeps all 13 native tags, rectangles and timings while an idempotent RGB-only final-scale pass gives all 54 visible body frames a readable warm face and two-pixel eye cue without changing alpha geometry. Official audio and the existing Rift quality and League-style UI pack remain intact. Built for Teamfight Manager 2 v0.5.0 Mod API 0.8.",
+  "last_updated": "2026-07-17",
   "dependencies": [
     {
       "mod_id": "base",
