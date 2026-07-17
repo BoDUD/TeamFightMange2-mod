@@ -341,7 +341,6 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
     assert style == {
         "face": {"x": 2, "y": -32},
         "center": {"x": 0, "y": -8},
-        "banpick_center": {"x": 0, "y": -8},
     }
 
     anims = json.loads(ACTOR_ANIM.read_text(encoding="utf-8"))["anims"]

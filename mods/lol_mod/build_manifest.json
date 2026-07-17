@@ -1019,8 +1019,8 @@
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 67238,
-      "sha256": "53525af4eeb066808b5d382a561e550f2930801a5ab5722cd8e10635d87cc85f"
+      "size": 67259,
+      "sha256": "65de77f63f0d9896bb1e6353b5d5ccff3257c20a214c8cdcc551eeb4558354e8"
     },
     {
       "path": "qa/yone_visual_final.png",
@@ -1904,8 +1904,8 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 1246,
-      "sha256": "a3fce26521a8def043296104d148a096eb9018d29da2f6bbe5a0079f996f4c23"
+      "size": 1179,
+      "sha256": "515db31d65948971e1d3519936dbdab3e0d3da6631e1b9cba7f0631f8e7f5ac0"
     },
     {
       "path": "text/champion.i18n",

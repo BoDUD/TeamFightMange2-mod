@@ -7651,9 +7651,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         == {
             "face": {"x": 2, "y": -32},
             "center": {"x": 0, "y": -8},
-            "banpick_center": {"x": 0, "y": -8},
         },
-        "Yone champion_view must keep the audited face/card/BP cameras",
+        "Yone champion_view must keep the audited face/card cameras without a BP override",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
