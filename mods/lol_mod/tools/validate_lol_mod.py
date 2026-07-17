@@ -7044,13 +7044,26 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     runtime_map = visual.get("runtime_effect_map", {})
     for name, (tag, _, _) in expected_views.items():
         check(runtime_map.get(name) == ["yone_w", tag], f"Yone W visual map changed: {name}")
-    face_rows = visual.get("face_readability", {}).get("all_battle_body_frames", {})
+    face_readability = visual.get("face_readability", {})
+    face_rows = face_readability.get("all_battle_body_frames", {})
+    single_eye_profile_frames = set(
+        face_readability.get("single_eye_profile_frames", [])
+    )
     check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
     for frame_name, quality in face_rows.items():
         warm_bbox = quality.get("warm_bbox")
-        check(
-            quality.get("dark_feature_pixels") == 1
+        separated_eyes = (
+            quality.get("dark_feature_pixels") == 2
+            and quality.get("dark_feature_horizontal_pair") is True
+            and 2 <= quality.get("dark_feature_horizontal_separation", 0) <= 4
             and quality.get("dark_feature_adjacent_pair") is False
+        )
+        allowed_profile_eye = (
+            frame_name in single_eye_profile_frames
+            and quality.get("dark_feature_pixels") == 1
+        )
+        check(
+            (separated_eyes or allowed_profile_eye)
             and quality.get("warm_pixels", 0) >= 2
             and isinstance(warm_bbox, list)
             and len(warm_bbox) == 4
@@ -7351,7 +7364,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     face_contract = visual_contract.get("face_readability", {})
     check(
         face_contract.get("policy")
-        == "source-preserving 1x profile-eye repair; alpha geometry stays fixed and the card camera keeps feet above the native divider",
+        == "source-preserving 1x separated-eye repair; alpha geometry stays fixed and the 2x card camera keeps feet above the native divider",
         "Yone face-repaint policy changed",
     )
     check(face_contract.get("feature_rgba") == [54, 24, 29, 255], "Yone facial eye color changed")
@@ -7671,9 +7684,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )
         idle_bbox = idle_crop.getchannel("A").getbbox()
     center_y = int(style.get("center", {}).get("y", 0))
-    last_card_pixel = None if idle_bbox is None else 30 + center_y + 2 * idle_bbox[3] - 1
+    last_card_pixel = (
+        None
+        if idle_bbox is None
+        else 36 + 2 * center_y + 2 * idle_bbox[3] - 1
+    )
     check(
-        last_card_pixel is not None and last_card_pixel <= 95,
+        last_card_pixel is not None and last_card_pixel <= 93,
         f"Yone feet/weapon overlap the 2x card viewport/divider: last y={last_card_pixel}",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")

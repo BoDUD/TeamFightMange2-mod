@@ -864,20 +864,29 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     assert runtime["lol_yone_w_hit"] == ["yone_w", "impact"]
     assert runtime["lol_yone_w_shield"] == ["yone_w", "shield"]
     assert not any(name.startswith("lol_yone_e_") for name in runtime)
-    faces = contract["face_readability"]["all_battle_body_frames"]
+    face_contract = contract["face_readability"]
+    faces = face_contract["all_battle_body_frames"]
     assert len(faces) == 54
-    assert contract["face_readability"]["policy"] == (
-        "source-preserving 1x profile-eye repair; alpha geometry stays fixed "
-        "and the card camera keeps feet above the native divider"
+    assert face_contract["policy"] == (
+        "source-preserving 1x separated-eye repair; alpha geometry stays fixed "
+        "and the 2x card camera keeps feet above the native divider"
     )
-    assert all(
-        row["dark_feature_pixels"] == 1
-        and not row["dark_feature_adjacent_pair"]
-        and row["warm_pixels"] >= 2
-        and row["warm_bbox"] is not None
-        and row["near_white_pixels"] == 0
-        for row in faces.values()
-    )
+    profile_frames = {"skill[2]", "skill[4]", "ult[3]", "ult[5]", "ult[7]"}
+    assert set(face_contract["single_eye_profile_frames"]) == profile_frames
+    for frame_name, row in faces.items():
+        if frame_name in profile_frames:
+            assert row["dark_feature_pixels"] == 1, (frame_name, row)
+        else:
+            assert row["dark_feature_pixels"] == 2, (frame_name, row)
+            assert row["dark_feature_horizontal_pair"], (frame_name, row)
+            assert 2 <= row["dark_feature_horizontal_separation"] <= 4, (
+                frame_name,
+                row,
+            )
+            assert not row["dark_feature_adjacent_pair"], (frame_name, row)
+        assert row["warm_pixels"] >= 2, (frame_name, row)
+        assert row["warm_bbox"] is not None, (frame_name, row)
+        assert row["near_white_pixels"] == 0, (frame_name, row)
 
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:

@@ -1860,12 +1860,19 @@
     "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed"
   },
   "face_readability": {
-    "policy": "source-preserving 1x profile-eye repair; alpha geometry stays fixed and the card camera keeps feet above the native divider",
+    "policy": "source-preserving 1x separated-eye repair; alpha geometry stays fixed and the 2x card camera keeps feet above the native divider",
     "feature_rgba": [
       54,
       24,
       29,
       255
+    ],
+    "single_eye_profile_frames": [
+      "skill[2]",
+      "skill[4]",
+      "ult[3]",
+      "ult[5]",
+      "ult[7]"
     ],
     "all_battle_body_frames": {
       "idle[0]": {
@@ -1882,22 +1889,22 @@
           23
         ],
         "local_face_bbox": [
-          19,
-          10,
-          27,
-          18
+          18,
+          8,
+          28,
+          16
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 20,
         "warm_bbox": [
           19,
-          10,
-          24,
+          8,
+          25,
           15
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "idle[1]": {
@@ -1914,22 +1921,22 @@
           22
         ],
         "local_face_bbox": [
-          20,
-          9,
-          28,
-          17
+          19,
+          6,
+          29,
+          14
         ],
         "warm_pixels": 18,
         "warm_bbox": [
           20,
-          9,
+          8,
           25,
-          15
+          14
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "idle[2]": {
@@ -1946,22 +1953,22 @@
           22
         ],
         "local_face_bbox": [
-          18,
-          6,
+          16,
+          10,
           26,
-          14
+          18
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 26,
         "warm_bbox": [
-          19,
-          8,
-          24,
-          14
+          16,
+          10,
+          23,
+          18
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "idle[3]": {
@@ -1978,22 +1985,22 @@
           22
         ],
         "local_face_bbox": [
-          18,
-          8,
+          16,
+          7,
           26,
-          16
+          15
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 19,
         "warm_bbox": [
           18,
           8,
           23,
-          16
+          15
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[0]": {
@@ -2010,22 +2017,22 @@
           21
         ],
         "local_face_bbox": [
-          24,
+          21,
           12,
           32,
           20
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 23,
         "warm_bbox": [
-          24,
-          13,
+          21,
+          12,
           29,
           18
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "run[1]": {
@@ -2042,22 +2049,22 @@
           20
         ],
         "local_face_bbox": [
-          22,
+          19,
           11,
           30,
           19
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 18,
         "warm_bbox": [
-          22,
-          12,
+          19,
+          11,
           27,
           16
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "run[2]": {
@@ -2074,22 +2081,22 @@
           19
         ],
         "local_face_bbox": [
-          26,
-          5,
+          23,
+          8,
           32,
-          13
+          16
         ],
-        "warm_pixels": 14,
+        "warm_pixels": 11,
         "warm_bbox": [
           26,
-          7,
+          8,
           31,
           13
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[3]": {
@@ -2106,22 +2113,22 @@
           20
         ],
         "local_face_bbox": [
-          24,
+          23,
           8,
           31,
           16
         ],
-        "warm_pixels": 11,
+        "warm_pixels": 10,
         "warm_bbox": [
           26,
           8,
           30,
           13
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[4]": {
@@ -2138,22 +2145,22 @@
           21
         ],
         "local_face_bbox": [
-          27,
+          26,
           9,
           35,
           17
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 12,
         "warm_bbox": [
           29,
           9,
           34,
           14
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[5]": {
@@ -2170,22 +2177,22 @@
           20
         ],
         "local_face_bbox": [
-          25,
+          24,
           9,
           32,
           17
         ],
         "warm_pixels": 8,
         "warm_bbox": [
+          24,
+          13,
           27,
-          9,
-          31,
-          13
+          17
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[6]": {
@@ -2204,20 +2211,20 @@
         "local_face_bbox": [
           19,
           11,
-          27,
+          29,
           19
         ],
-        "warm_pixels": 19,
+        "warm_pixels": 18,
         "warm_bbox": [
           19,
           11,
           26,
           16
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "run[7]": {
@@ -2234,22 +2241,22 @@
           20
         ],
         "local_face_bbox": [
-          26,
+          25,
           9,
           33,
           17
         ],
-        "warm_pixels": 10,
+        "warm_pixels": 9,
         "warm_bbox": [
           28,
           9,
           32,
           14
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "attack[0]": {
@@ -2266,22 +2273,22 @@
           22
         ],
         "local_face_bbox": [
-          27,
-          8,
+          24,
+          10,
           34,
-          16
+          18
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 26,
         "warm_bbox": [
-          27,
-          8,
-          32,
-          16
+          24,
+          10,
+          31,
+          18
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "attack[1]": {
@@ -2298,22 +2305,22 @@
           22
         ],
         "local_face_bbox": [
-          25,
+          24,
           9,
-          33,
+          34,
           17
         ],
-        "warm_pixels": 16,
+        "warm_pixels": 15,
         "warm_bbox": [
           25,
           10,
           30,
           16
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "attack[2]": {
@@ -2330,22 +2337,22 @@
           21
         ],
         "local_face_bbox": [
-          22,
+          21,
           7,
-          30,
+          31,
           15
         ],
         "warm_pixels": 16,
         "warm_bbox": [
-          22,
+          21,
           9,
           27,
           15
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "attack[3]": {
@@ -2362,22 +2369,22 @@
           21
         ],
         "local_face_bbox": [
-          31,
+          29,
           11,
           39,
           19
         ],
-        "warm_pixels": 24,
+        "warm_pixels": 23,
         "warm_bbox": [
           31,
           11,
           39,
           19
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "attack[4]": {
@@ -2394,22 +2401,22 @@
           21
         ],
         "local_face_bbox": [
-          24,
+          23,
           7,
-          32,
+          33,
           15
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 16,
         "warm_bbox": [
           25,
           9,
           30,
           15
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "attack[5]": {
@@ -2426,22 +2433,22 @@
           22
         ],
         "local_face_bbox": [
-          26,
-          10,
+          24,
+          11,
           34,
-          18
+          19
         ],
-        "warm_pixels": 21,
+        "warm_pixels": 27,
         "warm_bbox": [
-          26,
+          24,
           11,
           31,
           17
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "hit[0]": {
@@ -2458,22 +2465,22 @@
           22
         ],
         "local_face_bbox": [
-          17,
-          3,
-          25,
-          11
+          16,
+          5,
+          26,
+          13
         ],
-        "warm_pixels": 25,
+        "warm_pixels": 29,
         "warm_bbox": [
-          17,
-          4,
+          16,
+          5,
           23,
-          11
+          12
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill[0]": {
@@ -2490,22 +2497,22 @@
           28
         ],
         "local_face_bbox": [
-          17,
-          15,
+          14,
+          16,
           25,
-          23
+          24
         ],
-        "warm_pixels": 24,
+        "warm_pixels": 36,
         "warm_bbox": [
-          17,
-          17,
+          14,
+          16,
           22,
           23
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "skill[1]": {
@@ -2522,22 +2529,22 @@
           23
         ],
         "local_face_bbox": [
-          15,
+          14,
           9,
-          23,
+          24,
           17
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 17,
         "warm_bbox": [
           15,
           10,
           20,
           17
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill[2]": {
@@ -2586,22 +2593,22 @@
           35
         ],
         "local_face_bbox": [
-          27,
-          19,
-          35,
+          24,
+          21,
+          34,
+          29
+        ],
+        "warm_pixels": 19,
+        "warm_bbox": [
+          24,
+          21,
+          31,
           27
         ],
-        "warm_pixels": 16,
-        "warm_bbox": [
-          27,
-          20,
-          32,
-          26
-        ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill[4]": {
@@ -2618,16 +2625,16 @@
           43
         ],
         "local_face_bbox": [
-          34,
-          29,
-          42,
-          37
+          35,
+          28,
+          43,
+          36
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 19,
         "warm_bbox": [
-          34,
-          29,
-          40,
+          35,
+          28,
+          41,
           35
         ],
         "dark_feature_pixels": 1,
@@ -2651,21 +2658,21 @@
         ],
         "local_face_bbox": [
           51,
-          37,
-          59,
-          45
+          38,
+          61,
+          46
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 14,
         "warm_bbox": [
           52,
-          37,
+          38,
           57,
           42
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill[6]": {
@@ -2682,22 +2689,22 @@
           63
         ],
         "local_face_bbox": [
-          43,
+          42,
           45,
-          51,
+          52,
           53
         ],
         "warm_pixels": 21,
         "warm_bbox": [
-          43,
+          42,
           46,
           49,
           53
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2[0]": {
@@ -2714,22 +2721,22 @@
           28
         ],
         "local_face_bbox": [
-          16,
+          15,
           14,
-          24,
+          25,
           22
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 17,
         "warm_bbox": [
           16,
           14,
           21,
           21
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_dash[0]": {
@@ -2746,22 +2753,22 @@
           24
         ],
         "local_face_bbox": [
-          32,
-          13,
+          30,
+          17,
           39,
-          21
+          24
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 17,
         "warm_bbox": [
           32,
-          15,
+          17,
           37,
-          21
+          24
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_attack[0]": {
@@ -2778,22 +2785,22 @@
           24
         ],
         "local_face_bbox": [
-          21,
-          6,
+          20,
+          5,
           28,
-          14
+          13
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          21,
+          20,
           6,
           26,
-          14
+          13
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_attack[1]": {
@@ -2810,22 +2817,22 @@
           24
         ],
         "local_face_bbox": [
-          21,
-          7,
+          20,
+          6,
           28,
-          15
+          14
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          21,
+          20,
           7,
           26,
-          15
+          14
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_attack[2]": {
@@ -2842,22 +2849,22 @@
           29
         ],
         "local_face_bbox": [
-          35,
-          11,
-          43,
-          19
+          34,
+          10,
+          44,
+          18
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          35,
+          34,
           11,
           40,
-          19
+          18
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_attack[3]": {
@@ -2874,22 +2881,22 @@
           30
         ],
         "local_face_bbox": [
-          35,
-          12,
-          43,
-          20
+          34,
+          11,
+          44,
+          19
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          35,
+          34,
           12,
           40,
-          20
+          19
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "skill2_attack[4]": {
@@ -2906,22 +2913,22 @@
           28
         ],
         "local_face_bbox": [
-          34,
-          10,
-          42,
-          18
+          33,
+          9,
+          43,
+          17
         ],
         "warm_pixels": 20,
         "warm_bbox": [
-          34,
+          33,
           10,
           39,
-          18
+          17
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[0]": {
@@ -2938,22 +2945,22 @@
           31
         ],
         "local_face_bbox": [
-          26,
+          24,
           20,
           34,
           28
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 14,
         "warm_bbox": [
-          26,
+          25,
           21,
           30,
           27
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[1]": {
@@ -2970,22 +2977,22 @@
           31
         ],
         "local_face_bbox": [
-          33,
-          20,
-          41,
-          28
+          32,
+          18,
+          42,
+          26
         ],
-        "warm_pixels": 15,
+        "warm_pixels": 17,
         "warm_bbox": [
           33,
-          20,
+          19,
           38,
           25
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[2]": {
@@ -3002,22 +3009,22 @@
           33
         ],
         "local_face_bbox": [
-          27,
-          17,
-          35,
-          25
+          26,
+          18,
+          36,
+          26
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 16,
         "warm_bbox": [
           27,
           19,
           32,
           25
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[3]": {
@@ -3034,9 +3041,9 @@
           27
         ],
         "local_face_bbox": [
-          30,
+          29,
           14,
-          38,
+          37,
           22
         ],
         "warm_pixels": 13,
@@ -3067,21 +3074,21 @@
         ],
         "local_face_bbox": [
           24,
-          10,
-          32,
-          18
+          12,
+          34,
+          20
         ],
-        "warm_pixels": 17,
+        "warm_pixels": 12,
         "warm_bbox": [
-          24,
-          11,
+          25,
+          12,
           32,
           16
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[5]": {
@@ -3098,17 +3105,17 @@
           21
         ],
         "local_face_bbox": [
-          39,
-          10,
-          47,
-          18
+          37,
+          12,
+          45,
+          20
         ],
-        "warm_pixels": 5,
+        "warm_pixels": 3,
         "warm_bbox": [
-          39,
-          11,
+          41,
+          12,
           43,
-          16
+          14
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3130,22 +3137,22 @@
           24
         ],
         "local_face_bbox": [
-          28,
+          27,
           13,
-          36,
+          37,
           21
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 22,
         "warm_bbox": [
           28,
           14,
           34,
           21
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[7]": {
@@ -3162,17 +3169,17 @@
           30
         ],
         "local_face_bbox": [
-          31,
-          18,
-          39,
-          26
+          32,
+          20,
+          40,
+          28
         ],
-        "warm_pixels": 3,
+        "warm_pixels": 5,
         "warm_bbox": [
-          35,
-          21,
+          33,
+          20,
           37,
-          23
+          22
         ],
         "dark_feature_pixels": 1,
         "dark_feature_adjacent_pair": false,
@@ -3194,22 +3201,22 @@
           35
         ],
         "local_face_bbox": [
-          24,
+          22,
           22,
           32,
           30
         ],
-        "warm_pixels": 13,
+        "warm_pixels": 12,
         "warm_bbox": [
           25,
           22,
           30,
           27
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[9]": {
@@ -3226,22 +3233,22 @@
           30
         ],
         "local_face_bbox": [
-          27,
-          13,
-          35,
-          21
+          26,
+          12,
+          36,
+          20
         ],
-        "warm_pixels": 18,
+        "warm_pixels": 17,
         "warm_bbox": [
           27,
           13,
           32,
           20
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[10]": {
@@ -3258,22 +3265,22 @@
           27
         ],
         "local_face_bbox": [
-          30,
+          29,
           14,
-          38,
+          39,
           22
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 22,
         "warm_bbox": [
           30,
           14,
           36,
           22
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[11]": {
@@ -3290,22 +3297,22 @@
           27
         ],
         "local_face_bbox": [
-          40,
+          39,
           13,
           48,
           21
         ],
-        "warm_pixels": 20,
+        "warm_pixels": 19,
         "warm_bbox": [
           40,
           13,
           46,
           20
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "ult[12]": {
@@ -3322,22 +3329,22 @@
           30
         ],
         "local_face_bbox": [
-          32,
+          31,
           12,
           40,
           20
         ],
         "warm_pixels": 19,
         "warm_bbox": [
-          32,
+          31,
           12,
           37,
           20
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[0]": {
@@ -3354,22 +3361,22 @@
           31
         ],
         "local_face_bbox": [
-          17,
-          17,
-          25,
-          25
+          16,
+          19,
+          26,
+          27
         ],
-        "warm_pixels": 30,
+        "warm_pixels": 40,
         "warm_bbox": [
-          17,
-          17,
+          16,
+          19,
           24,
-          25
+          27
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[1]": {
@@ -3386,22 +3393,22 @@
           32
         ],
         "local_face_bbox": [
-          20,
-          22,
-          28,
-          30
+          19,
+          23,
+          29,
+          31
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 26,
         "warm_bbox": [
-          20,
-          22,
-          27,
-          30
+          19,
+          23,
+          26,
+          31
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[2]": {
@@ -3418,22 +3425,22 @@
           31
         ],
         "local_face_bbox": [
-          19,
+          18,
           22,
-          27,
+          28,
           30
         ],
-        "warm_pixels": 22,
+        "warm_pixels": 25,
         "warm_bbox": [
-          19,
+          18,
           22,
           25,
           30
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[3]": {
@@ -3450,22 +3457,22 @@
           26
         ],
         "local_face_bbox": [
-          24,
+          22,
           21,
           32,
           26
         ],
-        "warm_pixels": 12,
+        "warm_pixels": 11,
         "warm_bbox": [
           24,
           21,
           29,
           26
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[4]": {
@@ -3482,22 +3489,22 @@
           29
         ],
         "local_face_bbox": [
-          21,
+          19,
           25,
           29,
           29
         ],
-        "warm_pixels": 12,
+        "warm_pixels": 16,
         "warm_bbox": [
-          21,
+          19,
           25,
           25,
           29
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[5]": {
@@ -3514,22 +3521,22 @@
           31
         ],
         "local_face_bbox": [
-          17,
+          16,
           26,
-          25,
+          26,
           31
         ],
-        "warm_pixels": 23,
+        "warm_pixels": 22,
         "warm_bbox": [
           17,
           26,
           23,
           31
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[6]": {
@@ -3548,20 +3555,20 @@
         "local_face_bbox": [
           18,
           26,
-          26,
+          28,
           31
         ],
-        "warm_pixels": 24,
+        "warm_pixels": 23,
         "warm_bbox": [
           18,
           26,
           25,
           31
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       },
       "dead[7]": {
@@ -3578,22 +3585,22 @@
           32
         ],
         "local_face_bbox": [
-          19,
+          18,
           26,
-          27,
+          28,
           32
         ],
-        "warm_pixels": 26,
+        "warm_pixels": 25,
         "warm_bbox": [
           19,
           26,
           25,
           32
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 2,
         "near_white_pixels": 0
       }
     },
@@ -3612,22 +3619,22 @@
           43
         ],
         "local_face_bbox": [
-          41,
+          38,
           24,
           49,
           32
         ],
-        "warm_pixels": 32,
+        "warm_pixels": 43,
         "warm_bbox": [
-          41,
+          38,
           24,
           47,
           32
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "scoreboard": {
@@ -3644,22 +3651,22 @@
           44
         ],
         "local_face_bbox": [
-          30,
+          27,
           21,
           38,
           29
         ],
-        "warm_pixels": 32,
+        "warm_pixels": 39,
         "warm_bbox": [
-          30,
+          28,
           21,
           36,
           29
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       },
       "grid": {
@@ -3676,22 +3683,22 @@
           55
         ],
         "local_face_bbox": [
-          46,
+          43,
           26,
           54,
           34
         ],
-        "warm_pixels": 25,
+        "warm_pixels": 36,
         "warm_bbox": [
-          46,
-          27,
+          43,
+          26,
           51,
           34
         ],
-        "dark_feature_pixels": 1,
+        "dark_feature_pixels": 2,
         "dark_feature_adjacent_pair": false,
-        "dark_feature_horizontal_pair": false,
-        "dark_feature_horizontal_separation": 0,
+        "dark_feature_horizontal_pair": true,
+        "dark_feature_horizontal_separation": 3,
         "near_white_pixels": 0
       }
     }

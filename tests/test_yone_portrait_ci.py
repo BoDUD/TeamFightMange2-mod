@@ -100,15 +100,20 @@ def _portrait_face_metrics(
             max(y for _, y in largest_warm) + 1,
         )
     )
+    horizontal_pair = len(feature) == 2 and len({y for _, y in feature}) == 1
+    horizontal_separation = (
+        max(x for x, _ in feature) - min(x for x, _ in feature)
+        if horizontal_pair
+        else 0
+    )
     return {
         "feature_pixels": len(feature),
         "feature_pair": any(
             (x + 1, y) in feature or (x, y + 1) in feature
             for x, y in feature
         ),
-        "feature_horizontal_pair": (
-            len(feature) == 2 and len({y for _, y in feature}) == 1
-        ),
+        "feature_horizontal_pair": horizontal_pair,
+        "feature_horizontal_separation": horizontal_separation,
         "warm_component": len(largest_warm),
         "warm_bbox": warm_bbox,
         "near_white": sum(
@@ -175,7 +180,7 @@ def test_yone_compact_is_head_shoulders_and_grid_keeps_the_name_band_clear() -> 
     assert grid_alpha.crop((0, 96, 90, 122)).getbbox() is None
 
 
-def test_yone_ui_faces_use_one_profile_eye_and_the_source_face_plane() -> None:
+def test_yone_ui_faces_use_two_separated_eyes_and_the_source_face_plane() -> None:
     surfaces = {
         "compact": (
             Image.open(COMPACT).convert("RGBA"),
@@ -195,8 +200,13 @@ def test_yone_ui_faces_use_one_profile_eye_and_the_source_face_plane() -> None:
     }
     for name, (image, window, minimum_warm) in surfaces.items():
         metrics = _portrait_face_metrics(image, window)
-        assert metrics["feature_pixels"] == 1, (name, metrics)
+        assert metrics["feature_pixels"] == 2, (name, metrics)
         assert metrics["feature_pair"] is False, (name, metrics)
+        assert metrics["feature_horizontal_pair"] is True, (name, metrics)
+        assert 2 <= metrics["feature_horizontal_separation"] <= 3, (
+            name,
+            metrics,
+        )
         assert metrics["warm_component"] >= minimum_warm, (name, metrics)
         assert isinstance(metrics["warm_bbox"], tuple), (name, metrics)
         assert metrics["near_white"] == 0, (name, metrics)
@@ -225,6 +235,8 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
     )["anims"]
     frames = list(build_yone.iter_actor_body_frames(anims))
     assert len(frames) == 54
+    profile_frames = set(build_yone.YONE_SINGLE_EYE_PROFILE_FRAMES)
+    observed_profile_frames: set[tuple[str, int]] = set()
     for tag, index, entry in frames:
         data = entry["data"]
         frame = sheet.crop(
@@ -236,8 +248,23 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
             )
         )
         metrics = _portrait_face_metrics(frame, YONE_ACTOR_FACE_WINDOW)
-        assert metrics["feature_pixels"] == 1, (tag, index, metrics)
-        assert metrics["feature_pair"] is False, (tag, index, metrics)
+        frame_key = (tag, index)
+        if frame_key in profile_frames:
+            assert metrics["feature_pixels"] == 1, (tag, index, metrics)
+            observed_profile_frames.add(frame_key)
+        else:
+            assert metrics["feature_pixels"] == 2, (tag, index, metrics)
+            assert metrics["feature_pair"] is False, (tag, index, metrics)
+            assert metrics["feature_horizontal_pair"] is True, (
+                tag,
+                index,
+                metrics,
+            )
+            assert 2 <= metrics["feature_horizontal_separation"] <= 4, (
+                tag,
+                index,
+                metrics,
+            )
         assert metrics["warm_component"] >= 2, (tag, index, metrics)
         assert isinstance(metrics["warm_bbox"], tuple), (tag, index, metrics)
         assert metrics["near_white"] == 0, (tag, index, metrics)
@@ -247,6 +274,7 @@ def test_all_54_yone_battle_faces_are_clear_and_repaint_is_idempotent() -> None:
             tag,
             index,
         )
+    assert observed_profile_frames == profile_frames
 
 
 def _runtime_scoreboard_metrics(size: tuple[int, int]) -> dict[str, int]:
@@ -371,10 +399,9 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
             actual.append(data["h"] - bbox[3])
         assert actual == expected, tag
 
-    # Replay the measured 2x card placement from the user's screenshot. The
-    # center offset is applied in screen pixels after the 2x sprite scale.
-    # center.y=-12 puts the final source pixel at y=95; the black divider starts
-    # at y=99, so y=96..98 remain clear.
+    # Replay the measured 2x card placement from the user's latest screenshot.
+    # The source-to-screen origin is 36 + 2*center.y, so center.y=-12 places
+    # idle[0] at y=12 and leaves the feet well above the black divider.
     idle_data = anims["idle"]["frames"][0]["data"]
     idle_frame = sheet.crop(
         (
@@ -386,41 +413,49 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
     )
     idle_bbox = idle_frame.getchannel("A").getbbox()
     assert idle_bbox is not None
-    card_frame_top = 30 + style["center"]["y"]
+    card_frame_top = 36 + 2 * style["center"]["y"]
     first_card_pixel = card_frame_top + 2 * idle_bbox[1]
     last_card_pixel = card_frame_top + 2 * idle_bbox[3] - 1
     assert first_card_pixel >= 8
-    assert last_card_pixel == 95
-    assert last_card_pixel < 96
-    assert 99 - last_card_pixel - 1 >= 2
+    assert card_frame_top == 12
+    assert last_card_pixel == 89
+    assert last_card_pixel <= 93
+    assert 99 - last_card_pixel - 1 >= 5
 
     # Pixel-perfect reconstruction of the 30x30 screenshot surface: the game
     # crops this 15x15 source window and displays it at 2x nearest-neighbor.
     face_crop = idle_frame.crop((15, 4, 30, 19))
     crop_metrics = _portrait_face_metrics(face_crop, (0.0, 0.0, 1.0, 1.0))
-    assert crop_metrics["feature_pixels"] == 1
-    assert crop_metrics["warm_component"] == 16
+    assert crop_metrics["feature_pixels"] == 2
+    assert crop_metrics["feature_pair"] is False
+    assert crop_metrics["feature_horizontal_pair"] is True
+    assert crop_metrics["feature_horizontal_separation"] == 2
+    assert crop_metrics["warm_component"] >= 18
     warm_bbox = crop_metrics["warm_bbox"]
     assert isinstance(warm_bbox, tuple)
-    assert warm_bbox[2] - warm_bbox[0] == 5
-    assert warm_bbox[3] - warm_bbox[1] == 5
-    eye = [
+    assert warm_bbox[2] - warm_bbox[0] >= 5
+    assert warm_bbox[3] - warm_bbox[1] >= 5
+    eyes = [
         (x, y)
         for y in range(face_crop.height)
         for x in range(face_crop.width)
         if face_crop.getpixel((x, y)) == YONE_FACE_FEATURE_RGBA
     ]
-    assert len(eye) == 1
-    assert 5 <= eye[0][0] <= 9 and 5 <= eye[0][1] <= 10
+    assert eyes == [(6, 6), (8, 6)]
+    assert face_crop.getpixel((7, 6)) in {
+        YONE_FACE_SHADOW_RGBA,
+        YONE_FACE_MID_RGBA,
+        YONE_FACE_LIGHT_RGBA,
+    }
 
     pixels = list(
         face_crop.get_flattened_data()
         if hasattr(face_crop, "get_flattened_data")
         else face_crop.getdata()
     )
-    assert pixels.count(YONE_FACE_SHADOW_RGBA) == 4
-    assert pixels.count(YONE_FACE_MID_RGBA) == 2
-    assert pixels.count(YONE_FACE_LIGHT_RGBA) == 12
+    assert pixels.count(YONE_FACE_SHADOW_RGBA) >= 4
+    assert pixels.count(YONE_FACE_MID_RGBA) >= 2
+    assert pixels.count(YONE_FACE_LIGHT_RGBA) >= 8
     assert RETIRED_FACE_OUTLINE_RGBA not in pixels
 
     rendered = face_crop.resize((30, 30), Image.Resampling.NEAREST)
@@ -433,7 +468,7 @@ def test_yone_default_actor_crop_centers_the_face_and_restores_native_feet() -> 
         )
         if pixel == YONE_FACE_FEATURE_RGBA
     )
-    assert eye_pixels == 4
+    assert eye_pixels == 8
 
 
 def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> None:

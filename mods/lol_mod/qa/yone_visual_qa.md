@@ -4,7 +4,7 @@
 - [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
 - [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.
-- [x] All 54 visible battle-body frames preserve their source hairline, cheek, jaw and alpha silhouette while receiving one visible profile eye; no rectangular face template remains.
+- [x] Card/idle/run/attack/hit/W/dead and every UI portrait preserve their source hairline, cheek, jaw and alpha silhouette while receiving two separated eyes with a skin bridge; only five extreme profile frames retain one eye.
 - [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the 2x card/BP camera is restored to y=-12 so legs and weapons remain above the black divider.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
 - [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.
