@@ -5,7 +5,7 @@
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
 - [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.
 - [x] The retired Yone body model was replaced end-to-end with four new ImageGen contact sheets (core, run, Q/W/R body and defeat); Q/W/R effect sheets remain unchanged.
-- [x] The new large-head natural face is packed with BOX downsampling. Only the four idle/card frames receive a symmetric two-eye, one-nose, two-pixel-mouth color equalization; alpha, hair, mask and silhouette remain source-authored.
+- [x] The new adult-proportioned natural 3/4 face is packed with NEAREST sampling, preserving the source eye, jaw and hair pixels without any post-scale face repaint.
 - [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.
 - [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.
 - [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.

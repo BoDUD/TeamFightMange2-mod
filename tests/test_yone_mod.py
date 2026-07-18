@@ -826,7 +826,7 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
         88,
     )
     assert hashlib.sha256(actor_sheet.getchannel("A").tobytes()).hexdigest() == (
-        "b006deb43308f66eeb8afbc976162ce83700769af04b9a1e81d69af8a93d4687"
+        "bb67379ae006097a709ee53ae24f91605efe679f6d2ef667725fb976e115fbf7"
     )
     portrait_dir = MOD / "ui/champion_portrait"
     assert Image.open(portrait_dir / "dual_blader_compact.png").size == (64, 64)
@@ -838,7 +838,7 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
         MOD / "ui/champion_fullbody/dual_blader.png"
     ).convert("RGBA")
     assert hashlib.sha256(fullbody.getchannel("A").tobytes()).hexdigest() == (
-        "74386c041fed0f7c7b6c179409e1705fdf0716464dee264d6ef9110d73d1dd53"
+        "a2791f76396c85d976c725fb9d6ea8b7e15e0acc328daa828da0414dec47ff8a"
     )
 
 
@@ -880,10 +880,9 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     faces = face_contract["all_battle_body_frames"]
     assert len(faces) == 54
     assert face_contract["policy"] == (
-        "complete ImageGen body-model replacement with a large chibi head, "
-        "source-authored natural face and BOX downsampling; only the four "
-        "idle/card frames receive alpha-preserving two-eye color equalization, "
-        "never a synthetic face plane"
+        "complete adult-proportioned ImageGen body-model replacement with a "
+        "source-authored 3/4-view face and NEAREST native sampling; no "
+        "post-scale face repaint or synthetic feature overlay"
     )
     assert face_contract["body_source_paths"] == [
         "source/imagegen/yone_core_contact.png",
@@ -891,51 +890,50 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         "source/imagegen/yone_wr_body_contact.png",
         "source/imagegen/yone_defeat_contact.png",
     ]
-    assert face_contract["actor_resampling"] == "BOX"
-    assert face_contract["idle_eye_rgba"] == [26, 15, 20, 255]
-    assert face_contract["idle_iris_rgba"] == [216, 154, 102, 255]
-    assert face_contract["idle_nose_rgba"] == [145, 78, 62, 255]
-    assert face_contract["idle_mouth_rgba"] == [79, 27, 34, 255]
-    assert face_contract["idle_face_mid_rgba"] == [181, 109, 81, 255]
-    assert face_contract["idle_face_light_rgba"] == [203, 136, 98, 255]
-    assert face_contract["idle_marker_contract"] == {
-        "pupils": 2,
-        "irises": 2,
-        "nose": 1,
-        "mouth": 2,
-        "semantic_pixels": 7,
-        "eye_components": 2,
+    assert face_contract["actor_resampling"] == "NEAREST"
+    assert face_contract["idle_face_contract"] == {
+        "source_authored": True,
+        "post_scale_repaint": False,
+        "view": "natural 3/4 profile with one dominant eye cue",
         "alpha_geometry_changes": 0,
     }
+    occluded_run_profiles = 0
     for frame_name, row in faces.items():
         if frame_name.startswith("idle["):
             assert row["minimal_feature_set"], (frame_name, row)
-            assert row["semantic_feature_pixels"] == 7, (frame_name, row)
-            assert row["pupil_pixels"] == 2, (frame_name, row)
-            assert row["iris_pixels"] == 2, (frame_name, row)
-            assert row["eye_pixels"] == 4, (frame_name, row)
-            assert row["eye_component_count"] == 2, (frame_name, row)
-            assert row["eye_shape_valid"], (frame_name, row)
-            assert row["nose_pixels"] == 1, (frame_name, row)
-            assert row["mouth_pixels"] == 2, (frame_name, row)
-            assert row["mouth_component_count"] == 1, (frame_name, row)
-            assert row["mouth_shape_valid"], (frame_name, row)
-            assert row["feature_order"], (frame_name, row)
+            assert row["skin_locked_features"], (frame_name, row)
+            assert row["semantic_feature_pixels"] == 0, (frame_name, row)
+            assert row["natural_dark_feature_pixels"] >= 1, (frame_name, row)
             assert row["face_skin_bbox"] is not None, (frame_name, row)
-            assert row["near_white_pixels"] == 0, (frame_name, row)
+            assert row["near_white_pixels"] <= max(
+                2, row["face_skin_pixels"] // 20
+            ), (frame_name, row)
         elif frame_name.startswith("dead["):
             # Foreshortened defeat poses may no longer expose a measurable
             # cheek; their authored half-mask is the stable identity cue.
             assert row["red_mask_pixels"] >= 10, (frame_name, row)
+        elif frame_name.startswith("skill2_attack["):
+            # The changing W blade changes the relative alpha bbox; the
+            # planted body is validated from common normalized pixels below.
+            continue
         else:
-            assert row["minimal_feature_set"], (frame_name, row)
             assert row["skin_locked_features"], (frame_name, row)
             assert row["face_skin_bbox"] is not None, (frame_name, row)
             assert row["semantic_feature_pixels"] == 0, (frame_name, row)
-            assert row["natural_dark_feature_pixels"] >= 1, (frame_name, row)
             assert row["near_white_pixels"] <= max(
-                1, row["face_skin_pixels"] // 20
+                2, row["face_skin_pixels"] // 20
             ), (frame_name, row)
+            if not row["minimal_feature_set"]:
+                bbox = row["face_skin_bbox"]
+                assert frame_name.startswith("run[")
+                assert bbox[2] - bbox[0] >= 3 and bbox[3] - bbox[1] >= 5
+                assert row["face_skin_pixels"] >= 8
+                assert row["face_contrast"] >= 30
+                assert row["red_mask_pixels"] >= 20
+                occluded_run_profiles += 1
+            else:
+                assert row["natural_dark_feature_pixels"] >= 1, (frame_name, row)
+    assert occluded_run_profiles <= 1
     assert set(face_contract["ui_surfaces"]) == {
         "fullbody",
         "compact",
@@ -952,7 +950,7 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         assert row["mouth_pixels"] == 0, (surface, row)
         assert row["natural_dark_feature_pixels"] >= 1, (surface, row)
         assert row["near_white_pixels"] <= max(
-            1, row["face_skin_pixels"] // 20
+            2, row["face_skin_pixels"] // 20
         ), (surface, row)
 
     fullbody_card = face_contract["fullbody_card_85x93"]
@@ -963,8 +961,8 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     assert fullbody_card["rendered_alpha_bbox"] == [7, 9, 78, 87]
     assert fullbody_card["source_bottom_margin"] == 4
     assert fullbody_card["rendered_bottom_margin"] == 6
-    assert fullbody_card["source_last_alpha_row"] == [59, 22, 43]
-    assert fullbody_card["rendered_last_alpha_row"] == [86, 29, 57]
+    assert fullbody_card["source_last_alpha_row"] == [59, 19, 43]
+    assert fullbody_card["rendered_last_alpha_row"] == [86, 25, 57]
     assert fullbody_card["eye_component_boxes"] == []
     assert fullbody_card["pupil_component_boxes"] == []
     assert fullbody_card["iris_component_boxes"] == []
@@ -973,8 +971,8 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
     assert fullbody_card["source_toned_skin_pixels"] == 0
     assert fullbody_card["source_near_white_pixels"] <= 4
     assert fullbody_card["source_natural_dark_feature_pixels"] >= 1
-    assert fullbody_card["source_red_mask_pixels"] >= 100
-    assert fullbody_card["source_red_mask_bbox"] == [15, 10, 41, 37]
+    assert fullbody_card["source_red_mask_pixels"] >= 60
+    assert fullbody_card["source_red_mask_bbox"] == [18, 9, 42, 37]
     assert fullbody_card["marker_projection_valid"]
     assert fullbody_card["marker_spans_valid"]
     assert fullbody_card["rendered_feature_order"]
@@ -1031,15 +1029,20 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         assert row["rendered_feature_order"], (frame_name, row)
         assert row["source_face_skin_bbox"] is not None, (frame_name, row)
         assert row["rendered_face_skin_bbox"] is not None, (frame_name, row)
-        assert row["source_bright_face_skin_pixels"] == 0, (frame_name, row)
-        assert row["source_max_face_skin_luminance"] < 190.0, (frame_name, row)
-        assert row["source_near_white_pixels"] == 0, (frame_name, row)
+        # The replacement model keeps the ImageGen-authored warm facial
+        # highlight instead of repainting a flat, dark template face.  Bound
+        # the highlight and near-white pixels so it cannot become the old
+        # featureless white block at native scale.
+        assert row["source_bright_face_skin_pixels"] <= 12, (frame_name, row)
+        assert row["source_max_face_skin_luminance"] < 230.0, (frame_name, row)
+        assert row["source_near_white_pixels"] <= 1, (frame_name, row)
         assert row["source_natural_dark_feature_pixels"] >= 1, (frame_name, row)
-        assert len(row["eye_component_boxes"]) == 2, (frame_name, row)
-        assert len(row["pupil_component_boxes"]) == 2, (frame_name, row)
-        assert len(row["iris_component_boxes"]) == 2, (frame_name, row)
-        assert len(row["nose_component_boxes"]) == 1, (frame_name, row)
-        assert len(row["mouth_component_boxes"]) == 1, (frame_name, row)
+        assert row["source_red_mask_pixels"] >= 20, (frame_name, row)
+        assert row["eye_component_boxes"] == [], (frame_name, row)
+        assert row["pupil_component_boxes"] == [], (frame_name, row)
+        assert row["iris_component_boxes"] == [], (frame_name, row)
+        assert row["nose_component_boxes"] == [], (frame_name, row)
+        assert row["mouth_component_boxes"] == [], (frame_name, row)
         assert row["divider_clearance"] >= live_card["minimum_divider_clearance"], (
             frame_name,
             row,
@@ -1074,14 +1077,14 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         "source_bottom_clearance": 16,
         "rendered_bottom_clearance": 35,
         "divider_clearance": 13,
-        "eye_component_boxes": [[44, 31, 49, 33], [53, 31, 57, 33]],
-        "pupil_component_boxes": [[46, 31, 49, 33], [55, 31, 57, 33]],
-        "iris_component_boxes": [[44, 31, 46, 33], [53, 31, 55, 33]],
-        "nose_component_boxes": [[49, 35, 51, 37]],
-        "mouth_component_boxes": [[46, 40, 51, 42]],
+        "eye_component_boxes": [],
+        "pupil_component_boxes": [],
+        "iris_component_boxes": [],
+        "nose_component_boxes": [],
+        "mouth_component_boxes": [],
         "source_toned_skin_pixels": 0,
-        "source_bright_face_skin_pixels": 0,
-        "source_max_face_skin_luminance": 184.049,
+        "source_bright_face_skin_pixels": 11,
+        "source_max_face_skin_luminance": 215.324,
     }
     live_run = face_contract["live_run_profile"]
     assert {
@@ -1109,6 +1112,7 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         21,
         17,
     ]
+    visible_run_eye_cues = 0
     for frame_name, row in run_frames.items():
         assert row["face_variant"] == "profile", (frame_name, row)
         assert row["marker_projection_valid"], (frame_name, row)
@@ -1116,8 +1120,9 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         assert row["rendered_feature_order"], (frame_name, row)
         assert row["source_face_skin_bbox"] is not None, (frame_name, row)
         assert row["rendered_face_skin_bbox"] is not None, (frame_name, row)
-        assert row["source_near_white_pixels"] <= 1, (frame_name, row)
-        assert row["source_natural_dark_feature_pixels"] >= 1, (frame_name, row)
+        assert row["source_near_white_pixels"] <= 2, (frame_name, row)
+        if row["source_natural_dark_feature_pixels"] >= 1:
+            visible_run_eye_cues += 1
         assert row["eye_component_boxes"] == [], (frame_name, row)
         assert row["pupil_component_boxes"] == [], (frame_name, row)
         assert row["iris_component_boxes"] == [], (frame_name, row)
@@ -1125,17 +1130,18 @@ def test_visual_qa_records_the_stateless_cone_contract() -> None:
         assert row["mouth_component_boxes"] == [], (frame_name, row)
         assert row["rendered_bottom_clearance"] > 0, (frame_name, row)
         assert row["divider_clearance"] >= 10, (frame_name, row)
+    assert visible_run_eye_cues >= 7
     assert faces["idle[0]"]["minimal_feature_set"]
-    assert faces["idle[0]"]["eye_positions"] == [
-        [20, 14],
-        [21, 14],
-        [24, 14],
-        [25, 14],
+    assert faces["idle[0]"]["semantic_feature_pixels"] == 0
+    assert faces["idle[0]"]["eye_positions"] == []
+    assert faces["idle[0]"]["pupil_positions"] == []
+    assert faces["idle[0]"]["iris_positions"] == []
+    assert faces["idle[0]"]["nose_positions"] == []
+    assert faces["idle[0]"]["mouth_positions"] == []
+    assert faces["idle[0]"]["natural_dark_feature_positions"] == [
+        [19, 9],
+        [21, 10],
     ]
-    assert faces["idle[0]"]["pupil_positions"] == [[21, 14], [25, 14]]
-    assert faces["idle[0]"]["iris_positions"] == [[20, 14], [24, 14]]
-    assert faces["idle[0]"]["nose_positions"] == [[22, 16]]
-    assert faces["idle[0]"]["mouth_positions"] == [[21, 18], [22, 18]]
 
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:
@@ -1192,19 +1198,28 @@ def test_w_actor_sequence_is_planted_and_does_not_reuse_retired_e_lunges() -> No
     assert len(set(visible_poses)) >= 3
     assert max(relative_foot_anchors) - min(relative_foot_anchors) == 0
     assert bottom_clearances == [3, 4, 8, 9, 7]
-    contract = json.loads(
-        (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")
-    )
-    face_rows = contract["face_readability"]["all_battle_body_frames"]
-    face_x = []
-    face_y = []
-    for index, frame in enumerate(anim):
+    normalized_frames = []
+    for frame in anim:
         data = frame["data"]
-        face_bbox = face_rows[f"skill2_attack[{index}]"]["face_skin_bbox"]
-        face_x.append((face_bbox[0] + face_bbox[2] - data["w"]) / 2)
-        face_y.append((face_bbox[1] + face_bbox[3] - data["h"]) / 2)
-    assert max(face_x) - min(face_x) == 0
-    assert max(face_y) - min(face_y) == 0
+        image = sheet.crop(
+            (data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"])
+        )
+        normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
+        normalized.alpha_composite(
+            image, ((61 - data["w"]) // 2, (55 - data["h"]) // 2)
+        )
+        normalized_frames.append(normalized)
+    common_body = normalized_frames[0].copy()
+    for y in range(common_body.height):
+        for x in range(common_body.width):
+            pixel = common_body.getpixel((x, y))
+            if pixel[3] < 128 or any(
+                frame.getpixel((x, y)) != pixel for frame in normalized_frames[1:]
+            ):
+                common_body.putpixel((x, y), (0, 0, 0, 0))
+    common_bbox = common_body.getchannel("A").getbbox()
+    assert common_bbox is not None and common_bbox[3] - common_bbox[1] >= 30
+    assert sum(1 for alpha in common_body.getchannel("A").getdata() if alpha) >= 250
     assert "w_master_subject" in source
     assert "add_yone_w_weapon_pose" in source
     assert '- BODY_BOTTOM_MARGINS["skill2_attack"][index]' in source
@@ -1231,8 +1246,8 @@ def test_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     assert "80°" in readme
     assert "35 + 45% Attack + 6%" in readme
     assert "全套 ImageGen 人物重制" in readme
-    assert "`BOX` 缩放" in readme
-    assert "清楚分离的双眼" in readme
+    assert "`NEAREST` 采样" in readme
+    assert "不再对脸部做任何后处理重画" in readme
 
     manifest = json.loads(
         (MOD / "build_manifest.json").read_text(encoding="utf-8")

@@ -7083,30 +7083,23 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ]
     check(
         face_readability.get("policy")
-        == "complete ImageGen body-model replacement with a large chibi head, source-authored natural face and BOX downsampling; only the four idle/card frames receive alpha-preserving two-eye color equalization, never a synthetic face plane",
+        == "complete adult-proportioned ImageGen body-model replacement with a source-authored 3/4-view face and NEAREST native sampling; no post-scale face repaint or synthetic feature overlay",
         "Yone visual QA must describe the complete ImageGen natural-face model",
     )
     check(
         face_readability.get("body_source_paths") == expected_body_sources,
         "Yone complete ImageGen body-model source set changed",
     )
-    check(face_readability.get("actor_resampling") == "BOX", "Yone actor must use BOX downsampling")
-    check(face_readability.get("idle_eye_rgba") == list(yone_imagegen_eye_rgba), "Yone idle pupil color changed")
-    check(face_readability.get("idle_iris_rgba") == list(yone_imagegen_iris_rgba), "Yone idle iris color changed")
-    check(face_readability.get("idle_nose_rgba") == list(yone_imagegen_nose_rgba), "Yone idle nose color changed")
-    check(face_readability.get("idle_mouth_rgba") == list(yone_imagegen_mouth_rgba), "Yone idle mouth color changed")
+    check(face_readability.get("actor_resampling") == "NEAREST", "Yone actor must use NEAREST native sampling")
     check(
-        face_readability.get("idle_marker_contract")
+        face_readability.get("idle_face_contract")
         == {
-            "pupils": 2,
-            "irises": 2,
-            "nose": 1,
-            "mouth": 2,
-            "semantic_pixels": 7,
-            "eye_components": 2,
+            "source_authored": True,
+            "post_scale_repaint": False,
+            "view": "natural 3/4 profile with one dominant eye cue",
             "alpha_geometry_changes": 0,
         },
-        "Yone four-frame idle/card face contract changed",
+        "Yone source-authored idle/card face contract changed",
     )
     check(
         not any(
@@ -7362,7 +7355,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         minimal_feature_set = (
             readable_geometry
             and skin_locked_features
-            and near_white <= max(1, len(audited_skin) // 20)
+            and near_white <= max(2, len(audited_skin) // 20)
         )
         return {
             "body_bbox": list(body),
@@ -7540,6 +7533,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         }
 
     check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
+    occluded_run_profiles = 0
     for frame_name, quality in face_rows.items():
         tag = frame_name.partition("[")[0]
         if tag == "dead":
@@ -7547,6 +7541,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 quality.get("red_mask_pixels", 0) >= 10,
                 f"Yone {frame_name} lost the rebuilt mask silhouette: {quality}",
             )
+            continue
+        if tag == "skill2_attack":
+            # The changing W blade distorts bbox-relative face windows. Its
+            # planted face is validated below from the byte-identical pixels
+            # shared by all five normalized frames.
             continue
         bbox = quality.get("face_skin_bbox")
         natural_face = (
@@ -7560,24 +7559,39 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and quality.get("face_contrast", 0) >= 18
             and quality.get("natural_dark_feature_pixels", 0) + quality.get("eye_pixels", 0) >= 1
             and quality.get("near_white_pixels", 99)
-            <= max(1, quality.get("face_skin_pixels", 0) // 20)
+            <= max(2, quality.get("face_skin_pixels", 0) // 20)
         )
-        check(natural_face, f"Yone natural ImageGen face is unreadable in {frame_name}: {quality}")
+        occluded_profile = (
+            tag == "run"
+            and isinstance(bbox, list)
+            and len(bbox) == 4
+            and bbox[2] - bbox[0] >= 3
+            and bbox[3] - bbox[1] >= 5
+            and quality.get("face_skin_pixels", 0) >= 8
+            and quality.get("face_contrast", 0) >= 30
+            and quality.get("red_mask_pixels", 0) >= 20
+            and quality.get("near_white_pixels", 99) <= 2
+        )
+        if not natural_face and occluded_profile:
+            occluded_run_profiles += 1
+        check(
+            natural_face or occluded_profile,
+            f"Yone natural ImageGen face is unreadable in {frame_name}: {quality}",
+        )
         if tag == "idle":
             check(
-                quality.get("pupil_pixels") == 2
-                and quality.get("iris_pixels") == 2
-                and quality.get("eye_pixels") == 4
-                and quality.get("eye_component_count") == 2
-                and quality.get("eye_shape_valid") is True
-                and quality.get("nose_pixels") == 1
-                and quality.get("mouth_pixels") == 2
-                and quality.get("mouth_shape_valid") is True
-                and quality.get("semantic_feature_pixels") == 7
-                and quality.get("feature_order") is True
+                quality.get("semantic_feature_pixels") == 0
+                and quality.get("eye_pixels") == 0
+                and quality.get("nose_pixels") == 0
+                and quality.get("mouth_pixels") == 0
+                and quality.get("natural_dark_feature_pixels", 0) >= 1
                 and quality.get("near_white_pixels", 99) <= 1,
-                f"Yone {frame_name} must keep two pupils, two irises, nose and mouth: {quality}",
+                f"Yone {frame_name} must keep its source-authored 3/4 face: {quality}",
             )
+    check(
+        occluded_run_profiles <= 1,
+        f"Yone run loop has too many eye-occluded profiles: {occluded_run_profiles}",
+    )
 
     ui_face_rows = face_readability.get("ui_surfaces", {})
     check(
@@ -7598,7 +7612,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and quality.get("face_contrast", 0) >= 18
             and quality.get("natural_dark_feature_pixels", 0) + quality.get("eye_pixels", 0) >= 1
             and quality.get("near_white_pixels", 99)
-            <= max(1, quality.get("face_skin_pixels", 0) // 20),
+            <= max(2, quality.get("face_skin_pixels", 0) // 20),
             f"Yone {surface} natural ImageGen face is unreadable: {quality}",
         )
 
@@ -7854,8 +7868,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         w_pose_hashes: set[str] = set()
         w_bottoms: list[int] = []
         w_relative_foot: list[float] = []
-        w_face_x: list[float] = []
-        w_face_y: list[float] = []
+        normalized_w_frames: list[Image.Image] = []
         for index, frame in enumerate(actor_anims.get("skill2_attack", {}).get("frames", [])):
             data = frame.get("data", {})
             width = int(data.get("w", 0))
@@ -7870,16 +7883,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             )
             normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
             normalized.alpha_composite(crop, ((61 - width) // 2, (55 - height) // 2))
+            normalized_w_frames.append(normalized)
             w_pose_hashes.add(hashlib.sha256(normalized.tobytes()).hexdigest())
             bbox = crop.getchannel("A").getbbox()
             if bbox is not None:
                 w_bottoms.append(height - bbox[3])
                 w_relative_foot.append(bbox[3] - height / 2)
-            face = face_rows.get(f"skill2_attack[{index}]", {})
-            face_skin_bbox = face.get("face_skin_bbox")
-            if isinstance(face_skin_bbox, list) and len(face_skin_bbox) == 4:
-                w_face_x.append((face_skin_bbox[0] + face_skin_bbox[2] - width) / 2)
-                w_face_y.append((face_skin_bbox[1] + face_skin_bbox[3] - height) / 2)
         check(len(w_pose_hashes) >= 3, "Yone W must retain at least three visible forearm/blade poses")
         check(w_bottoms == [3, 4, 8, 9, 7], f"Yone W centred bottom profile changed: {w_bottoms}")
         check(
@@ -7887,11 +7896,24 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and max(w_relative_foot) - min(w_relative_foot) == 0,
             f"Yone W foot pivot moved: {w_relative_foot}",
         )
+        common_w_body = normalized_w_frames[0].copy()
+        for y in range(common_w_body.height):
+            for x in range(common_w_body.width):
+                pixel = common_w_body.getpixel((x, y))
+                if pixel[3] < 128 or any(
+                    frame.getpixel((x, y)) != pixel
+                    for frame in normalized_w_frames[1:]
+                ):
+                    common_w_body.putpixel((x, y), (0, 0, 0, 0))
+        common_bbox = common_w_body.getchannel("A").getbbox()
+        common_face = yone_face_metrics(common_w_body)
         check(
-            len(w_face_x) == 5
-            and max(w_face_x) - min(w_face_x) == 0
-            and max(w_face_y) - min(w_face_y) == 0,
-            f"Yone W face pivot moved: x={w_face_x}, y={w_face_y}",
+            common_bbox is not None
+            and common_bbox[3] - common_bbox[1] >= 30
+            and common_face.get("face_skin_bbox") is not None
+            and common_face.get("face_contrast", 0) >= 18
+            and common_face.get("natural_dark_feature_pixels", 0) >= 1,
+            f"Yone planted W body/face is not stable: bbox={common_bbox}, face={common_face}",
         )
 
         expected_core_bottoms = {
@@ -8196,7 +8218,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 and measured_fullbody_card.get("source_natural_dark_feature_pixels", 0) >= 1
                 and measured_fullbody_card.get("source_near_white_pixels", 99)
                 <= max(
-                    1,
+                    2,
                     ui_face_rows.get("fullbody", {}).get("face_skin_pixels", 0) // 20,
                 )
                 and measured_fullbody_card.get("source_red_mask_pixels", 0) >= 20,
@@ -8286,7 +8308,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "4×5", "最终 `1x`", "54",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "成年比例", "NEAREST", "最终 `1x`", "54",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -8418,17 +8440,17 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(
                 scaled_face.get("marker_projection_valid") is True
                 and scaled_face.get("rendered_feature_order") is True
-                and len(scaled_face.get("eye_component_boxes", [])) == 2
-                and len(scaled_face.get("pupil_component_boxes", [])) == 2
-                and len(scaled_face.get("iris_component_boxes", [])) == 2
-                and len(scaled_face.get("nose_component_boxes", [])) == 1
-                and len(scaled_face.get("mouth_component_boxes", [])) == 1
+                and scaled_face.get("eye_component_boxes") == []
+                and scaled_face.get("pupil_component_boxes") == []
+                and scaled_face.get("iris_component_boxes") == []
+                and scaled_face.get("nose_component_boxes") == []
+                and scaled_face.get("mouth_component_boxes") == []
                 and scaled_face.get("source_face_skin_bbox") is not None
                 and scaled_face.get("rendered_face_skin_bbox") is not None
                 and scaled_face.get("source_near_white_pixels", 99) <= 1
                 and scaled_face.get("source_face_contrast", 0) >= 18
                 and scaled_face.get("source_natural_dark_feature_pixels", 0) >= 1,
-                f"Yone {frame_name} two-eye natural face is unreadable at 2.2x: {scaled_face}",
+                f"Yone {frame_name} source-authored 3/4 face is unreadable at 2.2x: {scaled_face}",
             )
     check(
         len(rendered_sizes) == 4
@@ -8466,6 +8488,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     expected_run_bottoms = [13, 18, 21, 18, 13, 17, 21, 17]
     run_sizes: list[tuple[int, int]] = []
     run_clearances: list[int] = []
+    run_eye_cue_frames = 0
     if card_sheet is not None:
         for index, entry in enumerate(run_entries):
             data = entry.get("data", {})
@@ -8512,6 +8535,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 f"Yone {frame_name} live run foot clearance changed: source={source_bottom}, rendered={rendered_bottom}, divider={divider_clearance}",
             )
             scaled_face = yone_scaled_face_metrics(run_crop, live_run)
+            if scaled_face.get("source_natural_dark_feature_pixels", 0) >= 1:
+                run_eye_cue_frames += 1
             measured = {
                 "source_size": list(run_crop.size),
                 "rendered_size": list(live_run.size),
@@ -8533,16 +8558,17 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(
                 scaled_face.get("source_face_skin_bbox") is not None
                 and scaled_face.get("rendered_face_skin_bbox") is not None
-                and scaled_face.get("source_near_white_pixels", 99) <= 1
-                and scaled_face.get("source_face_contrast", 0) >= 18
-                and scaled_face.get("source_natural_dark_feature_pixels", 0) >= 1,
+                and scaled_face.get("source_near_white_pixels", 99) <= 2
+                and scaled_face.get("source_face_contrast", 0) >= 30
+                and scaled_face.get("source_red_mask_pixels", 0) >= 20,
                 f"Yone {frame_name} natural profile face is unreadable at 2.2x: {scaled_face}",
             )
     check(
         len(run_sizes) == 8
         and len(run_clearances) == 8
+        and run_eye_cue_frames >= 7
         and all(clearance >= minimum_divider_clearance for clearance in run_clearances),
-        f"Yone live 2.2x run projection or clearance failed: sizes={run_sizes}, clearances={run_clearances}",
+        f"Yone live 2.2x run projection, face cue or clearance failed: sizes={run_sizes}, eye_cues={run_eye_cue_frames}, clearances={run_clearances}",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")

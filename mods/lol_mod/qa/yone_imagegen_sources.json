@@ -3,21 +3,21 @@
   "champion": "Yone",
   "generator": "built-in image_gen",
   "generated_on": "2026-07-18",
-  "processing": "four complete ImageGen body contact-sheet replacements, deterministic green-screen soft matte/despill, hard-alpha packing, BOX downsampling for native actor pixels, alpha-preserving two-eye equalization on idle/card frames only, and official Dual Blader foot baselines",
+  "processing": "four complete ImageGen adult body contact-sheet replacements, deterministic green-screen soft matte/despill, hard-alpha packing, NEAREST native actor sampling with no face repaint, and official Dual Blader foot baselines",
   "sources": [
     {
       "path": "source/imagegen/yone_core_contact.png",
       "dimensions": [
-        1401,
-        1123
+        1400,
+        1120
       ],
-      "size_bytes": 1650321,
-      "sha256": "a0d2a07fcae8cebc50c0927e8f4031d58cf35d86f5a9be39a93808f7183787e6",
+      "size_bytes": 874203,
+      "sha256": "855b3523890d404ecb0abd5824d4998956252901a5fb9d152beff58543c96271",
       "alpha_bbox": [
         0,
         0,
-        1401,
-        1123
+        1400,
+        1120
       ],
       "alpha_extrema": [
         255,
@@ -30,8 +30,8 @@
         1400,
         1122
       ],
-      "size_bytes": 346795,
-      "sha256": "f9ea5fc4bed3a1caaffca738750c4943d8c3ef2f3e5a6a199a525fe6f3706f4b",
+      "size_bytes": 355852,
+      "sha256": "49375e540add5725c9792c541bc1b86d9ac119b6276623337a0a623b8e0b0daa",
       "alpha_bbox": [
         0,
         0,
@@ -49,8 +49,8 @@
         1400,
         1120
       ],
-      "size_bytes": 1107853,
-      "sha256": "f60d536a3c1f49f5462859065f2954b3ac50d7f3397450d286038052bb3d81c5",
+      "size_bytes": 760756,
+      "sha256": "b29fd599c0f2637131e6fb5417730ce542eaf98fa79626ac39d81a4fe95a2be5",
       "alpha_bbox": [
         0,
         0,
@@ -68,8 +68,8 @@
         1772,
         886
       ],
-      "size_bytes": 467773,
-      "sha256": "e1687ad204c6b8f9d22d4ea4e538c4eb9827c4df100898e4c1103a5b15dcda26",
+      "size_bytes": 428924,
+      "sha256": "0c76ac760953ab9ed9e5436556d76d12754a65e683a4b13427559435b11fb784",
       "alpha_bbox": [
         0,
         0,
@@ -200,16 +200,16 @@
     {
       "path": "source/processed/yone_core_contact_alpha.png",
       "dimensions": [
-        1401,
-        1123
+        1400,
+        1120
       ],
-      "size_bytes": 1039842,
-      "sha256": "e22fde6b2b263fe4e7ca86472ea63caafc6c9564f511dd654442b00f6d15b8f2",
+      "size_bytes": 1015524,
+      "sha256": "852f85a8b181a3e8b1e4aeeff4d14bf2aa9832ad7af418fa164c43338ef598e5",
       "alpha_bbox": [
-        19,
-        48,
-        1388,
-        1056
+        26,
+        26,
+        1395,
+        1097
       ],
       "alpha_extrema": [
         0,
@@ -222,13 +222,13 @@
         1400,
         1122
       ],
-      "size_bytes": 370121,
-      "sha256": "1b90b7c1eae0c4f89b63d3250ee93154f54007ce21c5e8fd370a35bc98257709",
+      "size_bytes": 397342,
+      "sha256": "b3288ae2fa4a7e05b25821e01c634d4d099dc173aa152ed4ae29b58626302a4f",
       "alpha_bbox": [
-        73,
-        260,
-        1318,
-        859
+        60,
+        249,
+        1338,
+        861
       ],
       "alpha_extrema": [
         0,
@@ -241,13 +241,13 @@
         1400,
         1120
       ],
-      "size_bytes": 930513,
-      "sha256": "682716ae8b88cd1cd643b843a53f4b69b21fb09131d257ca7c3897a5660c6746",
+      "size_bytes": 760585,
+      "sha256": "463d778702906ceb0bf29e7565887fcb84e8c88f9783ca3254f478d92a2ce75c",
       "alpha_bbox": [
+        36,
         38,
-        39,
-        1367,
-        1013
+        1382,
+        1083
       ],
       "alpha_extrema": [
         0,
@@ -260,13 +260,13 @@
         1772,
         886
       ],
-      "size_bytes": 542389,
-      "sha256": "4116a11463d2750be08a198274a618013e84617a23dd808e279dd481ebd59337",
+      "size_bytes": 458931,
+      "sha256": "2309ef37153ab1b4436171bc032e438eb19db39c870030d3683d80a7f11d46c9",
       "alpha_bbox": [
-        67,
-        92,
-        1707,
-        779
+        62,
+        115,
+        1750,
+        711
       ],
       "alpha_extrema": [
         0,
@@ -358,7 +358,7 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "5890b2be50ff7cf676100118a7a3017210e5943884c1fd5daecb42353360e5e7",
+      "sha256": "7569c3178475ab1fbbcf9151098ed93cacebf0784c411d9729637c5179759ac7",
       "alpha_bbox": [
         46,
         1,
@@ -602,7 +602,7 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "6ebe5884baaf287d5ef20c38b4eacf1cfca6bd759585299c725ea2559b8898c4",
+      "sha256": "aecd3f993042f7164953b047895172ec34642d56a2d1bc267aeae9a4b748b490",
       "alpha_bbox": [
         5,
         6,
@@ -621,11 +621,11 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "1a3e565aa4fb116ce7d132bc85316cf12a269a8fd8b9745a618e4f993b586b19",
+      "sha256": "c676021c8a3491cebfb20f11b7aaefd4fa6d0ac6dfd87b4539477014a615dcf3",
       "alpha_bbox": [
-        7,
-        10,
-        57,
+        8,
+        8,
+        55,
         58
       ],
       "alpha_extrema": [
@@ -640,11 +640,11 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "755927a1e77eea0063ad37c8c7841f271ceb9c5f03bfe78442851e0e9b15f2e1",
+      "sha256": "291500c11b9ccb8fa7d41d9d928945a207383e9775d744e84f0567f7732ce3ab",
       "alpha_bbox": [
         5,
         6,
-        42,
+        43,
         60
       ],
       "alpha_extrema": [
@@ -659,10 +659,10 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "d9745ea022536e97758937b3b24a4ca5f642f0fa8150bd2ef55166b2e8ad6462",
+      "sha256": "738f3614656277adf23ff139be025547c72d1409ab2f4f25002f7afe4716b83b",
       "alpha_bbox": [
         7,
-        10,
+        11,
         83,
         86
       ],
