@@ -7495,7 +7495,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         rendered_face_mask = face_mask.resize(rendered.size, Image.Resampling.NEAREST)
         rendered_face_bbox = rendered_face_mask.getbbox()
         rendered_face_pixels = sum(
-            1 for value in rendered_face_mask.get_flattened_data() if value
+            1
+            for value in getattr(
+                rendered_face_mask,
+                "get_flattened_data",
+                rendered_face_mask.getdata,
+            )()
+            if value
         )
         max_row_fill_ratio = 0.0
         if rendered_face_bbox is not None:
