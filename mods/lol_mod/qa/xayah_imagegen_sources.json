@@ -757,8 +757,8 @@
     },
     {
       "path": "aseprite_resources/champions/xayah#anim.fanim",
-      "size_bytes": 8349,
-      "sha256": "9eac5511d3bf7898665c1fba3d2fd090b999d233edcca9d7df87ff6db1965043"
+      "size_bytes": 7909,
+      "sha256": "f8690cc55375de474c0d30ccd07d6ca04f1e47ae620a2cc44cfd7caad5ebec43"
     },
     {
       "path": "icons/xayah_skill.png",
@@ -782,8 +782,8 @@
     },
     {
       "path": "aseprite_resources/effects/xayah_attack#anim.fanim",
-      "size_bytes": 1511,
-      "sha256": "30d93b3b087c8bb8b2936e525bac371471d0dce7aab7e4b19b8482e46d7c1774"
+      "size_bytes": 1427,
+      "sha256": "a25158a65d41809ec5ab74ab84537ed83318dcd0919d5967a3f6017fce87d22c"
     },
     {
       "path": "aseprite_resources/effects/xayah_q#sheet.png",
@@ -792,18 +792,18 @@
     },
     {
       "path": "aseprite_resources/effects/xayah_q#anim.fanim",
-      "size_bytes": 1511,
-      "sha256": "66bdbf4a6a82164116fee263fcdc00a64d40b2717ae77a7aa56323591f7bd2b4"
+      "size_bytes": 1427,
+      "sha256": "e2b0523dd571310423f1d9a861dd6ff6830b507fd83079c682ed4c607fd41802"
     },
     {
       "path": "aseprite_resources/effects/xayah_e#sheet.png",
-      "size_bytes": 297280,
-      "sha256": "1635fba0808b22b6e4daee43eaa74e809d7a20a80ffdb7252a94b845b95d0538"
+      "size_bytes": 298561,
+      "sha256": "ebcc533b8adaf24125f3ae912aca5abcf8e0f5ff8b7e4e69a77f342f3677c30c"
     },
     {
       "path": "aseprite_resources/effects/xayah_e#anim.fanim",
-      "size_bytes": 3769,
-      "sha256": "e90036f8631b4851307d7a38f250907eead5722758c96c7518be185ea0ed9df1"
+      "size_bytes": 3775,
+      "sha256": "e921d6a265bdeb7da948e8abacab30ea3db40e9858269b79407548bd525d83d8"
     },
     {
       "path": "aseprite_resources/effects/xayah_r#sheet.png",
@@ -812,8 +812,8 @@
     },
     {
       "path": "aseprite_resources/effects/xayah_r#anim.fanim",
-      "size_bytes": 2257,
-      "sha256": "a27f498735447ea7435de8961a9f309378d5cee80e1bb4de2099880df8748bea"
+      "size_bytes": 2133,
+      "sha256": "30caa39c59e2cc9cd8d68696dd502ecb5caa6529cfa9559152318b8d3b3605a3"
     },
     {
       "path": "aseprite_resources/effects/xayah_ground_feather#sheet.png",
@@ -822,8 +822,8 @@
     },
     {
       "path": "aseprite_resources/effects/xayah_ground_feather#anim.fanim",
-      "size_bytes": 1520,
-      "sha256": "e3f3f64a426938ee5ebcf377a64fcb30bc61f4c76d3f39a09df453eb1ccf598a"
+      "size_bytes": 1436,
+      "sha256": "bfac010f5ab2c18914cb13ba3ec2827b9092388bc9cccbb626a6ac5b56d8b9ed"
     },
     {
       "path": "BanPickIllust/dancer.png",
