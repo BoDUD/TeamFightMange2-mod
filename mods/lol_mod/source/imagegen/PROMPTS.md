@@ -524,3 +524,56 @@ The first 320-pixel-detail actor/run route above is retained only as rejected pr
 - Ground Feather VFX v1: execution `exec-178182ff-7735-4228-b339-62352f37295c`; `source/imagegen/xayah_ground_feather_contact_v1.png` -> `source/processed/xayah_ground_feather_contact_v1_alpha.png`. Exact 4x2 rows for one embedded Q Feather and one five-Feather R landing fan. Runtime packing reduces them to 48x40 / 72x48, plays once, and forces the fourth frame fully transparent so the fixed 180-tick data projectile cannot leave a permanently visible ghost.
 
 All corrective chroma sources used the installed `remove_chroma_key.py` helper with border auto-key, soft matte, thresholds 12/220 and despill. Validation found transparent corners and zero visible green-dominant residue in every accepted output.
+
+# Yone final adult-model ImageGen replacement
+
+The four active Yone body plates were generated with the built-in `image_gen`
+tool on 2026-07-18. They replace the retired blocky actor end-to-end; no face,
+eye, arm, leg, mask, or weapon is painted by the packer. Body plates use a
+corner-detected magenta chroma background, are keyed deterministically, and
+are each reduced once as a complete sheet with nearest-neighbour sampling to
+the final native 1x grid. Runtime frames are then copied byte-for-byte.
+
+## Yone core body contact
+
+- Imported target: `source/imagegen/yone_core_contact.png`; accepted alpha
+  source: `source/processed/yone_core_contact_alpha.png`.
+- Key prompt: strict 5x4 action sheet of one consistent adult Yone model with
+  a narrow natural three-quarter face, visible dark eye/nose/mouth/jaw cues,
+  long black hair, small rear-left red demon mask, black/navy red-and-gold
+  Ionian clothing, complete long legs and feet, and separately readable
+  blue-white steel and red Azakana swords; distinct idle, hit, attack, Q and
+  utility poses on a flat chroma plate with no body VFX, text, border, logo,
+  watermark, duplicate actor, or cropped extremity.
+
+## Yone eight-phase run contact, final corrective pass
+
+- Final ImageGen edit execution: `exec-e3780cca-3fb4-43bc-9f8d-bebd956b72c4`.
+- Imported target: `source/imagegen/yone_run_contact.png`; accepted alpha
+  source: `source/processed/yone_run_contact_alpha.png`.
+- Key prompt: exact 4x2 chronological run cycle using the locked adult model,
+  complete alternating foot phases and compact dual swords behind the actor.
+  Every phase requires a broad contiguous warm-skin face opening, a separate
+  dark eye, visible jaw/neck, and a smaller mask fully behind the head so the
+  native 1x result retains at least a 4x3 face component, six warm-skin pixels,
+  and strong contrast without changing the official foot anchors. No repeated
+  pose, detached fragment, body VFX, shadow, scenery, label, border, logo, or
+  watermark.
+
+## Yone W/R body contact
+
+- Imported target: `source/imagegen/yone_wr_body_contact.png`; accepted alpha
+  source: `source/processed/yone_wr_body_contact_alpha.png`.
+- Key prompt: strict 5x4 sequence of the same complete adult Yone for W guard,
+  wind-up, cross, full crescent sweep and recovery plus R charge/slash/arrival
+  phases; both sword identities, face, mask, feet, body scale and baseline stay
+  consistent, with no detached actor effect or alternate model.
+
+## Yone defeat contact
+
+- Imported target: `source/imagegen/yone_defeat_contact.png`; accepted alpha
+  source: `source/processed/yone_defeat_contact_alpha.png`.
+- Key prompt: exact 4x2 non-gory chronological stagger, fall, collapse and
+  settle sequence using the same actor, mask, clothing and dual swords; one
+  connected complete subject per cell, progressively lower silhouette, safe
+  margins, and no revival, duplicate body, gore, explosion, text or watermark.
