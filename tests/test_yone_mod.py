@@ -1391,7 +1391,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.6"
+    assert mod_info["version"] == "0.10.7"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1437,7 +1437,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     }.intersection(paths)
 
 
-def test_yone_v4_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
+def test_yone_v5_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
@@ -1446,20 +1446,35 @@ def test_yone_v4_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     assert "Q/W/R" in readme
     assert "Soul Unbound" not in readme
 
-    v4 = json.loads(
-        (MOD / "source/native/yone_v4/frames.json").read_text(encoding="utf-8")
+    champion_payload = (MOD / "champion/dual_blader.data_champion").read_text(
+        encoding="utf-8"
     )
-    assert v4["schema_version"] == 4
-    assert v4["route"] == "exact-native-v4"
-    assert len(v4["frames"]) == 54
+    for ability_runtime_prefix in (
+        "lol_yone_q_",
+        "lol_yone_w_",
+        "lol_yone_r_",
+    ):
+        assert ability_runtime_prefix in champion_payload
+
+    v5 = json.loads(
+        (MOD / "source/native/yone_v5/frames.json").read_text(encoding="utf-8")
+    )
+    assert v5["schema_version"] == 5
+    assert v5["route"] == "exact-native-v5"
+    assert len(v5["frames"]) == 54
+    assert all("face_visibility" in row for row in v5["frames"])
 
     manifest = json.loads(
         (MOD / "build_manifest.json").read_text(encoding="utf-8")
     )
     paths = {row["path"].replace("\\", "/") for row in manifest["files"]}
     assert {
+        "aseprite_resources/effects/yone_q#anim.fanim",
+        "aseprite_resources/effects/yone_q#sheet.png",
         "aseprite_resources/effects/yone_w#anim.fanim",
         "aseprite_resources/effects/yone_w#sheet.png",
+        "aseprite_resources/effects/yone_r#anim.fanim",
+        "aseprite_resources/effects/yone_r#sheet.png",
         "sound/sfx/lol_yone_w_cast.sound_info",
         "sound/sfx/lol_yone_w_hit.sound_info",
         "sound/sfx/lol_yone_w_shield.sound_info",
@@ -1470,7 +1485,17 @@ def test_yone_v4_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
         "source/imagegen/yone_wr_body_contact.png",
         "source/imagegen/yone_defeat_contact.png",
         "source/processed/yone_native_body_master.png",
+        "source/imagegen/yone_v4_action_contact.png",
+        "source/imagegen/yone_v4_idle_candidate_43x55.png",
     }.intersection(paths)
+    assert not any(path.startswith("source/native/yone_v4/") for path in paths)
+    assert not any("yone_v4" in path.casefold() for path in paths)
+    physical_v4_files = sorted(
+        path.relative_to(MOD).as_posix()
+        for path in MOD.rglob("*")
+        if path.is_file() and "yone_v4" in path.name.casefold()
+    )
+    assert physical_v4_files == []
 
 
 def test_yone_manifest_uses_explicit_builder_outputs_and_fails_closed() -> None:

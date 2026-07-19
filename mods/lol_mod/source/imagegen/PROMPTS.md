@@ -525,7 +525,7 @@ The first 320-pixel-detail actor/run route above is retained only as rejected pr
 
 All corrective chroma sources used the installed `remove_chroma_key.py` helper with border auto-key, soft matte, thresholds 12/220 and despill. Validation found transparent corners and zero visible green-dominant residue in every accepted output.
 
-# Yone V4 exact-native ImageGen replacement
+# Yone V4 exact-native ImageGen replacement (rejected)
 
 The former four-plate V3 route was rejected after live card review: its face
 collapsed at the real 1x/2.2x runtime scale and its long legs approached the
@@ -539,11 +539,13 @@ rejected provenance and must never be restored or packed:
 - their four `source/processed/*_alpha.png` derivatives
 - `source/processed/yone_native_body_master.png`
 
-V4 starts from a new consistent adult action contact, then authors every
+V4 attempted to start from a new consistent adult action contact, then authored every
 runtime body directly on its final native rectangle. There is no whole-sheet
 downscale, per-frame resize, pack-time repaint, face overlay, or V3 fallback.
 The actor builder copies each validated RGBA frame byte-for-byte into the
-runtime atlas.
+runtime atlas. Live review subsequently rejected V4 as a thin, skeletal actor
+with a 7x7 unreadable face. All V4 images, generator, validator, schema and
+native frames are retired in 0.10.7 and must never be restored or published.
 
 ## Yone V4 action contact
 
@@ -563,9 +565,42 @@ runtime atlas.
 - Final body frames: `source/native/yone_v4/frames/*.png` (54 visible frames).
 - Generator: `tools/generate_yone_v4_native.py`; validator:
   `tools/validate_yone_v4.py`.
-- The accepted idle is exactly 43x55 with a 7x7 annotated face, distinct dark
+- The rejected idle was exactly 43x55 with a 7x7 annotated face, distinct dark
   eye/nose/mouth/jaw pixels, a separate rear mask, 14px native bottom margin,
   and a 6px gap above the real 141x138 card divider after the game's 2.2x
   nearest-neighbour route. Every action frame has hard alpha, no magenta
   residue, at most 32 opaque palette colours, explicit foot/baseline metadata,
   and an exact source-to-atlas byte identity check.
+
+# Yone V5 full-model rebuild
+
+V5 is a clean body rebuild, not a face patch over V4. It keeps the already
+accepted Q/W/R icons, effects and gameplay data unchanged while replacing all
+54 visible actor frames. The card-critical idle uses a fixed 22-role hard RGBA
+palette, a connected 8x10 skin region, a real interior eye framed by an exact
+`eye_outline` role, complete feet and an 8px gap above the real card divider.
+Every runtime body frame is written once at its final native dimensions and is
+then copied byte-for-byte into the 3502x88 atlas.
+
+## Yone V5 accepted sources
+
+- Golden idle source execution: `exec-243ff99f-e977-470b-a29b-b0dab435d583`;
+  `source/imagegen/yone_v5_idle_source.png` ->
+  `source/imagegen/yone_v5_idle_golden_43x55.png`.
+- Motion contact SHA-256 `f20b8a6287729b516078a986b2fe51c8fd8f8bbea6cf8aeaa83bd3174ea4cc89`;
+  imported as `source/imagegen/yone_v5_motion_contact.png`.
+- Attack/Q/W contact SHA-256 `2b0cbbe7cebe320719af33615b4324cf944398aafe008c96488aeb9884ee8de7`;
+  imported as `source/imagegen/yone_v5_attack_q_w_contact.png`.
+- Corrected Q5 SHA-256 `2c9fe1578a8b2171cca63c967d47875ee9e2b44df7ba6093b817f383134eb5e0`;
+  imported as `source/imagegen/yone_v5_q5_contact.png`.
+- R contact SHA-256 `66e6d96b6eb1365e03e42f5aac52e662535d37c2c8993a5518fa338a9243d0c4`;
+  imported as `source/imagegen/yone_v5_ult_contact.png`.
+- Final manifest: `source/native/yone_v5/frames.json`; palette:
+  `source/native/yone_v5/palette.json`; generator:
+  `tools/generate_yone_v5_native.py`; validator:
+  `tools/validate_yone_v5.py`.
+- The four stable idle frames all derive directly from the golden model. The
+  validator reconstructs the complete opaque 141x138 card, rejects fake
+  hair/border eye annotations, checks connected skin, feet and UI clearance,
+  and fails if any retired V3/V4 body path enters the repository or release
+  manifest.

@@ -2,7 +2,7 @@
 """Build Yone's deterministic visual resources for the Dual Blader slot.
 
 The actor preserves official champion 009/Dual Blader's exact 3502x88 atlas
-and animation contract. Its V4 body route accepts only 54 final native-size
+and animation contract. Its V5 body route accepts only 54 final native-size
 RGBA PNGs and copies them byte-for-byte; it cannot rebuild from the rejected
 contact-sheet model. High-footprint Q/W/R feedback stays in independent effect
 sheets so the battle actor keeps one stable body scale.
@@ -39,8 +39,23 @@ FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 QA_DIR = MOD_ROOT / "qa"
 
-NATIVE_V4_ROOT = SOURCE_ROOT / "native" / "yone_v4"
-NATIVE_V4_MANIFEST = NATIVE_V4_ROOT / "frames.json"
+NATIVE_V5_ROOT = SOURCE_ROOT / "native" / "yone_v5"
+NATIVE_V5_MANIFEST = NATIVE_V5_ROOT / "frames.json"
+NATIVE_V5_CONTACT_PREVIEW = NATIVE_V5_ROOT / "preview" / "yone_v5_native_contact.png"
+YONE_V5_IDLE_SOURCE = IMAGEGEN_ROOT / "yone_v5_idle_source.png"
+YONE_V5_GOLDEN_SOURCE = IMAGEGEN_ROOT / "yone_v5_idle_golden_43x55.png"
+YONE_V5_MOTION_SOURCE = IMAGEGEN_ROOT / "yone_v5_motion_contact.png"
+YONE_V5_ATTACK_Q_W_SOURCE = IMAGEGEN_ROOT / "yone_v5_attack_q_w_contact.png"
+YONE_V5_Q5_SOURCE = IMAGEGEN_ROOT / "yone_v5_q5_contact.png"
+YONE_V5_ULT_SOURCE = IMAGEGEN_ROOT / "yone_v5_ult_contact.png"
+YONE_V5_BODY_IMAGEGEN_SOURCES = (
+    YONE_V5_IDLE_SOURCE,
+    YONE_V5_GOLDEN_SOURCE,
+    YONE_V5_MOTION_SOURCE,
+    YONE_V5_ATTACK_Q_W_SOURCE,
+    YONE_V5_Q5_SOURCE,
+    YONE_V5_ULT_SOURCE,
+)
 QW_VFX_SOURCE = IMAGEGEN_ROOT / "yone_qw_vfx_contact.png"
 W_VFX_SOURCE = IMAGEGEN_ROOT / "yone_w_vfx_contact_v2.png"
 Q3_VFX_SOURCE = IMAGEGEN_ROOT / "yone_q3_vfx_contact.png"
@@ -54,9 +69,15 @@ Q3_VFX_ALPHA = PROCESSED_ROOT / "yone_q3_vfx_contact_alpha.png"
 R_VFX_ALPHA = PROCESSED_ROOT / "yone_r_vfx_contact_alpha.png"
 
 ACTOR_SHEET_SIZE = (3502, 88)
-NATIVE_V4_SCHEMA_VERSION = 4
-NATIVE_V4_ROUTE = "exact-native-v4"
-NATIVE_V4_MAX_OPAQUE_COLORS = 32
+NATIVE_V5_SCHEMA_VERSION = 5
+NATIVE_V5_ROUTE = "exact-native-v5"
+NATIVE_V5_MAX_OPAQUE_COLORS = 32
+
+RETIRED_YONE_V4_BODY_SOURCES = (
+    IMAGEGEN_ROOT / "yone_v4_action_contact.png",
+    IMAGEGEN_ROOT / "yone_v4_idle_candidate_43x55.png",
+    SOURCE_ROOT / "native" / "yone_v4",
+)
 
 RETIRED_YONE_GENERATED_OUTPUTS = (
     EFFECT_DIR / "yone_followup#anim.fanim",
@@ -191,7 +212,7 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     "ult": [37, 38, 38, 38, 37, 38, 38, 38, 38, 38, 38, 38, 37],
 }
 
-# Minimum visible heights for the final exact-native V4 frames. These are
+# Minimum visible heights for the final exact-native V5 frames. These are
 # regression floors, never resize targets: fast run/W/R poses are naturally
 # shorter than upright idle and must remain authored at their native 1x size.
 NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
@@ -209,7 +230,10 @@ NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
     # Bundle-derived official Dual Blader baselines for the common movement
     # states. These are the frames used by battle, cards and face crops.
-    "idle": [14, 15, 14, 15],
+    # idle[0] is the byte-exact V5 golden 43x55 source and deliberately keeps
+    # its authored 15px clearance; the remaining idle frames preserve their
+    # native V5 retiming anchors.
+    "idle": [15, 15, 14, 15],
     "run": [13, 18, 20, 17, 13, 17, 20, 17],
     "attack": [14, 14, 12, 13, 13, 14],
     "hit": [15],
@@ -224,7 +248,7 @@ BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
 }
 
 # Visible body frames only.  The transparent dead terminator and the three VFX
-# tags keep their native animation entries, but never appear in the V4 body
+# tags keep their native animation entries, but never appear in the V5 body
 # manifest.  Each listed PNG is already authored on its exact final 1x native
 # rectangle: the actor build may copy bytes, and may do nothing else.
 NATIVE_BODY_ACTIONS = (
@@ -240,7 +264,7 @@ NATIVE_BODY_ACTIONS = (
     "skill",
 )
 NATIVE_BODY_FRAME_COUNT = 54
-NATIVE_V4_FRAME_FIELDS = {
+NATIVE_V5_FRAME_FIELDS = {
     "action",
     "index",
     "file",
@@ -250,6 +274,7 @@ NATIVE_V4_FRAME_FIELDS = {
     "eye_pixels",
     "mask_bbox",
     "foot_zones",
+    "face_visibility",
 }
 
 
@@ -354,7 +379,7 @@ def remove_chroma_key(image: Image.Image) -> Image.Image:
 
 def process_sources() -> list[Path]:
     outputs: list[Path] = []
-    # V4 body frames are final native 1x RGBA files and deliberately bypass
+    # V5 body frames are final native 1x RGBA files and deliberately bypass
     # this processing stage.  VFX routes remain unchanged; Q3 keeps its
     # dedicated magenta branch below because blue-white wind is not a BODY
     # source.
@@ -571,63 +596,63 @@ def _is_plain_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
-def _v4_relative_file(value: Any, label: str, suffix: str) -> Path:
-    """Resolve one normalized manifest-relative file inside the V4 root."""
+def _v5_relative_file(value: Any, label: str, suffix: str) -> Path:
+    """Resolve one normalized manifest-relative file inside the V5 root."""
 
     if not isinstance(value, str) or not value:
-        raise ValueError(f"Yone V4 {label} must be a non-empty relative path")
+        raise ValueError(f"Yone V5 {label} must be a non-empty relative path")
     if "\\" in value:
-        raise ValueError(f"Yone V4 {label} must use forward slashes: {value!r}")
+        raise ValueError(f"Yone V5 {label} must use forward slashes: {value!r}")
     relative = PurePosixPath(value)
     if (
         relative.is_absolute()
         or value != relative.as_posix()
         or any(part in {"", ".", ".."} for part in relative.parts)
     ):
-        raise ValueError(f"Yone V4 {label} is not a normalized relative path: {value!r}")
-    path = NATIVE_V4_ROOT.joinpath(*relative.parts)
+        raise ValueError(f"Yone V5 {label} is not a normalized relative path: {value!r}")
+    path = NATIVE_V5_ROOT.joinpath(*relative.parts)
     try:
-        path.resolve().relative_to(NATIVE_V4_ROOT.resolve())
+        path.resolve().relative_to(NATIVE_V5_ROOT.resolve())
     except ValueError as exc:
-        raise ValueError(f"Yone V4 {label} escapes its source root: {value!r}") from exc
+        raise ValueError(f"Yone V5 {label} escapes its source root: {value!r}") from exc
     if path.suffix.lower() != suffix:
-        raise ValueError(f"Yone V4 {label} must end in {suffix}: {value!r}")
+        raise ValueError(f"Yone V5 {label} must end in {suffix}: {value!r}")
     if not path.is_file():
-        raise FileNotFoundError(f"Missing Yone V4 {label}: {path}")
+        raise FileNotFoundError(f"Missing Yone V5 {label}: {path}")
     return path
 
 
-def _load_v4_json(path: Path, label: str) -> dict[str, Any]:
+def _load_v5_json(path: Path, label: str) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise FileNotFoundError(
-            "Missing Yone V4 exact-native source contract: " + str(path)
+            "Missing Yone V5 exact-native source contract: " + str(path)
         ) from None
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError(f"Yone V4 {label} is not valid UTF-8 JSON: {path}") from exc
+        raise ValueError(f"Yone V5 {label} is not valid UTF-8 JSON: {path}") from exc
     if not isinstance(value, dict):
-        raise ValueError(f"Yone V4 {label} root must be an object")
+        raise ValueError(f"Yone V5 {label} root must be an object")
     return value
 
 
-def _validate_v4_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
-    payload = _load_v4_json(path, "palette")
+def _validate_v5_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
+    payload = _load_v5_json(path, "palette")
     expected_fields = {"schema_version", "route", "colors"}
     if set(payload) != expected_fields:
         raise ValueError(
-            "Yone V4 palette fields changed: "
+            "Yone V5 palette fields changed: "
             f"got={sorted(payload)}, expected={sorted(expected_fields)}"
         )
-    if payload["schema_version"] != NATIVE_V4_SCHEMA_VERSION:
+    if payload["schema_version"] != NATIVE_V5_SCHEMA_VERSION:
         raise ValueError(
-            f"Yone V4 palette schema_version must be {NATIVE_V4_SCHEMA_VERSION}"
+            f"Yone V5 palette schema_version must be {NATIVE_V5_SCHEMA_VERSION}"
         )
-    if payload["route"] != NATIVE_V4_ROUTE:
-        raise ValueError(f"Yone V4 palette route must be {NATIVE_V4_ROUTE!r}")
+    if payload["route"] != NATIVE_V5_ROUTE:
+        raise ValueError(f"Yone V5 palette route must be {NATIVE_V5_ROUTE!r}")
     rows = payload["colors"]
     if not isinstance(rows, list):
-        raise ValueError("Yone V4 palette colors must be a list")
+        raise ValueError("Yone V5 palette colors must be a list")
 
     colors: set[tuple[int, int, int, int]] = set()
     transparent_count = 0
@@ -635,52 +660,52 @@ def _validate_v4_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
     for index, row in enumerate(rows):
         if not isinstance(row, dict) or set(row) != {"role", "rgba"}:
             raise ValueError(
-                f"Yone V4 palette colors[{index}] must contain only role/rgba"
+                f"Yone V5 palette colors[{index}] must contain only role/rgba"
             )
         role = row["role"]
         rgba = row["rgba"]
         if not isinstance(role, str) or not role.strip():
-            raise ValueError(f"Yone V4 palette colors[{index}].role is empty")
+            raise ValueError(f"Yone V5 palette colors[{index}].role is empty")
         if (
             not isinstance(rgba, list)
             or len(rgba) != 4
             or any(not _is_plain_int(channel) or not 0 <= channel <= 255 for channel in rgba)
         ):
             raise ValueError(
-                f"Yone V4 palette colors[{index}].rgba must be four bytes"
+                f"Yone V5 palette colors[{index}].rgba must be four bytes"
             )
         color = tuple(rgba)
         if color in colors:
-            raise ValueError(f"Yone V4 palette duplicates RGBA {color}")
+            raise ValueError(f"Yone V5 palette duplicates RGBA {color}")
         if color[3] == 0:
             if color != (0, 0, 0, 0) or role != "transparent":
                 raise ValueError(
-                    "Yone V4 transparent palette entry must be role='transparent', "
+                    "Yone V5 transparent palette entry must be role='transparent', "
                     "rgba=[0,0,0,0]"
                 )
             transparent_count += 1
         elif color[3] != 255:
-            raise ValueError(f"Yone V4 palette contains soft alpha {color}")
+            raise ValueError(f"Yone V5 palette contains soft alpha {color}")
         elif role == "transparent":
-            raise ValueError("Yone V4 opaque palette entries cannot use role='transparent'")
+            raise ValueError("Yone V5 opaque palette entries cannot use role='transparent'")
         colors.add(color)
         roles.append(role)
 
     opaque_count = sum(color[3] == 255 for color in colors)
     if transparent_count != 1:
         raise ValueError(
-            f"Yone V4 palette needs exactly one transparent entry, got {transparent_count}"
+            f"Yone V5 palette needs exactly one transparent entry, got {transparent_count}"
         )
-    if not 1 <= opaque_count <= NATIVE_V4_MAX_OPAQUE_COLORS:
+    if not 1 <= opaque_count <= NATIVE_V5_MAX_OPAQUE_COLORS:
         raise ValueError(
-            "Yone V4 palette must define 1.."
-            f"{NATIVE_V4_MAX_OPAQUE_COLORS} opaque colors, got {opaque_count}"
+            "Yone V5 palette must define 1.."
+            f"{NATIVE_V5_MAX_OPAQUE_COLORS} opaque colors, got {opaque_count}"
         )
     normalized_roles = [role.strip().lower() for role in roles]
     for semantic_role in ("skin", "eye", "mask"):
         if not any(semantic_role in role for role in normalized_roles):
             raise ValueError(
-                f"Yone V4 palette needs at least one role containing {semantic_role!r}"
+                f"Yone V5 palette needs at least one role containing {semantic_role!r}"
             )
     return colors, {
         "path": path.relative_to(MOD_ROOT).as_posix(),
@@ -702,13 +727,13 @@ def _validate_local_box(
     if value is None:
         if nullable:
             return None
-        raise ValueError(f"Yone V4 {label} cannot be null")
+        raise ValueError(f"Yone V5 {label} cannot be null")
     if (
         not isinstance(value, list)
         or len(value) != 4
         or any(not _is_plain_int(part) for part in value)
     ):
-        raise ValueError(f"Yone V4 {label} must be [x,y,w,h]")
+        raise ValueError(f"Yone V5 {label} must be [x,y,w,h]")
     x, y, width, height = value
     if (
         x < 0
@@ -719,12 +744,12 @@ def _validate_local_box(
         or y + height > frame_size[1]
     ):
         raise ValueError(
-            f"Yone V4 {label} {value} is outside frame {frame_size}"
+            f"Yone V5 {label} {value} is outside frame {frame_size}"
         )
     return x, y, width, height
 
 
-def _validate_v4_rgba_png(
+def _validate_v5_rgba_png(
     path: Path,
     label: str,
     allowed_colors: set[tuple[int, int, int, int]],
@@ -733,41 +758,41 @@ def _validate_v4_rgba_png(
     try:
         with Image.open(path) as opened:
             if opened.format != "PNG":
-                raise ValueError(f"Yone V4 {label} is not encoded as PNG: {path}")
+                raise ValueError(f"Yone V5 {label} is not encoded as PNG: {path}")
             if opened.mode != "RGBA":
                 raise ValueError(
-                    f"Yone V4 {label} must be encoded as RGBA, got {opened.mode}"
+                    f"Yone V5 {label} must be encoded as RGBA, got {opened.mode}"
                 )
             opened.load()
             image = opened.copy()
     except (OSError, SyntaxError) as exc:
-        raise ValueError(f"Yone V4 {label} cannot be decoded: {path}") from exc
+        raise ValueError(f"Yone V5 {label} cannot be decoded: {path}") from exc
     if image.size != expected_size:
         raise ValueError(
-            f"Yone V4 {label} size {image.size} != exact native {expected_size}"
+            f"Yone V5 {label} size {image.size} != exact native {expected_size}"
         )
     used = set(image.getdata())
     alpha_values = {color[3] for color in used}
     if not alpha_values.issubset({0, 255}):
         raise ValueError(
-            f"Yone V4 {label} contains non-binary alpha values: {sorted(alpha_values)}"
+            f"Yone V5 {label} contains non-binary alpha values: {sorted(alpha_values)}"
         )
     transparent = {color for color in used if color[3] == 0}
     if transparent - {(0, 0, 0, 0)}:
         raise ValueError(
-            f"Yone V4 {label} has RGB data under transparent pixels: {sorted(transparent)[:8]}"
+            f"Yone V5 {label} has RGB data under transparent pixels: {sorted(transparent)[:8]}"
         )
     unknown = used - allowed_colors
     if unknown:
         raise ValueError(
-            f"Yone V4 {label} uses colors outside palette.json: {sorted(unknown)[:8]}"
+            f"Yone V5 {label} uses colors outside palette.json: {sorted(unknown)[:8]}"
         )
     if image.getchannel("A").getbbox() is None:
-        raise ValueError(f"Yone V4 {label} is empty")
+        raise ValueError(f"Yone V5 {label} is empty")
     return image, used
 
 
-def _native_v4_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
+def _native_v5_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
     expected: dict[tuple[str, int], tuple[int, int, int, int]] = {}
     for action in NATIVE_BODY_ACTIONS:
         rects = NATIVE_CONTRACT[action]["rects"]
@@ -777,18 +802,90 @@ def _native_v4_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, i
             expected[(action, index)] = rect
     if len(expected) != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            "Internal Yone V4 body contract changed: "
+            "Internal Yone V5 body contract changed: "
             f"{len(expected)}/{NATIVE_BODY_FRAME_COUNT} frames"
         )
     return expected
 
 
-def _load_native_v4_body_frames() -> tuple[
+def _load_v5_opaque_card_preview(path: Path) -> Image.Image:
+    """Load the complete 141x138 card proof without applying the body palette."""
+
+    try:
+        with Image.open(path) as opened:
+            if opened.format != "PNG":
+                raise ValueError(
+                    f"Yone V5 body_preview is not encoded as PNG: {path}"
+                )
+            if opened.mode != "RGBA":
+                raise ValueError(
+                    "Yone V5 body_preview must be RGBA, "
+                    f"got {opened.mode}: {path}"
+                )
+            opened.load()
+            preview = opened.copy()
+    except (OSError, SyntaxError) as exc:
+        raise ValueError(f"Yone V5 body_preview cannot be decoded: {path}") from exc
+    if preview.size != (141, 138):
+        raise ValueError(
+            f"Yone V5 body_preview size {preview.size} != complete card (141, 138)"
+        )
+    if preview.getchannel("A").getextrema() != (255, 255):
+        raise ValueError("Yone V5 body_preview must be a fully opaque card proof")
+    return preview
+
+
+def _render_v5_opaque_card_preview(idle: Image.Image) -> Image.Image:
+    """Replay the generator's card chrome and exact idle actor render."""
+
+    rendered = idle.resize(
+        (
+            round(idle.width * YONE_LIVE_CARD_SCALE),
+            round(idle.height * YONE_LIVE_CARD_SCALE),
+        ),
+        Image.Resampling.NEAREST,
+    )
+    preview = Image.new("RGBA", (141, 138), (15, 17, 26, 255))
+    draw = ImageDraw.Draw(preview)
+    draw.rounded_rectangle(
+        (4, 4, 137, 136),
+        radius=11,
+        fill=(20, 21, 31, 255),
+        outline=(66, 70, 83, 255),
+        width=1,
+    )
+    draw.line((5, 96, 136, 96), fill=(43, 46, 57, 255), width=1)
+    stage_height = max(
+        round(rect[3] * YONE_LIVE_CARD_SCALE)
+        for rect in NATIVE_CONTRACT["idle"]["rects"]
+    )
+    actor_x = (preview.width - rendered.width) // 2
+    actor_y = (stage_height - rendered.height) // 2
+    preview.alpha_composite(rendered, (actor_x, actor_y))
+    actor_mask = Image.new("L", preview.size, 0)
+    actor_mask.paste(rendered.getchannel("A"), (actor_x, actor_y))
+    actor_bbox = actor_mask.getbbox()
+    if actor_bbox is None:
+        raise ValueError("Yone V5 body_preview actor route is empty")
+    if actor_mask.crop((98, 70, 141, 100)).getbbox() is not None:
+        raise ValueError("Yone V5 body_preview actor overlaps the right-side UI region")
+    if YONE_LIVE_CARD_DIVIDER_TOP - actor_bbox[3] < YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE:
+        raise ValueError(
+            "Yone V5 body_preview actor approaches the divider: "
+            f"clearance={YONE_LIVE_CARD_DIVIDER_TOP - actor_bbox[3]}"
+        )
+    draw.arc((99, 72, 112, 88), 290, 70, fill=(236, 238, 242, 255), width=2)
+    draw.rectangle((119, 76, 130, 87), outline=(217, 220, 228, 255), width=2)
+    draw.rectangle((122, 79, 127, 84), fill=(104, 110, 125, 255))
+    return preview
+
+
+def _load_native_v5_body_frames() -> tuple[
     dict[tuple[str, int], Image.Image], dict[str, Any], dict[str, dict[str, Any]]
 ]:
     """Load and audit all final 1x frames without changing a single pixel."""
 
-    manifest = _load_v4_json(NATIVE_V4_MANIFEST, "frames manifest")
+    manifest = _load_v5_json(NATIVE_V5_MANIFEST, "frames manifest")
     manifest_fields = {
         "schema_version",
         "route",
@@ -799,97 +896,92 @@ def _load_native_v4_body_frames() -> tuple[
     }
     if set(manifest) != manifest_fields:
         raise ValueError(
-            "Yone V4 manifest fields changed: "
+            "Yone V5 manifest fields changed: "
             f"got={sorted(manifest)}, expected={sorted(manifest_fields)}"
         )
-    if manifest["schema_version"] != NATIVE_V4_SCHEMA_VERSION:
+    if manifest["schema_version"] != NATIVE_V5_SCHEMA_VERSION:
         raise ValueError(
-            f"Yone V4 manifest schema_version must be {NATIVE_V4_SCHEMA_VERSION}"
+            f"Yone V5 manifest schema_version must be {NATIVE_V5_SCHEMA_VERSION}"
         )
-    if manifest["route"] != NATIVE_V4_ROUTE:
-        raise ValueError(f"Yone V4 manifest route must be {NATIVE_V4_ROUTE!r}")
+    if manifest["route"] != NATIVE_V5_ROUTE:
+        raise ValueError(f"Yone V5 manifest route must be {NATIVE_V5_ROUTE!r}")
     if manifest["atlas_size"] != list(ACTOR_SHEET_SIZE):
         raise ValueError(
-            f"Yone V4 atlas_size {manifest['atlas_size']} != {list(ACTOR_SHEET_SIZE)}"
+            f"Yone V5 atlas_size {manifest['atlas_size']} != {list(ACTOR_SHEET_SIZE)}"
         )
 
-    palette_path = _v4_relative_file(
+    palette_path = _v5_relative_file(
         manifest["palette_file"], "palette_file", ".json"
     )
-    allowed_colors, palette_audit = _validate_v4_palette(palette_path)
+    allowed_colors, palette_audit = _validate_v5_palette(palette_path)
 
     preview_value = manifest["body_preview"]
     preview_path: Path | None = None
     preview_image: Image.Image | None = None
     if preview_value is not None:
-        preview_path = _v4_relative_file(preview_value, "body_preview", ".png")
-        preview_image, _ = _validate_v4_rgba_png(
-            preview_path,
-            "body_preview",
-            allowed_colors,
-            (141, 138),
-        )
+        preview_path = _v5_relative_file(preview_value, "body_preview", ".png")
+        preview_image = _load_v5_opaque_card_preview(preview_path)
     elif not isinstance(preview_value, type(None)):
-        raise ValueError("Yone V4 body_preview must be a relative PNG path or null")
+        raise ValueError("Yone V5 body_preview must be a relative PNG path or null")
 
     rows = manifest["frames"]
     if not isinstance(rows, list) or len(rows) != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            "Yone V4 frames must contain exactly "
+            "Yone V5 frames must contain exactly "
             f"{NATIVE_BODY_FRAME_COUNT} records"
         )
-    expected = _native_v4_expected_frames()
+    expected = _native_v5_expected_frames()
     frames: dict[tuple[str, int], Image.Image] = {}
     paths: dict[Path, tuple[str, int]] = {}
     rect_owners: dict[tuple[int, int, int, int], tuple[str, int]] = {}
     audits: dict[str, dict[str, Any]] = {}
 
     for row_number, row in enumerate(rows):
-        if not isinstance(row, dict) or set(row) != NATIVE_V4_FRAME_FIELDS:
+        if not isinstance(row, dict) or set(row) != NATIVE_V5_FRAME_FIELDS:
             got = sorted(row) if isinstance(row, dict) else type(row).__name__
             raise ValueError(
-                f"Yone V4 frames[{row_number}] fields changed: got={got}, "
-                f"expected={sorted(NATIVE_V4_FRAME_FIELDS)}"
+                f"Yone V5 frames[{row_number}] fields changed: got={got}, "
+                f"expected={sorted(NATIVE_V5_FRAME_FIELDS)}"
             )
         action = row["action"]
         index = row["index"]
         if not isinstance(action, str) or not _is_plain_int(index):
             raise ValueError(
-                f"Yone V4 frames[{row_number}] action/index types are invalid"
+                f"Yone V5 frames[{row_number}] action/index types are invalid"
             )
         key = (action, index)
         if key not in expected:
-            raise ValueError(f"Yone V4 frames[{row_number}] has unknown key {key}")
+            raise ValueError(f"Yone V5 frames[{row_number}] has unknown key {key}")
         if key in frames:
-            raise ValueError(f"Yone V4 manifest duplicates action/index {key}")
+            raise ValueError(f"Yone V5 manifest duplicates action/index {key}")
         rect_value = row["rect"]
         if (
             not isinstance(rect_value, list)
             or len(rect_value) != 4
             or any(not _is_plain_int(part) for part in rect_value)
         ):
-            raise ValueError(f"Yone V4 {action}[{index}].rect must be [x,y,w,h]")
+            raise ValueError(f"Yone V5 {action}[{index}].rect must be [x,y,w,h]")
         rect = tuple(rect_value)
         if rect != expected[key]:
             raise ValueError(
-                f"Yone V4 {action}[{index}] rect {rect} != native {expected[key]}"
+                f"Yone V5 {action}[{index}] rect {rect} != native {expected[key]}"
             )
         if rect in rect_owners:
             raise ValueError(
-                f"Yone V4 native rect {rect} is shared by {rect_owners[rect]} and {key}"
+                f"Yone V5 native rect {rect} is shared by {rect_owners[rect]} and {key}"
             )
         rect_owners[rect] = key
 
-        path = _v4_relative_file(row["file"], f"{action}[{index}].file", ".png")
+        path = _v5_relative_file(row["file"], f"{action}[{index}].file", ".png")
         resolved = path.resolve()
         if resolved in paths:
             raise ValueError(
-                f"Yone V4 frame file {path} is reused by {paths[resolved]} and {key}"
+                f"Yone V5 frame file {path} is reused by {paths[resolved]} and {key}"
             )
         if preview_path is not None and resolved == preview_path.resolve():
-            raise ValueError(f"Yone V4 body_preview cannot also be frame {key}")
+            raise ValueError(f"Yone V5 body_preview cannot also be frame {key}")
         paths[resolved] = key
-        frame, used_colors = _validate_v4_rgba_png(
+        frame, used_colors = _validate_v5_rgba_png(
             path,
             f"{action}[{index}]",
             allowed_colors,
@@ -910,21 +1002,21 @@ def _load_native_v4_body_frames() -> tuple[
         }
         if any(opaque_edges.values()):
             raise ValueError(
-                f"Yone V4 {action}[{index}] touches a native frame edge: {opaque_edges}"
+                f"Yone V5 {action}[{index}] touches a native frame edge: {opaque_edges}"
             )
 
         bottom_margin = row["bottom_margin"]
         if not _is_plain_int(bottom_margin) or not 0 <= bottom_margin < frame.height:
-            raise ValueError(f"Yone V4 {action}[{index}].bottom_margin is invalid")
+            raise ValueError(f"Yone V5 {action}[{index}].bottom_margin is invalid")
         actual_bottom = frame.height - alpha_bbox[3]
         if bottom_margin != actual_bottom:
             raise ValueError(
-                f"Yone V4 {action}[{index}] bottom_margin {bottom_margin} "
+                f"Yone V5 {action}[{index}] bottom_margin {bottom_margin} "
                 f"!= actual {actual_bottom}"
             )
         if action != "dead" and bottom_margin < 2:
             raise ValueError(
-                f"Yone V4 {action}[{index}] needs at least 2px bottom clearance"
+                f"Yone V5 {action}[{index}] needs at least 2px bottom clearance"
             )
 
         face_bbox = _validate_local_box(
@@ -938,12 +1030,12 @@ def _load_native_v4_body_frames() -> tuple[
                 x, y, width, height = box
                 if frame.crop((x, y, x + width, y + height)).getchannel("A").getbbox() is None:
                     raise ValueError(
-                        f"Yone V4 {action}[{index}].{label} contains no actor pixels"
+                        f"Yone V5 {action}[{index}].{label} contains no actor pixels"
                     )
 
         eye_value = row["eye_pixels"]
         if not isinstance(eye_value, list):
-            raise ValueError(f"Yone V4 {action}[{index}].eye_pixels must be a list")
+            raise ValueError(f"Yone V5 {action}[{index}].eye_pixels must be a list")
         eyes: list[tuple[int, int]] = []
         for eye_index, point in enumerate(eye_value):
             if (
@@ -952,48 +1044,63 @@ def _load_native_v4_body_frames() -> tuple[
                 or any(not _is_plain_int(part) for part in point)
             ):
                 raise ValueError(
-                    f"Yone V4 {action}[{index}].eye_pixels[{eye_index}] must be [x,y]"
+                    f"Yone V5 {action}[{index}].eye_pixels[{eye_index}] must be [x,y]"
                 )
             x, y = point
             if not (0 <= x < frame.width and 0 <= y < frame.height):
                 raise ValueError(
-                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is out of bounds"
+                    f"Yone V5 {action}[{index}] eye pixel {(x, y)} is out of bounds"
                 )
             if frame.getpixel((x, y))[3] != 255:
                 raise ValueError(
-                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is transparent"
+                    f"Yone V5 {action}[{index}] eye pixel {(x, y)} is transparent"
                 )
             if face_bbox is None:
                 raise ValueError(
-                    f"Yone V4 {action}[{index}] declares eye pixels without face_bbox"
+                    f"Yone V5 {action}[{index}] declares eye pixels without face_bbox"
                 )
             fx, fy, fw, fh = face_bbox
             if not (fx <= x < fx + fw and fy <= y < fy + fh):
                 raise ValueError(
-                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is outside face_bbox"
+                    f"Yone V5 {action}[{index}] eye pixel {(x, y)} is outside face_bbox"
                 )
             eyes.append((x, y))
         if len(eyes) != len(set(eyes)):
-            raise ValueError(f"Yone V4 {action}[{index}] duplicates eye pixels")
+            raise ValueError(f"Yone V5 {action}[{index}] duplicates eye pixels")
         if face_bbox is not None and (not eyes or mask_bbox is None):
             raise ValueError(
-                f"Yone V4 {action}[{index}] face_bbox requires eye_pixels and mask_bbox"
+                f"Yone V5 {action}[{index}] face_bbox requires eye_pixels and mask_bbox"
+            )
+
+        face_visibility = row["face_visibility"]
+        if face_visibility not in {"front", "profile", "hidden"}:
+            raise ValueError(
+                f"Yone V5 {action}[{index}].face_visibility is invalid: "
+                f"{face_visibility!r}"
             )
         if action == "idle" and (
             face_bbox is None
             or mask_bbox is None
-            or len(eyes) < 2
-            or len({x for x, _ in eyes}) < 2
+            or not eyes
             or face_bbox[2] < 6
             or face_bbox[3] < 7
         ):
             raise ValueError(
-                f"Yone V4 idle[{index}] must annotate a front face, mask and two eyes"
+                f"Yone V5 idle[{index}] must annotate a visible face, mask and true eye cue"
+            )
+        if action == "idle" and (
+            (face_visibility == "front" and len(eyes) < 2)
+            or (face_visibility == "profile" and len(eyes) < 1)
+            or face_visibility == "hidden"
+        ):
+            raise ValueError(
+                f"Yone V5 idle[{index}] eye count {len(eyes)} does not match "
+                f"face_visibility={face_visibility!r}"
             )
 
         foot_value = row["foot_zones"]
         if not isinstance(foot_value, list):
-            raise ValueError(f"Yone V4 {action}[{index}].foot_zones must be a list")
+            raise ValueError(f"Yone V5 {action}[{index}].foot_zones must be a list")
         foot_zones: list[tuple[int, int, int, int]] = []
         for foot_index, value in enumerate(foot_value):
             box = _validate_local_box(
@@ -1006,11 +1113,11 @@ def _load_native_v4_body_frames() -> tuple[
             x, y, width, height = box
             if frame.crop((x, y, x + width, y + height)).getchannel("A").getbbox() is None:
                 raise ValueError(
-                    f"Yone V4 {action}[{index}] foot zone {foot_index} is empty"
+                    f"Yone V5 {action}[{index}] foot zone {foot_index} is empty"
                 )
             foot_zones.append(box)
         if len(foot_zones) != len(set(foot_zones)):
-            raise ValueError(f"Yone V4 {action}[{index}] duplicates foot_zones")
+            raise ValueError(f"Yone V5 {action}[{index}] duplicates foot_zones")
         if action in {
             "idle",
             "hit",
@@ -1021,7 +1128,7 @@ def _load_native_v4_body_frames() -> tuple[
             "run",
             "skill",
         } and not foot_zones:
-            raise ValueError(f"Yone V4 {action}[{index}] must annotate foot_zones")
+            raise ValueError(f"Yone V5 {action}[{index}] must annotate foot_zones")
 
         frames[key] = frame
         audits[f"{action}[{index}]"] = {
@@ -1034,6 +1141,7 @@ def _load_native_v4_body_frames() -> tuple[
             "eye_pixels": [list(point) for point in eyes],
             "mask_bbox": list(mask_bbox) if mask_bbox is not None else None,
             "foot_zones": [list(box) for box in foot_zones],
+            "face_visibility": face_visibility,
             "hard_alpha": True,
             "transparent_frame_edges": True,
             "opaque_palette_size": sum(color[3] == 255 for color in used_colors),
@@ -1043,50 +1151,38 @@ def _load_native_v4_body_frames() -> tuple[
 
     missing = set(expected) - set(frames)
     if missing:
-        raise ValueError(f"Yone V4 manifest is missing frames: {sorted(missing)}")
+        raise ValueError(f"Yone V5 manifest is missing frames: {sorted(missing)}")
     if preview_image is not None:
         idle = frames[("idle", 0)]
-        rendered = idle.resize(
-            (
-                round(idle.width * YONE_LIVE_CARD_SCALE),
-                round(idle.height * YONE_LIVE_CARD_SCALE),
-            ),
-            Image.Resampling.NEAREST,
-        )
-        stage_height = max(
-            round(rect[3] * YONE_LIVE_CARD_SCALE)
-            for rect in NATIVE_CONTRACT["idle"]["rects"]
-        )
-        expected_preview = Image.new("RGBA", (141, 138), (0, 0, 0, 0))
-        preview_x = (expected_preview.width - rendered.width) // 2
-        preview_y = (stage_height - rendered.height) // 2
-        expected_preview.paste(rendered, (preview_x, preview_y))
+        expected_preview = _render_v5_opaque_card_preview(idle)
         if preview_image.tobytes() != expected_preview.tobytes():
             raise ValueError(
-                "Yone V4 body_preview must be the exact idle[0] 2.2x NEAREST "
-                "render centered in the 141x138 transparent runtime-card canvas"
+                "Yone V5 body_preview must be the exact complete opaque 141x138 "
+                "card chrome with the idle[0] 2.2x NEAREST actor route"
             )
     expected_pngs = set(paths)
     if preview_path is not None:
         expected_pngs.add(preview_path.resolve())
+    if NATIVE_V5_CONTACT_PREVIEW.is_file():
+        expected_pngs.add(NATIVE_V5_CONTACT_PREVIEW.resolve())
     actual_pngs = {
         path.resolve()
-        for path in NATIVE_V4_ROOT.rglob("*.png")
+        for path in NATIVE_V5_ROOT.rglob("*.png")
         if path.is_file()
     }
     if actual_pngs != expected_pngs:
         extras = sorted(str(path) for path in actual_pngs - expected_pngs)
         omitted = sorted(str(path) for path in expected_pngs - actual_pngs)
         raise ValueError(
-            "Yone V4 source PNG set differs from the manifest: "
+            "Yone V5 source PNG set differs from the manifest: "
             f"unreferenced={extras}, missing={omitted}"
         )
 
     manifest_audit = {
         "schema_version": manifest["schema_version"],
         "route": manifest["route"],
-        "manifest": NATIVE_V4_MANIFEST.relative_to(MOD_ROOT).as_posix(),
-        "manifest_sha256": sha256(NATIVE_V4_MANIFEST),
+        "manifest": NATIVE_V5_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+        "manifest_sha256": sha256(NATIVE_V5_MANIFEST),
         "atlas_size": list(ACTOR_SHEET_SIZE),
         "frame_count": len(frames),
         "palette": palette_audit,
@@ -1095,23 +1191,32 @@ def _load_native_v4_body_frames() -> tuple[
             if preview_path is not None
             else None
         ),
+        "body_preview_kind": "complete opaque 141x138 runtime-card proof",
+        "body_preview_sha256": (
+            sha256(preview_path) if preview_path is not None else None
+        ),
+        "contact_preview": (
+            NATIVE_V5_CONTACT_PREVIEW.relative_to(MOD_ROOT).as_posix()
+            if NATIVE_V5_CONTACT_PREVIEW.is_file()
+            else None
+        ),
         "body_processing": "none; exact final 1x RGBA byte copy",
     }
     return frames, manifest_audit, audits
 
 
-def _paste_native_v4_bytes(
+def _paste_native_v5_bytes(
     sheet: Image.Image,
     placements: dict[tuple[int, int, int, int], bytes],
     rect: tuple[int, int, int, int],
     frame: Image.Image,
 ) -> None:
-    """Paste one exact-size V4 RGBA image and prove byte identity."""
+    """Paste one exact-size V5 RGBA image and prove byte identity."""
 
     x, y, width, height = rect
     if frame.mode != "RGBA" or frame.size != (width, height):
         raise ValueError(
-            f"Yone V4 frame {frame.mode}/{frame.size} does not match native rect {rect}"
+            f"Yone V5 frame {frame.mode}/{frame.size} does not match native rect {rect}"
         )
     for previous in placements:
         px, py, pw, ph = previous
@@ -1122,14 +1227,14 @@ def _paste_native_v4_bytes(
             or py + ph <= y
         ):
             raise ValueError(
-                f"Yone V4 body rectangles overlap: new={rect}, existing={previous}"
+                f"Yone V5 body rectangles overlap: new={rect}, existing={previous}"
             )
     pixels = frame.tobytes()
     placements[rect] = pixels
     sheet.paste(frame, (x, y))
     copied = sheet.crop((x, y, x + width, y + height))
     if copied.tobytes() != pixels:
-        raise ValueError(f"Yone V4 byte copy failed for native rect {rect}")
+        raise ValueError(f"Yone V5 byte copy failed for native rect {rect}")
 
 
 FaceWindow = tuple[float, float, float, float]
@@ -1666,11 +1771,11 @@ def _paste_unique(
 def build_actor() -> tuple[Path, Path]:
     qw_vfx = split_grid(Image.open(QW_VFX_ALPHA).convert("RGBA"), 5, 4)
     r_vfx = split_grid(Image.open(R_VFX_ALPHA).convert("RGBA"), 5, 3)
-    native_frames, _, _ = _load_native_v4_body_frames()
+    native_frames, _, _ = _load_native_v5_body_frames()
     sheet = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
     placements: dict[tuple[int, int, int, int], bytes] = {}
 
-    # Copy each final native V4 PNG directly into its official atlas rectangle.
+    # Copy each final native V5 PNG directly into its official atlas rectangle.
     # There is deliberately no master fallback and no crop, resize, alpha
     # cleanup, palette conversion or quantization anywhere in the body path.
     for tag in NATIVE_BODY_ACTIONS:
@@ -1681,7 +1786,7 @@ def build_actor() -> tuple[Path, Path]:
         )
         for index, rect in enumerate(rects):
             frame = native_frames[(tag, index)]
-            _paste_native_v4_bytes(sheet, placements, rect, frame)
+            _paste_native_v5_bytes(sheet, placements, rect, frame)
 
     # Official hit_effect_area aliases ult[1:12]; assigning the same bytes is
     # deliberate and proves the overlap remains contract-safe.
@@ -1889,7 +1994,7 @@ def build_splash_and_portraits() -> list[Path]:
     splash_path = SPLASH_DIR / "dual_blader.png"
     save_png(splash_path, splash)
 
-    native_frames, _, native_frame_contracts = _load_native_v4_body_frames()
+    native_frames, _, native_frame_contracts = _load_native_v5_body_frames()
     first_idle = native_frames[("idle", 0)]
     full_body = first_idle.crop(alpha_bbox(first_idle))
 
@@ -1929,7 +2034,7 @@ def build_splash_and_portraits() -> list[Path]:
     face_box = idle_contract["face_bbox"]
     mask_box = idle_contract["mask_bbox"]
     if face_box is None or mask_box is None:
-        raise ValueError("Yone V4 idle[0] lacks face/mask portrait annotations")
+        raise ValueError("Yone V5 idle[0] lacks face/mask portrait annotations")
     face_x, face_y, face_w, face_h = face_box
     mask_x, mask_y, mask_w, mask_h = mask_box
     focus_left = max(0, min(face_x, mask_x) - 2)
@@ -1941,7 +2046,7 @@ def build_splash_and_portraits() -> list[Path]:
     # Preserve the annotated face/mask plus enough shoulder/torso pixels to
     # match the native 48x64 scoreboard aspect.  This replaces the rejected
     # high-resolution percentage crop, which became a thin 26px strip when fed
-    # the exact-native 43x55 V4 idle frame.
+    # the exact-native 43x55 V5 idle frame.
     focus_bottom = min(first_idle.height, focus_top + 27)
     scoreboard_focus = first_idle.crop(
         (focus_left, focus_top, focus_right, focus_bottom)
@@ -2071,7 +2176,7 @@ def build_qa(
 ) -> list[Path]:
     sheet = Image.open(actor_sheet).convert("RGBA")
     native_source_frames, native_manifest_contract, native_frame_source_contracts = (
-        _load_native_v4_body_frames()
+        _load_native_v5_body_frames()
     )
     anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
     body_frames: dict[str, list[dict[str, Any]]] = {}
@@ -2120,12 +2225,13 @@ def build_qa(
             "eye_pixels": source_contract["eye_pixels"],
             "mask_bbox": source_contract["mask_bbox"],
             "foot_zones": source_contract["foot_zones"],
+            "face_visibility": source_contract["face_visibility"],
             "bottom_margin": source_contract["bottom_margin"],
             "source_to_atlas_byte_identical": identical,
         }
     if len(actor_face_annotations) != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            "Yone V4 annotation QA must cover "
+            "Yone V5 annotation QA must cover "
             f"{NATIVE_BODY_FRAME_COUNT} visible body frames, got "
             f"{len(actor_face_annotations)}"
         )
@@ -2174,12 +2280,12 @@ def build_qa(
                 "body_frames": body_frames,
                 "body_source_contract": native_manifest_contract,
                 "body_frame_sources": native_frame_source_contracts,
-                "pack_time_resampling": "none; 54 exact-size V4 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
+                "pack_time_resampling": "none; 54 exact-size V5 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
                 "source_to_atlas_identity": native_body_identity,
                 "pixel_quality": {
                     "contract": {
                         "hard_alpha": True,
-                        "maximum_opaque_palette_size": NATIVE_V4_MAX_OPAQUE_COLORS,
+                        "maximum_opaque_palette_size": NATIVE_V5_MAX_OPAQUE_COLORS,
                         "metrics_are_measured_at": "native 1x",
                     },
                     "frames": native_body_pixel_quality,
@@ -2204,13 +2310,13 @@ def build_qa(
                 "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "from-zero exact-native V4 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or legacy-model fallback",
-                "body_source_manifest": NATIVE_V4_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+                "policy": "from-zero exact-native V5 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or V3/V4 body fallback",
+                "body_source_manifest": NATIVE_V5_MANIFEST.relative_to(MOD_ROOT).as_posix(),
                 "actor_resampling": "NONE",
                 "idle_face_contract": {
                     "source_authored": True,
                     "post_scale_repaint": False,
-                    "view": "natural 3/4 profile with one dominant eye cue",
+                    "view": "readable chibi portrait with source-authored eye-outline cue pixels",
                     "alpha_geometry_changes": 0,
                 },
                 "all_battle_body_frames": actor_face_annotations,
@@ -2218,6 +2324,14 @@ def build_qa(
                 "fullbody_card_85x93": fullbody_card,
                 "live_idle_card": live_idle_card,
                 "live_run_profile": live_run_profile,
+            },
+            "retired_body_routes": {
+                "v3": "retired and never used as a fallback",
+                "v4": [
+                    path.relative_to(MOD_ROOT).as_posix()
+                    for path in RETIRED_YONE_V4_BODY_SOURCES
+                ],
+                "v4_status": "both V4 ImageGen body sources and the entire old native route are retired; build_actor loads only exact-native-v5",
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
@@ -2233,14 +2347,32 @@ def build_qa(
     write_json(
         provenance_path,
         {
-            "schema_version": 4,
+            "schema_version": 5,
             "champion": "Yone",
             "generator": "built-in image_gen followed by final-scale native pixel authorship",
             "generated_on": "2026-07-19",
-            "processing": "exact-native-v4: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or legacy fallback",
+            "processing": "exact-native-v5: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or V3/V4 body fallback",
             "body_source": native_manifest_contract,
             "body_frames": native_frame_source_contracts,
-            "sources": [image_record(path) for path in (QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
+            "body_imagegen_inputs": [
+                image_record(path) for path in YONE_V5_BODY_IMAGEGEN_SOURCES
+            ],
+            "retired_body_routes": [
+                path.relative_to(MOD_ROOT).as_posix()
+                for path in RETIRED_YONE_V4_BODY_SOURCES
+            ],
+            "sources": [
+                image_record(path)
+                for path in (
+                    *YONE_V5_BODY_IMAGEGEN_SOURCES,
+                    QW_VFX_SOURCE,
+                    W_VFX_SOURCE,
+                    Q3_VFX_SOURCE,
+                    R_VFX_SOURCE,
+                    ICON_SOURCE,
+                    SPLASH_SOURCE,
+                )
+            ],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
         },
@@ -2253,14 +2385,16 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] The rejected contact-sheet body route is retired; all 54 visible body poses come only from `source/native/yone_v4/frames.json`.\n"
-        "- [x] Every V4 pose is authored at its exact final native rectangle, palette-validated, and copied byte-for-byte with no crop, resize, quantization, chroma key, repaint, or V3 fallback.\n"
-        "- [x] The new adult-proportioned natural 3/4 face preserves source-authored eye, jaw and hair clusters without any post-scale face repaint.\n"
+        "- [x] All 54 visible body poses come only from `source/native/yone_v5/frames.json`; V3 is retired and cannot be selected as a fallback.\n"
+        "- [x] `source/imagegen/yone_v4_action_contact.png`, `source/imagegen/yone_v4_idle_candidate_43x55.png`, and the old `source/native/yone_v4` route are retired body inputs and are never loaded by this builder.\n"
+        "- [x] Every V5 pose is authored at its exact final native rectangle, palette-validated, and copied byte-for-byte with no crop, resize, quantization, chroma key, repaint, or V3/V4 fallback.\n"
+        "- [x] The V5 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without any post-scale face repaint.\n"
+        "- [x] The body preview is the complete opaque `141x138` card chrome and proves the exact idle[0] 2.2x NEAREST actor render, divider clearance, and right-side icon exclusion.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five exact-native V4 sweep poses; no code-drawn body, arm or blade is added during packing.\n"
+        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five exact-native V5 sweep poses; no code-drawn body, arm or blade is added during packing.\n"
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
@@ -2359,7 +2493,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
     sheet = Image.open(actor_sheet).convert("RGBA")
     native_source_frames, _, native_frame_source_contracts = (
-        _load_native_v4_body_frames()
+        _load_native_v5_body_frames()
     )
 
     native_edge_ratios: list[float] = []
@@ -2383,7 +2517,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             raise ValueError(
                 f"Yone {tag}[{index}] contains non-binary alpha: {quality['alpha_values']}"
             )
-        if quality["opaque_palette_size"] > NATIVE_V4_MAX_OPAQUE_COLORS:
+        if quality["opaque_palette_size"] > NATIVE_V5_MAX_OPAQUE_COLORS:
             raise ValueError(
                 f"Yone {tag}[{index}] uses {quality['opaque_palette_size']} opaque colors"
             )
@@ -2482,11 +2616,11 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         w_pose_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
     if len(w_pose_hashes) < 4:
         raise ValueError(
-            f"Yone V4 W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
+            f"Yone V5 W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
         )
 
     native_core_bottoms = {
-        "idle": [14, 15, 14, 15],
+        "idle": [15, 15, 14, 15],
         "run": [13, 18, 20, 17, 13, 17, 20, 17],
         "attack": [14, 14, 12, 13, 13, 14],
         "hit": [15],
@@ -2497,11 +2631,11 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     }
     if actual_core_bottoms != native_core_bottoms:
         raise ValueError(
-            "Yone core foot anchors diverged from the official Dual Blader: "
+            "Yone core foot anchors diverged from the exact-native V5 source: "
             f"{actual_core_bottoms}"
         )
 
-    # V4 owns face/eye/mask/foot identity through explicit local-coordinate
+    # V5 owns face/eye/mask/foot identity through explicit local-coordinate
     # annotations in frames.json.  Do not reinterpret the new fixed palette
     # with the rejected V3 warm-skin/red-mask heuristics: fast profile, ult and
     # defeat frames may intentionally omit a face annotation, while all four
@@ -2511,24 +2645,33 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         frame_name = f"{tag}[{index}]"
         contract = native_frame_source_contracts.get(frame_name)
         if contract is None:
-            raise ValueError(f"Yone V4 manifest lacks {frame_name} annotations")
+            raise ValueError(f"Yone V5 manifest lacks {frame_name} annotations")
         annotation_count += 1
         face_bbox = contract["face_bbox"]
         eye_pixels = contract["eye_pixels"]
         mask_bbox = contract["mask_bbox"]
         foot_zones = contract["foot_zones"]
+        face_visibility = contract["face_visibility"]
         if tag == "idle" and (
             face_bbox is None
             or mask_bbox is None
-            or len(eye_pixels) < 2
-            or len({point[0] for point in eye_pixels}) < 2
+            or not eye_pixels
         ):
             raise ValueError(
-                f"Yone V4 {frame_name} lacks its explicit front-face contract"
+                f"Yone V5 {frame_name} lacks its explicit front-face contract"
+            )
+        if tag == "idle" and (
+            (face_visibility == "front" and len(eye_pixels) < 2)
+            or (face_visibility == "profile" and len(eye_pixels) < 1)
+            or face_visibility == "hidden"
+        ):
+            raise ValueError(
+                f"Yone V5 {frame_name} eye count {len(eye_pixels)} does not match "
+                f"face_visibility={face_visibility!r}"
             )
         if face_bbox is not None and (not eye_pixels or mask_bbox is None):
             raise ValueError(
-                f"Yone V4 {frame_name} face annotation lacks eyes or mask"
+                f"Yone V5 {frame_name} face annotation lacks eyes or mask"
             )
         if tag in {
             "idle",
@@ -2540,10 +2683,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             "run",
             "skill",
         } and not foot_zones:
-            raise ValueError(f"Yone V4 {frame_name} lacks foot-zone annotations")
+            raise ValueError(f"Yone V5 {frame_name} lacks foot-zone annotations")
     if annotation_count != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            "Yone V4 annotation validation covered "
+            "Yone V5 annotation validation covered "
             f"{annotation_count}/{NATIVE_BODY_FRAME_COUNT} frames"
         )
 
@@ -2580,9 +2723,9 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         if (
             annotation["face_bbox"] is None
             or annotation["mask_bbox"] is None
-            or len(annotation["eye_pixels"]) < 2
+            or not annotation["eye_pixels"]
         ):
-            raise ValueError(f"Yone V4 {frame_name} lost its manifest face annotation")
+            raise ValueError(f"Yone V5 {frame_name} lost its manifest face annotation")
         if quality["divider_clearance"] < YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE:
             raise ValueError(
                 f"Yone {frame_name} feet/weapon enter the card divider: "
@@ -2602,7 +2745,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     ):
         annotation = native_frame_source_contracts[frame_name]
         if not annotation["foot_zones"]:
-            raise ValueError(f"Yone V4 {frame_name} lost its run foot-zone contract")
+            raise ValueError(f"Yone V5 {frame_name} lost its run foot-zone contract")
         if (
             quality["source_bottom_clearance"] != BODY_BOTTOM_MARGINS["run"][index]
             or quality["rendered_bottom_clearance"] <= 0
@@ -2613,7 +2756,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         run_pose_hashes.add(native_source_frames[("run", index)].tobytes())
     if len(run_pose_hashes) < 4:
         raise ValueError(
-            f"Yone V4 run loop lost pose variation: {len(run_pose_hashes)}/8"
+            f"Yone V5 run loop lost pose variation: {len(run_pose_hashes)}/8"
         )
 
     terminal_rect = NATIVE_CONTRACT["dead"]["rects"][-1]
@@ -2742,14 +2885,15 @@ def build_all() -> list[Path]:
             + "\n".join(str(path) for path in stale_sources)
         )
     required = [
-        NATIVE_V4_MANIFEST,
+        NATIVE_V5_MANIFEST,
+        *YONE_V5_BODY_IMAGEGEN_SOURCES,
         QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE,
         ICON_SOURCE, SPLASH_SOURCE,
     ]
     missing = [path for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(
-            "Missing Yone V4/VFX sources (the rejected V3 body route is not a fallback):\n"
+            "Missing Yone V5/VFX sources (the retired V3/V4 body routes are not fallbacks):\n"
             + "\n".join(str(path) for path in missing)
         )
     processed = process_sources()

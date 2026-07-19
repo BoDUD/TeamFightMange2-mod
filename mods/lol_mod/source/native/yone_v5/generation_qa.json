@@ -1,0 +1,2187 @@
+{
+  "schema_version": 1,
+  "route": "exact-native-v5",
+  "frame_count": 54,
+  "contact_preview": "preview/yone_v5_native_contact.png",
+  "source_hashes": {
+    "golden": "52ab8e7a6c74591213487f3abd8907e5b1e6481647473fda6c5e144439f99de4",
+    "motion": "f20b8a6287729b516078a986b2fe51c8fd8f8bbea6cf8aeaa83bd3174ea4cc89",
+    "attack_q_w": "2b0cbbe7cebe320719af33615b4324cf944398aafe008c96488aeb9884ee8de7",
+    "q5_single": "2c9fe1578a8b2171cca63c967d47875ee9e2b44df7ba6093b817f383134eb5e0",
+    "ult": "66e6d96b6eb1365e03e42f5aac52e662535d37c2c8993a5518fa338a9243d0c4"
+  },
+  "face_visibility_values": [
+    "front",
+    "profile",
+    "hidden"
+  ],
+  "idle0_pixel_sha256": "9038ad9b9ea41d8f8487b8a759177400ee402c5c29f5e00d788537c651da6119",
+  "golden_pixel_sha256": "9038ad9b9ea41d8f8487b8a759177400ee402c5c29f5e00d788537c651da6119",
+  "card_alpha_bbox": [
+    0,
+    0,
+    141,
+    138
+  ],
+  "failures": [],
+  "frames": [
+    {
+      "action": "skill2",
+      "index": 0,
+      "source": "attack_q_w",
+      "cell": 19,
+      "size": [
+        31,
+        49
+      ],
+      "visible_size": [
+        28,
+        38
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        176,
+        237
+      ],
+      "direct_resize_size": [
+        28,
+        38
+      ],
+      "pelvis_center_x": 84.0,
+      "paste_xy": [
+        2,
+        6
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        2,
+        6,
+        30,
+        44
+      ]
+    },
+    {
+      "action": "hit",
+      "index": 0,
+      "source": "motion",
+      "cell": 4,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        40,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        208,
+        192
+      ],
+      "direct_resize_size": [
+        40,
+        37
+      ],
+      "pelvis_center_x": 101.0,
+      "paste_xy": [
+        1,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        1,
+        1,
+        41,
+        38
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 0,
+      "source": "attack_q_w",
+      "cell": 1,
+      "size": [
+        45,
+        51
+      ],
+      "visible_size": [
+        29,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        178,
+        222
+      ],
+      "direct_resize_size": [
+        29,
+        36
+      ],
+      "pelvis_center_x": 107.0,
+      "paste_xy": [
+        4,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        4,
+        1,
+        33,
+        37
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 1,
+      "source": "attack_q_w",
+      "cell": 2,
+      "size": [
+        49,
+        51
+      ],
+      "visible_size": [
+        23,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        141,
+        219
+      ],
+      "direct_resize_size": [
+        23,
+        36
+      ],
+      "pelvis_center_x": 78.0,
+      "paste_xy": [
+        11,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        11,
+        1,
+        34,
+        37
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 2,
+      "source": "attack_q_w",
+      "cell": 3,
+      "size": [
+        59,
+        47
+      ],
+      "visible_size": [
+        41,
+        34
+      ],
+      "bottom_margin": 12,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        257,
+        212
+      ],
+      "direct_resize_size": [
+        41,
+        34
+      ],
+      "pelvis_center_x": 87.0,
+      "paste_xy": [
+        16,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        16,
+        1,
+        57,
+        35
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 3,
+      "source": "attack_q_w",
+      "cell": 4,
+      "size": [
+        59,
+        49
+      ],
+      "visible_size": [
+        26,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        154,
+        211
+      ],
+      "direct_resize_size": [
+        26,
+        35
+      ],
+      "pelvis_center_x": 70.0,
+      "paste_xy": [
+        18,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        18,
+        1,
+        44,
+        36
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 4,
+      "source": "attack_q_w",
+      "cell": 5,
+      "size": [
+        61,
+        49
+      ],
+      "visible_size": [
+        27,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 25,
+      "source_subject_size": [
+        158,
+        208
+      ],
+      "direct_resize_size": [
+        27,
+        35
+      ],
+      "pelvis_center_x": 61.0,
+      "paste_xy": [
+        20,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        20,
+        1,
+        47,
+        36
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 5,
+      "source": "attack_q_w",
+      "cell": 6,
+      "size": [
+        51,
+        51
+      ],
+      "visible_size": [
+        28,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 28,
+      "source_subject_size": [
+        161,
+        208
+      ],
+      "direct_resize_size": [
+        28,
+        36
+      ],
+      "pelvis_center_x": 78.0,
+      "paste_xy": [
+        10,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        10,
+        1,
+        38,
+        37
+      ]
+    },
+    {
+      "action": "skill2_dash",
+      "index": 0,
+      "source": "attack_q_w",
+      "cell": 19,
+      "size": [
+        43,
+        43
+      ],
+      "visible_size": [
+        27,
+        36
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        176,
+        237
+      ],
+      "direct_resize_size": [
+        27,
+        36
+      ],
+      "pelvis_center_x": 84.0,
+      "paste_xy": [
+        8,
+        3
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        8,
+        3,
+        35,
+        39
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 0,
+      "source": "ult",
+      "cell": 1,
+      "size": [
+        49,
+        51
+      ],
+      "visible_size": [
+        33,
+        37
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        253,
+        288
+      ],
+      "direct_resize_size": [
+        33,
+        37
+      ],
+      "pelvis_center_x": 123.0,
+      "paste_xy": [
+        7,
+        9
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        7,
+        9,
+        40,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 1,
+      "source": "ult",
+      "cell": 2,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        21,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        170,
+        288
+      ],
+      "direct_resize_size": [
+        22,
+        38
+      ],
+      "pelvis_center_x": 89.0,
+      "paste_xy": [
+        17,
+        9
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        17,
+        9,
+        38,
+        47
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 2,
+      "source": "ult",
+      "cell": 3,
+      "size": [
+        59,
+        57
+      ],
+      "visible_size": [
+        47,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        285,
+        225
+      ],
+      "direct_resize_size": [
+        48,
+        38
+      ],
+      "pelvis_center_x": 141.0,
+      "paste_xy": [
+        6,
+        11
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        6,
+        11,
+        53,
+        49
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 3,
+      "source": "ult",
+      "cell": 4,
+      "size": [
+        61,
+        53
+      ],
+      "visible_size": [
+        39,
+        38
+      ],
+      "bottom_margin": 10,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "source_subject_size": [
+        259,
+        250
+      ],
+      "direct_resize_size": [
+        39,
+        38
+      ],
+      "pelvis_center_x": 157.0,
+      "paste_xy": [
+        7,
+        5
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        7,
+        5,
+        46,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 4,
+      "source": "ult",
+      "cell": 5,
+      "size": [
+        51,
+        51
+      ],
+      "visible_size": [
+        46,
+        37
+      ],
+      "bottom_margin": 12,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        271,
+        185
+      ],
+      "direct_resize_size": [
+        54,
+        37
+      ],
+      "pelvis_center_x": 164.0,
+      "paste_xy": [
+        -7,
+        2
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 8,
+      "alpha_bbox": [
+        1,
+        2,
+        47,
+        39
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 5,
+      "source": "ult",
+      "cell": 6,
+      "size": [
+        59,
+        47
+      ],
+      "visible_size": [
+        47,
+        35
+      ],
+      "bottom_margin": 11,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        265,
+        198
+      ],
+      "direct_resize_size": [
+        47,
+        35
+      ],
+      "pelvis_center_x": 154.0,
+      "paste_xy": [
+        2,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        2,
+        1,
+        49,
+        36
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 6,
+      "source": "ult",
+      "cell": 7,
+      "size": [
+        59,
+        49
+      ],
+      "visible_size": [
+        56,
+        38
+      ],
+      "bottom_margin": 9,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        284,
+        157
+      ],
+      "direct_resize_size": [
+        69,
+        38
+      ],
+      "pelvis_center_x": 165.0,
+      "paste_xy": [
+        -12,
+        2
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 13,
+      "alpha_bbox": [
+        1,
+        2,
+        57,
+        40
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 7,
+      "source": "ult",
+      "cell": 8,
+      "size": [
+        61,
+        53
+      ],
+      "visible_size": [
+        27,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        157,
+        221
+      ],
+      "direct_resize_size": [
+        27,
+        38
+      ],
+      "pelvis_center_x": 75.0,
+      "paste_xy": [
+        16,
+        8
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        16,
+        8,
+        43,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 8,
+      "source": "ult",
+      "cell": 9,
+      "size": [
+        55,
+        57
+      ],
+      "visible_size": [
+        34,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        194,
+        216
+      ],
+      "direct_resize_size": [
+        34,
+        38
+      ],
+      "pelvis_center_x": 107.0,
+      "paste_xy": [
+        8,
+        13
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        8,
+        13,
+        42,
+        51
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 9,
+      "source": "ult",
+      "cell": 10,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        51,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        274,
+        203
+      ],
+      "direct_resize_size": [
+        51,
+        38
+      ],
+      "pelvis_center_x": 143.0,
+      "paste_xy": [
+        3,
+        8
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        3,
+        8,
+        54,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 10,
+      "source": "ult",
+      "cell": 11,
+      "size": [
+        59,
+        51
+      ],
+      "visible_size": [
+        31,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        229,
+        281
+      ],
+      "direct_resize_size": [
+        31,
+        38
+      ],
+      "pelvis_center_x": 115.0,
+      "paste_xy": [
+        14,
+        5
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        14,
+        5,
+        45,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 11,
+      "source": "ult",
+      "cell": 12,
+      "size": [
+        61,
+        49
+      ],
+      "visible_size": [
+        27,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        191,
+        265
+      ],
+      "direct_resize_size": [
+        27,
+        38
+      ],
+      "pelvis_center_x": 112.0,
+      "paste_xy": [
+        14,
+        5
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        14,
+        5,
+        41,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 12,
+      "source": "ult",
+      "cell": 13,
+      "size": [
+        53,
+        51
+      ],
+      "visible_size": [
+        31,
+        37
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        234,
+        281
+      ],
+      "direct_resize_size": [
+        31,
+        37
+      ],
+      "pelvis_center_x": 119.0,
+      "paste_xy": [
+        9,
+        9
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        9,
+        9,
+        40,
+        46
+      ]
+    },
+    {
+      "action": "run",
+      "index": 0,
+      "source": "motion",
+      "cell": 5,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        37,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        212,
+        164
+      ],
+      "direct_resize_size": [
+        45,
+        35
+      ],
+      "pelvis_center_x": 122.0,
+      "paste_xy": [
+        -7,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 8,
+      "alpha_bbox": [
+        1,
+        1,
+        38,
+        36
+      ]
+    },
+    {
+      "action": "run",
+      "index": 1,
+      "source": "motion",
+      "cell": 6,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        33,
+        32
+      ],
+      "bottom_margin": 18,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 28,
+      "source_subject_size": [
+        189,
+        168
+      ],
+      "direct_resize_size": [
+        36,
+        32
+      ],
+      "pelvis_center_x": 111.0,
+      "paste_xy": [
+        -2,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 3,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 2,
+      "source": "motion",
+      "cell": 7,
+      "size": [
+        39,
+        53
+      ],
+      "visible_size": [
+        30,
+        32
+      ],
+      "bottom_margin": 20,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        154,
+        165
+      ],
+      "direct_resize_size": [
+        30,
+        32
+      ],
+      "pelvis_center_x": 83.0,
+      "paste_xy": [
+        4,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        4,
+        1,
+        34,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 3,
+      "source": "motion",
+      "cell": 8,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        34,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "source_subject_size": [
+        178,
+        174
+      ],
+      "direct_resize_size": [
+        34,
+        33
+      ],
+      "pelvis_center_x": 96.0,
+      "paste_xy": [
+        1,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        1,
+        1,
+        35,
+        34
+      ]
+    },
+    {
+      "action": "run",
+      "index": 4,
+      "source": "motion",
+      "cell": 9,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        34,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        166,
+        159
+      ],
+      "direct_resize_size": [
+        37,
+        35
+      ],
+      "pelvis_center_x": 94.0,
+      "paste_xy": [
+        -2,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 3,
+      "alpha_bbox": [
+        1,
+        1,
+        35,
+        36
+      ]
+    },
+    {
+      "action": "run",
+      "index": 5,
+      "source": "motion",
+      "cell": 10,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        33,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        169,
+        163
+      ],
+      "direct_resize_size": [
+        34,
+        33
+      ],
+      "pelvis_center_x": 96.0,
+      "paste_xy": [
+        0,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        34
+      ]
+    },
+    {
+      "action": "run",
+      "index": 6,
+      "source": "motion",
+      "cell": 11,
+      "size": [
+        39,
+        53
+      ],
+      "visible_size": [
+        33,
+        32
+      ],
+      "bottom_margin": 20,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        171,
+        163
+      ],
+      "direct_resize_size": [
+        34,
+        32
+      ],
+      "pelvis_center_x": 99.0,
+      "paste_xy": [
+        0,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 7,
+      "source": "motion",
+      "cell": 12,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        32,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "source_subject_size": [
+        171,
+        170
+      ],
+      "direct_resize_size": [
+        33,
+        33
+      ],
+      "pelvis_center_x": 99.0,
+      "paste_xy": [
+        0,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "alpha_bbox": [
+        1,
+        1,
+        33,
+        34
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 0,
+      "source": "attack_q_w",
+      "cell": 14,
+      "size": [
+        31,
+        43
+      ],
+      "visible_size": [
+        28,
+        36
+      ],
+      "bottom_margin": 3,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        147,
+        184
+      ],
+      "direct_resize_size": [
+        29,
+        36
+      ],
+      "pelvis_center_x": 70.0,
+      "paste_xy": [
+        0,
+        4
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "alpha_bbox": [
+        1,
+        4,
+        29,
+        40
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 1,
+      "source": "attack_q_w",
+      "cell": 15,
+      "size": [
+        31,
+        45
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        199,
+        209
+      ],
+      "direct_resize_size": [
+        35,
+        37
+      ],
+      "pelvis_center_x": 77.5,
+      "paste_xy": [
+        1,
+        4
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 5,
+      "alpha_bbox": [
+        1,
+        4,
+        30,
+        41
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 2,
+      "source": "attack_q_w",
+      "cell": 16,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        45,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 26,
+      "source_subject_size": [
+        250,
+        206
+      ],
+      "direct_resize_size": [
+        46,
+        38
+      ],
+      "pelvis_center_x": 94.0,
+      "paste_xy": [
+        13,
+        7
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "alpha_bbox": [
+        13,
+        7,
+        58,
+        45
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 3,
+      "source": "attack_q_w",
+      "cell": 17,
+      "size": [
+        59,
+        55
+      ],
+      "visible_size": [
+        47,
+        38
+      ],
+      "bottom_margin": 9,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 26,
+      "source_subject_size": [
+        274,
+        208
+      ],
+      "direct_resize_size": [
+        50,
+        38
+      ],
+      "pelvis_center_x": 100.0,
+      "paste_xy": [
+        11,
+        8
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 3,
+      "alpha_bbox": [
+        11,
+        8,
+        58,
+        46
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 4,
+      "source": "attack_q_w",
+      "cell": 18,
+      "size": [
+        57,
+        51
+      ],
+      "visible_size": [
+        27,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        150,
+        214
+      ],
+      "direct_resize_size": [
+        27,
+        38
+      ],
+      "pelvis_center_x": 72.0,
+      "paste_xy": [
+        14,
+        6
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        14,
+        6,
+        41,
+        44
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 0,
+      "source": "golden",
+      "cell": null,
+      "size": [
+        43,
+        55
+      ],
+      "visible_size": [
+        30,
+        38
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 22,
+      "source_subject_size": [
+        43,
+        55
+      ],
+      "direct_resize_size": null,
+      "pelvis_center_x": null,
+      "paste_xy": null,
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        4,
+        2,
+        34,
+        40
+      ],
+      "idle_fallback": "byte-exact-golden"
+    },
+    {
+      "action": "idle",
+      "index": 1,
+      "source": "golden",
+      "cell": null,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 22,
+      "source_subject_size": [
+        30,
+        38
+      ],
+      "direct_resize_size": [
+        29,
+        37
+      ],
+      "pelvis_center_x": 14.0,
+      "paste_xy": [
+        7,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        7,
+        1,
+        36,
+        38
+      ],
+      "idle_fallback": "golden-native"
+    },
+    {
+      "action": "idle",
+      "index": 2,
+      "source": "golden",
+      "cell": null,
+      "size": [
+        43,
+        51
+      ],
+      "visible_size": [
+        28,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 22,
+      "source_subject_size": [
+        30,
+        38
+      ],
+      "direct_resize_size": [
+        28,
+        36
+      ],
+      "pelvis_center_x": 14.0,
+      "paste_xy": [
+        9,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        9,
+        1,
+        37,
+        37
+      ],
+      "idle_fallback": "golden-native"
+    },
+    {
+      "action": "idle",
+      "index": 3,
+      "source": "golden",
+      "cell": null,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 22,
+      "source_subject_size": [
+        30,
+        38
+      ],
+      "direct_resize_size": [
+        29,
+        37
+      ],
+      "pelvis_center_x": 14.0,
+      "paste_xy": [
+        7,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        7,
+        1,
+        36,
+        38
+      ],
+      "idle_fallback": "golden-native"
+    },
+    {
+      "action": "dead",
+      "index": 0,
+      "source": "motion",
+      "cell": 13,
+      "size": [
+        43,
+        51
+      ],
+      "visible_size": [
+        33,
+        34
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "source_subject_size": [
+        164,
+        171
+      ],
+      "direct_resize_size": [
+        33,
+        34
+      ],
+      "pelvis_center_x": 93.0,
+      "paste_xy": [
+        1,
+        11
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        1,
+        11,
+        34,
+        45
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 1,
+      "source": "motion",
+      "cell": 14,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        34,
+        28
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        180,
+        148
+      ],
+      "direct_resize_size": [
+        34,
+        28
+      ],
+      "pelvis_center_x": 92.0,
+      "paste_xy": [
+        3,
+        15
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        3,
+        15,
+        37,
+        43
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 2,
+      "source": "motion",
+      "cell": 15,
+      "size": [
+        41,
+        45
+      ],
+      "visible_size": [
+        21,
+        24
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "source_subject_size": [
+        165,
+        177
+      ],
+      "direct_resize_size": [
+        22,
+        24
+      ],
+      "pelvis_center_x": 70.0,
+      "paste_xy": [
+        12,
+        16
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        12,
+        16,
+        33,
+        40
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 3,
+      "source": "motion",
+      "cell": 16,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        11,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 18,
+      "source_subject_size": [
+        161,
+        173
+      ],
+      "direct_resize_size": [
+        11,
+        12
+      ],
+      "pelvis_center_x": 79.0,
+      "paste_xy": [
+        16,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        16,
+        23,
+        27,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 4,
+      "source": "motion",
+      "cell": 17,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        19,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 27,
+      "source_subject_size": [
+        195,
+        122
+      ],
+      "direct_resize_size": [
+        19,
+        12
+      ],
+      "pelvis_center_x": 95.0,
+      "paste_xy": [
+        11,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        11,
+        23,
+        30,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 5,
+      "source": "motion",
+      "cell": 18,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        29,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 28,
+      "source_subject_size": [
+        215,
+        88
+      ],
+      "direct_resize_size": [
+        29,
+        12
+      ],
+      "pelvis_center_x": 106.0,
+      "paste_xy": [
+        5,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        5,
+        23,
+        34,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 6,
+      "source": "motion",
+      "cell": 19,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        39,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 25,
+      "source_subject_size": [
+        237,
+        54
+      ],
+      "direct_resize_size": [
+        53,
+        12
+      ],
+      "pelvis_center_x": 118.0,
+      "paste_xy": [
+        -6,
+        23
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 14,
+      "alpha_bbox": [
+        1,
+        23,
+        40,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 7,
+      "source": "motion",
+      "cell": 19,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        39,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 25,
+      "source_subject_size": [
+        237,
+        54
+      ],
+      "direct_resize_size": [
+        53,
+        12
+      ],
+      "pelvis_center_x": 118.0,
+      "paste_xy": [
+        -5,
+        23
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 14,
+      "alpha_bbox": [
+        1,
+        23,
+        40,
+        35
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 0,
+      "source": "attack_q_w",
+      "cell": 7,
+      "size": [
+        31,
+        49
+      ],
+      "visible_size": [
+        26,
+        38
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        181,
+        205
+      ],
+      "direct_resize_size": [
+        34,
+        38
+      ],
+      "pelvis_center_x": 114.0,
+      "paste_xy": [
+        -7,
+        6
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 8,
+      "alpha_bbox": [
+        1,
+        6,
+        27,
+        44
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 1,
+      "source": "attack_q_w",
+      "cell": 8,
+      "size": [
+        31,
+        43
+      ],
+      "visible_size": [
+        26,
+        37
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 26,
+      "source_subject_size": [
+        219,
+        191
+      ],
+      "direct_resize_size": [
+        42,
+        37
+      ],
+      "pelvis_center_x": 58.0,
+      "paste_xy": [
+        4,
+        2
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 16,
+      "alpha_bbox": [
+        4,
+        2,
+        30,
+        39
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 2,
+      "source": "attack_q_w",
+      "cell": 9,
+      "size": [
+        31,
+        55
+      ],
+      "visible_size": [
+        29,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 27,
+      "source_subject_size": [
+        248,
+        195
+      ],
+      "direct_resize_size": [
+        48,
+        38
+      ],
+      "pelvis_center_x": 81.0,
+      "paste_xy": [
+        0,
+        10
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 19,
+      "alpha_bbox": [
+        1,
+        10,
+        30,
+        48
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 3,
+      "source": "attack_q_w",
+      "cell": 10,
+      "size": [
+        71,
+        57
+      ],
+      "visible_size": [
+        47,
+        39
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        247,
+        206
+      ],
+      "direct_resize_size": [
+        47,
+        39
+      ],
+      "pelvis_center_x": 83.0,
+      "paste_xy": [
+        20,
+        12
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        20,
+        12,
+        67,
+        51
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 4,
+      "source": "attack_q_w",
+      "cell": 11,
+      "size": [
+        83,
+        67
+      ],
+      "visible_size": [
+        58,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 31,
+      "source_subject_size": [
+        291,
+        197
+      ],
+      "direct_resize_size": [
+        58,
+        39
+      ],
+      "pelvis_center_x": 112.0,
+      "paste_xy": [
+        19,
+        20
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        19,
+        20,
+        77,
+        59
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 5,
+      "source": "q5_single",
+      "cell": null,
+      "size": [
+        85,
+        77
+      ],
+      "visible_size": [
+        56,
+        39
+      ],
+      "bottom_margin": 10,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        1290,
+        897
+      ],
+      "direct_resize_size": [
+        56,
+        39
+      ],
+      "pelvis_center_x": 420.0,
+      "paste_xy": [
+        23,
+        28
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        23,
+        28,
+        79,
+        67
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 6,
+      "source": "attack_q_w",
+      "cell": 13,
+      "size": [
+        91,
+        87
+      ],
+      "visible_size": [
+        45,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 30,
+      "source_subject_size": [
+        219,
+        188
+      ],
+      "direct_resize_size": [
+        45,
+        39
+      ],
+      "pelvis_center_x": 105.0,
+      "paste_xy": [
+        23,
+        40
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "alpha_bbox": [
+        23,
+        40,
+        68,
+        79
+      ]
+    }
+  ]
+}

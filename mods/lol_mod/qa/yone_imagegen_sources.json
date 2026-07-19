@@ -1,23 +1,23 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "champion": "Yone",
   "generator": "built-in image_gen followed by final-scale native pixel authorship",
   "generated_on": "2026-07-19",
-  "processing": "exact-native-v4: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or legacy fallback",
+  "processing": "exact-native-v5: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or V3/V4 body fallback",
   "body_source": {
-    "schema_version": 4,
-    "route": "exact-native-v4",
-    "manifest": "source/native/yone_v4/frames.json",
-    "manifest_sha256": "6b4c01aa62a2efd024041da402090f8f754e86e5dffd05ab870da53327950d34",
+    "schema_version": 5,
+    "route": "exact-native-v5",
+    "manifest": "source/native/yone_v5/frames.json",
+    "manifest_sha256": "2ca90612f8b3d277e7c69b3e16593163b93b3671a6bf39c7acf6feeca9514ce1",
     "atlas_size": [
       3502,
       88
     ],
     "frame_count": 54,
     "palette": {
-      "path": "source/native/yone_v4/palette.json",
-      "schema_version": 4,
-      "route": "exact-native-v4",
+      "path": "source/native/yone_v5/palette.json",
+      "schema_version": 5,
+      "route": "exact-native-v5",
       "opaque_color_count": 31,
       "roles": [
         "transparent",
@@ -28,7 +28,7 @@
         "cloth_mid",
         "cloth_light",
         "mask_umber",
-        "skin_shadow_eye",
+        "skin_shadow",
         "skin_brown",
         "skin_mid",
         "skin_light",
@@ -53,14 +53,17 @@
         "leather_deep",
         "leather_mid"
       ],
-      "sha256": "a9faeaa8de5aade0d1b7e9bc54501f4071b90e4975eb08d9da55a4ce0ca77a9d"
+      "sha256": "c085f05715cb083e0d38e5bab9b100e1192d1c07ceb5fa8ed270dcb7f1ff6f71"
     },
-    "body_preview": "source/native/yone_v4/preview/yone_v4_actor_card.png",
+    "body_preview": "source/native/yone_v5/preview/yone_v5_actor_card.png",
+    "body_preview_kind": "complete opaque 141x138 runtime-card proof",
+    "body_preview_sha256": "018a3cde2cca8f018551cf922661466ae7b41ddff1d03215850ac77cd8720133",
+    "contact_preview": "source/native/yone_v5/preview/yone_v5_native_contact.png",
     "body_processing": "none; exact final 1x RGBA byte copy"
   },
   "body_frames": {
     "skill2[0]": {
-      "source": "source/native/yone_v4/frames/skill2_00.png",
+      "source": "source/native/yone_v5/frames/skill2_00.png",
       "native_rect": [
         1970,
         0,
@@ -73,8 +76,8 @@
       ],
       "source_alpha_bbox": [
         2,
-        7,
-        29,
+        6,
+        30,
         44
       ],
       "bottom_margin": 5,
@@ -85,18 +88,19 @@
         [
           2,
           40,
-          27,
+          28,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "70faf6f0f37b1caddc6cdb13a82dbdbb9b93ae98a8d6bbaae4f8b009ac5974d5",
+      "sha256": "ad9e63d793e66e7d2e7dbc9456d59b557d5ea58428912f5f7a8584377381b062",
       "pack_transform": "none"
     },
     "hit[0]": {
-      "source": "source/native/yone_v4/frames/hit_00.png",
+      "source": "source/native/yone_v5/frames/hit_00.png",
       "native_rect": [
         874,
         0,
@@ -108,9 +112,9 @@
         53
       ],
       "source_alpha_bbox": [
-        5,
         1,
-        35,
+        1,
+        41,
         38
       ],
       "bottom_margin": 15,
@@ -119,20 +123,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          5,
+          1,
           34,
-          30,
+          40,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 31,
-      "sha256": "016cf7815143bcf917d75fa958f1fd1cd07d5720e81699c75e66e534faa0eb9f",
+      "sha256": "8768b55154586a0db402e2d6ebca1fd0b319d7c2c2ae711ff72a2dd7bc83d182",
       "pack_transform": "none"
     },
     "attack[0]": {
-      "source": "source/native/yone_v4/frames/attack_00.png",
+      "source": "source/native/yone_v5/frames/attack_00.png",
       "native_rect": [
         544,
         0,
@@ -144,9 +149,9 @@
         51
       ],
       "source_alpha_bbox": [
-        6,
+        4,
         1,
-        36,
+        33,
         37
       ],
       "bottom_margin": 14,
@@ -155,20 +160,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          6,
+          4,
           33,
-          30,
+          29,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 31,
-      "sha256": "5fffe24a1150e804616313d78c5797a60b2a8fd006712a5fa550a5918fd8c176",
+      "opaque_palette_size": 30,
+      "sha256": "6e248f6d58ad3acc911300dd6e50e0a3398bab6263645d34043479f57c10597b",
       "pack_transform": "none"
     },
     "attack[1]": {
-      "source": "source/native/yone_v4/frames/attack_01.png",
+      "source": "source/native/yone_v5/frames/attack_01.png",
       "native_rect": [
         590,
         0,
@@ -180,9 +186,9 @@
         51
       ],
       "source_alpha_bbox": [
-        8,
+        11,
         1,
-        40,
+        34,
         37
       ],
       "bottom_margin": 14,
@@ -191,20 +197,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          8,
+          11,
           33,
-          32,
+          23,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 27,
-      "sha256": "58534d93b8c66fcd01580c74c0912f0a77a620fabced2cee781e17ddef7f5c83",
+      "opaque_palette_size": 30,
+      "sha256": "51333ef8a35f4bc9b7cb396afe01b0bda0e8e500a999d43bb7871e199910cfc4",
       "pack_transform": "none"
     },
     "attack[2]": {
-      "source": "source/native/yone_v4/frames/attack_02.png",
+      "source": "source/native/yone_v5/frames/attack_02.png",
       "native_rect": [
         640,
         0,
@@ -216,9 +223,9 @@
         47
       ],
       "source_alpha_bbox": [
-        11,
+        16,
         1,
-        49,
+        57,
         35
       ],
       "bottom_margin": 12,
@@ -227,20 +234,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          11,
+          16,
           31,
-          38,
+          41,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "14ca0913154bc8a1b2914ef36f9064d3b5080a60ec2b02f96d16303bfd3625c6",
+      "opaque_palette_size": 31,
+      "sha256": "9a2b453867054602ce14439c58f2f14cf263fe6b98cc7de660c515cd92c3c9a6",
       "pack_transform": "none"
     },
     "attack[3]": {
-      "source": "source/native/yone_v4/frames/attack_03.png",
+      "source": "source/native/yone_v5/frames/attack_03.png",
       "native_rect": [
         700,
         0,
@@ -252,9 +260,9 @@
         49
       ],
       "source_alpha_bbox": [
-        17,
+        18,
         1,
-        43,
+        44,
         36
       ],
       "bottom_margin": 13,
@@ -263,20 +271,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          17,
+          18,
           32,
           26,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 24,
-      "sha256": "072f774277be2a04c859f465aa69b0a0106bb0be5214dd91784d6c046451d0f8",
+      "opaque_palette_size": 30,
+      "sha256": "f3cfa13d65f5b57ce12b8d1b1a7f40af1197590f6440571f00c5539ddb4305d7",
       "pack_transform": "none"
     },
     "attack[4]": {
-      "source": "source/native/yone_v4/frames/attack_04.png",
+      "source": "source/native/yone_v5/frames/attack_04.png",
       "native_rect": [
         760,
         0,
@@ -288,7 +297,7 @@
         49
       ],
       "source_alpha_bbox": [
-        14,
+        20,
         1,
         47,
         36
@@ -299,20 +308,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          14,
+          20,
           32,
-          33,
+          27,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 25,
-      "sha256": "c4824f9fa7104f93f9146ebaa661ec27464590f1da40403e0f36b8f7e166e017",
+      "sha256": "741facb474c1537aca1d239822117a858bb6ac7ab4f5501c5dabbbec28b6fbd1",
       "pack_transform": "none"
     },
     "attack[5]": {
-      "source": "source/native/yone_v4/frames/attack_05.png",
+      "source": "source/native/yone_v5/frames/attack_05.png",
       "native_rect": [
         822,
         0,
@@ -324,9 +334,9 @@
         51
       ],
       "source_alpha_bbox": [
-        9,
+        10,
         1,
-        39,
+        38,
         37
       ],
       "bottom_margin": 14,
@@ -335,20 +345,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          9,
+          10,
           33,
-          30,
+          28,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "71f6c46c520b29432427155280ab5ceb41c98abc6c5ed6a76a995d96b9d21604",
+      "opaque_palette_size": 28,
+      "sha256": "7c128bf39a3ac2fb5dc98ecdd3b8dcdc925eef6b891f5a739b22fc5b4f0ea9dd",
       "pack_transform": "none"
     },
     "skill2_dash[0]": {
-      "source": "source/native/yone_v4/frames/skill2_dash_00.png",
+      "source": "source/native/yone_v5/frames/skill2_dash_00.png",
       "native_rect": [
         2002,
         0,
@@ -360,9 +371,9 @@
         43
       ],
       "source_alpha_bbox": [
+        8,
         3,
-        3,
-        41,
+        35,
         39
       ],
       "bottom_margin": 4,
@@ -371,20 +382,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          3,
+          8,
           35,
-          38,
+          27,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "df8a0f1719becfc2d9b255638dfe8beee8dbf81d75bdf2cf6dc15bb6caffb0b0",
+      "sha256": "5a61cb732cb0c0e127787c8a49fedb59f7ddbed4e7ccab25c5744f3595a9bd4f",
       "pack_transform": "none"
     },
     "ult[0]": {
-      "source": "source/native/yone_v4/frames/ult_00.png",
+      "source": "source/native/yone_v5/frames/ult_00.png",
       "native_rect": [
         2288,
         0,
@@ -396,9 +408,9 @@
         51
       ],
       "source_alpha_bbox": [
+        7,
         9,
-        9,
-        37,
+        40,
         46
       ],
       "bottom_margin": 5,
@@ -406,14 +418,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 24,
-      "sha256": "1fd694f8c39860f186a395e9526889042ed7d9deba18f3bc01e3bb59c9685613",
+      "opaque_palette_size": 31,
+      "sha256": "2c482c921e2aa0ab5248da42282d7d8a94d754211e20c3be1041c2156845031a",
       "pack_transform": "none"
     },
     "ult[1]": {
-      "source": "source/native/yone_v4/frames/ult_01.png",
+      "source": "source/native/yone_v5/frames/ult_01.png",
       "native_rect": [
         2338,
         0,
@@ -425,9 +438,9 @@
         53
       ],
       "source_alpha_bbox": [
-        8,
+        17,
         9,
-        51,
+        38,
         47
       ],
       "bottom_margin": 6,
@@ -435,14 +448,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "94d11a8165cd9261850722de971ba12bf89c22b073c3fe6ad0f081af1781b552",
+      "opaque_palette_size": 30,
+      "sha256": "38cad210125f70b386bc7f0b03de07141b0b1f3376e59051880a0d5db367cd00",
       "pack_transform": "none"
     },
     "ult[2]": {
-      "source": "source/native/yone_v4/frames/ult_02.png",
+      "source": "source/native/yone_v5/frames/ult_02.png",
       "native_rect": [
         2398,
         0,
@@ -454,9 +468,9 @@
         57
       ],
       "source_alpha_bbox": [
-        10,
+        6,
         11,
-        51,
+        53,
         49
       ],
       "bottom_margin": 8,
@@ -464,14 +478,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "398e4ab8007ba6b735aecfa150f474fb58e4d018c645c2c3e49ae8731bd7619a",
+      "opaque_palette_size": 31,
+      "sha256": "70b5c3bf136535c7a4b2a61ab8e000adb08181b0785cd2d6c2993e59206b3ca9",
       "pack_transform": "none"
     },
     "ult[3]": {
-      "source": "source/native/yone_v4/frames/ult_03.png",
+      "source": "source/native/yone_v5/frames/ult_03.png",
       "native_rect": [
         2458,
         0,
@@ -483,9 +498,9 @@
         53
       ],
       "source_alpha_bbox": [
+        7,
         5,
-        5,
-        58,
+        46,
         43
       ],
       "bottom_margin": 10,
@@ -493,14 +508,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "8e777b121a530ad924b5e91b53fdc0d9a6fe847a76cc87b3af8adce897e5af87",
+      "opaque_palette_size": 29,
+      "sha256": "4bee10f7844e11a3cf88c6a891e849df7cac644d81482a43a0534bdc63de626b",
       "pack_transform": "none"
     },
     "ult[4]": {
-      "source": "source/native/yone_v4/frames/ult_04.png",
+      "source": "source/native/yone_v5/frames/ult_04.png",
       "native_rect": [
         2520,
         0,
@@ -512,9 +528,9 @@
         51
       ],
       "source_alpha_bbox": [
-        7,
+        1,
         2,
-        46,
+        47,
         39
       ],
       "bottom_margin": 12,
@@ -522,14 +538,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "7d34ce981ea12092f2613ad8e97834c680a69a8e47344a93a91c15512c087258",
+      "opaque_palette_size": 31,
+      "sha256": "4e8fa526e02924e686972a3dbab34ef4d7382ef2eb9fa87be4952154443d4e79",
       "pack_transform": "none"
     },
     "ult[5]": {
-      "source": "source/native/yone_v4/frames/ult_05.png",
+      "source": "source/native/yone_v5/frames/ult_05.png",
       "native_rect": [
         2572,
         0,
@@ -541,9 +558,9 @@
         47
       ],
       "source_alpha_bbox": [
-        15,
+        2,
         1,
-        44,
+        49,
         36
       ],
       "bottom_margin": 11,
@@ -551,14 +568,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "39a17a46a20230482b9cdbb2831f3560719dcc2e891da01a929a16691b5d601f",
+      "sha256": "4f09f3928f89445cdca7b555c6872a188c1d9bd2ee40f3911a0020127d5af58c",
       "pack_transform": "none"
     },
     "ult[6]": {
-      "source": "source/native/yone_v4/frames/ult_06.png",
+      "source": "source/native/yone_v5/frames/ult_06.png",
       "native_rect": [
         2632,
         0,
@@ -570,9 +588,9 @@
         49
       ],
       "source_alpha_bbox": [
-        11,
+        1,
         2,
-        45,
+        57,
         40
       ],
       "bottom_margin": 9,
@@ -580,14 +598,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 28,
-      "sha256": "689dbc96f15431fd9124bbaba307cc3c48ad000b55a19467d202dd2be706f507",
+      "opaque_palette_size": 31,
+      "sha256": "28159cdfa510a76d48dcd9d3193323474f95716e2ba34130b2cc7652f75cd54c",
       "pack_transform": "none"
     },
     "ult[7]": {
-      "source": "source/native/yone_v4/frames/ult_07.png",
+      "source": "source/native/yone_v5/frames/ult_07.png",
       "native_rect": [
         2692,
         0,
@@ -599,9 +618,9 @@
         53
       ],
       "source_alpha_bbox": [
-        13,
+        16,
         8,
-        46,
+        43,
         46
       ],
       "bottom_margin": 7,
@@ -609,14 +628,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "82e215b1f6ef39675f3eb43b9ae13ec5f5cccdc9ac214919388cbb27d89de40f",
+      "opaque_palette_size": 31,
+      "sha256": "a738633bb5252fda020b533c5f7c7411109ef4c33e7991639884d4424a222528",
       "pack_transform": "none"
     },
     "ult[8]": {
-      "source": "source/native/yone_v4/frames/ult_08.png",
+      "source": "source/native/yone_v5/frames/ult_08.png",
       "native_rect": [
         2754,
         0,
@@ -628,9 +648,9 @@
         57
       ],
       "source_alpha_bbox": [
-        7,
+        8,
         13,
-        47,
+        42,
         51
       ],
       "bottom_margin": 6,
@@ -638,14 +658,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "a8a42f775f088084ed0d20499c528a99e40ce074cf0f2995cf3d40c49905624a",
+      "opaque_palette_size": 31,
+      "sha256": "5b6f107dc986c760a06180aa0f0442dd3bc3b31cdd6106a4a0aa73852e2d1a68",
       "pack_transform": "none"
     },
     "ult[9]": {
-      "source": "source/native/yone_v4/frames/ult_09.png",
+      "source": "source/native/yone_v5/frames/ult_09.png",
       "native_rect": [
         2810,
         0,
@@ -657,9 +678,9 @@
         53
       ],
       "source_alpha_bbox": [
-        15,
+        3,
         8,
-        46,
+        54,
         46
       ],
       "bottom_margin": 7,
@@ -667,14 +688,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "c2153c967d2b3d0cd2cca1b998b8ac7a53aa903d8abd138cbc9d08fa1efdab2a",
+      "opaque_palette_size": 31,
+      "sha256": "a30a73406f5bbea94e256f0fe4620a194204dcceb3648f874c4aad36464db7d9",
       "pack_transform": "none"
     },
     "ult[10]": {
-      "source": "source/native/yone_v4/frames/ult_10.png",
+      "source": "source/native/yone_v5/frames/ult_10.png",
       "native_rect": [
         2870,
         0,
@@ -686,9 +708,9 @@
         51
       ],
       "source_alpha_bbox": [
-        10,
+        14,
         5,
-        51,
+        45,
         43
       ],
       "bottom_margin": 8,
@@ -696,14 +718,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "fccee04c0b3cf6565b79a328b80294a86f8eb55d1990b017db8a193eef6f3fa7",
+      "opaque_palette_size": 31,
+      "sha256": "759ca9feb55f82ad5cba89e15c63fe93ce89c7dd0fa6c1b696edc3224e88af56",
       "pack_transform": "none"
     },
     "ult[11]": {
-      "source": "source/native/yone_v4/frames/ult_11.png",
+      "source": "source/native/yone_v5/frames/ult_11.png",
       "native_rect": [
         2930,
         0,
@@ -715,9 +738,9 @@
         49
       ],
       "source_alpha_bbox": [
-        4,
+        14,
         5,
-        57,
+        41,
         43
       ],
       "bottom_margin": 6,
@@ -725,14 +748,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "d0a44453235cad7ff5a7e7d639472eb2fe5aed9909017b48b5464f7c88a799c6",
+      "sha256": "56571cbed0e69cdcf746bfb9e4cd1ebe87176e5808b737883310df9daacc21da",
       "pack_transform": "none"
     },
     "ult[12]": {
-      "source": "source/native/yone_v4/frames/ult_12.png",
+      "source": "source/native/yone_v5/frames/ult_12.png",
       "native_rect": [
         2992,
         0,
@@ -744,9 +768,9 @@
         51
       ],
       "source_alpha_bbox": [
-        12,
         9,
-        39,
+        9,
+        40,
         46
       ],
       "bottom_margin": 5,
@@ -754,14 +778,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "86c392db1fd450f1b19da02bbdfbe99d68b4925680f136d43d548e781abd1668",
+      "sha256": "5a44cd9de3e4605f851f837afa1c00aa0fc8fad17098595cb545a5fd13a4a113",
       "pack_transform": "none"
     },
     "run[0]": {
-      "source": "source/native/yone_v4/frames/run_00.png",
+      "source": "source/native/yone_v5/frames/run_00.png",
       "native_rect": [
         220,
         0,
@@ -773,9 +798,9 @@
         49
       ],
       "source_alpha_bbox": [
-        4,
         1,
-        34,
+        1,
+        38,
         36
       ],
       "bottom_margin": 13,
@@ -784,20 +809,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          4,
+          1,
           32,
-          30,
+          37,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 27,
-      "sha256": "90e137a89c70242196eb093f1f2dd39a5cee783af49b348dfbc584fcafb03cff",
+      "opaque_palette_size": 31,
+      "sha256": "5225f4c61ade15158814cf32caa1bc2ed2031253cf1a61160e0711d1aef9a043",
       "pack_transform": "none"
     },
     "run[1]": {
-      "source": "source/native/yone_v4/frames/run_01.png",
+      "source": "source/native/yone_v5/frames/run_01.png",
       "native_rect": [
         262,
         0,
@@ -809,9 +835,9 @@
         51
       ],
       "source_alpha_bbox": [
-        5,
         1,
-        33,
+        1,
+        34,
         33
       ],
       "bottom_margin": 18,
@@ -820,20 +846,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          5,
+          1,
           29,
-          28,
+          33,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 31,
-      "sha256": "1fb5476d6a4a6d87df83a70c63f8f6527b14624ccd9e8c6a0427fedaa885dec8",
+      "opaque_palette_size": 28,
+      "sha256": "b9343f363caa261f1d407ff9d417bf2dbd6f5bf010d13996ce92376c3e38af7b",
       "pack_transform": "none"
     },
     "run[2]": {
-      "source": "source/native/yone_v4/frames/run_02.png",
+      "source": "source/native/yone_v5/frames/run_02.png",
       "native_rect": [
         302,
         0,
@@ -845,9 +872,9 @@
         53
       ],
       "source_alpha_bbox": [
-        3,
+        4,
         1,
-        38,
+        34,
         33
       ],
       "bottom_margin": 20,
@@ -856,20 +883,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          3,
+          4,
           29,
-          35,
+          30,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "93c1b1a2b072de2432a465151ed7709ef468c914454018e086a23ac6a69351d6",
+      "opaque_palette_size": 30,
+      "sha256": "73e26845d7ac7093fe1d016cca92ca592083b8bcb5b6279bad7dba6ad607adb4",
       "pack_transform": "none"
     },
     "run[3]": {
-      "source": "source/native/yone_v4/frames/run_03.png",
+      "source": "source/native/yone_v5/frames/run_03.png",
       "native_rect": [
         342,
         0,
@@ -881,9 +909,9 @@
         51
       ],
       "source_alpha_bbox": [
-        5,
         1,
-        34,
+        1,
+        35,
         34
       ],
       "bottom_margin": 17,
@@ -892,20 +920,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          5,
+          1,
           30,
-          29,
+          34,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 29,
-      "sha256": "5397e50aa4f851fc567624cc30e2fe1d56b0f3df3d431be12a9ef8982d61e92e",
+      "sha256": "17f2d2bfef6f59b7e71f7df616d3cebd2f50ef138aae5e1a7747baedefd89c9a",
       "pack_transform": "none"
     },
     "run[4]": {
-      "source": "source/native/yone_v4/frames/run_04.png",
+      "source": "source/native/yone_v5/frames/run_04.png",
       "native_rect": [
         382,
         0,
@@ -917,9 +946,9 @@
         49
       ],
       "source_alpha_bbox": [
-        4,
         1,
-        34,
+        1,
+        35,
         36
       ],
       "bottom_margin": 13,
@@ -928,20 +957,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          4,
+          1,
           32,
-          30,
+          34,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 27,
-      "sha256": "90e137a89c70242196eb093f1f2dd39a5cee783af49b348dfbc584fcafb03cff",
+      "opaque_palette_size": 30,
+      "sha256": "9cf04327b6add309c13a60d24de381a631b08fb175e4c454efee2737516f6d6c",
       "pack_transform": "none"
     },
     "run[5]": {
-      "source": "source/native/yone_v4/frames/run_05.png",
+      "source": "source/native/yone_v5/frames/run_05.png",
       "native_rect": [
         424,
         0,
@@ -953,9 +983,9 @@
         51
       ],
       "source_alpha_bbox": [
-        2,
         1,
-        37,
+        1,
+        34,
         34
       ],
       "bottom_margin": 17,
@@ -964,20 +994,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          2,
+          1,
           30,
-          35,
+          33,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "709fd5b78a8de01f8bfcd925a98e0c92dcc493ec563f5f1d770379b1422736a3",
+      "opaque_palette_size": 31,
+      "sha256": "033fdd0c91e61f0a1123c657a20473d975b84be596702c77d9c55f0d2ba083e7",
       "pack_transform": "none"
     },
     "run[6]": {
-      "source": "source/native/yone_v4/frames/run_06.png",
+      "source": "source/native/yone_v5/frames/run_06.png",
       "native_rect": [
         464,
         0,
@@ -989,9 +1020,9 @@
         53
       ],
       "source_alpha_bbox": [
-        3,
         1,
-        38,
+        1,
+        34,
         33
       ],
       "bottom_margin": 20,
@@ -1000,20 +1031,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          3,
+          1,
           29,
-          35,
+          33,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "93c1b1a2b072de2432a465151ed7709ef468c914454018e086a23ac6a69351d6",
+      "opaque_palette_size": 31,
+      "sha256": "d344d22b733a13dfa81a42b81db8b65b09f766b7c3973e9846ceeb0d3edf46a3",
       "pack_transform": "none"
     },
     "run[7]": {
-      "source": "source/native/yone_v4/frames/run_07.png",
+      "source": "source/native/yone_v5/frames/run_07.png",
       "native_rect": [
         504,
         0,
@@ -1025,9 +1057,9 @@
         51
       ],
       "source_alpha_bbox": [
-        2,
         1,
-        37,
+        1,
+        33,
         34
       ],
       "bottom_margin": 17,
@@ -1036,20 +1068,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          2,
+          1,
           30,
-          35,
+          32,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "709fd5b78a8de01f8bfcd925a98e0c92dcc493ec563f5f1d770379b1422736a3",
+      "opaque_palette_size": 29,
+      "sha256": "0e4a1b9f8ad8057c0ad4c1b21f6dcd97937b56ecfeee40afd5c2a51e2c2273f9",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
-      "source": "source/native/yone_v4/frames/skill2_attack_00.png",
+      "source": "source/native/yone_v5/frames/skill2_attack_00.png",
       "native_rect": [
         2046,
         0,
@@ -1063,7 +1096,7 @@
       "source_alpha_bbox": [
         1,
         4,
-        27,
+        29,
         40
       ],
       "bottom_margin": 3,
@@ -1074,18 +1107,19 @@
         [
           1,
           36,
-          26,
+          28,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "cc0e00f26242669522e38402c1323d8671a1d58749da993f168309ba0210200d",
+      "opaque_palette_size": 31,
+      "sha256": "c3b9d7c7ab74580e8a00a6836e26cd99313f5eccfd8ecd67fd5c0505c5a96f32",
       "pack_transform": "none"
     },
     "skill2_attack[1]": {
-      "source": "source/native/yone_v4/frames/skill2_attack_01.png",
+      "source": "source/native/yone_v5/frames/skill2_attack_01.png",
       "native_rect": [
         2078,
         0,
@@ -1097,9 +1131,9 @@
         45
       ],
       "source_alpha_bbox": [
-        2,
+        1,
         4,
-        29,
+        30,
         41
       ],
       "bottom_margin": 4,
@@ -1108,20 +1142,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          2,
+          1,
           37,
-          27,
+          29,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "90cbd3e551b306faef9bd18c70fe44f9d92321a98643a64b3a0da1ddf9fa353a",
+      "opaque_palette_size": 31,
+      "sha256": "f98875ad91ef9fde04490eb8db4d270b7c4ac22bc01b44a8eea4b1f48fad9d6f",
       "pack_transform": "none"
     },
     "skill2_attack[2]": {
-      "source": "source/native/yone_v4/frames/skill2_attack_02.png",
+      "source": "source/native/yone_v5/frames/skill2_attack_02.png",
       "native_rect": [
         2110,
         0,
@@ -1133,9 +1168,9 @@
         53
       ],
       "source_alpha_bbox": [
-        15,
+        13,
         7,
-        46,
+        58,
         45
       ],
       "bottom_margin": 8,
@@ -1144,20 +1179,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          15,
+          13,
           41,
-          31,
+          45,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 31,
-      "sha256": "31c5cb704e6817066bcf2e720fa8e150c658ff5db3f37f644f834cf64c149115",
+      "opaque_palette_size": 26,
+      "sha256": "2e47d5fa238d92f70243239ac6194a982dbd0e7e8d6bf51ccf8989d5dac8e59f",
       "pack_transform": "none"
     },
     "skill2_attack[3]": {
-      "source": "source/native/yone_v4/frames/skill2_attack_03.png",
+      "source": "source/native/yone_v5/frames/skill2_attack_03.png",
       "native_rect": [
         2170,
         0,
@@ -1169,9 +1205,9 @@
         55
       ],
       "source_alpha_bbox": [
-        13,
+        11,
         8,
-        46,
+        58,
         46
       ],
       "bottom_margin": 9,
@@ -1180,20 +1216,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          13,
+          11,
           42,
-          33,
+          47,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "525926ff073b716b4fed4d0fdcbecfc1616e883b93163566d2e774902d6fbdfe",
+      "opaque_palette_size": 26,
+      "sha256": "581857d4abe1c719f6cc7e385b690e6b6687c2357c48a9ac2f056defd6a23731",
       "pack_transform": "none"
     },
     "skill2_attack[4]": {
-      "source": "source/native/yone_v4/frames/skill2_attack_04.png",
+      "source": "source/native/yone_v5/frames/skill2_attack_04.png",
       "native_rect": [
         2230,
         0,
@@ -1205,7 +1242,7 @@
         51
       ],
       "source_alpha_bbox": [
-        13,
+        14,
         6,
         41,
         44
@@ -1216,20 +1253,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          13,
+          14,
           40,
-          28,
+          27,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 25,
-      "sha256": "4b35b99e7a4f85770b1f43c729be2b3c1ac263bfb7169a473bdbfcffc2731804",
+      "opaque_palette_size": 31,
+      "sha256": "57dddc42d754165af51888762dd55d692c28649aa9a88950cad3c7f2e6d8542c",
       "pack_transform": "none"
     },
     "idle[0]": {
-      "source": "source/native/yone_v4/frames/idle_00.png",
+      "source": "source/native/yone_v5/frames/idle_00.png",
       "native_rect": [
         44,
         0,
@@ -1241,54 +1279,51 @@
         55
       ],
       "source_alpha_bbox": [
-        7,
+        4,
         2,
         34,
-        41
+        40
       ],
-      "bottom_margin": 14,
+      "bottom_margin": 15,
       "face_bbox": [
-        21,
+        16,
+        10,
         9,
-        7,
-        7
+        10
       ],
       "eye_pixels": [
         [
-          23,
-          10
+          17,
+          13
         ],
         [
-          25,
-          10
-        ],
-        [
-          26,
-          10
+          19,
+          13
         ]
       ],
       "mask_bbox": [
-        12,
-        4,
         9,
-        12
+        5,
+        9,
+        18
       ],
       "foot_zones": [
         [
-          7,
-          37,
-          27,
+          4,
+          36,
+          30,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "b90fe8a40a874c7ccbc1b49f5e1bb110032afa82fbd5cf1b4e226394d2d89418",
+      "opaque_palette_size": 22,
+      "sha256": "52ab8e7a6c74591213487f3abd8907e5b1e6481647473fda6c5e144439f99de4",
       "pack_transform": "none"
     },
     "idle[1]": {
-      "source": "source/native/yone_v4/frames/idle_01.png",
+      "source": "source/native/yone_v5/frames/idle_01.png",
       "native_rect": [
         88,
         0,
@@ -1300,50 +1335,47 @@
         53
       ],
       "source_alpha_bbox": [
-        6,
+        7,
         1,
-        37,
+        36,
         38
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        14,
-        11,
-        7,
-        7
+        21,
+        9,
+        6,
+        8
       ],
       "eye_pixels": [
         [
-          17,
-          12
-        ],
-        [
-          19,
-          12
+          25,
+          13
         ]
       ],
       "mask_bbox": [
-        11,
-        5,
-        5,
-        18
+        12,
+        4,
+        8,
+        10
       ],
       "foot_zones": [
         [
-          6,
+          7,
           34,
-          31,
+          29,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "cad62ee7e26ac2060d430722e59cc3fc53f4832576bb40643114a345f39ede56",
+      "opaque_palette_size": 22,
+      "sha256": "a8a2a39fd40250098c8e8d0a920738eaf1cb6209642c59b6bdb95f3bb5fd0284",
       "pack_transform": "none"
     },
     "idle[2]": {
-      "source": "source/native/yone_v4/frames/idle_02.png",
+      "source": "source/native/yone_v5/frames/idle_02.png",
       "native_rect": [
         132,
         0,
@@ -1355,50 +1387,51 @@
         51
       ],
       "source_alpha_bbox": [
-        8,
+        9,
         1,
-        34,
+        37,
         37
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        15,
+        20,
         9,
-        7,
-        7
+        9,
+        9
       ],
       "eye_pixels": [
         [
-          16,
+          21,
           14
         ],
         [
-          20,
+          24,
           14
         ]
       ],
       "mask_bbox": [
-        11,
-        3,
-        6,
-        18
+        14,
+        4,
+        8,
+        17
       ],
       "foot_zones": [
         [
-          8,
+          9,
           33,
-          26,
+          28,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "77082f53111747de08cb411e21c35ad31c56b5bb36155bb0e8c8981d8d860e83",
+      "opaque_palette_size": 22,
+      "sha256": "7bd5367856e8c1b1e24bd4c2ae04ff888f2ff0fb257df6141b83ace9810d4957",
       "pack_transform": "none"
     },
     "idle[3]": {
-      "source": "source/native/yone_v4/frames/idle_03.png",
+      "source": "source/native/yone_v5/frames/idle_03.png",
       "native_rect": [
         176,
         0,
@@ -1412,48 +1445,45 @@
       "source_alpha_bbox": [
         7,
         1,
-        38,
+        36,
         38
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        15,
-        11,
-        7,
-        7
+        21,
+        9,
+        6,
+        8
       ],
       "eye_pixels": [
         [
-          18,
-          12
-        ],
-        [
-          20,
-          12
+          25,
+          13
         ]
       ],
       "mask_bbox": [
         12,
-        5,
-        5,
-        18
+        4,
+        8,
+        10
       ],
       "foot_zones": [
         [
           7,
           34,
-          31,
+          29,
           4
         ]
       ],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "109cc90c9487d2117feef8d6dce331efe4709df4c9c6242624957b447ea71c4b",
+      "opaque_palette_size": 22,
+      "sha256": "a8a2a39fd40250098c8e8d0a920738eaf1cb6209642c59b6bdb95f3bb5fd0284",
       "pack_transform": "none"
     },
     "dead[0]": {
-      "source": "source/native/yone_v4/frames/dead_00.png",
+      "source": "source/native/yone_v5/frames/dead_00.png",
       "native_rect": [
         918,
         0,
@@ -1465,7 +1495,7 @@
         51
       ],
       "source_alpha_bbox": [
-        6,
+        1,
         11,
         34,
         45
@@ -1475,14 +1505,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 29,
-      "sha256": "7f0ffff39a67bbcb5416f226de3c8615d2107cf3cf0b3821cba965f645e309b7",
+      "sha256": "dd0f4f10d866d01d5a881b07aac063bbb6eec981772918a34c4bff3b5cfc0f49",
       "pack_transform": "none"
     },
     "dead[1]": {
-      "source": "source/native/yone_v4/frames/dead_01.png",
+      "source": "source/native/yone_v5/frames/dead_01.png",
       "native_rect": [
         962,
         0,
@@ -1494,9 +1525,9 @@
         49
       ],
       "source_alpha_bbox": [
-        9,
+        3,
         15,
-        32,
+        37,
         43
       ],
       "bottom_margin": 6,
@@ -1504,14 +1535,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 25,
-      "sha256": "4ab8bf628b2e69d84cd9bcbc9a05167a495ed2907eddb00088859853391d9f12",
+      "opaque_palette_size": 30,
+      "sha256": "eab2a99c4f67e731a2c14476a09092f663ed85be5bcb0831be2d2a6a2c874fd1",
       "pack_transform": "none"
     },
     "dead[2]": {
-      "source": "source/native/yone_v4/frames/dead_02.png",
+      "source": "source/native/yone_v5/frames/dead_02.png",
       "native_rect": [
         1004,
         0,
@@ -1523,9 +1555,9 @@
         45
       ],
       "source_alpha_bbox": [
-        6,
+        12,
         16,
-        37,
+        33,
         40
       ],
       "bottom_margin": 5,
@@ -1533,14 +1565,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 22,
-      "sha256": "e0e6abea53f92bb880fc1bbb2ad3c8c856e839d7e9b7e27abba8ddb8b45d889e",
+      "opaque_palette_size": 29,
+      "sha256": "dab17e830825d847426f73fb9098ec8dfa5340f4f5731c129b6f34525075ef84",
       "pack_transform": "none"
     },
     "dead[3]": {
-      "source": "source/native/yone_v4/frames/dead_03.png",
+      "source": "source/native/yone_v5/frames/dead_03.png",
       "native_rect": [
         1046,
         0,
@@ -1552,9 +1585,9 @@
         39
       ],
       "source_alpha_bbox": [
-        1,
-        24,
-        40,
+        16,
+        23,
+        27,
         35
       ],
       "bottom_margin": 4,
@@ -1562,14 +1595,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "hidden",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "a0eb82cdb5213a68423d5bf5961dee03a806828dad53faa4cae81e6c32acd653",
+      "opaque_palette_size": 18,
+      "sha256": "bbadfd534585ef995b4ffb0b282b00b8ca37b167422013703741997289713012",
       "pack_transform": "none"
     },
     "dead[4]": {
-      "source": "source/native/yone_v4/frames/dead_04.png",
+      "source": "source/native/yone_v5/frames/dead_04.png",
       "native_rect": [
         1088,
         0,
@@ -1581,9 +1615,9 @@
         39
       ],
       "source_alpha_bbox": [
-        1,
-        24,
-        40,
+        11,
+        23,
+        30,
         35
       ],
       "bottom_margin": 4,
@@ -1591,14 +1625,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "profile",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "a0eb82cdb5213a68423d5bf5961dee03a806828dad53faa4cae81e6c32acd653",
+      "opaque_palette_size": 27,
+      "sha256": "61142d55ff90e3c5b70b8bc91bbfeddbd3de56e61b0b7af52cee6b81029f8a90",
       "pack_transform": "none"
     },
     "dead[5]": {
-      "source": "source/native/yone_v4/frames/dead_05.png",
+      "source": "source/native/yone_v5/frames/dead_05.png",
       "native_rect": [
         1130,
         0,
@@ -1610,9 +1645,9 @@
         39
       ],
       "source_alpha_bbox": [
-        1,
-        24,
-        40,
+        5,
+        23,
+        34,
         35
       ],
       "bottom_margin": 4,
@@ -1620,14 +1655,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "hidden",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "a0eb82cdb5213a68423d5bf5961dee03a806828dad53faa4cae81e6c32acd653",
+      "opaque_palette_size": 28,
+      "sha256": "59cf6d925a39101aa0287e9fc1c9f06c7ce3a533cf50a6daf31975ad79113da8",
       "pack_transform": "none"
     },
     "dead[6]": {
-      "source": "source/native/yone_v4/frames/dead_06.png",
+      "source": "source/native/yone_v5/frames/dead_06.png",
       "native_rect": [
         1172,
         0,
@@ -1640,7 +1676,7 @@
       ],
       "source_alpha_bbox": [
         1,
-        24,
+        23,
         40,
         35
       ],
@@ -1649,14 +1685,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "hidden",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "a0eb82cdb5213a68423d5bf5961dee03a806828dad53faa4cae81e6c32acd653",
+      "opaque_palette_size": 25,
+      "sha256": "647923dec15ca051432ccd781b43d020769ac4c3a59a857ebc8c2d7ee5f8a790",
       "pack_transform": "none"
     },
     "dead[7]": {
-      "source": "source/native/yone_v4/frames/dead_07.png",
+      "source": "source/native/yone_v5/frames/dead_07.png",
       "native_rect": [
         1214,
         0,
@@ -1669,7 +1706,7 @@
       ],
       "source_alpha_bbox": [
         1,
-        24,
+        23,
         40,
         35
       ],
@@ -1678,14 +1715,15 @@
       "eye_pixels": [],
       "mask_bbox": null,
       "foot_zones": [],
+      "face_visibility": "hidden",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 26,
-      "sha256": "a0eb82cdb5213a68423d5bf5961dee03a806828dad53faa4cae81e6c32acd653",
+      "opaque_palette_size": 25,
+      "sha256": "ee958ddcb8b586cd25671b03c6ee1295ff65ae45aff76199080d94be535ca35f",
       "pack_transform": "none"
     },
     "skill[0]": {
-      "source": "source/native/yone_v4/frames/skill_00.png",
+      "source": "source/native/yone_v5/frames/skill_00.png",
       "native_rect": [
         1260,
         0,
@@ -1699,7 +1737,7 @@
       "source_alpha_bbox": [
         1,
         6,
-        28,
+        27,
         44
       ],
       "bottom_margin": 5,
@@ -1710,18 +1748,19 @@
         [
           1,
           40,
-          27,
+          26,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "67e15e9f9d74ed4ad5f655fe336a29681f4793929d99627d82967462dddb3352",
+      "sha256": "a9dd9af1f9f8e99a443084c4dfe8046f21a11e8c785b2d06581361e7abaf2635",
       "pack_transform": "none"
     },
     "skill[1]": {
-      "source": "source/native/yone_v4/frames/skill_01.png",
+      "source": "source/native/yone_v5/frames/skill_01.png",
       "native_rect": [
         1292,
         0,
@@ -1733,9 +1772,9 @@
         43
       ],
       "source_alpha_bbox": [
+        4,
         2,
-        2,
-        29,
+        30,
         39
       ],
       "bottom_margin": 4,
@@ -1744,20 +1783,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          2,
+          4,
           35,
-          27,
+          26,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "804b7ed5170e33354a7e69c61633990f5d1065bf20ef144625f8f0621599a039",
+      "opaque_palette_size": 26,
+      "sha256": "385c9a658a6d40cf0a80c941736e4e3df2f445d0abd703761b1a9c18679fe863",
       "pack_transform": "none"
     },
     "skill[2]": {
-      "source": "source/native/yone_v4/frames/skill_02.png",
+      "source": "source/native/yone_v5/frames/skill_02.png",
       "native_rect": [
         1324,
         0,
@@ -1770,7 +1810,7 @@
       ],
       "source_alpha_bbox": [
         1,
-        13,
+        10,
         30,
         48
       ],
@@ -1786,14 +1826,15 @@
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 30,
-      "sha256": "6f14c8bbb1a240a010aab037f7bf497343122d832bb1e4781502e74226ec4cfc",
+      "opaque_palette_size": 27,
+      "sha256": "21fe5270d19c4ef5dddcd1936b290f893665cc3d417fa65aeb8e3c34d9f34492",
       "pack_transform": "none"
     },
     "skill[3]": {
-      "source": "source/native/yone_v4/frames/skill_03.png",
+      "source": "source/native/yone_v5/frames/skill_03.png",
       "native_rect": [
         1356,
         0,
@@ -1805,9 +1846,9 @@
         57
       ],
       "source_alpha_bbox": [
-        19,
+        20,
         12,
-        54,
+        67,
         51
       ],
       "bottom_margin": 6,
@@ -1816,20 +1857,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          19,
+          20,
           47,
-          35,
+          47,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 28,
-      "sha256": "ac4f174834d3a90589dfc16696068dc6f3f9e06589a3ada4586eff5e72dc792b",
+      "opaque_palette_size": 31,
+      "sha256": "8aab4e0771c0fe632027dc505a666d8e8f2b834a567b5753f35b1a40b611d8df",
       "pack_transform": "none"
     },
     "skill[4]": {
-      "source": "source/native/yone_v4/frames/skill_04.png",
+      "source": "source/native/yone_v5/frames/skill_04.png",
       "native_rect": [
         1428,
         0,
@@ -1841,9 +1883,9 @@
         67
       ],
       "source_alpha_bbox": [
-        24,
+        19,
         20,
-        58,
+        77,
         59
       ],
       "bottom_margin": 8,
@@ -1852,20 +1894,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          24,
+          19,
           55,
-          34,
+          58,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "12c6622216a73ce12fc3c8641b906b1726a2f22a857c77f9652c79cf6f44063f",
+      "opaque_palette_size": 31,
+      "sha256": "ea2f739f9b21a57e8e36cd4b30a3e6a2393d9665239d261bd5f2d451efe3f186",
       "pack_transform": "none"
     },
     "skill[5]": {
-      "source": "source/native/yone_v4/frames/skill_05.png",
+      "source": "source/native/yone_v5/frames/skill_05.png",
       "native_rect": [
         1512,
         0,
@@ -1877,9 +1920,9 @@
         77
       ],
       "source_alpha_bbox": [
-        20,
+        23,
         28,
-        62,
+        79,
         67
       ],
       "bottom_margin": 10,
@@ -1888,20 +1931,21 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          20,
+          23,
           63,
-          42,
+          56,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "3ed31e64298d5c447ea397f52433ef53a0a672d8ef199757317634e843bff991",
+      "opaque_palette_size": 30,
+      "sha256": "2881fa7d28649cdb699a3686f88822116087a7e92fd06119ddff4174aeedfc4c",
       "pack_transform": "none"
     },
     "skill[6]": {
-      "source": "source/native/yone_v4/frames/skill_06.png",
+      "source": "source/native/yone_v5/frames/skill_06.png",
       "native_rect": [
         1598,
         0,
@@ -1913,9 +1957,9 @@
         87
       ],
       "source_alpha_bbox": [
-        18,
+        23,
         40,
-        73,
+        68,
         79
       ],
       "bottom_margin": 8,
@@ -1924,20 +1968,256 @@
       "mask_bbox": null,
       "foot_zones": [
         [
-          18,
+          23,
           75,
-          55,
+          45,
           4
         ]
       ],
+      "face_visibility": "front",
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 30,
-      "sha256": "3b99e157cdfab22fd0f53bffeb2778d6e67b4edafcedca42de16d356701ee862",
+      "sha256": "22b82ef7b774b164017a9f785556536635665a51f7eaf0d9fb5c5f2aa537f60d",
       "pack_transform": "none"
     }
   },
+  "body_imagegen_inputs": [
+    {
+      "path": "source/imagegen/yone_v5_idle_source.png",
+      "dimensions": [
+        1122,
+        1402
+      ],
+      "size_bytes": 1263007,
+      "sha256": "f6d5f225c1e8a629b6b7304780984e3304cc987e6c5e9a4c6d492a1d3bd94e10",
+      "alpha_bbox": [
+        0,
+        0,
+        1122,
+        1402
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_idle_golden_43x55.png",
+      "dimensions": [
+        43,
+        55
+      ],
+      "size_bytes": 1264,
+      "sha256": "52ab8e7a6c74591213487f3abd8907e5b1e6481647473fda6c5e144439f99de4",
+      "alpha_bbox": [
+        4,
+        2,
+        34,
+        40
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_motion_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1794239,
+      "sha256": "f20b8a6287729b516078a986b2fe51c8fd8f8bbea6cf8aeaa83bd3174ea4cc89",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_attack_q_w_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1915087,
+      "sha256": "2b0cbbe7cebe320719af33615b4324cf944398aafe008c96488aeb9884ee8de7",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_q5_contact.png",
+      "dimensions": [
+        1419,
+        1108
+      ],
+      "size_bytes": 1222399,
+      "sha256": "2c9fe1578a8b2171cca63c967d47875ee9e2b44df7ba6093b817f383134eb5e0",
+      "alpha_bbox": [
+        0,
+        0,
+        1419,
+        1108
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_ult_contact.png",
+      "dimensions": [
+        1535,
+        1024
+      ],
+      "size_bytes": 1749202,
+      "sha256": "66e6d96b6eb1365e03e42f5aac52e662535d37c2c8993a5518fa338a9243d0c4",
+      "alpha_bbox": [
+        0,
+        0,
+        1535,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    }
+  ],
+  "retired_body_routes": [
+    "source/imagegen/yone_v4_action_contact.png",
+    "source/imagegen/yone_v4_idle_candidate_43x55.png",
+    "source/native/yone_v4"
+  ],
   "sources": [
+    {
+      "path": "source/imagegen/yone_v5_idle_source.png",
+      "dimensions": [
+        1122,
+        1402
+      ],
+      "size_bytes": 1263007,
+      "sha256": "f6d5f225c1e8a629b6b7304780984e3304cc987e6c5e9a4c6d492a1d3bd94e10",
+      "alpha_bbox": [
+        0,
+        0,
+        1122,
+        1402
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_idle_golden_43x55.png",
+      "dimensions": [
+        43,
+        55
+      ],
+      "size_bytes": 1264,
+      "sha256": "52ab8e7a6c74591213487f3abd8907e5b1e6481647473fda6c5e144439f99de4",
+      "alpha_bbox": [
+        4,
+        2,
+        34,
+        40
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_motion_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1794239,
+      "sha256": "f20b8a6287729b516078a986b2fe51c8fd8f8bbea6cf8aeaa83bd3174ea4cc89",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_attack_q_w_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1915087,
+      "sha256": "2b0cbbe7cebe320719af33615b4324cf944398aafe008c96488aeb9884ee8de7",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_q5_contact.png",
+      "dimensions": [
+        1419,
+        1108
+      ],
+      "size_bytes": 1222399,
+      "sha256": "2c9fe1578a8b2171cca63c967d47875ee9e2b44df7ba6093b817f383134eb5e0",
+      "alpha_bbox": [
+        0,
+        0,
+        1419,
+        1108
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v5_ult_contact.png",
+      "dimensions": [
+        1535,
+        1024
+      ],
+      "size_bytes": 1749202,
+      "sha256": "66e6d96b6eb1365e03e42f5aac52e662535d37c2c8993a5518fa338a9243d0c4",
+      "alpha_bbox": [
+        0,
+        0,
+        1535,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
     {
       "path": "source/imagegen/yone_qw_vfx_contact.png",
       "dimensions": [
@@ -2139,9 +2419,9 @@
         88
       ],
       "size_bytes": 1232950,
-      "sha256": "a46bf82d7ecfe58697571c2a6a2f3fa7b852cda7d216c3c9a6e06c10cd049617",
+      "sha256": "b8e68d2c03fbccd9966889aa9b7e542a5866f01493b8a9289713410ce160c833",
       "alpha_bbox": [
-        51,
+        48,
         1,
         3500,
         79
@@ -2383,11 +2663,11 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "e16a2981865c7106b8f3710a97787fe943fabd2ce9d650dc387c31b6a89c834b",
+      "sha256": "dd4fbc4b93667068bacb6ceae9a0bb6f20d3e56e337a71ee76e0ebdbc9a685e1",
       "alpha_bbox": [
-        12,
+        9,
         2,
-        52,
+        55,
         60
       ],
       "alpha_extrema": [
@@ -2402,11 +2682,11 @@
         64
       ],
       "size_bytes": 16516,
-      "sha256": "b92c889bb1c1af15e4151c32fc5152c728057e85579bd6034bcc9f6af6971bf4",
+      "sha256": "0d051d851efc06d5de375d1c37b7cd73d0320e59a871b965cbc2ab6e2dbec6d0",
       "alpha_bbox": [
-        13,
+        10,
         8,
-        51,
+        54,
         58
       ],
       "alpha_extrema": [
@@ -2421,11 +2701,11 @@
         64
       ],
       "size_bytes": 12420,
-      "sha256": "a479d26da59210ced6fc8bdef6c0df62294b601ceaa6a9473da84b9e2c9c2f91",
+      "sha256": "431a511b3b6edf9c8100d9c1a1c012c9879c9678cdfb575be335679185f45f7a",
       "alpha_bbox": [
+        5,
         6,
-        6,
-        42,
+        43,
         60
       ],
       "alpha_extrema": [
@@ -2440,11 +2720,11 @@
         122
       ],
       "size_bytes": 44110,
-      "sha256": "e69140d9d5193549e926bd2cd1ae81cf696c6684d5905830a830f26a361b0eff",
+      "sha256": "7b4aafdb21fa614d4a6d38f1d2a94962c617846e848ac9eda34197fbab00d6ac",
       "alpha_bbox": [
-        16,
+        12,
         4,
-        73,
+        77,
         86
       ],
       "alpha_extrema": [
