@@ -459,13 +459,13 @@ def load_json(relative: str) -> Any:
         return {}
 
 
-def load_yone_v5_validation_report() -> dict[str, Any]:
-    """Run the exact-native V5 validator as the single Yone body authority."""
+def load_yone_v6_validation_report() -> dict[str, Any]:
+    """Run the exact-native V6 validator as the single Yone body authority."""
 
-    validator_path = MOD_ROOT / "tools/validate_yone_v5.py"
+    validator_path = MOD_ROOT / "tools/validate_yone_v6.py"
     try:
         spec = importlib.util.spec_from_file_location(
-            "_lol_mod_validate_yone_v5", validator_path
+            "_lol_mod_validate_yone_v6", validator_path
         )
         if spec is None or spec.loader is None:
             raise ImportError(f"cannot load module spec from {validator_path}")
@@ -474,11 +474,15 @@ def load_yone_v5_validation_report() -> dict[str, Any]:
         # the dynamically loaded validator is executing.
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
-        report = module.validate_v5(mod_root=MOD_ROOT)
+        report = module.validate_v6(
+            mod_root=MOD_ROOT,
+            verify_runtime_atlas=True,
+            verify_retired_paths=True,
+        )
     except Exception as error:  # validator errors are aggregated with the full suite
-        check(False, f"Yone V5 exact-native contract failed: {error}")
+        check(False, f"Yone V6 exact-native contract failed: {error}")
         return {}
-    check(isinstance(report, dict), "Yone V5 validator returned a malformed report")
+    check(isinstance(report, dict), "Yone V6 validator returned a malformed report")
     return report if isinstance(report, dict) else {}
 
 
@@ -558,6 +562,65 @@ def validate_objective_killfeed_names(override: dict[str, Any]) -> None:
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def source_direct_ui_quality(image: Image.Image) -> dict[str, Any]:
+    """Measure detail/alpha properties that reject enlarged battle pixels."""
+
+    rgba = image.convert("RGBA")
+    bbox = rgba.getchannel("A").getbbox()
+    if bbox is None:
+        return {
+            "alpha_bbox": None,
+            "hard_alpha": False,
+            "transparent_rgb_clear": False,
+            "opaque_palette_size": 0,
+            "dark_pixel_ratio": 0.0,
+            "identical_neighbor_ratio": 1.0,
+        }
+    opaque = {
+        (x, y)
+        for y in range(rgba.height)
+        for x in range(rgba.width)
+        if rgba.getpixel((x, y))[3] == 255
+    }
+    palette = {rgba.getpixel(point)[:3] for point in opaque}
+    dark = sum(
+        1
+        for point in opaque
+        if sum(rgba.getpixel(point)[:3]) / 3 <= 82
+    )
+    neighbours = 0
+    repeated = 0
+    for x, y in opaque:
+        for neighbour in ((x + 1, y), (x, y + 1)):
+            if neighbour not in opaque:
+                continue
+            neighbours += 1
+            if rgba.getpixel((x, y))[:3] == rgba.getpixel(neighbour)[:3]:
+                repeated += 1
+    pixels = (
+        rgba.get_flattened_data()
+        if hasattr(rgba, "get_flattened_data")
+        else rgba.getdata()
+    )
+    alpha_channel = rgba.getchannel("A")
+    alpha_values = set(
+        alpha_channel.get_flattened_data()
+        if hasattr(alpha_channel, "get_flattened_data")
+        else alpha_channel.getdata()
+    )
+    return {
+        "alpha_bbox": list(bbox),
+        "hard_alpha": alpha_values.issubset({0, 255}),
+        "transparent_rgb_clear": all(
+            alpha != 0 or (red, green, blue) == (0, 0, 0)
+            for red, green, blue, alpha in pixels
+        ),
+        "opaque_palette_size": len(palette),
+        "dark_pixel_ratio": round(dark / max(1, len(opaque)), 4),
+        "identical_neighbor_ratio": round(repeated / max(1, neighbours), 4),
+    }
 
 
 def opaque_rgb(image: Image.Image) -> list[tuple[int, int, int]]:
@@ -4992,7 +5055,7 @@ def validate_imagegen_sources() -> None:
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
     # run, defeat, and three independent VFX contacts. Xayah's corrective
     # route adds seven disjoint body contacts plus attack/Q/E/R VFX contacts.
-    # Yone's V5 actor body is 54 exact-native RGBA frames and deliberately no
+    # Yone's V6 actor body is 54 exact-native RGBA frames and deliberately no
     # longer contributes four processed contact sheets here; its four accepted
     # Q/W/R effect contacts remain in this ImageGen alpha-source inventory.
     # Opaque icons and BP illustrations stay source-only. Keep this as a minimum
@@ -7088,68 +7151,79 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(runtime_map.get(name) == ["yone_w", tag], f"Yone W visual map changed: {name}")
     face_readability = visual.get("face_readability", {})
     face_rows = face_readability.get("all_battle_body_frames", {})
-    v5_report = load_yone_v5_validation_report()
-    v5_frames = v5_report.get("frames", {}) if isinstance(v5_report, dict) else {}
+    v6_report = load_yone_v6_validation_report()
+    v6_frames = v6_report.get("frames", {}) if isinstance(v6_report, dict) else {}
     check(
-        v5_report.get("schema_version") == 5
-        and v5_report.get("route") == "exact-native-v5"
-        and v5_report.get("atlas_size") == [3502, 88]
-        and v5_report.get("frame_count") == 54,
-        "Yone full validation must use the exact-native V5 54-frame contract",
+        v6_report.get("schema_version") == 6
+        and v6_report.get("route") == "exact-native-v6"
+        and v6_report.get("atlas_size") == [3502, 88]
+        and v6_report.get("frame_count") == 54,
+        "Yone full validation must use the exact-native V6 54-frame contract",
     )
     check(
-        v5_report.get("body_transform")
+        v6_report.get("body_transform")
         == {
-            "resampling": "none",
+            "source_to_native_resampling": "LANCZOS",
+            "native_to_atlas_resampling": "none",
             "quantize": "none",
             "clip": "none",
             "proof": "exact per-frame RGBA byte identity",
         },
-        "Yone V5 body transform must remain an exact per-frame byte copy",
+        "Yone V6 final native frames must remain exact per-frame byte copies",
     )
     check(
-        v5_report.get("opaque_palette_limit") == 32
-        and v5_report.get("retired_v3_v4_body_paths_absent") is True,
-        "Yone V5 palette limit or retired-body-path proof changed",
+        v6_report.get("opaque_palette_limit") == 48
+        and v6_report.get("retired_v3_v4_v5_body_paths_absent") is True,
+        "Yone V6 palette limit or retired V3/V4/V5 body-path proof changed",
     )
-    preview_report = v5_report.get("body_preview", {})
+    check(
+        v6_report.get("generation_qa", {}).get("source_hashes")
+        == {
+            "motion": "8b66ef3e9dc334c774ef9e4557102d37889f02ad6fea35ce6d5a0229f5396cbb",
+            "attack_q_w": "900e357f6905d86020bd26c53841360ddcb2ceb27e690830e21fd9b9c4725849",
+            "w": "84ac11c0512a76d5c269cf9c94bd8e6dfa084536b6bcff845cad22434944d765",
+            "ult": "2f943fb3a16017abaa1b264fc63ed4f25de3df9335a593c1559e85d45300c3bc",
+        },
+        "Yone V6 native source hash lock changed",
+    )
+    preview_report = v6_report.get("body_preview", {})
     check(
         preview_report.get("size") == [141, 138]
         and preview_report.get("divider_clearance", -1) >= 6
         and preview_report.get("ui_icon_safe_rect") == [98, 70, 141, 100]
-        and preview_report.get("rendered_skin_pixels", 0) >= 96,
-        f"Yone V5 real card preview safety contract failed: {preview_report}",
+        and preview_report.get("actor_alpha_bbox", [0, 0, 0, 999])[3] <= 90,
+        f"Yone V6 native card preview safety contract failed: {preview_report}",
     )
+    face_policy = str(face_readability.get("policy", ""))
     check(
-        face_readability.get("policy")
-        == "from-zero exact-native V5 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or V3/V4 body fallback",
-        "Yone visual QA must describe the exact-native V5 model",
+        "V6" in face_policy
+        and "from-zero" in face_policy.casefold()
+        and "V5" in face_policy,
+        "Yone visual QA must describe V6 as a from-zero model with no V5 fallback",
     )
     check(
         face_readability.get("body_source_manifest")
-        == "source/native/yone_v5/frames.json"
+        == "source/native/yone_v6/frames.json"
         and face_readability.get("actor_resampling") == "NONE",
-        "Yone visual QA must point only to the V5 manifest and forbid actor resampling",
+        "Yone visual QA must point only to the V6 manifest and forbid pack-time actor resampling",
     )
+    idle_face_contract = face_readability.get("idle_face_contract", {})
     check(
-        face_readability.get("idle_face_contract")
-        == {
-            "source_authored": True,
-            "post_scale_repaint": False,
-            "view": "readable chibi portrait with source-authored eye-outline cue pixels",
-            "alpha_geometry_changes": 0,
-        },
-        "Yone source-authored idle/card face contract changed",
+        isinstance(idle_face_contract, dict)
+        and idle_face_contract.get("source_authored") is True
+        and idle_face_contract.get("post_scale_repaint") is False
+        and idle_face_contract.get("alpha_geometry_changes") == 0,
+        "Yone V6 source-authored idle face contract changed",
     )
     check(
         isinstance(face_rows, dict)
         and len(face_rows) == 54
-        and set(face_rows) == set(v5_frames),
-        "Yone annotation QA must cover exactly the same 54 V5 body frames",
+        and set(face_rows) == set(v6_frames),
+        "Yone annotation QA must cover exactly the same 54 V6 body frames",
     )
     check(
-        isinstance(v5_frames, dict)
-        and len(v5_frames) == 54
+        isinstance(v6_frames, dict)
+        and len(v6_frames) == 54
         and all(
             isinstance(row, dict)
             and row.get("source_to_atlas_byte_identical") is True
@@ -7157,10 +7231,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and row.get("zero_resampling") is True
             and row.get("zero_quantize") is True
             and row.get("zero_clip") is True
-            and int(row.get("opaque_palette_colors", 99)) <= 32
-            for row in v5_frames.values()
+            and int(row.get("opaque_palette_colors", 99)) <= 48
+            for row in v6_frames.values()
         ),
-        "Yone V5 frame report lost byte identity, hard alpha, zero clip, or palette compliance",
+        "Yone V6 frame report lost byte identity, hard alpha, zero clip, or palette compliance",
     )
     for index in range(4):
         frame_name = f"idle[{index}]"
@@ -7181,7 +7255,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and isinstance(mask_bbox, list)
             and len(mask_bbox) == 4
             and annotation.get("face_visibility") in (None, "front", "profile"),
-            f"Yone {frame_name} explicit V5 face/eye/mask annotations are incomplete: {annotation}",
+            f"Yone {frame_name} explicit V6 face/eye/mask annotations are incomplete: {annotation}",
         )
     retired_paths = (
         "aseprite_resources/effects/yone_spirit#anim.fanim",
@@ -7196,33 +7270,60 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
     manifest = load_json("build_manifest.json")
     manifest_paths = {row.get("path") for row in manifest.get("files", [])}
-    retired_v4_body_root = MOD_ROOT / "source/native/yone_v4"
-    retired_v4_body_sources = (
+    retired_body_roots = (
+        "source/native/yone_v3",
+        "source/native/yone_v4",
+        "source/native/yone_v5",
+    )
+    retired_body_sources = (
+        "source/imagegen/yone_core_contact.png",
+        "source/imagegen/yone_run_contact.png",
+        "source/imagegen/yone_wr_body_contact.png",
+        "source/imagegen/yone_defeat_contact.png",
+        "source/processed/yone_core_contact_alpha.png",
+        "source/processed/yone_run_contact_alpha.png",
+        "source/processed/yone_wr_body_contact_alpha.png",
+        "source/processed/yone_defeat_contact_alpha.png",
+        "source/processed/yone_native_body_master.png",
         "source/imagegen/yone_v4_action_contact.png",
         "source/imagegen/yone_v4_idle_candidate_43x55.png",
+        "source/imagegen/yone_v5_idle_source.png",
+        "source/imagegen/yone_v5_idle_golden_43x55.png",
+        "source/imagegen/yone_v5_motion_contact.png",
+        "source/imagegen/yone_v5_attack_q_w_contact.png",
+        "source/imagegen/yone_v5_q5_contact.png",
+        "source/imagegen/yone_v5_ult_contact.png",
+        "tools/generate_yone_v5_native.py",
+        "tools/validate_yone_v5.py",
+        "qa/yone_v5_frames.schema.json",
+        "qa/yone_v5_palette.schema.json",
     )
-    check(
-        not retired_v4_body_root.exists(),
-        "retired Yone V4 native body tree must be physically absent",
-    )
-    for relative in retired_v4_body_sources:
+    for relative in retired_body_roots:
         check(
             not (MOD_ROOT / relative).exists(),
-            f"retired Yone V4 body source must be physically absent: {relative}",
+            f"retired Yone native body tree must be physically absent: {relative}",
         )
-    leaked_v4_manifest_paths = sorted(
+    for relative in retired_body_sources:
+        check(
+            not (MOD_ROOT / relative).exists(),
+            f"retired Yone body source/tool/schema must be physically absent: {relative}",
+        )
+    leaked_body_manifest_paths = sorted(
         str(path)
         for path in manifest_paths
         if isinstance(path, str)
         and (
-            path.replace("\\", "/").startswith("source/native/yone_v4/")
-            or path.replace("\\", "/") in retired_v4_body_sources
+            any(
+                path.replace("\\", "/").startswith(root + "/")
+                for root in retired_body_roots
+            )
+            or path.replace("\\", "/") in retired_body_sources
         )
     )
     check(
-        not leaked_v4_manifest_paths,
-        "retired Yone V4 body files must not enter the release manifest: "
-        + ", ".join(leaked_v4_manifest_paths),
+        not leaked_body_manifest_paths,
+        "retired Yone V3/V4/V5 body files must not enter the release manifest: "
+        + ", ".join(leaked_body_manifest_paths),
     )
     check(
         not any(
@@ -7291,7 +7392,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.7", "lol_mod version must be 0.10.7")
+    check(mod_info.get("version") == "0.10.8", "lol_mod version must be 0.10.8")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7300,10 +7401,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         all(
             token in description
-            for token in ("0.5.1", "0.10.5", "0.10.7", "54", "141x138", "32")
+            for token in ("0.5.1", "0.10.5", "0.10.8", "V6", "source-direct", "3502x88")
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the 0.10.7 native-frame visual route and 0.10.5 saved-season floor",
+        "mod metadata must document the 0.10.8 V6 source-direct route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -7345,7 +7446,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(native_actor_qa.get("tag_order") == list(expected_actor_contract), "Yone visual QA actor tag order is stale")
     check(
         native_actor_qa.get("pack_time_resampling")
-        == "none; 54 exact-size V5 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
+        == "none; 54 exact-size V6 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
         "Yone visual QA must forbid every pack-time body transform",
     )
     check(
@@ -7363,22 +7464,21 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     body_source_contract = native_actor_qa.get("body_source_contract", {})
     check(
-        body_source_contract.get("schema_version") == 5
-        and body_source_contract.get("route") == "exact-native-v5"
-        and body_source_contract.get("manifest") == "source/native/yone_v5/frames.json"
+        body_source_contract.get("schema_version") == 6
+        and body_source_contract.get("route") == "exact-native-v6"
+        and body_source_contract.get("manifest") == "source/native/yone_v6/frames.json"
         and body_source_contract.get("atlas_size") == [3502, 88]
         and body_source_contract.get("frame_count") == 54
-        and body_source_contract.get("body_processing")
-        == "none; exact final 1x RGBA byte copy",
-        f"Yone native actor source contract is not exact-native V5: {body_source_contract}",
+        and "byte copy" in str(body_source_contract.get("body_processing", "")),
+        f"Yone native actor source contract is not exact-native V6: {body_source_contract}",
     )
     palette_contract = body_source_contract.get("palette", {})
     check(
-        palette_contract.get("path") == "source/native/yone_v5/palette.json"
-        and palette_contract.get("schema_version") == 5
-        and palette_contract.get("route") == "exact-native-v5"
-        and 1 <= int(palette_contract.get("opaque_color_count", 99)) <= 32,
-        f"Yone V5 palette contract changed: {palette_contract}",
+        palette_contract.get("path") == "source/native/yone_v6/palette.json"
+        and palette_contract.get("schema_version") == 6
+        and palette_contract.get("route") == "exact-native-v6"
+        and 1 <= int(palette_contract.get("opaque_color_count", 99)) <= 48,
+        f"Yone V6 palette contract changed: {palette_contract}",
     )
 
     expected_body_rects = {
@@ -7399,7 +7499,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         isinstance(native_frame_sources, dict)
         and set(native_frame_sources) == set(expected_body_rects),
-        "Yone V5 source map must cover exactly 54 native body rectangles",
+        "Yone V6 source map must cover exactly 54 native body rectangles",
     )
     check(
         isinstance(source_identity, dict)
@@ -7409,7 +7509,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and row.get("source_to_atlas_byte_identical") is True
             for row in source_identity.values()
         ),
-        "Yone V5 source-to-atlas identity QA must cover all 54 body frames",
+        "Yone V6 source-to-atlas identity QA must cover all 54 body frames",
     )
     check(
         isinstance(native_pixel_rows, dict)
@@ -7418,18 +7518,18 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             isinstance(row, dict)
             and row.get("hard_alpha") is True
             and row.get("alpha_values") == [0, 255]
-            and int(row.get("opaque_palette_size", 99)) <= 32
+            and int(row.get("opaque_palette_size", 99)) <= 48
             for row in native_pixel_rows.values()
         ),
-        "Yone V5 frame pixel QA lost hard alpha or the 32-color ceiling",
+        "Yone V6 frame pixel QA lost hard alpha or the 48-color ceiling",
     )
     for frame_name, native_rect in expected_body_rects.items():
         source_row = native_frame_sources.get(frame_name, {})
-        report_row = v5_frames.get(frame_name, {})
+        report_row = v6_frames.get(frame_name, {})
         identity_row = source_identity.get(frame_name, {})
         pixel_row = native_pixel_rows.get(frame_name, {})
         expected_source = (
-            f"source/native/yone_v5/{report_row.get('file')}"
+            f"source/native/yone_v6/{report_row.get('file')}"
             if isinstance(report_row, dict) and report_row.get("file")
             else None
         )
@@ -7440,18 +7540,18 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and source_row.get("source_size") == native_rect[2:]
             and source_row.get("pack_transform") == "none"
             and source_row.get("hard_alpha") is True
-            and int(source_row.get("opaque_palette_size", 99)) <= 32
+            and int(source_row.get("opaque_palette_size", 99)) <= 48
             and source_row.get("bottom_margin") == report_row.get("bottom_margin")
             and source_row.get("face_visibility")
             in (None, report_row.get("face_visibility"))
             and pixel_row.get("hard_alpha") is True
             and pixel_row.get("opaque_palette_size")
             == report_row.get("opaque_palette_colors"),
-            f"Yone {frame_name} generated V5 source audit is stale: {source_row}",
+            f"Yone {frame_name} generated V6 source audit is stale: {source_row}",
         )
         if isinstance(expected_source, str):
             source_path = MOD_ROOT / expected_source
-            check(source_path.is_file(), f"Yone V5 source frame is missing: {expected_source}")
+            check(source_path.is_file(), f"Yone V6 source frame is missing: {expected_source}")
             if source_path.is_file():
                 with Image.open(source_path).convert("RGBA") as source_image:
                     check(
@@ -7467,25 +7567,25 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "EffectFrame =", 1
     )[0]
     for required_builder_symbol in (
-        "NATIVE_V5_ROOT",
-        "NATIVE_V5_MANIFEST",
-        "NATIVE_V5_SCHEMA_VERSION",
-        "NATIVE_V5_ROUTE",
-        "NATIVE_V5_MAX_OPAQUE_COLORS",
-        "NATIVE_V5_FRAME_FIELDS",
-        "def _v5_relative_file(",
-        "def _load_v5_json(",
-        "def _validate_v5_palette(",
-        "def _validate_v5_rgba_png(",
-        "def _native_v5_expected_frames(",
-        "def _load_native_v5_body_frames(",
-        "def _paste_native_v5_bytes(",
-        "_load_native_v5_body_frames()",
-        "_paste_native_v5_bytes(sheet, placements, rect, frame)",
+        "NATIVE_V6_ROOT",
+        "NATIVE_V6_MANIFEST",
+        "NATIVE_V6_SCHEMA_VERSION",
+        "NATIVE_V6_ROUTE",
+        "NATIVE_V6_MAX_OPAQUE_COLORS",
+        "NATIVE_V6_FRAME_FIELDS",
+        "def _v6_relative_file(",
+        "def _load_v6_json(",
+        "def _validate_v6_palette(",
+        "def _validate_v6_rgba_png(",
+        "def _native_v6_expected_frames(",
+        "def _load_native_v6_body_frames(",
+        "def _paste_native_v6_bytes(",
+        "_load_native_v6_body_frames()",
+        "_paste_native_v6_bytes(sheet, placements, rect, frame)",
     ):
         check(
             required_builder_symbol in yone_builder_source,
-            f"Yone exact-native V5 builder route is missing: {required_builder_symbol}",
+            f"Yone exact-native V6 builder route is missing: {required_builder_symbol}",
         )
     for forbidden_actor_transform in (
         ".resize(",
@@ -7497,6 +7597,17 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(
             forbidden_actor_transform not in actor_builder_source,
             f"Yone build_actor retains a forbidden body transform: {forbidden_actor_transform}",
+        )
+    for retired_v5_actor_route in (
+        "NATIVE_V5_ROOT",
+        "NATIVE_V5_MANIFEST",
+        "_load_native_v5_body_frames",
+        "_paste_native_v5_bytes",
+        "source/native/yone_v5",
+    ):
+        check(
+            retired_v5_actor_route not in actor_builder_source,
+            f"Yone build_actor retains a V5 fallback: {retired_v5_actor_route}",
         )
     for retired_v3_symbol in (
         "_whole_sheet_native_raster",
@@ -7795,11 +7906,37 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     if all(path.is_file() for path in icons):
         check(len({sha256(path) for path in icons}) == 3, "Yone Q/W/R icons must remain three distinct generated assets")
 
+    v6_ui_source = MOD_ROOT / "source/imagegen/yone_v6_idle_source.png"
+    check(v6_ui_source.is_file(), "Yone sole high-resolution V6 UI source is missing")
+    if v6_ui_source.is_file():
+        with Image.open(v6_ui_source) as opened:
+            check(
+                opened.width >= 800 and opened.height >= 1000,
+                f"Yone V6 UI source regressed to reduced battle size: {opened.size}",
+            )
+
+    ui_source_contract = face_readability.get("ui_source_direct", {})
+    check(
+        ui_source_contract.get("route")
+        == "highres-v6-magenta-key-lanczos-hard-alpha-palette128"
+        and ui_source_contract.get("source")
+        == "source/imagegen/yone_v6_idle_source.png"
+        and ui_source_contract.get("battle_atlas_input") is False
+        and ui_source_contract.get("resampling")
+        == "one uniform LANCZOS shrink per destination; never NEAREST enlargement",
+        f"Yone UI lineage must remain source-direct V6: {ui_source_contract}",
+    )
+    check(
+        ui_source_contract.get("card_name_layer")
+        == "not rasterized in QA; runtime localized name is drawn by the engine text layer",
+        "Yone QA card must not bake an approximate or incorrect champion-name glyph",
+    )
+
     portrait_specs = {
         "ui/champion_portrait/dual_blader_compact.png": (64, 64),
         "ui/champion_portrait/dual_blader_scoreboard.png": (48, 64),
         "ui/champion_portrait/dual_blader_grid.png": (90, 122),
-        "ui/champion_fullbody/dual_blader.png": (64, 64),
+        "ui/champion_fullbody/dual_blader.png": (85, 93),
         "BanPickIllust/dual_blader.png": (1420, 860),
     }
     portrait_paths = [MOD_ROOT / relative for relative in portrait_specs]
@@ -7810,6 +7947,54 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             image = Image.open(path).convert("RGBA")
             check(image.size == expected_size, f"Yone presentation asset has the wrong size: {relative}")
             check(image.getchannel("A").getbbox() is not None, f"Yone presentation asset is empty: {relative}")
+            if relative.startswith("ui/"):
+                quality = source_direct_ui_quality(image)
+                check(
+                    quality.get("hard_alpha") is True
+                    and quality.get("transparent_rgb_clear") is True,
+                    f"Yone source-direct UI alpha contract failed: {relative}={quality}",
+                )
+                check(
+                    int(quality.get("opaque_palette_size", 0)) >= 48,
+                    f"Yone UI lost high-resolution palette detail: {relative}={quality}",
+                )
+                check(
+                    0.20 <= float(quality.get("dark_pixel_ratio", 0.0)) <= 0.85,
+                    f"Yone UI dark-pixel ratio left the readable range: {relative}={quality}",
+                )
+                check(
+                    float(quality.get("identical_neighbor_ratio", 1.0)) <= 0.48,
+                    f"Yone UI resembles a NEAREST-enlarged low-res frame: {relative}={quality}",
+                )
+                recorded_quality = ui_source_contract.get("surfaces", {}).get(
+                    {
+                        "ui/champion_fullbody/dual_blader.png": "fullbody",
+                        "ui/champion_portrait/dual_blader_compact.png": "compact",
+                        "ui/champion_portrait/dual_blader_scoreboard.png": "scoreboard",
+                        "ui/champion_portrait/dual_blader_grid.png": "grid",
+                    }[relative],
+                    {},
+                )
+                for metric in (
+                    "alpha_bbox", "hard_alpha", "transparent_rgb_clear",
+                    "opaque_palette_size", "dark_pixel_ratio",
+                    "identical_neighbor_ratio",
+                ):
+                    check(
+                        recorded_quality.get(metric) == quality.get(metric),
+                        f"Yone source-direct UI QA is stale: {relative}/{metric}",
+                    )
+    fullbody_path = MOD_ROOT / "ui/champion_fullbody/dual_blader.png"
+    if fullbody_path.is_file():
+        fullbody_image = Image.open(fullbody_path).convert("RGBA")
+        fullbody_bbox = fullbody_image.getchannel("A").getbbox()
+        if fullbody_bbox is not None:
+            check(
+                fullbody_bbox[2] - fullbody_bbox[0] <= 70
+                and fullbody_bbox[3] - fullbody_bbox[1] <= 82
+                and fullbody_bbox[3] <= 86,
+                f"Yone 85x93 fullbody exceeds the exact card destination: {fullbody_bbox}",
+            )
     compact_path = MOD_ROOT / "ui/champion_portrait/dual_blader_compact.png"
     if compact_path.is_file():
         compact_bbox = Image.open(compact_path).convert("RGBA").getchannel("A").getbbox()
@@ -7842,6 +8027,48 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(
             grid_image.crop((0, 96, grid_image.width, grid_image.height)).getchannel("A").getbbox() is None,
             "Yone BP-grid native name band y=96..121 must stay fully transparent",
+        )
+
+    ui_face_rows = face_readability.get("ui_surfaces", {})
+    for label in ("fullbody", "grid"):
+        face_bbox = ui_face_rows.get(label, {}).get("face_skin_bbox")
+        check(
+            isinstance(face_bbox, list)
+            and len(face_bbox) == 4
+            and face_bbox[2] - face_bbox[0] >= 14
+            and face_bbox[3] - face_bbox[1] >= 16,
+            f"Yone {label} source-direct face must remain at least 14x16: {face_bbox}",
+        )
+
+    card_preview_path = MOD_ROOT / "qa/yone_v6_ui_card.png"
+    check(card_preview_path.is_file(), "Yone V6 141x138 UI-card proof is missing")
+    if card_preview_path.is_file() and fullbody_path.is_file():
+        card = Image.open(card_preview_path).convert("RGBA")
+        fullbody_image = Image.open(fullbody_path).convert("RGBA")
+        check(card.size == (141, 138), f"Yone V6 UI-card proof must be 141x138: {card.size}")
+        check(card.getchannel("A").getextrema() == (255, 255), "Yone V6 UI-card proof must be fully opaque")
+        actor_x = (141 - 85) // 2
+        pasted_exactly = all(
+            fullbody_image.getpixel((x, y))[3] == 0
+            or card.getpixel((actor_x + x, y)) == fullbody_image.getpixel((x, y))
+            for y in range(93)
+            for x in range(85)
+        )
+        check(pasted_exactly, "Yone V6 card must paste the 85x93 fullbody texture at exact 1:1")
+        check(
+            all(card.getpixel((x, 96)) == (43, 46, 57, 255) for x in range(5, 137)),
+            "Yone V6 UI-card proof lost the real y=96 divider",
+        )
+        fullbody_bbox = fullbody_image.getchannel("A").getbbox()
+        check(
+            fullbody_bbox is not None
+            and fullbody_bbox[3] <= 86
+            and not any(
+                fullbody_image.getpixel((x, y))[3]
+                for y in range(70, min(93, 96))
+                for x in range(max(0, 98 - actor_x), 85)
+            ),
+            "Yone V6 1:1 card actor overlaps the right-side icon safety region",
         )
 
     if all(path.is_file() for path in portrait_paths):
@@ -7923,7 +8150,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.7", "V5 人物", "NEAREST", "逐帧逐字节", "54", "141×138", "32", "V3/V4 身体源",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.8",
+            "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
+            "2026-07-20", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -8194,14 +8423,15 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     imagegen_audit = load_json("qa/yone_imagegen_sources.json")
     expected_body_source_paths = {
-        "source/imagegen/yone_v5_idle_source.png",
-        "source/imagegen/yone_v5_idle_golden_43x55.png",
-        "source/imagegen/yone_v5_motion_contact.png",
-        "source/imagegen/yone_v5_attack_q_w_contact.png",
-        "source/imagegen/yone_v5_q5_contact.png",
-        "source/imagegen/yone_v5_ult_contact.png",
+        "source/imagegen/yone_v6_motion_contact.png",
+        "source/imagegen/yone_v6_attack_q_w_contact.png",
+        "source/imagegen/yone_v6_w_contact.png",
+        "source/imagegen/yone_v6_ult_contact.png",
     }
-    expected_source_paths = expected_body_source_paths | {
+    expected_ui_source_paths = {
+        "source/imagegen/yone_v6_idle_source.png",
+    }
+    expected_source_paths = expected_body_source_paths | expected_ui_source_paths | {
         "source/imagegen/yone_qw_vfx_contact.png",
         "source/imagegen/yone_w_vfx_contact_v2.png",
         "source/imagegen/yone_q3_vfx_contact.png",
@@ -8211,18 +8441,22 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }
     imagegen_processing = str(imagegen_audit.get("processing", ""))
     check(
-        imagegen_audit.get("schema_version") == 5
-        and imagegen_processing.startswith("exact-native-v5:")
-        and "exact-native-v4" not in imagegen_processing.casefold(),
-        "Yone release provenance must declare only the exact-native V5 body route",
+        imagegen_audit.get("schema_version") == 6
+        and imagegen_audit.get("generated_on") == "2026-07-20"
+        and imagegen_processing.startswith("exact-native-v6:")
+        and not any(
+            route in imagegen_processing.casefold()
+            for route in ("exact-native-v3", "exact-native-v4", "exact-native-v5")
+        ),
+        "Yone release provenance must declare only the exact-native V6 body route",
     )
     body_source_audit = imagegen_audit.get("body_source", {})
     check(
         isinstance(body_source_audit, dict)
-        and body_source_audit.get("schema_version") == 5
-        and body_source_audit.get("route") == "exact-native-v5"
-        and body_source_audit.get("manifest") == "source/native/yone_v5/frames.json",
-        "Yone release provenance body_source must point to exact-native V5",
+        and body_source_audit.get("schema_version") == 6
+        and body_source_audit.get("route") == "exact-native-v6"
+        and body_source_audit.get("manifest") == "source/native/yone_v6/frames.json",
+        "Yone release provenance body_source must point to exact-native V6",
     )
     body_input_rows = [
         row
@@ -8233,7 +8467,20 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         len(body_input_rows) == len(expected_body_source_paths)
         and {str(row.get("path")) for row in body_input_rows}
         == expected_body_source_paths,
-        "Yone release provenance must cover exactly the six V5 ImageGen body inputs",
+        "Yone release provenance must cover exactly the four V6 native-body ImageGen inputs",
+    )
+    ui_input_rows = [
+        row
+        for row in imagegen_audit.get("ui_only_imagegen_inputs", [])
+        if isinstance(row, dict) and isinstance(row.get("path"), str)
+    ]
+    check(
+        len(ui_input_rows) == 1
+        and {str(row.get("path")) for row in ui_input_rows}
+        == expected_ui_source_paths
+        and ui_input_rows[0].get("role")
+        == "UI provenance only; never a native battle-frame input",
+        "Yone release provenance must keep the V6 high-resolution idle source UI-only",
     )
     expected_processed_paths = {
         "source/processed/yone_qw_vfx_contact_alpha.png",
@@ -8500,7 +8747,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.7", "lol_mod version must be 0.10.7")
+    check(mod_info.get("version") == "0.10.8", "lol_mod version must be 0.10.8")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

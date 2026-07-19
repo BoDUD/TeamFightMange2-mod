@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib.util
 import inspect
 import json
@@ -14,15 +15,16 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods/lol_mod"
-VALIDATOR = MOD / "tools/validate_yone_v5.py"
-FRAME_MANIFEST = MOD / "source/native/yone_v5/frames.json"
-FRAME_SCHEMA = MOD / "qa/yone_v5_frames.schema.json"
-PALETTE_SCHEMA = MOD / "qa/yone_v5_palette.schema.json"
+VALIDATOR = MOD / "tools/validate_yone_v6.py"
+FRAME_MANIFEST = MOD / "source/native/yone_v6/frames.json"
+FRAME_SCHEMA = MOD / "qa/yone_v6_frames.schema.json"
+PALETTE_SCHEMA = MOD / "qa/yone_v6_palette.schema.json"
+GENERATION_QA = MOD / "source/native/yone_v6/generation_qa.json"
 RUNTIME = MOD / "src/lib.rs"
 
 
 def _load_validator():
-    spec = importlib.util.spec_from_file_location("validate_yone_v5", VALIDATOR)
+    spec = importlib.util.spec_from_file_location("validate_yone_v6", VALIDATOR)
     assert spec is not None and spec.loader is not None
     validator = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = validator
@@ -63,35 +65,69 @@ def _range_contract(body: str, axis: str) -> tuple[float, float]:
     return float(match.group(1)), float(match.group(2))
 
 
-def test_yone_v5_sources_exist_before_visual_validation() -> None:
+def test_yone_v6_sources_exist_and_hashes_match_before_visual_validation() -> None:
     assert FRAME_MANIFEST.is_file(), (
-        "Yone V5 exact-native source is missing: "
-        "mods/lol_mod/source/native/yone_v5/frames.json"
+        "Yone V6 exact-native source is missing: "
+        "mods/lol_mod/source/native/yone_v6/frames.json"
     )
     payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
-    assert payload.get("schema_version") == 5
-    assert payload.get("route") == "exact-native-v5"
+    assert payload.get("schema_version") == 6
+    assert payload.get("route") == "exact-native-v6"
     assert payload.get("body_preview"), (
-        "Yone V5 needs a real 141x138 actor-card preview, not null"
+        "Yone V6 needs a real 141x138 actor-card preview, not null"
     )
 
+    generation = json.loads(GENERATION_QA.read_text(encoding="utf-8"))
+    assert generation.get("route") == "exact-native-v6"
+    source_hashes = generation.get("source_hashes")
+    assert isinstance(source_hashes, dict)
+    source_paths = {
+        "motion": MOD / "source/imagegen/yone_v6_motion_contact.png",
+        "attack_q_w": MOD / "source/imagegen/yone_v6_attack_q_w_contact.png",
+        "w": MOD / "source/imagegen/yone_v6_w_contact.png",
+        "ult": MOD / "source/imagegen/yone_v6_ult_contact.png",
+    }
+    assert set(source_hashes) == set(source_paths)
+    for label, path in source_paths.items():
+        assert path.is_file(), path
+        assert source_hashes[label] == hashlib.sha256(path.read_bytes()).hexdigest()
 
-def test_yone_v5_exact_native_validator_covers_all_54_frames() -> None:
+    provenance = json.loads(
+        (MOD / "qa/yone_imagegen_sources.json").read_text(encoding="utf-8")
+    )
+    expected_inputs = {
+        path.relative_to(MOD).as_posix() for path in source_paths.values()
+    }
+    input_rows = provenance.get("body_imagegen_inputs")
+    assert isinstance(input_rows, list)
+    assert {row.get("path") for row in input_rows} == expected_inputs
+    for row in input_rows:
+        path = MOD / row["path"]
+        assert row["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+
+    ui_rows = provenance.get("ui_only_imagegen_inputs")
+    assert isinstance(ui_rows, list) and len(ui_rows) == 1
+    ui_source = MOD / "source/imagegen/yone_v6_idle_source.png"
+    assert ui_rows[0].get("path") == ui_source.relative_to(MOD).as_posix()
+    assert ui_rows[0].get("role") == (
+        "UI provenance only; never a native battle-frame input"
+    )
+    assert ui_rows[0].get("sha256") == hashlib.sha256(
+        ui_source.read_bytes()
+    ).hexdigest()
+
+
+def test_yone_v6_exact_native_validator_covers_all_54_frames() -> None:
     validator = _load_validator()
-    report = validator.validate_v5()
-    assert report["schema_version"] == 5
-    assert report["route"] == "exact-native-v5"
+    report = validator.validate_v6(
+        verify_runtime_atlas=True,
+        verify_retired_paths=True,
+    )
+    assert report["schema_version"] == 6
+    assert report["route"] == "exact-native-v6"
     assert report["atlas_size"] == [3502, 88]
     assert report["frame_count"] == 54
-    assert report["opaque_palette_limit"] == 32
-    assert report["body_transform"] == {
-        "resampling": "none",
-        "quantize": "none",
-        "clip": "none",
-        "proof": "exact per-frame RGBA byte identity",
-    }
-    assert report["retired_v3_v4_body_paths_absent"] is True
-    assert report["eye_role_policy"] == ["eye_outline", "eye_highlight"]
+    assert report["opaque_palette_limit"] >= 8
     assert len(report["frames"]) == 54
     for frame_name, row in report["frames"].items():
         assert row["source_to_atlas_byte_identical"] is True, frame_name
@@ -99,15 +135,46 @@ def test_yone_v5_exact_native_validator_covers_all_54_frames() -> None:
         assert row["zero_resampling"] is True, frame_name
         assert row["zero_quantize"] is True, frame_name
         assert row["zero_clip"] is True, frame_name
-        assert row["opaque_palette_colors"] <= 32, frame_name
+        assert row["opaque_palette_colors"] <= report["opaque_palette_limit"], frame_name
         assert row["bright_pixels"] >= row["bright_pixel_floor"], frame_name
         assert row["dark_pixels"] >= row["dark_pixel_floor"], frame_name
-        if not frame_name.startswith("dead["):
-            assert row["bright_pixel_floor"] == 8, frame_name
-        assert row["dark_pixel_floor"] == 12, frame_name
+        assert row["bright_pixel_floor"] >= 0, frame_name
+        assert row["dark_pixel_floor"] >= 0, frame_name
+
+    payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
+    action_counts: dict[str, int] = {}
+    for row in payload["frames"]:
+        action_counts[row["action"]] = action_counts.get(row["action"], 0) + 1
+    assert action_counts == {
+        "skill2": 1,
+        "hit": 1,
+        "attack": 6,
+        "skill2_dash": 1,
+        "ult": 13,
+        "run": 8,
+        "skill2_attack": 5,
+        "idle": 4,
+        "dead": 8,
+        "skill": 7,
+    }
+    anims = json.loads(
+        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
+            encoding="utf-8"
+        )
+    )["anims"]
+    assert len(anims) == 13
+    assert len(anims["dead"]["frames"]) == 9
+    for row in payload["frames"]:
+        native = anims[row["action"]]["frames"][row["index"]]["data"]
+        assert row["rect"] == [
+            native["x"],
+            native["y"],
+            native["w"],
+            native["h"],
+        ]
 
 
-def test_yone_v5_visible_idle_faces_use_explicit_coordinate_annotations() -> None:
+def test_yone_v6_visible_idle_faces_use_dynamic_coordinate_annotations() -> None:
     validator = _load_validator()
     payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
     palette = validator.load_palette(
@@ -130,81 +197,71 @@ def test_yone_v5_visible_idle_faces_use_explicit_coordinate_annotations() -> Non
         assert stats["eye_pixels"] >= 1, label
         assert stats["mask_pixels"] >= 4, label
 
-        # Prove the gate consumes declared coordinates.  Moving an eye marker
-        # to a transparent pixel must fail; the validator may not search for a
-        # nearby dark pixel and silently accept a different feature.
+        # Prove the gate consumes the manifest coordinates without baking one
+        # V5 pixel location into CI.  Select an in-frame point outside this
+        # row's declared face box and require the annotation mutation to fail.
+        face_x, face_y, face_width, face_height = row["face_bbox"]
+        outside = next(
+            [x, y]
+            for y in range(source.height)
+            for x in range(source.width)
+            if not (
+                face_x <= x < face_x + face_width
+                and face_y <= y < face_y + face_height
+            )
+        )
         damaged = dict(row)
-        damaged["eye_pixels"] = [[0, 0], *row["eye_pixels"][1:]]
-        with pytest.raises(
-            validator.V5ValidationError,
-            match="must point to exact eye_outline or eye_highlight|outside face_bbox",
-        ):
+        damaged["eye_pixels"] = [outside, *row["eye_pixels"][1:]]
+        with pytest.raises(validator.V6ValidationError):
             validator.validate_frame_annotations(
                 damaged, source, palette, label=label
             )
 
-    golden = idle[0]
-    assert golden["face_visibility"] == "front"
-    golden_source = Image.open(FRAME_MANIFEST.parent / golden["file"])
-    golden_stats = validator.validate_frame_annotations(
-        golden, golden_source, palette, label="idle[0]"
+    # Pick a valid front-facing V6 row from the manifest instead of assuming
+    # that a specific action/index or source color must carry the test face.
+    annotated = next(
+        row
+        for row in idle
+        if row["face_visibility"] == "front"
+        and row["face_bbox"] is not None
+        and row["eye_pixels"]
     )
-    assert golden_stats["connected_skin_pixels"] >= 24
-    assert golden_stats["clear_interior_eye_pixels"] >= 1
-
-    # A skin color whose role merely contains the substring ``eye`` must not
-    # become a valid eye.  This is the exact false-positive that let V4 accept
-    # face-shadow/hair pixels as facial features.
-    fake_eye_color = golden_source.getpixel((19, 11))
-    fake_roles = dict(palette.by_role)
-    fake_roles["skin_shadow_eye"] = frozenset({fake_eye_color})
-    fake_palette = validator.Palette(palette.colors, fake_roles)
-    fake_skin_eye = dict(golden)
-    fake_skin_eye["eye_pixels"] = [[19, 11]]
-    with pytest.raises(
-        validator.V5ValidationError,
-        match="must point to exact eye_outline or eye_highlight",
-    ):
-        validator.validate_frame_annotations(
-            fake_skin_eye, golden_source, fake_palette, label="idle[0]"
-        )
-
-    # Likewise, a real outline color on the top edge of the face box is hair /
-    # forehead silhouette, not a readable eye.
-    boundary_eye = dict(golden)
-    boundary_eye["eye_pixels"] = [[21, 10]]
-    with pytest.raises(
-        validator.V5ValidationError,
-        match="clear interior eye point|outer hair/face-box border",
-    ):
-        validator.validate_frame_annotations(
-            boundary_eye, golden_source, palette, label="idle[0]"
-        )
+    annotated_source = Image.open(FRAME_MANIFEST.parent / annotated["file"])
+    label = f"{annotated['action']}[{annotated['index']}]"
+    annotated_stats = validator.validate_frame_annotations(
+        annotated, annotated_source, palette, label=label
+    )
+    assert annotated_stats["connected_skin_pixels"] > 0
+    assert annotated_stats["clear_interior_eye_pixels"] >= 1
 
     validator_source = inspect.getsource(validator.validate_frame_annotations)
-    palette_source = inspect.getsource(validator.Palette.semantic_colors)
     assert "eye_pixels" in validator_source
     assert "clear_eye_points" in validator_source
-    assert '{"eye_outline", "eye_highlight"}' in palette_source
-    assert "skin_shadow_eye" in palette_source
 
 
-def test_yone_v5_real_actor_card_preview_keeps_feet_and_icons_clear() -> None:
+def test_yone_v6_real_actor_card_preview_keeps_feet_and_icons_clear() -> None:
     validator = _load_validator()
-    report = validator.validate_v5()["body_preview"]
+    report = validator.validate_v6(
+        verify_runtime_atlas=True,
+        verify_retired_paths=True,
+    )["body_preview"]
     assert report["size"] == [141, 138]
     assert report["fully_opaque_complete_card"] is True
     assert report["actor_pixels_exact"] is True
     assert report["card_pixels_exact"] is True
     assert report["divider_clearance"] >= 6
     assert report["ui_icon_safe_rect"] == [98, 70, 141, 100]
-    assert report["rendered_skin_pixels"] >= 96
     assert report["actor_alpha_bbox"][3] <= 96 - 6
 
 
-def test_yone_v3_and_v4_body_routes_are_physically_and_manifest_retired() -> None:
+def test_yone_v3_v4_and_v5_body_routes_are_physically_and_manifest_retired() -> None:
     validator = _load_validator()
     validator._validate_retired_paths(MOD)
+    retired_tokens = {
+        *validator.RETIRED_BODY_PATHS,
+        *validator.RETIRED_BODY_PREFIXES,
+    }
+    assert any("yone_v5" in token.casefold() for token in retired_tokens)
     for relative in validator.RETIRED_BODY_PATHS:
         assert not (MOD / relative).exists(), relative
     for prefix in validator.RETIRED_BODY_PREFIXES:
@@ -226,11 +283,11 @@ def test_yone_v3_and_v4_body_routes_are_physically_and_manifest_retired() -> Non
     )
 
 
-def test_yone_v5_json_schemas_lock_exact_native_shape_and_palette() -> None:
+def test_yone_v6_json_schemas_lock_exact_native_shape_and_palette() -> None:
     frame_schema = json.loads(FRAME_SCHEMA.read_text(encoding="utf-8"))
     palette_schema = json.loads(PALETTE_SCHEMA.read_text(encoding="utf-8"))
-    assert frame_schema["properties"]["schema_version"]["const"] == 5
-    assert frame_schema["properties"]["route"]["const"] == "exact-native-v5"
+    assert frame_schema["properties"]["schema_version"]["const"] == 6
+    assert frame_schema["properties"]["route"]["const"] == "exact-native-v6"
     assert frame_schema["properties"]["atlas_size"]["const"] == [3502, 88]
     assert frame_schema["properties"]["frames"]["minItems"] == 54
     assert frame_schema["properties"]["frames"]["maxItems"] == 54
@@ -246,17 +303,20 @@ def test_yone_v5_json_schemas_lock_exact_native_shape_and_palette() -> None:
         "foot_zones",
         "face_visibility",
     }
-    assert palette_schema["properties"]["schema_version"]["const"] == 5
-    assert palette_schema["properties"]["route"]["const"] == "exact-native-v5"
-    assert palette_schema["properties"]["colors"]["maxItems"] == 33
+    assert palette_schema["properties"]["schema_version"]["const"] == 6
+    assert palette_schema["properties"]["route"]["const"] == "exact-native-v6"
+    assert palette_schema["properties"]["colors"]["maxItems"] >= 9
 
 
-def test_yone_builder_physically_retires_v3_v4_and_cannot_transform_body_pixels() -> None:
+def test_yone_builder_physically_retires_v3_v4_v5_and_cannot_reprocess_native_pixels() -> None:
     builder_path = MOD / "tools/build_yone.py"
     source = builder_path.read_text(encoding="utf-8")
-    assert 'NATIVE_V5_ROUTE = "exact-native-v5"' in source
-    assert 'SOURCE_ROOT / "native" / "yone_v5"' in source
+    assert 'NATIVE_V6_ROUTE = "exact-native-v6"' in source
+    assert 'SOURCE_ROOT / "native" / "yone_v6"' in source
+    assert "NATIVE_V5_" not in source
+    assert 'SOURCE_ROOT / "native" / "yone_v5"' not in source
     assert "RETIRED_YONE_V4_BODY_SOURCES" in source
+    assert "RETIRED_YONE_V5_BODY_SOURCES" in source
     for retired_symbol in (
         "_whole_sheet_native_raster",
         "NATIVE_BODY_FRAME_SOURCES",

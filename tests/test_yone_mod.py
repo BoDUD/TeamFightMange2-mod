@@ -49,6 +49,18 @@ def find_effect(root, effect_type: str, **fields):
     ]
 
 
+def _python_function_source(source: str, name: str) -> str:
+    tree = ast.parse(source)
+    function = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == name
+    )
+    body = ast.get_source_segment(source, function)
+    assert body is not None
+    return body
+
+
 def test_yone_replaces_official_dual_blader_and_uses_q_w_r_slots() -> None:
     champions = [
         (path.name, json.loads(path.read_text(encoding="utf-8")))
@@ -786,7 +798,12 @@ def test_yone_q3_runtime_wind_sheets_are_transparent_blue_white_and_sparse() -> 
     ):
         with Image.open(MOD / relative) as opened:
             image = opened.convert("RGBA")
-        pixels = list(image.getdata())
+        flattened_reader = getattr(image, "get_flattened_data", None)
+        pixels = list(
+            flattened_reader()
+            if flattened_reader is not None
+            else image.getdata()
+        )
         visible = [(r, g, b, a) for r, g, b, a in pixels if a >= 64]
         assert visible, relative
         assert len(visible) < len(pixels) * 0.60, relative
@@ -867,12 +884,39 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
     fullbody = Image.open(
         MOD / "ui/champion_fullbody/dual_blader.png"
     ).convert("RGBA")
-    assert fullbody.size == (64, 64)
+    assert fullbody.size == (85, 93)
     fullbody_bbox = fullbody.getchannel("A").getbbox()
     assert fullbody_bbox is not None
-    assert fullbody_bbox[2] - fullbody_bbox[0] >= 40
-    assert fullbody_bbox[3] - fullbody_bbox[1] >= 40
-    assert fullbody.height - fullbody_bbox[3] >= 3
+    assert 40 <= fullbody_bbox[2] - fullbody_bbox[0] <= 70
+    assert 55 <= fullbody_bbox[3] - fullbody_bbox[1] <= 82
+    assert fullbody_bbox[3] <= 86
+    assert fullbody.height - fullbody_bbox[3] >= 7
+
+
+def test_yone_v6_ui_is_source_direct_and_never_enlarges_the_43x55_battle_idle() -> None:
+    source_path = MOD / "source/imagegen/yone_v6_idle_source.png"
+    with Image.open(source_path) as opened:
+        assert opened.width >= 800
+        assert opened.height >= 1000
+
+    builder_source = (MOD / "tools/build_yone.py").read_text(encoding="utf-8")
+    build_ui = _python_function_source(builder_source, "build_splash_and_portraits")
+    assert "load_yone_v6_ui_subject()" in build_ui
+    assert "render_source_direct_ui_subject(" in build_ui
+    assert "(85, 93)" in build_ui
+    assert "_load_native_v6_body_frames" not in build_ui
+    assert "Image.Resampling.NEAREST" not in build_ui
+
+    card_contract = _python_function_source(
+        builder_source, "yone_fullbody_card_contract"
+    )
+    assert "source.size != (85, 93)" in card_contract
+    assert "rendered = source.copy()" in card_contract
+    assert ".resize(" not in card_contract
+
+    card_preview = Image.open(MOD / "qa/yone_v6_ui_card.png").convert("RGBA")
+    assert card_preview.size == (141, 138)
+    assert card_preview.getchannel("A").getextrema() == (255, 255)
 
 
 def test_localized_copy_describes_w_and_removes_soul_unbound() -> None:
@@ -1391,7 +1435,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.7"
+    assert mod_info["version"] == "0.10.8"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1437,8 +1481,9 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     }.intersection(paths)
 
 
-def test_yone_v5_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
+def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
+    assert mod_info["version"] == "0.10.8"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 
@@ -1456,13 +1501,14 @@ def test_yone_v5_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     ):
         assert ability_runtime_prefix in champion_payload
 
-    v5 = json.loads(
-        (MOD / "source/native/yone_v5/frames.json").read_text(encoding="utf-8")
+    v6 = json.loads(
+        (MOD / "source/native/yone_v6/frames.json").read_text(encoding="utf-8")
     )
-    assert v5["schema_version"] == 5
-    assert v5["route"] == "exact-native-v5"
-    assert len(v5["frames"]) == 54
-    assert all("face_visibility" in row for row in v5["frames"])
+    assert v6["schema_version"] == 6
+    assert v6["route"] == "exact-native-v6"
+    assert v6["atlas_size"] == [3502, 88]
+    assert len(v6["frames"]) == 54
+    assert all("face_visibility" in row for row in v6["frames"])
 
     manifest = json.loads(
         (MOD / "build_manifest.json").read_text(encoding="utf-8")
@@ -1487,15 +1533,27 @@ def test_yone_v5_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
         "source/processed/yone_native_body_master.png",
         "source/imagegen/yone_v4_action_contact.png",
         "source/imagegen/yone_v4_idle_candidate_43x55.png",
+        "source/imagegen/yone_v5_idle_source.png",
+        "source/imagegen/yone_v5_idle_golden_43x55.png",
+        "source/imagegen/yone_v5_motion_contact.png",
+        "source/imagegen/yone_v5_attack_q_w_contact.png",
+        "source/imagegen/yone_v5_q5_contact.png",
+        "source/imagegen/yone_v5_ult_contact.png",
     }.intersection(paths)
     assert not any(path.startswith("source/native/yone_v4/") for path in paths)
+    assert not any(path.startswith("source/native/yone_v5/") for path in paths)
     assert not any("yone_v4" in path.casefold() for path in paths)
-    physical_v4_files = sorted(
+    assert not any("yone_v5" in path.casefold() for path in paths)
+    physical_retired_files = sorted(
         path.relative_to(MOD).as_posix()
         for path in MOD.rglob("*")
-        if path.is_file() and "yone_v4" in path.name.casefold()
+        if path.is_file()
+        and any(
+            token in path.name.casefold()
+            for token in ("yone_v4", "yone_v5")
+        )
     )
-    assert physical_v4_files == []
+    assert physical_retired_files == []
 
 
 def test_yone_manifest_uses_explicit_builder_outputs_and_fails_closed() -> None:

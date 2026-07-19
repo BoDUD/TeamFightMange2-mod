@@ -572,7 +572,7 @@ native frames are retired in 0.10.7 and must never be restored or published.
   residue, at most 32 opaque palette colours, explicit foot/baseline metadata,
   and an exact source-to-atlas byte identity check.
 
-# Yone V5 full-model rebuild
+# Yone V5 full-model rebuild (rejected history)
 
 V5 is a clean body rebuild, not a face patch over V4. It keeps the already
 accepted Q/W/R icons, effects and gameplay data unchanged while replacing all
@@ -582,7 +582,13 @@ palette, a connected 8x10 skin region, a real interior eye framed by an exact
 Every runtime body frame is written once at its final native dimensions and is
 then copied byte-for-byte into the 3502x88 atlas.
 
-## Yone V5 accepted sources
+Live UI review rejected this route. The card and compact UI still reused and
+enlarged the same 43x55 battle idle pixels, so the model remained sparse and
+unclear even though its native-frame, palette, face-annotation, foot-clearance
+and card-safe-area checks passed. V5 is retained below only as provenance; it
+is not an accepted visual source and must not be restored as a V6 fallback.
+
+## Yone V5 rejected source record
 
 - Golden idle source execution: `exec-243ff99f-e977-470b-a29b-b0dab435d583`;
   `source/imagegen/yone_v5_idle_source.png` ->
@@ -604,3 +610,46 @@ then copied byte-for-byte into the 3502x88 atlas.
   hair/border eye annotations, checks connected skin, feet and UI clearance,
   and fails if any retired V3/V4 body path enters the repository or release
   manifest.
+
+# Yone V6 source-direct UI and same-model native rebuild
+
+V6 starts from zero on `2026-07-20`. It does not target another champion's
+proportions. Its acceptance goal is simply a clear, non-blurry Yone identity at
+the actual display size: readable face, hair, clothing and two swords, with
+complete feet and no model deformation.
+
+The V6 presentation deliberately has two outputs from one model identity:
+
+- UI art is source-direct and high-resolution. Card and compact presentation
+  use their dedicated V6 UI source instead of enlarging the 43x55 battle idle.
+- Battle art is a separate from-zero native action rebuild using the same V6
+  face, hair, costume, body and dual-sword design across idle, motion,
+  attack/Q/W and R contacts. It keeps the official native animation canvas and
+  timing contract without treating the high-resolution UI sprite as a battle
+  frame.
+
+Current V6 source set:
+
+- `source/imagegen/yone_v6_idle_source.png`: the sole source-direct high-resolution
+  UI and V6 model-identity source. Chroma removal clears transparent RGB, then
+  proportional LANCZOS reduction, hard alpha and a 128-colour ceiling produce
+  the dedicated UI outputs.
+- `ui/champion_fullbody/dual_blader.png`: 85x93 full-body UI actor, placed 1:1
+  in the card route rather than enlarged from the battle atlas.
+- `ui/champion_portrait/dual_blader_compact.png`: 64x64 compact portrait.
+- `ui/champion_portrait/dual_blader_scoreboard.png`: 48x64 scoreboard portrait.
+- `ui/champion_portrait/dual_blader_grid.png`: 90x122 BP-grid portrait.
+- `qa/yone_v6_ui_card.png`: 141x138 card-route proof using the 85x93 full-body
+  actor at 1:1; this is QA evidence, not a substitute for an in-game screenshot.
+- `source/imagegen/yone_v6_motion_contact.png`: same-model native motion poses.
+  Hash-locked cells 0-3 are the sole native idle inputs; no 43x55 candidate
+  process image is an active or published source.
+- `source/imagegen/yone_v6_attack_q_w_contact.png`: same-model attack/Q poses.
+- `source/imagegen/yone_v6_w_contact.png`: W-only 3x2 same-model horizontal
+  cleave poses; W body motion stays separate from attack/Q source cells.
+- `source/imagegen/yone_v6_ult_contact.png`: same-model R poses.
+
+Q/W/R gameplay, VFX, icons and audio are outside this visual rebuild and remain
+unchanged. Source generation, packing and automated checks do not establish
+live acceptance. V6 remains pending user verification in BP, compact UI and an
+actual battle.
