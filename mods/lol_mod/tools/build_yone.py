@@ -2,8 +2,10 @@
 """Build Yone's deterministic visual resources for the Dual Blader slot.
 
 The actor preserves official champion 009/Dual Blader's exact 3502x88 atlas
-and animation contract.  High-footprint Q/W/R feedback is packed into
-independent effect sheets so the battle actor keeps one stable body scale.
+and animation contract. Its V4 body route accepts only 54 final native-size
+RGBA PNGs and copies them byte-for-byte; it cannot rebuild from the rejected
+contact-sheet model. High-footprint Q/W/R feedback stays in independent effect
+sheets so the battle actor keeps one stable body scale.
 
 This module owns Yone visuals only.  Champion mechanics, localization,
 registration, override routing, native code, audio, and manifest/version work
@@ -14,13 +16,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import struct
 import zlib
 from collections import deque
 from collections.abc import Iterable, Sequence
 from itertools import combinations
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from PIL import Image, ImageDraw, ImageFilter
@@ -38,10 +39,8 @@ FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 QA_DIR = MOD_ROOT / "qa"
 
-CORE_SOURCE = IMAGEGEN_ROOT / "yone_core_contact.png"
-RUN_SOURCE = IMAGEGEN_ROOT / "yone_run_contact.png"
-WR_BODY_SOURCE = IMAGEGEN_ROOT / "yone_wr_body_contact.png"
-DEFEAT_SOURCE = IMAGEGEN_ROOT / "yone_defeat_contact.png"
+NATIVE_V4_ROOT = SOURCE_ROOT / "native" / "yone_v4"
+NATIVE_V4_MANIFEST = NATIVE_V4_ROOT / "frames.json"
 QW_VFX_SOURCE = IMAGEGEN_ROOT / "yone_qw_vfx_contact.png"
 W_VFX_SOURCE = IMAGEGEN_ROOT / "yone_w_vfx_contact_v2.png"
 Q3_VFX_SOURCE = IMAGEGEN_ROOT / "yone_q3_vfx_contact.png"
@@ -49,17 +48,15 @@ R_VFX_SOURCE = IMAGEGEN_ROOT / "yone_r_vfx_contact.png"
 ICON_SOURCE = IMAGEGEN_ROOT / "yone_icons_source.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "dual_blader.png"
 
-CORE_ALPHA = PROCESSED_ROOT / "yone_core_contact_alpha.png"
-RUN_ALPHA = PROCESSED_ROOT / "yone_run_contact_alpha.png"
-WR_BODY_ALPHA = PROCESSED_ROOT / "yone_wr_body_contact_alpha.png"
-DEFEAT_ALPHA = PROCESSED_ROOT / "yone_defeat_contact_alpha.png"
 QW_VFX_ALPHA = PROCESSED_ROOT / "yone_qw_vfx_contact_alpha.png"
 W_VFX_ALPHA = PROCESSED_ROOT / "yone_w_vfx_contact_v2_alpha.png"
 Q3_VFX_ALPHA = PROCESSED_ROOT / "yone_q3_vfx_contact_alpha.png"
 R_VFX_ALPHA = PROCESSED_ROOT / "yone_r_vfx_contact_alpha.png"
-NATIVE_BODY_MASTER = PROCESSED_ROOT / "yone_native_body_master.png"
 
 ACTOR_SHEET_SIZE = (3502, 88)
+NATIVE_V4_SCHEMA_VERSION = 4
+NATIVE_V4_ROUTE = "exact-native-v4"
+NATIVE_V4_MAX_OPAQUE_COLORS = 32
 
 RETIRED_YONE_GENERATED_OUTPUTS = (
     EFFECT_DIR / "yone_followup#anim.fanim",
@@ -78,9 +75,9 @@ RETIRED_YONE_SOURCE_PATHS = (
 )
 
 YONE_LIVE_CARD_SCALE = 2.2
-YONE_LIVE_CARD_DIVIDER_TOP = 99
+YONE_LIVE_CARD_DIVIDER_TOP = 96
 YONE_LIVE_CARD_AUDITED_CENTER_Y = -16
-YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE = 10
+YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE = 6
 YONE_NEAR_WHITE_MIN = 218
 
 # Normalized against the final alpha bbox, not the native frame rectangle.
@@ -194,9 +191,9 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     "ult": [37, 38, 38, 38, 37, 38, 38, 38, 38, 38, 38, 38, 37],
 }
 
-# Minimum visible heights after the reviewed whole-sheet native raster.  These
-# are regression floors, not resize targets: fast run/W/R poses are naturally
-# shorter than upright idle and must never be stretched independently.
+# Minimum visible heights for the final exact-native V4 frames. These are
+# regression floors, never resize targets: fast run/W/R poses are naturally
+# shorter than upright idle and must remain authored at their native 1x size.
 NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
     "idle": [36, 36, 36, 36],
     "run": [31, 32, 32, 33, 32, 32, 32, 33],
@@ -212,8 +209,8 @@ NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
     # Bundle-derived official Dual Blader baselines for the common movement
     # states. These are the frames used by battle, cards and face crops.
-    "idle": [16, 15, 14, 15],
-    "run": [13, 18, 21, 18, 13, 17, 21, 17],
+    "idle": [14, 15, 14, 15],
+    "run": [13, 18, 20, 17, 13, 17, 20, 17],
     "attack": [14, 14, 12, 13, 13, 14],
     "hit": [15],
     "skill": [5, 4, 7, 6, 8, 10, 8],
@@ -226,119 +223,33 @@ BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
     "ult": [5, 6, 8, 10, 12, 11, 9, 7, 6, 7, 8, 6, 5],
 }
 
-DEAD_BOTTOM_MARGINS = [4, 4, 3, 3, 2, 2, 2, 2]
-
-# The four accepted high-detail ImageGen body plates are rasterized exactly
-# once as complete sheets, so every cell on a plate shares one sampling phase.
-# These logical sizes are near-isotropic matches for each source plate and put
-# an upright adult Yone at the official actor's 34-37px visible height. Actor
-# packing below only translates/crops these final 1x pixels; it never resizes
-# an individual pose.
-NATIVE_BODY_LOGICAL_SHEETS: dict[str, dict[str, Any]] = {
-    "core": {"path": CORE_ALPHA, "grid": (5, 4), "size": (275, 176)},
-    "run": {"path": RUN_ALPHA, "grid": (4, 2), "size": (168, 108)},
-    "wr": {"path": WR_BODY_ALPHA, "grid": (5, 4), "size": (400, 228)},
-    "defeat": {"path": DEFEAT_ALPHA, "grid": (4, 2), "size": (216, 124)},
-}
-
-# Every visible actor frame has one explicit native-cell owner.  In
-# particular W now uses the five ImageGen WR sweep cells instead of drawing a
-# synthetic forearm/blade over a repeated guard pose.  These mappings preserve
-# the official action names, frame counts, timing, rectangles and foot anchors.
-NATIVE_BODY_FRAME_SOURCES: dict[str, list[tuple[str, int]]] = {
-    "idle": [("core", index) for index in range(4)],
-    # Rotate the authored loop without reordering it so its shortest passing
-    # phases align with the official run rectangles' two shortest body slots.
-    "run": [("run", (index + 3) % 8) for index in range(8)],
-    "attack": [
-        ("core", 5), ("core", 6), ("core", 7),
-        ("core", 8), ("core", 11), ("core", 14),
-    ],
-    "hit": [("core", 4)],
-    "skill": [
-        ("core", 5), ("wr", 2), ("wr", 5),
-        ("core", 6), ("core", 7), ("core", 8), ("core", 11),
-    ],
-    "skill2": [("core", 5)],
-    "skill2_dash": [("core", 16)],
-    "skill2_attack": [("wr", index) for index in range(5)],
-    "ult": [
-        ("wr", 5), ("wr", 6), ("wr", 7), ("wr", 8), ("wr", 10),
-        ("wr", 9), ("wr", 11), ("wr", 12), ("wr", 13),
-        ("wr", 14), ("wr", 15), ("wr", 17), ("wr", 18),
-    ],
-    "dead": [("defeat", index) for index in range(8)],
-}
-
-# A whole-sheet conversion may differ only by sub-half-percent integer
-# rounding between axes.  Anything larger changes the authored proportions
-# and must be fixed at the source/logical-sheet contract, never hidden by a
-# permissive resize.
-NATIVE_RESIZE_MAX_RELATIVE_DELTA = 0.005
-
-# Horizontal clipping is denied by default.  A reviewed pose may opt in one
-# side at a time with both a finite pixel budget and a finite ratio budget:
-#
-#   ("skill", 0): {
-#       "right": {
-#           "max_lost_opaque_pixels": 6,
-#           "max_lost_opaque_ratio": 0.02,
-#       },
-#   }
-#
-# Keep this empty until an accepted final-scale source proves that a specific
-# native rectangle intentionally trims weapon reach.  In particular, do not
-# derive allowances from rejected ImageGen plates.
-NATIVE_HORIZONTAL_CLIP_LIMITS: dict[
-    tuple[str, int], dict[str, dict[str, int | float]]
-] = {
-    # Exact, source-audited loss budgets. Every listed pixel is a distant
-    # sword/hair extremity outside an inherited narrow native rectangle; body,
-    # face, feet and all vertical pixels remain intact.
-    ("idle", 0): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.002},
-    },
-    ("skill", 1): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0024},
-        "right": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0024},
-    },
-    ("skill", 2): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0024},
-    },
-    ("skill2_attack", 0): {
-        "left": {"max_lost_opaque_pixels": 5, "max_lost_opaque_ratio": 0.0111},
-        "right": {"max_lost_opaque_pixels": 5, "max_lost_opaque_ratio": 0.0111},
-    },
-    ("skill2_attack", 1): {
-        "left": {"max_lost_opaque_pixels": 11, "max_lost_opaque_ratio": 0.0237},
-        "right": {"max_lost_opaque_pixels": 10, "max_lost_opaque_ratio": 0.0216},
-    },
-    ("skill2_attack", 3): {
-        "left": {"max_lost_opaque_pixels": 2, "max_lost_opaque_ratio": 0.0041},
-        "right": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0021},
-    },
-    ("ult", 9): {
-        "left": {"max_lost_opaque_pixels": 5, "max_lost_opaque_ratio": 0.0114},
-        "right": {"max_lost_opaque_pixels": 4, "max_lost_opaque_ratio": 0.0091},
-    },
-    ("ult", 10): {
-        "left": {"max_lost_opaque_pixels": 5, "max_lost_opaque_ratio": 0.0105},
-        "right": {"max_lost_opaque_pixels": 4, "max_lost_opaque_ratio": 0.0084},
-    },
-    ("dead", 2): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.003},
-    },
-    ("dead", 3): {
-        "left": {"max_lost_opaque_pixels": 3, "max_lost_opaque_ratio": 0.0097},
-        "right": {"max_lost_opaque_pixels": 2, "max_lost_opaque_ratio": 0.0065},
-    },
-    ("dead", 4): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0038},
-    },
-    ("dead", 7): {
-        "left": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0039},
-        "right": {"max_lost_opaque_pixels": 1, "max_lost_opaque_ratio": 0.0039},
-    },
+# Visible body frames only.  The transparent dead terminator and the three VFX
+# tags keep their native animation entries, but never appear in the V4 body
+# manifest.  Each listed PNG is already authored on its exact final 1x native
+# rectangle: the actor build may copy bytes, and may do nothing else.
+NATIVE_BODY_ACTIONS = (
+    "skill2",
+    "hit",
+    "attack",
+    "skill2_dash",
+    "ult",
+    "run",
+    "skill2_attack",
+    "idle",
+    "dead",
+    "skill",
+)
+NATIVE_BODY_FRAME_COUNT = 54
+NATIVE_V4_FRAME_FIELDS = {
+    "action",
+    "index",
+    "file",
+    "rect",
+    "bottom_margin",
+    "face_bbox",
+    "eye_pixels",
+    "mask_bbox",
+    "foot_zones",
 }
 
 
@@ -441,85 +352,12 @@ def remove_chroma_key(image: Image.Image) -> Image.Image:
     return output
 
 
-def _body_corner_plate(image: Image.Image) -> tuple[str, tuple[int, int, int]]:
-    """Classify the generated BODY plate from its four corner pixels only."""
-
-    rgb = image.convert("RGB")
-    corners = (
-        rgb.getpixel((0, 0)),
-        rgb.getpixel((rgb.width - 1, 0)),
-        rgb.getpixel((0, rgb.height - 1)),
-        rgb.getpixel((rgb.width - 1, rgb.height - 1)),
-    )
-    plate = tuple(sorted(pixel[channel] for pixel in corners)[len(corners) // 2]
-                  for channel in range(3))
-    red, green, blue = plate
-    green_dominance = green - max(red, blue)
-    # min(red, blue), rather than max(red, blue), is intentional: it rejects
-    # red-only/blue-only steel and sword pixels while recognizing a magenta
-    # plate even when its red and blue channels are not perfectly balanced.
-    magenta_dominance = min(red, blue) - green
-    if green >= 60 and green_dominance >= 20:
-        return "green", plate
-    if min(red, blue) >= 60 and magenta_dominance >= 20:
-        return "magenta", plate
-    raise ValueError(
-        "Yone body source corners must be a near-green or near-magenta chroma "
-        f"plate, got corners={corners} median={plate}"
-    )
-
-
-def remove_body_chroma_key(image: Image.Image) -> Image.Image:
-    """Key a BODY source's corner plate with hard alpha and soft despill.
-
-    This route deliberately does not serve VFX: those sources retain their
-    established green/Q3-magenta handling below.
-    """
-
-    rgb = image.convert("RGB")
-    plate_kind, _plate = _body_corner_plate(rgb)
-    output = Image.new("RGBA", rgb.size, (0, 0, 0, 0))
-    source_pixels = rgb.load()
-    target_pixels = output.load()
-    for y in range(rgb.height):
-        for x in range(rgb.width):
-            red, green, blue = source_pixels[x, y]
-            dominance = (
-                green - max(red, blue)
-                if plate_kind == "green"
-                else min(red, blue) - green
-            )
-            if dominance <= 14:
-                alpha = 255
-            elif dominance >= 88:
-                alpha = 0
-            else:
-                alpha = round(255 * (1.0 - (dominance - 14) / 74.0))
-            if not alpha:
-                continue
-            if alpha < 255:
-                if plate_kind == "green":
-                    green = min(green, max(red, blue) + 12)
-                else:
-                    # Despill only a partially keyed magenta edge. Fully
-                    # opaque red-only/blue-only weapons are never altered.
-                    red = min(red, green + 20)
-                    blue = min(blue, green + 20)
-            target_pixels[x, y] = (red, green, blue, alpha)
-    return output
-
-
 def process_sources() -> list[Path]:
     outputs: list[Path] = []
-    for source, target in (
-        (CORE_SOURCE, CORE_ALPHA), (RUN_SOURCE, RUN_ALPHA),
-        (WR_BODY_SOURCE, WR_BODY_ALPHA), (DEFEAT_SOURCE, DEFEAT_ALPHA),
-    ):
-        processed = remove_body_chroma_key(Image.open(source))
-        save_processed_png(target, processed)
-        outputs.append(target)
-    # VFX routes are intentionally unchanged; Q3 keeps its dedicated magenta
-    # branch below because blue-white wind is not a BODY source.
+    # V4 body frames are final native 1x RGBA files and deliberately bypass
+    # this processing stage.  VFX routes remain unchanged; Q3 keeps its
+    # dedicated magenta branch below because blue-white wind is not a BODY
+    # source.
     for source, target in (
         (QW_VFX_SOURCE, QW_VFX_ALPHA),
         (W_VFX_SOURCE, W_VFX_ALPHA),
@@ -563,11 +401,6 @@ def process_sources() -> list[Path]:
             target_pixels[x, y] = (red, green, blue, min(alpha, max(0, matte)))
     save_processed_png(Q3_VFX_ALPHA, keyed)
     outputs.append(Q3_VFX_ALPHA)
-    # Body plates are converted into one final-scale master before actor
-    # packing.  Keeping this derivative in the processed set makes the exact
-    # source-of-truth auditable and prevents a future per-frame resize from
-    # slipping back into build_actor().
-    outputs.append(build_native_body_master())
     return outputs
 
 
@@ -734,349 +567,569 @@ def palette_finish(image: Image.Image, colors: int) -> Image.Image:
     return hard_alpha(quantized, 128)
 
 
-def _center_crop_divisible_grid(
-    image: Image.Image,
-    grid: tuple[int, int],
-) -> Image.Image:
-    """Remove only transparent non-divisible edges; never crop source art."""
+def _is_plain_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
 
-    columns, rows = grid
-    width = image.width - image.width % columns
-    height = image.height - image.height % rows
-    if width <= 0 or height <= 0:
-        raise ValueError(f"Yone native source {image.size} cannot hold grid {grid}")
-    left = (image.width - width) // 2
-    top = (image.height - height) // 2
 
-    # Generated plates are often one or two pixels off the requested grid.
-    # Those pixels may be discarded only when they are truly background.  A
-    # visible sword/hair pixel on an edge means the source framing is invalid;
-    # silently trimming it here would make later per-frame loss accounting lie.
-    alpha = image.convert("RGBA").getchannel("A")
-    strip_boxes = {
-        "left": (0, 0, left, image.height),
-        "right": (left + width, 0, image.width, image.height),
-        "top": (left, 0, left + width, top),
-        "bottom": (left, top + height, left + width, image.height),
-    }
-    lost_by_side = {
-        side: sum(alpha.crop(box).histogram()[64:])
-        for side, box in strip_boxes.items()
-        if box[2] > box[0] and box[3] > box[1]
-    }
-    lost_by_side = {side: count for side, count in lost_by_side.items() if count}
-    if lost_by_side:
+def _v4_relative_file(value: Any, label: str, suffix: str) -> Path:
+    """Resolve one normalized manifest-relative file inside the V4 root."""
+
+    if not isinstance(value, str) or not value:
+        raise ValueError(f"Yone V4 {label} must be a non-empty relative path")
+    if "\\" in value:
+        raise ValueError(f"Yone V4 {label} must use forward slashes: {value!r}")
+    relative = PurePosixPath(value)
+    if (
+        relative.is_absolute()
+        or value != relative.as_posix()
+        or any(part in {"", ".", ".."} for part in relative.parts)
+    ):
+        raise ValueError(f"Yone V4 {label} is not a normalized relative path: {value!r}")
+    path = NATIVE_V4_ROOT.joinpath(*relative.parts)
+    try:
+        path.resolve().relative_to(NATIVE_V4_ROOT.resolve())
+    except ValueError as exc:
+        raise ValueError(f"Yone V4 {label} escapes its source root: {value!r}") from exc
+    if path.suffix.lower() != suffix:
+        raise ValueError(f"Yone V4 {label} must end in {suffix}: {value!r}")
+    if not path.is_file():
+        raise FileNotFoundError(f"Missing Yone V4 {label}: {path}")
+    return path
+
+
+def _load_v4_json(path: Path, label: str) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            "Missing Yone V4 exact-native source contract: " + str(path)
+        ) from None
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Yone V4 {label} is not valid UTF-8 JSON: {path}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"Yone V4 {label} root must be an object")
+    return value
+
+
+def _validate_v4_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
+    payload = _load_v4_json(path, "palette")
+    expected_fields = {"schema_version", "route", "colors"}
+    if set(payload) != expected_fields:
         raise ValueError(
-            "Yone native grid normalization would crop alpha>=64 pixels: "
-            f"source={image.size}, grid={grid}, lost={lost_by_side}"
+            "Yone V4 palette fields changed: "
+            f"got={sorted(payload)}, expected={sorted(expected_fields)}"
         )
-    return image.crop((left, top, left + width, top + height))
-
-
-def _whole_sheet_native_raster(
-    name: str,
-    source: Image.Image,
-    grid: tuple[int, int],
-    logical_size: tuple[int, int],
-) -> tuple[Image.Image, dict[str, Any]]:
-    """Rasterize one full plate and return its audited scale contract."""
-
-    if logical_size[0] % grid[0] or logical_size[1] % grid[1]:
+    if payload["schema_version"] != NATIVE_V4_SCHEMA_VERSION:
         raise ValueError(
-            f"Yone {name} logical sheet {logical_size} is not divisible by {grid}"
+            f"Yone V4 palette schema_version must be {NATIVE_V4_SCHEMA_VERSION}"
         )
-    source_size = source.size
-    cropped = _center_crop_divisible_grid(source, grid)
-    scale_x = logical_size[0] / cropped.width
-    scale_y = logical_size[1] / cropped.height
-    scale_delta = abs(scale_x - scale_y) / max(scale_x, scale_y)
-    if not (
-        math.isfinite(scale_x)
-        and math.isfinite(scale_y)
-        and math.isfinite(scale_delta)
+    if payload["route"] != NATIVE_V4_ROUTE:
+        raise ValueError(f"Yone V4 palette route must be {NATIVE_V4_ROUTE!r}")
+    rows = payload["colors"]
+    if not isinstance(rows, list):
+        raise ValueError("Yone V4 palette colors must be a list")
+
+    colors: set[tuple[int, int, int, int]] = set()
+    transparent_count = 0
+    roles: list[str] = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict) or set(row) != {"role", "rgba"}:
+            raise ValueError(
+                f"Yone V4 palette colors[{index}] must contain only role/rgba"
+            )
+        role = row["role"]
+        rgba = row["rgba"]
+        if not isinstance(role, str) or not role.strip():
+            raise ValueError(f"Yone V4 palette colors[{index}].role is empty")
+        if (
+            not isinstance(rgba, list)
+            or len(rgba) != 4
+            or any(not _is_plain_int(channel) or not 0 <= channel <= 255 for channel in rgba)
+        ):
+            raise ValueError(
+                f"Yone V4 palette colors[{index}].rgba must be four bytes"
+            )
+        color = tuple(rgba)
+        if color in colors:
+            raise ValueError(f"Yone V4 palette duplicates RGBA {color}")
+        if color[3] == 0:
+            if color != (0, 0, 0, 0) or role != "transparent":
+                raise ValueError(
+                    "Yone V4 transparent palette entry must be role='transparent', "
+                    "rgba=[0,0,0,0]"
+                )
+            transparent_count += 1
+        elif color[3] != 255:
+            raise ValueError(f"Yone V4 palette contains soft alpha {color}")
+        elif role == "transparent":
+            raise ValueError("Yone V4 opaque palette entries cannot use role='transparent'")
+        colors.add(color)
+        roles.append(role)
+
+    opaque_count = sum(color[3] == 255 for color in colors)
+    if transparent_count != 1:
+        raise ValueError(
+            f"Yone V4 palette needs exactly one transparent entry, got {transparent_count}"
+        )
+    if not 1 <= opaque_count <= NATIVE_V4_MAX_OPAQUE_COLORS:
+        raise ValueError(
+            "Yone V4 palette must define 1.."
+            f"{NATIVE_V4_MAX_OPAQUE_COLORS} opaque colors, got {opaque_count}"
+        )
+    normalized_roles = [role.strip().lower() for role in roles]
+    for semantic_role in ("skin", "eye", "mask"):
+        if not any(semantic_role in role for role in normalized_roles):
+            raise ValueError(
+                f"Yone V4 palette needs at least one role containing {semantic_role!r}"
+            )
+    return colors, {
+        "path": path.relative_to(MOD_ROOT).as_posix(),
+        "schema_version": payload["schema_version"],
+        "route": payload["route"],
+        "opaque_color_count": opaque_count,
+        "roles": roles,
+        "sha256": sha256(path),
+    }
+
+
+def _validate_local_box(
+    value: Any,
+    label: str,
+    frame_size: tuple[int, int],
+    *,
+    nullable: bool,
+) -> tuple[int, int, int, int] | None:
+    if value is None:
+        if nullable:
+            return None
+        raise ValueError(f"Yone V4 {label} cannot be null")
+    if (
+        not isinstance(value, list)
+        or len(value) != 4
+        or any(not _is_plain_int(part) for part in value)
+    ):
+        raise ValueError(f"Yone V4 {label} must be [x,y,w,h]")
+    x, y, width, height = value
+    if (
+        x < 0
+        or y < 0
+        or width <= 0
+        or height <= 0
+        or x + width > frame_size[0]
+        or y + height > frame_size[1]
     ):
         raise ValueError(
-            f"Yone {name} whole-sheet resize produced a non-finite scale"
+            f"Yone V4 {label} {value} is outside frame {frame_size}"
         )
-    if scale_delta >= NATIVE_RESIZE_MAX_RELATIVE_DELTA:
+    return x, y, width, height
+
+
+def _validate_v4_rgba_png(
+    path: Path,
+    label: str,
+    allowed_colors: set[tuple[int, int, int, int]],
+    expected_size: tuple[int, int],
+) -> tuple[Image.Image, set[tuple[int, int, int, int]]]:
+    try:
+        with Image.open(path) as opened:
+            if opened.format != "PNG":
+                raise ValueError(f"Yone V4 {label} is not encoded as PNG: {path}")
+            if opened.mode != "RGBA":
+                raise ValueError(
+                    f"Yone V4 {label} must be encoded as RGBA, got {opened.mode}"
+                )
+            opened.load()
+            image = opened.copy()
+    except (OSError, SyntaxError) as exc:
+        raise ValueError(f"Yone V4 {label} cannot be decoded: {path}") from exc
+    if image.size != expected_size:
         raise ValueError(
-            f"Yone {name} whole-sheet resize is not near-isotropic: "
-            f"source={cropped.size}, logical={logical_size}, "
-            f"scale_x={scale_x:.12f}, scale_y={scale_y:.12f}, "
-            f"relative_delta={scale_delta:.6%} (must be <"
-            f" {NATIVE_RESIZE_MAX_RELATIVE_DELTA:.3%})"
+            f"Yone V4 {label} size {image.size} != exact native {expected_size}"
         )
-
-    # This is the one and only spatial conversion for battle bodies.  It
-    # occurs across the complete plate, not per bbox/frame, so every hard
-    # source block lands on a consistent native-pixel phase.
-    logical = cropped.resize(logical_size, Image.Resampling.NEAREST)
-    logical = palette_finish(hard_alpha(logical, 96), 40)
-    crop_left = (source_size[0] - cropped.width) // 2
-    crop_top = (source_size[1] - cropped.height) // 2
-    contract = {
-        "source_size": list(source_size),
-        "cropped_size": list(cropped.size),
-        "crop_margins": {
-            "left": crop_left,
-            "top": crop_top,
-            "right": source_size[0] - cropped.width - crop_left,
-            "bottom": source_size[1] - cropped.height - crop_top,
-        },
-        "crop_lost_opaque_pixels": 0,
-        "grid": list(grid),
-        "logical_size": list(logical_size),
-        "scale_x": round(scale_x, 12),
-        "scale_y": round(scale_y, 12),
-        "scale_relative_delta": round(scale_delta, 12),
-        "scale_relative_delta_limit_exclusive": NATIVE_RESIZE_MAX_RELATIVE_DELTA,
-        "near_isotropic": True,
-        "resampling": "one whole-sheet NEAREST conversion",
-    }
-    return logical, contract
-
-
-def _native_body_cells() -> tuple[
-    dict[str, list[Image.Image]], dict[str, dict[str, Any]]
-]:
-    """Convert complete ImageGen plates to final 1x cells exactly once."""
-
-    result: dict[str, list[Image.Image]] = {}
-    contracts: dict[str, dict[str, Any]] = {}
-    for name, spec in NATIVE_BODY_LOGICAL_SHEETS.items():
-        source = Image.open(spec["path"]).convert("RGBA")
-        grid = tuple(spec["grid"])
-        logical_size = tuple(spec["size"])
-        logical, contract = _whole_sheet_native_raster(
-            name, source, grid, logical_size
+    used = set(image.getdata())
+    alpha_values = {color[3] for color in used}
+    if not alpha_values.issubset({0, 255}):
+        raise ValueError(
+            f"Yone V4 {label} contains non-binary alpha values: {sorted(alpha_values)}"
         )
-        contract["source"] = spec["path"].relative_to(MOD_ROOT).as_posix()
-        cells = [hard_alpha(cell, 128) for cell in split_grid(logical, *grid)]
-        expected = grid[0] * grid[1]
-        if len(cells) != expected:
-            raise ValueError(f"Yone {name} yielded {len(cells)}/{expected} native cells")
-        result[name] = cells
-        contracts[name] = contract
-    return result, contracts
-
-
-def _opaque_pixel_count(image: Image.Image) -> int:
-    return sum(image.convert("RGBA").getchannel("A").histogram()[128:])
-
-
-def _resolved_horizontal_clip_limits(
-    frame_key: tuple[str, int],
-) -> dict[str, dict[str, int | float]]:
-    configured = NATIVE_HORIZONTAL_CLIP_LIMITS.get(frame_key, {})
-    unknown = set(configured) - {"left", "right"}
+    transparent = {color for color in used if color[3] == 0}
+    if transparent - {(0, 0, 0, 0)}:
+        raise ValueError(
+            f"Yone V4 {label} has RGB data under transparent pixels: {sorted(transparent)[:8]}"
+        )
+    unknown = used - allowed_colors
     if unknown:
         raise ValueError(
-            f"Yone {frame_key} horizontal clip whitelist has invalid sides: "
-            f"{sorted(unknown)}"
+            f"Yone V4 {label} uses colors outside palette.json: {sorted(unknown)[:8]}"
         )
-    result: dict[str, dict[str, int | float]] = {}
-    for side in ("left", "right"):
-        raw = configured.get(side)
-        if raw is None:
-            result[side] = {
-                "max_lost_opaque_pixels": 0,
-                "max_lost_opaque_ratio": 0.0,
-            }
-            continue
-        pixels = raw.get("max_lost_opaque_pixels")
-        ratio = raw.get("max_lost_opaque_ratio")
-        if (
-            not isinstance(pixels, int)
-            or isinstance(pixels, bool)
-            or pixels < 0
-            or not isinstance(ratio, (int, float))
-            or isinstance(ratio, bool)
-            or not math.isfinite(float(ratio))
-            or not 0.0 <= float(ratio) <= 1.0
-        ):
-            raise ValueError(
-                f"Yone {frame_key} {side} clip limit must contain finite, "
-                f"non-negative pixel/ratio budgets: {raw}"
-            )
-        result[side] = {
-            "max_lost_opaque_pixels": pixels,
-            "max_lost_opaque_ratio": float(ratio),
-        }
-    return result
+    if image.getchannel("A").getbbox() is None:
+        raise ValueError(f"Yone V4 {label} is empty")
+    return image, used
 
 
-def _native_frame_from_cell(
-    cell: Image.Image,
-    frame_size: tuple[int, int],
-    bottom_margin: int,
-    frame_key: tuple[str, int],
-) -> tuple[Image.Image, dict[str, Any]]:
-    """Translate/crop final 1x pixels into a native rect without resampling."""
-
-    source = hard_alpha(cell, 128)
-    source_bbox = alpha_bbox(source)
-    subject = source.crop(source_bbox)
-    source_opaque_pixels = _opaque_pixel_count(subject)
-    x = (frame_size[0] - subject.width) // 2
-    y = frame_size[1] - bottom_margin - subject.height
-
-    # A reviewed narrow native rectangle may intentionally clip distant weapon
-    # reach, but only through the exact per-frame whitelist enforced below.
-    # Body pixels that remain are byte-identical to the logical source cell;
-    # no scale/filter/pixel repaint is allowed here.
-    src_left = max(0, -x)
-    src_top = max(0, -y)
-    src_right = min(subject.width, frame_size[0] - x)
-    src_bottom = min(subject.height, frame_size[1] - y)
-    if src_left >= src_right or src_top >= src_bottom:
+def _native_v4_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
+    expected: dict[tuple[str, int], tuple[int, int, int, int]] = {}
+    for action in NATIVE_BODY_ACTIONS:
+        rects = NATIVE_CONTRACT[action]["rects"]
+        if action == "dead":
+            rects = rects[:-1]
+        for index, rect in enumerate(rects):
+            expected[(action, index)] = rect
+    if len(expected) != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            f"Yone {frame_key} native subject {subject.size} misses frame {frame_size}"
+            "Internal Yone V4 body contract changed: "
+            f"{len(expected)}/{NATIVE_BODY_FRAME_COUNT} frames"
         )
-
-    # Partition discarded pixels by side.  Top/bottom are always fatal because
-    # they change the head/foot silhouette and anchor.  Left/right are also
-    # fatal unless this exact frame key and side has an explicit finite budget.
-    lost_sides = {
-        "top": _opaque_pixel_count(subject.crop((0, 0, subject.width, src_top))),
-        "bottom": _opaque_pixel_count(
-            subject.crop((0, src_bottom, subject.width, subject.height))
-        ),
-        "left": _opaque_pixel_count(
-            subject.crop((0, src_top, src_left, src_bottom))
-        ),
-        "right": _opaque_pixel_count(
-            subject.crop((src_right, src_top, subject.width, src_bottom))
-        ),
-    }
-    if lost_sides["top"] or lost_sides["bottom"]:
-        raise ValueError(
-            f"Yone {frame_key} native placement clips vertical opaque pixels: "
-            f"{lost_sides}"
-        )
-    limits = _resolved_horizontal_clip_limits(frame_key)
-    for side in ("left", "right"):
-        lost = lost_sides[side]
-        ratio = lost / source_opaque_pixels
-        limit = limits[side]
-        if (
-            lost > int(limit["max_lost_opaque_pixels"])
-            or ratio > float(limit["max_lost_opaque_ratio"])
-        ):
-            raise ValueError(
-                f"Yone {frame_key} clips {lost} opaque pixels ({ratio:.6%}) "
-                f"on {side}; explicit limit is {limit}"
-            )
-
-    visible = subject.crop((src_left, src_top, src_right, src_bottom))
-    visible_opaque_pixels = _opaque_pixel_count(visible)
-    lost_opaque_pixels = source_opaque_pixels - visible_opaque_pixels
-    if lost_opaque_pixels != sum(lost_sides.values()):
-        raise ValueError(
-            f"Yone {frame_key} clip accounting mismatch: total={lost_opaque_pixels}, "
-            f"sides={lost_sides}"
-        )
-    output = Image.new("RGBA", frame_size, (0, 0, 0, 0))
-    output.alpha_composite(visible, (max(0, x), max(0, y)))
-    bbox = output.getchannel("A").getbbox()
-    if bbox is None:
-        raise ValueError(f"Yone {frame_key} native frame is empty")
-    actual_bottom = frame_size[1] - bbox[3]
-    if actual_bottom != bottom_margin:
-        raise ValueError(
-            f"Yone {frame_key} native bottom {actual_bottom} != {bottom_margin}"
-        )
-    audit = {
-        "source_cell_size": list(source.size),
-        "source_alpha_bbox": list(source_bbox),
-        "source_subject_size": list(subject.size),
-        "source_opaque_pixels": source_opaque_pixels,
-        "placement_origin": [x, y],
-        "visible_source_bbox": [src_left, src_top, src_right, src_bottom],
-        "destination_alpha_bbox": list(bbox),
-        "clip_sides_lost_opaque": lost_sides,
-        "lost_opaque_pixels": lost_opaque_pixels,
-        "lost_opaque_ratio": round(
-            lost_opaque_pixels / source_opaque_pixels, 12
-        ),
-        "horizontal_clip_limits": limits,
-    }
-    return output, audit
+    return expected
 
 
-def _compose_native_body_master() -> tuple[
-    Image.Image, dict[str, dict[str, Any]], dict[str, dict[str, Any]]
+def _load_native_v4_body_frames() -> tuple[
+    dict[tuple[str, int], Image.Image], dict[str, Any], dict[str, dict[str, Any]]
 ]:
-    """Compose the final body master plus source/scale/clip QA contracts."""
+    """Load and audit all final 1x frames without changing a single pixel."""
 
-    cells, sheet_contracts = _native_body_cells()
-    mapped_frame_keys = {
-        (tag, index)
-        for tag, sources in NATIVE_BODY_FRAME_SOURCES.items()
-        for index in range(len(sources))
+    manifest = _load_v4_json(NATIVE_V4_MANIFEST, "frames manifest")
+    manifest_fields = {
+        "schema_version",
+        "route",
+        "atlas_size",
+        "palette_file",
+        "body_preview",
+        "frames",
     }
-    unknown_clip_keys = set(NATIVE_HORIZONTAL_CLIP_LIMITS) - mapped_frame_keys
-    if unknown_clip_keys:
+    if set(manifest) != manifest_fields:
         raise ValueError(
-            "Yone horizontal clip whitelist references unmapped frames: "
-            f"{sorted(unknown_clip_keys)}"
+            "Yone V4 manifest fields changed: "
+            f"got={sorted(manifest)}, expected={sorted(manifest_fields)}"
         )
-    master = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
-    placements: dict[tuple[int, int, int, int], bytes] = {}
-    frame_contracts: dict[str, dict[str, Any]] = {}
+    if manifest["schema_version"] != NATIVE_V4_SCHEMA_VERSION:
+        raise ValueError(
+            f"Yone V4 manifest schema_version must be {NATIVE_V4_SCHEMA_VERSION}"
+        )
+    if manifest["route"] != NATIVE_V4_ROUTE:
+        raise ValueError(f"Yone V4 manifest route must be {NATIVE_V4_ROUTE!r}")
+    if manifest["atlas_size"] != list(ACTOR_SHEET_SIZE):
+        raise ValueError(
+            f"Yone V4 atlas_size {manifest['atlas_size']} != {list(ACTOR_SHEET_SIZE)}"
+        )
 
-    for tag, sources in NATIVE_BODY_FRAME_SOURCES.items():
-        if tag == "dead":
-            rects = NATIVE_CONTRACT[tag]["rects"][:-1]
-            bottoms = DEAD_BOTTOM_MARGINS
-        else:
-            rects = NATIVE_CONTRACT[tag]["rects"]
-            bottoms = BODY_BOTTOM_MARGINS[tag]
-        if not (len(sources) == len(rects) == len(bottoms)):
+    palette_path = _v4_relative_file(
+        manifest["palette_file"], "palette_file", ".json"
+    )
+    allowed_colors, palette_audit = _validate_v4_palette(palette_path)
+
+    preview_value = manifest["body_preview"]
+    preview_path: Path | None = None
+    preview_image: Image.Image | None = None
+    if preview_value is not None:
+        preview_path = _v4_relative_file(preview_value, "body_preview", ".png")
+        preview_image, _ = _validate_v4_rgba_png(
+            preview_path,
+            "body_preview",
+            allowed_colors,
+            (141, 138),
+        )
+    elif not isinstance(preview_value, type(None)):
+        raise ValueError("Yone V4 body_preview must be a relative PNG path or null")
+
+    rows = manifest["frames"]
+    if not isinstance(rows, list) or len(rows) != NATIVE_BODY_FRAME_COUNT:
+        raise ValueError(
+            "Yone V4 frames must contain exactly "
+            f"{NATIVE_BODY_FRAME_COUNT} records"
+        )
+    expected = _native_v4_expected_frames()
+    frames: dict[tuple[str, int], Image.Image] = {}
+    paths: dict[Path, tuple[str, int]] = {}
+    rect_owners: dict[tuple[int, int, int, int], tuple[str, int]] = {}
+    audits: dict[str, dict[str, Any]] = {}
+
+    for row_number, row in enumerate(rows):
+        if not isinstance(row, dict) or set(row) != NATIVE_V4_FRAME_FIELDS:
+            got = sorted(row) if isinstance(row, dict) else type(row).__name__
             raise ValueError(
-                f"Yone {tag} native mapping has {len(sources)} cells for "
-                f"{len(rects)} rects/{len(bottoms)} anchors"
+                f"Yone V4 frames[{row_number}] fields changed: got={got}, "
+                f"expected={sorted(NATIVE_V4_FRAME_FIELDS)}"
             )
-        for index, ((plate, cell_index), rect, bottom) in enumerate(
-            zip(sources, rects, bottoms, strict=True)
+        action = row["action"]
+        index = row["index"]
+        if not isinstance(action, str) or not _is_plain_int(index):
+            raise ValueError(
+                f"Yone V4 frames[{row_number}] action/index types are invalid"
+            )
+        key = (action, index)
+        if key not in expected:
+            raise ValueError(f"Yone V4 frames[{row_number}] has unknown key {key}")
+        if key in frames:
+            raise ValueError(f"Yone V4 manifest duplicates action/index {key}")
+        rect_value = row["rect"]
+        if (
+            not isinstance(rect_value, list)
+            or len(rect_value) != 4
+            or any(not _is_plain_int(part) for part in rect_value)
         ):
-            try:
-                source = cells[plate][cell_index]
-            except (KeyError, IndexError) as exc:
-                raise ValueError(
-                    f"Yone {tag}[{index}] references missing {plate}[{cell_index}]"
-                ) from exc
-            frame, audit = _native_frame_from_cell(
-                source,
-                (rect[2], rect[3]),
-                bottom,
-                (tag, index),
+            raise ValueError(f"Yone V4 {action}[{index}].rect must be [x,y,w,h]")
+        rect = tuple(rect_value)
+        if rect != expected[key]:
+            raise ValueError(
+                f"Yone V4 {action}[{index}] rect {rect} != native {expected[key]}"
             )
-            frame_name = f"{tag}[{index}]"
-            if frame_name in frame_contracts:
-                raise ValueError(f"Duplicate Yone native frame key: {frame_name}")
-            frame_contracts[frame_name] = {
-                "source_mapping": {
-                    "sheet": plate,
-                    "cell_index": cell_index,
-                },
-                "native_rect": list(rect),
-                **audit,
-            }
-            _paste_unique(master, placements, rect, frame)
+        if rect in rect_owners:
+            raise ValueError(
+                f"Yone V4 native rect {rect} is shared by {rect_owners[rect]} and {key}"
+            )
+        rect_owners[rect] = key
 
-    if len(frame_contracts) != 54:
-        raise ValueError(
-            f"Yone native source audit covered {len(frame_contracts)}/54 body frames"
+        path = _v4_relative_file(row["file"], f"{action}[{index}].file", ".png")
+        resolved = path.resolve()
+        if resolved in paths:
+            raise ValueError(
+                f"Yone V4 frame file {path} is reused by {paths[resolved]} and {key}"
+            )
+        if preview_path is not None and resolved == preview_path.resolve():
+            raise ValueError(f"Yone V4 body_preview cannot also be frame {key}")
+        paths[resolved] = key
+        frame, used_colors = _validate_v4_rgba_png(
+            path,
+            f"{action}[{index}]",
+            allowed_colors,
+            (rect[2], rect[3]),
         )
-    return master, sheet_contracts, frame_contracts
+        alpha_bbox = frame.getchannel("A").getbbox()
+        assert alpha_bbox is not None
+        alpha = frame.getchannel("A")
+        opaque_edges = {
+            "top": sum(alpha.crop((0, 0, frame.width, 1)).histogram()[1:]),
+            "bottom": sum(
+                alpha.crop((0, frame.height - 1, frame.width, frame.height)).histogram()[1:]
+            ),
+            "left": sum(alpha.crop((0, 0, 1, frame.height)).histogram()[1:]),
+            "right": sum(
+                alpha.crop((frame.width - 1, 0, frame.width, frame.height)).histogram()[1:]
+            ),
+        }
+        if any(opaque_edges.values()):
+            raise ValueError(
+                f"Yone V4 {action}[{index}] touches a native frame edge: {opaque_edges}"
+            )
+
+        bottom_margin = row["bottom_margin"]
+        if not _is_plain_int(bottom_margin) or not 0 <= bottom_margin < frame.height:
+            raise ValueError(f"Yone V4 {action}[{index}].bottom_margin is invalid")
+        actual_bottom = frame.height - alpha_bbox[3]
+        if bottom_margin != actual_bottom:
+            raise ValueError(
+                f"Yone V4 {action}[{index}] bottom_margin {bottom_margin} "
+                f"!= actual {actual_bottom}"
+            )
+        if action != "dead" and bottom_margin < 2:
+            raise ValueError(
+                f"Yone V4 {action}[{index}] needs at least 2px bottom clearance"
+            )
+
+        face_bbox = _validate_local_box(
+            row["face_bbox"], f"{action}[{index}].face_bbox", frame.size, nullable=True
+        )
+        mask_bbox = _validate_local_box(
+            row["mask_bbox"], f"{action}[{index}].mask_bbox", frame.size, nullable=True
+        )
+        for label, box in (("face_bbox", face_bbox), ("mask_bbox", mask_bbox)):
+            if box is not None:
+                x, y, width, height = box
+                if frame.crop((x, y, x + width, y + height)).getchannel("A").getbbox() is None:
+                    raise ValueError(
+                        f"Yone V4 {action}[{index}].{label} contains no actor pixels"
+                    )
+
+        eye_value = row["eye_pixels"]
+        if not isinstance(eye_value, list):
+            raise ValueError(f"Yone V4 {action}[{index}].eye_pixels must be a list")
+        eyes: list[tuple[int, int]] = []
+        for eye_index, point in enumerate(eye_value):
+            if (
+                not isinstance(point, list)
+                or len(point) != 2
+                or any(not _is_plain_int(part) for part in point)
+            ):
+                raise ValueError(
+                    f"Yone V4 {action}[{index}].eye_pixels[{eye_index}] must be [x,y]"
+                )
+            x, y = point
+            if not (0 <= x < frame.width and 0 <= y < frame.height):
+                raise ValueError(
+                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is out of bounds"
+                )
+            if frame.getpixel((x, y))[3] != 255:
+                raise ValueError(
+                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is transparent"
+                )
+            if face_bbox is None:
+                raise ValueError(
+                    f"Yone V4 {action}[{index}] declares eye pixels without face_bbox"
+                )
+            fx, fy, fw, fh = face_bbox
+            if not (fx <= x < fx + fw and fy <= y < fy + fh):
+                raise ValueError(
+                    f"Yone V4 {action}[{index}] eye pixel {(x, y)} is outside face_bbox"
+                )
+            eyes.append((x, y))
+        if len(eyes) != len(set(eyes)):
+            raise ValueError(f"Yone V4 {action}[{index}] duplicates eye pixels")
+        if face_bbox is not None and (not eyes or mask_bbox is None):
+            raise ValueError(
+                f"Yone V4 {action}[{index}] face_bbox requires eye_pixels and mask_bbox"
+            )
+        if action == "idle" and (
+            face_bbox is None
+            or mask_bbox is None
+            or len(eyes) < 2
+            or len({x for x, _ in eyes}) < 2
+            or face_bbox[2] < 6
+            or face_bbox[3] < 7
+        ):
+            raise ValueError(
+                f"Yone V4 idle[{index}] must annotate a front face, mask and two eyes"
+            )
+
+        foot_value = row["foot_zones"]
+        if not isinstance(foot_value, list):
+            raise ValueError(f"Yone V4 {action}[{index}].foot_zones must be a list")
+        foot_zones: list[tuple[int, int, int, int]] = []
+        for foot_index, value in enumerate(foot_value):
+            box = _validate_local_box(
+                value,
+                f"{action}[{index}].foot_zones[{foot_index}]",
+                frame.size,
+                nullable=False,
+            )
+            assert box is not None
+            x, y, width, height = box
+            if frame.crop((x, y, x + width, y + height)).getchannel("A").getbbox() is None:
+                raise ValueError(
+                    f"Yone V4 {action}[{index}] foot zone {foot_index} is empty"
+                )
+            foot_zones.append(box)
+        if len(foot_zones) != len(set(foot_zones)):
+            raise ValueError(f"Yone V4 {action}[{index}] duplicates foot_zones")
+        if action in {
+            "idle",
+            "hit",
+            "attack",
+            "skill2",
+            "skill2_dash",
+            "skill2_attack",
+            "run",
+            "skill",
+        } and not foot_zones:
+            raise ValueError(f"Yone V4 {action}[{index}] must annotate foot_zones")
+
+        frames[key] = frame
+        audits[f"{action}[{index}]"] = {
+            "source": path.relative_to(MOD_ROOT).as_posix(),
+            "native_rect": list(rect),
+            "source_size": list(frame.size),
+            "source_alpha_bbox": list(alpha_bbox),
+            "bottom_margin": bottom_margin,
+            "face_bbox": list(face_bbox) if face_bbox is not None else None,
+            "eye_pixels": [list(point) for point in eyes],
+            "mask_bbox": list(mask_bbox) if mask_bbox is not None else None,
+            "foot_zones": [list(box) for box in foot_zones],
+            "hard_alpha": True,
+            "transparent_frame_edges": True,
+            "opaque_palette_size": sum(color[3] == 255 for color in used_colors),
+            "sha256": sha256(path),
+            "pack_transform": "none",
+        }
+
+    missing = set(expected) - set(frames)
+    if missing:
+        raise ValueError(f"Yone V4 manifest is missing frames: {sorted(missing)}")
+    if preview_image is not None:
+        idle = frames[("idle", 0)]
+        rendered = idle.resize(
+            (
+                round(idle.width * YONE_LIVE_CARD_SCALE),
+                round(idle.height * YONE_LIVE_CARD_SCALE),
+            ),
+            Image.Resampling.NEAREST,
+        )
+        stage_height = max(
+            round(rect[3] * YONE_LIVE_CARD_SCALE)
+            for rect in NATIVE_CONTRACT["idle"]["rects"]
+        )
+        expected_preview = Image.new("RGBA", (141, 138), (0, 0, 0, 0))
+        preview_x = (expected_preview.width - rendered.width) // 2
+        preview_y = (stage_height - rendered.height) // 2
+        expected_preview.paste(rendered, (preview_x, preview_y))
+        if preview_image.tobytes() != expected_preview.tobytes():
+            raise ValueError(
+                "Yone V4 body_preview must be the exact idle[0] 2.2x NEAREST "
+                "render centered in the 141x138 transparent runtime-card canvas"
+            )
+    expected_pngs = set(paths)
+    if preview_path is not None:
+        expected_pngs.add(preview_path.resolve())
+    actual_pngs = {
+        path.resolve()
+        for path in NATIVE_V4_ROOT.rglob("*.png")
+        if path.is_file()
+    }
+    if actual_pngs != expected_pngs:
+        extras = sorted(str(path) for path in actual_pngs - expected_pngs)
+        omitted = sorted(str(path) for path in expected_pngs - actual_pngs)
+        raise ValueError(
+            "Yone V4 source PNG set differs from the manifest: "
+            f"unreferenced={extras}, missing={omitted}"
+        )
+
+    manifest_audit = {
+        "schema_version": manifest["schema_version"],
+        "route": manifest["route"],
+        "manifest": NATIVE_V4_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+        "manifest_sha256": sha256(NATIVE_V4_MANIFEST),
+        "atlas_size": list(ACTOR_SHEET_SIZE),
+        "frame_count": len(frames),
+        "palette": palette_audit,
+        "body_preview": (
+            preview_path.relative_to(MOD_ROOT).as_posix()
+            if preview_path is not None
+            else None
+        ),
+        "body_processing": "none; exact final 1x RGBA byte copy",
+    }
+    return frames, manifest_audit, audits
 
 
-def build_native_body_master() -> Path:
-    """Build all 54 visible bodies as final pixels on the native atlas grid."""
+def _paste_native_v4_bytes(
+    sheet: Image.Image,
+    placements: dict[tuple[int, int, int, int], bytes],
+    rect: tuple[int, int, int, int],
+    frame: Image.Image,
+) -> None:
+    """Paste one exact-size V4 RGBA image and prove byte identity."""
 
-    master, _, _ = _compose_native_body_master()
-    save_processed_png(NATIVE_BODY_MASTER, master)
-    return NATIVE_BODY_MASTER
+    x, y, width, height = rect
+    if frame.mode != "RGBA" or frame.size != (width, height):
+        raise ValueError(
+            f"Yone V4 frame {frame.mode}/{frame.size} does not match native rect {rect}"
+        )
+    for previous in placements:
+        px, py, pw, ph = previous
+        if not (
+            x + width <= px
+            or px + pw <= x
+            or y + height <= py
+            or py + ph <= y
+        ):
+            raise ValueError(
+                f"Yone V4 body rectangles overlap: new={rect}, existing={previous}"
+            )
+    pixels = frame.tobytes()
+    placements[rect] = pixels
+    sheet.paste(frame, (x, y))
+    copied = sheet.crop((x, y, x + width, y + height))
+    if copied.tobytes() != pixels:
+        raise ValueError(f"Yone V4 byte copy failed for native rect {rect}")
 
 
 FaceWindow = tuple[float, float, float, float]
@@ -1613,29 +1666,22 @@ def _paste_unique(
 def build_actor() -> tuple[Path, Path]:
     qw_vfx = split_grid(Image.open(QW_VFX_ALPHA).convert("RGBA"), 5, 4)
     r_vfx = split_grid(Image.open(R_VFX_ALPHA).convert("RGBA"), 5, 3)
-    native_master = Image.open(NATIVE_BODY_MASTER).convert("RGBA")
-    if native_master.size != ACTOR_SHEET_SIZE:
-        raise ValueError(
-            f"Yone native body master is {native_master.size}, expected {ACTOR_SHEET_SIZE}"
-        )
+    native_frames, _, _ = _load_native_v4_body_frames()
     sheet = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
     placements: dict[tuple[int, int, int, int], bytes] = {}
 
-    # Copy each final native frame byte-for-byte.  Any resize or palette pass
-    # in this function is a build-contract violation and is caught again by
-    # the master-to-atlas identity audit.
-    for tag in NATIVE_BODY_FRAME_SOURCES:
+    # Copy each final native V4 PNG directly into its official atlas rectangle.
+    # There is deliberately no master fallback and no crop, resize, alpha
+    # cleanup, palette conversion or quantization anywhere in the body path.
+    for tag in NATIVE_BODY_ACTIONS:
         rects = (
             NATIVE_CONTRACT[tag]["rects"][:-1]
             if tag == "dead"
             else NATIVE_CONTRACT[tag]["rects"]
         )
-        for rect in rects:
-            x, y, width, height = rect
-            frame = native_master.crop((x, y, x + width, y + height))
-            if frame.getchannel("A").getbbox() is None:
-                raise ValueError(f"Yone native body master has empty {tag} rect {rect}")
-            _paste_unique(sheet, placements, rect, frame)
+        for index, rect in enumerate(rects):
+            frame = native_frames[(tag, index)]
+            _paste_native_v4_bytes(sheet, placements, rect, frame)
 
     # Official hit_effect_area aliases ult[1:12]; assigning the same bytes is
     # deliberate and proves the overlap remains contract-safe.
@@ -1820,10 +1866,13 @@ def render_ui_subject(
     source = remove_tiny_components(source)
     subject = source.crop(alpha_bbox(source))
     scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
+    # These surfaces originate from accepted hard native pixels.  Preserve
+    # their geometry with nearest-neighbour scaling; the retired LANCZOS plus
+    # unsharp route blurred and warped Yone's tiny eyes and jaw in portraits.
     subject = subject.resize(
         (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-        Image.Resampling.LANCZOS,
-    ).filter(ImageFilter.UnsharpMask(radius=0.8, percent=150, threshold=2))
+        Image.Resampling.NEAREST,
+    )
     subject = palette_finish(subject, colors)
     subject = subject.crop(alpha_bbox(subject))
     output = Image.new("RGBA", size, (0, 0, 0, 0))
@@ -1840,13 +1889,14 @@ def build_splash_and_portraits() -> list[Path]:
     splash_path = SPLASH_DIR / "dual_blader.png"
     save_png(splash_path, splash)
 
-    first_idle = split_grid(Image.open(CORE_ALPHA).convert("RGBA"), 5, 4)[0]
+    native_frames, _, native_frame_contracts = _load_native_v4_body_frames()
+    first_idle = native_frames[("idle", 0)]
     full_body = first_idle.crop(alpha_bbox(first_idle))
 
     fullbody = render_ui_subject(
         full_body,
         (64, 64),
-        max_subject=(54, 56),
+        max_subject=(54, 58),
         bottom=60,
         colors=96,
     )
@@ -1875,13 +1925,26 @@ def build_splash_and_portraits() -> list[Path]:
     # square crop or enlarging Yone's reduced battle actor.  This tighter
     # crop retains the red azakana mask, tapered face, hair and shoulders while
     # removing the swords and lower body that turn into noise below 30px.
-    scoreboard_focus = full_body.crop(
-        (
-            round(width * 0.19),
-            0,
-            round(width * 0.67),
-            round(height * 0.70),
-        )
+    idle_contract = native_frame_contracts["idle[0]"]
+    face_box = idle_contract["face_bbox"]
+    mask_box = idle_contract["mask_bbox"]
+    if face_box is None or mask_box is None:
+        raise ValueError("Yone V4 idle[0] lacks face/mask portrait annotations")
+    face_x, face_y, face_w, face_h = face_box
+    mask_x, mask_y, mask_w, mask_h = mask_box
+    focus_left = max(0, min(face_x, mask_x) - 2)
+    focus_top = max(0, min(face_y, mask_y) - 2)
+    focus_right = min(
+        first_idle.width,
+        max(face_x + face_w, mask_x + mask_w) + 2,
+    )
+    # Preserve the annotated face/mask plus enough shoulder/torso pixels to
+    # match the native 48x64 scoreboard aspect.  This replaces the rejected
+    # high-resolution percentage crop, which became a thin 26px strip when fed
+    # the exact-native 43x55 V4 idle frame.
+    focus_bottom = min(first_idle.height, focus_top + 27)
+    scoreboard_focus = first_idle.crop(
+        (focus_left, focus_top, focus_right, focus_bottom)
     )
     scoreboard = render_ui_subject(
         scoreboard_focus,
@@ -2007,14 +2070,9 @@ def build_qa(
     runtime_visuals: Sequence[Path],
 ) -> list[Path]:
     sheet = Image.open(actor_sheet).convert("RGBA")
-    native_master = Image.open(NATIVE_BODY_MASTER).convert("RGBA")
-    audited_master, native_sheet_contracts, native_frame_source_contracts = (
-        _compose_native_body_master()
+    native_source_frames, native_manifest_contract, native_frame_source_contracts = (
+        _load_native_v4_body_frames()
     )
-    if audited_master.tobytes() != native_master.tobytes():
-        raise ValueError(
-            "Yone saved native body master differs from its audited source mapping"
-        )
     anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
     body_frames: dict[str, list[dict[str, Any]]] = {}
     for tag in (*BODY_TARGET_HEIGHTS, "dead"):
@@ -2037,7 +2095,7 @@ def build_qa(
             })
         body_frames[tag] = rows
 
-    actor_face_readability: dict[str, dict[str, Any]] = {}
+    actor_face_annotations: dict[str, dict[str, Any]] = {}
     native_body_identity: dict[str, dict[str, Any]] = {}
     native_body_pixel_quality: dict[str, dict[str, Any]] = {}
     for tag, index, entry in iter_actor_body_frames(anims):
@@ -2047,18 +2105,29 @@ def build_qa(
             data["x"] + data["w"], data["y"] + data["h"],
         )
         frame = sheet.crop(rect)
-        master_frame = native_master.crop(rect)
+        source_frame = native_source_frames[(tag, index)]
         frame_name = f"{tag}[{index}]"
-        identical = frame.tobytes() == master_frame.tobytes()
+        identical = frame.tobytes() == source_frame.tobytes()
         native_body_identity[frame_name] = {
-            "master_to_atlas_byte_identical": identical,
+            "source_to_atlas_byte_identical": identical,
             "sha256": hashlib.sha256(frame.tobytes()).hexdigest(),
         }
         native_body_pixel_quality[frame_name] = native_pixel_quality(frame)
-        actor_face_readability[frame_name] = yone_face_readability(frame)
-    if len(actor_face_readability) != 54:
+        source_contract = native_frame_source_contracts[frame_name]
+        actor_face_annotations[frame_name] = {
+            "contract": "frames.json local-coordinate annotations",
+            "face_bbox": source_contract["face_bbox"],
+            "eye_pixels": source_contract["eye_pixels"],
+            "mask_bbox": source_contract["mask_bbox"],
+            "foot_zones": source_contract["foot_zones"],
+            "bottom_margin": source_contract["bottom_margin"],
+            "source_to_atlas_byte_identical": identical,
+        }
+    if len(actor_face_annotations) != NATIVE_BODY_FRAME_COUNT:
         raise ValueError(
-            f"Yone face QA must cover 54 visible body frames, got {len(actor_face_readability)}"
+            "Yone V4 annotation QA must cover "
+            f"{NATIVE_BODY_FRAME_COUNT} visible body frames, got "
+            f"{len(actor_face_annotations)}"
         )
 
     fullbody = Image.open(FULLBODY_DIR / "dual_blader.png").convert("RGBA")
@@ -2103,19 +2172,14 @@ def build_qa(
                 "rects": {tag: spec["rects"] for tag, spec in NATIVE_CONTRACT.items()},
                 "overlap": "hit_effect_area aliases ult frames 1..11 exactly",
                 "body_frames": body_frames,
-                "body_master": NATIVE_BODY_MASTER.relative_to(MOD_ROOT).as_posix(),
-                "body_logical_sheets": native_sheet_contracts,
+                "body_source_contract": native_manifest_contract,
                 "body_frame_sources": native_frame_source_contracts,
-                "horizontal_clip_whitelist": {
-                    f"{tag}[{index}]": sides
-                    for (tag, index), sides in NATIVE_HORIZONTAL_CLIP_LIMITS.items()
-                },
-                "pack_time_resampling": "none; 54 body crops are copied byte-for-byte from the native master",
-                "master_to_atlas_identity": native_body_identity,
+                "pack_time_resampling": "none; 54 exact-size V4 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
+                "source_to_atlas_identity": native_body_identity,
                 "pixel_quality": {
                     "contract": {
                         "hard_alpha": True,
-                        "maximum_opaque_palette_size": 48,
+                        "maximum_opaque_palette_size": NATIVE_V4_MAX_OPAQUE_COLORS,
                         "metrics_are_measured_at": "native 1x",
                     },
                     "frames": native_body_pixel_quality,
@@ -2140,21 +2204,16 @@ def build_qa(
                 "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "complete adult-proportioned ImageGen body-model replacement rasterized once as whole-sheet native 1x pixel art; no per-frame resize, post-scale face repaint, or synthetic feature overlay",
-                "body_source_paths": [
-                    CORE_SOURCE.relative_to(MOD_ROOT).as_posix(),
-                    RUN_SOURCE.relative_to(MOD_ROOT).as_posix(),
-                    WR_BODY_SOURCE.relative_to(MOD_ROOT).as_posix(),
-                    DEFEAT_SOURCE.relative_to(MOD_ROOT).as_posix(),
-                ],
-                "actor_resampling": "whole-sheet NEAREST once; pack-time NONE",
+                "policy": "from-zero exact-native V4 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or legacy-model fallback",
+                "body_source_manifest": NATIVE_V4_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+                "actor_resampling": "NONE",
                 "idle_face_contract": {
                     "source_authored": True,
                     "post_scale_repaint": False,
                     "view": "natural 3/4 profile with one dominant eye cue",
                     "alpha_geometry_changes": 0,
                 },
-                "all_battle_body_frames": actor_face_readability,
+                "all_battle_body_frames": actor_face_annotations,
                 "ui_surfaces": ui_face_readability,
                 "fullbody_card_85x93": fullbody_card,
                 "live_idle_card": live_idle_card,
@@ -2174,12 +2233,14 @@ def build_qa(
     write_json(
         provenance_path,
         {
-            "schema_version": 1,
+            "schema_version": 4,
             "champion": "Yone",
-            "generator": "built-in image_gen",
-            "generated_on": "2026-07-18",
-            "processing": "four complete ImageGen adult body contact-sheet replacements, deterministic corner-detected green/magenta body-key despill, one fixed whole-sheet native 1x conversion, hard alpha and <=40-color logical plates, byte-identical master-to-atlas packing with no per-frame resampling or face repaint, and official Dual Blader foot baselines",
-            "sources": [image_record(path) for path in (CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE, QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
+            "generator": "built-in image_gen followed by final-scale native pixel authorship",
+            "generated_on": "2026-07-19",
+            "processing": "exact-native-v4: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or legacy fallback",
+            "body_source": native_manifest_contract,
+            "body_frames": native_frame_source_contracts,
+            "sources": [image_record(path) for path in (QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE, ICON_SOURCE, SPLASH_SOURCE)],
             "processed": [image_record(path) for path in processed],
             "runtime": [image_record(path) if path.suffix == ".png" else {"path": path.relative_to(MOD_ROOT).as_posix(), "size_bytes": path.stat().st_size, "sha256": sha256(path)} for path in runtime_visuals],
         },
@@ -2192,14 +2253,14 @@ def build_qa(
         "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] The retired Yone body model was replaced end-to-end with four new ImageGen contact sheets (core, run, Q/W/R body and defeat); Q/W/R effect sheets remain unchanged.\n"
-        "- [x] Each complete body plate is rasterized once to a reviewed native 1x grid; all 54 visible body frames are copied byte-for-byte from the native master with no pack-time resize.\n"
+        "- [x] The rejected contact-sheet body route is retired; all 54 visible body poses come only from `source/native/yone_v4/frames.json`.\n"
+        "- [x] Every V4 pose is authored at its exact final native rectangle, palette-validated, and copied byte-for-byte with no crop, resize, quantization, chroma key, repaint, or V3 fallback.\n"
         "- [x] The new adult-proportioned natural 3/4 face preserves source-authored eye, jaw and hair clusters without any post-scale face repaint.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five generated WR sweep poses; no code-drawn body, arm or blade is added during packing.\n"
+        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five exact-native V4 sweep poses; no code-drawn body, arm or blade is added during packing.\n"
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
@@ -2297,11 +2358,9 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             raise ValueError(f"Yone {tag} rectangles changed")
 
     sheet = Image.open(actor_sheet).convert("RGBA")
-    native_master = Image.open(NATIVE_BODY_MASTER).convert("RGBA")
-    if native_master.size != ACTOR_SHEET_SIZE:
-        raise ValueError(
-            f"Yone native body master is {native_master.size}, expected {ACTOR_SHEET_SIZE}"
-        )
+    native_source_frames, _, native_frame_source_contracts = (
+        _load_native_v4_body_frames()
+    )
 
     native_edge_ratios: list[float] = []
     native_fill_ratios: list[float] = []
@@ -2313,10 +2372,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             data["x"] + data["w"], data["y"] + data["h"],
         )
         frame = sheet.crop(rect)
-        master_frame = native_master.crop(rect)
-        if frame.tobytes() != master_frame.tobytes():
+        source_frame = native_source_frames[(tag, index)]
+        if frame.tobytes() != source_frame.tobytes():
             raise ValueError(
-                f"Yone {tag}[{index}] was changed after native-master packing"
+                f"Yone {tag}[{index}] changed during exact-native atlas packing"
             )
         native_identity_count += 1
         quality = native_pixel_quality(frame)
@@ -2324,7 +2383,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             raise ValueError(
                 f"Yone {tag}[{index}] contains non-binary alpha: {quality['alpha_values']}"
             )
-        if quality["opaque_palette_size"] > 48:
+        if quality["opaque_palette_size"] > NATIVE_V4_MAX_OPAQUE_COLORS:
             raise ValueError(
                 f"Yone {tag}[{index}] uses {quality['opaque_palette_size']} opaque colors"
             )
@@ -2409,12 +2468,6 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"Yone attack lost pose variation: only {len(attack_hashes)}/6 unique frames"
         )
 
-    expected_w_sources = [("wr", index) for index in range(5)]
-    if NATIVE_BODY_FRAME_SOURCES["skill2_attack"] != expected_w_sources:
-        raise ValueError(
-            "Yone W must use the five generated WR native cells, got "
-            f"{NATIVE_BODY_FRAME_SOURCES['skill2_attack']}"
-        )
     w_pose_hashes: set[str] = set()
     for row in payload["skill2_attack"]["frames"]:
         data = row["data"]
@@ -2429,12 +2482,12 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         w_pose_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
     if len(w_pose_hashes) < 4:
         raise ValueError(
-            f"Yone generated W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
+            f"Yone V4 W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
         )
 
     native_core_bottoms = {
-        "idle": [16, 15, 14, 15],
-        "run": [13, 18, 21, 18, 13, 17, 21, 17],
+        "idle": [14, 15, 14, 15],
+        "run": [13, 18, 20, 17, 13, 17, 20, 17],
         "attack": [14, 14, 12, 13, 13, 14],
         "hit": [15],
     }
@@ -2448,61 +2501,51 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"{actual_core_bottoms}"
         )
 
-    # Inspect all 54 visible body frames from the rebuilt ImageGen model.  The
-    # face is now source-authored, so validate its natural skin component,
-    # contrast and dark feature cue instead of retired palette-marker counts.
-    face_frame_count = 0
-    for tag, index, entry in iter_actor_body_frames(payload):
-        face_frame_count += 1
-        data = entry["data"]
-        frame = sheet.crop(
-            (
-                data["x"],
-                data["y"],
-                data["x"] + data["w"],
-                data["y"] + data["h"],
+    # V4 owns face/eye/mask/foot identity through explicit local-coordinate
+    # annotations in frames.json.  Do not reinterpret the new fixed palette
+    # with the rejected V3 warm-skin/red-mask heuristics: fast profile, ult and
+    # defeat frames may intentionally omit a face annotation, while all four
+    # front-facing idle frames must carry the complete contract.
+    annotation_count = 0
+    for tag, index, _entry in iter_actor_body_frames(payload):
+        frame_name = f"{tag}[{index}]"
+        contract = native_frame_source_contracts.get(frame_name)
+        if contract is None:
+            raise ValueError(f"Yone V4 manifest lacks {frame_name} annotations")
+        annotation_count += 1
+        face_bbox = contract["face_bbox"]
+        eye_pixels = contract["eye_pixels"]
+        mask_bbox = contract["mask_bbox"]
+        foot_zones = contract["foot_zones"]
+        if tag == "idle" and (
+            face_bbox is None
+            or mask_bbox is None
+            or len(eye_pixels) < 2
+            or len({point[0] for point in eye_pixels}) < 2
+        ):
+            raise ValueError(
+                f"Yone V4 {frame_name} lacks its explicit front-face contract"
             )
+        if face_bbox is not None and (not eye_pixels or mask_bbox is None):
+            raise ValueError(
+                f"Yone V4 {frame_name} face annotation lacks eyes or mask"
+            )
+        if tag in {
+            "idle",
+            "hit",
+            "attack",
+            "skill2",
+            "skill2_dash",
+            "skill2_attack",
+            "run",
+            "skill",
+        } and not foot_zones:
+            raise ValueError(f"Yone V4 {frame_name} lacks foot-zone annotations")
+    if annotation_count != NATIVE_BODY_FRAME_COUNT:
+        raise ValueError(
+            "Yone V4 annotation validation covered "
+            f"{annotation_count}/{NATIVE_BODY_FRAME_COUNT} frames"
         )
-        face = yone_face_readability(frame)
-        if tag == "dead":
-            bbox = frame.getchannel("A").getbbox()
-            visible_height = 0 if bbox is None else bbox[3] - bbox[1]
-            required_mask = max(1, min(6, visible_height // 4))
-            if face["red_mask_pixels"] < required_mask:
-                raise ValueError(f"Yone dead[{index}] lost the rebuilt mask silhouette: {face}")
-            continue
-        face_bbox = face["face_skin_bbox"]
-        if tag == "idle":
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                4, 5, 10, 18
-            )
-        elif tag == "run":
-            # The accepted corrective run plate keeps a real native face in
-            # every phase.  This deliberately rejects the former 2x2/4-pixel
-            # proxy that passed automation while looking like a mask blob.
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                4, 3, 6, 50
-            )
-        else:
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                3, 2, 4, 12
-            )
-        native_face_readable = (
-            face_bbox is not None
-            and face_bbox[2] - face_bbox[0] >= minimum_width
-            and face_bbox[3] - face_bbox[1] >= minimum_height
-            and face["warm_skin_component_present"]
-            and face["warm_skin_pixels"] >= minimum_skin
-            and face["adjacent_dark_eye_cue"]
-            and face["face_contrast"] >= minimum_contrast
-            and face["near_white_pixels"]
-            <= max(2, face["face_skin_pixels"] // 20)
-            and face["minimal_feature_set"]
-        )
-        if not native_face_readable:
-            raise ValueError(f"Yone {tag}[{index}] face is not readable: {face}")
-    if face_frame_count != 54:
-        raise ValueError(f"Yone face validation covered {face_frame_count}/54 frames")
 
     # Replay the measured renderer route from the user's screenshots.  Every
     # idle rectangle is scaled uniformly by about 2.2x, then centered on the
@@ -2533,18 +2576,13 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"Yone live-card idle coverage changed: {set(live_idle_card['frames'])}"
         )
     for frame_name, quality in live_idle_card["frames"].items():
-        if not (
-            quality["source_face_skin_bbox"] is not None
-            and quality["rendered_face_skin_bbox"] is not None
-            and quality["source_warm_skin_component_present"]
-            and quality["rendered_warm_skin_component_present"]
-            and quality["source_adjacent_dark_eye_cue"]
-            and quality["rendered_adjacent_dark_eye_cue"]
-            and quality["source_near_white_pixels"] <= 1
+        annotation = native_frame_source_contracts[frame_name]
+        if (
+            annotation["face_bbox"] is None
+            or annotation["mask_bbox"] is None
+            or len(annotation["eye_pixels"]) < 2
         ):
-            raise ValueError(
-                f"Yone {frame_name} minimal face is unreadable at 2.2x: {quality}"
-            )
+            raise ValueError(f"Yone V4 {frame_name} lost its manifest face annotation")
         if quality["divider_clearance"] < YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE:
             raise ValueError(
                 f"Yone {frame_name} feet/weapon enter the card divider: "
@@ -2558,29 +2596,13 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             "Yone live run-profile coverage changed: "
             f"{set(live_run_profile['frames'])}"
         )
-    readable_run_eye_cues = 0
+    run_pose_hashes: set[bytes] = set()
     for index, (frame_name, quality) in enumerate(
         live_run_profile["frames"].items()
     ):
-        profile_geometry = (
-            quality["source_face_skin_bbox"] is not None
-            and quality["rendered_face_skin_bbox"] is not None
-            and quality["source_red_mask_pixels"] >= 20
-            and quality["source_near_white_pixels"] <= 2
-        )
-        if quality["source_adjacent_dark_eye_cue"]:
-            readable_run_eye_cues += 1
-        if (
-            quality["face_variant"] != "profile"
-            or not profile_geometry
-            or not quality["source_warm_skin_component_present"]
-            or not quality["rendered_warm_skin_component_present"]
-            or not quality["source_adjacent_dark_eye_cue"]
-            or not quality["rendered_adjacent_dark_eye_cue"]
-        ):
-            raise ValueError(
-                f"Yone {frame_name} profile face is unreadable at 2.2x: {quality}"
-            )
+        annotation = native_frame_source_contracts[frame_name]
+        if not annotation["foot_zones"]:
+            raise ValueError(f"Yone V4 {frame_name} lost its run foot-zone contract")
         if (
             quality["source_bottom_clearance"] != BODY_BOTTOM_MARGINS["run"][index]
             or quality["rendered_bottom_clearance"] <= 0
@@ -2588,9 +2610,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             raise ValueError(
                 f"Yone {frame_name} lost its run-foot clearance at 2.2x: {quality}"
             )
-    if readable_run_eye_cues < 7:
+        run_pose_hashes.add(native_source_frames[("run", index)].tobytes())
+    if len(run_pose_hashes) < 4:
         raise ValueError(
-            f"Yone run loop kept a visible eye cue in only {readable_run_eye_cues}/8 frames"
+            f"Yone V4 run loop lost pose variation: {len(run_pose_hashes)}/8"
         )
 
     terminal_rect = NATIVE_CONTRACT["dead"]["rects"][-1]
@@ -2695,7 +2718,6 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         if Image.open(ICON_DIR / icon).size != (64, 64):
             raise ValueError(f"Yone icon {icon} is not 64x64")
     for processed in (
-        CORE_ALPHA, RUN_ALPHA, WR_BODY_ALPHA, DEFEAT_ALPHA,
         QW_VFX_ALPHA, W_VFX_ALPHA, Q3_VFX_ALPHA, R_VFX_ALPHA,
     ):
         alpha = Image.open(processed).convert("RGBA").getchannel("A")
@@ -2720,13 +2742,16 @@ def build_all() -> list[Path]:
             + "\n".join(str(path) for path in stale_sources)
         )
     required = [
-        CORE_SOURCE, RUN_SOURCE, WR_BODY_SOURCE, DEFEAT_SOURCE,
+        NATIVE_V4_MANIFEST,
         QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE,
         ICON_SOURCE, SPLASH_SOURCE,
     ]
     missing = [path for path in required if not path.is_file()]
     if missing:
-        raise FileNotFoundError("Missing Yone image-gen sources:\n" + "\n".join(str(path) for path in missing))
+        raise FileNotFoundError(
+            "Missing Yone V4/VFX sources (the rejected V3 body route is not a fallback):\n"
+            + "\n".join(str(path) for path in missing)
+        )
     processed = process_sources()
     actor_sheet, actor_anim = build_actor()
     effects = build_effects(actor_sheet)

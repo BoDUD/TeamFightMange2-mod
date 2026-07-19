@@ -1,0 +1,1187 @@
+{
+  "schema_version": 4,
+  "route": "exact-native-v4",
+  "atlas_size": [
+    3502,
+    88
+  ],
+  "palette_file": "palette.json",
+  "body_preview": "preview/yone_v4_actor_card.png",
+  "frames": [
+    {
+      "action": "skill2",
+      "index": 0,
+      "file": "frames/skill2_00.png",
+      "rect": [
+        1970,
+        0,
+        31,
+        49
+      ],
+      "bottom_margin": 5,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          2,
+          40,
+          27,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "hit",
+      "index": 0,
+      "file": "frames/hit_00.png",
+      "rect": [
+        874,
+        0,
+        43,
+        53
+      ],
+      "bottom_margin": 15,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          5,
+          34,
+          30,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 0,
+      "file": "frames/attack_00.png",
+      "rect": [
+        544,
+        0,
+        45,
+        51
+      ],
+      "bottom_margin": 14,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          6,
+          33,
+          30,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 1,
+      "file": "frames/attack_01.png",
+      "rect": [
+        590,
+        0,
+        49,
+        51
+      ],
+      "bottom_margin": 14,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          8,
+          33,
+          32,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 2,
+      "file": "frames/attack_02.png",
+      "rect": [
+        640,
+        0,
+        59,
+        47
+      ],
+      "bottom_margin": 12,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          11,
+          31,
+          38,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 3,
+      "file": "frames/attack_03.png",
+      "rect": [
+        700,
+        0,
+        59,
+        49
+      ],
+      "bottom_margin": 13,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          17,
+          32,
+          26,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 4,
+      "file": "frames/attack_04.png",
+      "rect": [
+        760,
+        0,
+        61,
+        49
+      ],
+      "bottom_margin": 13,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          14,
+          32,
+          33,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 5,
+      "file": "frames/attack_05.png",
+      "rect": [
+        822,
+        0,
+        51,
+        51
+      ],
+      "bottom_margin": 14,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          9,
+          33,
+          30,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_dash",
+      "index": 0,
+      "file": "frames/skill2_dash_00.png",
+      "rect": [
+        2002,
+        0,
+        43,
+        43
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          3,
+          35,
+          38,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 0,
+      "file": "frames/ult_00.png",
+      "rect": [
+        2288,
+        0,
+        49,
+        51
+      ],
+      "bottom_margin": 5,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 1,
+      "file": "frames/ult_01.png",
+      "rect": [
+        2338,
+        0,
+        59,
+        53
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 2,
+      "file": "frames/ult_02.png",
+      "rect": [
+        2398,
+        0,
+        59,
+        57
+      ],
+      "bottom_margin": 8,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 3,
+      "file": "frames/ult_03.png",
+      "rect": [
+        2458,
+        0,
+        61,
+        53
+      ],
+      "bottom_margin": 10,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 4,
+      "file": "frames/ult_04.png",
+      "rect": [
+        2520,
+        0,
+        51,
+        51
+      ],
+      "bottom_margin": 12,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 5,
+      "file": "frames/ult_05.png",
+      "rect": [
+        2572,
+        0,
+        59,
+        47
+      ],
+      "bottom_margin": 11,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 6,
+      "file": "frames/ult_06.png",
+      "rect": [
+        2632,
+        0,
+        59,
+        49
+      ],
+      "bottom_margin": 9,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 7,
+      "file": "frames/ult_07.png",
+      "rect": [
+        2692,
+        0,
+        61,
+        53
+      ],
+      "bottom_margin": 7,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 8,
+      "file": "frames/ult_08.png",
+      "rect": [
+        2754,
+        0,
+        55,
+        57
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 9,
+      "file": "frames/ult_09.png",
+      "rect": [
+        2810,
+        0,
+        59,
+        53
+      ],
+      "bottom_margin": 7,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 10,
+      "file": "frames/ult_10.png",
+      "rect": [
+        2870,
+        0,
+        59,
+        51
+      ],
+      "bottom_margin": 8,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 11,
+      "file": "frames/ult_11.png",
+      "rect": [
+        2930,
+        0,
+        61,
+        49
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "ult",
+      "index": 12,
+      "file": "frames/ult_12.png",
+      "rect": [
+        2992,
+        0,
+        53,
+        51
+      ],
+      "bottom_margin": 5,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "run",
+      "index": 0,
+      "file": "frames/run_00.png",
+      "rect": [
+        220,
+        0,
+        41,
+        49
+      ],
+      "bottom_margin": 13,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          4,
+          32,
+          30,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 1,
+      "file": "frames/run_01.png",
+      "rect": [
+        262,
+        0,
+        39,
+        51
+      ],
+      "bottom_margin": 18,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          5,
+          29,
+          28,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 2,
+      "file": "frames/run_02.png",
+      "rect": [
+        302,
+        0,
+        39,
+        53
+      ],
+      "bottom_margin": 20,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          3,
+          29,
+          35,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 3,
+      "file": "frames/run_03.png",
+      "rect": [
+        342,
+        0,
+        39,
+        51
+      ],
+      "bottom_margin": 17,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          5,
+          30,
+          29,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 4,
+      "file": "frames/run_04.png",
+      "rect": [
+        382,
+        0,
+        41,
+        49
+      ],
+      "bottom_margin": 13,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          4,
+          32,
+          30,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 5,
+      "file": "frames/run_05.png",
+      "rect": [
+        424,
+        0,
+        39,
+        51
+      ],
+      "bottom_margin": 17,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          2,
+          30,
+          35,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 6,
+      "file": "frames/run_06.png",
+      "rect": [
+        464,
+        0,
+        39,
+        53
+      ],
+      "bottom_margin": 20,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          3,
+          29,
+          35,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "run",
+      "index": 7,
+      "file": "frames/run_07.png",
+      "rect": [
+        504,
+        0,
+        39,
+        51
+      ],
+      "bottom_margin": 17,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          2,
+          30,
+          35,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 0,
+      "file": "frames/skill2_attack_00.png",
+      "rect": [
+        2046,
+        0,
+        31,
+        43
+      ],
+      "bottom_margin": 3,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          1,
+          36,
+          26,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 1,
+      "file": "frames/skill2_attack_01.png",
+      "rect": [
+        2078,
+        0,
+        31,
+        45
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          2,
+          37,
+          27,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 2,
+      "file": "frames/skill2_attack_02.png",
+      "rect": [
+        2110,
+        0,
+        59,
+        53
+      ],
+      "bottom_margin": 8,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          15,
+          41,
+          31,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 3,
+      "file": "frames/skill2_attack_03.png",
+      "rect": [
+        2170,
+        0,
+        59,
+        55
+      ],
+      "bottom_margin": 9,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          13,
+          42,
+          33,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 4,
+      "file": "frames/skill2_attack_04.png",
+      "rect": [
+        2230,
+        0,
+        57,
+        51
+      ],
+      "bottom_margin": 7,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          13,
+          40,
+          28,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 0,
+      "file": "frames/idle_00.png",
+      "rect": [
+        44,
+        0,
+        43,
+        55
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        21,
+        9,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          23,
+          10
+        ],
+        [
+          25,
+          10
+        ],
+        [
+          26,
+          10
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        4,
+        9,
+        12
+      ],
+      "foot_zones": [
+        [
+          7,
+          37,
+          27,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 1,
+      "file": "frames/idle_01.png",
+      "rect": [
+        88,
+        0,
+        43,
+        53
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        14,
+        11,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          17,
+          12
+        ],
+        [
+          19,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        5,
+        5,
+        18
+      ],
+      "foot_zones": [
+        [
+          6,
+          34,
+          31,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 2,
+      "file": "frames/idle_02.png",
+      "rect": [
+        132,
+        0,
+        43,
+        51
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        15,
+        9,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          16,
+          14
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        3,
+        6,
+        18
+      ],
+      "foot_zones": [
+        [
+          8,
+          33,
+          26,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 3,
+      "file": "frames/idle_03.png",
+      "rect": [
+        176,
+        0,
+        43,
+        53
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        15,
+        11,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          18,
+          12
+        ],
+        [
+          20,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        5,
+        5,
+        18
+      ],
+      "foot_zones": [
+        [
+          7,
+          34,
+          31,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 0,
+      "file": "frames/dead_00.png",
+      "rect": [
+        918,
+        0,
+        43,
+        51
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 1,
+      "file": "frames/dead_01.png",
+      "rect": [
+        962,
+        0,
+        41,
+        49
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 2,
+      "file": "frames/dead_02.png",
+      "rect": [
+        1004,
+        0,
+        41,
+        45
+      ],
+      "bottom_margin": 5,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 3,
+      "file": "frames/dead_03.png",
+      "rect": [
+        1046,
+        0,
+        41,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 4,
+      "file": "frames/dead_04.png",
+      "rect": [
+        1088,
+        0,
+        41,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 5,
+      "file": "frames/dead_05.png",
+      "rect": [
+        1130,
+        0,
+        41,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 6,
+      "file": "frames/dead_06.png",
+      "rect": [
+        1172,
+        0,
+        41,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "dead",
+      "index": 7,
+      "file": "frames/dead_07.png",
+      "rect": [
+        1214,
+        0,
+        41,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": []
+    },
+    {
+      "action": "skill",
+      "index": 0,
+      "file": "frames/skill_00.png",
+      "rect": [
+        1260,
+        0,
+        31,
+        49
+      ],
+      "bottom_margin": 5,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          1,
+          40,
+          27,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 1,
+      "file": "frames/skill_01.png",
+      "rect": [
+        1292,
+        0,
+        31,
+        43
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          2,
+          35,
+          27,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 2,
+      "file": "frames/skill_02.png",
+      "rect": [
+        1324,
+        0,
+        31,
+        55
+      ],
+      "bottom_margin": 7,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          1,
+          44,
+          29,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 3,
+      "file": "frames/skill_03.png",
+      "rect": [
+        1356,
+        0,
+        71,
+        57
+      ],
+      "bottom_margin": 6,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          19,
+          47,
+          35,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 4,
+      "file": "frames/skill_04.png",
+      "rect": [
+        1428,
+        0,
+        83,
+        67
+      ],
+      "bottom_margin": 8,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          24,
+          55,
+          34,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 5,
+      "file": "frames/skill_05.png",
+      "rect": [
+        1512,
+        0,
+        85,
+        77
+      ],
+      "bottom_margin": 10,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          20,
+          63,
+          42,
+          4
+        ]
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 6,
+      "file": "frames/skill_06.png",
+      "rect": [
+        1598,
+        0,
+        91,
+        87
+      ],
+      "bottom_margin": 8,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          18,
+          75,
+          55,
+          4
+        ]
+      ]
+    }
+  ]
+}

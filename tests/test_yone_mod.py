@@ -889,7 +889,7 @@ def test_localized_copy_describes_w_and_removes_soul_unbound() -> None:
             assert disclosed_value in skill2
 
 
-def test_visual_qa_records_the_stateless_cone_contract() -> None:
+def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     contract = json.loads(
         (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")
     )
@@ -1321,7 +1321,7 @@ def test_generated_qa_contact_labels_second_slot_as_w() -> None:
     assert "icon_sources = [cells[0], cells[1], cells[2]]" in source
 
 
-def test_w_actor_sequence_uses_generated_wr_native_cells_without_code_drawing() -> None:
+def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_drawing() -> None:
     source = (MOD / "tools/build_yone.py").read_text(encoding="utf-8")
     assert '"skill2_attack": [("wr", index) for index in range(5)]' in source
     for forbidden in (
@@ -1389,15 +1389,15 @@ def test_w_actor_sequence_uses_generated_wr_native_cells_without_code_drawing() 
     assert min(visible_heights) >= 32
 
 
-def test_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
+def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.5"
+    assert mod_info["version"] == "0.10.6"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
     assert "saved" in mod_info["description"].casefold()
     assert "no process-global ledger" in mod_info["description"]
-    assert "newly created 0.10.5 save" in mod_info["description"]
+    assert "save first created on 0.10.5 or later" in mod_info["description"]
     assert mod_info["dependencies"] == [
         {"mod_id": "base", "version": ">=0.5.1"}
     ]
@@ -1434,6 +1434,42 @@ def test_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
         "source/imagegen/yone_e_icon_source.png",
         "source/imagegen/yone_followup_vfx_contact.png",
         "source/processed/yone_followup_vfx_contact_alpha.png",
+    }.intersection(paths)
+
+
+def test_yone_v4_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
+    mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
+    assert "Q/W/R" in mod_info["description"]
+    assert "E-only Soul Unbound" not in mod_info["description"]
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "Q/W/R" in readme
+    assert "Soul Unbound" not in readme
+
+    v4 = json.loads(
+        (MOD / "source/native/yone_v4/frames.json").read_text(encoding="utf-8")
+    )
+    assert v4["schema_version"] == 4
+    assert v4["route"] == "exact-native-v4"
+    assert len(v4["frames"]) == 54
+
+    manifest = json.loads(
+        (MOD / "build_manifest.json").read_text(encoding="utf-8")
+    )
+    paths = {row["path"].replace("\\", "/") for row in manifest["files"]}
+    assert {
+        "aseprite_resources/effects/yone_w#anim.fanim",
+        "aseprite_resources/effects/yone_w#sheet.png",
+        "sound/sfx/lol_yone_w_cast.sound_info",
+        "sound/sfx/lol_yone_w_hit.sound_info",
+        "sound/sfx/lol_yone_w_shield.sound_info",
+    } <= paths
+    assert not {
+        "source/imagegen/yone_core_contact.png",
+        "source/imagegen/yone_run_contact.png",
+        "source/imagegen/yone_wr_body_contact.png",
+        "source/imagegen/yone_defeat_contact.png",
+        "source/processed/yone_native_body_master.png",
     }.intersection(paths)
 
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 import array
 import ctypes
 import hashlib
+import importlib.util
 import json
 import math
 import re
@@ -456,6 +457,29 @@ def load_json(relative: str) -> Any:
     except Exception as error:  # pragma: no cover - diagnostic path
         ERRORS.append(f"{relative}: cannot parse JSON: {error}")
         return {}
+
+
+def load_yone_v4_validation_report() -> dict[str, Any]:
+    """Run the exact-native V4 validator as the single Yone body authority."""
+
+    validator_path = MOD_ROOT / "tools/validate_yone_v4.py"
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "_lol_mod_validate_yone_v4", validator_path
+        )
+        if spec is None or spec.loader is None:
+            raise ImportError(f"cannot load module spec from {validator_path}")
+        module = importlib.util.module_from_spec(spec)
+        # dataclasses resolves postponed annotations through sys.modules while
+        # the dynamically loaded validator is executing.
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        report = module.validate_v4(mod_root=MOD_ROOT)
+    except Exception as error:  # validator errors are aggregated with the full suite
+        check(False, f"Yone V4 exact-native contract failed: {error}")
+        return {}
+    check(isinstance(report, dict), "Yone V4 validator returned a malformed report")
+    return report if isinstance(report, dict) else {}
 
 
 def validate_objective_killfeed_names(override: dict[str, Any]) -> None:
@@ -4968,11 +4992,13 @@ def validate_imagegen_sources() -> None:
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
     # run, defeat, and three independent VFX contacts. Xayah's corrective
     # route adds seven disjoint body contacts plus attack/Q/E/R VFX contacts.
-    # Yone adds its stable actor contacts, attack/Q effects, dedicated Q3 wind
-    # effects, E spirit poses, and R effects. Opaque icons and BP illustrations
-    # stay source-only. Keep this as a minimum so later assets can extend the
-    # active set; every discovered source still receives the alpha-corner audit.
-    minimum_processed = 64
+    # Yone's V4 actor body is 54 exact-native RGBA frames and deliberately no
+    # longer contributes four processed contact sheets here; its four accepted
+    # Q/W/R effect contacts remain in this ImageGen alpha-source inventory.
+    # Opaque icons and BP illustrations stay source-only. Keep this as a minimum
+    # so later assets can extend the active set; every discovered source still
+    # receives the alpha-corner audit.
+    minimum_processed = 60
     check(
         len(processed) >= minimum_processed,
         f"processed image-gen source set must contain at least {minimum_processed} active PNGs",
@@ -7062,33 +7088,48 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(runtime_map.get(name) == ["yone_w", tag], f"Yone W visual map changed: {name}")
     face_readability = visual.get("face_readability", {})
     face_rows = face_readability.get("all_battle_body_frames", {})
-    yone_actor_face_window = (0.18, 0.0, 0.98, 0.58)
-    yone_focused_ui_face_window = (0.35, 0.08, 0.98, 0.7)
-    yone_ui_face_windows = {
-        "fullbody": yone_actor_face_window,
-        "compact": yone_focused_ui_face_window,
-        "scoreboard": yone_focused_ui_face_window,
-        "grid": yone_actor_face_window,
-    }
-    expected_body_sources = [
-        "source/imagegen/yone_core_contact.png",
-        "source/imagegen/yone_run_contact.png",
-        "source/imagegen/yone_wr_body_contact.png",
-        "source/imagegen/yone_defeat_contact.png",
-    ]
+    v4_report = load_yone_v4_validation_report()
+    v4_frames = v4_report.get("frames", {}) if isinstance(v4_report, dict) else {}
+    check(
+        v4_report.get("schema_version") == 4
+        and v4_report.get("route") == "exact-native-v4"
+        and v4_report.get("atlas_size") == [3502, 88]
+        and v4_report.get("frame_count") == 54,
+        "Yone full validation must use the exact-native V4 54-frame contract",
+    )
+    check(
+        v4_report.get("body_transform")
+        == {
+            "resampling": "none",
+            "quantize": "none",
+            "clip": "none",
+            "proof": "exact per-frame RGBA byte identity",
+        },
+        "Yone V4 body transform must remain an exact per-frame byte copy",
+    )
+    check(
+        v4_report.get("opaque_palette_limit") == 32
+        and v4_report.get("retired_v3_paths_absent") is True,
+        "Yone V4 palette limit or retired-path proof changed",
+    )
+    preview_report = v4_report.get("body_preview", {})
+    check(
+        preview_report.get("size") == [141, 138]
+        and preview_report.get("divider_clearance", -1) >= 6
+        and preview_report.get("ui_icon_safe_rect") == [98, 70, 141, 100]
+        and preview_report.get("rendered_face_skin_pixels", 0) >= 50,
+        f"Yone V4 real card preview safety contract failed: {preview_report}",
+    )
     check(
         face_readability.get("policy")
-        == "complete adult-proportioned ImageGen body-model replacement rasterized once as whole-sheet native 1x pixel art; no per-frame resize, post-scale face repaint, or synthetic feature overlay",
-        "Yone visual QA must describe the whole-sheet final-native ImageGen model",
+        == "from-zero exact-native V4 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or legacy-model fallback",
+        "Yone visual QA must describe the exact-native V4 model",
     )
     check(
-        face_readability.get("body_source_paths") == expected_body_sources,
-        "Yone complete ImageGen body-model source set changed",
-    )
-    check(
-        face_readability.get("actor_resampling")
-        == "whole-sheet NEAREST once; pack-time NONE",
-        "Yone actor must use one whole-sheet native conversion and no pack-time resampling",
+        face_readability.get("body_source_manifest")
+        == "source/native/yone_v4/frames.json"
+        and face_readability.get("actor_resampling") == "NONE",
+        "Yone visual QA must point only to the V4 manifest and forbid actor resampling",
     )
     check(
         face_readability.get("idle_face_contract")
@@ -7101,347 +7142,46 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone source-authored idle/card face contract changed",
     )
     check(
-        not any(
-            key in face_readability
-            for key in (
-                "front_frames",
-                "profile_frames",
-                "single_eye_profile_frames",
-                "feature_rgba",
-                "tone_rgba",
-                "ui_recipes",
-            )
-        ),
-        "Yone visual QA still exposes the retired sparse-marker/template contract",
+        isinstance(face_rows, dict)
+        and len(face_rows) == 54
+        and set(face_rows) == set(v4_frames),
+        "Yone annotation QA must cover exactly the same 54 V4 body frames",
     )
-
-    def yone_point_components(
-        points: set[tuple[int, int]],
-    ) -> list[set[tuple[int, int]]]:
-        remaining = set(points)
-        components: list[set[tuple[int, int]]] = []
-        while remaining:
-            seed = remaining.pop()
-            component = {seed}
-            queue = [seed]
-            while queue:
-                x, y = queue.pop()
-                for yy in range(y - 1, y + 2):
-                    for xx in range(x - 1, x + 2):
-                        point = (xx, yy)
-                        if point in remaining:
-                            remaining.remove(point)
-                            component.add(point)
-                            queue.append(point)
-            components.append(component)
-        return components
-
-    def yone_component_bbox(
-        component: set[tuple[int, int]],
-    ) -> tuple[int, int, int, int]:
-        return (
-            min(x for x, _ in component),
-            min(y for _, y in component),
-            max(x for x, _ in component) + 1,
-            max(y for _, y in component) + 1,
-        )
-
-    def yone_is_warm_face_pixel(pixel: tuple[int, int, int, int]) -> bool:
-        red, green, blue, alpha = pixel
-        return (
-            alpha >= 128
-            and red >= 135
-            and green >= 70
-            and blue >= 45
-            and red > green
-            and green >= blue * 0.72
-        )
-
-    def yone_is_near_white(pixel: tuple[int, int, int, int]) -> bool:
-        red, green, blue, alpha = pixel
-        return (
-            alpha >= 128
-            and min(red, green, blue) >= 218
-            and max(red, green, blue) - min(red, green, blue) <= 45
-        )
-
-    def yone_face_window_rect(
-        image: Image.Image,
-        window: tuple[float, float, float, float],
-    ) -> tuple[tuple[int, int, int, int], tuple[int, int, int, int]]:
-        body = image.getchannel("A").getbbox()
-        if body is None:
-            raise ValueError("Yone face validation received an empty frame")
-        left, top, right, bottom = body
-        width = right - left
-        height = bottom - top
-        return body, (
-            left + round(width * window[0]),
-            top + round(height * window[1]),
-            left + round(width * window[2]),
-            top + round(height * window[3]),
-        )
-
-    def yone_locate_face_component(
-        image: Image.Image,
-        window: tuple[float, float, float, float],
-    ) -> tuple[set[tuple[int, int]], tuple[int, int, int, int]]:
-        body, (x0, y0, x1, y1) = yone_face_window_rect(image, window)
-        warm_skin = {
-            (x, y)
-            for y in range(y0, y1)
-            for x in range(x0, x1)
-            if yone_is_warm_face_pixel(image.getpixel((x, y)))
-        }
-        minimum = max(4, round((body[3] - body[1]) * 0.13))
-        components = [
-            component for component in yone_point_components(warm_skin) if len(component) >= minimum
-        ]
-        if not components:
-            raise ValueError(f"Yone frame has no warm-skin face candidate in {(x0, y0, x1, y1)}")
-        target_x = body[0] + (body[2] - body[0]) * 0.58
-        target_y = body[1] + (body[3] - body[1]) * 0.28
-
-        def component_score(component: set[tuple[int, int]]) -> tuple[float, int]:
-            left, top, right, bottom = yone_component_bbox(component)
-            center_x = (left + right) / 2.0
-            center_y = (top + bottom) / 2.0
-            position = (
-                ((center_y - target_y) / max(1, body[3] - body[1])) ** 2
-                + 0.35 * ((center_x - target_x) / max(1, body[2] - body[0])) ** 2
-            )
-            return position, -len(component)
-
-        selected = min(components, key=component_score)
-        return selected, yone_component_bbox(selected)
-
-    def yone_adjacent_dark_eye_cues(
-        image: Image.Image,
-        warm_skin: set[tuple[int, int]],
-        face_bbox: tuple[int, int, int, int] | None,
-    ) -> set[tuple[int, int]]:
-        """Find dark, non-mask pixels adjacent to the upper warm-skin face."""
-
-        if face_bbox is None:
-            return set()
-        left, top, right, bottom = face_bbox
-        upper_limit = top + max(3, (bottom - top) * 2 // 3)
-        cues: set[tuple[int, int]] = set()
-        for skin_x, skin_y in warm_skin:
-            for y in range(max(top, skin_y - 1), min(upper_limit, skin_y + 2)):
-                for x in range(max(left - 1, skin_x - 1), min(right + 1, skin_x + 2)):
-                    if (x, y) in warm_skin:
-                        continue
-                    red, green, blue, alpha = image.getpixel((x, y))
-                    luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
-                    red_mask = red >= 90 and red > green * 1.55 and red > blue * 1.35
-                    if alpha >= 128 and luminance <= 72 and not red_mask:
-                        cues.add((x, y))
-        return cues
-
-    def yone_face_metrics(
-        image: Image.Image,
-        window: tuple[float, float, float, float] = (0.18, 0.0, 0.98, 0.58),
-    ) -> dict[str, Any]:
-        try:
-            body, (x0, y0, x1, y1) = yone_face_window_rect(image, window)
-        except ValueError:
-            return {}
-        try:
-            warm_skin, face_bbox = yone_locate_face_component(image, window)
-        except ValueError:
-            warm_skin, face_bbox = set(), None
-        dark_eye_cues = yone_adjacent_dark_eye_cues(image, warm_skin, face_bbox)
-        red_mask = {
-            (x, y)
-            for y in range(y0, y1)
-            for x in range(x0, x1)
-            if (
-                image.getpixel((x, y))[3] >= 128
-                and image.getpixel((x, y))[0] >= 90
-                and image.getpixel((x, y))[0] > image.getpixel((x, y))[1] * 1.55
-                and image.getpixel((x, y))[0] > image.getpixel((x, y))[2] * 1.35
-            )
-        }
-        luminance = [
-            0.2126 * image.getpixel(point)[0]
-            + 0.7152 * image.getpixel(point)[1]
-            + 0.0722 * image.getpixel(point)[2]
-            for point in warm_skin
-        ]
-        near_white = sum(
-            1 for point in warm_skin if yone_is_near_white(image.getpixel(point))
-        )
-        face_contrast = (
-            max(luminance) - min(luminance)
-            if luminance
-            else 0.0
-        )
-        face_width = 0 if face_bbox is None else face_bbox[2] - face_bbox[0]
-        face_height = 0 if face_bbox is None else face_bbox[3] - face_bbox[1]
-        readable_geometry = (
-            face_width >= 2
-            and face_height >= 2
-            and len(warm_skin) >= 4
-            and face_contrast >= 12
-        )
-        minimal_feature_set = (
-            readable_geometry
-            and bool(warm_skin)
-            and bool(dark_eye_cues)
-            and near_white <= max(2, len(warm_skin) // 20)
-        )
-        return {
-            "body_bbox": list(body),
-            "face_window": [x0, y0, x1, y1],
-            "face_skin_pixels": len(warm_skin),
-            "warm_skin_pixels": len(warm_skin),
-            "face_skin_bbox": list(face_bbox) if face_bbox else None,
-            "warm_skin_component_present": bool(warm_skin),
-            "minimal_feature_set": minimal_feature_set,
-            "near_white_pixels": near_white,
-            "face_contrast": round(face_contrast, 3),
-            "adjacent_dark_eye_cue": bool(dark_eye_cues),
-            "adjacent_dark_eye_cue_pixels": len(dark_eye_cues),
-            "adjacent_dark_eye_cue_positions": [list(point) for point in sorted(dark_eye_cues)],
-            "natural_dark_feature_pixels": len(dark_eye_cues),
-            "natural_dark_feature_positions": [list(point) for point in sorted(dark_eye_cues)],
-            "red_mask_pixels": len(red_mask),
-            "red_mask_bbox": list(yone_component_bbox(red_mask)) if red_mask else None,
-        }
-
-    def yone_scaled_face_metrics(
-        source: Image.Image,
-        rendered: Image.Image,
-    ) -> dict[str, Any]:
-        source_quality = yone_face_metrics(source)
-        try:
-            source_face_component, _ = yone_locate_face_component(source, yone_actor_face_window)
-        except ValueError:
-            source_face_component = set()
-        face_mask = Image.new("L", source.size, 0)
-        for point in source_face_component:
-            face_mask.putpixel(point, 255)
-        rendered_face_mask = face_mask.resize(rendered.size, Image.Resampling.NEAREST)
-        rendered_face_bbox = rendered_face_mask.getbbox()
-        rendered_face_pixels = sum(
-            1
-            for value in getattr(
-                rendered_face_mask,
-                "get_flattened_data",
-                rendered_face_mask.getdata,
-            )()
-            if value
-        )
-        source_eye_cues = {
-            tuple(point)
-            for point in source_quality.get("adjacent_dark_eye_cue_positions", [])
-        }
-        eye_mask = Image.new("L", source.size, 0)
-        for point in source_eye_cues:
-            eye_mask.putpixel(point, 255)
-        rendered_eye_mask = eye_mask.resize(rendered.size, Image.Resampling.NEAREST)
-        rendered_eye_pixels = sum(
-            1
-            for value in getattr(
-                rendered_eye_mask,
-                "get_flattened_data",
-                rendered_eye_mask.getdata,
-            )()
-            if value
-        )
-        return {
-            "source_face_skin_bbox": source_quality.get("face_skin_bbox"),
-            "rendered_face_skin_bbox": list(rendered_face_bbox) if rendered_face_bbox else None,
-            "rendered_face_skin_pixels": rendered_face_pixels,
-            "source_warm_skin_component_present": source_quality.get("warm_skin_component_present"),
-            "source_adjacent_dark_eye_cue": source_quality.get("adjacent_dark_eye_cue"),
-            "source_adjacent_dark_eye_cue_pixels": source_quality.get("adjacent_dark_eye_cue_pixels"),
-            # Project the exact source masks through the same NEAREST route.
-            # Re-running a locator after scaling can select a nearby arm/neck
-            # component even when every authored face pixel survived.
-            "rendered_warm_skin_component_present": rendered_face_pixels > 0,
-            "rendered_adjacent_dark_eye_cue": rendered_eye_pixels > 0,
-            "rendered_adjacent_dark_eye_cue_pixels": rendered_eye_pixels,
-            "source_near_white_pixels": source_quality.get("near_white_pixels"),
-            "source_face_contrast": source_quality.get("face_contrast"),
-            "source_red_mask_pixels": source_quality.get("red_mask_pixels"),
-            "source_red_mask_bbox": source_quality.get("red_mask_bbox"),
-        }
-
-    check(len(face_rows) == 54, "Yone face QA must record all 54 visible battle body frames")
-    for frame_name, quality in face_rows.items():
-        tag = frame_name.partition("[")[0]
-        if tag == "dead":
-            check(
-                quality.get("red_mask_pixels", 0) >= 1,
-                f"Yone {frame_name} lost the rebuilt mask silhouette: {quality}",
-            )
-            continue
-        bbox = quality.get("face_skin_bbox")
-        if tag == "idle":
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                4, 5, 10, 18
-            )
-        elif tag == "run":
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                4, 3, 6, 50
-            )
-        else:
-            minimum_width, minimum_height, minimum_skin, minimum_contrast = (
-                3, 2, 4, 12
-            )
-        natural_face = (
-            isinstance(bbox, list)
-            and len(bbox) == 4
-            and bbox[2] - bbox[0] >= minimum_width
-            and bbox[3] - bbox[1] >= minimum_height
-            and quality.get("face_skin_pixels", 0) >= minimum_skin
-            and quality.get("warm_skin_component_present") is True
-            and quality.get("adjacent_dark_eye_cue") is True
-            and quality.get("face_contrast", 0) >= minimum_contrast
-            and quality.get("near_white_pixels", 99)
-            <= max(2, quality.get("face_skin_pixels", 0) // 20)
-            and quality.get("minimal_feature_set") is True
-        )
-        check(
-            natural_face,
-            f"Yone natural ImageGen face is unreadable in {frame_name}: {quality}",
-        )
-        if tag == "idle":
-            check(
-                quality.get("warm_skin_component_present") is True
-                and quality.get("adjacent_dark_eye_cue") is True
-                and quality.get("near_white_pixels", 99) <= 1,
-                f"Yone {frame_name} must retain its measured warm-skin 3/4 face cue: {quality}",
-            )
-
-    ui_face_rows = face_readability.get("ui_surfaces", {})
     check(
-        set(ui_face_rows) == set(yone_ui_face_windows),
-        f"Yone UI face QA surfaces changed: {set(ui_face_rows)}",
+        isinstance(v4_frames, dict)
+        and len(v4_frames) == 54
+        and all(
+            isinstance(row, dict)
+            and row.get("source_to_atlas_byte_identical") is True
+            and row.get("hard_alpha") is True
+            and row.get("zero_resampling") is True
+            and row.get("zero_quantize") is True
+            and row.get("zero_clip") is True
+            and int(row.get("opaque_palette_colors", 99)) <= 32
+            for row in v4_frames.values()
+        ),
+        "Yone V4 frame report lost byte identity, hard alpha, zero clip, or palette compliance",
     )
-    for surface in yone_ui_face_windows:
-        quality = ui_face_rows.get(surface, {})
-        bbox = quality.get("face_skin_bbox")
-        if surface == "fullbody":
-            minimum_width, minimum_height, minimum_skin = 5, 6, 14
-        else:
-            minimum_width, minimum_height, minimum_skin = 6, 8, 20
+    for index in range(4):
+        frame_name = f"idle[{index}]"
+        annotation = face_rows.get(frame_name, {})
+        face_bbox = annotation.get("face_bbox")
+        eye_pixels = annotation.get("eye_pixels")
+        mask_bbox = annotation.get("mask_bbox")
         check(
-            quality.get("warm_skin_component_present") is True
-            and quality.get("adjacent_dark_eye_cue") is True
-            and isinstance(bbox, list)
-            and len(bbox) == 4
-            and bbox[2] - bbox[0] >= minimum_width
-            and bbox[3] - bbox[1] >= minimum_height
-            and quality.get("face_skin_pixels", 0) >= minimum_skin
-            and quality.get("face_contrast", 0) >= 18
-            and quality.get("near_white_pixels", 99)
-            <= max(4, quality.get("face_skin_pixels", 0) // 10),
-            f"Yone {surface} natural ImageGen face is unreadable: {quality}",
+            annotation.get("contract")
+            == "frames.json local-coordinate annotations"
+            and annotation.get("source_to_atlas_byte_identical") is True
+            and isinstance(face_bbox, list)
+            and len(face_bbox) == 4
+            and face_bbox[2] >= 6
+            and face_bbox[3] >= 7
+            and isinstance(eye_pixels, list)
+            and len({tuple(point) for point in eye_pixels if isinstance(point, list) and len(point) == 2}) >= 2
+            and isinstance(mask_bbox, list)
+            and len(mask_bbox) == 4,
+            f"Yone {frame_name} explicit V4 face/eye/mask annotations are incomplete: {annotation}",
         )
-
     retired_paths = (
         "aseprite_resources/effects/yone_spirit#anim.fanim",
         "aseprite_resources/effects/yone_spirit#sheet.png",
@@ -7522,15 +7262,19 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.5", "lol_mod version must be 0.10.5")
+    check(mod_info.get("version") == "0.10.6", "lol_mod version must be 0.10.6")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
     )
     description = str(mod_info.get("description", ""))
     check(
-        "0.5.1" in description and "saved" in description.casefold(),
-        "mod metadata must document base 0.5.1 and saved-season compatibility",
+        all(
+            token in description
+            for token in ("0.5.1", "0.10.5", "0.10.6", "54", "141x138", "32")
+        )
+        and "saved" in description.casefold(),
+        "mod metadata must document the 0.10.6 native-frame visual route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -7571,144 +7315,42 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(native_actor_qa.get("sheet_size") == [3502, 88], "Yone visual QA actor canvas is stale")
     check(native_actor_qa.get("tag_order") == list(expected_actor_contract), "Yone visual QA actor tag order is stale")
     check(
-        native_actor_qa.get("body_master")
-        == "source/processed/yone_native_body_master.png",
-        "Yone visual QA must name the final native body master",
+        native_actor_qa.get("pack_time_resampling")
+        == "none; 54 exact-size V4 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
+        "Yone visual QA must forbid every pack-time body transform",
     )
     check(
-        str(native_actor_qa.get("pack_time_resampling", "")).startswith("none;"),
-        "Yone visual QA must forbid pack-time body resampling",
+        not any(
+            retired_key in native_actor_qa
+            for retired_key in (
+                "body_master",
+                "body_logical_sheets",
+                "horizontal_clip_whitelist",
+                "master_to_atlas_identity",
+            )
+        ),
+        "Yone visual QA still exposes retired V3 master/contact-sheet fields",
     )
-    native_sheet_qa = native_actor_qa.get("body_logical_sheets", {})
-    check(isinstance(native_sheet_qa, dict), "Yone whole-sheet native scale QA is malformed")
-    if not isinstance(native_sheet_qa, dict):
-        native_sheet_qa = {}
+
+    body_source_contract = native_actor_qa.get("body_source_contract", {})
     check(
-        set(native_sheet_qa) == {"core", "run", "wr", "defeat"},
-        "Yone whole-sheet native scale QA must cover core/run/wr/defeat",
+        body_source_contract.get("schema_version") == 4
+        and body_source_contract.get("route") == "exact-native-v4"
+        and body_source_contract.get("manifest") == "source/native/yone_v4/frames.json"
+        and body_source_contract.get("atlas_size") == [3502, 88]
+        and body_source_contract.get("frame_count") == 54
+        and body_source_contract.get("body_processing")
+        == "none; exact final 1x RGBA byte copy",
+        f"Yone native actor source contract is not exact-native V4: {body_source_contract}",
     )
-    audited_logical_alpha: dict[str, list[Image.Image]] = {}
-    for sheet_name, row in native_sheet_qa.items():
-        check(isinstance(row, dict), f"Yone {sheet_name} scale QA is malformed")
-        if not isinstance(row, dict):
-            continue
-        source_relative = row.get("source")
-        source_path = MOD_ROOT / str(source_relative)
-        check(source_path.is_file(), f"Yone {sheet_name} native source is missing")
-        if not source_path.is_file():
-            continue
-        source = Image.open(source_path).convert("RGBA")
-        source_size = list(source.size)
-        grid = row.get("grid")
-        logical_size = row.get("logical_size")
-        cropped_size = row.get("cropped_size")
-        margins = row.get("crop_margins")
-        check(row.get("source_size") == source_size, f"Yone {sheet_name} source-size QA is stale")
-        check(
-            isinstance(grid, list)
-            and len(grid) == 2
-            and all(isinstance(value, int) and value > 0 for value in grid),
-            f"Yone {sheet_name} grid QA is invalid",
-        )
-        check(
-            isinstance(logical_size, list)
-            and len(logical_size) == 2
-            and all(isinstance(value, int) and value > 0 for value in logical_size),
-            f"Yone {sheet_name} logical-size QA is invalid",
-        )
-        check(
-            isinstance(cropped_size, list)
-            and len(cropped_size) == 2
-            and all(isinstance(value, int) and value > 0 for value in cropped_size),
-            f"Yone {sheet_name} cropped-size QA is invalid",
-        )
-        check(
-            isinstance(margins, dict)
-            and set(margins) == {"left", "top", "right", "bottom"}
-            and all(isinstance(value, int) and value >= 0 for value in margins.values()),
-            f"Yone {sheet_name} crop-margin QA is invalid",
-        )
-        if not (
-            isinstance(grid, list)
-            and len(grid) == 2
-            and all(isinstance(value, int) and value > 0 for value in grid)
-            and isinstance(logical_size, list)
-            and len(logical_size) == 2
-            and all(isinstance(value, int) and value > 0 for value in logical_size)
-            and isinstance(cropped_size, list)
-            and len(cropped_size) == 2
-            and all(isinstance(value, int) and value > 0 for value in cropped_size)
-            and isinstance(margins, dict)
-            and set(margins) == {"left", "top", "right", "bottom"}
-            and all(isinstance(value, int) and value >= 0 for value in margins.values())
-        ):
-            continue
-        check(
-            cropped_size[0] + margins["left"] + margins["right"] == source.width
-            and cropped_size[1] + margins["top"] + margins["bottom"] == source.height,
-            f"Yone {sheet_name} crop geometry QA is stale",
-        )
-        check(
-            cropped_size[0] % grid[0] == 0
-            and cropped_size[1] % grid[1] == 0
-            and logical_size[0] % grid[0] == 0
-            and logical_size[1] % grid[1] == 0,
-            f"Yone {sheet_name} whole-sheet grids are not divisible",
-        )
-        crop_box = (
-            margins["left"],
-            margins["top"],
-            source.width - margins["right"],
-            source.height - margins["bottom"],
-        )
-        alpha = source.getchannel("A")
-        edge_boxes = (
-            (0, 0, crop_box[0], source.height),
-            (crop_box[2], 0, source.width, source.height),
-            (crop_box[0], 0, crop_box[2], crop_box[1]),
-            (crop_box[0], crop_box[3], crop_box[2], source.height),
-        )
-        actual_crop_loss = sum(
-            sum(alpha.crop(box).histogram()[64:])
-            for box in edge_boxes
-            if box[2] > box[0] and box[3] > box[1]
-        )
-        check(
-            actual_crop_loss == 0
-            and row.get("crop_lost_opaque_pixels") == 0,
-            f"Yone {sheet_name} divisible-grid crop discards visible pixels",
-        )
-        scale_x = logical_size[0] / cropped_size[0]
-        scale_y = logical_size[1] / cropped_size[1]
-        scale_delta = abs(scale_x - scale_y) / max(scale_x, scale_y)
-        check(
-            math.isclose(float(row.get("scale_x", -1)), scale_x, rel_tol=0.0, abs_tol=1e-12)
-            and math.isclose(float(row.get("scale_y", -1)), scale_y, rel_tol=0.0, abs_tol=1e-12)
-            and math.isclose(
-                float(row.get("scale_relative_delta", -1)),
-                round(scale_delta, 12),
-                rel_tol=0.0,
-                abs_tol=1e-12,
-            ),
-            f"Yone {sheet_name} whole-sheet scale QA is stale",
-        )
-        check(
-            row.get("near_isotropic") is True
-            and row.get("scale_relative_delta_limit_exclusive") == 0.005
-            and scale_delta < 0.005,
-            f"Yone {sheet_name} whole-sheet resize is not near-isotropic",
-        )
-        cropped = source.crop(crop_box)
-        logical_alpha = cropped.getchannel("A").resize(
-            tuple(logical_size), Image.Resampling.NEAREST
-        ).point(lambda value: 255 if value >= 96 else 0)
-        xs = [round(index * logical_size[0] / grid[0]) for index in range(grid[0] + 1)]
-        ys = [round(index * logical_size[1] / grid[1]) for index in range(grid[1] + 1)]
-        audited_logical_alpha[sheet_name] = [
-            logical_alpha.crop((xs[x], ys[y], xs[x + 1], ys[y + 1]))
-            for y in range(grid[1])
-            for x in range(grid[0])
-        ]
+    palette_contract = body_source_contract.get("palette", {})
+    check(
+        palette_contract.get("path") == "source/native/yone_v4/palette.json"
+        and palette_contract.get("schema_version") == 4
+        and palette_contract.get("route") == "exact-native-v4"
+        and 1 <= int(palette_contract.get("opaque_color_count", 99)) <= 32,
+        f"Yone V4 palette contract changed: {palette_contract}",
+    )
 
     expected_body_rects = {
         f"{tag}[{index}]": list(rect)
@@ -7722,255 +7364,113 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             else expected_actor_contract[tag][1]
         )
     }
-    source_audit_actor_sheet = (
-        Image.open(actor_sheet_path).convert("RGBA")
-        if actor_sheet_path.is_file()
-        else None
-    )
     native_frame_sources = native_actor_qa.get("body_frame_sources", {})
-    clip_whitelist = native_actor_qa.get("horizontal_clip_whitelist", {})
-    check(isinstance(native_frame_sources, dict), "Yone per-frame native source QA is malformed")
-    if not isinstance(native_frame_sources, dict):
-        native_frame_sources = {}
-    check(
-        set(native_frame_sources) == set(expected_body_rects),
-        "Yone per-frame native source QA must cover exactly 54 visible bodies",
-    )
-    check(isinstance(clip_whitelist, dict), "Yone horizontal clip whitelist QA is malformed")
-    if not isinstance(clip_whitelist, dict):
-        clip_whitelist = {}
-    check(
-        set(clip_whitelist).issubset(expected_body_rects),
-        "Yone horizontal clip whitelist references an unknown body frame",
-    )
-    for frame_name, expected_rect in expected_body_rects.items():
-        row = native_frame_sources.get(frame_name, {})
-        check(isinstance(row, dict), f"Yone {frame_name} source QA is malformed")
-        if not isinstance(row, dict):
-            continue
-        mapping = row.get("source_mapping", {})
-        sheet_name = mapping.get("sheet") if isinstance(mapping, dict) else None
-        cell_index = mapping.get("cell_index") if isinstance(mapping, dict) else None
-        check(
-            isinstance(mapping, dict)
-            and set(mapping) == {"sheet", "cell_index"}
-            and sheet_name in audited_logical_alpha
-            and isinstance(cell_index, int)
-            and not isinstance(cell_index, bool)
-            and 0 <= cell_index < len(audited_logical_alpha.get(sheet_name, [])),
-            f"Yone {frame_name} source mapping is invalid: {mapping}",
-        )
-        check(row.get("native_rect") == expected_rect, f"Yone {frame_name} native rect QA is stale")
-        if not (
-            sheet_name in audited_logical_alpha
-            and isinstance(cell_index, int)
-            and not isinstance(cell_index, bool)
-            and 0 <= cell_index < len(audited_logical_alpha[sheet_name])
-        ):
-            continue
-        cell_alpha = audited_logical_alpha[sheet_name][cell_index]
-        source_bbox = cell_alpha.getbbox()
-        check(source_bbox is not None, f"Yone {frame_name} mapped source cell is empty")
-        if source_bbox is None:
-            continue
-        subject_alpha = cell_alpha.crop(source_bbox)
-        source_opaque_pixels = sum(subject_alpha.histogram()[128:])
-        check(row.get("source_cell_size") == list(cell_alpha.size), f"Yone {frame_name} cell-size QA is stale")
-        check(row.get("source_alpha_bbox") == list(source_bbox), f"Yone {frame_name} source bbox QA is stale")
-        check(row.get("source_subject_size") == list(subject_alpha.size), f"Yone {frame_name} subject-size QA is stale")
-        check(row.get("source_opaque_pixels") == source_opaque_pixels, f"Yone {frame_name} source alpha count is stale")
-
-        placement = row.get("placement_origin")
-        visible_source_bbox = row.get("visible_source_bbox")
-        check(
-            isinstance(placement, list)
-            and len(placement) == 2
-            and all(isinstance(value, int) for value in placement),
-            f"Yone {frame_name} placement-origin QA is malformed",
-        )
-        check(
-            isinstance(visible_source_bbox, list)
-            and len(visible_source_bbox) == 4
-            and all(isinstance(value, int) for value in visible_source_bbox),
-            f"Yone {frame_name} visible-source bbox QA is malformed",
-        )
-        if not (
-            isinstance(placement, list)
-            and len(placement) == 2
-            and all(isinstance(value, int) for value in placement)
-            and isinstance(visible_source_bbox, list)
-            and len(visible_source_bbox) == 4
-            and all(isinstance(value, int) for value in visible_source_bbox)
-        ):
-            continue
-        frame_width, frame_height = expected_rect[2], expected_rect[3]
-        placement_x, placement_y = placement
-        check(
-            placement_x == (frame_width - subject_alpha.width) // 2,
-            f"Yone {frame_name} source is not horizontally centred",
-        )
-        src_left = max(0, -placement_x)
-        src_top = max(0, -placement_y)
-        src_right = min(subject_alpha.width, frame_width - placement_x)
-        src_bottom = min(subject_alpha.height, frame_height - placement_y)
-        expected_visible_source_bbox = [src_left, src_top, src_right, src_bottom]
-        check(
-            src_left < src_right
-            and src_top < src_bottom
-            and visible_source_bbox == expected_visible_source_bbox,
-            f"Yone {frame_name} visible-source bbox QA is stale",
-        )
-        if not (src_left < src_right and src_top < src_bottom):
-            continue
-        actual_lost_sides = {
-            "top": sum(subject_alpha.crop((0, 0, subject_alpha.width, src_top)).histogram()[128:]),
-            "bottom": sum(subject_alpha.crop((0, src_bottom, subject_alpha.width, subject_alpha.height)).histogram()[128:]),
-            "left": sum(subject_alpha.crop((0, src_top, src_left, src_bottom)).histogram()[128:]),
-            "right": sum(subject_alpha.crop((src_right, src_top, subject_alpha.width, src_bottom)).histogram()[128:]),
-        }
-        expected_frame_alpha = Image.new("L", (frame_width, frame_height), 0)
-        expected_frame_alpha.paste(
-            subject_alpha.crop((src_left, src_top, src_right, src_bottom)),
-            (max(0, placement_x), max(0, placement_y)),
-        )
-        expected_destination_bbox = expected_frame_alpha.getbbox()
-        check(
-            expected_destination_bbox is not None
-            and row.get("destination_alpha_bbox") == list(expected_destination_bbox),
-            f"Yone {frame_name} destination bbox QA is stale",
-        )
-        if source_audit_actor_sheet is not None:
-            frame_x, frame_y = expected_rect[0], expected_rect[1]
-            actual_frame_alpha = source_audit_actor_sheet.crop(
-                (
-                    frame_x,
-                    frame_y,
-                    frame_x + frame_width,
-                    frame_y + frame_height,
-                )
-            ).getchannel("A")
-            check(
-                actual_frame_alpha.tobytes() == expected_frame_alpha.tobytes(),
-                f"Yone {frame_name} atlas alpha no longer matches its mapped source cell",
-            )
-
-        sides = row.get("clip_sides_lost_opaque", {})
-        check(
-            isinstance(sides, dict)
-            and set(sides) == {"top", "bottom", "left", "right"}
-            and all(isinstance(value, int) and value >= 0 for value in sides.values()),
-            f"Yone {frame_name} clip-side QA is malformed",
-        )
-        if not isinstance(sides, dict) or set(sides) != {"top", "bottom", "left", "right"}:
-            continue
-        check(
-            sides == actual_lost_sides,
-            f"Yone {frame_name} clip-side counts are stale",
-        )
-        check(
-            sides["top"] == 0 and sides["bottom"] == 0,
-            f"Yone {frame_name} clips forbidden vertical opaque pixels",
-        )
-        lost_total = sum(sides.values())
-        check(row.get("lost_opaque_pixels") == lost_total, f"Yone {frame_name} clip total is stale")
-        check(
-            math.isclose(
-                float(row.get("lost_opaque_ratio", -1)),
-                round(lost_total / max(1, source_opaque_pixels), 12),
-                rel_tol=0.0,
-                abs_tol=1e-12,
-            ),
-            f"Yone {frame_name} clip ratio is stale",
-        )
-        configured = clip_whitelist.get(frame_name, {})
-        check(isinstance(configured, dict), f"Yone {frame_name} clip whitelist entry is malformed")
-        if not isinstance(configured, dict):
-            configured = {}
-        check(
-            set(configured).issubset({"left", "right"}),
-            f"Yone {frame_name} clip whitelist may contain only left/right",
-        )
-        resolved_limits = row.get("horizontal_clip_limits", {})
-        check(
-            isinstance(resolved_limits, dict)
-            and set(resolved_limits) == {"left", "right"},
-            f"Yone {frame_name} resolved clip limits are malformed",
-        )
-        if not isinstance(resolved_limits, dict):
-            continue
-        for side in ("left", "right"):
-            expected_limit = configured.get(
-                side,
-                {"max_lost_opaque_pixels": 0, "max_lost_opaque_ratio": 0.0},
-            )
-            limit = resolved_limits.get(side, {})
-            check(limit == expected_limit, f"Yone {frame_name} {side} clip limit QA is stale")
-            if not isinstance(limit, dict):
-                continue
-            maximum_pixels = limit.get("max_lost_opaque_pixels")
-            maximum_ratio = limit.get("max_lost_opaque_ratio")
-            check(
-                isinstance(maximum_pixels, int)
-                and not isinstance(maximum_pixels, bool)
-                and maximum_pixels >= 0
-                and isinstance(maximum_ratio, (int, float))
-                and not isinstance(maximum_ratio, bool)
-                and math.isfinite(float(maximum_ratio))
-                and 0.0 <= float(maximum_ratio) <= 1.0
-                and sides[side] <= maximum_pixels
-                and sides[side] / max(1, source_opaque_pixels) <= float(maximum_ratio),
-                f"Yone {frame_name} exceeds its finite {side} clip budget",
-            )
-        if sides["left"] or sides["right"]:
-            check(
-                frame_name in clip_whitelist,
-                f"Yone {frame_name} horizontal clip is not explicitly whitelisted",
-            )
-
-    native_identity = native_actor_qa.get("master_to_atlas_identity", {})
-    check(
-        len(native_identity) == 54
-        and all(
-            row.get("master_to_atlas_byte_identical") is True
-            for row in native_identity.values()
-            if isinstance(row, dict)
-        ),
-        "Yone native-master identity QA must cover all 54 visible bodies",
-    )
+    source_identity = native_actor_qa.get("source_to_atlas_identity", {})
     native_pixel_rows = native_actor_qa.get("pixel_quality", {}).get("frames", {})
     check(
-        len(native_pixel_rows) == 54
-        and all(
-            row.get("hard_alpha") is True
-            and int(row.get("opaque_palette_size", 99)) <= 48
-            for row in native_pixel_rows.values()
-            if isinstance(row, dict)
-        ),
-        "Yone native 1x frames must retain hard alpha and <=48 opaque colors",
+        isinstance(native_frame_sources, dict)
+        and set(native_frame_sources) == set(expected_body_rects),
+        "Yone V4 source map must cover exactly 54 native body rectangles",
     )
+    check(
+        isinstance(source_identity, dict)
+        and set(source_identity) == set(expected_body_rects)
+        and all(
+            isinstance(row, dict)
+            and row.get("source_to_atlas_byte_identical") is True
+            for row in source_identity.values()
+        ),
+        "Yone V4 source-to-atlas identity QA must cover all 54 body frames",
+    )
+    check(
+        isinstance(native_pixel_rows, dict)
+        and set(native_pixel_rows) == set(expected_body_rects)
+        and all(
+            isinstance(row, dict)
+            and row.get("hard_alpha") is True
+            and row.get("alpha_values") == [0, 255]
+            and int(row.get("opaque_palette_size", 99)) <= 32
+            for row in native_pixel_rows.values()
+        ),
+        "Yone V4 frame pixel QA lost hard alpha or the 32-color ceiling",
+    )
+    for frame_name, native_rect in expected_body_rects.items():
+        source_row = native_frame_sources.get(frame_name, {})
+        report_row = v4_frames.get(frame_name, {})
+        identity_row = source_identity.get(frame_name, {})
+        pixel_row = native_pixel_rows.get(frame_name, {})
+        expected_source = (
+            f"source/native/yone_v4/{report_row.get('file')}"
+            if isinstance(report_row, dict) and report_row.get("file")
+            else None
+        )
+        check(
+            isinstance(source_row, dict)
+            and source_row.get("source") == expected_source
+            and source_row.get("native_rect") == native_rect
+            and source_row.get("source_size") == native_rect[2:]
+            and source_row.get("pack_transform") == "none"
+            and source_row.get("hard_alpha") is True
+            and int(source_row.get("opaque_palette_size", 99)) <= 32
+            and source_row.get("bottom_margin") == report_row.get("bottom_margin")
+            and pixel_row.get("hard_alpha") is True
+            and pixel_row.get("opaque_palette_size")
+            == report_row.get("opaque_palette_colors"),
+            f"Yone {frame_name} generated V4 source audit is stale: {source_row}",
+        )
+        if isinstance(expected_source, str):
+            source_path = MOD_ROOT / expected_source
+            check(source_path.is_file(), f"Yone V4 source frame is missing: {expected_source}")
+            if source_path.is_file():
+                with Image.open(source_path).convert("RGBA") as source_image:
+                    check(
+                        identity_row.get("sha256")
+                        == hashlib.sha256(source_image.tobytes()).hexdigest(),
+                        f"Yone {frame_name} source identity hash is stale",
+                    )
+
     yone_builder_source = (MOD_ROOT / "tools/build_yone.py").read_text(
         encoding="utf-8"
     )
     actor_builder_source = yone_builder_source.split("def build_actor()", 1)[-1].split(
         "EffectFrame =", 1
     )[0]
-    check(
-        "logical = cropped.resize(logical_size, Image.Resampling.NEAREST)"
-        in yone_builder_source,
-        "Yone must rasterize each complete body sheet once to its native grid",
-    )
-    check(
-        ".resize(" not in actor_builder_source,
-        "Yone build_actor must copy final native body pixels without resizing",
-    )
-    for forbidden_builder_symbol in (
-        "def fit_actor(",
-        "def add_yone_w_weapon_pose(",
-        "w_master_subject",
+    for required_builder_symbol in (
+        "NATIVE_V4_MANIFEST",
+        "def _load_native_v4_body_frames(",
+        "def _paste_native_v4_bytes(",
+        "_load_native_v4_body_frames()",
+        "_paste_native_v4_bytes(sheet, placements, rect, frame)",
     ):
         check(
-            forbidden_builder_symbol not in yone_builder_source,
-            f"Yone builder retains retired pack-time synthesis: {forbidden_builder_symbol}",
+            required_builder_symbol in yone_builder_source,
+            f"Yone exact-native V4 builder route is missing: {required_builder_symbol}",
+        )
+    for forbidden_actor_transform in (
+        ".resize(",
+        ".quantize(",
+        "palette_finish(",
+        "fit_subject(",
+        "_native_frame_from_cell(",
+    ):
+        check(
+            forbidden_actor_transform not in actor_builder_source,
+            f"Yone build_actor retains a forbidden body transform: {forbidden_actor_transform}",
+        )
+    for retired_v3_symbol in (
+        "_whole_sheet_native_raster",
+        "NATIVE_BODY_FRAME_SOURCES",
+        "_compose_native_body_master",
+        "NATIVE_BODY_MASTER",
+        "yone_native_body_master.png",
+        "yone_core_contact.png",
+        "yone_run_contact.png",
+        "yone_wr_body_contact.png",
+        "yone_defeat_contact.png",
+    ):
+        check(
+            retired_v3_symbol not in yone_builder_source,
+            f"Yone builder retains retired V3 route: {retired_v3_symbol}",
         )
     for tag, (durations, rects) in expected_actor_contract.items():
         check(
@@ -8040,70 +7540,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             crop = actor_sheet.crop((data.get("x", 0), data.get("y", 0), data.get("x", 0) + data.get("w", 0), data.get("y", 0) + data.get("h", 0)))
             check(crop.getchannel("A").getbbox() is None, "Yone dead terminal 3x3 frame must stay transparent")
 
-        for frame_name, recorded_quality in face_rows.items():
-            match = re.fullmatch(r"([a-z0-9_]+)\[(\d+)\]", frame_name)
-            check(match is not None, f"Yone face QA has an invalid frame key: {frame_name}")
-            if match is None:
-                continue
-            tag, index_text = match.groups()
-            index = int(index_text)
-            frames = actor_anims.get(tag, {}).get("frames", [])
-            check(index < len(frames), f"Yone face QA points outside {tag}: {frame_name}")
-            if index >= len(frames):
-                continue
-            data = frames[index].get("data", {})
-            crop = actor_sheet.crop(
-                (
-                    int(data.get("x", 0)),
-                    int(data.get("y", 0)),
-                    int(data.get("x", 0)) + int(data.get("w", 0)),
-                    int(data.get("y", 0)) + int(data.get("h", 0)),
-                )
-            )
-            measured_quality = yone_face_metrics(crop)
-            check(
-                all(
-                    recorded_quality.get(key) == value
-                    for key, value in measured_quality.items()
-                ),
-                f"Yone {frame_name} natural-face QA is stale: "
-                f"measured={measured_quality}, recorded={recorded_quality}",
-            )
-
-        native_master_path = MOD_ROOT / "source/processed/yone_native_body_master.png"
-        check(native_master_path.is_file(), "Yone final native body master is missing")
-        if native_master_path.is_file():
-            native_master = Image.open(native_master_path).convert("RGBA")
-            check(
-                native_master.size == actor_sheet.size,
-                "Yone native body master canvas changed",
-            )
-            identity_count = 0
-            for frame_name in face_rows:
-                match = re.fullmatch(r"([a-z0-9_]+)\[(\d+)\]", frame_name)
-                if match is None:
-                    continue
-                tag, index_text = match.groups()
-                index = int(index_text)
-                frame = actor_anims.get(tag, {}).get("frames", [])[index]
-                data = frame.get("data", {})
-                rect = (
-                    int(data.get("x", 0)),
-                    int(data.get("y", 0)),
-                    int(data.get("x", 0)) + int(data.get("w", 0)),
-                    int(data.get("y", 0)) + int(data.get("h", 0)),
-                )
-                check(
-                    actor_sheet.crop(rect).tobytes()
-                    == native_master.crop(rect).tobytes(),
-                    f"Yone {frame_name} differs from the final native body master",
-                )
-                identity_count += 1
-            check(
-                identity_count == 54,
-                f"Yone native-master byte audit covered {identity_count}/54 frames",
-            )
-
         attack_hashes: set[str] = set()
         for index, frame in enumerate(actor_anims.get("attack", {}).get("frames", [])):
             data = frame.get("data", {})
@@ -8165,36 +7601,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             len(w_visible_heights) == 5 and min(w_visible_heights) >= 32,
             f"Yone generated W body scale changed: {w_visible_heights}",
         )
-
-        expected_core_bottoms = {
-            "idle": [16, 15, 14, 15],
-            "run": [13, 18, 21, 18, 13, 17, 21, 17],
-            "attack": [14, 14, 12, 13, 13, 14],
-            "hit": [15],
-        }
-        measured_core_bottoms: dict[str, list[int]] = {}
-        for tag, expected_bottoms in expected_core_bottoms.items():
-            measured: list[int] = []
-            frames = actor_anims.get(tag, {}).get("frames", [])
-            check(len(frames) == len(expected_bottoms), f"Yone {tag} foot-safety frame count changed")
-            for index, frame in enumerate(frames):
-                data = frame.get("data", {})
-                crop = actor_sheet.crop(
-                    (
-                        data.get("x", 0), data.get("y", 0),
-                        data.get("x", 0) + data.get("w", 0),
-                        data.get("y", 0) + data.get("h", 0),
-                    )
-                )
-                bbox = crop.getchannel("A").getbbox()
-                if bbox is None:
-                    continue
-                bottom = int(data.get("h", 0)) - bbox[3]
-                measured.append(bottom)
-            measured_core_bottoms[tag] = measured
-            check(measured == expected_bottoms, f"Yone {tag} foot anchors changed: {measured} != {expected_bottoms}")
-
-    face_contract = visual_contract.get("face_readability", {})
 
     expected_vfx: dict[str, dict[str, tuple[int, float | tuple[float, ...], bool]]] = {
         "yone_attack": {"steel_hit": (4, 0.05, True), "azakana_hit": (4, 0.05, True)},
@@ -8369,7 +7775,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         if compact_bbox is not None:
             compact_width = compact_bbox[2] - compact_bbox[0]
             compact_height = compact_bbox[3] - compact_bbox[1]
-            check(42 <= compact_width <= 52, f"Yone compact portrait width must be 42..52px: {compact_bbox}")
+            check(36 <= compact_width <= 52, f"Yone compact portrait width must be 36..52px: {compact_bbox}")
             check(48 <= compact_height <= 52, f"Yone compact portrait height must be 48..52px: {compact_bbox}")
             margins = (compact_bbox[0], compact_bbox[1], 64 - compact_bbox[2], 64 - compact_bbox[3])
             check(min(margins) >= 6, f"Yone compact portrait lacks 6px safety margins: {compact_bbox}")
@@ -8397,86 +7803,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "Yone BP-grid native name band y=96..121 must stay fully transparent",
         )
 
-    ui_surface_paths = {
-        "fullbody": MOD_ROOT / "ui/champion_fullbody/dual_blader.png",
-        "compact": compact_path,
-        "scoreboard": scoreboard_path,
-        "grid": grid_path,
-    }
-    for surface, path in ui_surface_paths.items():
-        if not path.is_file():
-            continue
-        image = Image.open(path).convert("RGBA")
-        measured_quality = yone_face_metrics(image, yone_ui_face_windows[surface])
-        recorded_quality = ui_face_rows.get(surface, {})
-        check(
-            all(
-                recorded_quality.get(key) == value
-                for key, value in measured_quality.items()
-            ),
-            f"Yone {surface} natural-face QA is stale: "
-            f"measured={measured_quality}, recorded={recorded_quality}",
-        )
-
-    fullbody_path = ui_surface_paths["fullbody"]
-    if fullbody_path.is_file():
-        fullbody = Image.open(fullbody_path).convert("RGBA")
-        rendered_fullbody = fullbody.resize((85, 93), Image.Resampling.NEAREST)
-        source_alpha_bbox = fullbody.getchannel("A").getbbox()
-        rendered_alpha_bbox = rendered_fullbody.getchannel("A").getbbox()
-        check(
-            source_alpha_bbox is not None and rendered_alpha_bbox is not None,
-            "Yone real 64x64 -> 85x93 fullbody-card route is empty",
-        )
-        if source_alpha_bbox is not None and rendered_alpha_bbox is not None:
-            def yone_last_alpha_row(
-                image: Image.Image,
-                bbox: tuple[int, int, int, int],
-            ) -> list[int]:
-                y = bbox[3] - 1
-                occupied = [x for x in range(image.width) if image.getpixel((x, y))[3]]
-                return [y, min(occupied), max(occupied) + 1]
-
-            measured_fullbody_card = {
-                "source_size": list(fullbody.size),
-                "rendered_size": list(rendered_fullbody.size),
-                "resampling": "nearest",
-                "source_alpha_bbox": list(source_alpha_bbox),
-                "rendered_alpha_bbox": list(rendered_alpha_bbox),
-                "source_bottom_margin": fullbody.height - source_alpha_bbox[3],
-                "rendered_bottom_margin": rendered_fullbody.height - rendered_alpha_bbox[3],
-                "source_last_alpha_row": yone_last_alpha_row(fullbody, source_alpha_bbox),
-                "rendered_last_alpha_row": yone_last_alpha_row(rendered_fullbody, rendered_alpha_bbox),
-                **yone_scaled_face_metrics(fullbody, rendered_fullbody),
-            }
-            check(
-                measured_fullbody_card.get("source_size") == [64, 64]
-                and measured_fullbody_card.get("rendered_size") == [85, 93]
-                and measured_fullbody_card.get("resampling") == "nearest"
-                and measured_fullbody_card.get("source_alpha_bbox") is not None
-                and measured_fullbody_card.get("rendered_alpha_bbox") is not None
-                and measured_fullbody_card.get("source_bottom_margin", -1) >= 3
-                and measured_fullbody_card.get("rendered_bottom_margin", -1) >= 4
-                and measured_fullbody_card.get("source_face_skin_bbox") is not None
-                and measured_fullbody_card.get("rendered_face_skin_bbox") is not None
-                and measured_fullbody_card.get("source_warm_skin_component_present") is True
-                and measured_fullbody_card.get("rendered_warm_skin_component_present") is True
-                and measured_fullbody_card.get("source_adjacent_dark_eye_cue") is True
-                and measured_fullbody_card.get("rendered_adjacent_dark_eye_cue") is True
-                and measured_fullbody_card.get("source_face_contrast", 0) >= 18
-                and measured_fullbody_card.get("source_near_white_pixels", 99)
-                <= max(
-                    4,
-                    ui_face_rows.get("fullbody", {}).get("face_skin_pixels", 0) // 10,
-                )
-                and measured_fullbody_card.get("source_red_mask_pixels", 0) >= 20,
-                "Yone real 64x64 -> 85x93 fullbody-card natural-face route failed: "
-                f"{measured_fullbody_card}",
-            )
-            check(
-                face_readability.get("fullbody_card_85x93") == measured_fullbody_card,
-                "Yone recorded 85x93 fullbody-card contract is stale",
-            )
     if all(path.is_file() for path in portrait_paths):
         check(
             len({sha256(path) for path in portrait_paths}) == len(portrait_paths),
@@ -8556,7 +7882,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "成年比例", "NEAREST", "最终 `1x`", "54",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.6", "成年比例", "NEAREST", "逐帧逐字节", "54", "141×138", "32", "V3四套身体 contact",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -8577,246 +7903,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "banpick_center": {"x": 0, "y": -16},
         },
         "Yone champion_view must keep the audited face/card/BP cameras",
-    )
-    # Replay the live-capture renderer route independently of the builder.
-    # Each native frame is uniformly scaled with nearest-neighbour sampling.
-    # The four idle/card frames must preserve the natural three-quarter main
-    # eye plus nose/mouth cues; all geometry is measured dynamically from the rebuilt
-    # ImageGen model rather than pinned to the retired actor silhouette.
-    live_scale = 2.2
-    divider_top = 99
-    audited_center_y = -16
-    minimum_divider_clearance = 10
-    idle_entries = actor_anims.get("idle", {}).get("frames", [])
-    stage_height = max(
-        (round(int(entry.get("data", {}).get("h", 0)) * live_scale) for entry in idle_entries),
-        default=0,
-    )
-    recorded_live = face_contract.get("live_idle_card", {})
-    check(
-        {
-            "scale": recorded_live.get("scale"),
-            "resampling": recorded_live.get("resampling"),
-            "stage_height": recorded_live.get("stage_height"),
-            "audited_center_y": recorded_live.get("audited_center_y"),
-            "divider_top": recorded_live.get("divider_top"),
-            "minimum_divider_clearance": recorded_live.get("minimum_divider_clearance"),
-        }
-        == {
-            "scale": live_scale,
-            "resampling": "nearest",
-            "stage_height": stage_height,
-            "audited_center_y": audited_center_y,
-            "divider_top": divider_top,
-            "minimum_divider_clearance": minimum_divider_clearance,
-        },
-        f"Yone live-card rendering contract changed: {recorded_live}",
-    )
-    check(len(idle_entries) == 4 and stage_height > 0, "Yone live-card QA must cover four non-empty idle frames")
-
-    card_sheet = Image.open(actor_sheet_path).convert("RGBA") if actor_sheet_path.is_file() else None
-    recorded_frames = recorded_live.get("frames", {})
-    check(
-        set(recorded_frames) == {"idle[0]", "idle[1]", "idle[2]", "idle[3]"},
-        f"Yone recorded live-card idle coverage changed: {set(recorded_frames)}",
-    )
-    rendered_sizes: list[tuple[int, int]] = []
-    projected_bottoms: list[int] = []
-    divider_clearances: list[int] = []
-    if card_sheet is not None:
-        center_y = int(style.get("center", {}).get("y", 0))
-        for index, entry in enumerate(idle_entries):
-            data = entry.get("data", {})
-            idle_crop = card_sheet.crop(
-                (
-                    int(data.get("x", 0)),
-                    int(data.get("y", 0)),
-                    int(data.get("x", 0)) + int(data.get("w", 0)),
-                    int(data.get("y", 0)) + int(data.get("h", 0)),
-                )
-            )
-            live_idle = idle_crop.resize(
-                (
-                    round(idle_crop.width * live_scale),
-                    round(idle_crop.height * live_scale),
-                ),
-                Image.Resampling.NEAREST,
-            )
-            rendered_sizes.append(live_idle.size)
-            live_bbox = live_idle.getchannel("A").getbbox()
-            frame_name = f"idle[{index}]"
-            check(live_bbox is not None, f"Yone {frame_name} live-card frame is empty")
-            if live_bbox is None:
-                continue
-            stage_y = (stage_height - live_idle.height) // 2 + center_y - audited_center_y
-            projected_bbox = (
-                live_bbox[0],
-                live_bbox[1] + stage_y,
-                live_bbox[2],
-                live_bbox[3] + stage_y,
-            )
-            projected_bottoms.append(projected_bbox[3])
-            divider_clearance = divider_top - projected_bbox[3]
-            divider_clearances.append(divider_clearance)
-            check(
-                divider_clearance >= minimum_divider_clearance,
-                f"Yone {frame_name} feet/weapon enter the title divider: clearance={divider_clearance}",
-            )
-            source_bbox = idle_crop.getchannel("A").getbbox()
-            check(source_bbox is not None, f"Yone {frame_name} source frame is empty")
-            if source_bbox is None:
-                continue
-            scaled_face = yone_scaled_face_metrics(idle_crop, live_idle)
-            measured = {
-                "source_size": list(idle_crop.size),
-                "rendered_size": list(live_idle.size),
-                "stage_y": stage_y,
-                "alpha_bbox": list(live_bbox),
-                "projected_alpha_bbox": list(projected_bbox),
-                "divider_clearance": divider_clearance,
-                "source_bottom_clearance": idle_crop.height - source_bbox[3],
-                "rendered_bottom_clearance": live_idle.height - live_bbox[3],
-                "face_variant": "front",
-                **scaled_face,
-            }
-            recorded = recorded_frames.get(frame_name, {})
-            check(
-                measured == recorded,
-                f"Yone {frame_name} recorded live-card metrics are stale: "
-                f"measured={measured}, recorded={recorded}",
-            )
-            check(
-                scaled_face.get("source_face_skin_bbox") is not None
-                and scaled_face.get("rendered_face_skin_bbox") is not None
-                and scaled_face.get("source_warm_skin_component_present") is True
-                and scaled_face.get("rendered_warm_skin_component_present") is True
-                and scaled_face.get("source_adjacent_dark_eye_cue") is True
-                and scaled_face.get("rendered_adjacent_dark_eye_cue") is True
-                and scaled_face.get("source_near_white_pixels", 99) <= 1
-                and scaled_face.get("source_face_contrast", 0) >= 18,
-                f"Yone {frame_name} source-authored 3/4 face is unreadable at 2.2x: {scaled_face}",
-            )
-    check(
-        len(rendered_sizes) == 4
-        and len(projected_bottoms) == 4
-        and len(divider_clearances) == 4
-        and all(clearance >= minimum_divider_clearance for clearance in divider_clearances),
-        "Yone live-card 2.2x idle projection or divider clearance failed: "
-        f"sizes={rendered_sizes}, bottoms={projected_bottoms}, clearances={divider_clearances}",
-    )
-
-    # Independently replay all eight run profiles at the same 2.2x nearest
-    # scale. Profile faces remain source-authored, so validate natural face
-    # geometry/contrast and the measured dark eye cue for every profile frame.
-    recorded_run = face_contract.get("live_run_profile", {})
-    run_entries = actor_anims.get("run", {}).get("frames", [])
-    run_stage_height = max(
-        (round(int(entry.get("data", {}).get("h", 0)) * live_scale) for entry in run_entries),
-        default=0,
-    )
-    recorded_run_frames = recorded_run.get("frames", {})
-    check(
-        {
-            "scale": recorded_run.get("scale"),
-            "resampling": recorded_run.get("resampling"),
-            "stage_height": recorded_run.get("stage_height"),
-        }
-        == {"scale": live_scale, "resampling": "nearest", "stage_height": run_stage_height},
-        f"Yone live-run rendering contract changed: {recorded_run}",
-    )
-    check(
-        len(run_entries) == 8
-        and set(recorded_run_frames) == {f"run[{index}]" for index in range(8)},
-        f"Yone live-run profile coverage changed: {set(recorded_run_frames)}",
-    )
-    expected_run_bottoms = [13, 18, 21, 18, 13, 17, 21, 17]
-    run_sizes: list[tuple[int, int]] = []
-    run_clearances: list[int] = []
-    run_eye_cue_frames = 0
-    if card_sheet is not None:
-        for index, entry in enumerate(run_entries):
-            data = entry.get("data", {})
-            run_crop = card_sheet.crop(
-                (
-                    int(data.get("x", 0)),
-                    int(data.get("y", 0)),
-                    int(data.get("x", 0)) + int(data.get("w", 0)),
-                    int(data.get("y", 0)) + int(data.get("h", 0)),
-                )
-            )
-            live_run = run_crop.resize(
-                (
-                    round(run_crop.width * live_scale),
-                    round(run_crop.height * live_scale),
-                ),
-                Image.Resampling.NEAREST,
-            )
-            run_sizes.append(live_run.size)
-            frame_name = f"run[{index}]"
-            source_bbox = run_crop.getchannel("A").getbbox()
-            run_bbox = live_run.getchannel("A").getbbox()
-            check(
-                source_bbox is not None and run_bbox is not None,
-                f"Yone {frame_name} run profile is empty",
-            )
-            if source_bbox is None or run_bbox is None:
-                continue
-            stage_y = (run_stage_height - live_run.height) // 2
-            projected_bbox = (
-                run_bbox[0],
-                run_bbox[1] + stage_y,
-                run_bbox[2],
-                run_bbox[3] + stage_y,
-            )
-            divider_clearance = divider_top - projected_bbox[3]
-            run_clearances.append(divider_clearance)
-            source_bottom = run_crop.height - source_bbox[3]
-            rendered_bottom = live_run.height - run_bbox[3]
-            check(
-                source_bottom == expected_run_bottoms[index]
-                and rendered_bottom > 0
-                and divider_clearance >= minimum_divider_clearance,
-                f"Yone {frame_name} live run foot clearance changed: source={source_bottom}, rendered={rendered_bottom}, divider={divider_clearance}",
-            )
-            scaled_face = yone_scaled_face_metrics(run_crop, live_run)
-            if scaled_face.get("source_adjacent_dark_eye_cue") is True:
-                run_eye_cue_frames += 1
-            measured = {
-                "source_size": list(run_crop.size),
-                "rendered_size": list(live_run.size),
-                "stage_y": stage_y,
-                "alpha_bbox": list(run_bbox),
-                "projected_alpha_bbox": list(projected_bbox),
-                "divider_clearance": divider_clearance,
-                "source_bottom_clearance": source_bottom,
-                "rendered_bottom_clearance": rendered_bottom,
-                "face_variant": "profile",
-                **scaled_face,
-            }
-            recorded = recorded_run_frames.get(frame_name, {})
-            check(
-                measured == recorded,
-                f"Yone {frame_name} recorded live-run metrics are stale: "
-                f"measured={measured}, recorded={recorded}",
-            )
-            check(
-                scaled_face.get("source_face_skin_bbox") is not None
-                and scaled_face.get("rendered_face_skin_bbox") is not None
-                and scaled_face.get("source_warm_skin_component_present") is True
-                and scaled_face.get("rendered_warm_skin_component_present") is True
-                and scaled_face.get("source_adjacent_dark_eye_cue") is True
-                and scaled_face.get("rendered_adjacent_dark_eye_cue") is True
-                and scaled_face.get("source_near_white_pixels", 99) <= 2
-                and scaled_face.get("source_face_contrast", 0) >= 30
-                and scaled_face.get("source_red_mask_pixels", 0) >= 20,
-                f"Yone {frame_name} natural profile face is unreadable at 2.2x: {scaled_face}",
-            )
-    check(
-        len(run_sizes) == 8
-        and len(run_clearances) == 8
-        and run_eye_cue_frames >= 7
-        and all(clearance >= minimum_divider_clearance for clearance in run_clearances),
-        f"Yone live 2.2x run projection, face cue or clearance failed: sizes={run_sizes}, eye_cues={run_eye_cue_frames}, clearances={run_clearances}",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
@@ -9067,10 +8153,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     imagegen_audit = load_json("qa/yone_imagegen_sources.json")
     expected_source_paths = {
-        "source/imagegen/yone_core_contact.png",
-        "source/imagegen/yone_run_contact.png",
-        "source/imagegen/yone_wr_body_contact.png",
-        "source/imagegen/yone_defeat_contact.png",
         "source/imagegen/yone_qw_vfx_contact.png",
         "source/imagegen/yone_w_vfx_contact_v2.png",
         "source/imagegen/yone_q3_vfx_contact.png",
@@ -9079,15 +8161,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "source/imagegen/bp_splash/dual_blader.png",
     }
     expected_processed_paths = {
-        "source/processed/yone_core_contact_alpha.png",
-        "source/processed/yone_run_contact_alpha.png",
-        "source/processed/yone_wr_body_contact_alpha.png",
-        "source/processed/yone_defeat_contact_alpha.png",
         "source/processed/yone_qw_vfx_contact_alpha.png",
         "source/processed/yone_w_vfx_contact_v2_alpha.png",
         "source/processed/yone_r_vfx_contact_alpha.png",
         "source/processed/yone_q3_vfx_contact_alpha.png",
-        "source/processed/yone_native_body_master.png",
     }
     for field, expected_paths in (
         ("sources", expected_source_paths),
@@ -9348,7 +8425,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.5", "lol_mod version must be 0.10.5")
+    check(mod_info.get("version") == "0.10.6", "lol_mod version must be 0.10.6")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

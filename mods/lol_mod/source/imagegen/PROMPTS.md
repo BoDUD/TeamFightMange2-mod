@@ -525,55 +525,47 @@ The first 320-pixel-detail actor/run route above is retained only as rejected pr
 
 All corrective chroma sources used the installed `remove_chroma_key.py` helper with border auto-key, soft matte, thresholds 12/220 and despill. Validation found transparent corners and zero visible green-dominant residue in every accepted output.
 
-# Yone final adult-model ImageGen replacement
+# Yone V4 exact-native ImageGen replacement
 
-The four active Yone body plates were generated with the built-in `image_gen`
-tool on 2026-07-18. They replace the retired blocky actor end-to-end; no face,
-eye, arm, leg, mask, or weapon is painted by the packer. Body plates use a
-corner-detected magenta chroma background, are keyed deterministically, and
-are each reduced once as a complete sheet with nearest-neighbour sampling to
-the final native 1x grid. Runtime frames are then copied byte-for-byte.
+The former four-plate V3 route was rejected after live card review: its face
+collapsed at the real 1x/2.2x runtime scale and its long legs approached the
+name-band divider. The following deleted files are retained here only as
+rejected provenance and must never be restored or packed:
 
-## Yone core body contact
+- `source/imagegen/yone_core_contact.png`
+- `source/imagegen/yone_run_contact.png`
+- `source/imagegen/yone_wr_body_contact.png`
+- `source/imagegen/yone_defeat_contact.png`
+- their four `source/processed/*_alpha.png` derivatives
+- `source/processed/yone_native_body_master.png`
 
-- Imported target: `source/imagegen/yone_core_contact.png`; accepted alpha
-  source: `source/processed/yone_core_contact_alpha.png`.
-- Key prompt: strict 5x4 action sheet of one consistent adult Yone model with
-  a narrow natural three-quarter face, visible dark eye/nose/mouth/jaw cues,
-  long black hair, small rear-left red demon mask, black/navy red-and-gold
-  Ionian clothing, complete long legs and feet, and separately readable
-  blue-white steel and red Azakana swords; distinct idle, hit, attack, Q and
-  utility poses on a flat chroma plate with no body VFX, text, border, logo,
-  watermark, duplicate actor, or cropped extremity.
+V4 starts from a new consistent adult action contact, then authors every
+runtime body directly on its final native rectangle. There is no whole-sheet
+downscale, per-frame resize, pack-time repaint, face overlay, or V3 fallback.
+The actor builder copies each validated RGBA frame byte-for-byte into the
+runtime atlas.
 
-## Yone eight-phase run contact, final corrective pass
+## Yone V4 action contact
 
-- Final ImageGen edit execution: `exec-e3780cca-3fb4-43bc-9f8d-bebd956b72c4`.
-- Imported target: `source/imagegen/yone_run_contact.png`; accepted alpha
-  source: `source/processed/yone_run_contact_alpha.png`.
-- Key prompt: exact 4x2 chronological run cycle using the locked adult model,
-  complete alternating foot phases and compact dual swords behind the actor.
-  Every phase requires a broad contiguous warm-skin face opening, a separate
-  dark eye, visible jaw/neck, and a smaller mask fully behind the head so the
-  native 1x result retains at least a 4x3 face component, six warm-skin pixels,
-  and strong contrast without changing the official foot anchors. No repeated
-  pose, detached fragment, body VFX, shadow, scenery, label, border, logo, or
-  watermark.
+- ImageGen execution: `exec-84116646-6624-4e3c-af78-2badc8a5b25a`.
+- Imported target: `source/imagegen/yone_v4_action_contact.png`.
+- Key prompt: one consistent adult-proportioned Yone in a strict 5x4 action
+  sheet, long dark hair and rear-left red Azakana mask, black/navy red-and-gold
+  Ionian clothing, readable blue-white and red swords, complete feet, and
+  distinct idle/run/attack/Q/W/R/hit/defeat silhouettes on flat magenta; no
+  text, border, watermark, duplicate actor, scenery, or cropped extremity.
 
-## Yone W/R body contact
+## Yone V4 native idle and 54-frame route
 
-- Imported target: `source/imagegen/yone_wr_body_contact.png`; accepted alpha
-  source: `source/processed/yone_wr_body_contact_alpha.png`.
-- Key prompt: strict 5x4 sequence of the same complete adult Yone for W guard,
-  wind-up, cross, full crescent sweep and recovery plus R charge/slash/arrival
-  phases; both sword identities, face, mask, feet, body scale and baseline stay
-  consistent, with no detached actor effect or alternate model.
-
-## Yone defeat contact
-
-- Imported target: `source/imagegen/yone_defeat_contact.png`; accepted alpha
-  source: `source/processed/yone_defeat_contact_alpha.png`.
-- Key prompt: exact 4x2 non-gory chronological stagger, fall, collapse and
-  settle sequence using the same actor, mask, clothing and dual swords; one
-  connected complete subject per cell, progressively lower silhouette, safe
-  margins, and no revival, duplicate body, gore, explosion, text or watermark.
+- Card-critical idle source: `source/imagegen/yone_v4_idle_candidate_43x55.png`.
+- Final native manifest: `source/native/yone_v4/frames.json`.
+- Final palette contract: `source/native/yone_v4/palette.json`.
+- Final body frames: `source/native/yone_v4/frames/*.png` (54 visible frames).
+- Generator: `tools/generate_yone_v4_native.py`; validator:
+  `tools/validate_yone_v4.py`.
+- The accepted idle is exactly 43x55 with a 7x7 annotated face, distinct dark
+  eye/nose/mouth/jaw pixels, a separate rear mask, 14px native bottom margin,
+  and a 6px gap above the real 141x138 card divider after the game's 2.2x
+  nearest-neighbour route. Every action frame has hard alpha, no magenta
+  residue, at most 32 opaque palette colours, explicit foot/baseline metadata,
+  and an exact source-to-atlas byte identity check.
