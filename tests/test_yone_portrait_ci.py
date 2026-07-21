@@ -371,6 +371,11 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     square_delta = float(square_delta_match.group(1))
     grid_width = _range_contract(grid_body, "width")
     grid_height = _range_contract(grid_body, "height")
+    grid_ratio_floor_match = re.search(r"height / width >= ([0-9.]+)", grid_body)
+    grid_ratio_limit_match = re.search(r"height / width <= ([0-9.]+)", grid_body)
+    assert grid_ratio_floor_match is not None and grid_ratio_limit_match is not None
+    grid_ratio_floor = float(grid_ratio_floor_match.group(1))
+    grid_ratio_limit = float(grid_ratio_limit_match.group(1))
 
     def is_scoreboard(width: float, height: float) -> bool:
         return (
@@ -390,6 +395,7 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
         return (
             grid_width[0] <= width <= grid_width[1]
             and grid_height[0] <= height <= grid_height[1]
+            and grid_ratio_floor <= height / width <= grid_ratio_limit
         )
 
     scoreboard_surfaces = ((18.0, 26.0), (30.0, 38.0))
@@ -404,6 +410,13 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     assert not is_scoreboard(46.0, 46.0)
     assert is_grid(90.0, 122.0)
     assert is_grid(94.6, 121.0)
+    for excluded_geometry in (
+        (85.0, 93.0),
+        (95.0, 112.0),
+        (114.4, 134.1),
+        (129.0, 165.0),
+    ):
+        assert not is_grid(*excluded_geometry)
     assert not is_compact(90.0, 122.0)
 
     rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
@@ -431,9 +444,13 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
+    assert "trace_yone_render_commands(state);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
-    assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
-    assert minimal_impl.count("rewrite_") == 1
+    assert "rewrite_yone_portrait_render_commands(state);" in minimal_impl
+    assert minimal_impl.count("rewrite_") == 2
+    assert minimal_impl.index("trace_yone_render_commands(state);") < minimal_impl.index(
+        "rewrite_yone_management_card_render_commands(state);"
+    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state);")
     for forbidden in (
         "match_ui_database",
         "MatchUIRunner",
@@ -444,7 +461,6 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "rewrite_dragon_render_commands",
         "rewrite_kled_portrait_render_commands",
         "rewrite_xayah_portrait_render_commands",
-        "rewrite_yone_portrait_render_commands",
         "ChampionInfoUIRunner",
     ):
         assert forbidden not in minimal_impl
@@ -530,8 +546,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.14;logical_contract=85x93"',
-        '"version=0.10.14;from_size=',
+        '"version=0.10.15;logical_contract=85x93"',
+        '"version=0.10.15;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -539,6 +555,61 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         '    "asset/lol_mod/ui/champion_fullbody/dual_blader";'
         in source
     )
+
+    trace = _function_body(source, "trace_yone_render_commands")
+    for required in (
+        '"yone_ui_render_hook"',
+        '"version=0.10.15;management_contract=85x93;bp_grid_contract=90x122"',
+        "RenderCommand::NinePatch",
+        "RenderCommand::Sprite",
+        '"yone_ui_render_command"',
+        "kind=NinePatch",
+        "kind=Sprite",
+        "route={route}",
+        "geometry={:.0}x{:.0}",
+    ):
+        assert required in trace
+    for forbidden in (
+        "iter_mut()",
+        "values_mut()",
+        "command_index",
+        "texture_rect.x",
+        "texture_rect.y",
+        "*texture =",
+    ):
+        assert forbidden not in trace
+
+    portrait_rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
+    for required in (
+        '"yone_bp_grid_replace"',
+        "YONE_BP_GRID_PORTRAIT_TEXTURE",
+        "geometry_preserved=true",
+        "texture_rect.x = 0.0;",
+        "texture_rect.y = 0.0;",
+        "texture_rect.w = 1.0;",
+        "texture_rect.h = 1.0;",
+        "*left = 0.0;",
+        "*right = 0.0;",
+        "*top = 0.0;",
+        "*bottom = 0.0;",
+        "*sample_nearest = true;",
+    ):
+        assert required in portrait_rewrite
+    assert "RenderCommand::Sprite" not in portrait_rewrite
+    assert portrait_rewrite.index(
+        "if !is_yone_actor_sheet_texture(texture.as_str())"
+    ) < portrait_rewrite.index("let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);")
+    for preserved_axis in ("*x =", "*y =", "*w =", "*h ="):
+        assert preserved_axis not in portrait_rewrite
+
+    telemetry_writer = _function_body(source, "write_bp_render_telemetry_once")
+    for required in (
+        'event.ends_with("_replace")',
+        "BP_TELEMETRY_CRITICAL_ROW_LIMIT",
+        "BP_TELEMETRY_ROW_LIMIT",
+        "seen.len() >= row_limit",
+    ):
+        assert required in telemetry_writer
 
     visual_contract = json.loads(
         (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")

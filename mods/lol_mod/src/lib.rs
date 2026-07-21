@@ -26,6 +26,7 @@ const DRAGON_TELEMETRY_ENV: &str = "LOL_QA_DRAGON_VARIANT_TELEMETRY";
 const DRAGON_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_dragon_variant_runtime_telemetry.tsv";
 const BP_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_bp_runtime_telemetry.tsv";
 const BP_TELEMETRY_ROW_LIMIT: usize = 80;
+const BP_TELEMETRY_CRITICAL_ROW_LIMIT: usize = BP_TELEMETRY_ROW_LIMIT + 16;
 const PICK_SLOT_LIMIT: usize = 5;
 const BP_CARD_WIDTH: f32 = 284.0;
 const BP_CARD_HEIGHT: f32 = 172.0;
@@ -230,9 +231,10 @@ struct LolModExtension;
 // layout's 85x93 image node. RenderState stores that logical 85x93 geometry;
 // the roughly 95x112 pixels visible in screenshots are produced later by a
 // SetImageScale command and must never be used as the match contract. Keep the
-// post-update node fallback, then replace only Yone's exact logical card
-// NinePatch. Battle actors are Sprite commands and are untouched; the broader
-// client/server extension remains gated.
+// post-update node fallback, then replace Yone's exact logical management-card
+// NinePatch and Yone's independently audited compact/scoreboard/BP-grid
+// NinePatch surfaces. Battle actors are Sprite commands and are untouched; the
+// broader client/server extension remains gated.
 struct YoneManagementCardExtension;
 
 impl ModExtension for YoneManagementCardExtension {
@@ -241,7 +243,9 @@ impl ModExtension for YoneManagementCardExtension {
     }
 
     fn post_render(&self, _scene: &Scene, _ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        trace_yone_render_commands(state);
         rewrite_yone_management_card_render_commands(state);
+        rewrite_yone_portrait_render_commands(state);
     }
 }
 
@@ -411,7 +415,10 @@ fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
 }
 
 fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
-    (84.0..=96.0).contains(&width) && (108.0..=130.0).contains(&height)
+    (84.0..=96.0).contains(&width)
+        && (108.0..=130.0).contains(&height)
+        && height / width >= 1.25
+        && height / width <= 1.50
 }
 
 fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
@@ -423,6 +430,74 @@ fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
     (width - 85.0).abs() <= 1.0 && (height - 93.0).abs() <= 1.0
 }
 
+fn trace_yone_render_commands(state: &RenderState) {
+    // Keep the diagnostic bounded by the existing once-per-signature writer.
+    // This records the real command variant before either default rewrite, so
+    // a live BP run can distinguish a 90x122 NinePatch hit from an unexpected
+    // Sprite/alias route without dumping the full RenderState every frame.
+    write_bp_render_telemetry_once(
+        "yone_ui_render_hook",
+        "yone_ui",
+        None,
+        "",
+        "",
+        "version=0.10.15;management_contract=85x93;bp_grid_contract=90x122",
+    );
+    for (pass, commands) in &state.commands {
+        for command in commands {
+            match command {
+                RenderCommand::NinePatch {
+                    texture,
+                    texture_rect: _,
+                    x: _,
+                    y: _,
+                    w,
+                    h,
+                    sample_nearest,
+                    ..
+                } if is_yone_actor_sheet_texture(texture.as_str()) => {
+                    let route = if is_yone_management_card_geometry(*w, *h) {
+                        "management"
+                    } else if is_yone_bp_grid_geometry(*w, *h) {
+                        "bp_grid"
+                    } else if is_yone_scoreboard_portrait_geometry(*w, *h) {
+                        "scoreboard"
+                    } else if is_yone_compact_portrait_geometry(*w, *h) {
+                        "compact"
+                    } else {
+                        "unclassified"
+                    };
+                    write_bp_render_telemetry_once(
+                        "yone_ui_render_command",
+                        "yone_ui",
+                        None,
+                        texture,
+                        "",
+                        &format!(
+                            "version=0.10.15;kind=NinePatch;pass={pass};route={route};geometry={:.0}x{:.0};sample_nearest={sample_nearest}",
+                            *w,
+                            *h,
+                        ),
+                    );
+                }
+                RenderCommand::Sprite { texture, .. }
+                    if is_yone_actor_sheet_texture(texture.as_str()) =>
+                {
+                    write_bp_render_telemetry_once(
+                        "yone_ui_render_command",
+                        "yone_ui",
+                        None,
+                        texture,
+                        "",
+                        &format!("version=0.10.15;kind=Sprite;pass={pass};route=unclassified"),
+                    );
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
     // One deduplicated lifecycle row makes a future live failure
     // distinguishable from a geometry miss without logging every frame.
@@ -432,7 +507,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
         None,
         "",
         "",
-        "version=0.10.14;logical_contract=85x93",
+        "version=0.10.15;logical_contract=85x93",
     );
     for (pass, commands) in &mut state.commands {
         for command in commands {
@@ -467,7 +542,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                     &source,
                     "",
                     &format!(
-                        "version=0.10.14;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        "version=0.10.15;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
                         *x, *y, *w, *h,
                     ),
                 );
@@ -494,7 +569,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.14;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    "version=0.10.15;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
                     original_size.0, original_size.1, *w, *h,
                 ),
             );
@@ -503,7 +578,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
 }
 
 fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
-    for commands in state.commands.values_mut() {
+    for (pass, commands) in &mut state.commands {
         for command in commands {
             let RenderCommand::NinePatch {
                 texture,
@@ -532,6 +607,8 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);
             let is_compact = is_yone_compact_portrait_geometry(*w, *h);
             let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);
+            let source = texture.clone();
+            let original_size = (*w, *h);
             let replacement = if is_scoreboard {
                 YONE_SCOREBOARD_PORTRAIT_TEXTURE
             } else if is_compact {
@@ -552,6 +629,26 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             *top = 0.0;
             *bottom = 0.0;
             *sample_nearest = true;
+
+            let event = if is_bp_grid {
+                "yone_bp_grid_replace"
+            } else if is_scoreboard {
+                "yone_scoreboard_replace"
+            } else {
+                "yone_compact_replace"
+            };
+            write_bp_render_telemetry_once(
+                event,
+                "yone_ui",
+                None,
+                &source,
+                replacement,
+                &format!(
+                    "version=0.10.15;kind=NinePatch;pass={pass};route={event};geometry={:.0}x{:.0};geometry_preserved=true",
+                    original_size.0,
+                    original_size.1,
+                ),
+            );
         }
     }
 }
@@ -1044,7 +1141,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.14;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.15;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1451,7 +1548,12 @@ fn write_bp_render_telemetry_once(
     let Ok(mut seen) = seen.lock() else {
         return;
     };
-    if seen.len() >= BP_TELEMETRY_ROW_LIMIT || !seen.insert(signature) {
+    let row_limit = if event.ends_with("_replace") {
+        BP_TELEMETRY_CRITICAL_ROW_LIMIT
+    } else {
+        BP_TELEMETRY_ROW_LIMIT
+    };
+    if seen.len() >= row_limit || !seen.insert(signature) {
         return;
     }
     drop(seen);
