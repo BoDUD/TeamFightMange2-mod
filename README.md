@@ -1,11 +1,17 @@
 # TeamFightMange2-mod
 
-## v0.10.10：永恩高清英雄卡默认路由修复（待用户实机验收）
+## v0.10.11：永恩高清英雄卡路由与 0.5.1 SDK 对齐（待用户实机验收）
+
+- 使用 Team Samoyed 官方 `0.5.1` Mod SDK 和固定工具链 `nightly-2026-05-24` 重新编译原生 DLL；构建脚本锁定官方 `mod_api`、`game_view` 与 `engine_core` 指纹，拒绝再用 `0.5.0` SDK 生成面向 `0.5.1` 游戏的 DLL。
+- 默认注册的 `YoneManagementCardExtension` 只在 `post_update` 中隐藏永恩原生 `43×55` 战斗待机图，显示第二张参考图对应的独立 `85×93` source-direct 全身素材；不会把这张 UI 图错误塞入原生 `2x` 战斗图缩放链路。
+- 该最小扩展不访问 `MatchUIRunner`、`ClientDatabase`、`RenderState`，没有 `post_render` 或服务器回调；整套旧 BP/渲染/服务器扩展继续保持显式 opt-in。
+- 永恩人物素材、Q/W/R、技能特效、图标、音频、`3502×88` 实战图集以及 `0.10.5` 存档最低版本均未改动。
+
+## v0.10.10：永恩高清英雄卡默认路由修复（失败构建，已被 v0.10.11 取代）
 
 - `0.10.9` 的高清全身节点和 PNG 已经正确打包，但切换代码仍位于默认不注册的旧客户端扩展内，因此正常启动时从未执行，英雄卡继续放大 `43×55` 战斗待机帧。
 - 本版把卡片切换拆成独立的 `YoneManagementCardExtension`：默认路径只在 `post_update` 中隐藏永恩原生 `icon`、显示 `lol_fullbody_yone`，使用第二张图对应的 `85×93` source-direct 全身素材。
-- 这个最小扩展不访问 `MatchUIRunner`、`ClientDatabase`、`RenderState`，没有 `post_render` 或服务器回调；旧版整套客户端/服务器扩展仍必须显式设置兼容环境变量才会注册，避免重新放开 BP 渲染重写风险。
-- 永恩 Q/W/R、技能特效、图标、音频、`3502×88` 实战图集以及 `0.10.5` 存档最低版本均未改动。
+- 该 DLL 仍由本机旧 `0.5.0` SDK 编译，不能作为 `0.5.1` 游戏的 BP 兼容或视觉验收版本；`0.10.11` 已使用匹配的官方 SDK 重编并取代它。
 
 ## v0.10.9：永恩英雄卡高清全身图运行时修复（待用户实机验收）
 
@@ -13,7 +19,7 @@
 - 现在卡片全程隐藏原生 `icon` 并显示独立的 `85×93` source-direct 高清全身图；双腿、膝部和两只靴子完整保留在分隔线上方。
 - 本版本不改 Q/W/R、技能特效、图标、音频、战斗图集或 `0.10.5` 存档最低版本。已有有效 `0.10.5` W 存档可直接升级；仍需由新版安装后的实际界面截图完成最终视觉验收。
 
-> **永恩 W 的存档最低版本仍是 `0.10.5`。** 旧 E 存档和 `0.10.4` 矩形 W 存档只会通过无行为兼容入口安全加载；验证当前 W 必须使用在 `0.10.5` 或更高版本中新建的存档。已经在 `0.10.5` 新建且包含当前 W 的存档升级到 `0.10.10` 后不需要再次新建。
+> **永恩 W 的存档最低版本仍是 `0.10.5`。** 旧 E 存档和 `0.10.4` 矩形 W 存档只会通过无行为兼容入口安全加载；验证当前 W 必须使用在 `0.10.5` 或更高版本中新建的存档。已经在 `0.10.5` 新建且包含当前 W 的存档升级到 `0.10.11` 后不需要再次新建。
 
 ## v0.10.8：永恩高清 UI 与同模型战斗人物重做（待实机验收）
 
@@ -224,9 +230,12 @@
 
 ## 构建与测试
 
+先将 [Team Samoyed 官方 0.5.1 SDK](https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1) 解压到独立目录；`-SdkDir` 必须指向包含 `base_version.txt`、`deps` 与 `native` 的 `mod-sdk` 目录。构建脚本会核对版本、工具链和三个 rlib 的 SHA-256，旧 `0.5.0` SDK 会被拒绝。
+
 ```powershell
+$tfm2Sdk051 = 'D:\path\to\official-0.5.1\mod-sdk'
 python -m pip install -r .\requirements-dev.txt
-powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\build_native_dll.ps1
+powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\build_native_dll.ps1 -SdkDir $tfm2Sdk051
 python .\mods\lol_mod\tools\build_lol_mod.py --rebuild-quality
 python .\mods\lol_mod\tools\validate_lol_mod.py
 python -m pytest -q

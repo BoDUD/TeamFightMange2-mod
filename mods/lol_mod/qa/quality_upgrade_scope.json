@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.10",
+  "release": "0.10.11",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -16,7 +16,7 @@
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
       "implementation": "post_render actor NinePatch replacement: remove the selected-card actor (including 120-140x140-190 transition poses), then append one illustration overlay",
-      "base_0_5_1_default": "disabled because this client extension was compiled against base 0.5.0 internal structures",
+      "base_0_5_1_default": "disabled because the broad BP post-render and server rewrite remains outside the Yone-only portrait fix and requires separate live validation",
       "legacy_opt_in": "register only when the dedicated legacy-extension environment variable equals 1",
       "source_key": "suffix after /champions/ with terminal #sheet removed",
       "texture_uv": "normalized 0,0,1,1",
@@ -100,7 +100,17 @@
       "yone_default_hook": "YoneManagementCardExtension post_update toggles only dual_blader.icon and dual_blader.lol_fullbody_yone",
       "yone_texture": "ui/champion_fullbody/dual_blader.png at exact 85x93 source-direct resolution",
       "legacy_match_ui_database_render_and_server_work": "still disabled by default and available only through LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS=1",
-      "live_status": "0.10.10 installed for user manual verification"
+      "sdk_provenance": {
+        "release_url": "https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1",
+        "archive_size_bytes": 415437219,
+        "archive_sha256": "5d3ee5b104f65501629e7f905d327c1f57d86ca5cabc1717bf456a2287a0f08a",
+        "base_version": "0.5.1",
+        "toolchain": "nightly-2026-05-24",
+        "mod_api_rlib_sha256": "9ebb4fbc406c7348886f5f9de251acf37907c510e25cd8839e5ee38a78b5adac",
+        "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
+        "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
+      },
+      "live_status": "0.10.11 built with the matching 0.5.1 SDK and installed for user manual verification"
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",

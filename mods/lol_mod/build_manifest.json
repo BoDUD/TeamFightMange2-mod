@@ -969,13 +969,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 456704,
-      "sha256": "05d43cb702cb7f8eaa363b2c31632013d03e54a89e9dc76c8221b084148710a8"
+      "size": 461312,
+      "sha256": "a47ee60533fe8290247bc5c6b068c2499b42244059effd0e50ab795b2bd0bcaf"
     },
     {
       "path": "mod.mod_info",
-      "size": 1740,
-      "sha256": "45344d1ba0991526ad5e1bc263800dfe31e6499438f726cbbcf2892a80dd3d6f"
+      "size": 1766,
+      "sha256": "5e411838bcdab9f44bb2387dd6f51bcbe7db42b7a88b0494c4b9bcfb87ded099"
     },
     {
       "path": "mod.override_info",
@@ -1014,8 +1014,8 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 6224,
-      "sha256": "df7845d5845152a3adefc6e69bb817da0dea0ed8c191662c45c703eff17197c1"
+      "size": 6382,
+      "sha256": "96c1000e40d7c66e1366aaac5cf5fd8eec031ba99fa0e89577460ba1981b4b48"
     },
     {
       "path": "qa/yone_visual_contract.json",

@@ -13,12 +13,13 @@ use mod_api::MatchType;
 use mod_api::*;
 
 const MOD_ID: &str = "lol_mod";
-// Teamfight Manager 2 base 0.5.1 is newer than the bundled base 0.5.0 SDK.
-// Keep the legacy render/database/server extension behind an explicit opt-in:
+// Build against the official Teamfight Manager 2 base 0.5.1 SDK. Keep the
+// broad render/database/server extension behind an explicit opt-in because
 // it touches MatchUIRunner, ClientDatabase, RenderState and ServerModContext.
 // The default extension below is deliberately limited to toggling Yone's two
 // management-card image nodes and has no render, database or server callback.
-const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
+// Preserve the existing environment-variable spelling for developer workflows.
+const LEGACY_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
 const DRAGON_EVENT_VERSION: &str = "v1";
 const DRAGON_TELEMETRY_ENV: &str = "LOL_QA_DRAGON_VARIANT_TELEMETRY";
@@ -920,7 +921,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.10;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.11;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1556,9 +1557,8 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
         // DataActionDef has no buff-based cast predicate in Mod API 0.8.
         // Replace an empty Bladecaller decision before it reaches the action,
         // so its cooldown, cast animation, SFX and effect tree are not spent.
-        // Do not call PlayerAiContext fallback helpers here: the 0.5.0 SDK
-        // helper can cross into a missing 0.5.1 hidden-simulation score state
-        // and abort the host while BP is transitioning into the match.
+        // Do not call PlayerAiContext fallback helpers here: hidden simulations
+        // can omit score state and abort while BP is transitioning into a match.
         let attack = Input::Attack { target };
         PlayerInputDecision::Replace(attack)
     }
@@ -1773,7 +1773,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         LegacySavedNativeCompatibilityEffect,
     );
     registration.add_player_input_ai(XayahFeatherInputGate);
-    if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
+    if std::env::var(LEGACY_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
         registration.set_extension(LolModExtension);
         registration.set_server_extension(LolDragonServerExtension {
             announced: Mutex::new(HashSet::new()),

@@ -384,14 +384,14 @@ def test_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_legacy_base_050_extensions_require_an_explicit_env_value_of_one() -> None:
+def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
     rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    assert "const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str =" in rust
+    assert "const LEGACY_INTERNAL_EXTENSIONS_ENV: &str =" in rust
     init = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1].split(
         "declare_mod!(init);", 1
     )[0]
     guard = re.search(
-        r"if\s+std::env::var\(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV\)"
+        r"if\s+std::env::var\(LEGACY_INTERNAL_EXTENSIONS_ENV\)"
         r"\s*\.is_ok_and\(\|value\| value == \"1\"\)\s*\{"
         r"(?P<body>.*?)\n    \}",
         init,
@@ -1455,7 +1455,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.10"
+    assert mod_info["version"] == "0.10.11"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1503,7 +1503,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.10"
+    assert mod_info["version"] == "0.10.11"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 

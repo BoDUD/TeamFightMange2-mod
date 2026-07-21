@@ -54,7 +54,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.10.10"
+    assert mod_info["version"] == "0.10.11"
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -117,7 +117,10 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.10.10;root=' in source
+    assert '"version=0.10.11;root=' in source
+    native_dll = (MOD / "lol_mod.dll").read_bytes()
+    assert b"version=0.10.11;root=" in native_dll
+    assert b"version=0.10.10;root=" not in native_dll
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -174,6 +177,13 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     build_script = (MOD / "tools" / "build_native_dll.ps1").read_text(encoding="utf-8")
     assert '"--extern", "engine_ui=$($engineUi.FullName)"' not in build_script
     assert '"--extern", "engine_core=$($engineCore.FullName)"' in build_script
+    assert 'if ($baseVersion -ne "0.5.1")' in build_script
+    assert 'if ($pinned -ne "nightly-2026-05-24")' in build_script
+    assert "9EBB4FBC406C7348886F5F9DE251ACF37907C510E25CD8839E5EE38A78B5ADAC" in build_script
+    assert "BF1B953B00C65197A200A02BA7087BE81F970CB3893DE4967E4C146B6D07335C" in build_script
+    assert "5275DE1221836C5C25C309CE9438F2E08DF3AFEA61541B85B2C2A8822A8107ED" in build_script
+    assert "C99E9CC2B78D26093234B4749609332F512DAFDB4E34A82BF548EFDA6AA5E384" not in build_script
+    assert "6D8FCCB508697C4244038E97B0C66DA1F7DC2D699950FE06FF6415A795FBC719" not in build_script
 
     variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]
     assert "snapshot.seed" in source
