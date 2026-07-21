@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.11",
+  "release": "0.10.12",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -97,8 +97,9 @@
       "dual_blader"
     ],
     "encyclopedia_fullbody_runtime": {
-      "yone_default_hook": "YoneManagementCardExtension post_update toggles only dual_blader.icon and dual_blader.lol_fullbody_yone",
-      "yone_texture": "ui/champion_fullbody/dual_blader.png at exact 85x93 source-direct resolution",
+      "yone_default_hook": "YoneManagementCardExtension post_render is gated by the official ChampionInfoUIRunner, recognizes Yone's roughly 95x121 actor NinePatch, centers it into an exact 85x93 command, and replaces it 1:1 with the source-direct high-resolution full-body PNG; the post_update node toggle remains a fallback",
+      "yone_0_10_11_route": "failed: the static dual_blader.icon / dual_blader.lol_fullbody_yone visibility route did not reach the dynamically generated management-card render tree",
+      "yone_texture": "source-direct high-resolution 85x93 full-body PNG rendered 1:1 after the enlarged battle-idle command is reframed",
       "legacy_match_ui_database_render_and_server_work": "still disabled by default and available only through LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS=1",
       "sdk_provenance": {
         "release_url": "https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1",
@@ -110,7 +111,7 @@
         "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
         "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
       },
-      "live_status": "0.10.11 built with the matching 0.5.1 SDK and installed for user manual verification"
+      "live_status": "0.10.12 uses the matching 0.5.1 SDK and the default Yone-only post-render route; user manual verification remains required"
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",

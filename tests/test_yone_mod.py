@@ -412,17 +412,40 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
     )[1].split("impl ModExtension for LolModExtension", 1)[0]
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
+    assert minimal_impl.count("fn post_render(") == 1
+    assert "ui_tree_contains_champion_info_runner(&ui.root)" in minimal_impl
+    assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
+    assert minimal_impl.count("rewrite_") == 1
     for forbidden in (
-        "fn post_render(",
         "match_ui_database",
         "MatchUIRunner",
         "ClientDatabase",
-        "RenderState",
         "RenderCommand",
         "sync_deterministic_dragon",
-        "rewrite_",
+        "rewrite_bp_render_commands",
+        "rewrite_dragon_render_commands",
+        "rewrite_kled_portrait_render_commands",
+        "rewrite_xayah_portrait_render_commands",
+        "rewrite_yone_portrait_render_commands",
     ):
         assert forbidden not in minimal_impl
+
+    runner_gate = rust.split(
+        "fn ui_tree_contains_champion_info_runner", 1
+    )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
+    assert "runner_as::<ChampionInfoUIRunner>()" in runner_gate
+    management_rewrite = rust.split(
+        "fn rewrite_yone_management_card_render_commands", 1
+    )[1].split("fn rewrite_yone_portrait_render_commands", 1)[0]
+    assert "RenderCommand::NinePatch" in management_rewrite
+    assert "RenderCommand::Sprite" not in management_rewrite
+    assert "is_yone_bp_grid_geometry(*w, *h)" in management_rewrite
+    assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in management_rewrite
+    assert "*x = center_x - 42.5;" in management_rewrite
+    assert "*w = 85.0;" in management_rewrite
+    assert "*h = 93.0;" in management_rewrite
+    assert "*y =" not in management_rewrite
+    assert "version=0.10.12" in management_rewrite
 
 
 def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
@@ -1455,7 +1478,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.11"
+    assert mod_info["version"] == "0.10.12"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1503,7 +1526,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.11"
+    assert mod_info["version"] == "0.10.12"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 

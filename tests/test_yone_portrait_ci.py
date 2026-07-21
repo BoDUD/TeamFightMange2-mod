@@ -403,6 +403,7 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     assert is_compact(46.0, 46.0)
     assert not is_scoreboard(46.0, 46.0)
     assert is_grid(90.0, 122.0)
+    assert is_grid(94.6, 121.0)
     assert not is_compact(90.0, 122.0)
 
     rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
@@ -429,17 +430,75 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     )[1].split("impl ModExtension for LolModExtension", 1)[0]
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
+    assert minimal_impl.count("fn post_render(") == 1
+    assert "ui_tree_contains_champion_info_runner(&ui.root)" in minimal_impl
+    assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
+    assert minimal_impl.count("rewrite_") == 1
     for forbidden in (
-        "fn post_render(",
         "match_ui_database",
         "MatchUIRunner",
         "ClientDatabase",
-        "RenderState",
         "RenderCommand",
         "sync_deterministic_dragon",
-        "rewrite_",
+        "rewrite_bp_render_commands",
+        "rewrite_dragon_render_commands",
+        "rewrite_kled_portrait_render_commands",
+        "rewrite_xayah_portrait_render_commands",
+        "rewrite_yone_portrait_render_commands",
     ):
         assert forbidden not in minimal_impl
+
+    runner_gate = _function_body(source, "ui_tree_contains_champion_info_runner")
+    assert "runner_as::<ChampionInfoUIRunner>()" in runner_gate
+    assert ".any(ui_tree_contains_champion_info_runner)" in runner_gate
+
+    rewrite = _function_body(
+        source, "rewrite_yone_management_card_render_commands"
+    )
+    assert "RenderCommand::NinePatch" in rewrite
+    assert "RenderCommand::Sprite" not in rewrite
+    assert "is_yone_actor_sheet_texture(texture.as_str())" in rewrite
+    assert "is_yone_bp_grid_geometry(*w, *h)" in rewrite
+    assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in rewrite
+    assert "let center_x = *x + *w * 0.5;" in rewrite
+    assert "*x = center_x - 42.5;" in rewrite
+    assert "*w = 85.0;" in rewrite
+    assert "*h = 93.0;" in rewrite
+    assert "*y =" not in rewrite
+    assert '"version=0.10.12;from_size=' in rewrite
+    assert (
+        'const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =\n'
+        '    "asset/lol_mod/ui/champion_fullbody/dual_blader";'
+        in source
+    )
+
+    visual_contract = json.loads(
+        (MOD / "qa/yone_visual_contract.json").read_text(encoding="utf-8")
+    )
+    idle_zero = visual_contract["face_readability"]["live_idle_card"]["frames"][
+        "idle[0]"
+    ]
+    assert idle_zero["rendered_size"] == [95, 121]
+    native_x = (141.0 - idle_zero["rendered_size"][0]) * 0.5
+    target_x = native_x + idle_zero["rendered_size"][0] * 0.5 - 42.5
+    assert (native_x, target_x) == (23.0, 28.0)
+
+    preview = Image.open(MOD / "qa/yone_v6_ui_card.png").convert("RGBA")
+    fullbody = Image.open(MOD / "ui/champion_fullbody/dual_blader.png").convert(
+        "RGBA"
+    )
+    preview_crop = preview.crop((28, 0, 113, 93))
+    preview_pixels = preview_crop.load()
+    fullbody_pixels = fullbody.load()
+    assert preview_pixels is not None and fullbody_pixels is not None
+    opaque_matches = [
+        preview_pixels[x, y] == fullbody_pixels[x, y]
+        for y in range(fullbody.height)
+        for x in range(fullbody.width)
+        if fullbody_pixels[x, y][3] > 0
+    ]
+    assert len(opaque_matches) == 2706
+    assert all(opaque_matches)
 
     init = source.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1]
     init = init.split("declare_mod!(init);", 1)[0]

@@ -6184,12 +6184,17 @@ def validate_native_dll() -> None:
         return
     payload = path.read_bytes()
     check(
-        b"version=0.10.11;root=" in payload,
-        "lol_mod.dll must contain the current 0.10.11 BP telemetry marker",
+        b"version=0.10.12;root=" in payload,
+        "lol_mod.dll must contain the current 0.10.12 BP telemetry marker",
     )
     check(
-        b"version=0.10.10;root=" not in payload,
-        "lol_mod.dll still contains the superseded 0.10.10 BP telemetry marker",
+        b"version=0.10.12;from_size=" in payload,
+        "lol_mod.dll must contain the current 0.10.12 Yone portrait telemetry marker",
+    )
+    check(
+        b"version=0.10.11;root=" not in payload
+        and b"version=0.10.10;root=" not in payload,
+        "lol_mod.dll still contains a superseded BP telemetry marker",
     )
     if sys.platform != "win32":
         return
@@ -7403,7 +7408,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.11", "lol_mod version must be 0.10.11")
+    check(mod_info.get("version") == "0.10.12", "lol_mod version must be 0.10.12")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7423,10 +7428,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         all(
             token in description
-            for token in ("0.5.1", "0.10.5", "0.10.11", "V6", "source-direct", "3502x88")
+            for token in ("0.5.1", "0.10.5", "0.10.11", "0.10.12", "V6", "source-direct", "3502x88")
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the 0.10.11 V6 source-direct route and 0.10.5 saved-season floor",
+        "mod metadata must document the 0.10.12 portrait route, failed 0.10.11 route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8209,7 +8214,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
             "2026-07-21", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
@@ -8250,19 +8255,60 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         and "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_extension,
         "Yone management-card extension must contain exactly one post-update portrait toggle",
     )
+    check(
+        minimal_extension.count("fn post_render(") == 1
+        and minimal_extension.count("rewrite_") == 1
+        and "ui_tree_contains_champion_info_runner(&ui.root)" in minimal_extension
+        and "rewrite_yone_management_card_render_commands(state);" in minimal_extension,
+        "Yone management-card extension must contain exactly one Yone-only post-render portrait rewrite",
+    )
     for forbidden in (
-        "fn post_render(",
         "match_ui_database",
         "MatchUIRunner",
         "ClientDatabase",
-        "RenderState",
         "RenderCommand",
         "sync_deterministic_dragon",
-        "rewrite_",
+        "rewrite_bp_render_commands",
+        "rewrite_dragon_render_commands",
+        "rewrite_kled_portrait_render_commands",
+        "rewrite_xayah_portrait_render_commands",
+        "rewrite_yone_portrait_render_commands",
     ):
         check(
             forbidden not in minimal_extension,
             f"Yone management-card extension must not use legacy runtime internals: {forbidden}",
+        )
+    champion_info_gate = ""
+    if "fn ui_tree_contains_champion_info_runner" in rust:
+        champion_info_gate = rust.split(
+            "fn ui_tree_contains_champion_info_runner", 1
+        )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
+    check(
+        "runner_as::<ChampionInfoUIRunner>()" in champion_info_gate
+        and ".any(ui_tree_contains_champion_info_runner)" in champion_info_gate,
+        "Yone management-card rewrite must be isolated by the official ChampionInfoUIRunner",
+    )
+    yone_portrait_rewrite = ""
+    if "fn rewrite_yone_management_card_render_commands" in rust:
+        yone_portrait_rewrite = rust.split(
+            "fn rewrite_yone_management_card_render_commands", 1
+        )[1].split("fn rewrite_yone_portrait_render_commands", 1)[0]
+    for required in (
+        "RenderCommand::NinePatch",
+        "is_yone_actor_sheet_texture(texture.as_str())",
+        "is_yone_bp_grid_geometry(*w, *h)",
+        "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE",
+        "let center_x = *x + *w * 0.5;",
+        "*x = center_x - 42.5;",
+        "*w = 85.0;",
+        "*h = 93.0;",
+        '"version=0.10.12;from_size=',
+    ):
+        check(required in yone_portrait_rewrite, f"Yone portrait rewrite is missing: {required}")
+    for forbidden in ("RenderCommand::Sprite", "*y =", "MatchUIRunner", "ClientDatabase"):
+        check(
+            forbidden not in yone_portrait_rewrite,
+            f"Yone portrait rewrite must preserve top alignment and ignore match/battle state: {forbidden}",
         )
     init_body = ""
     if "fn init(_ctx: &GameCtx) -> ModRegistration" in rust:
@@ -8881,7 +8927,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.11", "lol_mod version must be 0.10.11")
+    check(mod_info.get("version") == "0.10.12", "lol_mod version must be 0.10.12")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

@@ -8,7 +8,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use engine_core::render_state::RenderCommand;
-use game_view::{ClientDatabase, MatchUIRunner};
+use game_view::{ChampionInfoUIRunner, ClientDatabase, MatchUIRunner};
 use mod_api::MatchType;
 use mod_api::*;
 
@@ -16,8 +16,8 @@ const MOD_ID: &str = "lol_mod";
 // Build against the official Teamfight Manager 2 base 0.5.1 SDK. Keep the
 // broad render/database/server extension behind an explicit opt-in because
 // it touches MatchUIRunner, ClientDatabase, RenderState and ServerModContext.
-// The default extension below is deliberately limited to toggling Yone's two
-// management-card image nodes and has no render, database or server callback.
+// The default extension below is deliberately limited to Yone's management
+// card and has no match database, BP, server or other-champion callback.
 // Preserve the existing environment-variable spelling for developer workflows.
 const LEGACY_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
@@ -93,6 +93,8 @@ const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
 const YONE_SCOREBOARD_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_portrait/dual_blader_scoreboard";
 const YONE_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dual_blader_grid";
+const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_fullbody/dual_blader";
 const SPLASH_SPECS: [(&str, &str); 8] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
@@ -224,16 +226,24 @@ static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 struct LolModExtension;
 
-// The shared champion-card layout cannot declaratively choose a different
-// static PNG per champion.  Register this narrow post-update hook by default
-// so official 009 uses its independent 85x93 UI portrait instead of the
-// 43x55 battle idle.  Do not add MatchUIRunner, RenderState, server state or
-// unrelated champion work here; the broader legacy extension remains gated.
+// The shared champion-card runner emits the 43x55 battle idle as an enlarged
+// roughly 95x121 NinePatch.  Its dynamically instantiated slot can bypass the
+// modded layout node, so the visibility toggle alone is not a reliable route.
+// Keep the post-update fallback, then replace only Yone's card NinePatch while
+// the official ChampionInfoUIRunner is mounted.  Battle actors are Sprite
+// commands and are untouched; the broader client/server extension remains
+// gated.
 struct YoneManagementCardExtension;
 
 impl ModExtension for YoneManagementCardExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
         sync_yone_encyclopedia_portrait(&mut ui.root);
+    }
+
+    fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        if ui_tree_contains_champion_info_runner(&ui.root) {
+            rewrite_yone_management_card_render_commands(state);
+        }
     }
 }
 
@@ -404,6 +414,75 @@ fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
 
 fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
     (84.0..=96.0).contains(&width) && (108.0..=130.0).contains(&height)
+}
+
+fn ui_tree_contains_champion_info_runner(root: &Node) -> bool {
+    root.runner_as::<ChampionInfoUIRunner>().is_some()
+        || root
+            .child
+            .iter()
+            .any(ui_tree_contains_champion_info_runner)
+}
+
+fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y: _,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !is_yone_actor_sheet_texture(texture.as_str())
+                || !is_yone_bp_grid_geometry(*w, *h)
+            {
+                continue;
+            }
+
+            let source = texture.clone();
+            let original_size = (*w, *h);
+            let center_x = *x + *w * 0.5;
+            *texture = YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *x = center_x - 42.5;
+            *w = 85.0;
+            *h = 93.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+
+            write_bp_render_telemetry_once(
+                "yone_management_card_replace",
+                "management",
+                None,
+                &source,
+                YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
+                &format!(
+                    "version=0.10.12;from_size={:.1}x{:.1};to_size={:.1}x{:.1}",
+                    original_size.0,
+                    original_size.1,
+                    *w,
+                    *h,
+                ),
+            );
+        }
+    }
 }
 
 fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
@@ -921,7 +1000,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.11;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.12;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
