@@ -431,33 +431,71 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
     ):
         assert forbidden not in minimal_impl
 
-    assert "ChampionInfoUIRunner" not in rust
-    bp_guard = rust.split("fn is_ban_pick_render_pass", 1)[1].split(
-        "fn rewrite_yone_management_card_render_commands", 1
+    assert "get_mut::<ChampionInfoUIRunner>" not in rust
+    assert "get::<ChampionInfoUIRunner>" not in rust
+    assert "fn is_ban_pick_render_pass" not in rust
+    slot_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
+        "fn is_yone_management_slot", 1
     )[0]
     for required in (
-        'pass.contains("blue_picks")',
-        'pass.contains("red_picks")',
+        'root.id == "champion_slot"',
+        "is_yone_management_slot(root)",
+        'root.query_mut("icon")',
+        'root.query_mut("lol_fullbody_yone")',
+        "icon.visible = false;",
+        "portrait.visible = true;",
+        "for child in &mut root.child",
+        "sync_yone_encyclopedia_portrait(child);",
     ):
-        assert required in bp_guard
+        assert required in slot_sync
+    slot_identity = rust.split("fn is_yone_management_slot", 1)[1].split(
+        "enum BpRenderSide", 1
+    )[0]
+    for required in (
+        "runner_as::<LabelRunner>()",
+        'matches!(text, "永恩" | "Yone")',
+        'text.contains("dual_blader")',
+        "runner_as::<ImageRunner>()",
+        "runner.style.normal.source.as_str()",
+        'source.contains("dual_blader")',
+        'source.contains("/champions/yone")',
+        "by_name || by_source",
+    ):
+        assert required in slot_identity
+    slot_ui = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
+        encoding="utf-8"
+    )
+    icon_node = slot_ui.split("#icon:image", 1)[1].split("}", 1)[0]
+    assert "width: 85px;" in icon_node
+    assert "height: 93px;" in icon_node
     management_geometry = rust.split(
         "fn is_yone_management_card_geometry", 1
-    )[1].split("fn is_ban_pick_render_pass", 1)[0]
-    assert "(93.0..=96.0).contains(&width)" in management_geometry
-    assert "(110.0..=123.0).contains(&height)" in management_geometry
+    )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
+    assert "(width - 85.0).abs() <= 1.0" in management_geometry
+    assert "(height - 93.0).abs() <= 1.0" in management_geometry
     management_rewrite = rust.split(
         "fn rewrite_yone_management_card_render_commands", 1
     )[1].split("fn rewrite_yone_portrait_render_commands", 1)[0]
     assert "RenderCommand::NinePatch" in management_rewrite
     assert "RenderCommand::Sprite" not in management_rewrite
-    assert "is_ban_pick_render_pass(pass)" in management_rewrite
     assert "is_yone_management_card_geometry(*w, *h)" in management_rewrite
     assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in management_rewrite
-    assert "*x = center_x - 42.5;" in management_rewrite
-    assert "*w = 85.0;" in management_rewrite
-    assert "*h = 93.0;" in management_rewrite
-    assert "*y =" not in management_rewrite
-    assert "version=0.10.13" in management_rewrite
+    for preserved_axis in ("*x =", "*y =", "*w =", "*h ="):
+        assert preserved_axis not in management_rewrite
+    for required in (
+        "texture_rect.x = 0.0;",
+        "texture_rect.y = 0.0;",
+        "texture_rect.w = 1.0;",
+        "texture_rect.h = 1.0;",
+        "*left = 0.0;",
+        "*right = 0.0;",
+        "*top = 0.0;",
+        "*bottom = 0.0;",
+        "*sample_nearest = true;",
+        '"yone_management_card_render_hook"',
+        "version=0.10.14",
+    ):
+        assert required in management_rewrite
 
 
 def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
@@ -1490,7 +1528,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.13"
+    assert mod_info["version"] == "0.10.14"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1538,7 +1576,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.13"
+    assert mod_info["version"] == "0.10.14"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 

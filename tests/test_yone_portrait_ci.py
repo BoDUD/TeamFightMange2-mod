@@ -449,49 +449,91 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     ):
         assert forbidden not in minimal_impl
 
-    assert "ChampionInfoUIRunner" not in source
-    bp_guard = _function_body(source, "is_ban_pick_render_pass")
+    assert "get_mut::<ChampionInfoUIRunner>" not in source
+    assert "get::<ChampionInfoUIRunner>" not in source
+    assert "fn is_ban_pick_render_pass" not in source
+
+    slot_sync = _function_body(source, "sync_yone_encyclopedia_portrait")
     for required in (
-        'pass.contains("blue_picks")',
-        'pass.contains("red_picks")',
+        'root.id == "champion_slot"',
+        "is_yone_management_slot(root)",
+        'root.query_mut("icon")',
+        'root.query_mut("lol_fullbody_yone")',
+        "icon.visible = false;",
+        "portrait.visible = true;",
+        "for child in &mut root.child",
+        "sync_yone_encyclopedia_portrait(child);",
     ):
-        assert required in bp_guard
+        assert required in slot_sync
+    slot_identity = _function_body(source, "is_yone_management_slot")
+    for required in (
+        '.query("name")',
+        "runner_as::<LabelRunner>()",
+        'matches!(text, "永恩" | "Yone")',
+        'text.contains("dual_blader")',
+        '.query("icon")',
+        "runner_as::<ImageRunner>()",
+        "runner.style.normal.source.as_str()",
+        'source.contains("dual_blader")',
+        'source.contains("/champions/yone")',
+        "by_name || by_source",
+    ):
+        assert required in slot_identity
+
+    slot_ui = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
+        encoding="utf-8"
+    )
+    icon_node = slot_ui.split("#icon:image", 1)[1].split("}", 1)[0]
+    assert "width: 85px;" in icon_node
+    assert "height: 93px;" in icon_node
 
     management_geometry = _function_body(
         source, "is_yone_management_card_geometry"
     )
-    management_width = _range_contract(management_geometry, "width")
-    management_height = _range_contract(management_geometry, "height")
+    assert "(width - 85.0).abs() <= 1.0" in management_geometry
+    assert "(height - 93.0).abs() <= 1.0" in management_geometry
 
     def is_management_card(width: float, height: float) -> bool:
-        return (
-            management_width[0] <= width <= management_width[1]
-            and management_height[0] <= height <= management_height[1]
-        )
+        return abs(width - 85.0) <= 1.0 and abs(height - 93.0) <= 1.0
 
-    assert management_width == (93.0, 96.0)
-    assert management_height == (110.0, 123.0)
     assert all(
         is_management_card(*geometry)
-        for geometry in ((95.0, 121.0), (95.0, 117.0), (95.0, 112.0))
+        for geometry in (
+            (85.0, 93.0),
+            (84.0, 92.0),
+            (84.0, 94.0),
+            (86.0, 92.0),
+            (86.0, 94.0),
+        )
     )
     assert not is_management_card(90.0, 122.0)
+    assert not is_management_card(95.0, 112.0)
 
     rewrite = _function_body(
         source, "rewrite_yone_management_card_render_commands"
     )
     assert "RenderCommand::NinePatch" in rewrite
     assert "RenderCommand::Sprite" not in rewrite
-    assert "is_ban_pick_render_pass(pass)" in rewrite
     assert "is_yone_actor_sheet_texture(texture.as_str())" in rewrite
     assert "is_yone_management_card_geometry(*w, *h)" in rewrite
     assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in rewrite
-    assert "let center_x = *x + *w * 0.5;" in rewrite
-    assert "*x = center_x - 42.5;" in rewrite
-    assert "*w = 85.0;" in rewrite
-    assert "*h = 93.0;" in rewrite
-    assert "*y =" not in rewrite
-    assert '"version=0.10.13;from_size=' in rewrite
+    for preserved_axis in ("*x =", "*y =", "*w =", "*h ="):
+        assert preserved_axis not in rewrite
+    for required in (
+        "texture_rect.x = 0.0;",
+        "texture_rect.y = 0.0;",
+        "texture_rect.w = 1.0;",
+        "texture_rect.h = 1.0;",
+        "*left = 0.0;",
+        "*right = 0.0;",
+        "*top = 0.0;",
+        "*bottom = 0.0;",
+        "*sample_nearest = true;",
+        '"yone_management_card_render_hook"',
+        '"version=0.10.14;logical_contract=85x93"',
+        '"version=0.10.14;from_size=',
+    ):
+        assert required in rewrite
     assert (
         'const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =\n'
         '    "asset/lol_mod/ui/champion_fullbody/dual_blader";'
@@ -505,9 +547,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "idle[0]"
     ]
     assert idle_zero["rendered_size"] == [95, 121]
-    native_x = (141.0 - idle_zero["rendered_size"][0]) * 0.5
-    target_x = native_x + idle_zero["rendered_size"][0] * 0.5 - 42.5
-    assert (native_x, target_x) == (23.0, 28.0)
+    assert not is_management_card(*idle_zero["rendered_size"])
 
     preview = Image.open(MOD / "qa/yone_v6_ui_card.png").convert("RGBA")
     fullbody = Image.open(MOD / "ui/champion_fullbody/dual_blader.png").convert(
@@ -535,11 +575,13 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert "dual_blader" in sync_body
     assert "lol_fullbody_yone" in sync_body
     assert "lol_fullbody_shen" not in sync_body
-    assert 'set_visible(root, &format!("{prefix}.icon"), false);' in sync_body
-    assert (
-        'set_visible(root, &format!("{prefix}.lol_fullbody_yone"), true);'
-        in sync_body
-    )
+    assert 'root.id == "champion_slot"' in sync_body
+    assert "is_yone_management_slot(root)" in sync_body
+    assert 'root.query_mut("icon")' in sync_body
+    assert "icon.visible = false;" in sync_body
+    assert 'root.query_mut("lol_fullbody_yone")' in sync_body
+    assert "portrait.visible = true;" in sync_body
+    assert "sync_yone_encyclopedia_portrait(child);" in sync_body
 
     legacy_impl = source.split("impl ModExtension for LolModExtension", 1)[1]
     legacy_impl = legacy_impl.split("fn rewrite_kled_portrait_render_commands", 1)[0]

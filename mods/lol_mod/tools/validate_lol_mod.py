@@ -6184,15 +6184,17 @@ def validate_native_dll() -> None:
         return
     payload = path.read_bytes()
     check(
-        b"version=0.10.13;root=" in payload,
-        "lol_mod.dll must contain the current 0.10.13 BP telemetry marker",
+        b"version=0.10.14;root=" in payload,
+        "lol_mod.dll must contain the current 0.10.14 BP telemetry marker",
     )
     check(
-        b"version=0.10.13;from_size=" in payload,
-        "lol_mod.dll must contain the current 0.10.13 Yone portrait telemetry marker",
+        b"version=0.10.14;from_size=" in payload,
+        "lol_mod.dll must contain the current 0.10.14 Yone portrait telemetry marker",
     )
     check(
-        b"version=0.10.12;root=" not in payload
+        b"version=0.10.13;root=" not in payload
+        and b"version=0.10.13;from_size=" not in payload
+        and b"version=0.10.12;root=" not in payload
         and b"version=0.10.12;from_size=" not in payload
         and b"version=0.10.11;root=" not in payload
         and b"version=0.10.10;root=" not in payload,
@@ -7410,7 +7412,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.13", "lol_mod version must be 0.10.13")
+    check(mod_info.get("version") == "0.10.14", "lol_mod version must be 0.10.14")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7431,12 +7433,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.1", "0.10.5", "0.10.11", "0.10.12", "0.10.13",
+                "0.5.1", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14",
                 "V6", "source-direct", "3502x88",
             )
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the current 0.10.13 portrait route, failed 0.10.11/0.10.12 routes and 0.10.5 saved-season floor",
+        "mod metadata must document the current 0.10.14 portrait route, failed 0.10.11-0.10.13 routes and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8219,7 +8221,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12", "0.10.13",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
             "2026-07-21", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
@@ -8244,6 +8246,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone champion_view must keep the audited face/card/BP cameras",
     )
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
+    icon_node = ui.split("#icon:image", 1)[1].split("}", 1)[0] if "#icon:image" in ui else ""
+    check(
+        "width: 85px;" in icon_node and "height: 93px;" in icon_node,
+        "Yone management-card route must derive from the real 85x93 champion_slot #icon geometry",
+    )
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
     check(
@@ -8284,28 +8291,76 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             f"Yone management-card extension must not use legacy runtime internals: {forbidden}",
         )
     check(
-        "ChampionInfoUIRunner" not in rust,
+        "get_mut::<ChampionInfoUIRunner>" not in rust
+        and "get::<ChampionInfoUIRunner>" not in rust,
         "Yone management-card route must not depend on the unreachable ChampionInfoUIRunner gate",
     )
+    slot_sync = ""
+    if "fn sync_yone_encyclopedia_portrait" in rust:
+        slot_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
+            "fn is_yone_management_slot", 1
+        )[0]
+    for required in (
+        'root.id == "champion_slot"',
+        "is_yone_management_slot(root)",
+        'root.query_mut("icon")',
+        'root.query_mut("lol_fullbody_yone")',
+        "icon.visible = false;",
+        "portrait.visible = true;",
+        "for child in &mut root.child",
+        "sync_yone_encyclopedia_portrait(child);",
+    ):
+        check(required in slot_sync, f"Yone cloned-slot traversal is missing: {required}")
+    slot_identity = ""
+    if "fn is_yone_management_slot" in rust:
+        slot_identity = rust.split("fn is_yone_management_slot", 1)[1].split(
+            "enum BpRenderSide", 1
+        )[0]
+    for required in (
+        "runner_as::<LabelRunner>()",
+        'matches!(text, "永恩" | "Yone")',
+        'text.contains("dual_blader")',
+        "runner_as::<ImageRunner>()",
+        "runner.style.normal.source.as_str()",
+        'source.contains("dual_blader")',
+        'source.contains("/champions/yone")',
+        "by_name || by_source",
+    ):
+        check(required in slot_identity, f"Yone cloned-slot identity check is missing: {required}")
     management_geometry = ""
     if "fn is_yone_management_card_geometry" in rust:
         management_geometry = rust.split(
             "fn is_yone_management_card_geometry", 1
-        )[1].split("fn is_ban_pick_render_pass", 1)[0]
-    check(
-        "(93.0..=96.0).contains(&width)" in management_geometry
-        and "(110.0..=123.0).contains(&height)" in management_geometry,
-        "Yone management-card geometry must stay within the observed 93..96 x 110..123 actor band",
-    )
-    bp_pass_guard = ""
-    if "fn is_ban_pick_render_pass" in rust:
-        bp_pass_guard = rust.split(
-            "fn is_ban_pick_render_pass", 1
         )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
     check(
-        'pass.contains("blue_picks")' in bp_pass_guard
-        and 'pass.contains("red_picks")' in bp_pass_guard,
-        "Yone management-card route must exclude both blue and red Ban/Pick render passes",
+        "(width - 85.0).abs() <= 1.0" in management_geometry
+        and "(height - 93.0).abs() <= 1.0" in management_geometry,
+        "Yone management-card geometry must match the logical 85x93 command within one pixel",
+    )
+    logical_management_gate = lambda width, height: (
+        abs(width - 85.0) <= 1.0 and abs(height - 93.0) <= 1.0
+    )
+    check(
+        all(
+            logical_management_gate(width, height)
+            for width, height in (
+                (85.0, 93.0),
+                (84.0, 92.0),
+                (84.0, 94.0),
+                (86.0, 92.0),
+                (86.0, 94.0),
+            )
+        ),
+        "Yone logical management-card gate must accept 85x93 and one-pixel layout rounding",
+    )
+    check(
+        not logical_management_gate(90.0, 122.0)
+        and not logical_management_gate(95.0, 112.0),
+        "Yone logical management-card gate must reject BP 90x122 and old scaled screenshot geometry",
+    )
+    check(
+        "fn is_ban_pick_render_pass" not in rust,
+        "Yone management-card routing must use logical geometry instead of unreliable pass-name gating",
     )
     yone_portrait_rewrite = ""
     if "fn rewrite_yone_management_card_render_commands" in rust:
@@ -8318,25 +8373,32 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "for (pass, commands) in &mut state.commands",
         "is_yone_management_card_geometry(*w, *h)",
         "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE",
-        "let center_x = *x + *w * 0.5;",
-        "*x = center_x - 42.5;",
-        "*w = 85.0;",
-        "*h = 93.0;",
-        '"version=0.10.13;from_size=',
+        "texture_rect.x = 0.0;",
+        "texture_rect.y = 0.0;",
+        "texture_rect.w = 1.0;",
+        "texture_rect.h = 1.0;",
+        "*left = 0.0;",
+        "*right = 0.0;",
+        "*top = 0.0;",
+        "*bottom = 0.0;",
+        "*sample_nearest = true;",
+        '"yone_management_card_render_hook"',
+        '"version=0.10.14;logical_contract=85x93"',
+        '"version=0.10.14;from_size=',
     ):
         check(required in yone_portrait_rewrite, f"Yone portrait rewrite is missing: {required}")
-    check(
-        re.search(
-            r"if\s+is_ban_pick_render_pass\(pass\)\s*\{\s*continue;\s*\}",
-            yone_portrait_rewrite,
-        )
-        is not None,
-        "Yone management-card rewrite must skip each blue/red Ban/Pick render pass before scanning commands",
-    )
-    for forbidden in ("RenderCommand::Sprite", "*y =", "MatchUIRunner", "ClientDatabase"):
+    for forbidden in (
+        "RenderCommand::Sprite",
+        "*x =",
+        "*y =",
+        "*w =",
+        "*h =",
+        "MatchUIRunner",
+        "ClientDatabase",
+    ):
         check(
             forbidden not in yone_portrait_rewrite,
-            f"Yone portrait rewrite must preserve top alignment and ignore match/battle state: {forbidden}",
+            f"Yone portrait rewrite must preserve x/y/w/h and ignore battle state: {forbidden}",
         )
     init_body = ""
     if "fn init(_ctx: &GameCtx) -> ModRegistration" in rust:
@@ -8955,7 +9017,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.13", "lol_mod version must be 0.10.13")
+    check(mod_info.get("version") == "0.10.14", "lol_mod version must be 0.10.14")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
