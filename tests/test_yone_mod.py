@@ -496,7 +496,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        "version=0.10.15",
+        "version=0.10.16",
     ):
         assert required in management_rewrite
 
@@ -1531,7 +1531,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.15"
+    assert mod_info["version"] == "0.10.16"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1579,7 +1579,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.15"
+    assert mod_info["version"] == "0.10.16"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 

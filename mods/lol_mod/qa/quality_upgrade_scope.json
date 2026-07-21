@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.15",
+  "release": "0.10.16",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -97,14 +97,15 @@
       "dual_blader"
     ],
     "encyclopedia_fullbody_runtime": {
-      "yone_default_hook": "YoneManagementCardExtension post_update recursively visits the repeated champion_slot clones, identifies Yone through the populated LabelRunner name or ImageRunner source, hides only that slot's icon and shows lol_fullbody_yone; post_render first keeps the 85x93 management-card fallback, then runs the independent Yone-only portrait helper so 90x122 BP-grid NinePatch commands use dual_blader_grid while compact and scoreboard surfaces keep their dedicated portraits",
+      "yone_default_hook": "YoneManagementCardExtension post_update recursively visits repeated champion_slot clones and keeps the 85x93 management fallback; post_render uses the measured Yone-only UI NinePatch source route at 95x88 to draw dual_blader_grid at its natural 90x122 while compact and scoreboard surfaces keep their dedicated portraits",
       "yone_0_10_11_route": "failed: the static dual_blader.icon / dual_blader.lol_fullbody_yone path assumed cloned slot roots were renamed to champion ids; official ChampionInfoUIRunner keeps every root id as champion_slot, so the path could never resolve",
       "yone_0_10_12_route": "failed: the ChampionInfoUIRunner positive gate was not discoverable in the live management card, so no yone_management_card_replace telemetry was emitted and the native battle idle remained visible",
       "yone_0_10_13_route": "failed: the route treated the post-SetImageScale screenshot size of approximately 93-96x110-123 as RenderCommand geometry, while the actual champion_slot #icon NinePatch remains a logical 85x93, so the replacement gate never matched",
       "yone_0_10_14_route": "failed for the reported surface: it corrected only the 85x93 management-card route, but the user screenshot came from the 90x122 BP champion grid whose existing Yone portrait helper was still reachable only through the opt-in broad extension",
+      "yone_0_10_15_route": "failed: bounded live telemetry proved the central BP actor command is UI NinePatch 95x88, while the release gate expected 84-96x108-130 and therefore never emitted yone_bp_grid_replace",
       "yone_texture": "source-direct high-resolution 85x93 full-body PNG rendered 1:1 inside the unchanged 85x93 logical management-card command",
-      "bp_grid_texture": "source-direct 90x122 dual_blader_grid PNG routed only from Yone actor NinePatch commands at the audited 84-96x108-130 BP geometry and 1.25-1.50 height/width ratio with x/y/w/h preserved",
-      "surface_exclusion": "picked-side BP cards remain outside the Yone portrait geometry; battle actors use RenderCommand::Sprite rather than NinePatch; other champions fail the Yone actor-texture predicate",
+      "bp_grid_texture": "source-direct 90x122 dual_blader_grid PNG routed only from the measured Yone UI NinePatch source geometry 95x88 (92-98x86-90 rounding allowance); output preserves horizontal center and top y instead of compressing the target into the source rectangle",
+      "surface_exclusion": "85x93 management and picked-side BP cards remain outside the BP gate; the observed Game-pass battle actor is RenderCommand::Sprite and is trace-only; other champions fail the Yone actor-texture predicate",
       "legacy_match_ui_database_render_and_server_work": "still disabled by default and available only through LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS=1",
       "sdk_provenance": {
         "release_url": "https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1",
@@ -116,7 +117,7 @@
         "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
         "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
       },
-      "live_status": "0.10.15 uses the matching 0.5.1 SDK and exposes the Yone-only management, BP-grid, compact and scoreboard NinePatch routes by default; bounded command and replacement telemetry is present, while user manual BP verification remains required"
+      "live_status": "0.10.16 uses 0.10.15 live telemetry to match only the Yone UI NinePatch at measured 95x88 source geometry, restores the source-direct 90x122 BP portrait with horizontal center and top preserved, and leaves the separate Game Sprite untouched; user manual BP verification remains required"
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",

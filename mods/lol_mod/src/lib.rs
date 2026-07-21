@@ -227,14 +227,13 @@ static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 struct LolModExtension;
 
-// The shared champion-card runner emits the 43x55 battle idle inside the
-// layout's 85x93 image node. RenderState stores that logical 85x93 geometry;
-// the roughly 95x112 pixels visible in screenshots are produced later by a
-// SetImageScale command and must never be used as the match contract. Keep the
-// post-update node fallback, then replace Yone's exact logical management-card
-// NinePatch and Yone's independently audited compact/scoreboard/BP-grid
-// NinePatch surfaces. Battle actors are Sprite commands and are untouched; the
-// broader client/server extension remains gated.
+// The shared champion-card runner can expose the same low-resolution battle
+// idle through several UI geometries. Live 0.10.15 telemetry proved that the
+// central BP grid is a UI NinePatch at 95x88 (the #icon canvas is 118x88), not
+// the previously assumed 90x122 command. Replace that exact live route with
+// the source-direct 90x122 portrait while leaving Game-pass Sprite actors and
+// the independently audited management/compact/scoreboard routes untouched.
+// The broader client/server extension remains gated.
 struct YoneManagementCardExtension;
 
 impl ModExtension for YoneManagementCardExtension {
@@ -415,33 +414,34 @@ fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
 }
 
 fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
-    (84.0..=96.0).contains(&width)
-        && (108.0..=130.0).contains(&height)
-        && height / width >= 1.25
-        && height / width <= 1.50
+    // quality_bp_runtime_telemetry.tsv from 0.10.15 records the real central
+    // BP actor command as UI/NinePatch/95x88. Keep a narrow rounding allowance
+    // around that measured command; 85x93 management cards, compact rows,
+    // 129x165 picked-side cards and Game-pass Sprite actors remain disjoint.
+    (92.0..=98.0).contains(&width) && (86.0..=90.0).contains(&height)
 }
 
 fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
     // champion_info_component/champion_slot.ui declares #icon as 85x93.
     // RenderCommand uses that unscaled logical size even when the final
     // screenshot is enlarged by SetImageScale. The one-pixel tolerance covers
-    // layout rounding while remaining disjoint from BP grid (90x122), BP side
-    // cards (129x165) and compact portraits (<=52x52).
+    // layout rounding while remaining disjoint from the live BP source
+    // command (95x88), BP side cards (129x165) and compact portraits (<=52x52).
     (width - 85.0).abs() <= 1.0 && (height - 93.0).abs() <= 1.0
 }
 
 fn trace_yone_render_commands(state: &RenderState) {
     // Keep the diagnostic bounded by the existing once-per-signature writer.
     // This records the real command variant before either default rewrite, so
-    // a live BP run can distinguish a 90x122 NinePatch hit from an unexpected
-    // Sprite/alias route without dumping the full RenderState every frame.
+    // a live BP run can distinguish the measured 95x88 UI NinePatch source
+    // from the separate Game Sprite without dumping RenderState every frame.
     write_bp_render_telemetry_once(
         "yone_ui_render_hook",
         "yone_ui",
         None,
         "",
         "",
-        "version=0.10.15;management_contract=85x93;bp_grid_contract=90x122",
+        "version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122",
     );
     for (pass, commands) in &state.commands {
         for command in commands {
@@ -458,7 +458,9 @@ fn trace_yone_render_commands(state: &RenderState) {
                 } if is_yone_actor_sheet_texture(texture.as_str()) => {
                     let route = if is_yone_management_card_geometry(*w, *h) {
                         "management"
-                    } else if is_yone_bp_grid_geometry(*w, *h) {
+                    } else if pass.to_string() == "UI"
+                        && is_yone_bp_grid_geometry(*w, *h)
+                    {
                         "bp_grid"
                     } else if is_yone_scoreboard_portrait_geometry(*w, *h) {
                         "scoreboard"
@@ -474,7 +476,7 @@ fn trace_yone_render_commands(state: &RenderState) {
                         texture,
                         "",
                         &format!(
-                            "version=0.10.15;kind=NinePatch;pass={pass};route={route};geometry={:.0}x{:.0};sample_nearest={sample_nearest}",
+                            "version=0.10.16;kind=NinePatch;pass={pass};route={route};geometry={:.0}x{:.0};sample_nearest={sample_nearest}",
                             *w,
                             *h,
                         ),
@@ -489,7 +491,14 @@ fn trace_yone_render_commands(state: &RenderState) {
                         None,
                         texture,
                         "",
-                        &format!("version=0.10.15;kind=Sprite;pass={pass};route=unclassified"),
+                        &format!(
+                            "version=0.10.16;kind=Sprite;pass={pass};route={}",
+                            if pass.to_string() == "Game" {
+                                "game_actor"
+                            } else {
+                                "unclassified"
+                            }
+                        ),
                     );
                 }
                 _ => {}
@@ -507,7 +516,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
         None,
         "",
         "",
-        "version=0.10.15;logical_contract=85x93",
+        "version=0.10.16;logical_contract=85x93",
     );
     for (pass, commands) in &mut state.commands {
         for command in commands {
@@ -542,7 +551,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                     &source,
                     "",
                     &format!(
-                        "version=0.10.15;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        "version=0.10.16;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
                         *x, *y, *w, *h,
                     ),
                 );
@@ -569,7 +578,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.15;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    "version=0.10.16;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
                     original_size.0, original_size.1, *w, *h,
                 ),
             );
@@ -583,7 +592,7 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             let RenderCommand::NinePatch {
                 texture,
                 texture_rect,
-                x: _,
+                x,
                 y: _,
                 w,
                 h,
@@ -601,12 +610,14 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
                 continue;
             }
 
-            // Rectangular scoreboard rows and square compact portraits are
-            // separate surfaces. Route each to its source-direct final-scale
-            // crop while preserving the command's original x/y/w/h.
+            // Rectangular scoreboard rows and square compact portraits keep
+            // their original geometry. The live BP command is a 95x88 actor
+            // box; route it to the portrait's natural 90x122 canvas so its
+            // 45x82 visible body is never vertically crushed into 88 pixels.
             let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);
             let is_compact = is_yone_compact_portrait_geometry(*w, *h);
-            let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);
+            let is_bp_grid =
+                pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);
             let source = texture.clone();
             let original_size = (*w, *h);
             let replacement = if is_scoreboard {
@@ -630,6 +641,19 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             *bottom = 0.0;
             *sample_nearest = true;
 
+            if is_bp_grid {
+                // champion_slot.ui places #icon at y=4 on a fixed 88px-high
+                // canvas. Preserve that top anchor: the portrait's non-empty
+                // pixels end at source y=85 and therefore remain inside the
+                // icon region, while its transparent lower tail may clip with
+                // no visible overlap into the name band. Preserve horizontal
+                // centering while restoring the texture's natural dimensions.
+                let center_x = *x + *w * 0.5;
+                *w = 90.0;
+                *h = 122.0;
+                *x = center_x - *w * 0.5;
+            }
+
             let event = if is_bp_grid {
                 "yone_bp_grid_replace"
             } else if is_scoreboard {
@@ -644,9 +668,16 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
                 &source,
                 replacement,
                 &format!(
-                    "version=0.10.15;kind=NinePatch;pass={pass};route={event};geometry={:.0}x{:.0};geometry_preserved=true",
+                    "version=0.10.16;kind=NinePatch;pass={pass};route={event};from_geometry={:.0}x{:.0};to_geometry={:.0}x{:.0};geometry_mode={}",
                     original_size.0,
                     original_size.1,
+                    *w,
+                    *h,
+                    if is_bp_grid {
+                        "center_x_and_top_y_preserved"
+                    } else {
+                        "preserved"
+                    },
                 ),
             );
         }
@@ -1141,7 +1172,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.15;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.16;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),

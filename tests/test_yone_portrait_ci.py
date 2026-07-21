@@ -348,7 +348,7 @@ def test_yone_builder_physically_retires_v3_v4_v5_and_cannot_reprocess_native_pi
         assert forbidden_transform not in body_source
 
 
-def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> None:
+def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
     source = RUNTIME.read_text(encoding="utf-8")
     scoreboard_body = _function_body(source, "is_yone_scoreboard_portrait_geometry")
     compact_body = _function_body(source, "is_yone_compact_portrait_geometry")
@@ -371,11 +371,6 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     square_delta = float(square_delta_match.group(1))
     grid_width = _range_contract(grid_body, "width")
     grid_height = _range_contract(grid_body, "height")
-    grid_ratio_floor_match = re.search(r"height / width >= ([0-9.]+)", grid_body)
-    grid_ratio_limit_match = re.search(r"height / width <= ([0-9.]+)", grid_body)
-    assert grid_ratio_floor_match is not None and grid_ratio_limit_match is not None
-    grid_ratio_floor = float(grid_ratio_floor_match.group(1))
-    grid_ratio_limit = float(grid_ratio_limit_match.group(1))
 
     def is_scoreboard(width: float, height: float) -> bool:
         return (
@@ -395,7 +390,6 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
         return (
             grid_width[0] <= width <= grid_width[1]
             and grid_height[0] <= height <= grid_height[1]
-            and grid_ratio_floor <= height / width <= grid_ratio_limit
         )
 
     scoreboard_surfaces = ((18.0, 26.0), (30.0, 38.0))
@@ -408,16 +402,17 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     assert not is_scoreboard(18.0, 18.0)
     assert is_compact(46.0, 46.0)
     assert not is_scoreboard(46.0, 46.0)
-    assert is_grid(90.0, 122.0)
-    assert is_grid(94.6, 121.0)
+    for live_geometry in ((95.0, 88.0), (94.0, 88.0), (96.0, 89.0)):
+        assert is_grid(*live_geometry)
     for excluded_geometry in (
         (85.0, 93.0),
+        (90.0, 122.0),
         (95.0, 112.0),
         (114.4, 134.1),
         (129.0, 165.0),
     ):
         assert not is_grid(*excluded_geometry)
-    assert not is_compact(90.0, 122.0)
+    assert not is_compact(95.0, 88.0)
 
     rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
     assert "is_yone_scoreboard_portrait_geometry(*w, *h)" in rewrite
@@ -430,10 +425,13 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
         assert forbidden not in rewrite
     assert "else if is_bp_grid" in rewrite
     assert "allow_bp_grid && is_bp_grid" not in rewrite
-    assert "let center_x" not in rewrite
+    assert 'pass.to_string() == "UI"' in rewrite
+    assert "let center_x = *x + *w * 0.5;" in rewrite
     assert "let center_y" not in rewrite
-    assert "*w =" not in rewrite
-    assert "*h =" not in rewrite
+    assert "*w = 90.0;" in rewrite
+    assert "*h = 122.0;" in rewrite
+    assert "*x = center_x - *w * 0.5;" in rewrite
+    assert "*y =" not in rewrite
 
 
 def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
@@ -546,8 +544,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.15;logical_contract=85x93"',
-        '"version=0.10.15;from_size=',
+        '"version=0.10.16;logical_contract=85x93"',
+        '"version=0.10.16;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -559,12 +557,13 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     trace = _function_body(source, "trace_yone_render_commands")
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.15;management_contract=85x93;bp_grid_contract=90x122"',
+        '"version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',
         "kind=NinePatch",
         "kind=Sprite",
+        '"game_actor"',
         "route={route}",
         "geometry={:.0}x{:.0}",
     ):
@@ -583,7 +582,9 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     for required in (
         '"yone_bp_grid_replace"',
         "YONE_BP_GRID_PORTRAIT_TEXTURE",
-        "geometry_preserved=true",
+        "from_geometry={:.0}x{:.0}",
+        "to_geometry={:.0}x{:.0}",
+        '"center_x_and_top_y_preserved"',
         "texture_rect.x = 0.0;",
         "texture_rect.y = 0.0;",
         "texture_rect.w = 1.0;",
@@ -598,9 +599,28 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert "RenderCommand::Sprite" not in portrait_rewrite
     assert portrait_rewrite.index(
         "if !is_yone_actor_sheet_texture(texture.as_str())"
-    ) < portrait_rewrite.index("let is_bp_grid = is_yone_bp_grid_geometry(*w, *h);")
-    for preserved_axis in ("*x =", "*y =", "*w =", "*h ="):
-        assert preserved_axis not in portrait_rewrite
+    ) < portrait_rewrite.index("let is_bp_grid =")
+    for required in (
+        'pass.to_string() == "UI"',
+        "let center_x = *x + *w * 0.5;",
+        "*w = 90.0;",
+        "*h = 122.0;",
+        "*x = center_x - *w * 0.5;",
+    ):
+        assert required in portrait_rewrite
+    assert "*y =" not in portrait_rewrite
+
+    bp_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(
+        encoding="utf-8"
+    )
+    icon_canvas = bp_slot.split("#icon:canvas", 1)[1].split("}", 1)[0]
+    assert "height: 88px;" in icon_canvas
+    assert "y: 4px;" in icon_canvas
+    grid_portrait = Image.open(
+        MOD / "ui/champion_portrait/dual_blader_grid.png"
+    ).convert("RGBA")
+    assert grid_portrait.size == (90, 122)
+    assert grid_portrait.getbbox() == (22, 4, 67, 86)
 
     telemetry_writer = _function_body(source, "write_bp_render_telemetry_once")
     for required in (
