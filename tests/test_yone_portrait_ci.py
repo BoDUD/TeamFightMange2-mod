@@ -431,7 +431,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
-    assert "ui_tree_contains_champion_info_runner(&ui.root)" in minimal_impl
+    assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
     assert minimal_impl.count("rewrite_") == 1
     for forbidden in (
@@ -445,27 +445,53 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "rewrite_kled_portrait_render_commands",
         "rewrite_xayah_portrait_render_commands",
         "rewrite_yone_portrait_render_commands",
+        "ChampionInfoUIRunner",
     ):
         assert forbidden not in minimal_impl
 
-    runner_gate = _function_body(source, "ui_tree_contains_champion_info_runner")
-    assert "runner_as::<ChampionInfoUIRunner>()" in runner_gate
-    assert ".any(ui_tree_contains_champion_info_runner)" in runner_gate
+    assert "ChampionInfoUIRunner" not in source
+    bp_guard = _function_body(source, "is_ban_pick_render_pass")
+    for required in (
+        'pass.contains("blue_picks")',
+        'pass.contains("red_picks")',
+    ):
+        assert required in bp_guard
+
+    management_geometry = _function_body(
+        source, "is_yone_management_card_geometry"
+    )
+    management_width = _range_contract(management_geometry, "width")
+    management_height = _range_contract(management_geometry, "height")
+
+    def is_management_card(width: float, height: float) -> bool:
+        return (
+            management_width[0] <= width <= management_width[1]
+            and management_height[0] <= height <= management_height[1]
+        )
+
+    assert management_width == (93.0, 96.0)
+    assert management_height == (110.0, 123.0)
+    assert all(
+        is_management_card(*geometry)
+        for geometry in ((95.0, 121.0), (95.0, 117.0), (95.0, 112.0))
+    )
+    assert not is_management_card(90.0, 122.0)
 
     rewrite = _function_body(
         source, "rewrite_yone_management_card_render_commands"
     )
     assert "RenderCommand::NinePatch" in rewrite
     assert "RenderCommand::Sprite" not in rewrite
+    assert "is_ban_pick_render_pass(pass)" in rewrite
     assert "is_yone_actor_sheet_texture(texture.as_str())" in rewrite
-    assert "is_yone_bp_grid_geometry(*w, *h)" in rewrite
+    assert "is_yone_management_card_geometry(*w, *h)" in rewrite
     assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in rewrite
     assert "let center_x = *x + *w * 0.5;" in rewrite
     assert "*x = center_x - 42.5;" in rewrite
     assert "*w = 85.0;" in rewrite
     assert "*h = 93.0;" in rewrite
     assert "*y =" not in rewrite
-    assert '"version=0.10.12;from_size=' in rewrite
+    assert '"version=0.10.13;from_size=' in rewrite
     assert (
         'const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =\n'
         '    "asset/lol_mod/ui/champion_fullbody/dual_blader";'

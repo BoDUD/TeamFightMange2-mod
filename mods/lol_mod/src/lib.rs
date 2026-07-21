@@ -8,7 +8,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use engine_core::render_state::RenderCommand;
-use game_view::{ChampionInfoUIRunner, ClientDatabase, MatchUIRunner};
+use game_view::{ClientDatabase, MatchUIRunner};
 use mod_api::MatchType;
 use mod_api::*;
 
@@ -229,10 +229,10 @@ struct LolModExtension;
 // The shared champion-card runner emits the 43x55 battle idle as an enlarged
 // roughly 95x121 NinePatch.  Its dynamically instantiated slot can bypass the
 // modded layout node, so the visibility toggle alone is not a reliable route.
-// Keep the post-update fallback, then replace only Yone's card NinePatch while
-// the official ChampionInfoUIRunner is mounted.  Battle actors are Sprite
-// commands and are untouched; the broader client/server extension remains
-// gated.
+// Keep the post-update fallback, then replace only Yone's card NinePatch on
+// non-BP UI surfaces using the four observed idle-frame geometries. Battle
+// actors are Sprite commands and are untouched; the broader client/server
+// extension remains gated.
 struct YoneManagementCardExtension;
 
 impl ModExtension for YoneManagementCardExtension {
@@ -240,10 +240,8 @@ impl ModExtension for YoneManagementCardExtension {
         sync_yone_encyclopedia_portrait(&mut ui.root);
     }
 
-    fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
-        if ui_tree_contains_champion_info_runner(&ui.root) {
-            rewrite_yone_management_card_render_commands(state);
-        }
+    fn post_render(&self, _scene: &Scene, _ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        rewrite_yone_management_card_render_commands(state);
     }
 }
 
@@ -416,22 +414,33 @@ fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
     (84.0..=96.0).contains(&width) && (108.0..=130.0).contains(&height)
 }
 
-fn ui_tree_contains_champion_info_runner(root: &Node) -> bool {
-    root.runner_as::<ChampionInfoUIRunner>().is_some()
-        || root
-            .child
-            .iter()
-            .any(ui_tree_contains_champion_info_runner)
+fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
+    // The four 43x55/53/51/53 idle frames are rendered at roughly 2.2x,
+    // yielding 94.6px width and 121/117/112/117px heights.  Keep this band
+    // narrower than the generic BP-grid geometry so unrelated Yone UI
+    // surfaces cannot enter the management-card route.
+    (93.0..=96.0).contains(&width) && (110.0..=123.0).contains(&height)
+}
+
+fn is_ban_pick_render_pass(pass: &str) -> bool {
+    pass.contains("blue_picks") || pass.contains("red_picks")
 }
 
 fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
-    for commands in state.commands.values_mut() {
+    for (pass, commands) in &mut state.commands {
+        // A hidden/retained BP tree must not suppress an unrelated management
+        // pass. Skip only commands that actually belong to a BP render pass;
+        // the 93..96px width gate separately excludes the observed 90x122
+        // BP-grid portrait even when an SDK variant uses a generic pass name.
+        if is_ban_pick_render_pass(pass) {
+            continue;
+        }
         for command in commands {
             let RenderCommand::NinePatch {
                 texture,
                 texture_rect,
                 x,
-                y: _,
+                y,
                 w,
                 h,
                 left,
@@ -444,14 +453,29 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
             else {
                 continue;
             };
-            if !is_yone_actor_sheet_texture(texture.as_str())
-                || !is_yone_bp_grid_geometry(*w, *h)
-            {
+            if !is_yone_actor_sheet_texture(texture.as_str()) {
                 continue;
             }
 
             let source = texture.clone();
             let original_size = (*w, *h);
+            if (80.0..=110.0).contains(w) && (95.0..=140.0).contains(h) {
+                write_bp_render_telemetry_once(
+                    "yone_management_card_candidate",
+                    "management",
+                    None,
+                    &source,
+                    "",
+                    &format!(
+                        "version=0.10.13;pass={pass};geometry={:.1},{:.1},{:.1},{:.1}",
+                        *x, *y, *w, *h,
+                    ),
+                );
+            }
+            if !is_yone_management_card_geometry(*w, *h) {
+                continue;
+            }
+
             let center_x = *x + *w * 0.5;
             *texture = YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE.to_owned();
             texture_rect.x = 0.0;
@@ -474,11 +498,8 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.12;from_size={:.1}x{:.1};to_size={:.1}x{:.1}",
-                    original_size.0,
-                    original_size.1,
-                    *w,
-                    *h,
+                    "version=0.10.13;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass}",
+                    original_size.0, original_size.1, *w, *h,
                 ),
             );
         }
@@ -1000,7 +1021,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.12;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.13;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
