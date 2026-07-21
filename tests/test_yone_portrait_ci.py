@@ -422,6 +422,68 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     assert "*h =" not in rewrite
 
 
+def test_yone_fullbody_card_sync_is_not_gated_by_match_ui_database() -> None:
+    source = RUNTIME.read_text(encoding="utf-8")
+    post_update = _function_body(source, "post_update")
+    sync_call = "sync_encyclopedia_portraits(&mut ui.root);"
+
+    assert post_update.count(sync_call) == 1
+    sync_index = post_update.index(sync_call)
+    database_branch = post_update[:sync_index]
+    assert "if let Some(database) = match_ui_database(ui)" in database_branch
+    assert "remember_database(database);" in database_branch
+    assert "} else {" not in database_branch
+    assert re.search(
+        r"if let Some\(database\) = match_ui_database\(ui\)\s*\{"
+        r"\s*remember_database\(database\);\s*\}",
+        database_branch,
+    )
+
+    sync_body = _function_body(source, "sync_encyclopedia_portraits")
+    assert '("dual_blader", "lol_fullbody_yone")' in sync_body
+    assert 'set_visible(root, &format!("{prefix}.icon"), false);' in sync_body
+    assert (
+        'set_visible(root, &format!("{prefix}.{portrait_node}"), true);'
+        in sync_body
+    )
+
+
+def test_yone_fullbody_card_keeps_two_readable_legs_and_boots() -> None:
+    image = Image.open(MOD / "ui/champion_fullbody/dual_blader.png").convert("RGBA")
+    alpha = image.getchannel("A")
+    bbox = alpha.getbbox()
+    assert bbox is not None
+
+    def opaque_runs(y: int) -> list[list[int]]:
+        runs: list[list[int]] = []
+        for x in range(bbox[0], bbox[2]):
+            if alpha.getpixel((x, y)) < 128:
+                continue
+            if not runs or x > runs[-1][-1] + 1:
+                runs.append([x])
+            else:
+                runs[-1].append(x)
+        return runs
+
+    lower_start = bbox[1] + round((bbox[3] - bbox[1]) * 0.70)
+    separated_rows = 0
+    for y in range(lower_start, bbox[3]):
+        substantial = [run for run in opaque_runs(y) if len(run) >= 7]
+        if len(substantial) < 2:
+            continue
+        if any(
+            right[0] - left[-1] >= 3
+            for left, right in zip(substantial, substantial[1:], strict=False)
+        ):
+            separated_rows += 1
+    assert separated_rows >= 8
+
+    boot_runs = opaque_runs(bbox[3] - 1)
+    assert len(boot_runs) == 2
+    assert min(len(run) for run in boot_runs) >= 7
+    assert boot_runs[1][0] - boot_runs[0][-1] >= 6
+
+
 def test_yone_bp_transition_contract_covers_observed_and_settled_geometry() -> None:
     source = RUNTIME.read_text(encoding="utf-8")
     constants = {

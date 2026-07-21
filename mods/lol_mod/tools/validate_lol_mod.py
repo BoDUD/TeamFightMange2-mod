@@ -7392,7 +7392,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.8", "lol_mod version must be 0.10.8")
+    check(mod_info.get("version") == "0.10.9", "lol_mod version must be 0.10.9")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7401,10 +7401,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         all(
             token in description
-            for token in ("0.5.1", "0.10.5", "0.10.8", "V6", "source-direct", "3502x88")
+            for token in ("0.5.1", "0.10.5", "0.10.9", "V6", "source-direct", "3502x88")
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the 0.10.8 V6 source-direct route and 0.10.5 saved-season floor",
+        "mod metadata must document the 0.10.9 V6 source-direct route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -7987,13 +7987,50 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     fullbody_path = MOD_ROOT / "ui/champion_fullbody/dual_blader.png"
     if fullbody_path.is_file():
         fullbody_image = Image.open(fullbody_path).convert("RGBA")
-        fullbody_bbox = fullbody_image.getchannel("A").getbbox()
+        fullbody_alpha = fullbody_image.getchannel("A")
+        fullbody_bbox = fullbody_alpha.getbbox()
         if fullbody_bbox is not None:
             check(
                 fullbody_bbox[2] - fullbody_bbox[0] <= 70
                 and fullbody_bbox[3] - fullbody_bbox[1] <= 82
                 and fullbody_bbox[3] <= 86,
                 f"Yone 85x93 fullbody exceeds the exact card destination: {fullbody_bbox}",
+            )
+
+            def fullbody_opaque_runs(y: int) -> list[list[int]]:
+                runs: list[list[int]] = []
+                for x in range(fullbody_bbox[0], fullbody_bbox[2]):
+                    if fullbody_alpha.getpixel((x, y)) < 128:
+                        continue
+                    if not runs or x > runs[-1][-1] + 1:
+                        runs.append([x])
+                    else:
+                        runs[-1].append(x)
+                return runs
+
+            lower_start = fullbody_bbox[1] + round(
+                (fullbody_bbox[3] - fullbody_bbox[1]) * 0.70
+            )
+            separated_rows = 0
+            for y in range(lower_start, fullbody_bbox[3]):
+                substantial = [
+                    run for run in fullbody_opaque_runs(y) if len(run) >= 7
+                ]
+                if len(substantial) >= 2 and any(
+                    right[0] - left[-1] >= 3
+                    for left, right in zip(substantial, substantial[1:])
+                ):
+                    separated_rows += 1
+            check(
+                separated_rows >= 8,
+                f"Yone fullbody loses readable leg separation: {separated_rows} rows",
+            )
+            boot_runs = fullbody_opaque_runs(fullbody_bbox[3] - 1)
+            check(
+                len(boot_runs) == 2
+                and min((len(run) for run in boot_runs), default=0) >= 7
+                and boot_runs[1][0] - boot_runs[0][-1] >= 6,
+                f"Yone fullbody must end in two complete separated boots: {boot_runs}",
             )
     compact_path = MOD_ROOT / "ui/champion_portrait/dual_blader_compact.png"
     if compact_path.is_file():
@@ -8150,9 +8187,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.8",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.9",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
-            "2026-07-20", "不等于实机视觉验收",
+            "2026-07-21", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -8177,6 +8214,26 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
+    check(
+        re.search(
+            r"if let Some\(database\) = match_ui_database\(ui\)\s*\{"
+            r"\s*remember_database\(database\);\s*\}\s*"
+            r"sync_encyclopedia_portraits\(&mut ui\.root\);",
+            rust,
+        )
+        is not None,
+        "Yone full-body card sync must run independently of MatchUIRunner/database discovery",
+    )
+    check(
+        re.search(
+            r"if let Some\(database\) = match_ui_database\(ui\).*?"
+            r"\}\s*else\s*\{\s*sync_encyclopedia_portraits",
+            rust,
+            re.DOTALL,
+        )
+        is None,
+        "Yone full-body card sync regressed into the MatchUIRunner-none branch",
+    )
     check('"yone" | "dual_blader" => Some("dual_blader")' in rust, "Yone splash alias route is missing")
     check("rewrite_yone_portrait_render_commands(state);" in rust, "Yone independent portrait rewrite is missing")
     for token in (
@@ -8747,7 +8804,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.8", "lol_mod version must be 0.10.8")
+    check(mod_info.get("version") == "0.10.9", "lol_mod version must be 0.10.9")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

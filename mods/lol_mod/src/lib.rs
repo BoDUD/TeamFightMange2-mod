@@ -224,11 +224,14 @@ struct LolModExtension;
 
 impl ModExtension for LolModExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+        // MatchUIRunner can remain mounted while the management champion list
+        // is visible.  Portrait replacement is independent from the match
+        // database, so gating it behind the `None` branch leaves the custom
+        // full-body nodes hidden and enlarges the 43x55 battle idle instead.
         if let Some(database) = match_ui_database(ui) {
             remember_database(database);
-        } else {
-            sync_encyclopedia_portraits(&mut ui.root);
         }
+        sync_encyclopedia_portraits(&mut ui.root);
 
         sync_deterministic_dragon();
     }
@@ -893,7 +896,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.8;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.9;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
