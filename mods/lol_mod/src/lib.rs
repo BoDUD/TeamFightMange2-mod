@@ -14,9 +14,10 @@ use mod_api::*;
 
 const MOD_ID: &str = "lol_mod";
 // Teamfight Manager 2 base 0.5.1 is newer than the bundled base 0.5.0 SDK.
-// Client/server extensions expose internal game structures outside the stable
-// Mod API ABI, so require an explicit developer opt-in before registering
-// either extension through the stale interface.
+// Keep the legacy render/database/server extension behind an explicit opt-in:
+// it touches MatchUIRunner, ClientDatabase, RenderState and ServerModContext.
+// The default extension below is deliberately limited to toggling Yone's two
+// management-card image nodes and has no render, database or server callback.
 const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
 const DRAGON_EVENT_VERSION: &str = "v1";
@@ -221,6 +222,19 @@ static BP_TELEMETRY_LOCK: Mutex<()> = Mutex::new(());
 static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 struct LolModExtension;
+
+// The shared champion-card layout cannot declaratively choose a different
+// static PNG per champion.  Register this narrow post-update hook by default
+// so official 009 uses its independent 85x93 UI portrait instead of the
+// 43x55 battle idle.  Do not add MatchUIRunner, RenderState, server state or
+// unrelated champion work here; the broader legacy extension remains gated.
+struct YoneManagementCardExtension;
+
+impl ModExtension for YoneManagementCardExtension {
+    fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+        sync_yone_encyclopedia_portrait(&mut ui.root);
+    }
+}
 
 impl ModExtension for LolModExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
@@ -829,6 +843,16 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
     }
 }
 
+fn sync_yone_encyclopedia_portrait(root: &mut Node) {
+    for prefix in [
+        "data.champions.contents.dual_blader",
+        "top.right.champion_info.data.champions.contents.dual_blader",
+    ] {
+        set_visible(root, &format!("{prefix}.icon"), false);
+        set_visible(root, &format!("{prefix}.lol_fullbody_yone"), true);
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum BpRenderSide {
     Blue,
@@ -896,7 +920,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.9;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.10;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1754,6 +1778,8 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         registration.set_server_extension(LolDragonServerExtension {
             announced: Mutex::new(HashSet::new()),
         });
+    } else {
+        registration.set_extension(YoneManagementCardExtension);
     }
     registration
 }

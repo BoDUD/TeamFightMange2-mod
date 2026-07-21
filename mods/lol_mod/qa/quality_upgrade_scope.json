@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.9",
+  "release": "0.10.10",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -96,6 +96,12 @@
       "dancer",
       "dual_blader"
     ],
+    "encyclopedia_fullbody_runtime": {
+      "yone_default_hook": "YoneManagementCardExtension post_update toggles only dual_blader.icon and dual_blader.lol_fullbody_yone",
+      "yone_texture": "ui/champion_fullbody/dual_blader.png at exact 85x93 source-direct resolution",
+      "legacy_match_ui_database_render_and_server_work": "still disabled by default and available only through LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS=1",
+      "live_status": "0.10.10 installed for user manual verification"
+    },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
       "serpen": "Seeded per-match elemental Drake (Infernal fallback)",

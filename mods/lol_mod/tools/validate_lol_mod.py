@@ -7392,7 +7392,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.9", "lol_mod version must be 0.10.9")
+    check(mod_info.get("version") == "0.10.10", "lol_mod version must be 0.10.10")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7401,10 +7401,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         all(
             token in description
-            for token in ("0.5.1", "0.10.5", "0.10.9", "V6", "source-direct", "3502x88")
+            for token in ("0.5.1", "0.10.5", "0.10.10", "V6", "source-direct", "3502x88")
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the 0.10.9 V6 source-direct route and 0.10.5 saved-season floor",
+        "mod metadata must document the 0.10.10 V6 source-direct route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8187,7 +8187,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.9",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.10",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
             "2026-07-21", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
@@ -8214,6 +8214,60 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
     check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
     check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
+    check(
+        "impl ModExtension for YoneManagementCardExtension" in rust,
+        "Yone management-card extension is missing",
+    )
+    minimal_extension = ""
+    if "impl ModExtension for YoneManagementCardExtension" in rust:
+        minimal_extension = rust.split(
+            "impl ModExtension for YoneManagementCardExtension", 1
+        )[1].split("impl ModExtension for LolModExtension", 1)[0]
+    check(
+        minimal_extension.count("fn post_update(") == 1
+        and "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_extension,
+        "Yone management-card extension must contain exactly one post-update portrait toggle",
+    )
+    for forbidden in (
+        "fn post_render(",
+        "match_ui_database",
+        "MatchUIRunner",
+        "ClientDatabase",
+        "RenderState",
+        "RenderCommand",
+        "sync_deterministic_dragon",
+        "rewrite_",
+    ):
+        check(
+            forbidden not in minimal_extension,
+            f"Yone management-card extension must not use legacy runtime internals: {forbidden}",
+        )
+    init_body = ""
+    if "fn init(_ctx: &GameCtx) -> ModRegistration" in rust:
+        init_body = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1].split(
+            "declare_mod!(init);", 1
+        )[0]
+    check(
+        "} else {" in init_body
+        and "registration.set_extension(YoneManagementCardExtension);" in init_body,
+        "Yone management-card extension must be reachable on the default base-0.5.1 path",
+    )
+    check(
+        init_body.count("registration.set_server_extension(") == 1
+        and "registration.set_extension(LolModExtension);" in init_body,
+        "Legacy client/server extensions must remain isolated behind their opt-in guard",
+    )
+    yone_sync = ""
+    if "fn sync_yone_encyclopedia_portrait" in rust:
+        yone_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
+            "enum BpRenderSide", 1
+        )[0]
+    check(
+        "dual_blader" in yone_sync
+        and "lol_fullbody_yone" in yone_sync
+        and "lol_fullbody_shen" not in yone_sync,
+        "Default management-card synchronization must be Yone-only",
+    )
     check(
         re.search(
             r"if let Some\(database\) = match_ui_database\(ui\)\s*\{"
@@ -8401,7 +8455,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         "registration.set_extension(LolModExtension);" in extension_body
         and "registration.set_server_extension(LolDragonServerExtension" in extension_body
-        and init_source.count("registration.set_extension(") == 1
+        and "registration.set_extension(YoneManagementCardExtension);" not in extension_body
+        and init_source.count("registration.set_extension(") == 2
         and init_source.count("registration.set_server_extension(") == 1,
         "client/server legacy extensions escaped their env=1 guard",
     )
@@ -8804,7 +8859,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.9", "lol_mod version must be 0.10.9")
+    check(mod_info.get("version") == "0.10.10", "lol_mod version must be 0.10.10")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

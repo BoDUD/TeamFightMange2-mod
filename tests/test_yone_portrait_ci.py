@@ -422,29 +422,47 @@ def test_yone_runtime_routes_rectangular_and_square_compact_surfaces_only() -> N
     assert "*h =" not in rewrite
 
 
-def test_yone_fullbody_card_sync_is_not_gated_by_match_ui_database() -> None:
+def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     source = RUNTIME.read_text(encoding="utf-8")
-    post_update = _function_body(source, "post_update")
-    sync_call = "sync_encyclopedia_portraits(&mut ui.root);"
+    minimal_impl = source.split(
+        "impl ModExtension for YoneManagementCardExtension", 1
+    )[1].split("impl ModExtension for LolModExtension", 1)[0]
+    assert minimal_impl.count("fn post_update(") == 1
+    assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
+    for forbidden in (
+        "fn post_render(",
+        "match_ui_database",
+        "MatchUIRunner",
+        "ClientDatabase",
+        "RenderState",
+        "RenderCommand",
+        "sync_deterministic_dragon",
+        "rewrite_",
+    ):
+        assert forbidden not in minimal_impl
 
-    assert post_update.count(sync_call) == 1
-    sync_index = post_update.index(sync_call)
-    database_branch = post_update[:sync_index]
-    assert "if let Some(database) = match_ui_database(ui)" in database_branch
-    assert "remember_database(database);" in database_branch
-    assert "} else {" not in database_branch
-    assert re.search(
-        r"if let Some\(database\) = match_ui_database\(ui\)\s*\{"
-        r"\s*remember_database\(database\);\s*\}",
-        database_branch,
-    )
+    init = source.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1]
+    init = init.split("declare_mod!(init);", 1)[0]
+    assert "} else {" in init
+    assert "registration.set_extension(YoneManagementCardExtension);" in init
 
-    sync_body = _function_body(source, "sync_encyclopedia_portraits")
-    assert '("dual_blader", "lol_fullbody_yone")' in sync_body
+    sync_body = _function_body(source, "sync_yone_encyclopedia_portrait")
+    assert "dual_blader" in sync_body
+    assert "lol_fullbody_yone" in sync_body
+    assert "lol_fullbody_shen" not in sync_body
     assert 'set_visible(root, &format!("{prefix}.icon"), false);' in sync_body
     assert (
-        'set_visible(root, &format!("{prefix}.{portrait_node}"), true);'
+        'set_visible(root, &format!("{prefix}.lol_fullbody_yone"), true);'
         in sync_body
+    )
+
+    legacy_impl = source.split("impl ModExtension for LolModExtension", 1)[1]
+    legacy_impl = legacy_impl.split("fn rewrite_kled_portrait_render_commands", 1)[0]
+    legacy_post_update = _function_body(legacy_impl, "post_update")
+    legacy_sync_call = "sync_encyclopedia_portraits(&mut ui.root);"
+    assert legacy_post_update.count(legacy_sync_call) == 1
+    assert legacy_post_update.index("remember_database(database);") < (
+        legacy_post_update.index(legacy_sync_call)
     )
 
 

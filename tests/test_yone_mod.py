@@ -401,8 +401,28 @@ def test_legacy_base_050_extensions_require_an_explicit_env_value_of_one() -> No
     guard_body = guard.group("body")
     assert "registration.set_extension(LolModExtension);" in guard_body
     assert "registration.set_server_extension(LolDragonServerExtension" in guard_body
-    assert init.count("registration.set_extension(") == 1
+    assert "registration.set_extension(YoneManagementCardExtension);" not in guard_body
+    assert "} else {" in init
+    assert "registration.set_extension(YoneManagementCardExtension);" in init
+    assert init.count("registration.set_extension(") == 2
     assert init.count("registration.set_server_extension(") == 1
+
+    minimal_impl = rust.split(
+        "impl ModExtension for YoneManagementCardExtension", 1
+    )[1].split("impl ModExtension for LolModExtension", 1)[0]
+    assert minimal_impl.count("fn post_update(") == 1
+    assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
+    for forbidden in (
+        "fn post_render(",
+        "match_ui_database",
+        "MatchUIRunner",
+        "ClientDatabase",
+        "RenderState",
+        "RenderCommand",
+        "sync_deterministic_dragon",
+        "rewrite_",
+    ):
+        assert forbidden not in minimal_impl
 
 
 def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
@@ -1435,7 +1455,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.9"
+    assert mod_info["version"] == "0.10.10"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1483,7 +1503,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.9"
+    assert mod_info["version"] == "0.10.10"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 
