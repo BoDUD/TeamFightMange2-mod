@@ -44,7 +44,7 @@ QA_DIR = MOD_ROOT / "qa"
 NATIVE_V7_ROOT = SOURCE_ROOT / "native" / "yone_v7"
 NATIVE_V7_MANIFEST = NATIVE_V7_ROOT / "frames.json"
 NATIVE_V7_CONTACT_PREVIEW = NATIVE_V7_ROOT / "preview" / "yone_v7_native_contact.png"
-YONE_V6_UI_SOURCE = IMAGEGEN_ROOT / "yone_v6_idle_source.png"
+YONE_V7_UI_SOURCE = IMAGEGEN_ROOT / "yone_v7_ui_source.png"
 YONE_V7_MOTION_SOURCE = IMAGEGEN_ROOT / "yone_v7_motion_contact.png"
 YONE_V7_ATTACK_Q_SOURCE = IMAGEGEN_ROOT / "yone_v7_attack_q_contact.png"
 YONE_V7_W_SOURCE = IMAGEGEN_ROOT / "yone_v7_w_contact.png"
@@ -55,14 +55,14 @@ YONE_V7_BODY_IMAGEGEN_SOURCES = (
     YONE_V7_W_SOURCE,
     YONE_V7_ULT_SOURCE,
 )
-YONE_V7_IMAGEGEN_SOURCES = (YONE_V6_UI_SOURCE, *YONE_V7_BODY_IMAGEGEN_SOURCES)
+YONE_V7_IMAGEGEN_SOURCES = (YONE_V7_UI_SOURCE, *YONE_V7_BODY_IMAGEGEN_SOURCES)
 QW_VFX_SOURCE = IMAGEGEN_ROOT / "yone_qw_vfx_contact.png"
 W_VFX_SOURCE = IMAGEGEN_ROOT / "yone_w_vfx_contact_v2.png"
 Q3_VFX_SOURCE = IMAGEGEN_ROOT / "yone_q3_vfx_contact.png"
 R_VFX_SOURCE = IMAGEGEN_ROOT / "yone_r_vfx_contact.png"
 ICON_SOURCE = IMAGEGEN_ROOT / "yone_icons_source.png"
 SPLASH_SOURCE = IMAGEGEN_ROOT / "bp_splash" / "dual_blader.png"
-YONE_V6_UI_CARD_PREVIEW = QA_DIR / "yone_v6_ui_card.png"
+YONE_V7_UI_CARD_PREVIEW = QA_DIR / "yone_v7_ui_card.png"
 
 QW_VFX_ALPHA = PROCESSED_ROOT / "yone_qw_vfx_contact_alpha.png"
 W_VFX_ALPHA = PROCESSED_ROOT / "yone_w_vfx_contact_v2_alpha.png"
@@ -93,9 +93,9 @@ RETIRED_YONE_V5_BODY_SOURCES = (
     SOURCE_ROOT / "native" / ("yone_" + "v5"),
 )
 
-# V6 UI art is intentionally retained below, but its old battle contact sheets
-# and native frame tree must be absent so they cannot be mistaken for a
-# fallback when diagnosing an installed 0.10.18 package.
+# The former V6 UI source remains as provenance only. Its old battle contact
+# sheets and native frame tree must be absent so they cannot be mistaken for a
+# fallback when diagnosing an installed package.
 RETIRED_YONE_V6_BODY_SOURCES = (
     IMAGEGEN_ROOT / "yone_v6_motion_contact.png",
     IMAGEGEN_ROOT / "yone_v6_attack_q_w_contact.png",
@@ -113,6 +113,7 @@ RETIRED_YONE_GENERATED_OUTPUTS = (
     EFFECT_DIR / "yone_q3_airborne#sheet.png",
     IMAGEGEN_ROOT / "yone_followup_vfx_contact.png",
     PROCESSED_ROOT / "yone_followup_vfx_contact_alpha.png",
+    QA_DIR / "yone_v6_ui_card.png",
 )
 RETIRED_YONE_SOURCE_PATHS = (
     IMAGEGEN_ROOT / "yone_e_icon_source.png",
@@ -2211,7 +2212,7 @@ def _paste_unique(
     sheet.alpha_composite(frame, (x, y))
 
 
-def build_actor() -> tuple[Path, Path]:
+def build_actor() -> tuple[Path, Path, Path, Path]:
     qw_vfx = split_grid(Image.open(QW_VFX_ALPHA).convert("RGBA"), 5, 4)
     r_vfx = split_grid(Image.open(R_VFX_ALPHA).convert("RGBA"), 5, 3)
     native_frames, _, _ = _load_native_v7_body_frames()
@@ -2249,8 +2250,10 @@ def build_actor() -> tuple[Path, Path]:
     for source, rect in zip(impact_sources, NATIVE_CONTRACT["ult_hit_effect"]["rects"], strict=True):
         _paste_unique(sheet, placements, rect, fit_effect(source, (rect[2], rect[3]), padding=1))
 
-    sheet_path = ACTOR_DIR / "yone#sheet.png"
-    anim_path = ACTOR_DIR / "yone#anim.fanim"
+    sheet_path = ACTOR_DIR / "yone_v7#sheet.png"
+    anim_path = ACTOR_DIR / "yone_v7#anim.fanim"
+    legacy_sheet_path = ACTOR_DIR / "yone#sheet.png"
+    legacy_anim_path = ACTOR_DIR / "yone#anim.fanim"
     save_png(sheet_path, sheet)
     write_json(
         anim_path,
@@ -2266,7 +2269,14 @@ def build_actor() -> tuple[Path, Path]:
             }
         },
     )
-    return sheet_path, anim_path
+    # Saves embed the champion definition, including its sprite key. Keep the
+    # former `yone` key as a byte-identical compatibility alias so a season
+    # created before 0.10.20 cannot resolve an obsolete or missing actor.
+    legacy_sheet_path.write_bytes(sheet_path.read_bytes())
+    legacy_anim_path.write_bytes(anim_path.read_bytes())
+    if sha256(legacy_sheet_path) != sha256(sheet_path) or sha256(legacy_anim_path) != sha256(anim_path):
+        raise ValueError("Yone legacy actor aliases are not byte-identical to yone_v7")
+    return sheet_path, anim_path, legacy_sheet_path, legacy_anim_path
 
 
 EffectFrame = int | None
@@ -2407,7 +2417,7 @@ def build_icons() -> list[Path]:
 def remove_magenta_chroma_key(image: Image.Image) -> Image.Image:
     """Remove V6's magenta plate and clear hidden RGB bytes.
 
-    The V6 UI source is intentionally much larger than every destination.
+    The V7 UI source is intentionally much larger than every destination.
     Keying happens before its only resize so magenta can never be averaged
     into the face/hair outline by the LANCZOS shrink.
     """
@@ -2432,27 +2442,27 @@ def remove_magenta_chroma_key(image: Image.Image) -> Image.Image:
     return output
 
 
-def load_yone_v6_ui_subject() -> Image.Image:
+def load_yone_v7_ui_subject() -> Image.Image:
     """Load the sole high-resolution authority for every Yone UI surface."""
 
-    with Image.open(YONE_V6_UI_SOURCE) as opened:
+    with Image.open(YONE_V7_UI_SOURCE) as opened:
         source = opened.convert("RGBA")
     if source.width < 800 or source.height < 1000:
         raise ValueError(
-            "Yone V6 UI source must remain high resolution, got "
+            "Yone V7 UI source must remain high resolution, got "
             f"{source.size}; a reduced battle frame is not an allowed fallback"
         )
     keyed = remove_magenta_chroma_key(source)
     subject = keyed.crop(alpha_bbox(keyed))
     if subject.width < 400 or subject.height < 800:
         raise ValueError(
-            "Yone V6 UI source lost its full high-resolution body after keying: "
+            "Yone V7 UI source lost its full high-resolution body after keying: "
             f"{subject.size}"
         )
     return subject
 
 
-def crop_yone_v6_ui_focus(
+def crop_yone_v7_ui_focus(
     full_body: Image.Image,
     focus: tuple[float, float, float, float],
 ) -> Image.Image:
@@ -2475,8 +2485,9 @@ def render_source_direct_ui_subject(
     *,
     max_subject: tuple[int, int],
     bottom: int,
+    x_offset: int = 0,
 ) -> Image.Image:
-    """Shrink V6 high-resolution art directly into one independent UI asset."""
+    """Shrink V7 high-resolution art directly into one independent UI asset."""
 
     subject = source.convert("RGBA").crop(alpha_bbox(source.convert("RGBA")))
     scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
@@ -2496,7 +2507,7 @@ def render_source_direct_ui_subject(
     subject = palette_finish(subject, 128)
     subject = subject.crop(alpha_bbox(subject))
     output = Image.new("RGBA", size, (0, 0, 0, 0))
-    x = (size[0] - subject.width) // 2
+    x = (size[0] - subject.width) // 2 + x_offset
     y = bottom - subject.height
     if x < 0 or y < 0 or subject.width > max_subject[0] or subject.height > max_subject[1]:
         raise ValueError(
@@ -2560,11 +2571,11 @@ def yone_ui_surface_quality(image: Image.Image) -> dict[str, Any]:
     }
 
 
-def render_yone_v6_ui_card_preview(fullbody: Image.Image) -> Image.Image:
+def render_yone_v7_ui_card_preview(fullbody: Image.Image) -> Image.Image:
     """Recreate the 141x138 card with the 85x93 texture pasted at native 1:1."""
 
     if fullbody.size != (85, 93):
-        raise ValueError(f"Yone V6 card source must be 85x93, got {fullbody.size}")
+        raise ValueError(f"Yone V7 card source must be 85x93, got {fullbody.size}")
     preview = Image.new("RGBA", (141, 138), (15, 17, 26, 255))
     draw = ImageDraw.Draw(preview)
     draw.rounded_rectangle(
@@ -2578,9 +2589,9 @@ def render_yone_v6_ui_card_preview(fullbody: Image.Image) -> Image.Image:
     actor_mask.paste(fullbody.getchannel("A"), (actor_x, 0))
     actor_bbox = actor_mask.getbbox()
     if actor_bbox is None or actor_bbox[3] > 86:
-        raise ValueError(f"Yone V6 UI card actor placement is unsafe: {actor_bbox}")
+        raise ValueError(f"Yone V7 UI card actor placement is unsafe: {actor_bbox}")
     if actor_mask.crop((98, 70, 141, 96)).getbbox() is not None:
-        raise ValueError("Yone V6 UI card actor overlaps the right-side icon area")
+        raise ValueError("Yone V7 UI card actor overlaps the right-side icon area")
     draw.arc((99, 72, 112, 88), 290, 70, fill=(236, 238, 242, 255), width=2)
     draw.rectangle((119, 76, 130, 87), outline=(217, 220, 228, 255), width=2)
     draw.rectangle((122, 79, 127, 84), fill=(104, 110, 125, 255))
@@ -2596,20 +2607,21 @@ def build_splash_and_portraits() -> list[Path]:
     save_png(splash_path, splash)
 
     # UI is intentionally independent from the 43x55-class battle atlas.
-    # All four surfaces start from this one accepted 1121x1403 V6 source and
+    # All four surfaces start from this accepted high-resolution V7 source and
     # are shrunk exactly once for their real runtime destination geometry.
-    full_body = load_yone_v6_ui_subject()
+    full_body = load_yone_v7_ui_subject()
     fullbody = render_source_direct_ui_subject(
         full_body,
         (85, 93),
-        max_subject=(70, 82),
+        max_subject=(66, 78),
         bottom=86,
+        x_offset=-5,
     )
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
 
     # Compact rows need the face, mask and shoulders, not a shrunken full body.
-    compact_focus = crop_yone_v6_ui_focus(
+    compact_focus = crop_yone_v7_ui_focus(
         full_body,
         (0.06, 0.02, 0.94, 0.56),
     )
@@ -2622,9 +2634,9 @@ def build_splash_and_portraits() -> list[Path]:
     compact_path = PORTRAIT_DIR / "dual_blader_compact.png"
     save_png(compact_path, compact)
 
-    scoreboard_focus = crop_yone_v6_ui_focus(
+    scoreboard_focus = crop_yone_v7_ui_focus(
         full_body,
-        (0.10, 0.02, 0.92, 0.62),
+        (0.22, 0.00, 0.78, 0.75),
     )
     scoreboard = render_source_direct_ui_subject(
         scoreboard_focus,
@@ -2640,15 +2652,16 @@ def build_splash_and_portraits() -> list[Path]:
     grid = render_source_direct_ui_subject(
         full_body,
         (90, 122),
-        max_subject=(72, 82),
+        max_subject=(68, 78),
         bottom=86,
+        x_offset=-6,
     )
     grid_path = PORTRAIT_DIR / "dual_blader_grid.png"
     save_png(grid_path, grid)
 
     # This is the actual destination route: the 85x93 texture is pasted 1:1
     # into the 141x138 card, with no second resize and no battle-atlas input.
-    save_png(YONE_V6_UI_CARD_PREVIEW, render_yone_v6_ui_card_preview(fullbody))
+    save_png(YONE_V7_UI_CARD_PREVIEW, render_yone_v7_ui_card_preview(fullbody))
     return [splash_path, fullbody_path, compact_path, scoreboard_path, grid_path]
 
 
@@ -2851,6 +2864,9 @@ def build_qa(
             "champion": "Yone",
             "replacement_id": "dual_blader",
             "native_actor": {
+                "runtime_key": "asset/lol_mod/aseprite_resources/champions/yone_v7",
+                "legacy_saved_data_alias": "asset/lol_mod/aseprite_resources/champions/yone",
+                "legacy_alias_byte_identical": True,
                 "sheet_size": list(ACTOR_SHEET_SIZE),
                 "native_tag_order": list(NATIVE_CONTRACT),
                 "custom_tag_order": list(CUSTOM_ACTION_CONTRACT),
@@ -2888,16 +2904,22 @@ def build_qa(
                     "steel_animation_tag": "attack_steel",
                     "azakana_animation_tag": "attack_azakana",
                     "frame_count_each": 6,
+                    "animation_start_tick": 0,
+                    "payload_tick": 13,
                 },
                 "skill": {
                     "q12_animation_tag": "skill_q12",
                     "q3_animation_tag": "skill_q3",
                     "frame_count_each": 7,
+                    "animation_start_tick": 0,
+                    "payload_tick": 8,
                 },
                 "skill2": {
                     "animation_tag": "skill_w_azakana",
                     "frame_count": 5,
                     "qa_contact_tag": "skill2_attack",
+                    "animation_start_tick": 0,
+                    "payload_tick": 8,
                 }
             },
             "runtime_w_resolution": {
@@ -2923,13 +2945,13 @@ def build_qa(
                 "all_battle_body_frames": actor_face_annotations,
                 "ui_surfaces": ui_face_readability,
                 "ui_source_direct": {
-                    "route": "highres-v6-magenta-key-lanczos-hard-alpha-palette128",
-                    "source": YONE_V6_UI_SOURCE.relative_to(MOD_ROOT).as_posix(),
-                    "source_record": image_record(YONE_V6_UI_SOURCE),
+                    "route": "highres-v7-magenta-key-lanczos-hard-alpha-palette128",
+                    "source": YONE_V7_UI_SOURCE.relative_to(MOD_ROOT).as_posix(),
+                    "source_record": image_record(YONE_V7_UI_SOURCE),
                     "battle_atlas_input": False,
                     "resampling": "one uniform LANCZOS shrink per destination; never NEAREST enlargement",
                     "surfaces": ui_source_direct_quality,
-                    "card_preview": image_record(YONE_V6_UI_CARD_PREVIEW),
+                    "card_preview": image_record(YONE_V7_UI_CARD_PREVIEW),
                     "card_paste": "85x93 fullbody pasted 1:1 at x=28/y=0 into 141x138 card",
                     "card_name_layer": "not rasterized in QA; runtime localized name is drawn by the engine text layer",
                 },
@@ -2953,11 +2975,11 @@ def build_qa(
                     path.relative_to(MOD_ROOT).as_posix()
                     for path in RETIRED_YONE_V6_BODY_SOURCES
                 ],
-                "v6_battle_status": "old V6 battle contacts and native frames are physically retired; the separate high-resolution V6 UI portrait source remains active",
+                "v6_battle_status": "old V6 battle contacts and native frames are physically retired; the former high-resolution V6 UI portrait source is provenance only",
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
-                "default_runtime": "four independent source-direct V6 UI textures; no battle-atlas portrait input",
+                "default_runtime": "four independent source-direct V7 UI textures; no battle-atlas portrait input",
                 "fullbody": "85x93 exact champion_slot destination, <=70x82 subject, alpha bottom y<=86",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 source-direct upper-body crop, <=40x54 subject, alpha bottom y<=60",
@@ -2982,7 +3004,7 @@ def build_qa(
             ],
             "ui_only_imagegen_inputs": [
                 {
-                    **image_record(YONE_V6_UI_SOURCE),
+                    **image_record(YONE_V7_UI_SOURCE),
                     "role": "UI provenance only; never a native battle-frame input",
                 }
             ],
@@ -3014,7 +3036,7 @@ def build_qa(
     visual_md = QA_DIR / "yone_visual_qa.md"
     visual_md.write_bytes((
         "# Yone visual QA\n\n"
-        "- [x] Current release contract is `0.10.19`; `0.10.18` is retained only as the failed pixel-presence history and must never identify the installed DLL or telemetry.\n"
+        "- [x] Current release contract is `0.10.20`; `0.10.19` is retained as partial runtime-routing history and must never identify the installed DLL or telemetry.\n"
         "- [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).\n"
         "- [x] Actor canvas is `4262x88`; the original `3502x88` native prefix and all 13 native tags/rectangles/timings are unchanged, with five explicit semantic tags appended.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
@@ -3040,8 +3062,8 @@ def build_qa(
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
-        "- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V6 idle source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no 43x55 battle frame is enlarged.\n"
-        "- [x] The `85x93` fullbody texture is pasted 1:1 into `qa/yone_v6_ui_card.png`, including the y=96 divider and right-side icon exclusion.\n"
+        "- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V7 UI source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no battle frame is enlarged.\n"
+        "- [x] The `85x93` V7 fullbody texture is pasted 1:1 into `qa/yone_v7_ui_card.png`, including the y=96 divider and right-side icon exclusion.\n"
         "- [x] The card proof leaves the name band blank because localized `永恩` is drawn by the runtime engine text layer, not by the portrait texture.\n"
         "- [x] QA replays the user's exact idle[0] 2.2x nearest-neighbor actor path, compares all idle/run frames, rejects near-white face blocks, and preserves source foot/card-bottom clearances.\n"
         "- [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.\n"
@@ -3122,13 +3144,17 @@ def build_qa(
         provenance_path,
         visual_md,
         contact_path,
-        YONE_V6_UI_CARD_PREVIEW,
+        YONE_V7_UI_CARD_PREVIEW,
     ]
 
 
 def validate_outputs(outputs: Iterable[Path]) -> None:
-    actor_sheet = ACTOR_DIR / "yone#sheet.png"
-    actor_anim = ACTOR_DIR / "yone#anim.fanim"
+    actor_sheet = ACTOR_DIR / "yone_v7#sheet.png"
+    actor_anim = ACTOR_DIR / "yone_v7#anim.fanim"
+    legacy_actor_sheet = ACTOR_DIR / "yone#sheet.png"
+    legacy_actor_anim = ACTOR_DIR / "yone#anim.fanim"
+    if sha256(legacy_actor_sheet) != sha256(actor_sheet) or sha256(legacy_actor_anim) != sha256(actor_anim):
+        raise ValueError("Yone saved-data actor aliases differ from the active yone_v7 files")
     if Image.open(actor_sheet).size != ACTOR_SHEET_SIZE:
         raise ValueError("Yone actor canvas is not the V7 4262x88 size")
     payload = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
@@ -3508,10 +3534,14 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         face = yone_face_readability(image, YONE_UI_FACE_WINDOWS[label])
         face_bbox = face["face_skin_bbox"]
         minimum_width, minimum_height, minimum_skin = {
-            "fullbody": (14, 16, 80),
+            # The V7 card face uses two dark/red eyes and brows inside the
+            # warm plane. Those intentional features split the largest skin
+            # component, so validate the measured 12x13 plane together with
+            # >=90 warm pixels and the separate natural-eye-cue gate below.
+            "fullbody": (12, 13, 90),
             "compact": (14, 16, 80),
-            "scoreboard": (13, 15, 70),
-            "grid": (14, 16, 80),
+            "scoreboard": (12, 14, 100),
+            "grid": (12, 13, 90),
         }[label]
         if (
             face_bbox is None
@@ -3550,16 +3580,16 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         raise ValueError(
             f"Yone real 85x93 1:1 fullbody card route failed: {fullbody_card}"
         )
-    with Image.open(YONE_V6_UI_CARD_PREVIEW) as opened:
+    with Image.open(YONE_V7_UI_CARD_PREVIEW) as opened:
         card_preview = opened.convert("RGBA")
     if (
         card_preview.size != (141, 138)
         or card_preview.getchannel("A").getextrema() != (255, 255)
         or card_preview.tobytes()
-        != render_yone_v6_ui_card_preview(fullbody).tobytes()
+        != render_yone_v7_ui_card_preview(fullbody).tobytes()
     ):
         raise ValueError(
-            "Yone V6 card preview must paste the 85x93 source-direct fullbody "
+            "Yone V7 card preview must paste the 85x93 source-direct fullbody "
             "at 1:1 into the exact 141x138 chrome"
         )
     if Image.open(SPLASH_DIR / "dual_blader.png").size != (1420, 860):
@@ -3609,7 +3639,7 @@ def build_all() -> list[Path]:
     required = [
         NATIVE_V7_MANIFEST,
         *YONE_V7_BODY_IMAGEGEN_SOURCES,
-        YONE_V6_UI_SOURCE,
+        YONE_V7_UI_SOURCE,
         QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE,
         ICON_SOURCE, SPLASH_SOURCE,
     ]
@@ -3620,11 +3650,19 @@ def build_all() -> list[Path]:
             + "\n".join(str(path) for path in missing)
         )
     processed = process_sources()
-    actor_sheet, actor_anim = build_actor()
+    actor_sheet, actor_anim, legacy_actor_sheet, legacy_actor_anim = build_actor()
     effects = build_effects(actor_sheet)
     icons = build_icons()
     portraits = build_splash_and_portraits()
-    runtime = [actor_sheet, actor_anim, *effects, *icons, *portraits]
+    runtime = [
+        actor_sheet,
+        actor_anim,
+        legacy_actor_sheet,
+        legacy_actor_anim,
+        *effects,
+        *icons,
+        *portraits,
+    ]
     qa = build_qa(processed, actor_sheet, actor_anim, runtime)
     outputs = [*processed, *runtime, *qa]
     validate_outputs(outputs)

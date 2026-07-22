@@ -15,8 +15,10 @@ from PIL import Image, ImageDraw
 MOD_ROOT = Path(__file__).resolve().parents[1]
 FRAME_MANIFEST = MOD_ROOT / "source/native/yone_v7/frames.json"
 GENERATION_QA = MOD_ROOT / "source/native/yone_v7/generation_qa.json"
-ACTOR_ATLAS = MOD_ROOT / "aseprite_resources/champions/yone#sheet.png"
-ACTOR_ANIM = MOD_ROOT / "aseprite_resources/champions/yone#anim.fanim"
+ACTOR_ATLAS = MOD_ROOT / "aseprite_resources/champions/yone_v7#sheet.png"
+ACTOR_ANIM = MOD_ROOT / "aseprite_resources/champions/yone_v7#anim.fanim"
+LEGACY_ACTOR_ATLAS = MOD_ROOT / "aseprite_resources/champions/yone#sheet.png"
+LEGACY_ACTOR_ANIM = MOD_ROOT / "aseprite_resources/champions/yone#anim.fanim"
 CHAMPION_DATA = MOD_ROOT / "champion/dual_blader.data_champion"
 RELEASE_MANIFEST = MOD_ROOT / "build_manifest.json"
 
@@ -1026,6 +1028,18 @@ def _validate_retired_paths(mod_root: Path) -> None:
     leaked = sorted(path for path in manifest_paths if _is_retired_path(path))
     if leaked:
         _fail("retired V3-V6 body paths entered release manifest:\n" + "\n".join(leaked))
+    required_actor_paths = {
+        ACTOR_ATLAS.relative_to(MOD_ROOT).as_posix(),
+        ACTOR_ANIM.relative_to(MOD_ROOT).as_posix(),
+        LEGACY_ACTOR_ATLAS.relative_to(MOD_ROOT).as_posix(),
+        LEGACY_ACTOR_ANIM.relative_to(MOD_ROOT).as_posix(),
+    }
+    missing_actor_paths = sorted(required_actor_paths - manifest_paths)
+    if missing_actor_paths:
+        _fail(
+            "release manifest is missing the active Yone V7 actor or its "
+            "saved-data compatibility alias:\n" + "\n".join(missing_actor_paths)
+        )
 
 
 def _validate_dual_sword_cues(
@@ -1606,16 +1620,22 @@ def validate_v7(
         _fail(f"body_preview must end in .png: {preview_path}")
 
     anim_path = mod_root / ACTOR_ANIM.relative_to(MOD_ROOT)
+    legacy_anim_path = mod_root / LEGACY_ACTOR_ANIM.relative_to(MOD_ROOT)
     if not anim_path.is_file():
         _fail("V7 runtime actor anim is missing")
+    if not legacy_anim_path.is_file() or _sha256(legacy_anim_path) != _sha256(anim_path):
+        _fail("legacy yone#anim.fanim must be byte-identical to yone_v7#anim.fanim")
     anim_payload = _read_json(anim_path)
     animation_contract = _validate_animation_contract(anim_payload)
     expected = _expected_actor_frames(anim_payload)
     atlas: Image.Image | None = None
     if verify_runtime_atlas:
         atlas_path = mod_root / ACTOR_ATLAS.relative_to(MOD_ROOT)
+        legacy_atlas_path = mod_root / LEGACY_ACTOR_ATLAS.relative_to(MOD_ROOT)
         if not atlas_path.is_file():
             _fail("V7 runtime actor atlas is missing")
+        if not legacy_atlas_path.is_file() or _sha256(legacy_atlas_path) != _sha256(atlas_path):
+            _fail("legacy yone#sheet.png must be byte-identical to yone_v7#sheet.png")
         atlas = Image.open(atlas_path)
         if atlas.format != "PNG" or atlas.mode != "RGBA" or atlas.size != EXPECTED_ATLAS_SIZE:
             _fail(

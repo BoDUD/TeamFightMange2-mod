@@ -7,6 +7,7 @@ use std::rc::Rc;
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use engine_core::assets::ImageHandle;
 use engine_core::render_state::RenderCommand;
 use game_view::{ClientDatabase, MatchUIRunner};
 use mod_api::MatchType;
@@ -28,6 +29,10 @@ const DRAGON_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_dragon_variant_runt
 const BP_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_bp_runtime_telemetry.tsv";
 const BP_TELEMETRY_ROW_LIMIT: usize = 80;
 const BP_TELEMETRY_CRITICAL_ROW_LIMIT: usize = BP_TELEMETRY_ROW_LIMIT + 16;
+// Keep battle-atlas evidence independent from the noisy BP/UI geometry audit.
+// Otherwise the process-wide UI budget can be exhausted before a match starts,
+// silently hiding the exact Game Sprite frames this release needs to diagnose.
+const YONE_GAME_TELEMETRY_ROW_LIMIT: usize = 96;
 const PICK_SLOT_LIMIT: usize = 5;
 const BP_CARD_WIDTH: f32 = 284.0;
 const BP_CARD_HEIGHT: f32 = 172.0;
@@ -87,8 +92,9 @@ const XAYAH_ACTOR_SHEET_TEXTURES: [&str; 2] = [
 ];
 const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_compact";
 const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_grid";
-const YONE_ACTOR_SHEET_TEXTURES: [&str; 2] = [
+const YONE_ACTOR_SHEET_TEXTURES: [&str; 3] = [
     "asset/base/aseprite_resources/champions/dual_blader#sheet",
+    "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
     "asset/lol_mod/aseprite_resources/champions/yone#sheet",
 ];
 const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
@@ -236,6 +242,7 @@ thread_local! {
 static DRAGON_TELEMETRY_LOCK: Mutex<()> = Mutex::new(());
 static BP_TELEMETRY_LOCK: Mutex<()> = Mutex::new(());
 static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+static YONE_GAME_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 struct LolModExtension;
 
@@ -311,9 +318,9 @@ impl ModExtension for YoneManagementCardExtension {
         sync_yone_encyclopedia_portrait(&mut ui.root);
     }
 
-    fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+    fn post_render(&self, _scene: &Scene, ui: &GameUI, assets: &Assets, state: &mut RenderState) {
         let context = detect_yone_portrait_ui_context(ui);
-        trace_yone_render_commands(ui, state, context);
+        trace_yone_render_commands(ui, assets, state, context);
         rewrite_yone_management_card_render_commands(state);
         rewrite_yone_portrait_render_commands(state, context);
     }
@@ -472,6 +479,81 @@ fn is_yone_actor_sheet_texture(texture: &str) -> bool {
         || texture.contains("/aseprite_resources/champions/yone")
 }
 
+#[derive(Clone, Copy)]
+struct YoneV7FrameSignature {
+    rect: (i32, i32, i32, i32),
+    inferred_action: &'static str,
+    tag_candidates: &'static str,
+    frame: usize,
+}
+
+// These are the 18 diagnostic body rectangles that distinguish the V7
+// behavior tree from the official 3502px atlas prefix. W deliberately keeps
+// both aliases because skill_w_azakana and skill2_attack share those frames;
+// RenderCommand exposes the sampled rectangle, not the animation-state name.
+const YONE_V7_DIAGNOSTIC_FRAMES: [YoneV7FrameSignature; 18] = [
+    YoneV7FrameSignature { rect: (3502, 0, 45, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 0 },
+    YoneV7FrameSignature { rect: (3548, 0, 49, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 1 },
+    YoneV7FrameSignature { rect: (3598, 0, 59, 47), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 2 },
+    YoneV7FrameSignature { rect: (3658, 0, 59, 49), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 3 },
+    YoneV7FrameSignature { rect: (3718, 0, 61, 49), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 4 },
+    YoneV7FrameSignature { rect: (3780, 0, 51, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 5 },
+    YoneV7FrameSignature { rect: (3832, 0, 31, 49), inferred_action: "skill", tag_candidates: "skill_q3", frame: 0 },
+    YoneV7FrameSignature { rect: (3864, 0, 31, 43), inferred_action: "skill", tag_candidates: "skill_q3", frame: 1 },
+    YoneV7FrameSignature { rect: (3896, 0, 31, 55), inferred_action: "skill", tag_candidates: "skill_q3", frame: 2 },
+    YoneV7FrameSignature { rect: (3928, 0, 71, 57), inferred_action: "skill", tag_candidates: "skill_q3", frame: 3 },
+    YoneV7FrameSignature { rect: (4000, 0, 83, 67), inferred_action: "skill", tag_candidates: "skill_q3", frame: 4 },
+    YoneV7FrameSignature { rect: (4084, 0, 85, 77), inferred_action: "skill", tag_candidates: "skill_q3", frame: 5 },
+    YoneV7FrameSignature { rect: (4170, 0, 91, 87), inferred_action: "skill", tag_candidates: "skill_q3", frame: 6 },
+    YoneV7FrameSignature { rect: (2046, 0, 31, 43), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 0 },
+    YoneV7FrameSignature { rect: (2078, 0, 31, 45), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 1 },
+    YoneV7FrameSignature { rect: (2110, 0, 59, 53), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 2 },
+    YoneV7FrameSignature { rect: (2170, 0, 59, 55), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 3 },
+    YoneV7FrameSignature { rect: (2230, 0, 57, 51), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 4 },
+];
+
+fn yone_actor_texture_route(texture: &str) -> &'static str {
+    match texture {
+        "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet" => "active_yone_v7",
+        "asset/lol_mod/aseprite_resources/champions/yone#sheet" => "legacy_saved_data_alias",
+        "asset/base/aseprite_resources/champions/dual_blader#sheet" => "base_override_source",
+        _ => "fuzzy_yone_actor_source",
+    }
+}
+
+fn normalized_texture_rect_to_pixels(
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    atlas_width: f32,
+    atlas_height: f32,
+) -> Option<(i32, i32, i32, i32)> {
+    let normalized = x >= -0.0001
+        && y >= -0.0001
+        && width >= 0.0
+        && height >= 0.0
+        && x + width <= 1.0001
+        && y + height <= 1.0001;
+    normalized.then(|| {
+        (
+            (x * atlas_width).round() as i32,
+            (y * atlas_height).round() as i32,
+            (width * atlas_width).round() as i32,
+            (height * atlas_height).round() as i32,
+        )
+    })
+}
+
+fn infer_yone_v7_frame(
+    source_rect: (i32, i32, i32, i32),
+) -> Option<YoneV7FrameSignature> {
+    YONE_V7_DIAGNOSTIC_FRAMES
+        .iter()
+        .copied()
+        .find(|signature| signature.rect == source_rect)
+}
+
 fn is_yone_scoreboard_portrait_geometry(width: f32, height: f32) -> bool {
     if !(14.0..=38.0).contains(&width) || !(14.0..=40.0).contains(&height) {
         return false;
@@ -514,6 +596,7 @@ fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
 
 fn trace_yone_render_commands(
     ui: &GameUI,
+    assets: &Assets,
     state: &RenderState,
     context: YonePortraitUiContext,
 ) {
@@ -528,7 +611,7 @@ fn trace_yone_render_commands(
         "",
         "",
         &format!(
-            "version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
+            "version=0.10.20;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
             ui.root.id,
             context.surface.as_str(),
             context.swap_visible,
@@ -581,7 +664,7 @@ fn trace_yone_render_commands(
                         texture,
                         "",
                         &format!(
-                            "version=0.10.19;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
+                            "version=0.10.20;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
                             context.surface.as_str(),
                             ui.root.id,
                             context.swap_visible,
@@ -597,26 +680,95 @@ fn trace_yone_render_commands(
                         ),
                     );
                 }
-                RenderCommand::Sprite { texture, .. }
-                    if is_yone_actor_sheet_texture(texture.as_str()) =>
+                RenderCommand::Sprite {
+                    texture,
+                    texture_rect,
+                    flip_x,
+                    flip_y,
+                    sample_nearest,
+                    ..
+                }
+                    if is_yone_actor_sheet_texture(texture.as_str())
+                        && pass.to_string() == "Game" =>
                 {
+                    let atlas = assets
+                        .get::<Box<dyn ImageHandle>>(texture)
+                        .map(|image| (image.width(), image.height()));
+                    let route = yone_actor_texture_route(texture);
+                    let atlas_detail = atlas.map_or_else(
+                        || "missing".to_owned(),
+                        |(width, height)| format!("{width:.0}x{height:.0}"),
+                    );
                     write_bp_render_telemetry_once(
-                        "yone_ui_render_command",
+                        "yone_game_sprite_atlas",
                         context.surface.as_str(),
                         None,
                         texture,
                         "",
                         &format!(
-                            "version=0.10.19;kind=Sprite;pass={pass};surface={};root={};route={}",
+                            "version=0.10.20;kind=Sprite;pass={pass};surface={};root={};route={route};atlas={atlas_detail};expected_atlas=4262x88;atlas_missing={}",
                             context.surface.as_str(),
                             ui.root.id,
-                            if pass.to_string() == "Game" {
-                                "game_actor"
-                            } else {
-                                "unclassified"
-                            }
+                            atlas.is_none(),
                         ),
                     );
+                    let source_rect = atlas.and_then(|(atlas_width, atlas_height)| {
+                        normalized_texture_rect_to_pixels(
+                            texture_rect.x,
+                            texture_rect.y,
+                            texture_rect.w,
+                            texture_rect.h,
+                            atlas_width,
+                            atlas_height,
+                        )
+                    });
+                    if let Some(source_rect) = source_rect {
+                        let signature = infer_yone_v7_frame(source_rect);
+                        write_bp_render_telemetry_once(
+                            "yone_game_sprite_sample",
+                            context.surface.as_str(),
+                            None,
+                            texture,
+                            "",
+                            &format!(
+                                "version=0.10.20;pass={pass};route={route};atlas={atlas_detail};uv={:.6},{:.6},{:.6},{:.6};source_px={},{},{},{};inferred_action={};tag_candidates={};frame={};flip_x={flip_x};flip_y={flip_y};sample_nearest={sample_nearest};game_tick=unavailable",
+                                texture_rect.x,
+                                texture_rect.y,
+                                texture_rect.w,
+                                texture_rect.h,
+                                source_rect.0,
+                                source_rect.1,
+                                source_rect.2,
+                                source_rect.3,
+                                signature.map_or("unavailable_for_shared_frame", |row| row.inferred_action),
+                                signature.map_or("unavailable_for_shared_frame", |row| row.tag_candidates),
+                                signature.map_or_else(|| "unavailable".to_owned(), |row| row.frame.to_string()),
+                            ),
+                        );
+                        if let Some(signature) = signature {
+                            write_bp_render_telemetry_once(
+                                "yone_game_sprite_v7_frame",
+                                context.surface.as_str(),
+                                None,
+                                texture,
+                                "",
+                                &format!(
+                                    "version=0.10.20;pass={pass};route={route};atlas={atlas_detail};uv={:.6},{:.6},{:.6},{:.6};source_px={},{},{},{};inferred_action={};tag_candidates={};frame={};flip_x={flip_x};flip_y={flip_y};sample_nearest={sample_nearest};game_tick=unavailable",
+                                    texture_rect.x,
+                                    texture_rect.y,
+                                    texture_rect.w,
+                                    texture_rect.h,
+                                    signature.rect.0,
+                                    signature.rect.1,
+                                    signature.rect.2,
+                                    signature.rect.3,
+                                    signature.inferred_action,
+                                    signature.tag_candidates,
+                                    signature.frame,
+                                ),
+                            );
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -633,7 +785,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
         None,
         "",
         "",
-        "version=0.10.19;logical_contract=85x93",
+        "version=0.10.20;logical_contract=85x93",
     );
     for (pass, commands) in &mut state.commands {
         for command in commands {
@@ -668,7 +820,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                     &source,
                     "",
                     &format!(
-                        "version=0.10.19;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        "version=0.10.20;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
                         *x, *y, *w, *h,
                     ),
                 );
@@ -695,7 +847,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.19;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    "version=0.10.20;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
                     original_size.0, original_size.1, *w, *h,
                 ),
             );
@@ -807,7 +959,7 @@ fn rewrite_yone_portrait_render_commands(
                 &source,
                 replacement,
                 &format!(
-                    "version=0.10.19;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
+                    "version=0.10.20;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
                     context.surface.as_str(),
                     original_geometry.0,
                     original_geometry.1,
@@ -1312,7 +1464,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.19;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.20;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -1701,7 +1853,7 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
         "xayah" | "dancer" => Some("dancer"),
-        "yone" | "dual_blader" => Some("dual_blader"),
+        "yone_v7" | "yone" | "dual_blader" => Some("dual_blader"),
         _ => None,
     }
 }
@@ -1715,11 +1867,18 @@ fn write_bp_render_telemetry_once(
     detail: &str,
 ) {
     let signature = format!("{event}\t{side}\t{slot_index:?}\t{source}\t{target}\t{detail}");
-    let seen = BP_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()));
+    let is_yone_game_event = event.starts_with("yone_game_sprite_");
+    let seen = if is_yone_game_event {
+        YONE_GAME_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()))
+    } else {
+        BP_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()))
+    };
     let Ok(mut seen) = seen.lock() else {
         return;
     };
-    let row_limit = if event.ends_with("_replace") {
+    let row_limit = if is_yone_game_event {
+        YONE_GAME_TELEMETRY_ROW_LIMIT
+    } else if event.ends_with("_replace") {
         BP_TELEMETRY_CRITICAL_ROW_LIMIT
     } else {
         BP_TELEMETRY_ROW_LIMIT

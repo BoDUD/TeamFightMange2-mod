@@ -11,6 +11,10 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
+YONE_ACTIVE_ANIM = MOD / "aseprite_resources/champions/yone_v7#anim.fanim"
+YONE_ACTIVE_SHEET = MOD / "aseprite_resources/champions/yone_v7#sheet.png"
+YONE_LEGACY_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
+YONE_LEGACY_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
 
 LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
     "lol_yone_e_start_native",
@@ -49,6 +53,14 @@ def find_effect(root, effect_type: str, **fields):
     ]
 
 
+def direct_effects(root: dict, effect_type: str) -> list[dict]:
+    return [
+        effect
+        for effect in root.get("effects", [])
+        if effect.get("type") == effect_type
+    ]
+
+
 def _python_function_source(source: str, name: str) -> str:
     tree = ast.parse(source)
     function = next(
@@ -76,7 +88,9 @@ def test_yone_replaces_official_dual_blader_and_uses_q_w_r_slots() -> None:
     assert yone["id"] == "dual_blader"
     assert yone["category"] == "Assassin"
     assert set(yone["tags"]) == {"AD", "Melee", "CC"}
-    assert yone["sprite"] == "asset/lol_mod/aseprite_resources/champions/yone"
+    assert yone["sprite"] == (
+        "asset/lol_mod/aseprite_resources/champions/yone_v7"
+    )
     assert yone["skill_icons"] == [
         "asset/lol_mod/icons/yone_skill",
         "asset/lol_mod/icons/yone_skill2",
@@ -118,7 +132,7 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
         attack["cooltime"],
         attack["start_timing"],
         attack["range"],
-    ) == (20, 50, 13, 25000)
+    ) == (20, 50, 0, 25000)
     assert attack["effect"]["type"] == "SwitchByBuff"
     assert attack["effect"]["buff_name"] == "lol_yone_azakana_ready"
     steel_branch = attack["effect"]["effect_none"]
@@ -129,6 +143,44 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
     assert find_effect(azakana_branch, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "attack_azakana", "tick": 20}
     ]
+    for branch, swing, cast, hit, toggle_type in (
+        (
+            steel_branch,
+            "lol_yone_attack_steel_swing",
+            "lol_yone_attack_steel_cast",
+            "lol_yone_attack_steel_hit",
+            "AddCasterBuff",
+        ),
+        (
+            azakana_branch,
+            "lol_yone_attack_azakana_swing",
+            "lol_yone_attack_azakana_cast",
+            "lol_yone_attack_azakana_hit",
+            "RemoveCasterBuff",
+        ),
+    ):
+        assert [effect["type"] for effect in branch["effects"]] == [
+            "CasterAnimation",
+            "CasterViewEffect",
+            "Sfx",
+            "Delayed",
+        ]
+        assert branch["effects"][1:3] == [
+            {"type": "CasterViewEffect", "name": swing},
+            {"type": "Sfx", "name": cast},
+        ]
+        delayed = direct_effects(branch, "Delayed")
+        assert len(delayed) == 1 and delayed[0]["tick"] == 13
+        assert [effect["type"] for effect in delayed[0]["effects"]] == [
+            "Attack",
+            "ViewEffect",
+            "TargetSfx",
+            toggle_type,
+        ]
+        assert delayed[0]["effects"][1]["name"] == hit
+        assert delayed[0]["effects"][2]["name"] == hit
+        assert not direct_effects(branch, "Attack")
+        assert not direct_effects(branch, toggle_type)
     assert find_effect(steel_branch, "CasterViewEffect") == [
         {"type": "CasterViewEffect", "name": "lol_yone_attack_steel_swing"}
     ]
@@ -247,7 +299,7 @@ def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> No
         w["range"],
         w["casting_type"],
         w["casting_target"],
-    ) == (480, 30, 8, 42000, "Direction", "EnemyWithoutTower")
+    ) == (480, 30, 0, 42000, "Direction", "EnemyWithoutTower")
 
     assert find_effect(w, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "skill_w_azakana", "tick": 30}
@@ -255,19 +307,22 @@ def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> No
     assert not find_effect(w, "LineRangeProjectile")
     assert not find_effect(w, "RangeProjectile")
     assert not find_effect(w, "Attack")
-    assert not find_effect(w, "Delayed")
     top = w["effect"]["effects"]
     assert [effect["type"] for effect in top[:4]] == [
         "CasterAnimation",
         "Sfx",
         "CasterViewEffect",
-        "Native",
+        "Delayed",
     ]
-    assert top[3] == {
+    delayed = direct_effects(w["effect"], "Delayed")
+    assert len(delayed) == 1 and delayed[0]["tick"] == 8
+    delayed_effects = delayed[0]["effects"]
+    assert delayed_effects[0] == {
         "type": "Native",
         "effect_ref": "lol_yone_w_cone_native",
     }
-    settle = top[4:]
+    assert not direct_effects(w["effect"], "Native")
+    settle = delayed_effects[1:]
     tiers = [
         (0, 50, 20),
         (1, 100, 40),
@@ -433,14 +488,14 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
     assert "let context = detect_yone_portrait_ui_context(ui);" in minimal_impl
-    assert "trace_yone_render_commands(ui, state, context);" in minimal_impl
+    assert "trace_yone_render_commands(ui, assets, state, context);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
     assert "rewrite_yone_portrait_render_commands(state, context);" in minimal_impl
     assert minimal_impl.count("rewrite_") == 2
     assert minimal_impl.index(
         "let context = detect_yone_portrait_ui_context(ui);"
     ) < minimal_impl.index(
-        "trace_yone_render_commands(ui, state, context);"
+        "trace_yone_render_commands(ui, assets, state, context);"
     ) < minimal_impl.index(
         "rewrite_yone_management_card_render_commands(state);"
     ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state, context);")
@@ -520,7 +575,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        "version=0.10.19",
+        "version=0.10.20",
     ):
         assert required in management_rewrite
 
@@ -535,7 +590,7 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
         q["range"],
         q["casting_type"],
         q["casting_target"],
-    ) == ("skill", 240, 30, 8, 65000, "Direction", "EnemyChampion")
+    ) == ("skill", 240, 30, 0, 65000, "Direction", "EnemyChampion")
 
     stack2_switch = q["effect"]
     assert (stack2_switch["type"], stack2_switch["buff_name"]) == (
@@ -551,14 +606,26 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     q1 = stack1_switch["effect_none"]
     q2 = stack1_switch["effect_buff"]
     for stage in (q1, q2):
+        assert [effect["type"] for effect in stage["effects"]] == [
+            "CasterAnimation",
+            "Sfx",
+            "CasterViewEffect",
+            "Delayed",
+        ]
         assert find_effect(stage, "CasterAnimation") == [
             {"type": "CasterAnimation", "name": "skill_q12", "tick": 30}
         ]
         assert find_effect(stage, "CasterViewEffect") == [
             {"type": "CasterViewEffect", "name": "lol_yone_q_blade"}
         ]
+        delayed = direct_effects(stage, "Delayed")
+        assert len(delayed) == 1 and delayed[0]["tick"] == 8
+        assert [effect["type"] for effect in delayed[0]["effects"]] == [
+            "LinearProjectile"
+        ]
+        assert not direct_effects(stage, "LinearProjectile")
         projectiles = find_effect(
-            stage, "LinearProjectile", name="lol_yone_q_projectile"
+            delayed[0], "LinearProjectile", name="lol_yone_q_projectile"
         )
         assert len(projectiles) == 1
         projectile = projectiles[0]
@@ -651,16 +718,32 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     }
 
     q3 = stack2_switch["effect_buff"]
+    assert [effect["type"] for effect in q3["effects"]] == [
+        "CasterAnimation",
+        "Sfx",
+        "CasterViewEffect",
+        "Delayed",
+    ]
     assert find_effect(q3, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "skill_q3", "tick": 30}
     ]
     assert find_effect(q3, "CasterViewEffect") == [
         {"type": "CasterViewEffect", "name": "lol_yone_q3_blade"}
     ]
-    assert q3["effects"][0] == {
+    q3_delayed = direct_effects(q3, "Delayed")
+    assert len(q3_delayed) == 1 and q3_delayed[0]["tick"] == 8
+    assert [effect["type"] for effect in q3_delayed[0]["effects"]] == [
+        "RemoveCasterBuff",
+        "RushTime",
+        "LinearProjectile",
+    ]
+    assert q3_delayed[0]["effects"][0] == {
         "type": "RemoveCasterBuff",
         "name": "lol_yone_mortal_steel_stack_2",
     }
+    assert not direct_effects(q3, "RemoveCasterBuff")
+    assert not direct_effects(q3, "RushTime")
+    assert not direct_effects(q3, "LinearProjectile")
     assert find_effect(q3, "RushTime") == [
         {
             "type": "RushTime",
@@ -698,7 +781,7 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     assert find_effect(q3, "ViewEffect", name="lol_yone_q3_airborne_cue") == [
         {"type": "ViewEffect", "name": "lol_yone_q3_airborne_cue"}
     ]
-    assert not find_effect(q, "Delayed")
+    assert [effect["tick"] for effect in find_effect(q, "Delayed")] == [8, 8, 8]
 
 
 def test_r_has_one_knockup_six_physical_slashes_and_one_fixed_echo() -> None:
@@ -1003,16 +1086,41 @@ def test_yone_q3_runtime_wind_sheets_are_transparent_blue_white_and_sparse() -> 
 
 
 def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
+    assert YONE_ACTIVE_ANIM.is_file()
+    assert YONE_ACTIVE_SHEET.is_file()
+    assert YONE_LEGACY_ANIM.is_file()
+    assert YONE_LEGACY_SHEET.is_file()
+    assert YONE_LEGACY_ANIM.read_bytes() == YONE_ACTIVE_ANIM.read_bytes()
+    assert YONE_LEGACY_SHEET.read_bytes() == YONE_ACTIVE_SHEET.read_bytes()
+    overrides = json.loads(
+        (MOD / "mod.override_info").read_text(encoding="utf-8")
+    )
+    assert overrides[
+        "asset/base/aseprite_resources/champions/dual_blader#sheet"
+    ]["remapping"] == (
+        "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet"
+    )
+    assert overrides[
+        "asset/base/aseprite_resources/champions/dual_blader#anim"
+    ]["remapping"] == (
+        "asset/lol_mod/aseprite_resources/champions/yone_v7#anim"
+    )
+    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    actor_textures = rust.split(
+        "const YONE_ACTOR_SHEET_TEXTURES", 1
+    )[1].split("];", 1)[0]
+    for route in (
+        "asset/base/aseprite_resources/champions/dual_blader#sheet",
+        "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
+        "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+    ):
+        assert route in actor_textures
     actor_anim = json.loads(
-        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
-            encoding="utf-8"
-        )
+        YONE_ACTIVE_ANIM.read_text(encoding="utf-8")
     )["anims"]
     assert "skill2_attack" in actor_anim
     assert len(actor_anim["skill2_attack"]["frames"]) == 5
-    actor_sheet = Image.open(
-        MOD / "aseprite_resources/champions/yone#sheet.png"
-    ).convert("RGBA")
+    actor_sheet = Image.open(YONE_ACTIVE_SHEET).convert("RGBA")
     assert actor_sheet.size == (4262, 88)
     assert list(actor_anim)[:13] == [
         "skill2", "hit", "attack", "skill2_dash", "ult", "run",
@@ -1077,18 +1185,18 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
     assert fullbody.height - fullbody_bbox[3] >= 7
 
 
-def test_yone_v6_ui_is_source_direct_and_never_enlarges_the_43x55_battle_idle() -> None:
-    source_path = MOD / "source/imagegen/yone_v6_idle_source.png"
+def test_yone_v7_ui_is_source_direct_and_never_enlarges_battle_frames() -> None:
+    source_path = MOD / "source/imagegen/yone_v7_ui_source.png"
     with Image.open(source_path) as opened:
         assert opened.width >= 800
         assert opened.height >= 1000
 
     builder_source = (MOD / "tools/build_yone.py").read_text(encoding="utf-8")
     build_ui = _python_function_source(builder_source, "build_splash_and_portraits")
-    assert "load_yone_v6_ui_subject()" in build_ui
+    assert "load_yone_v7_ui_subject()" in build_ui
     assert "render_source_direct_ui_subject(" in build_ui
     assert "(85, 93)" in build_ui
-    assert "_load_native_v6_body_frames" not in build_ui
+    assert "_load_native_v7_body_frames" not in build_ui
     assert "Image.Resampling.NEAREST" not in build_ui
 
     card_contract = _python_function_source(
@@ -1098,7 +1206,7 @@ def test_yone_v6_ui_is_source_direct_and_never_enlarges_the_43x55_battle_idle() 
     assert "rendered = source.copy()" in card_contract
     assert ".resize(" not in card_contract
 
-    card_preview = Image.open(MOD / "qa/yone_v6_ui_card.png").convert("RGBA")
+    card_preview = Image.open(MOD / "qa/yone_v7_ui_card.png").convert("RGBA")
     assert card_preview.size == (141, 138)
     assert card_preview.getchannel("A").getextrema() == (255, 255)
 
@@ -1564,14 +1672,10 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
     assert "NATIVE_BODY_FRAME_SOURCES" in source
     assert "_compose_native_body_master()" in source
 
-    anim = json.loads(
-        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
-            encoding="utf-8"
-        )
-    )["anims"]["skill2_attack"]["frames"]
-    sheet = Image.open(
-        MOD / "aseprite_resources/champions/yone#sheet.png"
-    ).convert("RGBA")
+    anim = json.loads(YONE_ACTIVE_ANIM.read_text(encoding="utf-8"))[
+        "anims"
+    ]["skill2_attack"]["frames"]
+    sheet = Image.open(YONE_ACTIVE_SHEET).convert("RGBA")
     master = Image.open(
         MOD / "source/processed/yone_native_body_master.png"
     ).convert("RGBA")
@@ -1670,18 +1774,23 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.19"
+    assert mod_info["version"] == "0.10.20"
     assert all(
         token in mod_info["description"]
-        for token in ("Q1/Q2", "Q3", "W uses", "R keeps")
+        for token in (
+            "Steel and Azakana attacks",
+            "Q1/Q2",
+            "Q3 and W",
+            "Spirit Cleave",
+        )
     )
     assert all(
         token in mod_info["description"]
         for token in (
-            "strict hash-locked contact-sheet grids",
-            "exclusive semantic weapon palette",
-            "hand-anchor-to-blade-tip geometry gates",
-            "Version 0.10.18 is retained only as failed history",
+            "unique asset/lol_mod/aseprite_resources/champions/yone_v7 actor key",
+            "byte-identical yone sheet and anim aliases",
+            "dedicated CasterAnimation at tick 0",
+            "Version 0.10.19 is retained as partial history",
         )
     )
     assert "E-only Soul Unbound" not in mod_info["description"]
@@ -1701,20 +1810,20 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.10.19"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.10.20"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.10.19"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.10.20"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.10.19"
+    assert quality_scope["release"] == "0.10.20"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]
-    assert pixel_contract["release"] == "0.10.19"
+    assert pixel_contract["release"] == "0.10.20"
     assert pixel_contract["strict_source_grids"] == {
         "motion": "5x4",
         "attack_q": "6x4",
@@ -1753,6 +1862,10 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     paths = {row["path"].replace("\\", "/") for row in manifest["files"]}
     assert {
+        "aseprite_resources/champions/yone_v7#anim.fanim",
+        "aseprite_resources/champions/yone_v7#sheet.png",
+        "aseprite_resources/champions/yone#anim.fanim",
+        "aseprite_resources/champions/yone#sheet.png",
         "aseprite_resources/effects/yone_q#anim.fanim",
         "aseprite_resources/effects/yone_q#sheet.png",
         "aseprite_resources/effects/yone_w#anim.fanim",

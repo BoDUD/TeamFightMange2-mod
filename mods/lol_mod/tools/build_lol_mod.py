@@ -155,7 +155,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
     "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
     "dancer": ACTOR_DIR / "xayah#sheet.png",
-    "dual_blader": ACTOR_DIR / "yone#sheet.png",
+    "dual_blader": ACTOR_DIR / "yone_v7#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"

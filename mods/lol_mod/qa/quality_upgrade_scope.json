@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.19",
+  "release": "0.10.20",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -121,7 +121,7 @@
         "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
         "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
       },
-      "live_status": "0.10.19 retains the 0.10.17 source-direct UI V6 route unchanged: the measured Yone UI NinePatch stays at its original 95x88 size, samples the existing source's top 88 rows, preserves central-grid x/y/w/h, and applies only a -9 logical y baseline correction to assignment and edge cards. The Game-pass battle Sprite uses the separate dual-sword V7 actor atlas and cannot enter any BP, assignment, management, compact or scoreboard portrait route; manual UI verification remains required."
+      "live_status": "0.10.20 regenerates every Yone UI surface from the source-direct V7 character while retaining the measured 95x88 NinePatch geometry, top-88 sample, central-grid x/y/w/h and -9 assignment/edge baseline. Game-pass Sprite telemetry now records the texture key, Assets atlas dimensions, UV/source rectangle and bounded V7 frame inference; manual base-0.5.2 verification remains required."
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -180,6 +180,8 @@
       ],
       "same_id_replacement": true,
       "battle_actor_route": "dual-sword-v7",
+      "battle_actor_key": "asset/lol_mod/aseprite_resources/champions/yone_v7",
+      "saved_data_actor_alias": "asset/lol_mod/aseprite_resources/champions/yone (byte-identical sheet and anim only)",
       "battle_actor_atlas": {
         "dimensions": [
           4262,
@@ -198,7 +200,7 @@
         }
       },
       "dual_sword_pixel_contract": {
-        "release": "0.10.19",
+        "release": "0.10.20",
         "strict_source_grids": {
           "motion": "5x4",
           "attack_q": "6x4",
@@ -234,7 +236,16 @@
         ],
         "historical_0_10_18": "failed pixel contract: animation tags and the append-only atlas were wired, but shared generic red/dark cues and the absence of hand-to-tip geometry checks allowed missing, merged or shortened swords to pass"
       },
-      "ui_portrait_route": "source-direct UI V6 retained independently from battle V7 for BP grid, assignment, management, compact and scoreboard surfaces",
+      "ui_portrait_route": "source-direct UI V7 generated independently from the battle atlas for BP grid, assignment, management, compact and scoreboard surfaces",
+      "action_timing": {
+        "attack_animation_start_tick": 0,
+        "attack_payload_tick": 13,
+        "q_animation_start_tick": 0,
+        "q_payload_tick": 8,
+        "w_animation_start_tick": 0,
+        "w_payload_tick": 8,
+        "cast_feedback": "caster animation, cast SFX and caster-follow visual are immediate; target hit, projectile, rush, buff and native settlement remain delayed"
+      },
       "hit_gated_three_stage_q": true,
       "q_named_stacks": [
         "lol_yone_mortal_steel_stack_1",
@@ -286,8 +297,8 @@
       "native_state_isolation": "one native invocation scans only its supplied GameCtx and uses no static, OnceLock, Mutex, caster/player/team/position/tick matching, or process-global W registry",
       "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
       "new_save_required_for_current_w": "0.10.5",
-      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.19",
-      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.19 save embeds the attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
+      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.20",
+      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.20 save embeds the tick-0 attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 67,
@@ -430,6 +441,6 @@
     "static_build_and_contract_checks": true,
     "game_launched": false,
     "runtime_tested": false,
-    "reason": "Static build and contract verification targets the strict 0.10.19 dual-sword pixel contract; the updated package is awaiting the user's fresh-0.10.19-save battle retest and separate UI V6 surface retest."
+    "reason": "Static build and contract verification targets the 0.10.20 unique actor key, tick-0 action tree, strict dual-sword pixels and source-direct UI V7; the package still awaits the user's fresh-0.10.20-save battle/UI retest on the currently installed base 0.5.2 runtime."
   }
 }

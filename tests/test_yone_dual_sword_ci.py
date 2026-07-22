@@ -16,7 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods/lol_mod"
 VALIDATOR_PATH = MOD / "tools/validate_yone_v7.py"
 FRAME_MANIFEST = MOD / "source/native/yone_v7/frames.json"
-ACTOR_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
+ACTOR_ANIM = MOD / "aseprite_resources/champions/yone_v7#anim.fanim"
+ACTOR_SHEET = MOD / "aseprite_resources/champions/yone_v7#sheet.png"
+LEGACY_ACTOR_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
+LEGACY_ACTOR_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
 DATA_CHAMPION = MOD / "champion/dual_blader.data_champion"
 
 WEAPON_GEOMETRY_SUFFIXES = (
@@ -196,6 +199,8 @@ def _copy_sources(
 
 def test_v7_keeps_native_prefix_and_adds_semantic_dual_sword_tags() -> None:
     validator = _load_validator()
+    assert ACTOR_ANIM.read_bytes() == LEGACY_ACTOR_ANIM.read_bytes()
+    assert ACTOR_SHEET.read_bytes() == LEGACY_ACTOR_SHEET.read_bytes()
     payload = json.loads(ACTOR_ANIM.read_text(encoding="utf-8"))
     anims = payload["anims"]
     assert list(anims) == list(validator.EXPECTED_TAG_ORDER)

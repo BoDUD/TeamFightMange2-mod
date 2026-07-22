@@ -1,6 +1,6 @@
 # Yone visual QA
 
-- [x] Current release contract is `0.10.19`; `0.10.18` is retained only as the failed pixel-presence history and must never identify the installed DLL or telemetry.
+- [x] Current release contract is `0.10.20`; `0.10.19` is retained as partial runtime-routing history and must never identify the installed DLL or telemetry.
 - [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).
 - [x] Actor canvas is `4262x88`; the original `3502x88` native prefix and all 13 native tags/rectangles/timings are unchanged, with five explicit semantic tags appended.
 - [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.
@@ -26,8 +26,8 @@
 - [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.
 - [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.
 - [x] Compact portrait is face-focused with transparent safety margins.
-- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V6 idle source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no 43x55 battle frame is enlarged.
-- [x] The `85x93` fullbody texture is pasted 1:1 into `qa/yone_v6_ui_card.png`, including the y=96 divider and right-side icon exclusion.
+- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V7 UI source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no battle frame is enlarged.
+- [x] The `85x93` V7 fullbody texture is pasted 1:1 into `qa/yone_v7_ui_card.png`, including the y=96 divider and right-side icon exclusion.
 - [x] The card proof leaves the name band blank because localized `永恩` is drawn by the runtime engine text layer, not by the portrait texture.
 - [x] QA replays the user's exact idle[0] 2.2x nearest-neighbor actor path, compares all idle/run frames, rejects near-white face blocks, and preserves source foot/card-bottom clearances.
 - [x] BP-grid portrait is full body and ends at `y<=86`, ten pixels above the native name band.

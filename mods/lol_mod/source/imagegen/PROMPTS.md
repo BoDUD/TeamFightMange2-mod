@@ -653,3 +653,11 @@ Q/W/R gameplay, VFX, icons and audio are outside this visual rebuild and remain
 unchanged. Source generation, packing and automated checks do not establish
 live acceptance. V6 remains pending user verification in BP, compact UI and an
 actual battle.
+
+## Yone V7 source-direct UI model (0.10.20)
+
+- Tool/mode: built-in ImageGen, reference-guided `exact-character-isolation and high-resolution pixel-art reconstruction`.
+- Accepted source: `source/imagegen/yone_v7_ui_source.png`.
+- Composition reference: the user's accepted compact hero-card screenshot; only its character proportions, readable head-to-body ratio, separated legs/boots and card occupancy were used. Card chrome, icons, divider and dark background were explicitly excluded.
+- Prompt contract: one centered full-body Yone on a flat magenta chroma key; readable two-eye human face, long tied navy hair and left-rear red oni mask; navy/gold/red outfit; exactly two complete hand-connected swords (silver-blue steel down-left, red Azakana down-right); both tips near boot height; distinct legs and boots; no cropped weapon, UI, text, logo, extra limb, blur, painterly rendering or 3D treatment.
+- Runtime processing: remove the magenta plate, crop the authoritative subject, apply one LANCZOS reduction per UI destination, then hard-alpha and palette-finish. The 85x93 fullbody is pasted 1:1 into `qa/yone_v7_ui_card.png`; no battle-atlas frame is enlarged.

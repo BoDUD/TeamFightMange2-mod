@@ -1076,11 +1076,11 @@
     "type": "override"
   },
   "asset/base/aseprite_resources/champions/dual_blader#sheet": {
-    "remapping": "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+    "remapping": "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
     "type": "override"
   },
   "asset/base/aseprite_resources/champions/dual_blader#anim": {
-    "remapping": "asset/lol_mod/aseprite_resources/champions/yone#anim",
+    "remapping": "asset/lol_mod/aseprite_resources/champions/yone_v7#anim",
     "type": "override"
   },
   "asset/base/sound/sfx/lol_yone_attack_steel_cast": {

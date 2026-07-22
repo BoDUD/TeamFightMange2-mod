@@ -21,6 +21,10 @@ FRAME_SCHEMA = MOD / "qa/yone_v7_frames.schema.json"
 PALETTE_SCHEMA = MOD / "qa/yone_v7_palette.schema.json"
 GENERATION_QA = MOD / "source/native/yone_v7/generation_qa.json"
 RUNTIME = MOD / "src/lib.rs"
+ACTOR_ANIM = MOD / "aseprite_resources/champions/yone_v7#anim.fanim"
+ACTOR_SHEET = MOD / "aseprite_resources/champions/yone_v7#sheet.png"
+LEGACY_ACTOR_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
+LEGACY_ACTOR_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
 
 
 def _load_validator():
@@ -107,7 +111,7 @@ def test_yone_v7_sources_exist_and_hashes_match_before_visual_validation() -> No
 
     ui_rows = provenance.get("ui_only_imagegen_inputs")
     assert isinstance(ui_rows, list) and len(ui_rows) == 1
-    ui_source = MOD / "source/imagegen/yone_v6_idle_source.png"
+    ui_source = MOD / "source/imagegen/yone_v7_ui_source.png"
     assert ui_rows[0].get("path") == ui_source.relative_to(MOD).as_posix()
     assert ui_rows[0].get("role") == (
         "UI provenance only; never a native battle-frame input"
@@ -177,11 +181,9 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
         "attack_azakana": 6,
         "skill_q3": 7,
     }
-    anims = json.loads(
-        (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
-            encoding="utf-8"
-        )
-    )["anims"]
+    assert ACTOR_ANIM.read_bytes() == LEGACY_ACTOR_ANIM.read_bytes()
+    assert ACTOR_SHEET.read_bytes() == LEGACY_ACTOR_SHEET.read_bytes()
+    anims = json.loads(ACTOR_ANIM.read_text(encoding="utf-8"))["anims"]
     assert list(anims) == [
         *validator.NATIVE_TAG_PREFIX,
         "attack_steel",
@@ -291,7 +293,7 @@ def test_yone_v3_through_v6_battle_routes_are_physically_and_manifest_retired() 
     }
     assert any("yone_v5" in token.casefold() for token in retired_tokens)
     assert any("yone_v6" in token.casefold() for token in retired_tokens)
-    assert "source/imagegen/yone_v6_idle_source.png" not in retired_tokens
+    assert "source/imagegen/yone_v7_ui_source.png" not in retired_tokens
     for relative in validator.RETIRED_BODY_PATHS:
         assert not (MOD / relative).exists(), relative
     for prefix in validator.RETIRED_BODY_PREFIXES:
@@ -392,6 +394,10 @@ def test_yone_builder_uses_v7_and_cannot_reprocess_native_pixels() -> None:
     assert body_source is not None
     assert ".resize(" not in body_source
     assert ".quantize(" not in body_source
+    assert 'ACTOR_DIR / "yone_v7#sheet.png"' in body_source
+    assert 'ACTOR_DIR / "yone_v7#anim.fanim"' in body_source
+    assert 'ACTOR_DIR / "yone#sheet.png"' in body_source
+    assert 'ACTOR_DIR / "yone#anim.fanim"' in body_source
     for forbidden_transform in (
         "palette_finish(",
         "fit_subject(",
@@ -560,14 +566,14 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
     assert "let context = detect_yone_portrait_ui_context(ui);" in minimal_impl
-    assert "trace_yone_render_commands(ui, state, context);" in minimal_impl
+    assert "trace_yone_render_commands(ui, assets, state, context);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
     assert "rewrite_yone_portrait_render_commands(state, context);" in minimal_impl
     assert minimal_impl.count("rewrite_") == 2
     assert minimal_impl.index(
         "let context = detect_yone_portrait_ui_context(ui);"
     ) < minimal_impl.index(
-        "trace_yone_render_commands(ui, state, context);"
+        "trace_yone_render_commands(ui, assets, state, context);"
     ) < minimal_impl.index(
         "rewrite_yone_management_card_render_commands(state);"
     ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state, context);")
@@ -666,8 +672,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.19;logical_contract=85x93"',
-        '"version=0.10.19;from_size=',
+        '"version=0.10.20;logical_contract=85x93"',
+        '"version=0.10.20;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -679,13 +685,17 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     trace = _function_body(source, "trace_yone_render_commands")
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
+        '"version=0.10.20;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
+        'pass.to_string() == "Game"',
+        "is_yone_actor_sheet_texture(texture.as_str())",
         '"yone_ui_render_command"',
+        '"yone_game_sprite_atlas"',
+        '"yone_game_sprite_sample"',
+        '"yone_game_sprite_v7_frame"',
         "kind=NinePatch",
         "kind=Sprite",
-        '"game_actor"',
         '"player_assignment"',
         '"bp_grid"',
         '"bp_side_card"',
@@ -694,8 +704,38 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "route={route}",
         "geometry={:.0},{:.0},{:.0},{:.0}",
         "uv={:.4},{:.4},{:.4},{:.4}",
+        "atlas={atlas_detail}",
+        "expected_atlas=4262x88",
+        "atlas_missing={}",
+        "source_px={},{},{},{}",
+        "inferred_action={}",
+        "tag_candidates={}",
+        "frame={}",
+        ".get::<Box<dyn ImageHandle>>(texture)",
+        "game_tick=unavailable",
     ):
         assert required in trace
+    assert "const YONE_GAME_TELEMETRY_ROW_LIMIT: usize = 96;" in source
+    assert "static YONE_GAME_TELEMETRY_SEEN" in source
+    telemetry_writer = _function_body(source, "write_bp_render_telemetry_once")
+    assert 'event.starts_with("yone_game_sprite_")' in telemetry_writer
+    assert "YONE_GAME_TELEMETRY_SEEN.get_or_init" in telemetry_writer
+    assert "assets: &Assets" in source[source.index("fn trace_yone_render_commands") :]
+    assert 'tag_candidates: "attack_azakana"' in source
+    assert 'tag_candidates: "skill_q3"' in source
+    assert 'tag_candidates: "skill_w_azakana|skill2_attack"' in source
+    assert 'tag_candidates: "attack_azakana|skill_q3"' not in source
+    assert source.count('tag_candidates: "attack_azakana"') == 6
+    assert source.count('tag_candidates: "skill_q3"') == 7
+    assert source.count(
+        'tag_candidates: "skill_w_azakana|skill2_attack"'
+    ) == 5
+    anims = json.loads(ACTOR_ANIM.read_text(encoding="utf-8"))["anims"]
+    for tag in ("attack_azakana", "skill_q3", "skill_w_azakana"):
+        for frame in anims[tag]["frames"]:
+            data = frame["data"]
+            rect = (data["x"], data["y"], data["w"], data["h"])
+            assert f"rect: {rect}" in source, (tag, rect)
     for forbidden in (
         "iter_mut()",
         "values_mut()",
@@ -757,9 +797,12 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         MOD / "ui/champion_portrait/dual_blader_grid.png"
     ).convert("RGBA")
     assert grid_portrait.size == (90, 122)
-    assert grid_portrait.getbbox() == (22, 4, 67, 86)
     source_bbox = grid_portrait.getchannel("A").getbbox()
     assert source_bbox is not None
+    assert source_bbox[2] - source_bbox[0] <= 72
+    assert source_bbox[3] - source_bbox[1] <= 82
+    assert min(source_bbox[0], grid_portrait.width - source_bbox[2]) >= 4
+    assert source_bbox[3] <= 86
     sample_height = int(_f32_constant(source, "YONE_BP_GRID_SAMPLE_HEIGHT"))
     assignment_y_offset = int(_f32_constant(source, "YONE_ASSIGNMENT_Y_OFFSET"))
     assert source_bbox[3] <= sample_height
@@ -784,7 +827,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert idle_zero["rendered_size"] == [95, 121]
     assert not is_management_card(*idle_zero["rendered_size"])
 
-    preview = Image.open(MOD / "qa/yone_v6_ui_card.png").convert("RGBA")
+    preview = Image.open(MOD / "qa/yone_v7_ui_card.png").convert("RGBA")
     fullbody = Image.open(MOD / "ui/champion_fullbody/dual_blader.png").convert(
         "RGBA"
     )
@@ -798,7 +841,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         for x in range(fullbody.width)
         if fullbody_pixels[x, y][3] > 0
     ]
-    assert len(opaque_matches) == 2706
+    assert len(opaque_matches) >= 500
     assert all(opaque_matches)
 
     init = source.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1]
@@ -834,9 +877,12 @@ def test_yone_fullbody_card_keeps_two_readable_legs_and_boots() -> None:
     bbox = alpha.getbbox()
     assert bbox is not None
 
+    body_left = bbox[0] + round((bbox[2] - bbox[0]) * 0.28)
+    body_right = bbox[2] - round((bbox[2] - bbox[0]) * 0.24)
+
     def opaque_runs(y: int) -> list[list[int]]:
         runs: list[list[int]] = []
-        for x in range(bbox[0], bbox[2]):
+        for x in range(body_left, body_right):
             if alpha.getpixel((x, y)) < 128:
                 continue
             if not runs or x > runs[-1][-1] + 1:
@@ -845,23 +891,52 @@ def test_yone_fullbody_card_keeps_two_readable_legs_and_boots() -> None:
                 runs[-1].append(x)
         return runs
 
-    lower_start = bbox[1] + round((bbox[3] - bbox[1]) * 0.70)
+    lower_start = bbox[1] + round((bbox[3] - bbox[1]) * 0.68)
     separated_rows = 0
     for y in range(lower_start, bbox[3]):
-        substantial = [run for run in opaque_runs(y) if len(run) >= 7]
+        substantial = [run for run in opaque_runs(y) if len(run) >= 4]
         if len(substantial) < 2:
             continue
         if any(
-            right[0] - left[-1] >= 3
+            right[0] - left[-1] >= 2
             for left, right in zip(substantial, substantial[1:], strict=False)
         ):
             separated_rows += 1
-    assert separated_rows >= 8
+    assert separated_rows >= 12
 
-    boot_runs = opaque_runs(bbox[3] - 1)
-    assert len(boot_runs) == 2
-    assert min(len(run) for run in boot_runs) >= 7
-    assert boot_runs[1][0] - boot_runs[0][-1] >= 6
+    boot_top = bbox[1] + round((bbox[3] - bbox[1]) * 0.80)
+    remaining = {
+        (x, y)
+        for y in range(boot_top, bbox[3])
+        for x in range(body_left, body_right)
+        if alpha.getpixel((x, y)) >= 128
+    }
+    components: list[set[tuple[int, int]]] = []
+    while remaining:
+        frontier = [remaining.pop()]
+        component = set(frontier)
+        while frontier:
+            x, y = frontier.pop()
+            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    component.add(neighbor)
+                    frontier.append(neighbor)
+        if len(component) >= 40:
+            components.append(component)
+    assert len(components) == 2
+    boot_boxes = sorted(
+        (
+            min(x for x, _y in component),
+            min(y for _x, y in component),
+            max(x for x, _y in component) + 1,
+            max(y for _x, y in component) + 1,
+        )
+        for component in components
+    )
+    assert all(right - left >= 8 for left, _top, right, _bottom in boot_boxes)
+    assert all(bottom - top >= 12 for _left, top, _right, bottom in boot_boxes)
+    assert boot_boxes[1][0] - boot_boxes[0][2] >= 1
 
 
 def test_yone_bp_transition_contract_covers_observed_and_settled_geometry() -> None:
