@@ -413,13 +413,18 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
-    assert "trace_yone_render_commands(state);" in minimal_impl
+    assert "let context = detect_yone_portrait_ui_context(ui);" in minimal_impl
+    assert "trace_yone_render_commands(ui, state, context);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
-    assert "rewrite_yone_portrait_render_commands(state);" in minimal_impl
+    assert "rewrite_yone_portrait_render_commands(state, context);" in minimal_impl
     assert minimal_impl.count("rewrite_") == 2
-    assert minimal_impl.index("trace_yone_render_commands(state);") < minimal_impl.index(
+    assert minimal_impl.index(
+        "let context = detect_yone_portrait_ui_context(ui);"
+    ) < minimal_impl.index(
+        "trace_yone_render_commands(ui, state, context);"
+    ) < minimal_impl.index(
         "rewrite_yone_management_card_render_commands(state);"
-    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state);")
+    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state, context);")
     for forbidden in (
         "match_ui_database",
         "MatchUIRunner",
@@ -496,7 +501,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        "version=0.10.16",
+        "version=0.10.17",
     ):
         assert required in management_rewrite
 
@@ -1531,7 +1536,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.16"
+    assert mod_info["version"] == "0.10.17"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
@@ -1579,7 +1584,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.16"
+    assert mod_info["version"] == "0.10.17"
     assert "Q/W/R" in mod_info["description"]
     assert "E-only Soul Unbound" not in mod_info["description"]
 

@@ -6184,20 +6184,29 @@ def validate_native_dll() -> None:
         return
     payload = path.read_bytes()
     check(
-        b"version=0.10.16;root=" in payload,
-        "lol_mod.dll must contain the current 0.10.16 BP telemetry marker",
+        b"version=0.10.17;root=" in payload,
+        "lol_mod.dll must contain the current 0.10.17 BP telemetry marker",
     )
     check(
-        b"version=0.10.16;from_size=" in payload,
-        "lol_mod.dll must contain the current 0.10.16 Yone management portrait telemetry marker",
+        b"version=0.10.17;from_size=" in payload,
+        "lol_mod.dll must contain the current 0.10.17 Yone management portrait telemetry marker",
     )
     check(
-        b"version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122" in payload
+        b"version=0.10.17;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root=" in payload
         and b"yone_bp_grid_replace" in payload,
-        "lol_mod.dll must contain the default 0.10.16 Yone BP-grid route and telemetry marker",
+        "lol_mod.dll must contain the default 0.10.17 geometry-preserving Yone BP-grid route",
     )
     check(
-        b"version=0.10.15;root=" not in payload
+        b"yone_assignment_replace" in payload
+        and b"yone_bp_side_card_replace" in payload
+        and b"top_88_of_122" in payload
+        and b"size_mode=preserved" in payload,
+        "lol_mod.dll must contain the 0.10.17 assignment/edge baseline and top-88 crop routes",
+    )
+    check(
+        b"version=0.10.16;root=" not in payload
+        and b"version=0.10.16;from_size=" not in payload
+        and b"version=0.10.15;root=" not in payload
         and b"version=0.10.15;from_size=" not in payload
         and b"version=0.10.14;root=" not in payload
         and b"version=0.10.14;from_size=" not in payload
@@ -7421,7 +7430,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.16", "lol_mod version must be 0.10.16")
+    check(mod_info.get("version") == "0.10.17", "lol_mod version must be 0.10.17")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7442,12 +7451,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.1", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14", "0.10.15", "0.10.16",
-                "V6", "source-direct", "3502x88",
+                "0.5.1", "0.10.5", "0.10.16", "0.10.17",
+                "V6", "3502x88",
             )
         )
         and "saved" in description.casefold(),
-        "mod metadata must document the current 0.10.16 BP-grid route, failed 0.10.11-0.10.15 routes and 0.10.5 saved-season floor",
+        "mod metadata must document the current 0.10.17 portrait route, failed 0.10.16 route and 0.10.5 saved-season floor",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8102,8 +8111,18 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     if grid_path.is_file():
         grid_image = Image.open(grid_path).convert("RGBA")
         grid_bbox = grid_image.getchannel("A").getbbox()
+        check(grid_image.size == (90, 122), f"Yone BP-grid source canvas changed: {grid_image.size}")
+        check(
+            grid_bbox == (22, 4, 67, 86),
+            f"Yone BP-grid source pixels changed instead of fixing the runtime route: {grid_bbox}",
+        )
         if grid_bbox is not None:
-            check(grid_bbox[3] <= 86, f"Yone BP-grid portrait overlaps the hero-name band: {grid_bbox}")
+            check(grid_bbox[3] <= 88, f"Yone BP-grid top-88 crop clips visible pixels: {grid_bbox}")
+            check(88 - grid_bbox[3] == 2, f"Yone central BP crop changed its two-pixel baseline: {grid_bbox}")
+            check(
+                88 - (grid_bbox[3] - 9) == 11,
+                f"Yone assignment -9 baseline no longer leaves eleven logical pixels: {grid_bbox}",
+            )
         check(
             grid_image.crop((0, 96, grid_image.width, grid_image.height)).getchannel("A").getbbox() is None,
             "Yone BP-grid native name band y=96..121 must stay fully transparent",
@@ -8230,9 +8249,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "RushTime", "45 tick `Airborne`",
             "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
             "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14", "0.10.15", "0.10.16",
+            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14", "0.10.15", "0.10.16", "0.10.17",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
-            "2026-07-21", "不等于实机视觉验收",
+            "2026-07-22", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
         ):
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
@@ -8278,13 +8297,15 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
     check(
         minimal_extension.count("fn post_render(") == 1
-        and "trace_yone_render_commands(state);" in minimal_extension
+        and "let context = detect_yone_portrait_ui_context(ui);" in minimal_extension
+        and "trace_yone_render_commands(ui, state, context);" in minimal_extension
         and minimal_extension.count("rewrite_") == 2
         and "rewrite_yone_management_card_render_commands(state);" in minimal_extension
-        and "rewrite_yone_portrait_render_commands(state);" in minimal_extension
-        and minimal_extension.index("trace_yone_render_commands(state);")
+        and "rewrite_yone_portrait_render_commands(state, context);" in minimal_extension
+        and minimal_extension.index("let context = detect_yone_portrait_ui_context(ui);")
+        < minimal_extension.index("trace_yone_render_commands(ui, state, context);")
         < minimal_extension.index("rewrite_yone_management_card_render_commands(state);")
-        < minimal_extension.index("rewrite_yone_portrait_render_commands(state);"),
+        < minimal_extension.index("rewrite_yone_portrait_render_commands(state, context);"),
         "Yone default extension must run trace, management and independent BP-grid portrait rewrite in order",
     )
     for forbidden in (
@@ -8396,8 +8417,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.16;logical_contract=85x93"',
-        '"version=0.10.16;from_size=',
+        '"version=0.10.17;logical_contract=85x93"',
+        '"version=0.10.17;from_size=',
     ):
         check(required in yone_portrait_rewrite, f"Yone portrait rewrite is missing: {required}")
     for forbidden in (
@@ -8420,23 +8441,29 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )[0]
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122"',
+        '"version=0.10.17;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',
         "kind=NinePatch",
         "kind=Sprite",
         '"game_actor"',
+        '"player_assignment"',
+        '"bp_grid"',
+        '"bp_side_card"',
+        "central_position={central_position}",
+        "root={}",
         "route={route}",
-        "geometry={:.0}x{:.0}",
+        "geometry={:.0},{:.0},{:.0},{:.0}",
+        "uv={:.4},{:.4},{:.4},{:.4}",
     ):
         check(required in trace_yone, f"Yone bounded render diagnostic is missing: {required}")
     for forbidden in (
         "iter_mut()",
         "values_mut()",
         "command_index",
-        "texture_rect.x",
-        "texture_rect.y",
+        "texture_rect.x =",
+        "texture_rect.y =",
         "*texture =",
     ):
         check(
@@ -8502,11 +8529,21 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone full-body card sync regressed into the MatchUIRunner-none branch",
     )
     check('"yone" | "dual_blader" => Some("dual_blader")' in rust, "Yone splash alias route is missing")
-    check("rewrite_yone_portrait_render_commands(state);" in rust, "Yone independent portrait rewrite is missing")
+    check(
+        "rewrite_yone_portrait_render_commands(state, context);" in rust,
+        "Yone context-aware portrait rewrite is missing",
+    )
     for token in (
         'const YONE_COMPACT_PORTRAIT_TEXTURE: &str =',
         'const YONE_SCOREBOARD_PORTRAIT_TEXTURE: &str =',
         'const YONE_BP_GRID_PORTRAIT_TEXTURE: &str =',
+        "const YONE_BP_PORTRAIT_SOURCE_HEIGHT: f32 = 122.0;",
+        "const YONE_BP_GRID_SAMPLE_HEIGHT: f32 = 88.0;",
+        "const YONE_ASSIGNMENT_Y_OFFSET: f32 = -9.0;",
+        "const YONE_BP_GRID_VIEWPORT_LEFT: f32 = 335.0;",
+        "const YONE_BP_GRID_VIEWPORT_RIGHT: f32 = 1585.0;",
+        "const YONE_BP_GRID_VIEWPORT_TOP: f32 = 145.0;",
+        "const YONE_BP_GRID_VIEWPORT_BOTTOM: f32 = 522.0;",
         "fn is_yone_scoreboard_portrait_geometry(width: f32, height: f32) -> bool {",
         "if !(14.0..=38.0).contains(&width) || !(14.0..=40.0).contains(&height) {",
         "width >= 14.0 && height / width >= 1.15 && height / width <= 1.50",
@@ -8516,25 +8553,105 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {",
         "(92.0..=98.0).contains(&width)",
         "(86.0..=90.0).contains(&height)",
+    ):
+        check(token in rust, f"Yone compact/scoreboard portrait runtime helper is missing: {token}")
+
+    context_detector = ""
+    if "fn detect_yone_portrait_ui_context" in rust:
+        context_detector = rust.split("fn detect_yone_portrait_ui_context", 1)[1].split(
+            "impl ModExtension for YoneManagementCardExtension", 1
+        )[0]
+    for token in (
+        'yone_ui_node_is_visible(ui, &["swap", "main.swap"])',
+        '&["header.swap_phase", "main.header.swap_phase"]',
+        'yone_ui_node_is_visible(ui, &["champions", "main.champions"])',
+        "let surface = if swap_visible {",
+        "YonePortraitSurface::PlayerChampionAssignment",
+        "else if champion_grid_visible",
+        "YonePortraitSurface::CentralBpGrid",
+        "swap_phase_visible,",
+    ):
+        check(token in context_detector, f"Yone portrait UI context gate is missing: {token}")
+    check(
+        "if swap_phase_visible" not in context_detector,
+        "header.swap_phase must remain diagnostic-only; the root swap container is the real assignment gate",
+    )
+
+    central_position_helper = ""
+    if "fn is_yone_central_bp_grid_position" in rust:
+        central_position_helper = rust.split(
+            "fn is_yone_central_bp_grid_position", 1
+        )[1].split("fn is_yone_management_card_geometry", 1)[0]
+    for token in (
+        "let center_x = x + width * 0.5;",
+        "let center_y = y + height * 0.5;",
+        "YONE_BP_GRID_VIEWPORT_LEFT..=YONE_BP_GRID_VIEWPORT_RIGHT",
+        "YONE_BP_GRID_VIEWPORT_TOP..=YONE_BP_GRID_VIEWPORT_BOTTOM",
+        ".contains(&center_x)",
+        ".contains(&center_y)",
+    ):
+        check(token in central_position_helper, f"Yone central BP viewport gate is missing: {token}")
+
+    shared_portrait_rewrite = ""
+    if "fn rewrite_yone_portrait_render_commands" in rust:
+        shared_portrait_rewrite = rust.split(
+            "fn rewrite_yone_portrait_render_commands", 1
+        )[1].split("fn match_ui_database", 1)[0]
+    for token in (
         "let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);",
         "let is_compact = is_yone_compact_portrait_geometry(*w, *h);",
         'pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);',
+        "let central_position = is_yone_central_bp_grid_position(*x, *y, *w, *h);",
+        "let is_bp_grid = is_shared_bp_geometry",
+        "&& !context.swap_visible",
+        "&& context.champion_grid_visible",
+        "&& central_position;",
+        "let is_assignment = is_shared_bp_geometry && context.swap_visible;",
+        "let is_side_card = is_shared_bp_geometry",
+        "&& !central_position;",
         "let replacement = if is_scoreboard {",
         "YONE_SCOREBOARD_PORTRAIT_TEXTURE",
         "YONE_COMPACT_PORTRAIT_TEXTURE",
         "YONE_BP_GRID_PORTRAIT_TEXTURE",
+        "YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT",
+        '"top_88_of_122"',
+        "texture_rect.h = 1.0;",
+        "if is_assignment || is_side_card",
+        "*y += YONE_ASSIGNMENT_Y_OFFSET;",
         '"yone_bp_grid_replace"',
-        "let center_x = *x + *w * 0.5;",
-        "*w = 90.0;",
-        "*h = 122.0;",
-        "*x = center_x - *w * 0.5;",
-        "from_geometry={:.0}x{:.0}",
-        "to_geometry={:.0}x{:.0}",
-        '"center_x_and_top_y_preserved"',
+        '"yone_assignment_replace"',
+        '"yone_bp_side_card_replace"',
+        "from_geometry={:.0},{:.0},{:.0},{:.0}",
+        "to_geometry={:.0},{:.0},{:.0},{:.0}",
+        "size_mode=preserved",
+        "baseline_offset={baseline_offset:.0}",
+        "sample_mode={sample_mode}",
         "*sample_nearest = true;",
     ):
-        check(token in rust, f"Yone compact/scoreboard portrait runtime helper is missing: {token}")
-    check("*w = side;" not in rust and "*h = side;" not in rust, "Yone portrait routing must not regress to a square crop")
+        check(token in shared_portrait_rewrite, f"Yone shared portrait rewrite is missing: {token}")
+    for forbidden in (
+        "*x =",
+        "*w =",
+        "*h =",
+        "*y =",
+        "*w = side;",
+        "*h = side;",
+        "let center_x = *x + *w * 0.5;",
+        '"center_x_and_top_y_preserved"',
+        "context.swap_phase_visible",
+    ):
+        check(
+            forbidden not in shared_portrait_rewrite,
+            f"Yone shared portrait route regressed geometry or stage isolation: {forbidden}",
+        )
+    check(
+        shared_portrait_rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1,
+        "Yone assignment/edge cards must apply exactly one -9 baseline correction",
+    )
+    check(
+        abs(88.0 / 122.0 - 44.0 / 61.0) < 1e-12,
+        "Yone shared BP crop must sample exactly the top 88 of 122 source rows",
+    )
     grid_gate = lambda width, height: (
         92.0 <= width <= 98.0
         and 86.0 <= height <= 90.0
@@ -9111,7 +9228,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.16", "lol_mod version must be 0.10.16")
+    check(mod_info.get("version") == "0.10.17", "lol_mod version must be 0.10.17")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

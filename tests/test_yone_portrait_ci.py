@@ -49,7 +49,7 @@ def _function_body(source: str, name: str) -> str:
 
 def _f32_constant(source: str, name: str) -> float:
     match = re.search(
-        rf"const {re.escape(name)}: f32 = ([0-9]+(?:\.[0-9]+)?);", source
+        rf"const {re.escape(name)}: f32 = (-?[0-9]+(?:\.[0-9]+)?);", source
     )
     assert match is not None, name
     return float(match.group(1))
@@ -353,6 +353,10 @@ def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
     scoreboard_body = _function_body(source, "is_yone_scoreboard_portrait_geometry")
     compact_body = _function_body(source, "is_yone_compact_portrait_geometry")
     grid_body = _function_body(source, "is_yone_bp_grid_geometry")
+    central_position_body = _function_body(
+        source, "is_yone_central_bp_grid_position"
+    )
+    context_body = _function_body(source, "detect_yone_portrait_ui_context")
 
     scoreboard_width = _range_contract(scoreboard_body, "width")
     scoreboard_height = _range_contract(scoreboard_body, "height")
@@ -414,6 +418,39 @@ def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
         assert not is_grid(*excluded_geometry)
     assert not is_compact(95.0, 88.0)
 
+    assert _f32_constant(source, "YONE_BP_PORTRAIT_SOURCE_HEIGHT") == 122.0
+    assert _f32_constant(source, "YONE_BP_GRID_SAMPLE_HEIGHT") == 88.0
+    assert _f32_constant(source, "YONE_ASSIGNMENT_Y_OFFSET") == -9.0
+    assert _f32_constant(source, "YONE_BP_GRID_VIEWPORT_LEFT") == 335.0
+    assert _f32_constant(source, "YONE_BP_GRID_VIEWPORT_RIGHT") == 1585.0
+    assert _f32_constant(source, "YONE_BP_GRID_VIEWPORT_TOP") == 145.0
+    assert _f32_constant(source, "YONE_BP_GRID_VIEWPORT_BOTTOM") == 522.0
+    for required in (
+        "let center_x = x + width * 0.5;",
+        "let center_y = y + height * 0.5;",
+        "YONE_BP_GRID_VIEWPORT_LEFT..=YONE_BP_GRID_VIEWPORT_RIGHT",
+        "YONE_BP_GRID_VIEWPORT_TOP..=YONE_BP_GRID_VIEWPORT_BOTTOM",
+        ".contains(&center_x)",
+        ".contains(&center_y)",
+    ):
+        assert required in central_position_body
+
+    # `header.swap_phase` is a persistent label and therefore diagnostic-only.
+    # The default-hidden root `swap` container is the real assignment-stage
+    # gate, while the central grid additionally requires the champions viewport.
+    for required in (
+        'yone_ui_node_is_visible(ui, &["swap", "main.swap"])',
+        ' &["header.swap_phase", "main.header.swap_phase"],',
+        'yone_ui_node_is_visible(ui, &["champions", "main.champions"])',
+        "let surface = if swap_visible {",
+        "YonePortraitSurface::PlayerChampionAssignment",
+        "else if champion_grid_visible",
+        "YonePortraitSurface::CentralBpGrid",
+        "swap_phase_visible,",
+    ):
+        assert required in context_body
+    assert "if swap_phase_visible" not in context_body
+
     rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
     assert "is_yone_scoreboard_portrait_geometry(*w, *h)" in rewrite
     assert "is_yone_compact_portrait_geometry(*w, *h)" in rewrite
@@ -421,17 +458,44 @@ def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
     assert rewrite.index("YONE_SCOREBOARD_PORTRAIT_TEXTURE") < rewrite.index(
         "YONE_COMPACT_PORTRAIT_TEXTURE"
     ) < rewrite.index("YONE_BP_GRID_PORTRAIT_TEXTURE")
-    for forbidden in ("let side =", "*w = side", "*h = side"):
+    for forbidden in (
+        "let side =",
+        "*w = side",
+        "*h = side",
+        "let center_x = *x + *w * 0.5;",
+        "*w = 90.0;",
+        "*h = 122.0;",
+        "*x = center_x - *w * 0.5;",
+        '"center_x_and_top_y_preserved"',
+    ):
         assert forbidden not in rewrite
-    assert "else if is_bp_grid" in rewrite
+    for required in (
+        'pass.to_string() == "UI"',
+        "let central_position = is_yone_central_bp_grid_position(*x, *y, *w, *h);",
+        "let is_bp_grid = is_shared_bp_geometry",
+        "&& !context.swap_visible",
+        "&& context.champion_grid_visible",
+        "&& central_position;",
+        "let is_assignment = is_shared_bp_geometry && context.swap_visible;",
+        "let is_side_card = is_shared_bp_geometry",
+        "&& !central_position;",
+        "else if is_bp_grid || is_assignment || is_side_card",
+        "YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT",
+        '"top_88_of_122"',
+        "if is_assignment || is_side_card",
+        "*y += YONE_ASSIGNMENT_Y_OFFSET;",
+        '"yone_bp_grid_replace"',
+        '"yone_assignment_replace"',
+        '"yone_bp_side_card_replace"',
+        "size_mode=preserved",
+        "baseline_offset={baseline_offset:.0}",
+    ):
+        assert required in rewrite
     assert "allow_bp_grid && is_bp_grid" not in rewrite
-    assert 'pass.to_string() == "UI"' in rewrite
-    assert "let center_x = *x + *w * 0.5;" in rewrite
-    assert "let center_y" not in rewrite
-    assert "*w = 90.0;" in rewrite
-    assert "*h = 122.0;" in rewrite
-    assert "*x = center_x - *w * 0.5;" in rewrite
+    for preserved_axis in ("*x =", "*w =", "*h ="):
+        assert preserved_axis not in rewrite
     assert "*y =" not in rewrite
+    assert rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1
 
 
 def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
@@ -442,13 +506,18 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert minimal_impl.count("fn post_update(") == 1
     assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
     assert minimal_impl.count("fn post_render(") == 1
-    assert "trace_yone_render_commands(state);" in minimal_impl
+    assert "let context = detect_yone_portrait_ui_context(ui);" in minimal_impl
+    assert "trace_yone_render_commands(ui, state, context);" in minimal_impl
     assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
-    assert "rewrite_yone_portrait_render_commands(state);" in minimal_impl
+    assert "rewrite_yone_portrait_render_commands(state, context);" in minimal_impl
     assert minimal_impl.count("rewrite_") == 2
-    assert minimal_impl.index("trace_yone_render_commands(state);") < minimal_impl.index(
+    assert minimal_impl.index(
+        "let context = detect_yone_portrait_ui_context(ui);"
+    ) < minimal_impl.index(
+        "trace_yone_render_commands(ui, state, context);"
+    ) < minimal_impl.index(
         "rewrite_yone_management_card_render_commands(state);"
-    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state);")
+    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state, context);")
     for forbidden in (
         "match_ui_database",
         "MatchUIRunner",
@@ -544,8 +613,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.16;logical_contract=85x93"',
-        '"version=0.10.16;from_size=',
+        '"version=0.10.17;logical_contract=85x93"',
+        '"version=0.10.17;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -557,23 +626,29 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     trace = _function_body(source, "trace_yone_render_commands")
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122"',
+        '"version=0.10.17;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',
         "kind=NinePatch",
         "kind=Sprite",
         '"game_actor"',
+        '"player_assignment"',
+        '"bp_grid"',
+        '"bp_side_card"',
+        "central_position={central_position}",
+        "root={}",
         "route={route}",
-        "geometry={:.0}x{:.0}",
+        "geometry={:.0},{:.0},{:.0},{:.0}",
+        "uv={:.4},{:.4},{:.4},{:.4}",
     ):
         assert required in trace
     for forbidden in (
         "iter_mut()",
         "values_mut()",
         "command_index",
-        "texture_rect.x",
-        "texture_rect.y",
+        "texture_rect.x =",
+        "texture_rect.y =",
         "*texture =",
     ):
         assert forbidden not in trace
@@ -581,14 +656,21 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     portrait_rewrite = _function_body(source, "rewrite_yone_portrait_render_commands")
     for required in (
         '"yone_bp_grid_replace"',
+        '"yone_assignment_replace"',
+        '"yone_bp_side_card_replace"',
         "YONE_BP_GRID_PORTRAIT_TEXTURE",
-        "from_geometry={:.0}x{:.0}",
-        "to_geometry={:.0}x{:.0}",
-        '"center_x_and_top_y_preserved"',
+        "from_geometry={:.0},{:.0},{:.0},{:.0}",
+        "to_geometry={:.0},{:.0},{:.0},{:.0}",
+        "size_mode=preserved",
+        "baseline_offset={baseline_offset:.0}",
+        "sample_mode={sample_mode}",
         "texture_rect.x = 0.0;",
         "texture_rect.y = 0.0;",
         "texture_rect.w = 1.0;",
+        "YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT",
+        '"top_88_of_122"',
         "texture_rect.h = 1.0;",
+        "*y += YONE_ASSIGNMENT_Y_OFFSET;",
         "*left = 0.0;",
         "*right = 0.0;",
         "*top = 0.0;",
@@ -599,16 +681,18 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     assert "RenderCommand::Sprite" not in portrait_rewrite
     assert portrait_rewrite.index(
         "if !is_yone_actor_sheet_texture(texture.as_str())"
-    ) < portrait_rewrite.index("let is_bp_grid =")
+    ) < portrait_rewrite.index("let is_shared_bp_geometry =")
     for required in (
         'pass.to_string() == "UI"',
-        "let center_x = *x + *w * 0.5;",
-        "*w = 90.0;",
-        "*h = 122.0;",
-        "*x = center_x - *w * 0.5;",
+        "is_yone_central_bp_grid_position(*x, *y, *w, *h)",
+        "context.swap_visible",
+        "context.champion_grid_visible",
     ):
         assert required in portrait_rewrite
+    for preserved_axis in ("*x =", "*w =", "*h ="):
+        assert preserved_axis not in portrait_rewrite
     assert "*y =" not in portrait_rewrite
+    assert portrait_rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1
 
     bp_slot = (MOD / "ui/layout/banpick/champion_slot.ui").read_text(
         encoding="utf-8"
@@ -621,6 +705,13 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     ).convert("RGBA")
     assert grid_portrait.size == (90, 122)
     assert grid_portrait.getbbox() == (22, 4, 67, 86)
+    source_bbox = grid_portrait.getchannel("A").getbbox()
+    assert source_bbox is not None
+    sample_height = int(_f32_constant(source, "YONE_BP_GRID_SAMPLE_HEIGHT"))
+    assignment_y_offset = int(_f32_constant(source, "YONE_ASSIGNMENT_Y_OFFSET"))
+    assert source_bbox[3] <= sample_height
+    assert sample_height - source_bbox[3] == 2
+    assert sample_height - (source_bbox[3] + assignment_y_offset) == 11
 
     telemetry_writer = _function_body(source, "write_bp_render_telemetry_once")
     for required in (

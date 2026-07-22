@@ -17,7 +17,8 @@ const MOD_ID: &str = "lol_mod";
 // broad render/database/server extension behind an explicit opt-in because
 // it touches MatchUIRunner, ClientDatabase, RenderState and ServerModContext.
 // The default extension below is deliberately limited to Yone's management
-// card and has no match database, BP, server or other-champion callback.
+// card plus portrait-only BP/UI RenderState rewrites; it has no match
+// database, server or other-champion callback.
 // Preserve the existing environment-variable spelling for developer workflows.
 const LEGACY_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
@@ -59,14 +60,15 @@ const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;
 const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;
 const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;
 const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
-// Official 009 Dual Blader's native idle frame is 43x55 and the Ban/Pick
-// surface renders it at 3x.  Keep its settled 129x165 actor centre distinct
-// from both the 90x122 hero-grid portrait and the generic 137x184 contract.
+// Official 009 Dual Blader's native idle frame is 43x55 and the picked-side
+// surface renders it at 3x. Keep its settled 129x165 actor centre distinct
+// from both the measured 95x88 shared Ban/Pick UI command and the generic
+// 137x184 contract.
 const BP_DUAL_BLADER_ACTOR_WIDTH: f32 = 129.0;
 const BP_DUAL_BLADER_ACTOR_HEIGHT: f32 = 165.0;
 // Live 0.10.0 telemetry records Dual Blader's picked-side slide from
-// 114.4x134.1 through 129x165.  These limits deliberately remain disjoint
-// from the 84..96x108..130 centre-grid portrait contract below.
+// 114.4x134.1 through 129x165. These limits deliberately remain disjoint
+// from the 92..98x86..90 shared Ban/Pick portrait command below.
 const BP_DUAL_BLADER_TRANSITION_MIN_WIDTH: f32 = 112.0;
 const BP_DUAL_BLADER_TRANSITION_MAX_WIDTH: f32 = 132.0;
 const BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT: f32 = 132.0;
@@ -94,6 +96,16 @@ const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
 const YONE_SCOREBOARD_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_portrait/dual_blader_scoreboard";
 const YONE_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dual_blader_grid";
+const YONE_BP_PORTRAIT_SOURCE_HEIGHT: f32 = 122.0;
+const YONE_BP_GRID_SAMPLE_HEIGHT: f32 = 88.0;
+// The post-pick side cards reuse the same 95x88 command as the central grid,
+// but their native actors sit roughly nine logical pixels above the command
+// bottom. Keep the accepted 1:1 pixel proportions and restore that baseline.
+const YONE_ASSIGNMENT_Y_OFFSET: f32 = -9.0;
+const YONE_BP_GRID_VIEWPORT_LEFT: f32 = 335.0;
+const YONE_BP_GRID_VIEWPORT_RIGHT: f32 = 1585.0;
+const YONE_BP_GRID_VIEWPORT_TOP: f32 = 145.0;
+const YONE_BP_GRID_VIEWPORT_BOTTOM: f32 = 522.0;
 const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =
     "asset/lol_mod/ui/champion_fullbody/dual_blader";
 const SPLASH_SPECS: [(&str, &str); 8] = [
@@ -228,23 +240,82 @@ static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 struct LolModExtension;
 
 // The shared champion-card runner can expose the same low-resolution battle
-// idle through several UI geometries. Live 0.10.15 telemetry proved that the
-// central BP grid is a UI NinePatch at 95x88 (the #icon canvas is 118x88), not
-// the previously assumed 90x122 command. Replace that exact live route with
-// the source-direct 90x122 portrait while leaving Game-pass Sprite actors and
-// the independently audited management/compact/scoreboard routes untouched.
+// idle through several UI geometries. Live 0.10.16 evidence proved that both
+// the central grid and the post-pick player-assignment phase can emit a UI
+// NinePatch at 95x88. Keep the command geometry intact, select a surface-aware
+// normalized crop from the accepted 90x122 source, and leave Game-pass Sprite
+// actors plus the independent management/compact/scoreboard routes untouched.
 // The broader client/server extension remains gated.
 struct YoneManagementCardExtension;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum YonePortraitSurface {
+    CentralBpGrid,
+    PlayerChampionAssignment,
+    Other,
+}
+
+impl YonePortraitSurface {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::CentralBpGrid => "central_bp_grid",
+            Self::PlayerChampionAssignment => "player_champion_assignment",
+            Self::Other => "other",
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+struct YonePortraitUiContext {
+    surface: YonePortraitSurface,
+    swap_visible: bool,
+    swap_phase_visible: bool,
+    champion_grid_visible: bool,
+}
+
+fn yone_ui_node_is_visible(ui: &GameUI, paths: &[&str]) -> bool {
+    paths
+        .iter()
+        .any(|path| ui.query(path).is_some_and(|node| node.visible))
+}
+
+fn detect_yone_portrait_ui_context(ui: &GameUI) -> YonePortraitUiContext {
+    // `banpick/layout.ui` keeps both surfaces under the same `main:match_ui`
+    // root. `header.swap_phase` is only a label and is not hidden by the base
+    // layout, so it is diagnostic-only. The root-level `swap` phase container
+    // (default hidden) is the authoritative assignment-stage signal.
+    let swap_visible = yone_ui_node_is_visible(ui, &["swap", "main.swap"]);
+    let swap_phase_visible = yone_ui_node_is_visible(
+        ui,
+        &["header.swap_phase", "main.header.swap_phase"],
+    );
+    let champion_grid_visible =
+        yone_ui_node_is_visible(ui, &["champions", "main.champions"]);
+    let surface = if swap_visible {
+        YonePortraitSurface::PlayerChampionAssignment
+    } else if champion_grid_visible {
+        YonePortraitSurface::CentralBpGrid
+    } else {
+        YonePortraitSurface::Other
+    };
+    YonePortraitUiContext {
+        surface,
+        swap_visible,
+        swap_phase_visible,
+        champion_grid_visible,
+    }
+}
 
 impl ModExtension for YoneManagementCardExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
         sync_yone_encyclopedia_portrait(&mut ui.root);
     }
 
-    fn post_render(&self, _scene: &Scene, _ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
-        trace_yone_render_commands(state);
+    fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
+        let context = detect_yone_portrait_ui_context(ui);
+        trace_yone_render_commands(ui, state, context);
         rewrite_yone_management_card_render_commands(state);
-        rewrite_yone_portrait_render_commands(state);
+        rewrite_yone_portrait_render_commands(state, context);
     }
 }
 
@@ -268,7 +339,8 @@ impl ModExtension for LolModExtension {
         rewrite_bp_render_commands(ui, state);
         rewrite_kled_portrait_render_commands(state);
         rewrite_xayah_portrait_render_commands(state);
-        rewrite_yone_portrait_render_commands(state);
+        let context = detect_yone_portrait_ui_context(ui);
+        rewrite_yone_portrait_render_commands(state, context);
     }
 }
 
@@ -414,11 +486,21 @@ fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
 }
 
 fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
-    // quality_bp_runtime_telemetry.tsv from 0.10.15 records the real central
-    // BP actor command as UI/NinePatch/95x88. Keep a narrow rounding allowance
-    // around that measured command; 85x93 management cards, compact rows,
-    // 129x165 picked-side cards and Game-pass Sprite actors remain disjoint.
+    // quality_bp_runtime_telemetry.tsv from 0.10.15 records the shared BP actor
+    // command as UI/NinePatch/95x88. Geometry alone cannot distinguish the
+    // central grid from the left/right player cards; position and live phase
+    // visibility are applied separately below.
     (92.0..=98.0).contains(&width) && (86.0..=90.0).contains(&height)
+}
+
+fn is_yone_central_bp_grid_position(x: f32, y: f32, width: f32, height: f32) -> bool {
+    // banpick/layout.ui declares the central champions viewport at
+    // x=335..1585, y=145..522. Test the command centre so the 95x88 actor can
+    // never be confused with the same-sized #done actor in an edge pick card.
+    let center_x = x + width * 0.5;
+    let center_y = y + height * 0.5;
+    (YONE_BP_GRID_VIEWPORT_LEFT..=YONE_BP_GRID_VIEWPORT_RIGHT).contains(&center_x)
+        && (YONE_BP_GRID_VIEWPORT_TOP..=YONE_BP_GRID_VIEWPORT_BOTTOM).contains(&center_y)
 }
 
 fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
@@ -430,38 +512,61 @@ fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
     (width - 85.0).abs() <= 1.0 && (height - 93.0).abs() <= 1.0
 }
 
-fn trace_yone_render_commands(state: &RenderState) {
+fn trace_yone_render_commands(
+    ui: &GameUI,
+    state: &RenderState,
+    context: YonePortraitUiContext,
+) {
     // Keep the diagnostic bounded by the existing once-per-signature writer.
     // This records the real command variant before either default rewrite, so
     // a live BP run can distinguish the measured 95x88 UI NinePatch source
     // from the separate Game Sprite without dumping RenderState every frame.
     write_bp_render_telemetry_once(
         "yone_ui_render_hook",
-        "yone_ui",
+        context.surface.as_str(),
         None,
         "",
         "",
-        "version=0.10.16;management_contract=85x93;bp_grid_live_contract=95x88;bp_grid_output=90x122",
+        &format!(
+            "version=0.10.17;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
+            ui.root.id,
+            context.surface.as_str(),
+            context.swap_visible,
+            context.swap_phase_visible,
+            context.champion_grid_visible,
+        ),
     );
     for (pass, commands) in &state.commands {
         for command in commands {
             match command {
                 RenderCommand::NinePatch {
                     texture,
-                    texture_rect: _,
-                    x: _,
-                    y: _,
+                    texture_rect,
+                    x,
+                    y,
                     w,
                     h,
+                    z,
                     sample_nearest,
                     ..
                 } if is_yone_actor_sheet_texture(texture.as_str()) => {
+                    let is_shared_bp =
+                        pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);
+                    let central_position =
+                        is_yone_central_bp_grid_position(*x, *y, *w, *h);
                     let route = if is_yone_management_card_geometry(*w, *h) {
                         "management"
-                    } else if pass.to_string() == "UI"
-                        && is_yone_bp_grid_geometry(*w, *h)
+                    } else if is_shared_bp && context.swap_visible {
+                        "player_assignment"
+                    } else if is_shared_bp
+                        && context.champion_grid_visible
+                        && central_position
                     {
                         "bp_grid"
+                    } else if is_shared_bp && context.champion_grid_visible {
+                        "bp_side_card"
+                    } else if is_shared_bp {
+                        "shared_95x88_other"
                     } else if is_yone_scoreboard_portrait_geometry(*w, *h) {
                         "scoreboard"
                     } else if is_yone_compact_portrait_geometry(*w, *h) {
@@ -471,14 +576,24 @@ fn trace_yone_render_commands(state: &RenderState) {
                     };
                     write_bp_render_telemetry_once(
                         "yone_ui_render_command",
-                        "yone_ui",
+                        context.surface.as_str(),
                         None,
                         texture,
                         "",
                         &format!(
-                            "version=0.10.16;kind=NinePatch;pass={pass};route={route};geometry={:.0}x{:.0};sample_nearest={sample_nearest}",
+                            "version=0.10.17;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
+                            context.surface.as_str(),
+                            ui.root.id,
+                            context.swap_visible,
+                            context.champion_grid_visible,
+                            *x,
+                            *y,
                             *w,
                             *h,
+                            texture_rect.x,
+                            texture_rect.y,
+                            texture_rect.w,
+                            texture_rect.h,
                         ),
                     );
                 }
@@ -487,12 +602,14 @@ fn trace_yone_render_commands(state: &RenderState) {
                 {
                     write_bp_render_telemetry_once(
                         "yone_ui_render_command",
-                        "yone_ui",
+                        context.surface.as_str(),
                         None,
                         texture,
                         "",
                         &format!(
-                            "version=0.10.16;kind=Sprite;pass={pass};route={}",
+                            "version=0.10.17;kind=Sprite;pass={pass};surface={};root={};route={}",
+                            context.surface.as_str(),
+                            ui.root.id,
                             if pass.to_string() == "Game" {
                                 "game_actor"
                             } else {
@@ -516,7 +633,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
         None,
         "",
         "",
-        "version=0.10.16;logical_contract=85x93",
+        "version=0.10.17;logical_contract=85x93",
     );
     for (pass, commands) in &mut state.commands {
         for command in commands {
@@ -551,7 +668,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                     &source,
                     "",
                     &format!(
-                        "version=0.10.16;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        "version=0.10.17;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
                         *x, *y, *w, *h,
                     ),
                 );
@@ -578,7 +695,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.16;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    "version=0.10.17;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
                     original_size.0, original_size.1, *w, *h,
                 ),
             );
@@ -586,16 +703,20 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
     }
 }
 
-fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
+fn rewrite_yone_portrait_render_commands(
+    state: &mut RenderState,
+    context: YonePortraitUiContext,
+) {
     for (pass, commands) in &mut state.commands {
         for command in commands {
             let RenderCommand::NinePatch {
                 texture,
                 texture_rect,
                 x,
-                y: _,
+                y,
                 w,
                 h,
+                z,
                 left,
                 right,
                 top,
@@ -611,20 +732,31 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             }
 
             // Rectangular scoreboard rows and square compact portraits keep
-            // their original geometry. The live BP command is a 95x88 actor
-            // box; route it to the portrait's natural 90x122 canvas so its
-            // 45x82 visible body is never vertically crushed into 88 pixels.
+            // their original geometry. The shared Ban/Pick command is 95x88
+            // in both the central grid and the edge player cards. Distinguish
+            // the grid by its declared viewport and the assignment phase by
+            // the root-level #swap container. Never expand width or height.
             let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);
             let is_compact = is_yone_compact_portrait_geometry(*w, *h);
-            let is_bp_grid =
+            let is_shared_bp_geometry =
                 pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);
+            let central_position = is_yone_central_bp_grid_position(*x, *y, *w, *h);
+            let is_bp_grid = is_shared_bp_geometry
+                && !context.swap_visible
+                && context.champion_grid_visible
+                && central_position;
+            let is_assignment = is_shared_bp_geometry && context.swap_visible;
+            let is_side_card = is_shared_bp_geometry
+                && !context.swap_visible
+                && context.champion_grid_visible
+                && !central_position;
             let source = texture.clone();
-            let original_size = (*w, *h);
+            let original_geometry = (*x, *y, *w, *h);
             let replacement = if is_scoreboard {
                 YONE_SCOREBOARD_PORTRAIT_TEXTURE
             } else if is_compact {
                 YONE_COMPACT_PORTRAIT_TEXTURE
-            } else if is_bp_grid {
+            } else if is_bp_grid || is_assignment || is_side_card {
                 YONE_BP_GRID_PORTRAIT_TEXTURE
             } else {
                 continue;
@@ -634,28 +766,35 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             texture_rect.x = 0.0;
             texture_rect.y = 0.0;
             texture_rect.w = 1.0;
-            texture_rect.h = 1.0;
+            let sample_mode = if is_bp_grid || is_assignment || is_side_card {
+                texture_rect.h =
+                    YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT;
+                "top_88_of_122"
+            } else {
+                texture_rect.h = 1.0;
+                "full"
+            };
+            let baseline_offset = if is_assignment || is_side_card {
+                // Screenshot scale is about 1.32; -9 logical pixels restores
+                // roughly 12 screen pixels of bottom space without scaling or
+                // deforming the already accepted face, torso, legs or swords.
+                *y += YONE_ASSIGNMENT_Y_OFFSET;
+                YONE_ASSIGNMENT_Y_OFFSET
+            } else {
+                0.0
+            };
             *left = 0.0;
             *right = 0.0;
             *top = 0.0;
             *bottom = 0.0;
             *sample_nearest = true;
 
-            if is_bp_grid {
-                // champion_slot.ui places #icon at y=4 on a fixed 88px-high
-                // canvas. Preserve that top anchor: the portrait's non-empty
-                // pixels end at source y=85 and therefore remain inside the
-                // icon region, while its transparent lower tail may clip with
-                // no visible overlap into the name band. Preserve horizontal
-                // centering while restoring the texture's natural dimensions.
-                let center_x = *x + *w * 0.5;
-                *w = 90.0;
-                *h = 122.0;
-                *x = center_x - *w * 0.5;
-            }
-
             let event = if is_bp_grid {
                 "yone_bp_grid_replace"
+            } else if is_assignment {
+                "yone_assignment_replace"
+            } else if is_side_card {
+                "yone_bp_side_card_replace"
             } else if is_scoreboard {
                 "yone_scoreboard_replace"
             } else {
@@ -663,21 +802,22 @@ fn rewrite_yone_portrait_render_commands(state: &mut RenderState) {
             };
             write_bp_render_telemetry_once(
                 event,
-                "yone_ui",
+                context.surface.as_str(),
                 None,
                 &source,
                 replacement,
                 &format!(
-                    "version=0.10.16;kind=NinePatch;pass={pass};route={event};from_geometry={:.0}x{:.0};to_geometry={:.0}x{:.0};geometry_mode={}",
-                    original_size.0,
-                    original_size.1,
+                    "version=0.10.17;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
+                    context.surface.as_str(),
+                    original_geometry.0,
+                    original_geometry.1,
+                    original_geometry.2,
+                    original_geometry.3,
+                    *x,
+                    *y,
                     *w,
                     *h,
-                    if is_bp_grid {
-                        "center_x_and_top_y_preserved"
-                    } else {
-                        "preserved"
-                    },
+                    texture_rect.h,
                 ),
             );
         }
@@ -1172,7 +1312,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.16;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.17;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
