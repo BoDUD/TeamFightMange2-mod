@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Build Yone's deterministic visual resources for the Dual Blader slot.
 
-The actor preserves official champion 009/Dual Blader's exact 3502x88 atlas
-and animation contract. Its V6 body route accepts only 54 final native-size
-RGBA PNGs and copies them byte-for-byte; it cannot rebuild from the rejected
-contact-sheet model. High-footprint Q/W/R feedback stays in independent effect
-sheets so the battle actor keeps one stable body scale.
+The actor preserves all official champion 009/Dual Blader action rectangles,
+frame counts and durations as an immutable prefix.  The V7 body route adds
+separate steel/Azakana basic attacks and an empowered-Q body sequence in a
+non-overlapping atlas extension, while idle/run/W/R are rebuilt around an
+explicit two-sword visual contract.  High-footprint Q/W/R feedback stays in
+independent effect sheets so the battle actor keeps one stable body scale.
 
 This module owns Yone visuals only.  Champion mechanics, localization,
 registration, override routing, native code, audio, and manifest/version work
@@ -39,21 +40,21 @@ FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 QA_DIR = MOD_ROOT / "qa"
 
-NATIVE_V6_ROOT = SOURCE_ROOT / "native" / "yone_v6"
-NATIVE_V6_MANIFEST = NATIVE_V6_ROOT / "frames.json"
-NATIVE_V6_CONTACT_PREVIEW = NATIVE_V6_ROOT / "preview" / "yone_v6_native_contact.png"
+NATIVE_V7_ROOT = SOURCE_ROOT / "native" / "yone_v7"
+NATIVE_V7_MANIFEST = NATIVE_V7_ROOT / "frames.json"
+NATIVE_V7_CONTACT_PREVIEW = NATIVE_V7_ROOT / "preview" / "yone_v7_native_contact.png"
 YONE_V6_UI_SOURCE = IMAGEGEN_ROOT / "yone_v6_idle_source.png"
-YONE_V6_MOTION_SOURCE = IMAGEGEN_ROOT / "yone_v6_motion_contact.png"
-YONE_V6_ATTACK_Q_W_SOURCE = IMAGEGEN_ROOT / "yone_v6_attack_q_w_contact.png"
-YONE_V6_W_SOURCE = IMAGEGEN_ROOT / "yone_v6_w_contact.png"
-YONE_V6_ULT_SOURCE = IMAGEGEN_ROOT / "yone_v6_ult_contact.png"
-YONE_V6_BODY_IMAGEGEN_SOURCES = (
-    YONE_V6_MOTION_SOURCE,
-    YONE_V6_ATTACK_Q_W_SOURCE,
-    YONE_V6_W_SOURCE,
-    YONE_V6_ULT_SOURCE,
+YONE_V7_MOTION_SOURCE = IMAGEGEN_ROOT / "yone_v7_motion_contact.png"
+YONE_V7_ATTACK_Q_SOURCE = IMAGEGEN_ROOT / "yone_v7_attack_q_contact.png"
+YONE_V7_W_SOURCE = IMAGEGEN_ROOT / "yone_v7_w_contact.png"
+YONE_V7_ULT_SOURCE = IMAGEGEN_ROOT / "yone_v7_ult_contact.png"
+YONE_V7_BODY_IMAGEGEN_SOURCES = (
+    YONE_V7_MOTION_SOURCE,
+    YONE_V7_ATTACK_Q_SOURCE,
+    YONE_V7_W_SOURCE,
+    YONE_V7_ULT_SOURCE,
 )
-YONE_V6_IMAGEGEN_SOURCES = (YONE_V6_UI_SOURCE, *YONE_V6_BODY_IMAGEGEN_SOURCES)
+YONE_V7_IMAGEGEN_SOURCES = (YONE_V6_UI_SOURCE, *YONE_V7_BODY_IMAGEGEN_SOURCES)
 QW_VFX_SOURCE = IMAGEGEN_ROOT / "yone_qw_vfx_contact.png"
 W_VFX_SOURCE = IMAGEGEN_ROOT / "yone_w_vfx_contact_v2.png"
 Q3_VFX_SOURCE = IMAGEGEN_ROOT / "yone_q3_vfx_contact.png"
@@ -67,10 +68,11 @@ W_VFX_ALPHA = PROCESSED_ROOT / "yone_w_vfx_contact_v2_alpha.png"
 Q3_VFX_ALPHA = PROCESSED_ROOT / "yone_q3_vfx_contact_alpha.png"
 R_VFX_ALPHA = PROCESSED_ROOT / "yone_r_vfx_contact_alpha.png"
 
-ACTOR_SHEET_SIZE = (3502, 88)
-NATIVE_V6_SCHEMA_VERSION = 6
-NATIVE_V6_ROUTE = "exact-native-v6"
-NATIVE_V6_MAX_OPAQUE_COLORS = 48
+NATIVE_ACTOR_SHEET_SIZE = (3502, 88)
+ACTOR_SHEET_SIZE = (4262, 88)
+NATIVE_V7_SCHEMA_VERSION = 7
+NATIVE_V7_ROUTE = "dual-sword-v7"
+NATIVE_V7_MAX_OPAQUE_COLORS = 48
 
 RETIRED_YONE_V4_BODY_SOURCES = (
     IMAGEGEN_ROOT / "yone_v4_action_contact.png",
@@ -88,6 +90,17 @@ RETIRED_YONE_V5_BODY_SOURCES = (
     IMAGEGEN_ROOT / "yone_v5_q5_contact.png",
     IMAGEGEN_ROOT / "yone_v5_ult_contact.png",
     SOURCE_ROOT / "native" / ("yone_" + "v5"),
+)
+
+# V6 UI art is intentionally retained below, but its old battle contact sheets
+# and native frame tree must be absent so they cannot be mistaken for a
+# fallback when diagnosing an installed 0.10.18 package.
+RETIRED_YONE_V6_BODY_SOURCES = (
+    IMAGEGEN_ROOT / "yone_v6_motion_contact.png",
+    IMAGEGEN_ROOT / "yone_v6_attack_q_w_contact.png",
+    IMAGEGEN_ROOT / "yone_v6_w_contact.png",
+    IMAGEGEN_ROOT / "yone_v6_ult_contact.png",
+    SOURCE_ROOT / "native" / "yone_v6",
 )
 
 RETIRED_YONE_GENERATED_OUTPUTS = (
@@ -208,6 +221,62 @@ NATIVE_CONTRACT: dict[str, dict[str, Any]] = {
 }
 
 
+def _append_custom_rects(
+    cursor: int, source_rects: Sequence[tuple[int, int, int, int]]
+) -> tuple[list[tuple[int, int, int, int]], int]:
+    """Append same-sized frames after the immutable native atlas prefix."""
+
+    rects: list[tuple[int, int, int, int]] = []
+    for _x, _y, width, height in source_rects:
+        rects.append((cursor, 0, width, height))
+        cursor += width + 1
+    return rects, cursor
+
+
+_custom_cursor = NATIVE_ACTOR_SHEET_SIZE[0]
+_attack_azakana_rects, _custom_cursor = _append_custom_rects(
+    _custom_cursor, NATIVE_CONTRACT["attack"]["rects"]
+)
+_skill_q3_rects, _custom_cursor = _append_custom_rects(
+    _custom_cursor, NATIVE_CONTRACT["skill"]["rects"]
+)
+if _custom_cursor != ACTOR_SHEET_SIZE[0]:
+    raise ValueError(
+        f"Yone custom actor atlas width {_custom_cursor} != {ACTOR_SHEET_SIZE[0]}"
+    )
+
+# The official thirteen tags above remain byte-for-byte contract-compatible.
+# These five semantic tags are an additive visual layer selected explicitly by
+# CasterAnimation; aliases reuse native frames, while the two physical routes
+# occupy the non-overlapping V7 extension.
+CUSTOM_ACTION_CONTRACT: dict[str, dict[str, Any]] = {
+    "attack_steel": {
+        "durations": NATIVE_CONTRACT["attack"]["durations"],
+        "rects": NATIVE_CONTRACT["attack"]["rects"],
+        "alias_of": "attack",
+    },
+    "attack_azakana": {
+        "durations": NATIVE_CONTRACT["attack"]["durations"],
+        "rects": _attack_azakana_rects,
+    },
+    "skill_q12": {
+        "durations": NATIVE_CONTRACT["skill"]["durations"],
+        "rects": NATIVE_CONTRACT["skill"]["rects"],
+        "alias_of": "skill",
+    },
+    "skill_q3": {
+        "durations": NATIVE_CONTRACT["skill"]["durations"],
+        "rects": _skill_q3_rects,
+    },
+    "skill_w_azakana": {
+        "durations": NATIVE_CONTRACT["skill2_attack"]["durations"],
+        "rects": NATIVE_CONTRACT["skill2_attack"]["rects"],
+        "alias_of": "skill2_attack",
+    },
+}
+CUSTOM_PIXEL_ACTIONS = ("attack_azakana", "skill_q3")
+
+
 BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     # Match the official Dual Blader's visible core footprint. This restores
     # the same terrain/name-plate clearance used by Lucian and Orianna instead
@@ -215,8 +284,10 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     "idle": [38, 37, 36, 37],
     "run": [35, 32, 31, 32, 35, 33, 31, 33],
     "attack": [36, 36, 34, 35, 35, 36],
+    "attack_azakana": [36, 36, 34, 35, 35, 36],
     "hit": [37],
     "skill": [38, 37, 38, 39, 39, 39, 39],
+    "skill_q3": [38, 37, 38, 39, 39, 39, 39],
     "skill2": [38],
     "skill2_dash": [36],
     "skill2_attack": [36, 37, 38, 38, 38],
@@ -230,12 +301,16 @@ NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
     "idle": [36, 36, 36, 36],
     "run": [31, 32, 32, 33, 32, 32, 32, 33],
     "attack": [35, 33, 33, 31, 33, 34],
+    # The heavy Azakana sequence deliberately crouches/squashes while keeping
+    # the same head/body pixel scale and native foot baseline.
+    "attack_azakana": [28, 27, 25, 26, 26, 27],
     "hit": [34],
     "skill": [35, 33, 34, 33, 33, 31, 33],
+    "skill_q3": [35, 33, 34, 33, 33, 31, 33],
     "skill2": [35],
     "skill2_dash": [31],
     "skill2_attack": [32, 34, 33, 32, 32],
-    "ult": [34, 25, 24, 31, 29, 24, 26, 25, 31, 22, 25, 33, 33],
+    "ult": [34, 25, 24, 31, 29, 24, 25, 25, 31, 22, 25, 33, 33],
 }
 
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
@@ -246,8 +321,10 @@ BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
     "idle": [15, 15, 14, 15],
     "run": [13, 18, 20, 17, 13, 17, 20, 17],
     "attack": [14, 14, 12, 13, 13, 14],
+    "attack_azakana": [14, 14, 12, 13, 13, 14],
     "hit": [15],
     "skill": [5, 6, 7, 6, 8, 10, 8],
+    "skill_q3": [5, 6, 7, 6, 8, 10, 8],
     "skill2": [5],
     "skill2_dash": [4],
     # The W body is centred in every differently-sized native frame. This is
@@ -274,7 +351,9 @@ NATIVE_BODY_ACTIONS = (
     "skill",
 )
 NATIVE_BODY_FRAME_COUNT = 54
-NATIVE_V6_FRAME_FIELDS = {
+GENERATED_BODY_ACTIONS = (*NATIVE_BODY_ACTIONS, *CUSTOM_PIXEL_ACTIONS)
+GENERATED_BODY_FRAME_COUNT = 67
+NATIVE_V7_FRAME_FIELDS = {
     "action",
     "index",
     "file",
@@ -285,6 +364,55 @@ NATIVE_V6_FRAME_FIELDS = {
     "mask_bbox",
     "foot_zones",
     "face_visibility",
+    "active_weapon",
+    "weapons_present",
+}
+
+# Machine-readable weapon semantics stay separate from color heuristics.  The
+# generator still proves the actual pixels and sequence hashes, while these
+# fields make the intended hand/weapon route explicit for data and CI.
+V7_FRAME_ACTIVE_WEAPON = {
+    "skill2": "azakana",
+    "hit": "dual",
+    "attack": "steel",
+    "attack_azakana": "azakana",
+    "skill2_dash": "dual",
+    "ult": "dual",
+    "run": "dual",
+    "skill2_attack": "azakana",
+    "idle": "dual",
+    "dead": "dual",
+    "skill": "steel",
+    "skill_q3": "steel",
+}
+V7_FRAME_WEAPONS_PRESENT = {
+    action: ["steel", "azakana"] for action in GENERATED_BODY_ACTIONS
+}
+V7_WEAPON_CONTRACT = {
+    "version": 1,
+    "weapons": ["steel", "azakana"],
+    "always_dual_actions": ["idle", "run"],
+    "semantic_animation_tags": {
+        "attack_steel": "steel",
+        "attack_azakana": "azakana",
+        "skill_q12": "steel",
+        "skill_q3": "steel",
+        "skill_w_azakana": "azakana",
+        "ult": "dual",
+    },
+    "long_blade_overlay_policy": "caster-follow effects extend the active blade outside the compact actor frame",
+}
+V7_WEAPON_PALETTE_ROLES = {
+    "steel": {
+        "dark": ["source_06", "source_07"],
+        "mid": ["source_04"],
+        "highlight": ["source_03"],
+    },
+    "azakana": {
+        "dark": ["mask_03", "mask_04"],
+        "red": ["mask_00", "mask_02"],
+        "highlight": ["mask_01"],
+    },
 }
 
 
@@ -606,7 +734,7 @@ def _is_plain_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
-def _v6_relative_file(value: Any, label: str, suffix: str) -> Path:
+def _v7_relative_file(value: Any, label: str, suffix: str) -> Path:
     """Resolve one normalized manifest-relative file inside the V6 root."""
 
     if not isinstance(value, str) or not value:
@@ -620,9 +748,9 @@ def _v6_relative_file(value: Any, label: str, suffix: str) -> Path:
         or any(part in {"", ".", ".."} for part in relative.parts)
     ):
         raise ValueError(f"Yone V6 {label} is not a normalized relative path: {value!r}")
-    path = NATIVE_V6_ROOT.joinpath(*relative.parts)
+    path = NATIVE_V7_ROOT.joinpath(*relative.parts)
     try:
-        path.resolve().relative_to(NATIVE_V6_ROOT.resolve())
+        path.resolve().relative_to(NATIVE_V7_ROOT.resolve())
     except ValueError as exc:
         raise ValueError(f"Yone V6 {label} escapes its source root: {value!r}") from exc
     if path.suffix.lower() != suffix:
@@ -632,7 +760,7 @@ def _v6_relative_file(value: Any, label: str, suffix: str) -> Path:
     return path
 
 
-def _load_v6_json(path: Path, label: str) -> dict[str, Any]:
+def _load_v7_json(path: Path, label: str) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
@@ -646,20 +774,22 @@ def _load_v6_json(path: Path, label: str) -> dict[str, Any]:
     return value
 
 
-def _validate_v6_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
-    payload = _load_v6_json(path, "palette")
-    expected_fields = {"schema_version", "route", "colors"}
+def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
+    payload = _load_v7_json(path, "palette")
+    expected_fields = {"schema_version", "route", "weapon_roles", "colors"}
     if set(payload) != expected_fields:
         raise ValueError(
-            "Yone V6 palette fields changed: "
+            "Yone V7 palette fields changed: "
             f"got={sorted(payload)}, expected={sorted(expected_fields)}"
         )
-    if payload["schema_version"] != NATIVE_V6_SCHEMA_VERSION:
+    if payload["schema_version"] != NATIVE_V7_SCHEMA_VERSION:
         raise ValueError(
-            f"Yone V6 palette schema_version must be {NATIVE_V6_SCHEMA_VERSION}"
+            f"Yone V7 palette schema_version must be {NATIVE_V7_SCHEMA_VERSION}"
         )
-    if payload["route"] != NATIVE_V6_ROUTE:
-        raise ValueError(f"Yone V6 palette route must be {NATIVE_V6_ROUTE!r}")
+    if payload["route"] != NATIVE_V7_ROUTE:
+        raise ValueError(f"Yone V7 palette route must be {NATIVE_V7_ROUTE!r}")
+    if payload["weapon_roles"] != V7_WEAPON_PALETTE_ROLES:
+        raise ValueError("Yone V7 palette weapon roles changed")
     rows = payload["colors"]
     if not isinstance(rows, list):
         raise ValueError("Yone V6 palette colors must be a list")
@@ -706,10 +836,10 @@ def _validate_v6_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
         raise ValueError(
             f"Yone V6 palette needs exactly one transparent entry, got {transparent_count}"
         )
-    if not 1 <= opaque_count <= NATIVE_V6_MAX_OPAQUE_COLORS:
+    if not 1 <= opaque_count <= NATIVE_V7_MAX_OPAQUE_COLORS:
         raise ValueError(
             "Yone V6 palette must define 1.."
-            f"{NATIVE_V6_MAX_OPAQUE_COLORS} opaque colors, got {opaque_count}"
+            f"{NATIVE_V7_MAX_OPAQUE_COLORS} opaque colors, got {opaque_count}"
         )
     normalized_roles = [role.strip().lower() for role in roles]
     for semantic_role in ("skin", "eye", "mask"):
@@ -717,12 +847,24 @@ def _validate_v6_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
             raise ValueError(
                 f"Yone V6 palette needs at least one role containing {semantic_role!r}"
             )
+    referenced_weapon_roles = {
+        role
+        for weapon in V7_WEAPON_PALETTE_ROLES.values()
+        for ramp in weapon.values()
+        for role in ramp
+    }
+    if not referenced_weapon_roles <= set(roles):
+        raise ValueError(
+            "Yone V7 palette is missing weapon roles: "
+            f"{sorted(referenced_weapon_roles - set(roles))}"
+        )
     return colors, {
         "path": path.relative_to(MOD_ROOT).as_posix(),
         "schema_version": payload["schema_version"],
         "route": payload["route"],
         "opaque_color_count": opaque_count,
         "roles": roles,
+        "weapon_roles": payload["weapon_roles"],
         "sha256": sha256(path),
     }
 
@@ -759,7 +901,7 @@ def _validate_local_box(
     return x, y, width, height
 
 
-def _validate_v6_rgba_png(
+def _validate_v7_rgba_png(
     path: Path,
     label: str,
     allowed_colors: set[tuple[int, int, int, int]],
@@ -803,23 +945,24 @@ def _validate_v6_rgba_png(
     return image, used
 
 
-def _native_v6_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
+def _native_v7_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
     expected: dict[tuple[str, int], tuple[int, int, int, int]] = {}
-    for action in NATIVE_BODY_ACTIONS:
-        rects = NATIVE_CONTRACT[action]["rects"]
+    for action in GENERATED_BODY_ACTIONS:
+        contract = NATIVE_CONTRACT if action in NATIVE_CONTRACT else CUSTOM_ACTION_CONTRACT
+        rects = contract[action]["rects"]
         if action == "dead":
             rects = rects[:-1]
         for index, rect in enumerate(rects):
             expected[(action, index)] = rect
-    if len(expected) != NATIVE_BODY_FRAME_COUNT:
+    if len(expected) != GENERATED_BODY_FRAME_COUNT:
         raise ValueError(
             "Internal Yone V6 body contract changed: "
-            f"{len(expected)}/{NATIVE_BODY_FRAME_COUNT} frames"
+            f"{len(expected)}/{GENERATED_BODY_FRAME_COUNT} frames"
         )
     return expected
 
 
-def _load_v6_opaque_card_preview(path: Path) -> Image.Image:
+def _load_v7_opaque_card_preview(path: Path) -> Image.Image:
     """Load the complete 141x138 card proof without applying the body palette."""
 
     try:
@@ -846,7 +989,7 @@ def _load_v6_opaque_card_preview(path: Path) -> Image.Image:
     return preview
 
 
-def _render_v6_opaque_card_preview(idle: Image.Image) -> Image.Image:
+def _render_v7_opaque_card_preview(idle: Image.Image) -> Image.Image:
     """Replay the generator's card chrome and exact idle actor render."""
 
     rendered = idle.resize(
@@ -878,8 +1021,8 @@ def _render_v6_opaque_card_preview(idle: Image.Image) -> Image.Image:
     actor_bbox = actor_mask.getbbox()
     if actor_bbox is None:
         raise ValueError("Yone V6 body_preview actor route is empty")
-    if actor_mask.crop((98, 70, 141, 100)).getbbox() is not None:
-        raise ValueError("Yone V6 body_preview actor overlaps the right-side UI region")
+    # V7 battle idle keeps both swords visible. Dedicated source-direct UI
+    # portraits own the management/BP/compact icon exclusion contract.
     if YONE_LIVE_CARD_DIVIDER_TOP - actor_bbox[3] < YONE_LIVE_CARD_MIN_DIVIDER_CLEARANCE:
         raise ValueError(
             "Yone V6 body_preview actor approaches the divider: "
@@ -891,18 +1034,19 @@ def _render_v6_opaque_card_preview(idle: Image.Image) -> Image.Image:
     return preview
 
 
-def _load_native_v6_body_frames() -> tuple[
+def _load_native_v7_body_frames() -> tuple[
     dict[tuple[str, int], Image.Image], dict[str, Any], dict[str, dict[str, Any]]
 ]:
     """Load and audit all final 1x frames without changing a single pixel."""
 
-    manifest = _load_v6_json(NATIVE_V6_MANIFEST, "frames manifest")
+    manifest = _load_v7_json(NATIVE_V7_MANIFEST, "frames manifest")
     manifest_fields = {
         "schema_version",
         "route",
         "atlas_size",
         "palette_file",
         "body_preview",
+        "weapon_contract",
         "frames",
     }
     if set(manifest) != manifest_fields:
@@ -910,55 +1054,69 @@ def _load_native_v6_body_frames() -> tuple[
             "Yone V6 manifest fields changed: "
             f"got={sorted(manifest)}, expected={sorted(manifest_fields)}"
         )
-    if manifest["schema_version"] != NATIVE_V6_SCHEMA_VERSION:
+    if manifest["schema_version"] != NATIVE_V7_SCHEMA_VERSION:
         raise ValueError(
-            f"Yone V6 manifest schema_version must be {NATIVE_V6_SCHEMA_VERSION}"
+            f"Yone V7 manifest schema_version must be {NATIVE_V7_SCHEMA_VERSION}"
         )
-    if manifest["route"] != NATIVE_V6_ROUTE:
-        raise ValueError(f"Yone V6 manifest route must be {NATIVE_V6_ROUTE!r}")
+    if manifest["route"] != NATIVE_V7_ROUTE:
+        raise ValueError(f"Yone V7 manifest route must be {NATIVE_V7_ROUTE!r}")
     if manifest["atlas_size"] != list(ACTOR_SHEET_SIZE):
         raise ValueError(
             f"Yone V6 atlas_size {manifest['atlas_size']} != {list(ACTOR_SHEET_SIZE)}"
         )
+    if manifest["weapon_contract"] != V7_WEAPON_CONTRACT:
+        raise ValueError(
+            "Yone V7 weapon_contract changed: "
+            f"{manifest['weapon_contract']!r}"
+        )
 
-    palette_path = _v6_relative_file(
+    palette_path = _v7_relative_file(
         manifest["palette_file"], "palette_file", ".json"
     )
-    allowed_colors, palette_audit = _validate_v6_palette(palette_path)
+    allowed_colors, palette_audit = _validate_v7_palette(palette_path)
 
     preview_value = manifest["body_preview"]
     preview_path: Path | None = None
     preview_image: Image.Image | None = None
     if preview_value is not None:
-        preview_path = _v6_relative_file(preview_value, "body_preview", ".png")
-        preview_image = _load_v6_opaque_card_preview(preview_path)
+        preview_path = _v7_relative_file(preview_value, "body_preview", ".png")
+        preview_image = _load_v7_opaque_card_preview(preview_path)
     elif not isinstance(preview_value, type(None)):
         raise ValueError("Yone V6 body_preview must be a relative PNG path or null")
 
     rows = manifest["frames"]
-    if not isinstance(rows, list) or len(rows) != NATIVE_BODY_FRAME_COUNT:
+    if not isinstance(rows, list) or len(rows) != GENERATED_BODY_FRAME_COUNT:
         raise ValueError(
             "Yone V6 frames must contain exactly "
-            f"{NATIVE_BODY_FRAME_COUNT} records"
+            f"{GENERATED_BODY_FRAME_COUNT} records"
         )
-    expected = _native_v6_expected_frames()
+    expected = _native_v7_expected_frames()
     frames: dict[tuple[str, int], Image.Image] = {}
     paths: dict[Path, tuple[str, int]] = {}
     rect_owners: dict[tuple[int, int, int, int], tuple[str, int]] = {}
     audits: dict[str, dict[str, Any]] = {}
 
     for row_number, row in enumerate(rows):
-        if not isinstance(row, dict) or set(row) != NATIVE_V6_FRAME_FIELDS:
+        if not isinstance(row, dict) or set(row) != NATIVE_V7_FRAME_FIELDS:
             got = sorted(row) if isinstance(row, dict) else type(row).__name__
             raise ValueError(
                 f"Yone V6 frames[{row_number}] fields changed: got={got}, "
-                f"expected={sorted(NATIVE_V6_FRAME_FIELDS)}"
+                f"expected={sorted(NATIVE_V7_FRAME_FIELDS)}"
             )
         action = row["action"]
         index = row["index"]
         if not isinstance(action, str) or not _is_plain_int(index):
             raise ValueError(
                 f"Yone V6 frames[{row_number}] action/index types are invalid"
+            )
+        if row["active_weapon"] != V7_FRAME_ACTIVE_WEAPON.get(action):
+            raise ValueError(
+                f"Yone V7 {action}[{index}] active_weapon changed: "
+                f"{row['active_weapon']!r}"
+            )
+        if row["weapons_present"] != V7_FRAME_WEAPONS_PRESENT.get(action):
+            raise ValueError(
+                f"Yone V7 {action}[{index}] must retain both weapon identities"
             )
         key = (action, index)
         if key not in expected:
@@ -983,7 +1141,7 @@ def _load_native_v6_body_frames() -> tuple[
             )
         rect_owners[rect] = key
 
-        path = _v6_relative_file(row["file"], f"{action}[{index}].file", ".png")
+        path = _v7_relative_file(row["file"], f"{action}[{index}].file", ".png")
         resolved = path.resolve()
         if resolved in paths:
             raise ValueError(
@@ -992,7 +1150,7 @@ def _load_native_v6_body_frames() -> tuple[
         if preview_path is not None and resolved == preview_path.resolve():
             raise ValueError(f"Yone V6 body_preview cannot also be frame {key}")
         paths[resolved] = key
-        frame, used_colors = _validate_v6_rgba_png(
+        frame, used_colors = _validate_v7_rgba_png(
             path,
             f"{action}[{index}]",
             allowed_colors,
@@ -1178,7 +1336,7 @@ def _load_native_v6_body_frames() -> tuple[
         raise ValueError(f"Yone V6 manifest is missing frames: {sorted(missing)}")
     if preview_image is not None:
         idle = frames[("idle", 0)]
-        expected_preview = _render_v6_opaque_card_preview(idle)
+        expected_preview = _render_v7_opaque_card_preview(idle)
         if preview_image.tobytes() != expected_preview.tobytes():
             raise ValueError(
                 "Yone V6 body_preview must be the exact complete opaque 141x138 "
@@ -1187,11 +1345,11 @@ def _load_native_v6_body_frames() -> tuple[
     expected_pngs = set(paths)
     if preview_path is not None:
         expected_pngs.add(preview_path.resolve())
-    if NATIVE_V6_CONTACT_PREVIEW.is_file():
-        expected_pngs.add(NATIVE_V6_CONTACT_PREVIEW.resolve())
+    if NATIVE_V7_CONTACT_PREVIEW.is_file():
+        expected_pngs.add(NATIVE_V7_CONTACT_PREVIEW.resolve())
     actual_pngs = {
         path.resolve()
-        for path in NATIVE_V6_ROOT.rglob("*.png")
+        for path in NATIVE_V7_ROOT.rglob("*.png")
         if path.is_file()
     }
     if actual_pngs != expected_pngs:
@@ -1205,10 +1363,11 @@ def _load_native_v6_body_frames() -> tuple[
     manifest_audit = {
         "schema_version": manifest["schema_version"],
         "route": manifest["route"],
-        "manifest": NATIVE_V6_MANIFEST.relative_to(MOD_ROOT).as_posix(),
-        "manifest_sha256": sha256(NATIVE_V6_MANIFEST),
+        "manifest": NATIVE_V7_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+        "manifest_sha256": sha256(NATIVE_V7_MANIFEST),
         "atlas_size": list(ACTOR_SHEET_SIZE),
         "frame_count": len(frames),
+        "weapon_contract": manifest["weapon_contract"],
         "palette": palette_audit,
         "body_preview": (
             preview_path.relative_to(MOD_ROOT).as_posix()
@@ -1220,8 +1379,8 @@ def _load_native_v6_body_frames() -> tuple[
             sha256(preview_path) if preview_path is not None else None
         ),
         "contact_preview": (
-            NATIVE_V6_CONTACT_PREVIEW.relative_to(MOD_ROOT).as_posix()
-            if NATIVE_V6_CONTACT_PREVIEW.is_file()
+            NATIVE_V7_CONTACT_PREVIEW.relative_to(MOD_ROOT).as_posix()
+            if NATIVE_V7_CONTACT_PREVIEW.is_file()
             else None
         ),
         "body_processing": "none; exact final 1x RGBA byte copy",
@@ -1229,7 +1388,7 @@ def _load_native_v6_body_frames() -> tuple[
     return frames, manifest_audit, audits
 
 
-def _paste_native_v6_bytes(
+def _paste_native_v7_bytes(
     sheet: Image.Image,
     placements: dict[tuple[int, int, int, int], bytes],
     rect: tuple[int, int, int, int],
@@ -1795,22 +1954,23 @@ def _paste_unique(
 def build_actor() -> tuple[Path, Path]:
     qw_vfx = split_grid(Image.open(QW_VFX_ALPHA).convert("RGBA"), 5, 4)
     r_vfx = split_grid(Image.open(R_VFX_ALPHA).convert("RGBA"), 5, 3)
-    native_frames, _, _ = _load_native_v6_body_frames()
+    native_frames, _, _ = _load_native_v7_body_frames()
     sheet = Image.new("RGBA", ACTOR_SHEET_SIZE, (0, 0, 0, 0))
     placements: dict[tuple[int, int, int, int], bytes] = {}
 
     # Copy each final native V6 PNG directly into its official atlas rectangle.
     # There is deliberately no master fallback and no crop, resize, alpha
     # cleanup, palette conversion or quantization anywhere in the body path.
-    for tag in NATIVE_BODY_ACTIONS:
+    for tag in GENERATED_BODY_ACTIONS:
+        contract = NATIVE_CONTRACT if tag in NATIVE_CONTRACT else CUSTOM_ACTION_CONTRACT
         rects = (
-            NATIVE_CONTRACT[tag]["rects"][:-1]
+            contract[tag]["rects"][:-1]
             if tag == "dead"
-            else NATIVE_CONTRACT[tag]["rects"]
+            else contract[tag]["rects"]
         )
         for index, rect in enumerate(rects):
             frame = native_frames[(tag, index)]
-            _paste_native_v6_bytes(sheet, placements, rect, frame)
+            _paste_native_v7_bytes(sheet, placements, rect, frame)
 
     # Official hit_effect_area aliases ult[1:12]; assigning the same bytes is
     # deliberate and proves the overlap remains contract-safe.
@@ -1842,7 +2002,7 @@ def build_actor() -> tuple[Path, Path]:
                         for duration, (x, y, width, height) in zip(spec["durations"], spec["rects"], strict=True)
                     ]
                 }
-                for tag, spec in NATIVE_CONTRACT.items()
+                for tag, spec in {**NATIVE_CONTRACT, **CUSTOM_ACTION_CONTRACT}.items()
             }
         },
     )
@@ -2246,8 +2406,12 @@ def image_record(path: Path) -> dict[str, Any]:
 
 
 RUNTIME_EFFECT_MAP = {
+    "lol_yone_attack_steel_swing": ["yone_attack", "steel_hit"],
+    "lol_yone_attack_azakana_swing": ["yone_attack", "azakana_hit"],
     "lol_yone_attack_steel_hit": ["yone_attack", "steel_hit"],
     "lol_yone_attack_azakana_hit": ["yone_attack", "azakana_hit"],
+    "lol_yone_q_blade": ["yone_q", "hit"],
+    "lol_yone_q3_blade": ["yone_q", "empowered_hit"],
     "lol_yone_q_projectile": ["yone_q", "projectile"],
     "lol_yone_q_empowered_projectile": ["yone_q3_tornado", "tornado"],
     "lol_yone_q_hit": ["yone_q", "hit"],
@@ -2268,7 +2432,7 @@ RUNTIME_EFFECT_MAP = {
 def iter_actor_body_frames(
     anims: dict[str, Any],
 ) -> Iterable[tuple[str, int, dict[str, Any]]]:
-    """Yield all 54 visible battle-body frames, excluding the dead terminator."""
+    """Yield all 67 physical V7 battle frames, excluding alias tags."""
 
     for tag in BODY_TARGET_HEIGHTS:
         for index, entry in enumerate(anims[tag]["frames"]):
@@ -2333,7 +2497,7 @@ def build_qa(
 ) -> list[Path]:
     sheet = Image.open(actor_sheet).convert("RGBA")
     native_source_frames, native_manifest_contract, native_frame_source_contracts = (
-        _load_native_v6_body_frames()
+        _load_native_v7_body_frames()
     )
     anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
     body_frames: dict[str, list[dict[str, Any]]] = {}
@@ -2386,10 +2550,10 @@ def build_qa(
             "bottom_margin": source_contract["bottom_margin"],
             "source_to_atlas_byte_identical": identical,
         }
-    if len(actor_face_annotations) != NATIVE_BODY_FRAME_COUNT:
+    if len(actor_face_annotations) != GENERATED_BODY_FRAME_COUNT:
         raise ValueError(
-            "Yone V6 annotation QA must cover "
-            f"{NATIVE_BODY_FRAME_COUNT} visible body frames, got "
+            "Yone V7 annotation QA must cover "
+            f"{GENERATED_BODY_FRAME_COUNT} visible body frames, got "
             f"{len(actor_face_annotations)}"
         )
 
@@ -2428,20 +2592,31 @@ def build_qa(
             "replacement_id": "dual_blader",
             "native_actor": {
                 "sheet_size": list(ACTOR_SHEET_SIZE),
-                "tag_order": list(NATIVE_CONTRACT),
-                "frame_counts": {tag: len(spec["rects"]) for tag, spec in NATIVE_CONTRACT.items()},
-                "durations": {tag: spec["durations"] for tag, spec in NATIVE_CONTRACT.items()},
-                "rects": {tag: spec["rects"] for tag, spec in NATIVE_CONTRACT.items()},
+                "native_tag_order": list(NATIVE_CONTRACT),
+                "custom_tag_order": list(CUSTOM_ACTION_CONTRACT),
+                "tag_order": [*NATIVE_CONTRACT, *CUSTOM_ACTION_CONTRACT],
+                "frame_counts": {
+                    tag: len(spec["rects"])
+                    for tag, spec in {**NATIVE_CONTRACT, **CUSTOM_ACTION_CONTRACT}.items()
+                },
+                "durations": {
+                    tag: spec["durations"]
+                    for tag, spec in {**NATIVE_CONTRACT, **CUSTOM_ACTION_CONTRACT}.items()
+                },
+                "rects": {
+                    tag: spec["rects"]
+                    for tag, spec in {**NATIVE_CONTRACT, **CUSTOM_ACTION_CONTRACT}.items()
+                },
                 "overlap": "hit_effect_area aliases ult frames 1..11 exactly",
                 "body_frames": body_frames,
                 "body_source_contract": native_manifest_contract,
                 "body_frame_sources": native_frame_source_contracts,
-                "pack_time_resampling": "none; 54 exact-size V6 RGBA PNGs are copied byte-for-byte into their native atlas rectangles",
+                "pack_time_resampling": "none; 67 exact-size V7 RGBA PNGs are copied byte-for-byte; native rectangles stay immutable and custom frames occupy only the atlas extension",
                 "source_to_atlas_identity": native_body_identity,
                 "pixel_quality": {
                     "contract": {
                         "hard_alpha": True,
-                        "maximum_opaque_palette_size": NATIVE_V6_MAX_OPAQUE_COLORS,
+                        "maximum_opaque_palette_size": NATIVE_V7_MAX_OPAQUE_COLORS,
                         "metrics_are_measured_at": "native 1x",
                     },
                     "frames": native_body_pixel_quality,
@@ -2449,8 +2624,18 @@ def build_qa(
             },
             "runtime_effect_map": RUNTIME_EFFECT_MAP,
             "runtime_body_actions": {
+                "attack": {
+                    "steel_animation_tag": "attack_steel",
+                    "azakana_animation_tag": "attack_azakana",
+                    "frame_count_each": 6,
+                },
+                "skill": {
+                    "q12_animation_tag": "skill_q12",
+                    "q3_animation_tag": "skill_q3",
+                    "frame_count_each": 7,
+                },
                 "skill2": {
-                    "animation_tag": "skill2_attack",
+                    "animation_tag": "skill_w_azakana",
                     "frame_count": 5,
                     "qa_contact_tag": "skill2_attack",
                 }
@@ -2466,8 +2651,8 @@ def build_qa(
                 "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
             },
             "face_readability": {
-                "policy": "from-zero exact-native V6 body model; every action frame is authored as its final 1x RGBA rectangle with no crop, resize, quantization, repaint or V3/V4/V5 body fallback",
-                "body_source_manifest": NATIVE_V6_MANIFEST.relative_to(MOD_ROOT).as_posix(),
+                "policy": "from-zero dual-sword V7 body model; all final 1x frames are generated once, palette-audited, then copied byte-for-byte with no pack-time resize or repaint",
+                "body_source_manifest": NATIVE_V7_MANIFEST.relative_to(MOD_ROOT).as_posix(),
                 "actor_resampling": "NONE",
                 "idle_face_contract": {
                     "source_authored": True,
@@ -2498,12 +2683,17 @@ def build_qa(
                     path.relative_to(MOD_ROOT).as_posix()
                     for path in RETIRED_YONE_V4_BODY_SOURCES
                 ],
-                "v4_status": "both V4 ImageGen body sources and the entire old native route are retired; build_actor loads only exact-native-v6",
+                "v4_status": "both V4 ImageGen body sources and the entire old native route are retired; build_actor loads only dual-sword-v7",
                 "v5": [
                     path.relative_to(MOD_ROOT).as_posix()
                     for path in RETIRED_YONE_V5_BODY_SOURCES
                 ],
-                "v5_status": "all V5 ImageGen/native body inputs are retired negative-contract paths; build_actor loads only exact-native-v6",
+                "v5_status": "all V5 ImageGen/native body inputs are retired negative-contract paths; build_actor loads only dual-sword-v7",
+                "v6_battle": [
+                    path.relative_to(MOD_ROOT).as_posix()
+                    for path in RETIRED_YONE_V6_BODY_SOURCES
+                ],
+                "v6_battle_status": "old V6 battle contacts and native frames are physically retired; the separate high-resolution V6 UI portrait source remains active",
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
@@ -2520,15 +2710,15 @@ def build_qa(
     write_json(
         provenance_path,
         {
-            "schema_version": 6,
+            "schema_version": 7,
             "champion": "Yone",
             "generator": "built-in image_gen followed by final-scale native pixel authorship",
-            "generated_on": "2026-07-20",
-            "processing": "exact-native-v6: 54 final 1x RGBA body PNGs are palette-validated and copied byte-for-byte to official Dual Blader rectangles; no body crop, resize, quantize, repaint, chroma key or V3/V4/V5 body fallback",
+            "generated_on": "2026-07-22",
+            "processing": "dual-sword-v7: 67 final 1x RGBA body PNGs preserve the 54-frame native prefix and add isolated Azakana-AA/Q3 frames in an atlas extension; build-time packing is byte-identical",
             "body_source": native_manifest_contract,
             "body_frames": native_frame_source_contracts,
             "body_imagegen_inputs": [
-                image_record(path) for path in YONE_V6_BODY_IMAGEGEN_SOURCES
+                image_record(path) for path in YONE_V7_BODY_IMAGEGEN_SOURCES
             ],
             "ui_only_imagegen_inputs": [
                 {
@@ -2541,12 +2731,13 @@ def build_qa(
                 for path in (
                     *RETIRED_YONE_V4_BODY_SOURCES,
                     *RETIRED_YONE_V5_BODY_SOURCES,
+                    *RETIRED_YONE_V6_BODY_SOURCES,
                 )
             ],
             "sources": [
                 image_record(path)
                 for path in (
-                    *YONE_V6_IMAGEGEN_SOURCES,
+                    *YONE_V7_IMAGEGEN_SOURCES,
                     QW_VFX_SOURCE,
                     W_VFX_SOURCE,
                     Q3_VFX_SOURCE,
@@ -2564,20 +2755,23 @@ def build_qa(
     visual_md.write_bytes((
         "# Yone visual QA\n\n"
         "- [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).\n"
-        "- [x] Actor canvas is exactly `3502x88`; all 13 native tags, frame counts, durations, rectangles, and insertion order are preserved.\n"
+        "- [x] Actor canvas is `4262x88`; the original `3502x88` native prefix and all 13 native tags/rectangles/timings are unchanged, with five explicit semantic tags appended.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
         "- [x] Idle/run/attack/Q/W/R/dead bodies retain one stable battle scale.\n"
-        "- [x] All 54 visible body poses come only from `source/native/yone_v6/frames.json`; V3/V4/V5 are retired and cannot be selected as fallbacks.\n"
+        "- [x] All 67 physical body poses come only from `source/native/yone_v7/frames.json`; V3/V4/V5/V6 battle-body routes are retired and cannot be selected as fallbacks.\n"
         "- [x] `source/imagegen/yone_v4_action_contact.png`, `source/imagegen/yone_v4_idle_candidate_43x55.png`, and the old `source/native/yone_v4` route are retired body inputs and are never loaded by this builder.\n"
         "- [x] V5 body inputs `yone_v5_idle_source.png`, `yone_v5_idle_golden_43x55.png`, `yone_v5_motion_contact.png`, `yone_v5_attack_q_w_contact.png`, `yone_v5_q5_contact.png`, `yone_v5_ult_contact.png`, and the complete `source/native/yone_v5` route are retired and never loaded.\n"
-        "- [x] Every V6 pose is authored at its exact final native rectangle, palette-validated, and copied byte-for-byte with no crop, resize, quantization, chroma key, repaint, or V3/V4/V5 fallback.\n"
-        "- [x] The V6 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without any post-scale face repaint.\n"
-        "- [x] The body preview is the complete opaque `141x138` card chrome and proves the exact idle[0] 2.2x NEAREST actor render, divider clearance, and right-side icon exclusion.\n"
+        "- [x] Every V7 pose is authored at final 1x size, palette-validated, and copied byte-for-byte; only source-to-native generation performs a single controlled resize.\n"
+        "- [x] The V7 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without post-scale face repaint.\n"
+        "- [x] The body preview proves the exact idle[0] 2.2x NEAREST battle render and divider clearance; dedicated UI portraits own the right-side icon exclusion.\n"
+        "- [x] Idle/run keep compact silver and red swords simultaneously visible; basic attacks switch between separate six-frame steel and Azakana tags.\n"
+        "- [x] The fixed palette declares disjoint steel dark/mid/highlight and Azakana dark/red/highlight role ramps; CI reads the final 1x PNG pixels and enforces per-frame neutral dual-sword cues plus active-blade reach for steel attack, Azakana attack, Q/Q3, W, and R.\n"
+        "- [x] Q1/Q2 use `skill_q12`, Q3 uses a separate lowered `skill_q3`, W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
         "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five exact-native V6 sweep poses; no code-drawn body, arm or blade is added during packing.\n"
+        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five V7 Azakana-led sweep poses; no code-drawn body is added during packing.\n"
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
@@ -2671,11 +2865,14 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     actor_sheet = ACTOR_DIR / "yone#sheet.png"
     actor_anim = ACTOR_DIR / "yone#anim.fanim"
     if Image.open(actor_sheet).size != ACTOR_SHEET_SIZE:
-        raise ValueError("Yone actor canvas is not the native 3502x88 size")
+        raise ValueError("Yone actor canvas is not the V7 4262x88 size")
     payload = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
-    if list(payload) != list(NATIVE_CONTRACT):
-        raise ValueError("Yone actor tag insertion order changed native Dual Blader contract")
-    for tag, spec in NATIVE_CONTRACT.items():
+    expected_tags = [*NATIVE_CONTRACT, *CUSTOM_ACTION_CONTRACT]
+    if list(payload) != expected_tags:
+        raise ValueError(
+            "Yone actor tag order changed native-prefix/custom-extension contract"
+        )
+    for tag, spec in {**NATIVE_CONTRACT, **CUSTOM_ACTION_CONTRACT}.items():
         frames = payload[tag]["frames"]
         if [row["duration"] for row in frames] != spec["durations"]:
             raise ValueError(f"Yone {tag} durations changed")
@@ -2685,7 +2882,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
     sheet = Image.open(actor_sheet).convert("RGBA")
     native_source_frames, _, native_frame_source_contracts = (
-        _load_native_v6_body_frames()
+        _load_native_v7_body_frames()
     )
 
     native_edge_ratios: list[float] = []
@@ -2709,7 +2906,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             raise ValueError(
                 f"Yone {tag}[{index}] contains non-binary alpha: {quality['alpha_values']}"
             )
-        if quality["opaque_palette_size"] > NATIVE_V6_MAX_OPAQUE_COLORS:
+        if quality["opaque_palette_size"] > NATIVE_V7_MAX_OPAQUE_COLORS:
             raise ValueError(
                 f"Yone {tag}[{index}] uses {quality['opaque_palette_size']} opaque colors"
             )
@@ -2726,9 +2923,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
                 raise ValueError(
                     f"Yone {tag}[{index}] native color construction is too flat: {quality}"
                 )
-    if native_identity_count != 54:
+    if native_identity_count != GENERATED_BODY_FRAME_COUNT:
         raise ValueError(
-            f"Yone native identity audit covered {native_identity_count}/54 body frames"
+            "Yone V7 identity audit covered "
+            f"{native_identity_count}/{GENERATED_BODY_FRAME_COUNT} body frames"
         )
     median_edge = sorted(native_edge_ratios)[len(native_edge_ratios) // 2]
     median_fill = sorted(native_fill_ratios)[len(native_fill_ratios) // 2]
@@ -2768,31 +2966,37 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     # attack[1..3].  Body height/bbox checks alone cannot detect that failure,
     # so require one significant connected subject, only tiny residual edge
     # specks, and real pose variation across the six native attack frames.
-    attack_hashes: set[str] = set()
-    for index, row in enumerate(payload["attack"]["frames"]):
-        data = row["data"]
-        frame = sheet.crop(
-            (
-                data["x"], data["y"],
-                data["x"] + data["w"], data["y"] + data["h"],
+    attack_sequence_hashes: dict[str, set[str]] = {}
+    for tag in ("attack_steel", "attack_azakana"):
+        pose_hashes: set[str] = set()
+        for index, row in enumerate(payload[tag]["frames"]):
+            data = row["data"]
+            frame = sheet.crop(
+                (
+                    data["x"], data["y"],
+                    data["x"] + data["w"], data["y"] + data["h"],
+                )
             )
-        )
-        component_sizes = [len(component) for component in alpha_components(frame)]
-        significant = [size for size in component_sizes if size > 16]
-        if len(significant) != 1:
+            component_sizes = [len(component) for component in alpha_components(frame)]
+            significant = [size for size in component_sizes if size > 16]
+            if len(significant) != 1:
+                raise ValueError(
+                    f"Yone {tag}[{index}] must contain one actor, got components "
+                    f"{component_sizes[:6]}"
+                )
+            stray_area = sum(component_sizes[1:])
+            if stray_area > 24:
+                raise ValueError(
+                    f"Yone {tag}[{index}] retained {stray_area}px of detached debris"
+                )
+            pose_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
+        if len(pose_hashes) < 5:
             raise ValueError(
-                f"Yone attack[{index}] must contain one actor, got components {component_sizes[:6]}"
+                f"Yone {tag} lost pose variation: {len(pose_hashes)}/6 unique"
             )
-        stray_area = sum(component_sizes[1:])
-        if stray_area > 24:
-            raise ValueError(
-                f"Yone attack[{index}] retained {stray_area}px of detached source-grid debris"
-            )
-        attack_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
-    if len(attack_hashes) < 5:
-        raise ValueError(
-            f"Yone attack lost pose variation: only {len(attack_hashes)}/6 unique frames"
-        )
+        attack_sequence_hashes[tag] = pose_hashes
+    if attack_sequence_hashes["attack_steel"] == attack_sequence_hashes["attack_azakana"]:
+        raise ValueError("Yone steel and Azakana attack sequences are identical")
 
     w_pose_hashes: set[str] = set()
     for row in payload["skill2_attack"]["frames"]:
@@ -2808,7 +3012,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         w_pose_hashes.add(hashlib.sha256(frame.tobytes()).hexdigest())
     if len(w_pose_hashes) < 4:
         raise ValueError(
-            f"Yone V6 W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
+            f"Yone V7 W lost sweep motion: {len(w_pose_hashes)}/5 unique native poses"
         )
 
     native_core_bottoms = {
@@ -2876,12 +3080,14 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             "skill2_attack",
             "run",
             "skill",
+            "attack_azakana",
+            "skill_q3",
         } and not foot_zones:
             raise ValueError(f"Yone V6 {frame_name} lacks foot-zone annotations")
-    if annotation_count != NATIVE_BODY_FRAME_COUNT:
+    if annotation_count != GENERATED_BODY_FRAME_COUNT:
         raise ValueError(
-            "Yone V6 annotation validation covered "
-            f"{annotation_count}/{NATIVE_BODY_FRAME_COUNT} frames"
+            "Yone V7 annotation validation covered "
+            f"{annotation_count}/{GENERATED_BODY_FRAME_COUNT} frames"
         )
 
     # Replay the measured renderer route from the user's screenshots.  Every
@@ -3125,18 +3331,19 @@ def build_all() -> list[Path]:
         for path in (
             *RETIRED_YONE_V4_BODY_SOURCES,
             *RETIRED_YONE_V5_BODY_SOURCES,
+            *RETIRED_YONE_V6_BODY_SOURCES,
         )
         if path.exists()
     ]
     if stale_body_sources:
         raise ValueError(
-            "Retired Yone V4/V5 body sources must be physically removed; "
-            "exact-native-v6 has no fallback route:\n"
+            "Retired Yone V4/V5/V6 battle-body sources must be physically removed; "
+            "dual-sword-v7 has no fallback route:\n"
             + "\n".join(str(path) for path in stale_body_sources)
         )
     required = [
-        NATIVE_V6_MANIFEST,
-        *YONE_V6_BODY_IMAGEGEN_SOURCES,
+        NATIVE_V7_MANIFEST,
+        *YONE_V7_BODY_IMAGEGEN_SOURCES,
         YONE_V6_UI_SOURCE,
         QW_VFX_SOURCE, W_VFX_SOURCE, Q3_VFX_SOURCE, R_VFX_SOURCE,
         ICON_SOURCE, SPLASH_SOURCE,
@@ -3144,7 +3351,7 @@ def build_all() -> list[Path]:
     missing = [path for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(
-            "Missing Yone V6/VFX sources (the retired V3/V4/V5 body routes are not fallbacks):\n"
+            "Missing Yone V7/VFX sources (the retired V3/V4/V5/V6 battle-body routes are not fallbacks):\n"
             + "\n".join(str(path) for path in missing)
         )
     processed = process_sources()

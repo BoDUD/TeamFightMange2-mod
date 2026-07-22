@@ -1,0 +1,3331 @@
+{
+  "schema_version": 7,
+  "route": "dual-sword-v7",
+  "frame_count": 67,
+  "contact_preview": "preview/yone_v7_native_contact.png",
+  "source_hashes": {
+    "motion": "ab2bfe217a397384fc6738647b2a8c6a561e942e78ee4e3509ceb99eb217cb71",
+    "attack_q": "81642ff3780139b966c4646060882aa33c416d56fd5f4dfcea3a86e556a60cd1",
+    "w": "5cfa46346cb29e728a7195dbdd98b4b9ff84c3c32e4cd887c1fd1dcec53967c0",
+    "ult": "588a38ec088a84fc899abf8f0fb86c85719f58b7b624a6bbb2fdd008027959e4"
+  },
+  "source_layouts": {
+    "motion": [
+      5,
+      4
+    ],
+    "attack_q": [
+      6,
+      4
+    ],
+    "w": [
+      3,
+      2
+    ],
+    "ult": [
+      5,
+      3
+    ]
+  },
+  "source_to_native_resampling": "LANCZOS",
+  "hard_alpha_threshold": 96,
+  "opaque_palette_size": 48,
+  "face_visibility_values": [
+    "front",
+    "profile",
+    "hidden"
+  ],
+  "idle0_pixel_sha256": "4819792cfb36924103598a97e1f95e75eeda97498d00ac468e936f3e4ea0fc49",
+  "card_alpha_bbox": [
+    0,
+    0,
+    141,
+    138
+  ],
+  "failures": [],
+  "frames": [
+    {
+      "action": "skill2",
+      "index": 0,
+      "source": "w",
+      "cell": 5,
+      "size": [
+        31,
+        49
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 614,
+      "bbox_width": 29,
+      "bbox_height": 37,
+      "core_width_p50": 18,
+      "body_density": 0.5722,
+      "luminance_contrast_p80": 80.66,
+      "dark_ratio": 0.7248,
+      "bright_ratio": 0.0358,
+      "source_subject_size": [
+        286,
+        305
+      ],
+      "direct_resize_size": [
+        36,
+        38
+      ],
+      "pelvis_center_x": 160.0,
+      "paste_xy": [
+        -5,
+        6
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 7,
+      "horizontal_crop_ratio": 0.1944,
+      "alpha_bbox": [
+        1,
+        7,
+        30,
+        44
+      ]
+    },
+    {
+      "action": "hit",
+      "index": 0,
+      "source": "motion",
+      "cell": 4,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        41,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 775,
+      "bbox_width": 41,
+      "bbox_height": 37,
+      "core_width_p50": 28,
+      "body_density": 0.5109,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7639,
+      "bright_ratio": 0.0516,
+      "source_subject_size": [
+        222,
+        192
+      ],
+      "direct_resize_size": [
+        43,
+        37
+      ],
+      "pelvis_center_x": 106.0,
+      "paste_xy": [
+        -1,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 2,
+      "horizontal_crop_ratio": 0.0465,
+      "alpha_bbox": [
+        1,
+        1,
+        42,
+        38
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 0,
+      "source": "attack_q",
+      "cell": 0,
+      "size": [
+        45,
+        51
+      ],
+      "visible_size": [
+        26,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 567,
+      "bbox_width": 26,
+      "bbox_height": 36,
+      "core_width_p50": 18,
+      "body_density": 0.6058,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7496,
+      "bright_ratio": 0.0511,
+      "source_subject_size": [
+        147,
+        203
+      ],
+      "direct_resize_size": [
+        26,
+        36
+      ],
+      "pelvis_center_x": 72.0,
+      "paste_xy": [
+        8,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        8,
+        1,
+        34,
+        37
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 1,
+      "source": "attack_q",
+      "cell": 1,
+      "size": [
+        49,
+        51
+      ],
+      "visible_size": [
+        34,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 606,
+      "bbox_width": 34,
+      "bbox_height": 36,
+      "core_width_p50": 19,
+      "body_density": 0.4951,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7195,
+      "bright_ratio": 0.0611,
+      "source_subject_size": [
+        190,
+        203
+      ],
+      "direct_resize_size": [
+        34,
+        36
+      ],
+      "pelvis_center_x": 106.0,
+      "paste_xy": [
+        5,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        5,
+        1,
+        39,
+        37
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 2,
+      "source": "attack_q",
+      "cell": 2,
+      "size": [
+        59,
+        47
+      ],
+      "visible_size": [
+        44,
+        34
+      ],
+      "bottom_margin": 12,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 605,
+      "bbox_width": 44,
+      "bbox_height": 34,
+      "core_width_p50": 19,
+      "body_density": 0.4044,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.6876,
+      "bright_ratio": 0.076,
+      "source_subject_size": [
+        248,
+        193
+      ],
+      "direct_resize_size": [
+        44,
+        34
+      ],
+      "pelvis_center_x": 108.0,
+      "paste_xy": [
+        11,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        11,
+        1,
+        55,
+        35
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 3,
+      "source": "attack_q",
+      "cell": 3,
+      "size": [
+        59,
+        49
+      ],
+      "visible_size": [
+        38,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 576,
+      "bbox_width": 38,
+      "bbox_height": 35,
+      "core_width_p50": 18,
+      "body_density": 0.4331,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7483,
+      "bright_ratio": 0.0694,
+      "source_subject_size": [
+        261,
+        202
+      ],
+      "direct_resize_size": [
+        45,
+        35
+      ],
+      "pelvis_center_x": 133.0,
+      "paste_xy": [
+        7,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        14,
+        1,
+        52,
+        36
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 4,
+      "source": "attack_q",
+      "cell": 4,
+      "size": [
+        61,
+        49
+      ],
+      "visible_size": [
+        31,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 502,
+      "bbox_width": 31,
+      "bbox_height": 35,
+      "core_width_p50": 18,
+      "body_density": 0.4627,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7092,
+      "bright_ratio": 0.0578,
+      "source_subject_size": [
+        240,
+        204
+      ],
+      "direct_resize_size": [
+        41,
+        35
+      ],
+      "pelvis_center_x": 124.0,
+      "paste_xy": [
+        9,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        19,
+        1,
+        50,
+        36
+      ]
+    },
+    {
+      "action": "attack",
+      "index": 5,
+      "source": "attack_q",
+      "cell": 5,
+      "size": [
+        51,
+        51
+      ],
+      "visible_size": [
+        32,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 587,
+      "bbox_width": 32,
+      "bbox_height": 36,
+      "core_width_p50": 18,
+      "body_density": 0.5095,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7308,
+      "bright_ratio": 0.0545,
+      "source_subject_size": [
+        181,
+        204
+      ],
+      "direct_resize_size": [
+        32,
+        36
+      ],
+      "pelvis_center_x": 75.0,
+      "paste_xy": [
+        11,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        11,
+        1,
+        43,
+        37
+      ]
+    },
+    {
+      "action": "skill2_dash",
+      "index": 0,
+      "source": "attack_q",
+      "cell": 20,
+      "size": [
+        43,
+        43
+      ],
+      "visible_size": [
+        38,
+        36
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 828,
+      "bbox_width": 38,
+      "bbox_height": 36,
+      "core_width_p50": 29,
+      "body_density": 0.6053,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7476,
+      "bright_ratio": 0.0604,
+      "source_subject_size": [
+        204,
+        166
+      ],
+      "direct_resize_size": [
+        44,
+        36
+      ],
+      "pelvis_center_x": 121.0,
+      "paste_xy": [
+        -5,
+        3
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 6,
+      "horizontal_crop_ratio": 0.1364,
+      "alpha_bbox": [
+        1,
+        3,
+        39,
+        39
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 0,
+      "source": "ult",
+      "cell": 0,
+      "size": [
+        49,
+        51
+      ],
+      "visible_size": [
+        28,
+        37
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 41,
+      "opaque_pixels": 584,
+      "bbox_width": 28,
+      "bbox_height": 37,
+      "core_width_p50": 17,
+      "body_density": 0.5637,
+      "luminance_contrast_p80": 111.92,
+      "dark_ratio": 0.7295,
+      "bright_ratio": 0.0479,
+      "source_subject_size": [
+        181,
+        236
+      ],
+      "direct_resize_size": [
+        28,
+        37
+      ],
+      "pelvis_center_x": 88.0,
+      "paste_xy": [
+        9,
+        9
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        9,
+        9,
+        37,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 1,
+      "source": "ult",
+      "cell": 1,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        51,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 1096,
+      "bbox_width": 51,
+      "bbox_height": 38,
+      "core_width_p50": 36,
+      "body_density": 0.5655,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7308,
+      "bright_ratio": 0.0602,
+      "source_subject_size": [
+        250,
+        168
+      ],
+      "direct_resize_size": [
+        57,
+        38
+      ],
+      "pelvis_center_x": 150.0,
+      "paste_xy": [
+        -5,
+        9
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 6,
+      "horizontal_crop_ratio": 0.1053,
+      "alpha_bbox": [
+        1,
+        9,
+        52,
+        47
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 2,
+      "source": "ult",
+      "cell": 2,
+      "size": [
+        59,
+        57
+      ],
+      "visible_size": [
+        37,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 647,
+      "bbox_width": 37,
+      "bbox_height": 38,
+      "core_width_p50": 17,
+      "body_density": 0.4602,
+      "luminance_contrast_p80": 118.18,
+      "dark_ratio": 0.7141,
+      "bright_ratio": 0.0665,
+      "source_subject_size": [
+        276,
+        215
+      ],
+      "direct_resize_size": [
+        49,
+        38
+      ],
+      "pelvis_center_x": 110.0,
+      "paste_xy": [
+        10,
+        11
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "horizontal_crop_ratio": 0.0204,
+      "alpha_bbox": [
+        10,
+        11,
+        47,
+        49
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 3,
+      "source": "ult",
+      "cell": 3,
+      "size": [
+        61,
+        53
+      ],
+      "visible_size": [
+        58,
+        38
+      ],
+      "bottom_margin": 10,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 887,
+      "bbox_width": 58,
+      "bbox_height": 38,
+      "core_width_p50": 32,
+      "body_density": 0.4025,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7384,
+      "bright_ratio": 0.0496,
+      "source_subject_size": [
+        313,
+        191
+      ],
+      "direct_resize_size": [
+        62,
+        38
+      ],
+      "pelvis_center_x": 147.0,
+      "paste_xy": [
+        2,
+        5
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 4,
+      "horizontal_crop_ratio": 0.0645,
+      "alpha_bbox": [
+        2,
+        5,
+        60,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 4,
+      "source": "ult",
+      "cell": 4,
+      "size": [
+        51,
+        51
+      ],
+      "visible_size": [
+        46,
+        37
+      ],
+      "bottom_margin": 12,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 712,
+      "bbox_width": 46,
+      "bbox_height": 37,
+      "core_width_p50": 24,
+      "body_density": 0.4183,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7528,
+      "bright_ratio": 0.0716,
+      "source_subject_size": [
+        277,
+        201
+      ],
+      "direct_resize_size": [
+        51,
+        37
+      ],
+      "pelvis_center_x": 118.0,
+      "paste_xy": [
+        4,
+        2
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 5,
+      "horizontal_crop_ratio": 0.098,
+      "alpha_bbox": [
+        4,
+        2,
+        50,
+        39
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 5,
+      "source": "ult",
+      "cell": 5,
+      "size": [
+        59,
+        47
+      ],
+      "visible_size": [
+        52,
+        35
+      ],
+      "bottom_margin": 11,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 728,
+      "bbox_width": 52,
+      "bbox_height": 35,
+      "core_width_p50": 28,
+      "body_density": 0.4,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7651,
+      "bright_ratio": 0.0508,
+      "source_subject_size": [
+        290,
+        189
+      ],
+      "direct_resize_size": [
+        54,
+        35
+      ],
+      "pelvis_center_x": 124.0,
+      "paste_xy": [
+        6,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 2,
+      "horizontal_crop_ratio": 0.037,
+      "alpha_bbox": [
+        6,
+        1,
+        58,
+        36
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 6,
+      "source": "ult",
+      "cell": 6,
+      "size": [
+        59,
+        49
+      ],
+      "visible_size": [
+        40,
+        25
+      ],
+      "bottom_margin": 9,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 37,
+      "opaque_pixels": 376,
+      "bbox_width": 40,
+      "bbox_height": 25,
+      "core_width_p50": 20,
+      "body_density": 0.376,
+      "luminance_contrast_p80": 111.92,
+      "dark_ratio": 0.7394,
+      "bright_ratio": 0.0399,
+      "source_subject_size": [
+        313,
+        294
+      ],
+      "direct_resize_size": [
+        40,
+        38
+      ],
+      "pelvis_center_x": 112.0,
+      "paste_xy": [
+        14,
+        2
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        14,
+        15,
+        54,
+        40
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 7,
+      "source": "ult",
+      "cell": 7,
+      "size": [
+        61,
+        53
+      ],
+      "visible_size": [
+        57,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 859,
+      "bbox_width": 57,
+      "bbox_height": 38,
+      "core_width_p50": 27,
+      "body_density": 0.3966,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7451,
+      "bright_ratio": 0.0489,
+      "source_subject_size": [
+        314,
+        191
+      ],
+      "direct_resize_size": [
+        62,
+        38
+      ],
+      "pelvis_center_x": 134.0,
+      "paste_xy": [
+        3,
+        8
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 5,
+      "horizontal_crop_ratio": 0.0806,
+      "alpha_bbox": [
+        3,
+        8,
+        60,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 8,
+      "source": "ult",
+      "cell": 8,
+      "size": [
+        55,
+        57
+      ],
+      "visible_size": [
+        34,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 41,
+      "opaque_pixels": 326,
+      "bbox_width": 34,
+      "bbox_height": 38,
+      "core_width_p50": 14,
+      "body_density": 0.2523,
+      "luminance_contrast_p80": 112.38,
+      "dark_ratio": 0.7209,
+      "bright_ratio": 0.0399,
+      "source_subject_size": [
+        313,
+        304
+      ],
+      "direct_resize_size": [
+        39,
+        38
+      ],
+      "pelvis_center_x": 144.0,
+      "paste_xy": [
+        9,
+        13
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        14,
+        13,
+        48,
+        51
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 9,
+      "source": "ult",
+      "cell": 9,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        35,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 346,
+      "bbox_width": 35,
+      "bbox_height": 38,
+      "core_width_p50": 16,
+      "body_density": 0.2602,
+      "luminance_contrast_p80": 112.38,
+      "dark_ratio": 0.7572,
+      "bright_ratio": 0.0434,
+      "source_subject_size": [
+        279,
+        304
+      ],
+      "direct_resize_size": [
+        35,
+        38
+      ],
+      "pelvis_center_x": 85.0,
+      "paste_xy": [
+        19,
+        8
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        19,
+        8,
+        54,
+        46
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 10,
+      "source": "ult",
+      "cell": 10,
+      "size": [
+        59,
+        51
+      ],
+      "visible_size": [
+        53,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 911,
+      "bbox_width": 53,
+      "bbox_height": 38,
+      "core_width_p50": 28,
+      "body_density": 0.4523,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7618,
+      "bright_ratio": 0.0527,
+      "source_subject_size": [
+        278,
+        183
+      ],
+      "direct_resize_size": [
+        58,
+        38
+      ],
+      "pelvis_center_x": 122.0,
+      "paste_xy": [
+        5,
+        5
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 5,
+      "horizontal_crop_ratio": 0.0862,
+      "alpha_bbox": [
+        5,
+        5,
+        58,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 11,
+      "source": "ult",
+      "cell": 11,
+      "size": [
+        61,
+        49
+      ],
+      "visible_size": [
+        50,
+        38
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 733,
+      "bbox_width": 50,
+      "bbox_height": 38,
+      "core_width_p50": 21,
+      "body_density": 0.3858,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7353,
+      "bright_ratio": 0.06,
+      "source_subject_size": [
+        313,
+        212
+      ],
+      "direct_resize_size": [
+        56,
+        38
+      ],
+      "pelvis_center_x": 158.0,
+      "paste_xy": [
+        2,
+        5
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        8,
+        5,
+        58,
+        43
+      ]
+    },
+    {
+      "action": "ult",
+      "index": 12,
+      "source": "ult",
+      "cell": 12,
+      "size": [
+        53,
+        51
+      ],
+      "visible_size": [
+        51,
+        37
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 692,
+      "bbox_width": 51,
+      "bbox_height": 37,
+      "core_width_p50": 22,
+      "body_density": 0.3667,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.6994,
+      "bright_ratio": 0.0636,
+      "source_subject_size": [
+        314,
+        212
+      ],
+      "direct_resize_size": [
+        55,
+        37
+      ],
+      "pelvis_center_x": 145.0,
+      "paste_xy": [
+        0,
+        9
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 4,
+      "horizontal_crop_ratio": 0.0727,
+      "alpha_bbox": [
+        1,
+        9,
+        52,
+        46
+      ]
+    },
+    {
+      "action": "run",
+      "index": 0,
+      "source": "motion",
+      "cell": 5,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        33,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 654,
+      "bbox_width": 33,
+      "bbox_height": 35,
+      "core_width_p50": 24,
+      "body_density": 0.5662,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7829,
+      "bright_ratio": 0.0627,
+      "source_subject_size": [
+        185,
+        192
+      ],
+      "direct_resize_size": [
+        34,
+        35
+      ],
+      "pelvis_center_x": 104.0,
+      "paste_xy": [
+        0,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "horizontal_crop_ratio": 0.0294,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        36
+      ]
+    },
+    {
+      "action": "run",
+      "index": 1,
+      "source": "motion",
+      "cell": 6,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        31,
+        32
+      ],
+      "bottom_margin": 18,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 556,
+      "bbox_width": 31,
+      "bbox_height": 32,
+      "core_width_p50": 22,
+      "body_density": 0.5605,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.786,
+      "bright_ratio": 0.0576,
+      "source_subject_size": [
+        185,
+        192
+      ],
+      "direct_resize_size": [
+        31,
+        32
+      ],
+      "pelvis_center_x": 104.0,
+      "paste_xy": [
+        2,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        2,
+        1,
+        33,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 2,
+      "source": "motion",
+      "cell": 7,
+      "size": [
+        39,
+        53
+      ],
+      "visible_size": [
+        32,
+        32
+      ],
+      "bottom_margin": 20,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 559,
+      "bbox_width": 32,
+      "bbox_height": 32,
+      "core_width_p50": 23,
+      "body_density": 0.5459,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7764,
+      "bright_ratio": 0.0608,
+      "source_subject_size": [
+        189,
+        188
+      ],
+      "direct_resize_size": [
+        32,
+        32
+      ],
+      "pelvis_center_x": 101.0,
+      "paste_xy": [
+        3,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        3,
+        1,
+        35,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 3,
+      "source": "motion",
+      "cell": 8,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        33,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 592,
+      "bbox_width": 33,
+      "bbox_height": 33,
+      "core_width_p50": 23,
+      "body_density": 0.5436,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7753,
+      "bright_ratio": 0.0574,
+      "source_subject_size": [
+        190,
+        188
+      ],
+      "direct_resize_size": [
+        33,
+        33
+      ],
+      "pelvis_center_x": 103.0,
+      "paste_xy": [
+        1,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        34
+      ]
+    },
+    {
+      "action": "run",
+      "index": 4,
+      "source": "motion",
+      "cell": 7,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        34,
+        35
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 663,
+      "bbox_width": 34,
+      "bbox_height": 35,
+      "core_width_p50": 24,
+      "body_density": 0.5571,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7768,
+      "bright_ratio": 0.0633,
+      "source_subject_size": [
+        189,
+        188
+      ],
+      "direct_resize_size": [
+        35,
+        35
+      ],
+      "pelvis_center_x": 101.0,
+      "paste_xy": [
+        0,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "horizontal_crop_ratio": 0.0286,
+      "alpha_bbox": [
+        1,
+        1,
+        35,
+        36
+      ]
+    },
+    {
+      "action": "run",
+      "index": 5,
+      "source": "motion",
+      "cell": 6,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        32,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 587,
+      "bbox_width": 32,
+      "bbox_height": 33,
+      "core_width_p50": 23,
+      "body_density": 0.5559,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7836,
+      "bright_ratio": 0.0579,
+      "source_subject_size": [
+        185,
+        192
+      ],
+      "direct_resize_size": [
+        32,
+        33
+      ],
+      "pelvis_center_x": 104.0,
+      "paste_xy": [
+        1,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        1,
+        1,
+        33,
+        34
+      ]
+    },
+    {
+      "action": "run",
+      "index": 6,
+      "source": "motion",
+      "cell": 5,
+      "size": [
+        39,
+        53
+      ],
+      "visible_size": [
+        31,
+        32
+      ],
+      "bottom_margin": 20,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 550,
+      "bbox_width": 31,
+      "bbox_height": 32,
+      "core_width_p50": 22,
+      "body_density": 0.5544,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7764,
+      "bright_ratio": 0.0618,
+      "source_subject_size": [
+        185,
+        192
+      ],
+      "direct_resize_size": [
+        31,
+        32
+      ],
+      "pelvis_center_x": 104.0,
+      "paste_xy": [
+        3,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        3,
+        1,
+        34,
+        33
+      ]
+    },
+    {
+      "action": "run",
+      "index": 7,
+      "source": "motion",
+      "cell": 8,
+      "size": [
+        39,
+        51
+      ],
+      "visible_size": [
+        33,
+        33
+      ],
+      "bottom_margin": 17,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 45,
+      "opaque_pixels": 592,
+      "bbox_width": 33,
+      "bbox_height": 33,
+      "core_width_p50": 23,
+      "body_density": 0.5436,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7753,
+      "bright_ratio": 0.0574,
+      "source_subject_size": [
+        190,
+        188
+      ],
+      "direct_resize_size": [
+        33,
+        33
+      ],
+      "pelvis_center_x": 103.0,
+      "paste_xy": [
+        1,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        1,
+        1,
+        34,
+        34
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 0,
+      "source": "w",
+      "cell": 5,
+      "size": [
+        31,
+        43
+      ],
+      "visible_size": [
+        28,
+        35
+      ],
+      "bottom_margin": 3,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 552,
+      "bbox_width": 28,
+      "bbox_height": 35,
+      "core_width_p50": 17,
+      "body_density": 0.5633,
+      "luminance_contrast_p80": 112.38,
+      "dark_ratio": 0.7355,
+      "bright_ratio": 0.0344,
+      "source_subject_size": [
+        286,
+        305
+      ],
+      "direct_resize_size": [
+        34,
+        36
+      ],
+      "pelvis_center_x": 160.0,
+      "paste_xy": [
+        -5,
+        4
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 6,
+      "horizontal_crop_ratio": 0.1765,
+      "alpha_bbox": [
+        1,
+        5,
+        29,
+        40
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 1,
+      "source": "w",
+      "cell": 0,
+      "size": [
+        31,
+        45
+      ],
+      "visible_size": [
+        28,
+        36
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 39,
+      "opaque_pixels": 566,
+      "bbox_width": 28,
+      "bbox_height": 36,
+      "core_width_p50": 17,
+      "body_density": 0.5615,
+      "luminance_contrast_p80": 58.84,
+      "dark_ratio": 0.7085,
+      "bright_ratio": 0.0424,
+      "source_subject_size": [
+        287,
+        317
+      ],
+      "direct_resize_size": [
+        33,
+        37
+      ],
+      "pelvis_center_x": 161.0,
+      "paste_xy": [
+        -4,
+        4
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 5,
+      "horizontal_crop_ratio": 0.1515,
+      "alpha_bbox": [
+        1,
+        5,
+        29,
+        41
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 2,
+      "source": "w",
+      "cell": 1,
+      "size": [
+        59,
+        53
+      ],
+      "visible_size": [
+        29,
+        38
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 38,
+      "opaque_pixels": 392,
+      "bbox_width": 29,
+      "bbox_height": 38,
+      "core_width_p50": 15,
+      "body_density": 0.3557,
+      "luminance_contrast_p80": 58.38,
+      "dark_ratio": 0.7117,
+      "bright_ratio": 0.0204,
+      "source_subject_size": [
+        462,
+        376
+      ],
+      "direct_resize_size": [
+        47,
+        38
+      ],
+      "pelvis_center_x": 116.0,
+      "paste_xy": [
+        18,
+        7
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 7,
+      "horizontal_crop_ratio": 0.1489,
+      "alpha_bbox": [
+        18,
+        7,
+        47,
+        45
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 3,
+      "source": "w",
+      "cell": 2,
+      "size": [
+        59,
+        55
+      ],
+      "visible_size": [
+        47,
+        38
+      ],
+      "bottom_margin": 9,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 681,
+      "bbox_width": 47,
+      "bbox_height": 38,
+      "core_width_p50": 21,
+      "body_density": 0.3813,
+      "luminance_contrast_p80": 64.64,
+      "dark_ratio": 0.746,
+      "bright_ratio": 0.0411,
+      "source_subject_size": [
+        428,
+        283
+      ],
+      "direct_resize_size": [
+        57,
+        38
+      ],
+      "pelvis_center_x": 135.0,
+      "paste_xy": [
+        11,
+        8
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 10,
+      "horizontal_crop_ratio": 0.1754,
+      "alpha_bbox": [
+        11,
+        8,
+        58,
+        46
+      ]
+    },
+    {
+      "action": "skill2_attack",
+      "index": 4,
+      "source": "w",
+      "cell": 3,
+      "size": [
+        57,
+        51
+      ],
+      "visible_size": [
+        46,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 654,
+      "bbox_width": 46,
+      "bbox_height": 38,
+      "core_width_p50": 21,
+      "body_density": 0.3741,
+      "luminance_contrast_p80": 58.84,
+      "dark_ratio": 0.763,
+      "bright_ratio": 0.0291,
+      "source_subject_size": [
+        354,
+        285
+      ],
+      "direct_resize_size": [
+        47,
+        38
+      ],
+      "pelvis_center_x": 204.0,
+      "paste_xy": [
+        0,
+        6
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 1,
+      "horizontal_crop_ratio": 0.0213,
+      "alpha_bbox": [
+        1,
+        6,
+        47,
+        44
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 0,
+      "source": "motion",
+      "cell": 0,
+      "size": [
+        43,
+        55
+      ],
+      "visible_size": [
+        30,
+        38
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 660,
+      "bbox_width": 30,
+      "bbox_height": 38,
+      "core_width_p50": 19,
+      "body_density": 0.5789,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7788,
+      "bright_ratio": 0.0576,
+      "source_subject_size": [
+        178,
+        222
+      ],
+      "direct_resize_size": [
+        30,
+        38
+      ],
+      "pelvis_center_x": 89.0,
+      "paste_xy": [
+        6,
+        2
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        6,
+        2,
+        36,
+        40
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 1,
+      "source": "motion",
+      "cell": 1,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 630,
+      "bbox_width": 29,
+      "bbox_height": 37,
+      "core_width_p50": 19,
+      "body_density": 0.5871,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7714,
+      "bright_ratio": 0.054,
+      "source_subject_size": [
+        172,
+        221
+      ],
+      "direct_resize_size": [
+        29,
+        37
+      ],
+      "pelvis_center_x": 86.0,
+      "paste_xy": [
+        6,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        6,
+        1,
+        35,
+        38
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 2,
+      "source": "motion",
+      "cell": 2,
+      "size": [
+        43,
+        51
+      ],
+      "visible_size": [
+        31,
+        36
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 44,
+      "opaque_pixels": 613,
+      "bbox_width": 31,
+      "bbox_height": 36,
+      "core_width_p50": 18,
+      "body_density": 0.5493,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7569,
+      "bright_ratio": 0.0522,
+      "source_subject_size": [
+        186,
+        218
+      ],
+      "direct_resize_size": [
+        31,
+        36
+      ],
+      "pelvis_center_x": 91.0,
+      "paste_xy": [
+        7,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        7,
+        1,
+        38,
+        37
+      ]
+    },
+    {
+      "action": "idle",
+      "index": 3,
+      "source": "motion",
+      "cell": 3,
+      "size": [
+        43,
+        53
+      ],
+      "visible_size": [
+        30,
+        37
+      ],
+      "bottom_margin": 15,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 635,
+      "bbox_width": 30,
+      "bbox_height": 37,
+      "core_width_p50": 19,
+      "body_density": 0.5721,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7622,
+      "bright_ratio": 0.052,
+      "source_subject_size": [
+        177,
+        218
+      ],
+      "direct_resize_size": [
+        30,
+        37
+      ],
+      "pelvis_center_x": 89.0,
+      "paste_xy": [
+        6,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        6,
+        1,
+        36,
+        38
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 0,
+      "source": "motion",
+      "cell": 13,
+      "size": [
+        43,
+        51
+      ],
+      "visible_size": [
+        35,
+        34
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 540,
+      "bbox_width": 35,
+      "bbox_height": 34,
+      "core_width_p50": 26,
+      "body_density": 0.4538,
+      "luminance_contrast_p80": 122.96,
+      "dark_ratio": 0.787,
+      "bright_ratio": 0.0519,
+      "source_subject_size": [
+        206,
+        201
+      ],
+      "direct_resize_size": [
+        35,
+        34
+      ],
+      "pelvis_center_x": 114.0,
+      "paste_xy": [
+        1,
+        11
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        1,
+        11,
+        36,
+        45
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 1,
+      "source": "motion",
+      "cell": 14,
+      "size": [
+        41,
+        49
+      ],
+      "visible_size": [
+        31,
+        28
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 43,
+      "opaque_pixels": 432,
+      "bbox_width": 31,
+      "bbox_height": 28,
+      "core_width_p50": 18,
+      "body_density": 0.4977,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7801,
+      "bright_ratio": 0.0486,
+      "source_subject_size": [
+        194,
+        177
+      ],
+      "direct_resize_size": [
+        31,
+        28
+      ],
+      "pelvis_center_x": 88.0,
+      "paste_xy": [
+        6,
+        15
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        6,
+        15,
+        37,
+        43
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 2,
+      "source": "motion",
+      "cell": 15,
+      "size": [
+        41,
+        45
+      ],
+      "visible_size": [
+        16,
+        24
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 41,
+      "opaque_pixels": 287,
+      "bbox_width": 16,
+      "bbox_height": 24,
+      "core_width_p50": 13,
+      "body_density": 0.7474,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7944,
+      "bright_ratio": 0.0314,
+      "source_subject_size": [
+        128,
+        189
+      ],
+      "direct_resize_size": [
+        16,
+        24
+      ],
+      "pelvis_center_x": 68.0,
+      "paste_xy": [
+        12,
+        16
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        12,
+        16,
+        28,
+        40
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 3,
+      "source": "motion",
+      "cell": 16,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        10,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 26,
+      "opaque_pixels": 75,
+      "bbox_width": 10,
+      "bbox_height": 12,
+      "core_width_p50": 7,
+      "body_density": 0.625,
+      "luminance_contrast_p80": 58.38,
+      "dark_ratio": 0.7733,
+      "bright_ratio": 0.0267,
+      "source_subject_size": [
+        161,
+        196
+      ],
+      "direct_resize_size": [
+        10,
+        12
+      ],
+      "pelvis_center_x": 83.0,
+      "paste_xy": [
+        16,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        16,
+        23,
+        26,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 4,
+      "source": "motion",
+      "cell": 17,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        14,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 29,
+      "opaque_pixels": 111,
+      "bbox_width": 14,
+      "bbox_height": 12,
+      "core_width_p50": 12,
+      "body_density": 0.6607,
+      "luminance_contrast_p80": 58.84,
+      "dark_ratio": 0.8018,
+      "bright_ratio": 0.018,
+      "source_subject_size": [
+        181,
+        157
+      ],
+      "direct_resize_size": [
+        14,
+        12
+      ],
+      "pelvis_center_x": 92.0,
+      "paste_xy": [
+        13,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        13,
+        23,
+        27,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 5,
+      "source": "motion",
+      "cell": 18,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        22,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 34,
+      "opaque_pixels": 176,
+      "bbox_width": 22,
+      "bbox_height": 12,
+      "core_width_p50": 20,
+      "body_density": 0.6667,
+      "luminance_contrast_p80": 58.84,
+      "dark_ratio": 0.7727,
+      "bright_ratio": 0.0114,
+      "source_subject_size": [
+        205,
+        114
+      ],
+      "direct_resize_size": [
+        22,
+        12
+      ],
+      "pelvis_center_x": 110.0,
+      "paste_xy": [
+        7,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        7,
+        23,
+        29,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 6,
+      "source": "motion",
+      "cell": 19,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        26,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 34,
+      "opaque_pixels": 192,
+      "bbox_width": 26,
+      "bbox_height": 12,
+      "core_width_p50": 22,
+      "body_density": 0.6154,
+      "luminance_contrast_p80": 118.18,
+      "dark_ratio": 0.8125,
+      "bright_ratio": 0.0156,
+      "source_subject_size": [
+        200,
+        94
+      ],
+      "direct_resize_size": [
+        26,
+        12
+      ],
+      "pelvis_center_x": 105.0,
+      "paste_xy": [
+        6,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        6,
+        23,
+        32,
+        35
+      ]
+    },
+    {
+      "action": "dead",
+      "index": 7,
+      "source": "motion",
+      "cell": 19,
+      "size": [
+        41,
+        39
+      ],
+      "visible_size": [
+        26,
+        12
+      ],
+      "bottom_margin": 4,
+      "face_visibility": "hidden",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 34,
+      "opaque_pixels": 192,
+      "bbox_width": 26,
+      "bbox_height": 12,
+      "core_width_p50": 22,
+      "body_density": 0.6154,
+      "luminance_contrast_p80": 118.18,
+      "dark_ratio": 0.8125,
+      "bright_ratio": 0.0156,
+      "source_subject_size": [
+        200,
+        94
+      ],
+      "direct_resize_size": [
+        26,
+        12
+      ],
+      "pelvis_center_x": 105.0,
+      "paste_xy": [
+        7,
+        23
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        7,
+        23,
+        33,
+        35
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 0,
+      "source": "attack_q",
+      "cell": 14,
+      "size": [
+        31,
+        49
+      ],
+      "visible_size": [
+        29,
+        38
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 716,
+      "bbox_width": 29,
+      "bbox_height": 38,
+      "core_width_p50": 25,
+      "body_density": 0.6497,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7765,
+      "bright_ratio": 0.0615,
+      "source_subject_size": [
+        220,
+        166
+      ],
+      "direct_resize_size": [
+        50,
+        38
+      ],
+      "pelvis_center_x": 88.0,
+      "paste_xy": [
+        -6,
+        6
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 21,
+      "horizontal_crop_ratio": 0.42,
+      "alpha_bbox": [
+        1,
+        6,
+        30,
+        44
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 1,
+      "source": "attack_q",
+      "cell": 15,
+      "size": [
+        31,
+        43
+      ],
+      "visible_size": [
+        29,
+        36
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 706,
+      "bbox_width": 29,
+      "bbox_height": 36,
+      "core_width_p50": 25,
+      "body_density": 0.6762,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7691,
+      "bright_ratio": 0.0552,
+      "source_subject_size": [
+        236,
+        151
+      ],
+      "direct_resize_size": [
+        56,
+        36
+      ],
+      "pelvis_center_x": 121.0,
+      "paste_xy": [
+        -14,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 27,
+      "horizontal_crop_ratio": 0.4821,
+      "alpha_bbox": [
+        1,
+        1,
+        30,
+        37
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 2,
+      "source": "attack_q",
+      "cell": 16,
+      "size": [
+        31,
+        55
+      ],
+      "visible_size": [
+        29,
+        38
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 782,
+      "bbox_width": 29,
+      "bbox_height": 38,
+      "core_width_p50": 28,
+      "body_density": 0.7096,
+      "luminance_contrast_p80": 122.96,
+      "dark_ratio": 0.7762,
+      "bright_ratio": 0.0703,
+      "source_subject_size": [
+        258,
+        151
+      ],
+      "direct_resize_size": [
+        65,
+        38
+      ],
+      "pelvis_center_x": 86.0,
+      "paste_xy": [
+        -6,
+        10
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 36,
+      "horizontal_crop_ratio": 0.5538,
+      "alpha_bbox": [
+        1,
+        10,
+        30,
+        48
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 3,
+      "source": "attack_q",
+      "cell": 17,
+      "size": [
+        71,
+        57
+      ],
+      "visible_size": [
+        54,
+        39
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 921,
+      "bbox_width": 54,
+      "bbox_height": 39,
+      "core_width_p50": 30,
+      "body_density": 0.4373,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7514,
+      "bright_ratio": 0.0641,
+      "source_subject_size": [
+        218,
+        158
+      ],
+      "direct_resize_size": [
+        54,
+        39
+      ],
+      "pelvis_center_x": 80.0,
+      "paste_xy": [
+        16,
+        12
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        16,
+        12,
+        70,
+        51
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 4,
+      "source": "attack_q",
+      "cell": 16,
+      "size": [
+        83,
+        67
+      ],
+      "visible_size": [
+        59,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 970,
+      "bbox_width": 59,
+      "bbox_height": 39,
+      "core_width_p50": 32,
+      "body_density": 0.4216,
+      "luminance_contrast_p80": 122.96,
+      "dark_ratio": 0.7474,
+      "bright_ratio": 0.0701,
+      "source_subject_size": [
+        258,
+        151
+      ],
+      "direct_resize_size": [
+        67,
+        39
+      ],
+      "pelvis_center_x": 86.0,
+      "paste_xy": [
+        19,
+        20
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 4,
+      "horizontal_crop_ratio": 0.0597,
+      "alpha_bbox": [
+        19,
+        20,
+        78,
+        59
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 5,
+      "source": "attack_q",
+      "cell": 15,
+      "size": [
+        85,
+        77
+      ],
+      "visible_size": [
+        61,
+        39
+      ],
+      "bottom_margin": 10,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 929,
+      "bbox_width": 61,
+      "bbox_height": 39,
+      "core_width_p50": 30,
+      "body_density": 0.3905,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7266,
+      "bright_ratio": 0.0764,
+      "source_subject_size": [
+        236,
+        151
+      ],
+      "direct_resize_size": [
+        61,
+        39
+      ],
+      "pelvis_center_x": 121.0,
+      "paste_xy": [
+        10,
+        28
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        10,
+        28,
+        71,
+        67
+      ]
+    },
+    {
+      "action": "skill",
+      "index": 6,
+      "source": "attack_q",
+      "cell": 14,
+      "size": [
+        91,
+        87
+      ],
+      "visible_size": [
+        52,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 881,
+      "bbox_width": 52,
+      "bbox_height": 39,
+      "core_width_p50": 30,
+      "body_density": 0.4344,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7628,
+      "bright_ratio": 0.0624,
+      "source_subject_size": [
+        220,
+        166
+      ],
+      "direct_resize_size": [
+        52,
+        39
+      ],
+      "pelvis_center_x": 88.0,
+      "paste_xy": [
+        24,
+        40
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        24,
+        40,
+        76,
+        79
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 0,
+      "source": "attack_q",
+      "cell": 6,
+      "size": [
+        45,
+        51
+      ],
+      "visible_size": [
+        31,
+        29
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 418,
+      "bbox_width": 31,
+      "bbox_height": 29,
+      "core_width_p50": 17,
+      "body_density": 0.465,
+      "luminance_contrast_p80": 86.45,
+      "dark_ratio": 0.756,
+      "bright_ratio": 0.0526,
+      "source_subject_size": [
+        201,
+        231
+      ],
+      "direct_resize_size": [
+        31,
+        36
+      ],
+      "pelvis_center_x": 89.0,
+      "paste_xy": [
+        7,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        7,
+        8,
+        38,
+        37
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 1,
+      "source": "attack_q",
+      "cell": 7,
+      "size": [
+        49,
+        51
+      ],
+      "visible_size": [
+        32,
+        28
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 41,
+      "opaque_pixels": 394,
+      "bbox_width": 32,
+      "bbox_height": 28,
+      "core_width_p50": 18,
+      "body_density": 0.4397,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7766,
+      "bright_ratio": 0.0355,
+      "source_subject_size": [
+        207,
+        231
+      ],
+      "direct_resize_size": [
+        32,
+        36
+      ],
+      "pelvis_center_x": 86.0,
+      "paste_xy": [
+        11,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        11,
+        9,
+        43,
+        37
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 2,
+      "source": "attack_q",
+      "cell": 8,
+      "size": [
+        59,
+        47
+      ],
+      "visible_size": [
+        31,
+        26
+      ],
+      "bottom_margin": 12,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 42,
+      "opaque_pixels": 348,
+      "bbox_width": 31,
+      "bbox_height": 26,
+      "core_width_p50": 16,
+      "body_density": 0.4318,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7644,
+      "bright_ratio": 0.0374,
+      "source_subject_size": [
+        261,
+        231
+      ],
+      "direct_resize_size": [
+        38,
+        34
+      ],
+      "pelvis_center_x": 133.0,
+      "paste_xy": [
+        11,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        18,
+        9,
+        49,
+        35
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 3,
+      "source": "attack_q",
+      "cell": 9,
+      "size": [
+        59,
+        49
+      ],
+      "visible_size": [
+        30,
+        27
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 39,
+      "opaque_pixels": 359,
+      "bbox_width": 30,
+      "bbox_height": 27,
+      "core_width_p50": 17,
+      "body_density": 0.4432,
+      "luminance_contrast_p80": 64.64,
+      "dark_ratio": 0.7799,
+      "bright_ratio": 0.0334,
+      "source_subject_size": [
+        261,
+        233
+      ],
+      "direct_resize_size": [
+        39,
+        35
+      ],
+      "pelvis_center_x": 135.0,
+      "paste_xy": [
+        10,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        19,
+        9,
+        49,
+        36
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 4,
+      "source": "attack_q",
+      "cell": 10,
+      "size": [
+        61,
+        49
+      ],
+      "visible_size": [
+        19,
+        27
+      ],
+      "bottom_margin": 13,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 41,
+      "opaque_pixels": 335,
+      "bbox_width": 19,
+      "bbox_height": 27,
+      "core_width_p50": 15,
+      "body_density": 0.653,
+      "luminance_contrast_p80": 118.18,
+      "dark_ratio": 0.7701,
+      "bright_ratio": 0.0567,
+      "source_subject_size": [
+        194,
+        233
+      ],
+      "direct_resize_size": [
+        29,
+        35
+      ],
+      "pelvis_center_x": 132.0,
+      "paste_xy": [
+        10,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        20,
+        9,
+        39,
+        36
+      ]
+    },
+    {
+      "action": "attack_azakana",
+      "index": 5,
+      "source": "attack_q",
+      "cell": 11,
+      "size": [
+        51,
+        51
+      ],
+      "visible_size": [
+        27,
+        28
+      ],
+      "bottom_margin": 14,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 43,
+      "opaque_pixels": 404,
+      "bbox_width": 27,
+      "bbox_height": 28,
+      "core_width_p50": 16,
+      "body_density": 0.5344,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7574,
+      "bright_ratio": 0.047,
+      "source_subject_size": [
+        177,
+        233
+      ],
+      "direct_resize_size": [
+        27,
+        36
+      ],
+      "pelvis_center_x": 75.0,
+      "paste_xy": [
+        13,
+        1
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        13,
+        9,
+        40,
+        37
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 0,
+      "source": "attack_q",
+      "cell": 20,
+      "size": [
+        31,
+        49
+      ],
+      "visible_size": [
+        29,
+        36
+      ],
+      "bottom_margin": 5,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 798,
+      "bbox_width": 29,
+      "bbox_height": 36,
+      "core_width_p50": 28,
+      "body_density": 0.7644,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7607,
+      "bright_ratio": 0.0602,
+      "source_subject_size": [
+        204,
+        166
+      ],
+      "direct_resize_size": [
+        47,
+        38
+      ],
+      "pelvis_center_x": 121.0,
+      "paste_xy": [
+        -14,
+        6
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 18,
+      "horizontal_crop_ratio": 0.383,
+      "alpha_bbox": [
+        1,
+        8,
+        30,
+        44
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 1,
+      "source": "attack_q",
+      "cell": 21,
+      "size": [
+        31,
+        43
+      ],
+      "visible_size": [
+        29,
+        35
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "profile",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 754,
+      "bbox_width": 29,
+      "bbox_height": 35,
+      "core_width_p50": 26,
+      "body_density": 0.7429,
+      "luminance_contrast_p80": 68.25,
+      "dark_ratio": 0.7666,
+      "bright_ratio": 0.0517,
+      "source_subject_size": [
+        174,
+        156
+      ],
+      "direct_resize_size": [
+        40,
+        36
+      ],
+      "pelvis_center_x": 92.0,
+      "paste_xy": [
+        -6,
+        1
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 11,
+      "horizontal_crop_ratio": 0.275,
+      "alpha_bbox": [
+        1,
+        2,
+        30,
+        37
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 2,
+      "source": "attack_q",
+      "cell": 22,
+      "size": [
+        31,
+        55
+      ],
+      "visible_size": [
+        29,
+        37
+      ],
+      "bottom_margin": 7,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 46,
+      "opaque_pixels": 830,
+      "bbox_width": 29,
+      "bbox_height": 37,
+      "core_width_p50": 28,
+      "body_density": 0.7735,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7687,
+      "bright_ratio": 0.0639,
+      "source_subject_size": [
+        250,
+        151
+      ],
+      "direct_resize_size": [
+        63,
+        38
+      ],
+      "pelvis_center_x": 103.0,
+      "paste_xy": [
+        -10,
+        10
+      ],
+      "horizontal_crop": true,
+      "cropped_source_columns": 34,
+      "horizontal_crop_ratio": 0.5397,
+      "alpha_bbox": [
+        1,
+        11,
+        30,
+        48
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 3,
+      "source": "attack_q",
+      "cell": 23,
+      "size": [
+        71,
+        57
+      ],
+      "visible_size": [
+        55,
+        39
+      ],
+      "bottom_margin": 6,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 952,
+      "bbox_width": 55,
+      "bbox_height": 39,
+      "core_width_p50": 32,
+      "body_density": 0.4438,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7437,
+      "bright_ratio": 0.062,
+      "source_subject_size": [
+        226,
+        160
+      ],
+      "direct_resize_size": [
+        55,
+        39
+      ],
+      "pelvis_center_x": 100.0,
+      "paste_xy": [
+        12,
+        12
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        12,
+        12,
+        67,
+        51
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 4,
+      "source": "attack_q",
+      "cell": 22,
+      "size": [
+        83,
+        67
+      ],
+      "visible_size": [
+        60,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 48,
+      "opaque_pixels": 1047,
+      "bbox_width": 60,
+      "bbox_height": 39,
+      "core_width_p50": 35,
+      "body_density": 0.4474,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.745,
+      "bright_ratio": 0.0592,
+      "source_subject_size": [
+        250,
+        151
+      ],
+      "direct_resize_size": [
+        65,
+        39
+      ],
+      "pelvis_center_x": 103.0,
+      "paste_xy": [
+        14,
+        20
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        14,
+        20,
+        74,
+        59
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 5,
+      "source": "attack_q",
+      "cell": 21,
+      "size": [
+        85,
+        77
+      ],
+      "visible_size": [
+        44,
+        39
+      ],
+      "bottom_margin": 10,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 1035,
+      "bbox_width": 44,
+      "bbox_height": 39,
+      "core_width_p50": 37,
+      "body_density": 0.6031,
+      "luminance_contrast_p80": 90.06,
+      "dark_ratio": 0.7536,
+      "bright_ratio": 0.0551,
+      "source_subject_size": [
+        174,
+        156
+      ],
+      "direct_resize_size": [
+        44,
+        39
+      ],
+      "pelvis_center_x": 92.0,
+      "paste_xy": [
+        18,
+        28
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        18,
+        28,
+        62,
+        67
+      ]
+    },
+    {
+      "action": "skill_q3",
+      "index": 6,
+      "source": "attack_q",
+      "cell": 20,
+      "size": [
+        91,
+        87
+      ],
+      "visible_size": [
+        48,
+        39
+      ],
+      "bottom_margin": 8,
+      "face_visibility": "front",
+      "hard_alpha": true,
+      "transparent_edges": true,
+      "opaque_colors": 47,
+      "opaque_pixels": 1011,
+      "bbox_width": 48,
+      "bbox_height": 39,
+      "core_width_p50": 37,
+      "body_density": 0.5401,
+      "luminance_contrast_p80": 121.79,
+      "dark_ratio": 0.7547,
+      "bright_ratio": 0.0574,
+      "source_subject_size": [
+        204,
+        166
+      ],
+      "direct_resize_size": [
+        48,
+        39
+      ],
+      "pelvis_center_x": 121.0,
+      "paste_xy": [
+        17,
+        40
+      ],
+      "horizontal_crop": false,
+      "cropped_source_columns": 0,
+      "horizontal_crop_ratio": 0.0,
+      "alpha_bbox": [
+        17,
+        40,
+        65,
+        79
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.17",
+  "release": "0.10.18",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -121,7 +121,7 @@
         "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
         "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
       },
-      "live_status": "0.10.17 keeps the measured Yone UI NinePatch at its original 95x88 size, samples the existing source's top 88 rows, preserves central-grid x/y/w/h, and applies only a -9 logical y baseline correction to assignment and edge cards; the separate Game Sprite and all Yone assets remain untouched, and user manual BP plus assignment-page verification remains required"
+      "live_status": "0.10.18 retains the 0.10.17 source-direct UI V6 route unchanged: the measured Yone UI NinePatch stays at its original 95x88 size, samples the existing source's top 88 rows, preserves central-grid x/y/w/h, and applies only a -9 logical y baseline correction to assignment and edge cards. The Game-pass battle Sprite now uses the separate dual-sword V7 actor atlas and cannot enter any BP, assignment, management, compact or scoreboard portrait route; manual UI verification remains required."
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -179,6 +179,25 @@
         "R Fate Sealed: Sixfold Echo approximation"
       ],
       "same_id_replacement": true,
+      "battle_actor_route": "dual-sword-v7",
+      "battle_actor_atlas": {
+        "dimensions": [
+          4262,
+          88
+        ],
+        "physical_body_frames": 67,
+        "animation_tags": 18,
+        "immutable_native_prefix": "official 3502x88 atlas region, 13 tags and 54 physical frames retain their rectangles, frame counts, timings and foot anchors",
+        "appended_physical_frames": "six Azakana-basic-attack frames plus seven Q3 frames",
+        "semantic_tags": {
+          "steel_basic_attack": "attack_steel",
+          "azakana_basic_attack": "attack_azakana",
+          "q1_q2": "skill_q12",
+          "q3": "skill_q3",
+          "w": "skill_w_azakana"
+        }
+      },
+      "ui_portrait_route": "source-direct UI V6 retained independently from battle V7 for BP grid, assignment, management, compact and scoreboard surfaces",
       "hit_gated_three_stage_q": true,
       "q_named_stacks": [
         "lol_yone_mortal_steel_stack_1",
@@ -193,7 +212,7 @@
       "q3_airborne_ticks": 45,
       "skill2_target": "EnemyWithoutTower",
       "skill2_range": 42000,
-      "skill2_runtime_body_tag": "skill2_attack",
+      "skill2_runtime_body_tag": "skill_w_azakana",
       "skill2_runtime_body_frames": 5,
       "skill2_ai_gate": "removed_custom_gate_stock_engine_data_ai",
       "e_runtime_present": false,
@@ -230,9 +249,11 @@
       "native_state_isolation": "one native invocation scans only its supplied GameCtx and uses no static, OnceLock, Mutex, caster/player/team/position/tick matching, or process-global W registry",
       "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
       "new_save_required_for_current_w": "0.10.5",
+      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.18",
+      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.18 save embeds the attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
-        "visible_body_frames_checked": 54,
+        "visible_body_frames_checked": 67,
         "final_one_x_face_templates": true,
         "template_stage": "after final scaling and palette conversion",
         "minimum_warm_face_plane": "4x5 and at least 12 pixels per active frame",
@@ -242,6 +263,7 @@
         "near_white_face_pixels": 0
       },
       "native_dual_blader_animation_contract_preserved": true,
+      "native_contract_preservation_boundary": "the official 13-tag/54-frame contract is preserved as an immutable atlas and animation prefix; five semantic tags and 13 physical frames are append-only V7 extensions",
       "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json"
     },
     "elemental_dragon": {
@@ -371,6 +393,6 @@
     "static_build_and_contract_checks": true,
     "game_launched": false,
     "runtime_tested": false,
-    "reason": "Static build and contract verification is complete; the updated package is awaiting the user's manual in-game retest."
+    "reason": "Static build and contract verification is complete; the updated package is awaiting the user's fresh-0.10.18-save battle retest and separate UI V6 surface retest."
   }
 }

@@ -113,9 +113,28 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
         "crit_chance": 0,
     }
     attack = yone["attack"]
-    assert (attack["cooltime"], attack["range"]) == (50, 25000)
+    assert (
+        attack["duration"],
+        attack["cooltime"],
+        attack["start_timing"],
+        attack["range"],
+    ) == (20, 50, 13, 25000)
     assert attack["effect"]["type"] == "SwitchByBuff"
     assert attack["effect"]["buff_name"] == "lol_yone_azakana_ready"
+    steel_branch = attack["effect"]["effect_none"]
+    azakana_branch = attack["effect"]["effect_buff"]
+    assert find_effect(steel_branch, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "attack_steel", "tick": 20}
+    ]
+    assert find_effect(azakana_branch, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "attack_azakana", "tick": 20}
+    ]
+    assert find_effect(steel_branch, "CasterViewEffect") == [
+        {"type": "CasterViewEffect", "name": "lol_yone_attack_steel_swing"}
+    ]
+    assert find_effect(azakana_branch, "CasterViewEffect") == [
+        {"type": "CasterViewEffect", "name": "lol_yone_attack_azakana_swing"}
+    ]
     assert [
         (hit["damage"], hit["attack_ratio"])
         for hit in find_effect(attack, "Attack")
@@ -231,7 +250,7 @@ def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> No
     ) == (480, 30, 8, 42000, "Direction", "EnemyWithoutTower")
 
     assert find_effect(w, "CasterAnimation") == [
-        {"type": "CasterAnimation", "name": "skill2_attack", "tick": 30}
+        {"type": "CasterAnimation", "name": "skill_w_azakana", "tick": 30}
     ]
     assert not find_effect(w, "LineRangeProjectile")
     assert not find_effect(w, "RangeProjectile")
@@ -501,7 +520,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        "version=0.10.17",
+        "version=0.10.18",
     ):
         assert required in management_rewrite
 
@@ -532,6 +551,12 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     q1 = stack1_switch["effect_none"]
     q2 = stack1_switch["effect_buff"]
     for stage in (q1, q2):
+        assert find_effect(stage, "CasterAnimation") == [
+            {"type": "CasterAnimation", "name": "skill_q12", "tick": 30}
+        ]
+        assert find_effect(stage, "CasterViewEffect") == [
+            {"type": "CasterViewEffect", "name": "lol_yone_q_blade"}
+        ]
         projectiles = find_effect(
             stage, "LinearProjectile", name="lol_yone_q_projectile"
         )
@@ -626,6 +651,12 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     }
 
     q3 = stack2_switch["effect_buff"]
+    assert find_effect(q3, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "skill_q3", "tick": 30}
+    ]
+    assert find_effect(q3, "CasterViewEffect") == [
+        {"type": "CasterViewEffect", "name": "lol_yone_q3_blade"}
+    ]
     assert q3["effects"][0] == {
         "type": "RemoveCasterBuff",
         "name": "lol_yone_mortal_steel_stack_2",
@@ -735,8 +766,12 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
     }
     views = {view["name"]: view for view in yone["view_effects"]}
     required_views = {
+        "lol_yone_attack_steel_swing",
+        "lol_yone_attack_azakana_swing",
         "lol_yone_attack_steel_hit",
         "lol_yone_attack_azakana_hit",
+        "lol_yone_q_blade",
+        "lol_yone_q3_blade",
         "lol_yone_q_hit",
         "lol_yone_q_empowered_hit",
         "lol_yone_q3_airborne_cue",
@@ -751,6 +786,45 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
     }
     assert required_views == set(views)
     assert not any("lol_yone_e_" in name.lower() for name in views)
+    assert {
+        name: (
+            views[name]["anim"],
+            views[name]["tag"],
+            views[name]["z"],
+            views[name]["is_follow"],
+        )
+        for name in (
+            "lol_yone_attack_steel_swing",
+            "lol_yone_attack_azakana_swing",
+            "lol_yone_q_blade",
+            "lol_yone_q3_blade",
+        )
+    } == {
+        "lol_yone_attack_steel_swing": (
+            "asset/lol_mod/aseprite_resources/effects/yone_attack",
+            "steel_hit",
+            3,
+            True,
+        ),
+        "lol_yone_attack_azakana_swing": (
+            "asset/lol_mod/aseprite_resources/effects/yone_attack",
+            "azakana_hit",
+            3,
+            True,
+        ),
+        "lol_yone_q_blade": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q",
+            "hit",
+            3,
+            True,
+        ),
+        "lol_yone_q3_blade": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q",
+            "empowered_hit",
+            3,
+            True,
+        ),
+    }
     assert {
         name: (views[name]["tag"], views[name]["z"])
         for name in (
@@ -939,7 +1013,16 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
     actor_sheet = Image.open(
         MOD / "aseprite_resources/champions/yone#sheet.png"
     ).convert("RGBA")
-    assert actor_sheet.size == (3502, 88)
+    assert actor_sheet.size == (4262, 88)
+    assert list(actor_anim)[:13] == [
+        "skill2", "hit", "attack", "skill2_dash", "ult", "run",
+        "ult_hit_effect", "skill2_attack", "idle", "hit_effect_area",
+        "dead", "skill_projectile", "skill",
+    ]
+    assert list(actor_anim)[13:] == [
+        "attack_steel", "attack_azakana", "skill_q12", "skill_q3",
+        "skill_w_azakana",
+    ]
     actor_bbox = actor_sheet.getchannel("A").getbbox()
     assert actor_bbox is not None
     assert 0 <= actor_bbox[0] < actor_bbox[2] <= actor_sheet.width
@@ -1536,8 +1619,11 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.17"
-    assert "Q/W/R" in mod_info["description"]
+    assert mod_info["version"] == "0.10.18"
+    assert all(
+        token in mod_info["description"]
+        for token in ("Q1/Q2", "Q3", "W uses", "R keeps")
+    )
     assert "E-only Soul Unbound" not in mod_info["description"]
     assert "0.5.1" in mod_info["description"]
     assert "saved" in mod_info["description"].casefold()
@@ -1582,14 +1668,17 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     }.intersection(paths)
 
 
-def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
+def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.17"
-    assert "Q/W/R" in mod_info["description"]
+    assert mod_info["version"] == "0.10.18"
+    assert all(
+        token in mod_info["description"]
+        for token in ("Q1/Q2", "Q3", "W uses", "R keeps")
+    )
     assert "E-only Soul Unbound" not in mod_info["description"]
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "Q/W/R" in readme
+    assert all(token in readme for token in ("Q1/Q2", "Q3", "W", "R"))
     assert "Soul Unbound" not in readme
 
     champion_payload = (MOD / "champion/dual_blader.data_champion").read_text(
@@ -1602,14 +1691,20 @@ def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
     ):
         assert ability_runtime_prefix in champion_payload
 
-    v6 = json.loads(
-        (MOD / "source/native/yone_v6/frames.json").read_text(encoding="utf-8")
+    v7 = json.loads(
+        (MOD / "source/native/yone_v7/frames.json").read_text(encoding="utf-8")
     )
-    assert v6["schema_version"] == 6
-    assert v6["route"] == "exact-native-v6"
-    assert v6["atlas_size"] == [3502, 88]
-    assert len(v6["frames"]) == 54
-    assert all("face_visibility" in row for row in v6["frames"])
+    assert v7["schema_version"] == 7
+    assert v7["route"] == "dual-sword-v7"
+    assert v7["atlas_size"] == [4262, 88]
+    assert len(v7["frames"]) == 67
+    assert v7["weapon_contract"]["always_dual_actions"] == ["idle", "run"]
+    assert all(
+        row["face_visibility"] in {"front", "profile", "hidden"}
+        and row["active_weapon"] in {"steel", "azakana", "dual"}
+        and row["weapons_present"] == ["steel", "azakana"]
+        for row in v7["frames"]
+    )
 
     manifest = json.loads(
         (MOD / "build_manifest.json").read_text(encoding="utf-8")
@@ -1640,9 +1735,14 @@ def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
         "source/imagegen/yone_v5_attack_q_w_contact.png",
         "source/imagegen/yone_v5_q5_contact.png",
         "source/imagegen/yone_v5_ult_contact.png",
+        "source/imagegen/yone_v6_motion_contact.png",
+        "source/imagegen/yone_v6_attack_q_w_contact.png",
+        "source/imagegen/yone_v6_w_contact.png",
+        "source/imagegen/yone_v6_ult_contact.png",
     }.intersection(paths)
     assert not any(path.startswith("source/native/yone_v4/") for path in paths)
     assert not any(path.startswith("source/native/yone_v5/") for path in paths)
+    assert not any(path.startswith("source/native/yone_v6/") for path in paths)
     assert not any("yone_v4" in path.casefold() for path in paths)
     assert not any("yone_v5" in path.casefold() for path in paths)
     physical_retired_files = sorted(
@@ -1655,6 +1755,14 @@ def test_yone_v6_release_keeps_q_w_r_and_exact_native_body_atomic() -> None:
         )
     )
     assert physical_retired_files == []
+    for retired_v6_body in (
+        "source/native/yone_v6",
+        "source/imagegen/yone_v6_motion_contact.png",
+        "source/imagegen/yone_v6_attack_q_w_contact.png",
+        "source/imagegen/yone_v6_w_contact.png",
+        "source/imagegen/yone_v6_ult_contact.png",
+    ):
+        assert not (MOD / retired_v6_body).exists(), retired_v6_body
 
 
 def test_yone_manifest_uses_explicit_builder_outputs_and_fails_closed() -> None:

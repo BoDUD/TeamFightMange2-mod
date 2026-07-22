@@ -15,16 +15,16 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods/lol_mod"
-VALIDATOR = MOD / "tools/validate_yone_v6.py"
-FRAME_MANIFEST = MOD / "source/native/yone_v6/frames.json"
-FRAME_SCHEMA = MOD / "qa/yone_v6_frames.schema.json"
-PALETTE_SCHEMA = MOD / "qa/yone_v6_palette.schema.json"
-GENERATION_QA = MOD / "source/native/yone_v6/generation_qa.json"
+VALIDATOR = MOD / "tools/validate_yone_v7.py"
+FRAME_MANIFEST = MOD / "source/native/yone_v7/frames.json"
+FRAME_SCHEMA = MOD / "qa/yone_v7_frames.schema.json"
+PALETTE_SCHEMA = MOD / "qa/yone_v7_palette.schema.json"
+GENERATION_QA = MOD / "source/native/yone_v7/generation_qa.json"
 RUNTIME = MOD / "src/lib.rs"
 
 
 def _load_validator():
-    spec = importlib.util.spec_from_file_location("validate_yone_v6", VALIDATOR)
+    spec = importlib.util.spec_from_file_location("validate_yone_v7", VALIDATOR)
     assert spec is not None and spec.loader is not None
     validator = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = validator
@@ -65,27 +65,27 @@ def _range_contract(body: str, axis: str) -> tuple[float, float]:
     return float(match.group(1)), float(match.group(2))
 
 
-def test_yone_v6_sources_exist_and_hashes_match_before_visual_validation() -> None:
+def test_yone_v7_sources_exist_and_hashes_match_before_visual_validation() -> None:
     assert FRAME_MANIFEST.is_file(), (
-        "Yone V6 exact-native source is missing: "
-        "mods/lol_mod/source/native/yone_v6/frames.json"
+        "Yone V7 dual-sword source is missing: "
+        "mods/lol_mod/source/native/yone_v7/frames.json"
     )
     payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
-    assert payload.get("schema_version") == 6
-    assert payload.get("route") == "exact-native-v6"
+    assert payload.get("schema_version") == 7
+    assert payload.get("route") == "dual-sword-v7"
     assert payload.get("body_preview"), (
-        "Yone V6 needs a real 141x138 actor-card preview, not null"
+        "Yone V7 needs a real 141x138 actor-card preview, not null"
     )
 
     generation = json.loads(GENERATION_QA.read_text(encoding="utf-8"))
-    assert generation.get("route") == "exact-native-v6"
+    assert generation.get("route") == "dual-sword-v7"
     source_hashes = generation.get("source_hashes")
     assert isinstance(source_hashes, dict)
     source_paths = {
-        "motion": MOD / "source/imagegen/yone_v6_motion_contact.png",
-        "attack_q_w": MOD / "source/imagegen/yone_v6_attack_q_w_contact.png",
-        "w": MOD / "source/imagegen/yone_v6_w_contact.png",
-        "ult": MOD / "source/imagegen/yone_v6_ult_contact.png",
+        "motion": MOD / "source/imagegen/yone_v7_motion_contact.png",
+        "attack_q": MOD / "source/imagegen/yone_v7_attack_q_contact.png",
+        "w": MOD / "source/imagegen/yone_v7_w_contact.png",
+        "ult": MOD / "source/imagegen/yone_v7_ult_contact.png",
     }
     assert set(source_hashes) == set(source_paths)
     for label, path in source_paths.items():
@@ -117,18 +117,32 @@ def test_yone_v6_sources_exist_and_hashes_match_before_visual_validation() -> No
     ).hexdigest()
 
 
-def test_yone_v6_exact_native_validator_covers_all_54_frames() -> None:
+def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> None:
     validator = _load_validator()
-    report = validator.validate_v6(
+    report = validator.validate_v7(
         verify_runtime_atlas=True,
-        verify_retired_paths=True,
+        verify_retired_paths=False,
     )
-    assert report["schema_version"] == 6
-    assert report["route"] == "exact-native-v6"
-    assert report["atlas_size"] == [3502, 88]
-    assert report["frame_count"] == 54
+    assert report["schema_version"] == 7
+    assert report["route"] == "dual-sword-v7"
+    assert report["atlas_size"] == [4262, 88]
+    assert report["frame_count"] == 67
     assert report["opaque_palette_limit"] >= 8
-    assert len(report["frames"]) == 54
+    assert len(report["frames"]) == 67
+    assert report["animation_contract"]["native_tag_prefix"] == list(
+        validator.NATIVE_TAG_PREFIX
+    )
+    assert report["animation_contract"]["extension_tags"] == [
+        "attack_steel",
+        "attack_azakana",
+        "skill_q12",
+        "skill_q3",
+        "skill_w_azakana",
+    ]
+    assert all(report["animation_contract"]["distinct_sequences"].values())
+    assert report["dual_sword"]["distinct_attack_sequences"] is True
+    assert report["dual_sword"]["distinct_q_sequences"] is True
+    assert report["weapon_contract"] == validator.EXPECTED_WEAPON_CONTRACT
     for frame_name, row in report["frames"].items():
         assert row["source_to_atlas_byte_identical"] is True, frame_name
         assert row["hard_alpha"] is True, frame_name
@@ -144,6 +158,10 @@ def test_yone_v6_exact_native_validator_covers_all_54_frames() -> None:
     payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
     action_counts: dict[str, int] = {}
     for row in payload["frames"]:
+        assert row["weapons_present"] == ["steel", "azakana"]
+        assert row["active_weapon"] == validator.ACTIVE_WEAPON_BY_ACTION[
+            row["action"]
+        ]
         action_counts[row["action"]] = action_counts.get(row["action"], 0) + 1
     assert action_counts == {
         "skill2": 1,
@@ -156,13 +174,22 @@ def test_yone_v6_exact_native_validator_covers_all_54_frames() -> None:
         "idle": 4,
         "dead": 8,
         "skill": 7,
+        "attack_azakana": 6,
+        "skill_q3": 7,
     }
     anims = json.loads(
         (MOD / "aseprite_resources/champions/yone#anim.fanim").read_text(
             encoding="utf-8"
         )
     )["anims"]
-    assert len(anims) == 13
+    assert list(anims) == [
+        *validator.NATIVE_TAG_PREFIX,
+        "attack_steel",
+        "attack_azakana",
+        "skill_q12",
+        "skill_q3",
+        "skill_w_azakana",
+    ]
     assert len(anims["dead"]["frames"]) == 9
     for row in payload["frames"]:
         native = anims[row["action"]]["frames"][row["index"]]["data"]
@@ -174,7 +201,7 @@ def test_yone_v6_exact_native_validator_covers_all_54_frames() -> None:
         ]
 
 
-def test_yone_v6_visible_idle_faces_use_dynamic_coordinate_annotations() -> None:
+def test_yone_v7_visible_idle_faces_use_dynamic_coordinate_annotations() -> None:
     validator = _load_validator()
     payload = json.loads(FRAME_MANIFEST.read_text(encoding="utf-8"))
     palette = validator.load_palette(
@@ -212,12 +239,12 @@ def test_yone_v6_visible_idle_faces_use_dynamic_coordinate_annotations() -> None
         )
         damaged = dict(row)
         damaged["eye_pixels"] = [outside, *row["eye_pixels"][1:]]
-        with pytest.raises(validator.V6ValidationError):
+        with pytest.raises(validator.V7ValidationError):
             validator.validate_frame_annotations(
                 damaged, source, palette, label=label
             )
 
-    # Pick a valid front-facing V6 row from the manifest instead of assuming
+    # Pick a valid front-facing V7 row from the manifest instead of assuming
     # that a specific action/index or source color must carry the test face.
     annotated = next(
         row
@@ -239,11 +266,11 @@ def test_yone_v6_visible_idle_faces_use_dynamic_coordinate_annotations() -> None
     assert "clear_eye_points" in validator_source
 
 
-def test_yone_v6_real_actor_card_preview_keeps_feet_and_icons_clear() -> None:
+def test_yone_v7_real_actor_card_preview_keeps_feet_clear_from_name_band() -> None:
     validator = _load_validator()
-    report = validator.validate_v6(
+    report = validator.validate_v7(
         verify_runtime_atlas=True,
-        verify_retired_paths=True,
+        verify_retired_paths=False,
     )["body_preview"]
     assert report["size"] == [141, 138]
     assert report["fully_opaque_complete_card"] is True
@@ -251,10 +278,11 @@ def test_yone_v6_real_actor_card_preview_keeps_feet_and_icons_clear() -> None:
     assert report["card_pixels_exact"] is True
     assert report["divider_clearance"] >= 6
     assert report["ui_icon_safe_rect"] == [98, 70, 141, 100]
+    assert report["ui_portrait_route_is_separate"] is True
     assert report["actor_alpha_bbox"][3] <= 96 - 6
 
 
-def test_yone_v3_v4_and_v5_body_routes_are_physically_and_manifest_retired() -> None:
+def test_yone_v3_through_v6_battle_routes_are_physically_and_manifest_retired() -> None:
     validator = _load_validator()
     validator._validate_retired_paths(MOD)
     retired_tokens = {
@@ -262,6 +290,8 @@ def test_yone_v3_v4_and_v5_body_routes_are_physically_and_manifest_retired() -> 
         *validator.RETIRED_BODY_PREFIXES,
     }
     assert any("yone_v5" in token.casefold() for token in retired_tokens)
+    assert any("yone_v6" in token.casefold() for token in retired_tokens)
+    assert "source/imagegen/yone_v6_idle_source.png" not in retired_tokens
     for relative in validator.RETIRED_BODY_PATHS:
         assert not (MOD / relative).exists(), relative
     for prefix in validator.RETIRED_BODY_PREFIXES:
@@ -283,14 +313,14 @@ def test_yone_v3_v4_and_v5_body_routes_are_physically_and_manifest_retired() -> 
     )
 
 
-def test_yone_v6_json_schemas_lock_exact_native_shape_and_palette() -> None:
+def test_yone_v7_json_schemas_lock_dual_sword_shape_and_palette() -> None:
     frame_schema = json.loads(FRAME_SCHEMA.read_text(encoding="utf-8"))
     palette_schema = json.loads(PALETTE_SCHEMA.read_text(encoding="utf-8"))
-    assert frame_schema["properties"]["schema_version"]["const"] == 6
-    assert frame_schema["properties"]["route"]["const"] == "exact-native-v6"
-    assert frame_schema["properties"]["atlas_size"]["const"] == [3502, 88]
-    assert frame_schema["properties"]["frames"]["minItems"] == 54
-    assert frame_schema["properties"]["frames"]["maxItems"] == 54
+    assert frame_schema["properties"]["schema_version"]["const"] == 7
+    assert frame_schema["properties"]["route"]["const"] == "dual-sword-v7"
+    assert frame_schema["properties"]["atlas_size"]["const"] == [4262, 88]
+    assert frame_schema["properties"]["frames"]["minItems"] == 67
+    assert frame_schema["properties"]["frames"]["maxItems"] == 67
     assert set(frame_schema["$defs"]["frame"]["required"]) == {
         "action",
         "index",
@@ -302,17 +332,24 @@ def test_yone_v6_json_schemas_lock_exact_native_shape_and_palette() -> None:
         "mask_bbox",
         "foot_zones",
         "face_visibility",
+        "active_weapon",
+        "weapons_present",
     }
-    assert palette_schema["properties"]["schema_version"]["const"] == 6
-    assert palette_schema["properties"]["route"]["const"] == "exact-native-v6"
+    weapon_contract = frame_schema["properties"]["weapon_contract"]
+    assert weapon_contract == {"$ref": "#/$defs/weaponContract"}
+    assert frame_schema["$defs"]["weaponContract"]["properties"][
+        "always_dual_actions"
+    ]["const"] == ["idle", "run"]
+    assert palette_schema["properties"]["schema_version"]["const"] == 7
+    assert palette_schema["properties"]["route"]["const"] == "dual-sword-v7"
     assert palette_schema["properties"]["colors"]["maxItems"] >= 9
 
 
-def test_yone_builder_physically_retires_v3_v4_v5_and_cannot_reprocess_native_pixels() -> None:
+def test_yone_builder_uses_v7_and_cannot_reprocess_native_pixels() -> None:
     builder_path = MOD / "tools/build_yone.py"
     source = builder_path.read_text(encoding="utf-8")
-    assert 'NATIVE_V6_ROUTE = "exact-native-v6"' in source
-    assert 'SOURCE_ROOT / "native" / "yone_v6"' in source
+    assert 'NATIVE_V7_ROUTE = "dual-sword-v7"' in source
+    assert 'SOURCE_ROOT / "native" / "yone_v7"' in source
     assert "NATIVE_V5_" not in source
     assert 'SOURCE_ROOT / "native" / "yone_v5"' not in source
     assert "RETIRED_YONE_V4_BODY_SOURCES" in source
@@ -613,8 +650,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.17;logical_contract=85x93"',
-        '"version=0.10.17;from_size=',
+        '"version=0.10.18;logical_contract=85x93"',
+        '"version=0.10.18;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -626,7 +663,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     trace = _function_body(source, "trace_yone_render_commands")
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.17;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
+        '"version=0.10.18;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',

@@ -55,6 +55,15 @@
         "type": "Combine",
         "effects": [
           {
+            "type": "CasterAnimation",
+            "name": "attack_steel",
+            "tick": 20
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "lol_yone_attack_steel_swing"
+          },
+          {
             "type": "Sfx",
             "name": "lol_yone_attack_steel_cast"
           },
@@ -83,6 +92,15 @@
       "effect_buff": {
         "type": "Combine",
         "effects": [
+          {
+            "type": "CasterAnimation",
+            "name": "attack_azakana",
+            "tick": 20
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "lol_yone_attack_azakana_swing"
+          },
           {
             "type": "Sfx",
             "name": "lol_yone_attack_azakana_cast"
@@ -136,8 +154,12 @@
             },
             {
               "type": "CasterAnimation",
-              "name": "skill",
+              "name": "skill_q12",
               "tick": 30
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_yone_q_blade"
             },
             {
               "type": "LinearProjectile",
@@ -206,8 +228,12 @@
             },
             {
               "type": "CasterAnimation",
-              "name": "skill",
+              "name": "skill_q12",
               "tick": 30
+            },
+            {
+              "type": "CasterViewEffect",
+              "name": "lol_yone_q_blade"
             },
             {
               "type": "LinearProjectile",
@@ -290,8 +316,12 @@
           },
           {
             "type": "CasterAnimation",
-            "name": "skill",
+            "name": "skill_q3",
             "tick": 30
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "lol_yone_q3_blade"
           },
           {
             "type": "RushTime",
@@ -369,7 +399,7 @@
       "effects": [
         {
           "type": "CasterAnimation",
-          "name": "skill2_attack",
+          "name": "skill_w_azakana",
           "tick": 30
         },
         {
@@ -861,6 +891,22 @@
   "view_effects": [
     {
       "type": "Animation",
+      "name": "lol_yone_attack_steel_swing",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "steel_hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_attack_azakana_swing",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "azakana_hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
       "name": "lol_yone_attack_steel_hit",
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
       "tag": "steel_hit",
@@ -873,6 +919,22 @@
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
       "tag": "azakana_hit",
       "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q_blade",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q3_blade",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "empowered_hit",
+      "z": 3,
       "is_follow": true
     },
     {
