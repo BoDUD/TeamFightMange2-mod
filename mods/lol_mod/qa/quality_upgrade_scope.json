@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.10.18",
+  "release": "0.10.19",
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
     "banpick_splashes": [
@@ -121,7 +121,7 @@
         "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
         "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
       },
-      "live_status": "0.10.18 retains the 0.10.17 source-direct UI V6 route unchanged: the measured Yone UI NinePatch stays at its original 95x88 size, samples the existing source's top 88 rows, preserves central-grid x/y/w/h, and applies only a -9 logical y baseline correction to assignment and edge cards. The Game-pass battle Sprite now uses the separate dual-sword V7 actor atlas and cannot enter any BP, assignment, management, compact or scoreboard portrait route; manual UI verification remains required."
+      "live_status": "0.10.19 retains the 0.10.17 source-direct UI V6 route unchanged: the measured Yone UI NinePatch stays at its original 95x88 size, samples the existing source's top 88 rows, preserves central-grid x/y/w/h, and applies only a -9 logical y baseline correction to assignment and edge cards. The Game-pass battle Sprite uses the separate dual-sword V7 actor atlas and cannot enter any BP, assignment, management, compact or scoreboard portrait route; manual UI verification remains required."
     },
     "neutral_actor_overrides": {
       "epic": "Baron Nashor",
@@ -197,6 +197,43 @@
           "w": "skill_w_azakana"
         }
       },
+      "dual_sword_pixel_contract": {
+        "release": "0.10.19",
+        "strict_source_grids": {
+          "motion": "5x4",
+          "attack_q": "6x4",
+          "w": "3x2",
+          "ult": "5x3"
+        },
+        "source_grid_gate": "hash-locked canvas, row/column count, cell order and cell ownership are validated before source-to-native generation; inferred layout, cross-cell sampling and adjacent-pose substitution are forbidden",
+        "exclusive_weapon_palette": {
+          "steel": [
+            "steel_dark",
+            "steel_mid",
+            "steel_highlight"
+          ],
+          "azakana": [
+            "azakana_dark",
+            "azakana_red",
+            "azakana_highlight"
+          ],
+          "body_aliases_forbidden": "mask, belt, clothing, hair, skin and generic body shadows cannot satisfy weapon-presence checks"
+        },
+        "per_frame_geometry_gate": "every final 1x frame records separate steel and Azakana hand anchors, continuous blade paths and tips; CI enforces hand-to-tip connectivity, minimum reach, distinct direction/color and tip boundary clearance",
+        "covered_actions": [
+          "idle",
+          "run",
+          "attack_steel",
+          "attack_azakana",
+          "skill_q12",
+          "skill_q3",
+          "skill_w_azakana",
+          "ult",
+          "hit",
+          "dead"
+        ],
+        "historical_0_10_18": "failed pixel contract: animation tags and the append-only atlas were wired, but shared generic red/dark cues and the absence of hand-to-tip geometry checks allowed missing, merged or shortened swords to pass"
+      },
       "ui_portrait_route": "source-direct UI V6 retained independently from battle V7 for BP grid, assignment, management, compact and scoreboard surfaces",
       "hit_gated_three_stage_q": true,
       "q_named_stacks": [
@@ -249,8 +286,8 @@
       "native_state_isolation": "one native invocation scans only its supplied GameCtx and uses no static, OnceLock, Mutex, caster/player/team/position/tick matching, or process-global W registry",
       "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
       "new_save_required_for_current_w": "0.10.5",
-      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.18",
-      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.18 save embeds the attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
+      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.19",
+      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.19 save embeds the attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 67,
@@ -393,6 +430,6 @@
     "static_build_and_contract_checks": true,
     "game_launched": false,
     "runtime_tested": false,
-    "reason": "Static build and contract verification is complete; the updated package is awaiting the user's fresh-0.10.18-save battle retest and separate UI V6 surface retest."
+    "reason": "Static build and contract verification targets the strict 0.10.19 dual-sword pixel contract; the updated package is awaiting the user's fresh-0.10.19-save battle retest and separate UI V6 surface retest."
   }
 }

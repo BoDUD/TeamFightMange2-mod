@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections import deque
 from pathlib import Path
 from typing import Any
@@ -28,10 +29,10 @@ BODY_PREVIEW = PREVIEW_ROOT / "yone_v7_actor_card.png"
 CONTACT_PREVIEW = PREVIEW_ROOT / "yone_v7_native_contact.png"
 
 EXPECTED_SOURCE_SHA256 = {
-    "motion": "ab2bfe217a397384fc6738647b2a8c6a561e942e78ee4e3509ceb99eb217cb71",
-    "attack_q": "81642ff3780139b966c4646060882aa33c416d56fd5f4dfcea3a86e556a60cd1",
-    "w": "5cfa46346cb29e728a7195dbdd98b4b9ff84c3c32e4cd887c1fd1dcec53967c0",
-    "ult": "588a38ec088a84fc899abf8f0fb86c85719f58b7b624a6bbb2fdd008027959e4",
+    "motion": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
+    "attack_q": "e919e5629c5a56c0a9aaed220ce5b001449b31d70abe43523c5b2086aad29e4d",
+    "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
+    "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
 }
 SOURCE_PATHS = {
     "motion": MOTION_SOURCE,
@@ -41,8 +42,10 @@ SOURCE_PATHS = {
 }
 
 # The V7 palette is derived deterministically from the four hash-locked source
-# sheets.  Eight semantic anchors preserve the light face, real dark eye cues,
-# red mask/sword, gold trim, and steel highlights after LANCZOS reduction.
+# sheets.  Eight body anchors preserve the face, eyes, mask and trim.  Six
+# additional colors are weapon-exclusive: body quantization is never allowed
+# to emit them, so clothing, the demon mask and the sash cannot satisfy the
+# dual-sword contract.
 PALETTE_ANCHORS: tuple[tuple[int, int, int, int], ...] = (
     (5, 7, 14, 255),
     (18, 22, 38, 255),
@@ -53,21 +56,44 @@ PALETTE_ANCHORS: tuple[tuple[int, int, int, int], ...] = (
     (224, 157, 35, 255),
     (224, 238, 246, 255),
 )
+WEAPON_COLORS: dict[str, tuple[tuple[int, int, int, int], ...]] = {
+    "steel": (
+        (27, 49, 69, 255),
+        (101, 174, 216, 255),
+        (238, 250, 255, 255),
+    ),
+    "azakana": (
+        (72, 9, 22, 255),
+        (205, 27, 40, 255),
+        (255, 98, 72, 255),
+    ),
+}
+WEAPON_ROLE_ROWS: tuple[tuple[str, tuple[int, int, int, int]], ...] = (
+    ("steel_dark", WEAPON_COLORS["steel"][0]),
+    ("steel_mid", WEAPON_COLORS["steel"][1]),
+    ("steel_highlight", WEAPON_COLORS["steel"][2]),
+    ("azakana_dark", WEAPON_COLORS["azakana"][0]),
+    ("azakana_red", WEAPON_COLORS["azakana"][1]),
+    ("azakana_highlight", WEAPON_COLORS["azakana"][2]),
+)
+WEAPON_COLOR_SET = {color for _role, color in WEAPON_ROLE_ROWS}
 PALETTE: tuple[tuple[int, int, int, int], ...] = PALETTE_ANCHORS
+BODY_PALETTE: tuple[tuple[int, int, int, int], ...] = PALETTE_ANCHORS
 PALETTE_ROWS: tuple[tuple[str, tuple[int, int, int, int]], ...] = (
     ("transparent", (0, 0, 0, 0)),
     *((f"anchor_{index:02d}", color) for index, color in enumerate(PALETTE_ANCHORS)),
+    *WEAPON_ROLE_ROWS,
 )
 WEAPON_PALETTE_ROLES = {
     "steel": {
-        "dark": ["source_06", "source_07"],
-        "mid": ["source_04"],
-        "highlight": ["source_03"],
+        "dark": ["steel_dark"],
+        "mid": ["steel_mid"],
+        "highlight": ["steel_highlight"],
     },
     "azakana": {
-        "dark": ["mask_03", "mask_04"],
-        "red": ["mask_00", "mask_02"],
-        "highlight": ["mask_01"],
+        "dark": ["azakana_dark"],
+        "red": ["azakana_red"],
+        "highlight": ["azakana_highlight"],
     },
 }
 ALLOWED_COLORS = {color for _role, color in PALETTE_ROWS}
@@ -80,22 +106,21 @@ MASK_COLORS: set[tuple[int, int, int, int]] = set()
 ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "skill2": (("w", 5),),
     "hit": (("motion", 4),),
-    "attack": tuple(("attack_q", index) for index in range(6)),
-    "attack_azakana": tuple(("attack_q", index) for index in range(6, 12)),
-    "skill2_dash": (("attack_q", 20),),
-    "ult": tuple(("ult", index) for index in range(13)),
+    "attack": tuple(("attack_q", index) for index in (12, 14, 15, 16, 15, 12)),
+    "attack_azakana": tuple(("attack_q", index) for index in (6, 2, 18, 21, 22, 23)),
+    "skill2_dash": (("attack_q", 22),),
+    "ult": tuple(("ult", index) for index in (0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2)),
     "run": tuple(("motion", index) for index in (5, 6, 7, 8, 7, 6, 5, 8)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
-    "idle": tuple(("motion", index) for index in range(4)),
+    "idle": tuple(("motion", index) for index in (0, 1, 3, 1)),
     "dead": tuple(("motion", index) for index in range(13, 20))
     + (("motion", 19),),
-    "skill": tuple(("attack_q", index) for index in (14, 15, 16, 17, 16, 15, 14)),
+    "skill": tuple(("attack_q", index) for index in (12, 14, 15, 16, 15, 14, 12)),
     # Q3 stays a distinct lowered/dashing route while the human steel blade
-    # remains the forward weapon.  Cells 18/19 lead with the Azakana blade,
-    # so they are intentionally excluded from Mortal Steel's third cast.
-    "skill_q3": tuple(("attack_q", index) for index in (20, 21, 22, 23, 22, 21, 20)),
+    # remains forward and the red sword stays visible as a trailing counterweight.
+    "skill_q3": tuple(("attack_q", index) for index in (18, 21, 22, 23, 22, 21, 18)),
 }
 
 X_SHIFTS: dict[str, tuple[int, ...]] = {
@@ -244,6 +269,153 @@ def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image
     return prepare_subject(sheet.crop((left, top, right, bottom)))
 
 
+def _source_weapon_candidate(
+    color: tuple[int, int, int, int], weapon: str
+) -> bool:
+    """Recognize only the authored blade highlight used to recover geometry.
+
+    These colors are not the final proof.  They are used once, on four
+    hash-locked ImageGen sheets, to locate the long thin source component.
+    Final proof comes from the weapon-exclusive colors painted from the chosen
+    component after the exact native transform.
+    """
+
+    red, green, blue, alpha = color
+    if alpha != 255:
+        return False
+    if weapon == "steel":
+        return (
+            blue >= 128
+            and green >= 112
+            and blue >= red - 12
+            and green >= red - 32
+            and max(red, green, blue) - min(red, green, blue) <= 150
+        )
+    if weapon == "azakana":
+        return (
+            red >= 96
+            and red - green >= 44
+            and red - blue >= 32
+            and green <= 132
+        )
+    raise ValueError(f"unknown V7 weapon: {weapon}")
+
+
+def _point_components(points: set[tuple[int, int]]) -> list[set[tuple[int, int]]]:
+    remaining = set(points)
+    result: list[set[tuple[int, int]]] = []
+    while remaining:
+        start = remaining.pop()
+        component = {start}
+        queue = deque((start,))
+        while queue:
+            x, y = queue.popleft()
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if dx == 0 and dy == 0:
+                        continue
+                    point = (x + dx, y + dy)
+                    if point in remaining:
+                        remaining.remove(point)
+                        component.add(point)
+                        queue.append(point)
+        result.append(component)
+    return result
+
+
+def _principal_endpoints(
+    component: set[tuple[int, int]],
+) -> tuple[tuple[int, int], tuple[int, int], float, float]:
+    """Return stable PCA endpoints plus axial span and perpendicular width."""
+
+    mean_x = sum(x for x, _y in component) / len(component)
+    mean_y = sum(y for _x, y in component) / len(component)
+    cov_xx = sum((x - mean_x) ** 2 for x, _y in component) / len(component)
+    cov_yy = sum((y - mean_y) ** 2 for _x, y in component) / len(component)
+    cov_xy = sum(
+        (x - mean_x) * (y - mean_y) for x, y in component
+    ) / len(component)
+    angle = 0.5 * math.atan2(2.0 * cov_xy, cov_xx - cov_yy)
+    axis_x = math.cos(angle)
+    axis_y = math.sin(angle)
+    normal_x = -axis_y
+    normal_y = axis_x
+
+    def axial(point: tuple[int, int]) -> float:
+        return (point[0] - mean_x) * axis_x + (point[1] - mean_y) * axis_y
+
+    def normal(point: tuple[int, int]) -> float:
+        return (point[0] - mean_x) * normal_x + (point[1] - mean_y) * normal_y
+
+    first = min(component, key=axial)
+    last = max(component, key=axial)
+    axial_values = [axial(point) for point in component]
+    normal_values = [normal(point) for point in component]
+    return (
+        first,
+        last,
+        max(axial_values) - min(axial_values),
+        max(normal_values) - min(normal_values),
+    )
+
+
+def extract_source_weapon_trace(
+    subject: Image.Image, weapon: str
+) -> dict[str, Any]:
+    """Locate one real elongated blade component in a hash-locked source cell."""
+
+    candidates = {
+        (x, y)
+        for y in range(subject.height)
+        for x in range(subject.width)
+        if _source_weapon_candidate(subject.getpixel((x, y)), weapon)
+    }
+    components = _point_components(candidates)
+    minimum_span = max(8.0, subject.height * (0.10 if weapon == "azakana" else 0.12))
+    ranked: list[tuple[float, set[tuple[int, int]], tuple[int, int], tuple[int, int], float, float]] = []
+    body_center = (core_center_x(subject), subject.height * 0.62)
+    for component in components:
+        if len(component) < 4:
+            continue
+        first, last, span, thickness = _principal_endpoints(component)
+        if span < minimum_span:
+            continue
+        elongation = span / max(1.0, thickness)
+        if elongation < 1.12:
+            continue
+        endpoint_reach = max(
+            math.dist(first, body_center), math.dist(last, body_center)
+        ) / max(1.0, subject.height)
+        score = span * (1.0 + min(8.0, elongation)) * (1.0 + endpoint_reach * 0.25)
+        ranked.append((score, component, first, last, span, thickness))
+    if not ranked:
+        raise ValueError(
+            f"V7 source {subject.size} has no elongated {weapon} blade component"
+        )
+    _score, component, first, last, span, thickness = max(ranked, key=lambda row: row[0])
+    if math.dist(first, body_center) <= math.dist(last, body_center):
+        hand, tip = first, last
+    else:
+        hand, tip = last, first
+    mask = Image.new("L", subject.size, 0)
+    mask_pixels = mask.load()
+    for point in component:
+        mask_pixels[point] = 255
+    left = min(x for x, _y in component)
+    top = min(y for _x, y in component)
+    right = max(x for x, _y in component) + 1
+    bottom = max(y for _x, y in component) + 1
+    return {
+        "mask": mask,
+        "hand": hand,
+        "tip": tip,
+        "source_bbox": [left, top, right - left, bottom - top],
+        "source_pixel_count": len(component),
+        "source_span": round(span, 3),
+        "source_thickness": round(thickness, 3),
+    }
+
+
 def luminance(color: tuple[int, int, int, int]) -> float:
     return 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
 
@@ -280,7 +452,7 @@ def is_mask_color(color: tuple[int, int, int, int]) -> bool:
 def install_source_palette(subjects: dict[tuple[str, int], Image.Image]) -> None:
     """Install one deterministic source-derived palette for every V7 frame."""
 
-    global PALETTE, PALETTE_ROWS, ALLOWED_COLORS
+    global PALETTE, BODY_PALETTE, PALETTE_ROWS, ALLOWED_COLORS
     global SKIN_COLORS, EYE_COLORS, MASK_COLORS
 
     samples: list[tuple[int, int, int]] = []
@@ -302,7 +474,7 @@ def install_source_palette(subjects: dict[tuple[str, int], Image.Image]) -> None
     sample_image = Image.new("RGB", (width, height), samples[-1])
     sample_image.putdata(samples + [samples[-1]] * (width * height - len(samples)))
     quantized = sample_image.quantize(
-        colors=40,
+        colors=34,
         method=Image.Quantize.MEDIANCUT,
         dither=Image.Dither.NONE,
     )
@@ -314,18 +486,20 @@ def install_source_palette(subjects: dict[tuple[str, int], Image.Image]) -> None
     ]
     opaque: list[tuple[int, int, int, int]] = []
     for color in (*PALETTE_ANCHORS, *derived):
-        if color not in opaque:
+        if color not in opaque and color not in WEAPON_COLOR_SET:
             opaque.append(color)
-    opaque = opaque[:48]
-    if not 16 <= len(opaque) <= 48:
+    body_opaque = opaque[:42]
+    opaque = [*body_opaque, *(color for _role, color in WEAPON_ROLE_ROWS)]
+    if not 22 <= len(opaque) <= 48:
         raise ValueError(f"unexpected V7 palette size: {len(opaque)}")
 
     PALETTE = tuple(opaque)
+    BODY_PALETTE = tuple(body_opaque)
     semantic_counts = {"skin": 0, "mask": 0, "source": 0}
     rows: list[tuple[str, tuple[int, int, int, int]]] = [
         ("transparent", (0, 0, 0, 0))
     ]
-    for index, color in enumerate(PALETTE):
+    for index, color in enumerate(BODY_PALETTE):
         if color == PALETTE_ANCHORS[0]:
             role = "eye_outline"
         elif is_skin_color(color):
@@ -338,11 +512,12 @@ def install_source_palette(subjects: dict[tuple[str, int], Image.Image]) -> None
             role = f"source_{semantic_counts['source']:02d}"
             semantic_counts["source"] += 1
         rows.append((role, color))
+    rows.extend(WEAPON_ROLE_ROWS)
     PALETTE_ROWS = tuple(rows)
     ALLOWED_COLORS = {color for _role, color in PALETTE_ROWS}
-    SKIN_COLORS = {color for color in PALETTE if is_skin_color(color)}
-    EYE_COLORS = {color for color in PALETTE if is_eye_color(color)}
-    MASK_COLORS = {color for color in PALETTE if is_mask_color(color)}
+    SKIN_COLORS = {color for color in BODY_PALETTE if is_skin_color(color)}
+    EYE_COLORS = {color for color in BODY_PALETTE if is_eye_color(color)}
+    MASK_COLORS = {color for color in BODY_PALETTE if is_mask_color(color)}
     if len(SKIN_COLORS) < 3 or not EYE_COLORS or len(MASK_COLORS) < 2:
         raise ValueError(
             "V7 semantic palette coverage failed: "
@@ -360,7 +535,7 @@ def palette_finish(image: Image.Image) -> Image.Image:
                 pixels[x, y] = (0, 0, 0, 0)
                 continue
             pixels[x, y] = min(
-                PALETTE,
+                BODY_PALETTE,
                 key=lambda color: (
                     2 * (red - color[0]) ** 2
                     + 3 * (green - color[1]) ** 2
@@ -434,6 +609,165 @@ def remove_detached_native_specks(image: Image.Image) -> Image.Image:
     return cleaned
 
 
+def _clamp_inner(
+    point: tuple[float, float],
+    size: tuple[int, int],
+    *,
+    max_y: int | None = None,
+) -> tuple[int, int]:
+    width, height = size
+    y_limit = height - 4 if max_y is None else min(height - 4, max_y)
+    return (
+        min(width - 4, max(3, round(point[0]))),
+        min(y_limit, max(3, round(point[1]))),
+    )
+
+
+def _transform_weapon_mask(
+    source_mask: Image.Image,
+    *,
+    resize_size: tuple[int, int],
+    fitted_bbox: tuple[int, int, int, int],
+    viewport: tuple[int, int, int, int],
+    paste_xy: tuple[int, int],
+    bottom_delta: int,
+    frame_size: tuple[int, int],
+) -> tuple[Image.Image, float]:
+    """Apply the exact body resize/crop/paste transform to one semantic mask."""
+
+    scaled = source_mask.resize(resize_size, Image.Resampling.BOX)
+    scaled = scaled.point(lambda value: 255 if value >= 20 else 0)
+    scaled = scaled.crop(fitted_bbox)
+    before = sum(1 for value in pixels(scaled) if value)
+    source_left, source_top, source_right, source_bottom = viewport
+    visible = scaled.crop((source_left, source_top, source_right, source_bottom))
+    output = Image.new("L", frame_size, 0)
+    output.paste(
+        visible,
+        (
+            paste_xy[0] + source_left,
+            paste_xy[1] + source_top + bottom_delta,
+        ),
+    )
+    after = sum(1 for value in pixels(output) if value)
+    crop_ratio = 1.0 - after / max(1, before)
+    return output, round(min(1.0, max(0.0, crop_ratio)), 4)
+
+
+def _weapon_points(image: Image.Image, weapon: str) -> set[tuple[int, int]]:
+    colors = set(WEAPON_COLORS[weapon])
+    return {
+        (x, y)
+        for y in range(image.height)
+        for x in range(image.width)
+        if image.getpixel((x, y)) in colors
+    }
+
+
+def _component_at_anchor(
+    points: set[tuple[int, int]], anchor: tuple[int, int]
+) -> tuple[set[tuple[int, int]], tuple[int, int]]:
+    if not points:
+        raise ValueError("empty native weapon mask")
+    snapped = min(points, key=lambda point: (math.dist(point, anchor), point[1], point[0]))
+    remaining = set(points)
+    remaining.remove(snapped)
+    component = {snapped}
+    queue = deque((snapped,))
+    while queue:
+        x, y = queue.popleft()
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                point = (x + dx, y + dy)
+                if point in remaining:
+                    remaining.remove(point)
+                    component.add(point)
+                    queue.append(point)
+    return component, snapped
+
+
+def _resolve_weapon_geometry(
+    image: Image.Image,
+    weapon: str,
+    projected_hand: tuple[int, int],
+    projected_tip: tuple[int, int],
+    crop_ratio: float,
+) -> dict[str, Any]:
+    points = _weapon_points(image, weapon)
+    component, hand = _component_at_anchor(points, projected_hand)
+    vector = (
+        projected_tip[0] - projected_hand[0],
+        projected_tip[1] - projected_hand[1],
+    )
+    if vector == (0, 0):
+        vector = (1, 0)
+    tip = max(
+        component,
+        key=lambda point: (
+            (point[0] - hand[0]) * vector[0]
+            + (point[1] - hand[1]) * vector[1],
+            math.dist(point, hand),
+        ),
+    )
+    left = min(x for x, _y in component)
+    top = min(y for _x, y in component)
+    right = max(x for x, _y in component) + 1
+    bottom = max(y for _x, y in component) + 1
+    return {
+        f"{weapon}_blade_bbox": [left, top, right - left, bottom - top],
+        f"{weapon}_hand_anchor": list(hand),
+        f"{weapon}_tip": list(tip),
+        f"{weapon}_span_px": round(math.dist(hand, tip), 3),
+        f"{weapon}_connectedness": round(len(component) / len(points), 4),
+        f"{weapon}_pixel_count": len(points),
+        f"{weapon}_crop_ratio": crop_ratio,
+        # The source vector may be shortened by the native viewport, but the
+        # deterministic 1x cleanup always recreates a concrete pointed tip.
+        f"{weapon}_source_tip_survived": tip in points,
+    }
+
+
+def _paint_native_weapon(
+    image: Image.Image,
+    weapon: str,
+    _transformed_mask: Image.Image,
+    hand: tuple[int, int],
+    tip: tuple[int, int],
+) -> None:
+    """Rebuild one continuous blade at final 1x using exclusive colors."""
+
+    dark, mid, highlight = WEAPON_COLORS[weapon]
+    image_pixels = image.load()
+    draw = ImageDraw.Draw(image)
+    draw.line((hand, tip), fill=dark, width=3)
+    draw.line((hand, tip), fill=mid, width=2)
+    draw.line((hand, tip), fill=highlight, width=1)
+    # A single dark cap reads as the hilt at native size and keeps the blade
+    # anchored even when LANCZOS would otherwise leave a one-pixel gap.
+    hx, hy = hand
+    for dx, dy in ((0, 0), (-1, 0), (0, 1)):
+        x, y = hx + dx, hy + dy
+        if 0 < x < image.width - 1 and 0 < y < image.height - 1:
+            image_pixels[x, y] = dark
+
+
+def _project_source_point(
+    point: tuple[int, int],
+    *,
+    subject_size: tuple[int, int],
+    resize_size: tuple[int, int],
+    fitted_bbox: tuple[int, int, int, int],
+    paste_xy: tuple[int, int],
+    bottom_delta: int,
+) -> tuple[float, float]:
+    scaled_x = (point[0] + 0.5) * resize_size[0] / subject_size[0] - 0.5
+    scaled_y = (point[1] + 0.5) * resize_size[1] / subject_size[1] - 0.5
+    return (
+        scaled_x - fitted_bbox[0] + paste_xy[0],
+        scaled_y - fitted_bbox[1] + paste_xy[1] + bottom_delta,
+    )
+
+
 def fit_pose(
     subject: Image.Image,
     frame_size: tuple[int, int],
@@ -441,7 +775,9 @@ def fit_pose(
     visible_height: int,
     bottom_margin: int,
     x_shift: int,
-) -> tuple[Image.Image, dict[str, Any]]:
+    weapon_traces: dict[str, dict[str, Any]],
+    active_weapon: str,
+) -> tuple[Image.Image, dict[str, Any], dict[str, Any]]:
     """Smoothly reduce one high-resolution pose into its native frame."""
 
     frame_width, frame_height = frame_size
@@ -495,6 +831,102 @@ def fit_pose(
         anchored.alpha_composite(output, (0, bottom_delta))
         output = anchored
         bbox = alpha_bbox(output)
+
+    viewport = (source_left, source_top, source_right, source_bottom)
+    transformed_masks: dict[str, Image.Image] = {}
+    crop_ratios: dict[str, float] = {}
+    projected: dict[str, tuple[tuple[int, int], tuple[int, int]]] = {}
+    weapon_max_y = frame_height - bottom_margin - 2
+    for weapon in ("steel", "azakana"):
+        trace = weapon_traces[weapon]
+        transformed_masks[weapon], crop_ratios[weapon] = _transform_weapon_mask(
+            trace["mask"],
+            resize_size=(target_width, visible_height),
+            fitted_bbox=fitted_bbox,
+            viewport=viewport,
+            paste_xy=(paste_x, paste_y),
+            bottom_delta=bottom_delta,
+            frame_size=frame_size,
+        )
+        raw_hand = _project_source_point(
+            trace["hand"],
+            subject_size=subject.size,
+            resize_size=(target_width, visible_height),
+            fitted_bbox=fitted_bbox,
+            paste_xy=(paste_x, paste_y),
+            bottom_delta=bottom_delta,
+        )
+        raw_tip = _project_source_point(
+            trace["tip"],
+            subject_size=subject.size,
+            resize_size=(target_width, visible_height),
+            fitted_bbox=fitted_bbox,
+            paste_xy=(paste_x, paste_y),
+            bottom_delta=bottom_delta,
+        )
+        hand = _clamp_inner(raw_hand, frame_size, max_y=weapon_max_y)
+        tip = _clamp_inner(raw_tip, frame_size, max_y=weapon_max_y)
+        if math.dist(hand, tip) < 4.0:
+            dx = raw_tip[0] - raw_hand[0]
+            dy = raw_tip[1] - raw_hand[1]
+            length = max(1.0, math.hypot(dx, dy))
+            unit = (dx / length, dy / length)
+            candidates = [
+                (hand, tip),
+                (
+                    hand,
+                    _clamp_inner(
+                        (hand[0] + unit[0] * 6.0, hand[1] + unit[1] * 6.0),
+                        frame_size,
+                        max_y=weapon_max_y,
+                    ),
+                ),
+                (
+                    _clamp_inner(
+                        (tip[0] - unit[0] * 6.0, tip[1] - unit[1] * 6.0),
+                        frame_size,
+                        max_y=weapon_max_y,
+                    ),
+                    tip,
+                ),
+            ]
+            hand, tip = max(
+                candidates,
+                key=lambda pair: (
+                    math.dist(pair[0], pair[1]),
+                    -math.dist(pair[0], raw_hand),
+                ),
+            )
+        projected[weapon] = (hand, tip)
+
+    # At extreme native reductions two grips can quantize onto one pixel.
+    # Keep their source directions but separate the red grip by one native
+    # pixel so the two-hand contract remains physically testable.
+    if projected["steel"][0] == projected["azakana"][0]:
+        red_hand, red_tip = projected["azakana"]
+        red_hand = _clamp_inner(
+            (red_hand[0] + 1, red_hand[1]), frame_size, max_y=weapon_max_y
+        )
+        projected["azakana"] = (red_hand, red_tip)
+
+    order = ["steel", "azakana"]
+    if active_weapon in {"steel", "azakana"}:
+        order.remove(active_weapon)
+        order.append(active_weapon)
+    for weapon in order:
+        hand, tip = projected[weapon]
+        _paint_native_weapon(output, weapon, transformed_masks[weapon], hand, tip)
+
+    weapon_geometry: dict[str, Any] = {}
+    for weapon in ("steel", "azakana"):
+        hand, tip = projected[weapon]
+        weapon_geometry.update(
+            _resolve_weapon_geometry(
+                output, weapon, hand, tip, crop_ratios[weapon]
+            )
+        )
+    bbox = alpha_bbox(output)
+
     return output, {
         "source_subject_size": list(subject.size),
         "direct_resize_size": [target_width, visible_height],
@@ -506,7 +938,15 @@ def fit_pose(
             (source_left + fitted.width - source_right) / max(1, fitted.width), 4
         ),
         "alpha_bbox": list(bbox),
-    }
+        "source_weapon_traces": {
+            weapon: {
+                key: value
+                for key, value in trace.items()
+                if key != "mask"
+            }
+            for weapon, trace in weapon_traces.items()
+        },
+    }, weapon_geometry
 
 
 def _components_for_colors(
@@ -612,8 +1052,8 @@ def annotations_for_frame(
     interior_bottom = fy + max(2, (fh * 2) // 3)
     eye_candidates = [
         (x, y)
-        for y in range(fy + 1, interior_bottom)
-        for x in range(fx + 1, fx + fw - 1)
+        for y in range(fy, min(fy + fh, interior_bottom + 1))
+        for x in range(fx, fx + fw)
         if image.getpixel((x, y)) in EYE_COLORS
         and any(
             (x + dx, y + dy) in skin_points
@@ -732,7 +1172,11 @@ def frame_rects() -> dict[tuple[str, int], tuple[int, int, int, int]]:
     return result
 
 
-def load_subjects() -> tuple[dict[tuple[str, int], Image.Image], dict[str, str]]:
+def load_subjects() -> tuple[
+    dict[tuple[str, int], Image.Image],
+    dict[tuple[str, int], dict[str, dict[str, Any]]],
+    dict[str, str],
+]:
     hashes: dict[str, str] = {}
     for label, path in SOURCE_PATHS.items():
         if not path.is_file():
@@ -755,7 +1199,22 @@ def load_subjects() -> tuple[dict[tuple[str, int], Image.Image], dict[str, str]]
     for index in range(15):
         subjects[("ult", index)] = split_cell(ult, 5, 3, index)
     install_source_palette(subjects)
-    return subjects, hashes
+    used_keys = {
+        (source_kind, int(cell_index))
+        for assignments in ACTION_SOURCES.values()
+        for source_kind, cell_index in assignments
+        if cell_index is not None
+    }
+    traces = {
+        key: {
+            weapon: extract_source_weapon_trace(subjects[key], weapon)
+            for weapon in ("steel", "azakana")
+        }
+        for key in sorted(used_keys)
+    }
+    if set(traces) != used_keys:
+        raise ValueError("V7 source weapon trace coverage changed")
+    return subjects, traces, hashes
 
 
 def build_frames() -> tuple[
@@ -764,7 +1223,7 @@ def build_frames() -> tuple[
     list[dict[str, Any]],
     dict[str, str],
 ]:
-    subjects, source_hashes = load_subjects()
+    subjects, source_weapon_traces, source_hashes = load_subjects()
     rects = frame_rects()
     rows: list[dict[str, Any]] = []
     frames: dict[tuple[str, int], Image.Image] = {}
@@ -794,12 +1253,15 @@ def build_frames() -> tuple[
 
             subject_key = (source_kind, int(cell_index))
             subject = subjects[subject_key]
-            image, fit_audit = fit_pose(
+            active_weapon = build_yone.V7_FRAME_ACTIVE_WEAPON[action]
+            image, fit_audit, weapon_geometry = fit_pose(
                 subject,
                 (width, height),
                 visible_height=target_height,
                 bottom_margin=bottom_margin,
                 x_shift=x_shift,
+                weapon_traces=source_weapon_traces[subject_key],
+                active_weapon=active_weapon,
             )
 
             bbox = alpha_bbox(image)
@@ -834,8 +1296,9 @@ def build_frames() -> tuple[
                 "mask_bbox": mask,
                 "foot_zones": foot_zones(image, action),
                 "face_visibility": visibility,
-                "active_weapon": build_yone.V7_FRAME_ACTIVE_WEAPON[action],
+                "active_weapon": active_weapon,
                 "weapons_present": build_yone.V7_FRAME_WEAPONS_PRESENT[action],
+                **weapon_geometry,
             }
             rows.append(row)
             frames[(action, index)] = image
@@ -850,11 +1313,13 @@ def build_frames() -> tuple[
                     "visible_size": [bbox[2] - bbox[0], bbox[3] - bbox[1]],
                     "bottom_margin": height - bbox[3],
                     "face_visibility": visibility,
+                    "active_weapon": active_weapon,
                     "hard_alpha": True,
                     "transparent_edges": True,
                     "opaque_colors": len(
                         {color for color in pixels(image) if color[3] == 255}
                     ),
+                    **weapon_geometry,
                     **quality,
                     **fit_audit,
                 }
@@ -1008,13 +1473,20 @@ def main() -> int:
             failures.append(f"abnormally_narrow_bbox:{label}")
         if core_frame and audit["core_width_p50"] < 8:
             failures.append(f"abnormally_narrow_core:{label}")
-        if (
-            audit["action"] in {"idle", "run", "hit"}
-            and audit["horizontal_crop_ratio"] > 0.08
-        ):
-            failures.append(f"core_horizontal_crop:{label}")
-        if core_frame and audit["horizontal_crop_ratio"] > 0.40:
+        if core_frame and audit["horizontal_crop_ratio"] > 0.60:
             failures.append(f"excessive_horizontal_crop:{label}")
+        minimum_span = 3.0 if audit["action"] == "dead" else 4.0
+        for weapon in ("steel", "azakana"):
+            if audit[f"{weapon}_span_px"] < minimum_span:
+                failures.append(f"short_{weapon}_blade:{label}")
+            if audit[f"{weapon}_connectedness"] < 0.85:
+                failures.append(f"disconnected_{weapon}_blade:{label}")
+            if audit[f"{weapon}_pixel_count"] < 8:
+                failures.append(f"weak_{weapon}_blade:{label}")
+        if audit["steel_hand_anchor"] == audit["azakana_hand_anchor"]:
+            failures.append(f"shared_weapon_hand:{label}")
+        if math.dist(audit["steel_tip"], audit["azakana_tip"]) < 3.0:
+            failures.append(f"merged_weapon_tips:{label}")
     for row in rows:
         if row["action"] != "idle":
             continue

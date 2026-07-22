@@ -6184,27 +6184,29 @@ def validate_native_dll() -> None:
         return
     payload = path.read_bytes()
     check(
-        b"version=0.10.18;root=" in payload,
-        "lol_mod.dll must contain the current 0.10.18 BP telemetry marker",
+        b"version=0.10.19;root=" in payload,
+        "lol_mod.dll must contain the current 0.10.19 BP telemetry marker",
     )
     check(
-        b"version=0.10.18;from_size=" in payload,
-        "lol_mod.dll must contain the current 0.10.18 Yone management portrait telemetry marker",
+        b"version=0.10.19;from_size=" in payload,
+        "lol_mod.dll must contain the current 0.10.19 Yone management portrait telemetry marker",
     )
     check(
-        b"version=0.10.18;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root=" in payload
+        b"version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root=" in payload
         and b"yone_bp_grid_replace" in payload,
-        "lol_mod.dll must contain the default 0.10.18 geometry-preserving Yone BP-grid route",
+        "lol_mod.dll must contain the default 0.10.19 geometry-preserving Yone BP-grid route",
     )
     check(
         b"yone_assignment_replace" in payload
         and b"yone_bp_side_card_replace" in payload
         and b"top_88_of_122" in payload
         and b"size_mode=preserved" in payload,
-        "lol_mod.dll must contain the 0.10.18 assignment/edge baseline and top-88 crop routes",
+        "lol_mod.dll must contain the 0.10.19 assignment/edge baseline and top-88 crop routes",
     )
     check(
-        b"version=0.10.17;root=" not in payload
+        b"version=0.10.18;root=" not in payload
+        and b"version=0.10.18;from_size=" not in payload
+        and b"version=0.10.17;root=" not in payload
         and b"version=0.10.17;from_size=" not in payload
         and b"version=0.10.16;root=" not in payload
         and b"version=0.10.16;from_size=" not in payload
@@ -7219,10 +7221,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         v6_report.get("generation_qa", {}).get("source_hashes")
         == {
-            "motion": "ab2bfe217a397384fc6738647b2a8c6a561e942e78ee4e3509ceb99eb217cb71",
-            "attack_q": "81642ff3780139b966c4646060882aa33c416d56fd5f4dfcea3a86e556a60cd1",
-            "w": "5cfa46346cb29e728a7195dbdd98b4b9ff84c3c32e4cd887c1fd1dcec53967c0",
-            "ult": "588a38ec088a84fc899abf8f0fb86c85719f58b7b624a6bbb2fdd008027959e4",
+            "motion": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
+            "attack_q": "e919e5629c5a56c0a9aaed220ce5b001449b31d70abe43523c5b2086aad29e4d",
+            "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
+            "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
         },
         "Yone V7 native source hash lock changed",
     )
@@ -7437,7 +7439,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.18", "lol_mod version must be 0.10.18")
+    check(mod_info.get("version") == "0.10.19", "lol_mod version must be 0.10.19")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
         "lol_mod must declare base >=0.5.1",
@@ -7458,7 +7460,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.1", "0.10.5", "0.10.17", "0.10.18",
+                "0.5.1", "0.10.5", "0.10.17", "0.10.18", "0.10.19",
                 "V7", "4262x88", "3502x88",
             )
         )
@@ -8439,8 +8441,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.18;logical_contract=85x93"',
-        '"version=0.10.18;from_size=',
+        '"version=0.10.19;logical_contract=85x93"',
+        '"version=0.10.19;from_size=',
     ):
         check(required in yone_portrait_rewrite, f"Yone portrait rewrite is missing: {required}")
     for forbidden in (
@@ -8463,7 +8465,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )[0]
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.18;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
+        '"version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',
@@ -9250,7 +9252,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.10.18", "lol_mod version must be 0.10.18")
+    check(mod_info.get("version") == "0.10.19", "lol_mod version must be 0.10.19")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

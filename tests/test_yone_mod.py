@@ -520,7 +520,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        "version=0.10.18",
+        "version=0.10.19",
     ):
         assert required in management_rewrite
 
@@ -1619,7 +1619,7 @@ def _retired_v3_w_actor_sequence_uses_generated_wr_native_cells_without_code_dra
 
 def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.18"
+    assert mod_info["version"] == "0.10.19"
     assert all(
         token in mod_info["description"]
         for token in ("Q1/Q2", "Q3", "W uses", "R keeps")
@@ -1670,16 +1670,58 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.10.18"
+    assert mod_info["version"] == "0.10.19"
     assert all(
         token in mod_info["description"]
         for token in ("Q1/Q2", "Q3", "W uses", "R keeps")
+    )
+    assert all(
+        token in mod_info["description"]
+        for token in (
+            "strict hash-locked contact-sheet grids",
+            "exclusive semantic weapon palette",
+            "hand-anchor-to-blade-tip geometry gates",
+            "Version 0.10.18 is retained only as failed history",
+        )
     )
     assert "E-only Soul Unbound" not in mod_info["description"]
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     assert all(token in readme for token in ("Q1/Q2", "Q3", "W", "R"))
+    assert all(
+        token in readme
+        for token in (
+            "motion 5×4",
+            "attack/Q 6×4",
+            "steel_dark/mid/highlight",
+            "azakana_dark/red/highlight",
+            "手柄到刀尖",
+            "v0.10.18：双剑动作结构已接入，但像素合同未完成",
+        )
+    )
     assert "Soul Unbound" not in readme
+
+    assert 'version = "0.10.19"' in (MOD / "Cargo.toml").read_text(
+        encoding="utf-8"
+    )
+    assert 'version = "0.10.19"' in (MOD / "Cargo.lock").read_text(
+        encoding="utf-8"
+    )
+    quality_scope = json.loads(
+        (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
+    )
+    assert quality_scope["release"] == "0.10.19"
+    pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
+        "dual_sword_pixel_contract"
+    ]
+    assert pixel_contract["release"] == "0.10.19"
+    assert pixel_contract["strict_source_grids"] == {
+        "motion": "5x4",
+        "attack_q": "6x4",
+        "w": "3x2",
+        "ult": "5x3",
+    }
+    assert "failed pixel contract" in pixel_contract["historical_0_10_18"]
 
     champion_payload = (MOD / "champion/dual_blader.data_champion").read_text(
         encoding="utf-8"

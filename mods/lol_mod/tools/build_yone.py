@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import struct
 import zlib
 from collections import deque
@@ -366,6 +367,22 @@ NATIVE_V7_FRAME_FIELDS = {
     "face_visibility",
     "active_weapon",
     "weapons_present",
+    "steel_blade_bbox",
+    "azakana_blade_bbox",
+    "steel_hand_anchor",
+    "azakana_hand_anchor",
+    "steel_tip",
+    "azakana_tip",
+    "steel_span_px",
+    "azakana_span_px",
+    "steel_connectedness",
+    "azakana_connectedness",
+    "steel_pixel_count",
+    "azakana_pixel_count",
+    "steel_crop_ratio",
+    "azakana_crop_ratio",
+    "steel_source_tip_survived",
+    "azakana_source_tip_survived",
 }
 
 # Machine-readable weapon semantics stay separate from color heuristics.  The
@@ -389,7 +406,7 @@ V7_FRAME_WEAPONS_PRESENT = {
     action: ["steel", "azakana"] for action in GENERATED_BODY_ACTIONS
 }
 V7_WEAPON_CONTRACT = {
-    "version": 1,
+    "version": 2,
     "weapons": ["steel", "azakana"],
     "always_dual_actions": ["idle", "run"],
     "semantic_animation_tags": {
@@ -404,14 +421,14 @@ V7_WEAPON_CONTRACT = {
 }
 V7_WEAPON_PALETTE_ROLES = {
     "steel": {
-        "dark": ["source_06", "source_07"],
-        "mid": ["source_04"],
-        "highlight": ["source_03"],
+        "dark": ["steel_dark"],
+        "mid": ["steel_mid"],
+        "highlight": ["steel_highlight"],
     },
     "azakana": {
-        "dark": ["mask_03", "mask_04"],
-        "red": ["mask_00", "mask_02"],
-        "highlight": ["mask_01"],
+        "dark": ["azakana_dark"],
+        "red": ["azakana_red"],
+        "highlight": ["azakana_highlight"],
     },
 }
 
@@ -774,7 +791,13 @@ def _load_v7_json(path: Path, label: str) -> dict[str, Any]:
     return value
 
 
-def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], dict[str, Any]]:
+def _validate_v7_palette(
+    path: Path,
+) -> tuple[
+    set[tuple[int, int, int, int]],
+    dict[str, tuple[int, int, int, int]],
+    dict[str, Any],
+]:
     payload = _load_v7_json(path, "palette")
     expected_fields = {"schema_version", "route", "weapon_roles", "colors"}
     if set(payload) != expected_fields:
@@ -795,6 +818,7 @@ def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
         raise ValueError("Yone V6 palette colors must be a list")
 
     colors: set[tuple[int, int, int, int]] = set()
+    role_colors: dict[str, tuple[int, int, int, int]] = {}
     transparent_count = 0
     roles: list[str] = []
     for index, row in enumerate(rows):
@@ -817,6 +841,8 @@ def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
         color = tuple(rgba)
         if color in colors:
             raise ValueError(f"Yone V6 palette duplicates RGBA {color}")
+        if role in role_colors:
+            raise ValueError(f"Yone V7 palette duplicates role {role!r}")
         if color[3] == 0:
             if color != (0, 0, 0, 0) or role != "transparent":
                 raise ValueError(
@@ -829,6 +855,7 @@ def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
         elif role == "transparent":
             raise ValueError("Yone V6 opaque palette entries cannot use role='transparent'")
         colors.add(color)
+        role_colors[role] = color
         roles.append(role)
 
     opaque_count = sum(color[3] == 255 for color in colors)
@@ -858,7 +885,16 @@ def _validate_v7_palette(path: Path) -> tuple[set[tuple[int, int, int, int]], di
             "Yone V7 palette is missing weapon roles: "
             f"{sorted(referenced_weapon_roles - set(roles))}"
         )
-    return colors, {
+    if len(referenced_weapon_roles) != 6:
+        raise ValueError(
+            "Yone V7 palette must declare six disjoint single-role weapon colors"
+        )
+    for weapon, ramp in V7_WEAPON_PALETTE_ROLES.items():
+        if any(len(role_names) != 1 for role_names in ramp.values()):
+            raise ValueError(
+                f"Yone V7 {weapon} palette ramp must use one exclusive role per level"
+            )
+    return colors, role_colors, {
         "path": path.relative_to(MOD_ROOT).as_posix(),
         "schema_version": payload["schema_version"],
         "route": payload["route"],
@@ -899,6 +935,78 @@ def _validate_local_box(
             f"Yone V6 {label} {value} is outside frame {frame_size}"
         )
     return x, y, width, height
+
+
+def _validate_local_point(
+    value: Any,
+    label: str,
+    frame_size: tuple[int, int],
+) -> tuple[int, int]:
+    if (
+        not isinstance(value, list)
+        or len(value) != 2
+        or any(not _is_plain_int(part) for part in value)
+    ):
+        raise ValueError(f"Yone V7 {label} must be [x,y]")
+    x, y = value
+    if not (0 <= x < frame_size[0] and 0 <= y < frame_size[1]):
+        raise ValueError(
+            f"Yone V7 {label} {value} is outside frame {frame_size}"
+        )
+    return x, y
+
+
+def _validate_finite_number(
+    value: Any,
+    label: str,
+    *,
+    minimum: float,
+    maximum: float,
+    minimum_inclusive: bool = True,
+) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"Yone V7 {label} must be a finite number")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"Yone V7 {label} must be finite")
+    minimum_ok = number >= minimum if minimum_inclusive else number > minimum
+    if not minimum_ok or number > maximum:
+        lower = "at least" if minimum_inclusive else "greater than"
+        raise ValueError(
+            f"Yone V7 {label} must be {lower} {minimum} and at most {maximum}"
+        )
+    return number
+
+
+def _weapon_pixel_bbox(
+    points: set[tuple[int, int]],
+) -> tuple[int, int, int, int]:
+    xs = [point[0] for point in points]
+    ys = [point[1] for point in points]
+    left = min(xs)
+    top = min(ys)
+    return left, top, max(xs) - left + 1, max(ys) - top + 1
+
+
+def _weapon_component_at_anchor(
+    points: set[tuple[int, int]], anchor: tuple[int, int]
+) -> set[tuple[int, int]]:
+    remaining = set(points)
+    remaining.remove(anchor)
+    component = {anchor}
+    queue: deque[tuple[int, int]] = deque([anchor])
+    while queue:
+        x, y = queue.popleft()
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx == 0 and dy == 0:
+                    continue
+                neighbour = (x + dx, y + dy)
+                if neighbour in remaining:
+                    remaining.remove(neighbour)
+                    component.add(neighbour)
+                    queue.append(neighbour)
+    return component
 
 
 def _validate_v7_rgba_png(
@@ -943,6 +1051,116 @@ def _validate_v7_rgba_png(
     if image.getchannel("A").getbbox() is None:
         raise ValueError(f"Yone V6 {label} is empty")
     return image, used
+
+
+def _validate_v7_weapon_geometry(
+    row: dict[str, Any],
+    weapon: str,
+    frame: Image.Image,
+    role_colors: set[tuple[int, int, int, int]],
+    label: str,
+) -> dict[str, Any]:
+    """Validate one weapon from exclusive final-pixel roles, not declarations."""
+
+    pixels = frame.load()
+    points = {
+        (x, y)
+        for y in range(frame.height)
+        for x in range(frame.width)
+        if pixels[x, y] in role_colors
+    }
+    if not points:
+        raise ValueError(
+            f"Yone V7 {label} has no final pixels for the exclusive {weapon} roles"
+        )
+
+    count_key = f"{weapon}_pixel_count"
+    pixel_count = row[count_key]
+    if not _is_plain_int(pixel_count) or pixel_count <= 0:
+        raise ValueError(f"Yone V7 {label}.{count_key} must be a positive integer")
+    if pixel_count != len(points):
+        raise ValueError(
+            f"Yone V7 {label}.{count_key} {pixel_count} != final-role count {len(points)}"
+        )
+
+    hand_key = f"{weapon}_hand_anchor"
+    tip_key = f"{weapon}_tip"
+    hand = _validate_local_point(row[hand_key], f"{label}.{hand_key}", frame.size)
+    tip = _validate_local_point(row[tip_key], f"{label}.{tip_key}", frame.size)
+    if hand not in points:
+        raise ValueError(
+            f"Yone V7 {label}.{hand_key} must be an exclusive {weapon} role pixel"
+        )
+    component = _weapon_component_at_anchor(points, hand)
+    if tip not in component:
+        raise ValueError(
+            f"Yone V7 {label}.{tip_key} must belong to the hand-connected {weapon} blade"
+        )
+
+    bbox_key = f"{weapon}_blade_bbox"
+    bbox = _validate_local_box(
+        row[bbox_key], f"{label}.{bbox_key}", frame.size, nullable=False
+    )
+    assert bbox is not None
+    actual_bbox = _weapon_pixel_bbox(component)
+    if bbox != actual_bbox:
+        raise ValueError(
+            f"Yone V7 {label}.{bbox_key} {bbox} "
+            f"!= hand-connected final-role bbox {actual_bbox}"
+        )
+
+    span_key = f"{weapon}_span_px"
+    maximum_span = math.hypot(frame.width - 1, frame.height - 1)
+    span = _validate_finite_number(
+        row[span_key],
+        f"{label}.{span_key}",
+        minimum=0.0,
+        maximum=maximum_span,
+        minimum_inclusive=False,
+    )
+    actual_span = math.hypot(tip[0] - hand[0], tip[1] - hand[1])
+    if abs(span - actual_span) > 0.01:
+        raise ValueError(
+            f"Yone V7 {label}.{span_key} {span} != hand-to-tip span {actual_span:.6f}"
+        )
+
+    connectedness_key = f"{weapon}_connectedness"
+    connectedness = _validate_finite_number(
+        row[connectedness_key],
+        f"{label}.{connectedness_key}",
+        minimum=0.0,
+        maximum=1.0,
+        minimum_inclusive=False,
+    )
+    actual_connectedness = len(component) / len(points)
+    if abs(connectedness - actual_connectedness) > 0.000051:
+        raise ValueError(
+            f"Yone V7 {label}.{connectedness_key} {connectedness} "
+            f"!= final-role connectedness {actual_connectedness:.9f}"
+        )
+
+    crop_key = f"{weapon}_crop_ratio"
+    crop_ratio = _validate_finite_number(
+        row[crop_key],
+        f"{label}.{crop_key}",
+        minimum=0.0,
+        maximum=1.0,
+    )
+    survived_key = f"{weapon}_source_tip_survived"
+    source_tip_survived = row[survived_key]
+    if not isinstance(source_tip_survived, bool):
+        raise ValueError(f"Yone V7 {label}.{survived_key} must be boolean")
+
+    return {
+        "blade_bbox": list(bbox),
+        "hand_anchor": list(hand),
+        "tip": list(tip),
+        "span_px": span,
+        "connectedness": connectedness,
+        "pixel_count": pixel_count,
+        "crop_ratio": crop_ratio,
+        "source_tip_survived": source_tip_survived,
+    }
 
 
 def _native_v7_expected_frames() -> dict[tuple[str, int], tuple[int, int, int, int]]:
@@ -1073,7 +1291,19 @@ def _load_native_v7_body_frames() -> tuple[
     palette_path = _v7_relative_file(
         manifest["palette_file"], "palette_file", ".json"
     )
-    allowed_colors, palette_audit = _validate_v7_palette(palette_path)
+    allowed_colors, palette_role_colors, palette_audit = _validate_v7_palette(
+        palette_path
+    )
+    weapon_role_colors = {
+        weapon: {
+            palette_role_colors[role]
+            for role_names in ramp.values()
+            for role in role_names
+        }
+        for weapon, ramp in V7_WEAPON_PALETTE_ROLES.items()
+    }
+    if weapon_role_colors["steel"] & weapon_role_colors["azakana"]:
+        raise ValueError("Yone V7 steel and Azakana palette colors must be disjoint")
 
     preview_value = manifest["body_preview"]
     preview_path: Path | None = None
@@ -1114,10 +1344,6 @@ def _load_native_v7_body_frames() -> tuple[
                 f"Yone V7 {action}[{index}] active_weapon changed: "
                 f"{row['active_weapon']!r}"
             )
-        if row["weapons_present"] != V7_FRAME_WEAPONS_PRESENT.get(action):
-            raise ValueError(
-                f"Yone V7 {action}[{index}] must retain both weapon identities"
-            )
         key = (action, index)
         if key not in expected:
             raise ValueError(f"Yone V6 frames[{row_number}] has unknown key {key}")
@@ -1156,6 +1382,37 @@ def _load_native_v7_body_frames() -> tuple[
             allowed_colors,
             (rect[2], rect[3]),
         )
+        weapon_geometry = {
+            weapon: _validate_v7_weapon_geometry(
+                row,
+                weapon,
+                frame,
+                weapon_role_colors[weapon],
+                f"{action}[{index}]",
+            )
+            for weapon in ("steel", "azakana")
+        }
+        derived_weapons_present = [
+            weapon
+            for weapon in ("steel", "azakana")
+            if weapon_geometry[weapon]["pixel_count"] > 0
+        ]
+        if row["weapons_present"] != derived_weapons_present:
+            raise ValueError(
+                f"Yone V7 {action}[{index}].weapons_present must be derived from "
+                f"validated final geometry: {derived_weapons_present}"
+            )
+        if (
+            weapon_geometry["steel"]["hand_anchor"]
+            == weapon_geometry["azakana"]["hand_anchor"]
+        ):
+            raise ValueError(
+                f"Yone V7 {action}[{index}] must attach the two swords to distinct hands"
+            )
+        if weapon_geometry["steel"]["tip"] == weapon_geometry["azakana"]["tip"]:
+            raise ValueError(
+                f"Yone V7 {action}[{index}] must retain distinct sword tips"
+            )
         alpha_bbox = frame.getchannel("A").getbbox()
         assert alpha_bbox is not None
         alpha = frame.getchannel("A")
@@ -1324,6 +1581,9 @@ def _load_native_v7_body_frames() -> tuple[
             "mask_bbox": list(mask_bbox) if mask_bbox is not None else None,
             "foot_zones": [list(box) for box in foot_zones],
             "face_visibility": face_visibility,
+            "active_weapon": row["active_weapon"],
+            "weapons_present": row["weapons_present"],
+            "weapon_geometry": weapon_geometry,
             "hard_alpha": True,
             "transparent_frame_edges": True,
             "opaque_palette_size": sum(color[3] == 255 for color in used_colors),
@@ -2754,6 +3014,7 @@ def build_qa(
     visual_md = QA_DIR / "yone_visual_qa.md"
     visual_md.write_bytes((
         "# Yone visual QA\n\n"
+        "- [x] Current release contract is `0.10.19`; `0.10.18` is retained only as the failed pixel-presence history and must never identify the installed DLL or telemetry.\n"
         "- [x] Same-ID visual replacement targets `dual_blader` (official project hero 009).\n"
         "- [x] Actor canvas is `4262x88`; the original `3502x88` native prefix and all 13 native tags/rectangles/timings are unchanged, with five explicit semantic tags appended.\n"
         "- [x] `hit_effect_area` reuses the official `ult[1..11]` atlas rectangles without conflicting pixels.\n"
@@ -2761,11 +3022,15 @@ def build_qa(
         "- [x] All 67 physical body poses come only from `source/native/yone_v7/frames.json`; V3/V4/V5/V6 battle-body routes are retired and cannot be selected as fallbacks.\n"
         "- [x] `source/imagegen/yone_v4_action_contact.png`, `source/imagegen/yone_v4_idle_candidate_43x55.png`, and the old `source/native/yone_v4` route are retired body inputs and are never loaded by this builder.\n"
         "- [x] V5 body inputs `yone_v5_idle_source.png`, `yone_v5_idle_golden_43x55.png`, `yone_v5_motion_contact.png`, `yone_v5_attack_q_w_contact.png`, `yone_v5_q5_contact.png`, `yone_v5_ult_contact.png`, and the complete `source/native/yone_v5` route are retired and never loaded.\n"
-        "- [x] Every V7 pose is authored at final 1x size, palette-validated, and copied byte-for-byte; only source-to-native generation performs a single controlled resize.\n"
+        "- [x] The four hash-locked ImageGen contacts use isolated `5x4`, `6x4`, `3x2`, and `5x3` grids with explicit gutters; cell extraction cannot borrow a sword from an adjacent pose.\n"
+        "- [x] Every V7 pose is finalized at 1x size, palette-validated, and copied byte-for-byte; only source-to-native generation performs the controlled source resize and crop.\n"
         "- [x] The V7 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without post-scale face repaint.\n"
         "- [x] The body preview proves the exact idle[0] 2.2x NEAREST battle render and divider clearance; dedicated UI portraits own the right-side icon exclusion.\n"
         "- [x] Idle/run keep compact silver and red swords simultaneously visible; basic attacks switch between separate six-frame steel and Azakana tags.\n"
-        "- [x] The fixed palette declares disjoint steel dark/mid/highlight and Azakana dark/red/highlight role ramps; CI reads the final 1x PNG pixels and enforces per-frame neutral dual-sword cues plus active-blade reach for steel attack, Azakana attack, Q/Q3, W, and R.\n"
+        "- [x] The fixed palette declares six mutually exclusive roles: steel dark/mid/highlight and Azakana dark/red/highlight; body colors cannot satisfy any weapon role.\n"
+        "- [x] Every frame records both hand anchors, both tips, both blade boxes, spans, connectedness, pixel counts, crop ratios, and source-tip survival; CI recomputes those 16 fields from the final PNG instead of trusting the manifest.\n"
+        "- [x] Negative tests delete a blade, inject fake red pixels, disconnect a handle/tip, share hands/tips, shorten a blade, or move it to the crop edge, and each corruption is rejected.\n"
+        "- [x] CI enforces per-frame neutral dual-sword visibility plus active-blade reach for alternating steel/Azakana attacks, Q/Q3, W, and R; eight long caster-follow overlays extend active weapons without replacing the actor body.\n"
         "- [x] Q1/Q2 use `skill_q12`, Q3 uses a separate lowered `skill_q3`, W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"

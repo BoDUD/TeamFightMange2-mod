@@ -80,7 +80,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "28825f92438f5a631710a0c2cac7227fad27adb96ca3ba56a9ffc8a7a79783a7"
+      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -970,12 +970,12 @@
     {
       "path": "lol_mod.dll",
       "size": 477184,
-      "sha256": "9caab166f5095b635998b87fd9a2c47e22390e00fb983efc2210f9c1efb71660"
+      "sha256": "e87172918b8529db8a64615ea502dd8474992745e6fce94ff13bb507e547a4db"
     },
     {
       "path": "mod.mod_info",
-      "size": 2623,
-      "sha256": "ddb743df09865dcd952cdf26d40a57533bb18c2c2d13520d3f5b20c0dbf8dc3a"
+      "size": 3296,
+      "sha256": "fae350ace9cf218443ef2558882e04010ecadb28b22b27eb0feb41acd1615015"
     },
     {
       "path": "mod.override_info",
@@ -1004,8 +1004,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 78809,
-      "sha256": "8ba2eb63a331e3bc811d95e8175ae5d18e20c390f9ca002e0b7fc4c3e96a6718"
+      "size": 145224,
+      "sha256": "cc361be6353931179d920b9d37b6cabddcda7f891ca301950d5ec58a655b05b8"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1014,23 +1014,23 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 11340,
-      "sha256": "512992dab9903e1fc1edc699c7eb934b866a1ceeb6e58d645ca6366464f0423c"
+      "size": 12630,
+      "sha256": "16a734282b24261b2257081ab2e44c3284d413b30fce5e6c39bce84577b0ffbd"
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 239404,
-      "sha256": "87325d1dca69de942d7d8e1353ef505f0d18d1139e63ab398559bc335bf0158e"
+      "size": 313199,
+      "sha256": "13a714aa2fe7639a2e9b7ee005a4d7594a677e6c14f2ca3884921d584ed5a7ac"
     },
     {
       "path": "qa/yone_visual_final.png",
       "size": 2549598,
-      "sha256": "25949a2cbe07a69fe6a49055c12c7bd5f8892139fb6e8cd677253922cbb3f43f"
+      "sha256": "aaf8f6ec66ad35401a0a9a96c639848cffc41a096367a9f3e5806a694a9e7e63"
     },
     {
       "path": "qa/yone_visual_qa.md",
-      "size": 4251,
-      "sha256": "ad5c1072fe1238f4122befcc6445324282208de38fa4d67fe2db1b53938b5314"
+      "size": 5142,
+      "sha256": "b7e8e722d5b932d3d4667b44a305ede7102bfd85e0564661161a76ebd52a1918"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",

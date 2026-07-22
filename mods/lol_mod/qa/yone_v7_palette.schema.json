@@ -11,14 +11,14 @@
     "weapon_roles": {
       "const": {
         "steel": {
-          "dark": ["source_06", "source_07"],
-          "mid": ["source_04"],
-          "highlight": ["source_03"]
+          "dark": ["steel_dark"],
+          "mid": ["steel_mid"],
+          "highlight": ["steel_highlight"]
         },
         "azakana": {
-          "dark": ["mask_03", "mask_04"],
-          "red": ["mask_00", "mask_02"],
-          "highlight": ["mask_01"]
+          "dark": ["azakana_dark"],
+          "red": ["azakana_red"],
+          "highlight": ["azakana_highlight"]
         }
       }
     },

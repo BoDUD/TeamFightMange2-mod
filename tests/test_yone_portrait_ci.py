@@ -334,6 +334,22 @@ def test_yone_v7_json_schemas_lock_dual_sword_shape_and_palette() -> None:
         "face_visibility",
         "active_weapon",
         "weapons_present",
+        "steel_blade_bbox",
+        "azakana_blade_bbox",
+        "steel_hand_anchor",
+        "azakana_hand_anchor",
+        "steel_tip",
+        "azakana_tip",
+        "steel_span_px",
+        "azakana_span_px",
+        "steel_connectedness",
+        "azakana_connectedness",
+        "steel_pixel_count",
+        "azakana_pixel_count",
+        "steel_crop_ratio",
+        "azakana_crop_ratio",
+        "steel_source_tip_survived",
+        "azakana_source_tip_survived",
     }
     weapon_contract = frame_schema["properties"]["weapon_contract"]
     assert weapon_contract == {"$ref": "#/$defs/weaponContract"}
@@ -650,8 +666,8 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "*bottom = 0.0;",
         "*sample_nearest = true;",
         '"yone_management_card_render_hook"',
-        '"version=0.10.18;logical_contract=85x93"',
-        '"version=0.10.18;from_size=',
+        '"version=0.10.19;logical_contract=85x93"',
+        '"version=0.10.19;from_size=',
     ):
         assert required in rewrite
     assert (
@@ -663,7 +679,7 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
     trace = _function_body(source, "trace_yone_render_commands")
     for required in (
         '"yone_ui_render_hook"',
-        '"version=0.10.18;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
+        '"version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
         "RenderCommand::NinePatch",
         "RenderCommand::Sprite",
         '"yone_ui_render_command"',

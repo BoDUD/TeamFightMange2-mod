@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import sys
 from collections import Counter, deque
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ FRAME_MANIFEST = MOD_ROOT / "source/native/yone_v7/frames.json"
 GENERATION_QA = MOD_ROOT / "source/native/yone_v7/generation_qa.json"
 ACTOR_ATLAS = MOD_ROOT / "aseprite_resources/champions/yone#sheet.png"
 ACTOR_ANIM = MOD_ROOT / "aseprite_resources/champions/yone#anim.fanim"
+CHAMPION_DATA = MOD_ROOT / "champion/dual_blader.data_champion"
 RELEASE_MANIFEST = MOD_ROOT / "build_manifest.json"
 
 EXPECTED_ATLAS_SIZE = (4262, 88)
@@ -36,14 +38,14 @@ CARD_DIVIDER_COLOR = (43, 46, 57, 255)
 MAX_OPAQUE_PALETTE_COLORS = 48
 EXPECTED_WEAPON_PALETTE_ROLES = {
     "steel": {
-        "dark": ["source_06", "source_07"],
-        "mid": ["source_04"],
-        "highlight": ["source_03"],
+        "dark": ["steel_dark"],
+        "mid": ["steel_mid"],
+        "highlight": ["steel_highlight"],
     },
     "azakana": {
-        "dark": ["mask_03", "mask_04"],
-        "red": ["mask_00", "mask_02"],
-        "highlight": ["mask_01"],
+        "dark": ["azakana_dark"],
+        "red": ["azakana_red"],
+        "highlight": ["azakana_highlight"],
     },
 }
 
@@ -52,10 +54,10 @@ IDLE_FACE_MIN_SIZE = (5, 5)
 IDLE_CONNECTED_SKIN_MIN = 8
 IDLE_CARD_SKIN_MIN = 32
 EXPECTED_SOURCE_HASHES = {
-    "motion": "ab2bfe217a397384fc6738647b2a8c6a561e942e78ee4e3509ceb99eb217cb71",
-    "attack_q": "81642ff3780139b966c4646060882aa33c416d56fd5f4dfcea3a86e556a60cd1",
-    "w": "5cfa46346cb29e728a7195dbdd98b4b9ff84c3c32e4cd887c1fd1dcec53967c0",
-    "ult": "588a38ec088a84fc899abf8f0fb86c85719f58b7b624a6bbb2fdd008027959e4",
+    "motion": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
+    "attack_q": "e919e5629c5a56c0a9aaed220ce5b001449b31d70abe43523c5b2086aad29e4d",
+    "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
+    "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
 }
 SOURCE_PATHS = {
     "motion": MOD_ROOT / "source/imagegen/yone_v7_motion_contact.png",
@@ -140,7 +142,7 @@ V7_EXTENSION_TAGS = (
 )
 EXPECTED_TAG_ORDER = NATIVE_TAG_PREFIX + V7_EXTENSION_TAGS
 EXPECTED_WEAPON_CONTRACT = {
-    "version": 1,
+    "version": 2,
     "weapons": ["steel", "azakana"],
     "always_dual_actions": ["idle", "run"],
     "semantic_animation_tags": {
@@ -168,6 +170,21 @@ ACTIVE_WEAPON_BY_ACTION = {
     "skill": "steel",
     "attack_azakana": "azakana",
     "skill_q3": "steel",
+}
+WEAPON_GEOMETRY_SUFFIXES = (
+    "blade_bbox",
+    "hand_anchor",
+    "tip",
+    "span_px",
+    "connectedness",
+    "pixel_count",
+    "crop_ratio",
+    "source_tip_survived",
+)
+WEAPON_FRAME_FIELDS = {
+    f"{weapon}_{suffix}"
+    for weapon in ("steel", "azakana")
+    for suffix in WEAPON_GEOMETRY_SUFFIXES
 }
 FRONT_FACE_ACTIONS = {"idle"}
 FACE_VISIBILITY_VALUES = {"front", "profile", "hidden"}
@@ -1016,145 +1033,293 @@ def _validate_dual_sword_cues(
     palette: Palette,
     rows_by_key: dict[tuple[str, int], dict[str, Any]],
 ) -> dict[str, Any]:
-    """Prove the final 1x pixels carry both weapon families and action weight.
+    """Rebuild both blade geometries from weapon-exclusive final PNG pixels.
 
-    The final palette is deliberately fixed.  The cold near-white
-    ``source_03``/``source_04`` roles carry the wind-steel edge, while the exact
-    ``mask_*`` family supplies the Azakana-red edge.  Distance is measured from
-    the annotated face center so a face mask, collar or sash cannot by itself
-    satisfy a long-blade cue.  These checks read the final native PNGs; the
-    manifest's ``weapons_present`` declaration is never accepted as evidence.
+    No declaration, generic ``source_*`` color, red ``mask_*`` color, belt or
+    costume pixel can prove a sword.  Each blade must use its six reserved V7
+    roles, remain connected to its declared hand, and reproduce all eight
+    per-weapon manifest fields.  With two weapons this is the complete
+    16-field frame contract.
     """
 
-    steel_colors = palette.exact_role("source_03") | palette.exact_role("source_04")
-    azakana_colors = palette.semantic_colors("mask")
-    if not steel_colors or not azakana_colors:
-        _fail("V7 palette is missing steel-white or Azakana-red cue colors")
-
-    def cue_stats(
-        key: tuple[str, int],
-        colors: frozenset[tuple[int, int, int, int]],
-    ) -> dict[str, float | int]:
-        image = sources[key]
-        row = rows_by_key[key]
-        face = row.get("face_bbox")
-        if (
-            not isinstance(face, list)
-            or len(face) != 4
-            or any(type(value) is not int for value in face)
-        ):
-            bbox = image.getchannel("A").getbbox()
-            assert bbox is not None
-            center_x = (bbox[0] + bbox[2] - 1) / 2
-            center_y = (bbox[1] + bbox[3] - 1) / 2
-        else:
-            center_x = face[0] + (face[2] - 1) / 2
-            center_y = face[1] + (face[3] - 1) / 2
-        points = [
-            (x, y)
-            for y in range(image.height)
-            for x in range(image.width)
-            if image.getpixel((x, y)) in colors
-        ]
-        farthest = max(
-            (((x - center_x) ** 2 + (y - center_y) ** 2) ** 0.5 for x, y in points),
-            default=0.0,
+    role_names: dict[str, frozenset[str]] = {}
+    role_colors: dict[str, frozenset[tuple[int, int, int, int]]] = {}
+    for weapon, ramp in EXPECTED_WEAPON_PALETTE_ROLES.items():
+        names = frozenset(role for roles in ramp.values() for role in roles)
+        forbidden = sorted(
+            role for role in names if role.startswith("mask_") or role.startswith("source_")
         )
-        return {"pixels": len(points), "farthest_from_face": round(farthest, 3)}
-
-    action_reports: dict[str, list[dict[str, Any]]] = {}
-
-    def validate_each(
-        action: str,
-        *,
-        steel_pixels: int = 0,
-        steel_distance: float = 0.0,
-        azakana_pixels: int = 0,
-        azakana_distance: float = 0.0,
-    ) -> None:
-        action_reports[action] = []
-        for index in range(BODY_ACTION_COUNTS[action]):
-            key = (action, index)
-            steel = cue_stats(key, steel_colors)
-            azakana = cue_stats(key, azakana_colors)
-            if (
-                steel["pixels"] < steel_pixels
-                or steel["farthest_from_face"] < steel_distance
-            ):
-                _fail(
-                    f"{action}[{index}] lost its final-pixel steel cue: "
-                    f"pixels={steel['pixels']} distance={steel['farthest_from_face']}"
-                )
-            if (
-                azakana["pixels"] < azakana_pixels
-                or azakana["farthest_from_face"] < azakana_distance
-            ):
-                _fail(
-                    f"{action}[{index}] lost its final-pixel Azakana cue: "
-                    f"pixels={azakana['pixels']} distance={azakana['farthest_from_face']}"
-                )
-            action_reports[action].append(
-                {"index": index, "steel": steel, "azakana": azakana}
-            )
-
-    idle_reports: dict[str, dict[str, int]] = {}
-    for index in range(BODY_ACTION_COUNTS["idle"]):
-        image = sources[("idle", index)]
-        steel_pixels = sum(
-            image.getpixel((x, y)) in steel_colors
-            for y in range(image.height // 2, image.height)
-            for x in range(0, min(15, image.width))
-        )
-        red_pixels = sum(
-            image.getpixel((x, y)) in azakana_colors
-            for y in range(image.height // 3, image.height)
-            for x in range((image.width * 2) // 3, image.width)
-        )
-        if steel_pixels < 1 or red_pixels < 4:
+        if forbidden:
             _fail(
-                f"idle[{index}] must retain opposing steel/red weapon cues; "
-                f"got steel={steel_pixels}, red={red_pixels}"
+                f"V7 {weapon} evidence cannot use mask_* or source_* roles: {forbidden}"
             )
-        idle_reports[f"idle[{index}]"] = {
-            "steel_lower_left_pixels": steel_pixels,
-            "azakana_lower_right_pixels": red_pixels,
-        }
-
-    # Every neutral frame must show two distinct weapon families.  Active
-    # attacks are stricter about their leading blade; wind-up frames may keep
-    # the off-hand blade compact, while their sequence still has to expose it.
-    validate_each("idle", steel_pixels=6, steel_distance=26.0, azakana_distance=23.0)
-    validate_each("run", steel_pixels=5, steel_distance=25.0, azakana_distance=17.0)
-    validate_each("attack", steel_pixels=5, steel_distance=17.0, azakana_distance=17.0)
-    validate_each("attack_azakana", azakana_pixels=20, azakana_distance=13.5)
-    validate_each("skill", azakana_distance=22.0)
-    validate_each("skill_q3", azakana_distance=22.5)
-    validate_each("skill2_attack", azakana_pixels=50, azakana_distance=22.0)
-    validate_each("ult", azakana_pixels=30)
-
-    def count_extended(action: str, weapon: str, distance: float) -> int:
-        return sum(
-            report[weapon]["farthest_from_face"] >= distance
-            for report in action_reports[action]
+        colors = frozenset(
+            color for role in names for color in palette.exact_role(role)
         )
+        if len(colors) != len(names):
+            _fail(f"V7 palette is missing exclusive {weapon} weapon roles")
+        role_names[weapon] = names
+        role_colors[weapon] = colors
+    if role_colors["steel"] & role_colors["azakana"]:
+        _fail("V7 steel and Azakana exclusive weapon colors overlap")
 
-    sequence_requirements = {
-        "attack_azakana_offhand_steel_frames": (
-            sum(report["steel"]["pixels"] >= 1 for report in action_reports["attack_azakana"]),
-            4,
-        ),
-        "q12_extended_steel_frames": (count_extended("skill", "steel", 20.0), 4),
-        "q3_extended_steel_frames": (count_extended("skill_q3", "steel", 20.0), 6),
-        "w_offhand_steel_frames": (
-            sum(report["steel"]["pixels"] >= 1 for report in action_reports["skill2_attack"]),
-            3,
-        ),
-        "r_extended_steel_frames": (count_extended("ult", "steel", 25.0), 8),
-        "r_extended_azakana_frames": (count_extended("ult", "azakana", 25.0), 7),
+    expected_keys = {
+        (action, index)
+        for action, count in BODY_ACTION_COUNTS.items()
+        for index in range(count)
     }
-    for label, (actual, minimum) in sequence_requirements.items():
-        if actual < minimum:
-            _fail(f"{label} regressed: {actual} < {minimum}")
+    if set(sources) != expected_keys or set(rows_by_key) != expected_keys:
+        _fail("dual-sword geometry must receive the exact 67-frame V7 contract")
+
+    def point_field(
+        row: dict[str, Any], key: str, size: tuple[int, int], label: str
+    ) -> tuple[int, int]:
+        raw = row.get(key)
+        if (
+            not isinstance(raw, list)
+            or len(raw) != 2
+            or any(type(value) is not int for value in raw)
+        ):
+            _fail(f"{label}.{key} must be [x,y] integers")
+        point = (raw[0], raw[1])
+        if not (0 <= point[0] < size[0] and 0 <= point[1] < size[1]):
+            _fail(f"{label}.{key} is outside the native frame: {raw}")
+        return point
+
+    def number_field(
+        row: dict[str, Any], key: str, label: str, *, minimum: float, maximum: float
+    ) -> float:
+        value = row.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            _fail(f"{label}.{key} must be a finite number")
+        number = float(value)
+        if not math.isfinite(number) or not minimum <= number <= maximum:
+            _fail(f"{label}.{key} must be in {minimum}..{maximum}, got {value!r}")
+        return number
+
+    def anchored_component(
+        points: set[tuple[int, int]], anchor: tuple[int, int]
+    ) -> set[tuple[int, int]]:
+        remaining = set(points)
+        remaining.remove(anchor)
+        component = {anchor}
+        queue: deque[tuple[int, int]] = deque([anchor])
+        while queue:
+            x, y = queue.popleft()
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if dx == 0 and dy == 0:
+                        continue
+                    neighbor = (x + dx, y + dy)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        component.add(neighbor)
+                        queue.append(neighbor)
+        return component
+
+    action_reports: dict[str, list[dict[str, Any]]] = {
+        action: [] for action in BODY_ACTION_COUNTS
+    }
+    for action, count in BODY_ACTION_COUNTS.items():
+        for index in range(count):
+            key = (action, index)
+            label = f"{action}[{index}]"
+            image = sources[key]
+            row = rows_by_key[key]
+            missing = WEAPON_FRAME_FIELDS - set(row)
+            if missing:
+                _fail(f"{label} is missing weapon geometry fields: {sorted(missing)}")
+            if row.get("weapons_present") != ["steel", "azakana"]:
+                _fail(f"{label} must declare both steel and Azakana weapons")
+            expected_active = ACTIVE_WEAPON_BY_ACTION[action]
+            if row.get("active_weapon") != expected_active:
+                _fail(
+                    f"{label}.active_weapon must be {expected_active!r}, "
+                    f"got {row.get('active_weapon')!r}"
+                )
+
+            all_points: dict[str, set[tuple[int, int]]] = {}
+            for weapon in ("steel", "azakana"):
+                colors = role_colors[weapon]
+                points = {
+                    (x, y)
+                    for y in range(image.height)
+                    for x in range(image.width)
+                    if image.getpixel((x, y)) in colors
+                }
+                if not points:
+                    _fail(f"{label} has no exclusive {weapon} pixels")
+                unsafe = sorted(
+                    (x, y)
+                    for x, y in points
+                    if x < 2 or y < 2 or x >= image.width - 2 or y >= image.height - 2
+                )
+                if unsafe:
+                    _fail(
+                        f"{label} {weapon} violates 2px edge margin at {unsafe[:4]}"
+                    )
+                all_points[weapon] = points
+
+            metadata: dict[str, dict[str, Any]] = {}
+            minimum_span = 3.0 if action == "dead" else 4.0
+            for weapon in ("steel", "azakana"):
+                hand = point_field(row, f"{weapon}_hand_anchor", image.size, label)
+                tip = point_field(row, f"{weapon}_tip", image.size, label)
+                span = number_field(
+                    row,
+                    f"{weapon}_span_px",
+                    label,
+                    minimum=0.0,
+                    maximum=math.hypot(image.width - 1, image.height - 1),
+                )
+                if span < minimum_span:
+                    _fail(
+                        f"{label} {weapon} span {span} is below {minimum_span:g}px"
+                    )
+                connectedness = number_field(
+                    row,
+                    f"{weapon}_connectedness",
+                    label,
+                    minimum=0.0,
+                    maximum=1.0,
+                )
+                if connectedness < 0.85:
+                    _fail(
+                        f"{label} {weapon} connectedness {connectedness} is below 0.85"
+                    )
+                pixel_count = row.get(f"{weapon}_pixel_count")
+                if type(pixel_count) is not int or pixel_count <= 0:
+                    _fail(f"{label}.{weapon}_pixel_count must be a positive integer")
+                bbox = _rect(
+                    row.get(f"{weapon}_blade_bbox"),
+                    label=f"{label}.{weapon}_blade_bbox",
+                    size=image.size,
+                )
+                crop_ratio = number_field(
+                    row,
+                    f"{weapon}_crop_ratio",
+                    label,
+                    minimum=0.0,
+                    maximum=1.0,
+                )
+                source_tip_survived = row.get(f"{weapon}_source_tip_survived")
+                if not isinstance(source_tip_survived, bool):
+                    _fail(f"{label}.{weapon}_source_tip_survived must be boolean")
+                metadata[weapon] = {
+                    "hand_anchor": hand,
+                    "tip": tip,
+                    "span_px": span,
+                    "connectedness": connectedness,
+                    "pixel_count": pixel_count,
+                    "blade_bbox": bbox,
+                    "crop_ratio": crop_ratio,
+                    "source_tip_survived": source_tip_survived,
+                }
+
+            if metadata["steel"]["hand_anchor"] == metadata["azakana"]["hand_anchor"]:
+                _fail(f"{label} must use different hand anchors for the two swords")
+            tip_distance = math.dist(metadata["steel"]["tip"], metadata["azakana"]["tip"])
+            if tip_distance < 3.0:
+                _fail(f"{label} weapon tips are merged: distance={tip_distance:.3f}px")
+
+            frame_report: dict[str, Any] = {
+                "index": index,
+                "active_weapon": expected_active,
+            }
+            for weapon in ("steel", "azakana"):
+                points = all_points[weapon]
+                values = metadata[weapon]
+                hand = values["hand_anchor"]
+                tip = values["tip"]
+                if hand not in points:
+                    _fail(
+                        f"{label}.{weapon}_hand_anchor must be an exclusive "
+                        f"{weapon} pixel"
+                    )
+                component = anchored_component(points, hand)
+                if tip not in component:
+                    _fail(
+                        f"{label}.{weapon}_tip must belong to the hand-connected "
+                        f"{weapon} component"
+                    )
+                farthest = max(math.dist(hand, point) for point in component)
+                actual_span = math.dist(hand, tip)
+                if abs(actual_span - farthest) > 1e-9:
+                    _fail(
+                        f"{label}.{weapon}_tip is not a farthest pixel of the "
+                        f"hand-connected component"
+                    )
+                actual_connectedness = len(component) / len(points)
+                rounded_connectedness = round(actual_connectedness, 4)
+                if values["connectedness"] != rounded_connectedness:
+                    _fail(
+                        f"{label}.{weapon}_connectedness {values['connectedness']} "
+                        f"!= hand-connected exact {rounded_connectedness}"
+                    )
+                actual_bbox = (
+                    min(x for x, _y in component),
+                    min(y for _x, y in component),
+                    max(x for x, _y in component) - min(x for x, _y in component) + 1,
+                    max(y for _x, y in component) - min(y for _x, y in component) + 1,
+                )
+                if values["blade_bbox"] != actual_bbox:
+                    _fail(
+                        f"{label}.{weapon}_blade_bbox {list(values['blade_bbox'])} "
+                        f"!= hand-connected bbox {list(actual_bbox)}"
+                    )
+                if values["pixel_count"] != len(points):
+                    _fail(
+                        f"{label}.{weapon}_pixel_count {values['pixel_count']} "
+                        f"!= exclusive pixel count {len(points)}"
+                    )
+                rounded_span = round(actual_span, 3)
+                if values["span_px"] != rounded_span:
+                    _fail(
+                        f"{label}.{weapon}_span_px {values['span_px']} "
+                        f"!= exact {rounded_span}"
+                    )
+                frame_report[weapon] = {
+                    "roles": sorted(role_names[weapon]),
+                    "pixel_count": len(points),
+                    "hand_connected_pixels": len(component),
+                    "blade_bbox": list(actual_bbox),
+                    "hand_anchor": list(hand),
+                    "tip": list(tip),
+                    "span_px": rounded_span,
+                    "connectedness": rounded_connectedness,
+                    "edge_margin_px": min(
+                        min(x for x, _y in points),
+                        min(y for _x, y in points),
+                        image.width - 1 - max(x for x, _y in points),
+                        image.height - 1 - max(y for _x, y in points),
+                    ),
+                    "crop_ratio": values["crop_ratio"],
+                    "source_tip_survived": values["source_tip_survived"],
+                }
+            frame_report["tip_distance_px"] = round(tip_distance, 3)
+            action_reports[action].append(frame_report)
+
+    active_semantics = {
+        "steel_basic_attack": ["attack"],
+        "azakana_basic_attack": ["attack_azakana"],
+        "steel_q": ["skill", "skill_q3"],
+        "azakana_w": ["skill2", "skill2_attack"],
+        "dual_r": ["ult"],
+    }
+    for semantic, actions in active_semantics.items():
+        expected_weapon = (
+            "steel"
+            if semantic.startswith("steel")
+            else "azakana"
+            if semantic.startswith("azakana")
+            else "dual"
+        )
+        for action in actions:
+            if any(
+                report["active_weapon"] != expected_weapon
+                for report in action_reports[action]
+            ):
+                _fail(f"{semantic} active-weapon route regressed in {action}")
 
     def sequence_digest(action: str) -> str:
         digest = hashlib.sha256()
@@ -1175,15 +1340,226 @@ def _validate_dual_sword_cues(
         _fail("Q1/Q2 and Q3 resolve to identical source pixels")
 
     return {
-        "idle": idle_reports,
         "actions": action_reports,
-        "sequence_requirements": {
-            label: {"actual": actual, "minimum": minimum}
-            for label, (actual, minimum) in sequence_requirements.items()
+        "exclusive_weapon_roles": {
+            weapon: sorted(names) for weapon, names in role_names.items()
         },
+        "active_semantics": active_semantics,
+        "minimum_span_px": {"normal": 4, "dead": 3},
+        "minimum_connectedness": 0.85,
+        "minimum_edge_margin_px": 2,
+        "minimum_tip_separation_px": 3,
         "sequence_sha256": sequence_digests,
         "distinct_attack_sequences": True,
         "distinct_q_sequences": True,
+    }
+
+
+def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
+    """Lock active blade animations to their caster-following long-blade art."""
+
+    champion_path = mod_root / CHAMPION_DATA.relative_to(MOD_ROOT)
+    champion = _read_json(champion_path)
+    if not isinstance(champion, dict) or champion.get("id") != "dual_blader":
+        _fail("Yone runtime champion data is missing or has the wrong id")
+
+    def walk(value: object) -> Iterable[dict[str, Any]]:
+        if isinstance(value, dict):
+            yield value
+            for child in value.values():
+                yield from walk(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from walk(child)
+
+    def type_names(value: object, effect_type: str) -> Counter[str]:
+        return Counter(
+            node["name"]
+            for node in walk(value)
+            if node.get("type") == effect_type and isinstance(node.get("name"), str)
+        )
+
+    attack = champion.get("attack")
+    attack_effect = attack.get("effect") if isinstance(attack, dict) else None
+    if (
+        not isinstance(attack_effect, dict)
+        or attack_effect.get("type") != "SwitchByBuff"
+        or attack_effect.get("buff_name") != "lol_yone_azakana_ready"
+    ):
+        _fail("Yone basic attack must alternate steel/Azakana through its ready buff")
+    attack_branches = {
+        "steel": (
+            attack_effect.get("effect_none"),
+            "attack_steel",
+            "lol_yone_attack_steel_swing",
+            "attack_azakana",
+            "lol_yone_attack_azakana_swing",
+        ),
+        "azakana": (
+            attack_effect.get("effect_buff"),
+            "attack_azakana",
+            "lol_yone_attack_azakana_swing",
+            "attack_steel",
+            "lol_yone_attack_steel_swing",
+        ),
+    }
+    attack_report: dict[str, Any] = {}
+    for weapon, (branch, animation, overlay, forbidden_animation, forbidden_overlay) in (
+        attack_branches.items()
+    ):
+        animations = type_names(branch, "CasterAnimation")
+        overlays = type_names(branch, "CasterViewEffect")
+        if animations[animation] != 1 or animations[forbidden_animation]:
+            _fail(
+                f"Yone {weapon} basic-attack branch must use only {animation!r}"
+            )
+        if overlays[overlay] != 1 or overlays[forbidden_overlay]:
+            _fail(
+                f"Yone {weapon} basic-attack branch must use caster overlay {overlay!r}"
+            )
+        attack_report[weapon] = {"animation": animation, "caster_overlay": overlay}
+
+    skill = champion.get("skill")
+    q_effect = skill.get("effect") if isinstance(skill, dict) else None
+    q_animations = type_names(q_effect, "CasterAnimation")
+    q_overlays = type_names(q_effect, "CasterViewEffect")
+    expected_q_animations = Counter({"skill_q12": 2, "skill_q3": 1})
+    expected_q_overlays = Counter({"lol_yone_q_blade": 2, "lol_yone_q3_blade": 1})
+    if q_animations != expected_q_animations or q_overlays != expected_q_overlays:
+        _fail(
+            "Yone Q must stay steel-active: two Q1/Q2 caster routes and one Q3 route"
+        )
+
+    skill2 = champion.get("skill2")
+    w_effect = skill2.get("effect") if isinstance(skill2, dict) else None
+    w_animations = type_names(w_effect, "CasterAnimation")
+    w_overlays = type_names(w_effect, "CasterViewEffect")
+    if w_animations != Counter({"skill_w_azakana": 1}):
+        _fail("Yone W must use the Azakana-active skill_w_azakana animation")
+    if w_overlays["lol_yone_w_crescent_cast"] != 1:
+        _fail("Yone W must cast exactly one caster-following Azakana crescent")
+
+    ultimate = champion.get("ult")
+    r_effect = ultimate.get("effect") if isinstance(ultimate, dict) else None
+    r_animations = type_names(r_effect, "CasterAnimation")
+    r_caster_overlays = type_names(r_effect, "CasterViewEffect")
+    r_target_overlays = type_names(r_effect, "ViewEffect")
+    if r_animations != Counter({"ult": 1}):
+        _fail("Yone R must use the dual-sword ult animation route")
+    if r_caster_overlays["lol_yone_r_windup"] != 1:
+        _fail("Yone R must begin with one caster-following dual-sword windup")
+    if (
+        r_target_overlays["lol_yone_r_slash_blue"] < 1
+        or r_target_overlays["lol_yone_r_slash_red"] < 1
+    ):
+        _fail("Yone R must emit both steel-blue and Azakana-red slash overlays")
+
+    raw_view_effects = champion.get("view_effects")
+    if not isinstance(raw_view_effects, list):
+        _fail("Yone champion data has no view_effects list")
+    view_effects: dict[str, dict[str, Any]] = {}
+    for position, effect in enumerate(raw_view_effects):
+        name = effect.get("name") if isinstance(effect, dict) else None
+        if not isinstance(name, str):
+            _fail(f"Yone view_effects[{position}] has no name")
+        if name in view_effects:
+            _fail(f"Yone view effect is duplicated: {name}")
+        view_effects[name] = effect
+
+    overlay_contract = {
+        "lol_yone_attack_steel_swing": (
+            "asset/lol_mod/aseprite_resources/effects/yone_attack",
+            "steel_hit",
+            3,
+        ),
+        "lol_yone_attack_azakana_swing": (
+            "asset/lol_mod/aseprite_resources/effects/yone_attack",
+            "azakana_hit",
+            3,
+        ),
+        "lol_yone_q_blade": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q",
+            "hit",
+            3,
+        ),
+        "lol_yone_q3_blade": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q",
+            "empowered_hit",
+            3,
+        ),
+        "lol_yone_w_crescent_cast": (
+            "asset/lol_mod/aseprite_resources/effects/yone_w",
+            "crescent",
+            3,
+        ),
+        "lol_yone_r_windup": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "windup",
+            1,
+        ),
+        "lol_yone_r_slash_blue": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "slash_blue",
+            2,
+        ),
+        "lol_yone_r_slash_red": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "slash_red",
+            2,
+        ),
+    }
+    overlay_report: dict[str, Any] = {}
+    for name, (asset, tag, z) in overlay_contract.items():
+        effect = view_effects.get(name)
+        expected = {
+            "type": "Animation",
+            "name": name,
+            "anim": asset,
+            "tag": tag,
+            "z": z,
+            "is_follow": True,
+        }
+        if effect != expected:
+            _fail(
+                f"Yone long-blade overlay {name!r} must be an exact caster-follow "
+                f"Animation contract: {expected!r}"
+            )
+        prefix = "asset/lol_mod/"
+        if not asset.startswith(prefix):
+            _fail(f"Yone long-blade overlay has a non-mod asset path: {asset}")
+        relative = asset[len(prefix) :]
+        anim_path = mod_root / f"{relative}#anim.fanim"
+        sheet_path = mod_root / f"{relative}#sheet.png"
+        if not anim_path.is_file() or not sheet_path.is_file():
+            _fail(f"Yone long-blade overlay assets are incomplete for {name!r}")
+        overlay_report[name] = {
+            "anim": asset,
+            "tag": tag,
+            "z": z,
+            "is_follow": True,
+            "assets_present": True,
+        }
+
+    return {
+        "basic_attack": attack_report,
+        "q": {
+            "active_weapon": "steel",
+            "animations": dict(expected_q_animations),
+            "caster_overlays": dict(expected_q_overlays),
+        },
+        "w": {
+            "active_weapon": "azakana",
+            "animation": "skill_w_azakana",
+            "caster_overlay": "lol_yone_w_crescent_cast",
+        },
+        "r": {
+            "active_weapon": "dual",
+            "animation": "ult",
+            "caster_windup": "lol_yone_r_windup",
+            "steel_overlay": "lol_yone_r_slash_blue",
+            "azakana_overlay": "lol_yone_r_slash_red",
+        },
+        "long_blade_overlays": overlay_report,
     }
 
 
@@ -1276,7 +1652,7 @@ def validate_v7(
             "foot_zones",
             "active_weapon",
             "weapons_present",
-        }
+        } | WEAPON_FRAME_FIELDS
         missing = required - set(row)
         if missing:
             _fail(f"frames[{position}] is missing fields: {sorted(missing)}")
@@ -1396,6 +1772,7 @@ def validate_v7(
     )
     generation_report = _validate_generation_qa(mod_root)
     dual_sword_report = _validate_dual_sword_cues(sources, palette, rows_by_key)
+    runtime_weapon_report = _validate_runtime_weapon_routes(mod_root)
     if verify_retired_paths:
         _validate_retired_paths(mod_root)
     return {
@@ -1424,6 +1801,7 @@ def validate_v7(
         "animation_contract": animation_contract,
         "weapon_contract": payload["weapon_contract"],
         "dual_sword": dual_sword_report,
+        "runtime_weapon_routes": runtime_weapon_report,
         "runtime_atlas_verified": atlas is not None,
         "retired_v3_through_v6_body_paths_absent": verify_retired_paths,
     }

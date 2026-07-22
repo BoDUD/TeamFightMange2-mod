@@ -528,7 +528,7 @@ fn trace_yone_render_commands(
         "",
         "",
         &format!(
-            "version=0.10.18;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
+            "version=0.10.19;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
             ui.root.id,
             context.surface.as_str(),
             context.swap_visible,
@@ -581,7 +581,7 @@ fn trace_yone_render_commands(
                         texture,
                         "",
                         &format!(
-                            "version=0.10.18;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
+                            "version=0.10.19;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
                             context.surface.as_str(),
                             ui.root.id,
                             context.swap_visible,
@@ -607,7 +607,7 @@ fn trace_yone_render_commands(
                         texture,
                         "",
                         &format!(
-                            "version=0.10.18;kind=Sprite;pass={pass};surface={};root={};route={}",
+                            "version=0.10.19;kind=Sprite;pass={pass};surface={};root={};route={}",
                             context.surface.as_str(),
                             ui.root.id,
                             if pass.to_string() == "Game" {
@@ -633,7 +633,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
         None,
         "",
         "",
-        "version=0.10.18;logical_contract=85x93",
+        "version=0.10.19;logical_contract=85x93",
     );
     for (pass, commands) in &mut state.commands {
         for command in commands {
@@ -668,7 +668,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                     &source,
                     "",
                     &format!(
-                        "version=0.10.18;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        "version=0.10.19;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
                         *x, *y, *w, *h,
                     ),
                 );
@@ -695,7 +695,7 @@ fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
                 &source,
                 YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
                 &format!(
-                    "version=0.10.18;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    "version=0.10.19;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
                     original_size.0, original_size.1, *w, *h,
                 ),
             );
@@ -807,7 +807,7 @@ fn rewrite_yone_portrait_render_commands(
                 &source,
                 replacement,
                 &format!(
-                    "version=0.10.18;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
+                    "version=0.10.19;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
                     context.surface.as_str(),
                     original_geometry.0,
                     original_geometry.1,
@@ -1312,7 +1312,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.10.18;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.10.19;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),

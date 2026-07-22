@@ -64,7 +64,7 @@
         "long_blade_overlay_policy"
       ],
       "properties": {
-        "version": {"const": 1},
+        "version": {"const": 2},
         "weapons": {"const": ["steel", "azakana"]},
         "always_dual_actions": {"const": ["idle", "run"]},
         "semantic_animation_tags": {
@@ -107,7 +107,23 @@
         "foot_zones",
         "face_visibility",
         "active_weapon",
-        "weapons_present"
+        "weapons_present",
+        "steel_blade_bbox",
+        "azakana_blade_bbox",
+        "steel_hand_anchor",
+        "azakana_hand_anchor",
+        "steel_tip",
+        "azakana_tip",
+        "steel_span_px",
+        "azakana_span_px",
+        "steel_connectedness",
+        "azakana_connectedness",
+        "steel_pixel_count",
+        "azakana_pixel_count",
+        "steel_crop_ratio",
+        "azakana_crop_ratio",
+        "steel_source_tip_survived",
+        "azakana_source_tip_survived"
       ],
       "properties": {
         "action": {
@@ -164,7 +180,51 @@
         },
         "weapons_present": {
           "const": ["steel", "azakana"]
-        }
+        },
+        "steel_blade_bbox": {"$ref": "#/$defs/rect"},
+        "azakana_blade_bbox": {"$ref": "#/$defs/rect"},
+        "steel_hand_anchor": {"$ref": "#/$defs/point"},
+        "azakana_hand_anchor": {"$ref": "#/$defs/point"},
+        "steel_tip": {"$ref": "#/$defs/point"},
+        "azakana_tip": {"$ref": "#/$defs/point"},
+        "steel_span_px": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "azakana_span_px": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "steel_connectedness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "azakana_connectedness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "steel_pixel_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "azakana_pixel_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "steel_crop_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "azakana_crop_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "steel_source_tip_survived": {"type": "boolean"},
+        "azakana_source_tip_survived": {"type": "boolean"}
       }
     }
   }
