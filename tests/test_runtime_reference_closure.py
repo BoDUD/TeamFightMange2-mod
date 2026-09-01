@@ -443,14 +443,18 @@ def test_stale_base_050_client_server_extensions_are_opt_in_only() -> None:
 def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None:
     dll = (MOD / "lol_mod.dll").read_bytes()
     for required in (
+        b"tfm2_mod_entry_stable",
+        b"tfm2_mod_required_abi_level",
+        b"lol_mod stable ABI loaded on game",
+        b"0.12.1",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
         b"lol_yone_e_damage_post_native",
         b"lol_yone_e_settle_native",
-        b"version=0.12.0",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"
+    assert b"tfm2_mod_api_version" not in dll
     for retired in (
         b"yone_soul_unbound_context",
         b"Yone E damage mark was just inserted",

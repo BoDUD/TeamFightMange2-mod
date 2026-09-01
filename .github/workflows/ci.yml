@@ -19,28 +19,11 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
-      - name: Download and verify official Teamfight Manager 2 SDK 0.5.1
+      - name: Compile native DLL against the vendored stable ABI
         shell: pwsh
         run: |
-          $archive = Join-Path $env:RUNNER_TEMP "tfm2-sdk-0.5.1.zip"
-          $package = Join-Path $env:RUNNER_TEMP "tfm2-sdk-0.5.1"
-          Invoke-WebRequest -Uri "https://github.com/teamsamoyed/TeamfightManager2Mod/releases/download/0.5.1/0.5.1.zip" -OutFile $archive
-          $expected = "5d3ee5b104f65501629e7f905d327c1f57d86ca5cabc1717bf456a2287a0f08a"
-          $actual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($actual -ne $expected) {
-            throw "Official SDK archive hash mismatch: $actual"
-          }
-          Expand-Archive -LiteralPath $archive -DestinationPath $package
-          $sdk = Join-Path $package "mod-sdk"
-          if (-not (Test-Path -LiteralPath (Join-Path $sdk "base_version.txt") -PathType Leaf)) {
-            throw "Official SDK archive did not contain mod-sdk/base_version.txt"
-          }
-          "TFM2_MOD_SDK_DIR=$sdk" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
-      - name: Compile native DLL against the pinned official SDK
-        shell: pwsh
-        run: |
-          rustup toolchain install nightly-2026-05-24 --profile minimal
-          ./mods/lol_mod/tools/build_native_dll.ps1 -SdkDir $env:TFM2_MOD_SDK_DIR -OutDll (Join-Path $env:RUNNER_TEMP "lol_mod-ci.dll")
+          rustup toolchain install stable --profile minimal
+          ./mods/lol_mod/tools/build_native_dll.ps1 -OutDll (Join-Path $env:RUNNER_TEMP "lol_mod-ci.dll")
       - run: python mods/lol_mod/tools/build_lol_mod.py
       - name: Runtime reference closure and non-panicking DLL gates
         run: python -m pytest -q tests/test_runtime_reference_closure.py

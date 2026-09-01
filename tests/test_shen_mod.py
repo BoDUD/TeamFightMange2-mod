@@ -79,8 +79,8 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.12.0"
-    assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.1"}]
+    assert mod_info["version"] == "0.12.1"
+    assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.7"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
 
@@ -766,7 +766,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.12.0;root=' in source
+    assert '"version=0.12.1;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -815,7 +815,11 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
 
     build_script = (MOD / "tools" / "build_native_dll.ps1").read_text(encoding="utf-8")
     assert '"--extern", "engine_ui=$($engineUi.FullName)"' not in build_script
-    assert '"--extern", "engine_core=$($engineCore.FullName)"' in build_script
+    assert r'Join-Path $modRoot "vendor\mod-api-stable"' in build_script
+    assert r'Join-Path $gameRoot "mod-sdk-stable"' in build_script
+    assert "tfm2_mod_entry_stable" in build_script
+    assert "tfm2_mod_required_abi_level" in build_script
+    assert "nightly-2026-05-24" not in build_script
 
     variants = ["infernal", "ocean", "mountain", "cloud", "hextech"]
     assert "snapshot.seed" in source

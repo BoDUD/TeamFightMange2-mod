@@ -24,7 +24,7 @@ from PIL import Image
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
-EXPECTED_MOD_API_VERSION = 8
+EXPECTED_STABLE_ABI_LEVEL = 1
 
 def validate_shen_sdk_data_champion() -> None:
     """Ask the exact installed SDK type to deserialize Shen's generated file."""
@@ -7069,44 +7069,54 @@ def validate_native_dll() -> None:
     if not path.is_file():
         return
     payload = path.read_bytes()
+    check(b"tfm2_mod_entry_stable" in payload, "lol_mod.dll is missing the stable ABI entry")
     check(
-        b"version=0.12.0;root=" in payload,
-        "lol_mod.dll must contain the current 0.12.0 BP telemetry marker",
+        b"tfm2_mod_required_abi_level" in payload,
+        "lol_mod.dll is missing the stable ABI level export",
     )
     check(
-        b"version=0.10.20;from_size=" in payload,
-        "lol_mod.dll must contain the current 0.10.20 Yone management portrait telemetry marker",
+        b"tfm2_mod_api_version" not in payload,
+        "lol_mod.dll still exports the deprecated classic Mod API entry",
     )
     check(
-        b"version=0.10.20;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root=" in payload
-        and b"yone_bp_grid_replace" in payload,
-        "lol_mod.dll must contain the default 0.10.20 geometry-preserving Yone BP-grid route",
+        b"lol_mod stable ABI loaded on game" in payload,
+        "lol_mod.dll does not contain the stable runtime load marker",
+    )
+    for native_name in (
+        b"lol_xayah_ai_feather_add_1",
+        b"lol_yone_w_cone_native",
+        b"lol_urgot_passive_native",
+        b"lol_urgot_r_execute_native",
+        b"lol_shen_shadow_dash_taunt_native",
+        b"lol_yone_e_settle_native",
+    ):
+        check(native_name in payload, f"stable DLL is missing native registration {native_name!r}")
+    cargo = (MOD_ROOT / "Cargo.toml").read_text(encoding="utf-8")
+    stable_runtime_path = MOD_ROOT / "src" / "stable_runtime.rs"
+    stable_api_path = MOD_ROOT / "vendor" / "mod-api-stable"
+    check(
+        'path = "src/stable_runtime.rs"' in cargo,
+        "Cargo must compile the stable runtime instead of the classic migration reference",
     )
     check(
-        b"yone_assignment_replace" in payload
-        and b"yone_bp_side_card_replace" in payload
-        and b"top_88_of_122" in payload
-        and b"size_mode=preserved" in payload,
-        "lol_mod.dll must contain the 0.10.20 assignment/edge baseline and top-88 crop routes",
+        'mod-api-stable = { path = "vendor/mod-api-stable" }' in cargo,
+        "Cargo must use the vendored stable API",
     )
-    check(
-        b"yone_game_sprite_atlas" in payload
-        and b"expected_atlas=4262x88" in payload
-        and b"atlas_missing=" in payload
-        and b"active_yone_v7" in payload
-        and b"legacy_saved_data_alias" in payload,
-        "lol_mod.dll must contain the 0.10.20 Game Sprite atlas/key diagnostic",
+    check(stable_runtime_path.is_file(), "stable runtime source is missing")
+    check((stable_api_path / "Cargo.toml").is_file(), "vendored stable API is missing")
+    stable_runtime = (
+        stable_runtime_path.read_text(encoding="utf-8") if stable_runtime_path.is_file() else ""
     )
-    check(
-        b"yone_game_sprite_v7_frame" in payload
-        and b"yone_game_sprite_sample" in payload
-        and b"source_px=" in payload
-        and b"inferred_action=" in payload
-        and b"tag_candidates=" in payload
-        and b"skill_w_azakana|skill2_attack" in payload
-        and b"game_tick=unavailable" in payload,
-        "lol_mod.dll must contain the bounded V7 Game Sprite frame diagnostic",
-    )
+    for required in (
+        "use mod_api_stable::",
+        "impl StableEffectType for UrgotPassiveNativeEffect",
+        "impl StableEffectType for YoneSpiritCleaveConeNativeEffect",
+        "impl StableEffectType for ShenShadowDashTauntNativeEffect",
+        "impl StablePlayerAi for XayahFeatherInputGate",
+        "impl StablePlayerAi for ShenShadowDashInputAi",
+        "declare_stable_mod!(init);",
+    ):
+        check(required in stable_runtime, f"stable runtime contract is missing: {required}")
     check(
         b"version=0.10.19;root=" not in payload
         and b"version=0.10.19;from_size=" not in payload
@@ -7132,16 +7142,21 @@ def validate_native_dll() -> None:
         return
     try:
         library = ctypes.WinDLL(str(path))
-        api_version = library.tfm2_mod_api_version
-        api_version.restype = ctypes.c_uint32
-        exported = int(api_version())
+        required_abi = library.tfm2_mod_required_abi_level
+        required_abi.restype = ctypes.c_uint32
+        stable_entry = library.tfm2_mod_entry_stable
+        stable_entry.argtypes = [ctypes.c_void_p]
+        stable_entry.restype = ctypes.c_void_p
+        exported = int(required_abi())
+        null_result = stable_entry(None)
     except (AttributeError, OSError) as error:
-        check(False, f"failed to read lol_mod.dll API version: {error}")
+        check(False, f"failed to read lol_mod.dll stable ABI exports: {error}")
         return
     check(
-        exported == EXPECTED_MOD_API_VERSION,
-        f"lol_mod.dll must export Mod API 0.{EXPECTED_MOD_API_VERSION}, got raw version 0x{exported:08x}",
+        exported == EXPECTED_STABLE_ABI_LEVEL,
+        f"lol_mod.dll must require stable ABI level {EXPECTED_STABLE_ABI_LEVEL}, got {exported}",
     )
+    check(null_result is None, "stable entry must reject a null host pointer safely")
 
 
 def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -> None:
@@ -8602,28 +8617,26 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.0", "lol_mod version must be 0.12.0")
+    check(mod_info.get("version") == "0.12.1", "lol_mod version must be 0.12.1")
     check(
-        mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.1"}],
-        "lol_mod must declare base >=0.5.1",
+        mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.7"}],
+        "lol_mod must declare base >=0.5.7",
     )
     build_script = (MOD_ROOT / "tools/build_native_dll.ps1").read_text(encoding="utf-8")
     check(
-        'if ($baseVersion -ne "0.5.1")' in build_script
-        and 'if ($pinned -ne "nightly-2026-05-24")' in build_script
-        and "9EBB4FBC406C7348886F5F9DE251ACF37907C510E25CD8839E5EE38A78B5ADAC" in build_script
-        and "BF1B953B00C65197A200A02BA7087BE81F970CB3893DE4967E4C146B6D07335C" in build_script
-        and "5275DE1221836C5C25C309CE9438F2E08DF3AFEA61541B85B2C2A8822A8107ED" in build_script
-        and "C99E9CC2B78D26093234B4749609332F512DAFDB4E34A82BF548EFDA6AA5E384" not in build_script
-        and "6D8FCCB508697C4244038E97B0C66DA1F7DC2D699950FE06FF6415A795FBC719" not in build_script,
-        "native DLL build must require the official Teamfight Manager 2 0.5.1 SDK fingerprints",
+        'Join-Path $modRoot "vendor\\mod-api-stable"' in build_script
+        and 'Join-Path $gameRoot "mod-sdk-stable"' in build_script
+        and 'tfm2_mod_entry_stable' in build_script
+        and 'tfm2_mod_required_abi_level' in build_script
+        and 'nightly-2026-05-24' not in build_script,
+        "native DLL build must use and verify the vendored Teamfight Manager 2 stable ABI",
     )
     description = str(mod_info.get("description", ""))
     check(
         all(
             token in description
             for token in (
-                "0.5.1", "0.10.5", "0.10.17", "0.10.19", "0.10.20",
+                "0.5.7", "stable ABI", "0.10.5", "0.10.17", "0.10.19", "0.10.20",
                 "V7", "4262x88", "3502x88",
             )
         )
@@ -10521,7 +10534,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.0", "lol_mod version must be 0.12.0")
+    check(mod_info.get("version") == "0.12.1", "lol_mod version must be 0.12.1")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

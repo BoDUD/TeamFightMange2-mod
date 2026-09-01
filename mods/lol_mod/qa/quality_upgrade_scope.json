@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "release": "0.12.0",
+  "release": "0.12.1",
   "runtime_compatibility": {
-    "active_base_version": "0.5.1",
-    "bundled_sdk_base_version": "0.5.0",
-    "legacy_internal_extensions": "disabled_by_default",
+    "active_base_version": "0.5.7",
+    "native_runtime": "stable_abi_level_1",
+    "legacy_internal_extensions": "not_compiled",
     "bp_layout_overrides": "enabled_against_exact_base_0.5.1_native_layouts",
     "inactive_until_matching_sdk": [
       "dynamic Ban/Pick splash command rewriting",
@@ -12,7 +12,7 @@
       "client database mutation",
       "deterministic elemental dragon server rewriting"
     ],
-    "reason": "Base 0.5.1 changed required Ban/Pick UI nodes and internal client/server layouts. The four BP overrides are regenerated from the exact 0.5.1 native files with ignore_event decoration-only nodes. All old client/server extension vtables, including render-only command rewriting, remain opt-in until a matching SDK or a complete live compatibility proof exists."
+    "reason": "Game 0.5.7 rejects classic Mod API DLLs built before 0.5.6. The production DLL now uses the official frozen stable ABI and does not compile any old client/server extension vtables. The four BP layout overrides remain historical 0.5.1-derived static assets; manual 0.5.7 UI verification is required."
   },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
@@ -411,7 +411,7 @@
       ]
     },
     "encyclopedia_fullbody_runtime": {
-      "yone_default_hook": "YoneManagementCardExtension post_update recursively visits repeated champion_slot clones and keeps the 85x93 management fallback; post_render detects the real root-level swap container and central champions viewport before rewriting the shared Yone-only UI NinePatch source at 95x88, while compact and scoreboard surfaces keep their dedicated portraits",
+      "yone_default_hook": "static portrait/fullbody assets only under the stable ABI; the classic YoneManagementCardExtension raw RenderCommand route is retained as migration history but is not compiled",
       "yone_0_10_11_route": "failed: the static dual_blader.icon / dual_blader.lol_fullbody_yone path assumed cloned slot roots were renamed to champion ids; official ChampionInfoUIRunner keeps every root id as champion_slot, so the path could never resolve",
       "yone_0_10_12_route": "failed: the ChampionInfoUIRunner positive gate was not discoverable in the live management card, so no yone_management_card_replace telemetry was emitted and the native battle idle remained visible",
       "yone_0_10_13_route": "failed: the route treated the post-SetImageScale screenshot size of approximately 93-96x110-123 as RenderCommand geometry, while the actual champion_slot #icon NinePatch remains a logical 85x93, so the replacement gate never matched",
@@ -424,18 +424,15 @@
       "assignment_and_edge_baseline": "player-assignment and edge picked-side 95x88 commands use the same top-88-of-122 UV and preserve x/w/h, but move y upward by 9 logical pixels to restore bottom clearance; central-grid y is unchanged",
       "surface_exclusion": "85x93 management, compact and scoreboard commands remain on their independent routes; the observed Game-pass battle actor is RenderCommand::Sprite and is trace-only; other champions fail the Yone actor-texture predicate",
       "portrait_telemetry": "bounded rows include surface, UI root, swap/grid visibility, central-viewport result, source and output x/y/w/h, z and normalized UV so two reused 95x88 components do not collapse into one diagnostic signature",
-      "legacy_match_ui_database_render_and_server_work": "still disabled by default and available only through LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS=1",
+      "legacy_match_ui_database_render_and_server_work": "not compiled into the stable-ABI production DLL",
       "sdk_provenance": {
-        "release_url": "https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1",
-        "archive_size_bytes": 415437219,
-        "archive_sha256": "5d3ee5b104f65501629e7f905d327c1f57d86ca5cabc1717bf456a2287a0f08a",
-        "base_version": "0.5.1",
-        "toolchain": "nightly-2026-05-24",
-        "mod_api_rlib_sha256": "9ebb4fbc406c7348886f5f9de251acf37907c510e25cd8839e5ee38a78b5adac",
-        "game_view_rlib_sha256": "bf1b953b00c65197a200a02ba7087be81f970cb3893de4967e4c146b6d07335c",
-        "engine_core_rlib_sha256": "5275de1221836c5c25c309ce9438f2e08df3afea61541b85b2c2a8822a8107ed"
+        "source": "game-bundled mod-sdk-stable vendored at vendor/mod-api-stable",
+        "base_version": "0.5.7",
+        "host_abi_level": 4,
+        "required_abi_level": 1,
+        "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.10.20 regenerates every Yone UI surface from the source-direct V7 character while retaining the measured 95x88 NinePatch geometry, top-88 sample, central-grid x/y/w/h and -9 assignment/edge baseline. Game-pass Sprite telemetry now records the texture key, Assets atlas dimensions, UV/source rectangle and bounded V7 frame inference; manual base-0.5.2 verification remains required."
+      "live_status": "0.12.1 fixes the 0.5.7 DLL load blocker through the stable ABI. Static Yone V7 UI assets remain packaged, but manual 0.5.7 management-card, BP and battle verification is required because raw render-command rewriting is outside the stable surface."
     }
   },
   "packaged_variants": {

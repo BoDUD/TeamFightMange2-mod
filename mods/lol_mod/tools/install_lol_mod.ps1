@@ -75,14 +75,18 @@ using System.Runtime.InteropServices;
 
 public static class LolModApiVersionProbe
 {
-    [DllImport(@"$escapedDll", EntryPoint = "tfm2_mod_api_version", CallingConvention = CallingConvention.Cdecl)]
-    public static extern uint GetVersion();
+    [DllImport(@"$escapedDll", EntryPoint = "tfm2_mod_required_abi_level", CallingConvention = CallingConvention.Cdecl)]
+    public static extern uint GetRequiredAbiLevel();
+
+    [DllImport(@"$escapedDll", EntryPoint = "tfm2_mod_entry_stable", CallingConvention = CallingConvention.Cdecl)]
+    public static extern System.IntPtr StableEntry(System.IntPtr host);
 }
 "@
 Add-Type -TypeDefinition $probeSource
-$apiVersion = [LolModApiVersionProbe]::GetVersion()
-if ($apiVersion -ne 8) {
-    throw "Source lol_mod.dll must export Teamfight Manager 2 Mod API 0.8; got raw version 0x$($apiVersion.ToString('x8'))"
+$requiredAbiLevel = [LolModApiVersionProbe]::GetRequiredAbiLevel()
+$nullHostResult = [LolModApiVersionProbe]::StableEntry([System.IntPtr]::Zero)
+if ($requiredAbiLevel -ne 1 -or $nullHostResult -ne [System.IntPtr]::Zero) {
+    throw "Source lol_mod.dll must export the baseline Teamfight Manager 2 stable ABI entry points"
 }
 
 New-Item -ItemType Directory -Force -Path $modsRoot | Out-Null

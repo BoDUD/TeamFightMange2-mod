@@ -1,5 +1,12 @@
 # TeamFightMange2-mod
 
+## v0.12.1 test：适配游戏 0.5.7 stable ABI
+
+- 修复游戏 0.5.7 启动时报 `built with a mod SDK older than game 0.5.6` / `GetProcAddress failed` 并自动禁用 `lol_mod` 的问题。
+- 生产 DLL 已从会随游戏更新失效的 classic Mod API 迁移到官方 stable ABI；稳定运行层保留霞羽毛 AI 状态、厄加特 008 被动/R、慎嘲讽/AI、永恩无跨局状态的 W 锥形结算，以及旧存档原生效果名的无行为兼容别名。
+- 构建固定使用仓库内与游戏 0.5.7 完全一致的 `mod-api-stable`，并在本机有游戏 SDK 时逐文件校验一致性；DLL 门禁会验证 stable 入口与 ABI level 1，拒绝 classic API 导出。
+- stable ABI 不提供旧版原始 `RenderCommand` 改写接口，因此 `0.10.17` 的运行时永恩卡片改写不进入本 DLL；现有静态 UI 素材仍随包发布，需由用户手动确认管理页、BP 与战斗显示。
+
 ## v0.12.0 test：PR #11 单一集成测试分支
 
 - 以 PR #11 作为唯一集成线，保留慎、厄加特 008、BP 兼容与旧五英雄修复，并合入 PR #10 最终永恩 009 的 Q/W/R、V7 双剑图集、tick 0 动作和同模型 UI 路由；PR #9/#10 在本分支通过完整测试后关闭。
@@ -306,12 +313,11 @@
 
 ## 构建与测试
 
-先将 [Team Samoyed 官方 0.5.1 SDK](https://github.com/teamsamoyed/TeamfightManager2Mod/releases/tag/0.5.1) 解压到独立目录；`-SdkDir` 必须指向包含 `base_version.txt`、`deps` 与 `native` 的 `mod-sdk` 目录。构建脚本会核对版本、工具链和三个 rlib 的 SHA-256，旧 `0.5.0` SDK 会被拒绝。
+原生 DLL 默认使用仓库内固定的 `vendor/mod-api-stable` 构建。在已安装游戏的机器上，脚本会自动找到游戏自带的 `mod-sdk-stable`，要求 base 至少为 `0.5.7`，并逐文件核对 vendored API；也可用 `-SdkDir` 显式指定该目录。
 
 ```powershell
-$tfm2Sdk051 = 'D:\path\to\official-0.5.1\mod-sdk'
 python -m pip install -r .\requirements-dev.txt
-powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\build_native_dll.ps1 -SdkDir $tfm2Sdk051
+powershell -ExecutionPolicy Bypass -File .\mods\lol_mod\tools\build_native_dll.ps1
 python .\mods\lol_mod\tools\build_lol_mod.py --rebuild-quality
 python .\mods\lol_mod\tools\validate_lol_mod.py
 python -m pytest -q

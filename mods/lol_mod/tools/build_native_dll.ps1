@@ -22,103 +22,94 @@ function Get-Sha256Hex {
     }
 }
 
-$modRoot = Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)
-if (-not $SdkDir) {
-    $gameRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $modRoot))
-    $packagedSdk = Join-Path $gameRoot "mod-sdk-0.5.1-package\mod-sdk"
-    $SdkDir = if (Test-Path -LiteralPath $packagedSdk -PathType Container) {
-        $packagedSdk
+function Assert-StableSdkParity {
+    param(
+        [Parameter(Mandatory = $true)][string]$VendoredApi,
+        [Parameter(Mandatory = $true)][string]$ExternalSdk
+    )
+
+    $externalRoot = [System.IO.Path]::GetFullPath($ExternalSdk)
+    $externalApi = if (Test-Path -LiteralPath (Join-Path $externalRoot "mod-api-stable") -PathType Container) {
+        Join-Path $externalRoot "mod-api-stable"
     } else {
-        Join-Path $gameRoot "mod-sdk"
+        $externalRoot
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $externalApi "Cargo.toml") -PathType Leaf)) {
+        throw "Stable SDK does not contain mod-api-stable: $externalRoot"
+    }
+
+    $baseVersionPath = Join-Path $externalRoot "base_version.txt"
+    if (Test-Path -LiteralPath $baseVersionPath -PathType Leaf) {
+        $baseVersion = (Get-Content -LiteralPath $baseVersionPath -Raw -Encoding UTF8).Trim()
+        if ([version]$baseVersion -lt [version]"0.5.7") {
+            throw "Teamfight Manager 2 stable SDK 0.5.7 or newer is required; found $baseVersion"
+        }
+    }
+
+    $vendorFiles = Get-ChildItem -LiteralPath $VendoredApi -File -Recurse | ForEach-Object {
+        $_.FullName.Substring($VendoredApi.Length).TrimStart('\', '/') -replace '\\', '/'
+    } | Sort-Object
+    $externalFiles = Get-ChildItem -LiteralPath $externalApi -File -Recurse | ForEach-Object {
+        $_.FullName.Substring($externalApi.Length).TrimStart('\', '/') -replace '\\', '/'
+    } | Sort-Object
+    if (($vendorFiles -join "`n") -ne ($externalFiles -join "`n")) {
+        throw "Vendored stable API file set differs from the supplied SDK"
+    }
+    foreach ($relative in $vendorFiles) {
+        $vendorFile = Join-Path $VendoredApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        $externalFile = Join-Path $externalApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if ((Get-Sha256Hex -Path $vendorFile) -ne (Get-Sha256Hex -Path $externalFile)) {
+            throw "Vendored stable API differs from the supplied SDK: $relative"
+        }
     }
 }
-$sdk = Resolve-Path -LiteralPath $SdkDir
-$depsDir = Join-Path $sdk "deps"
-$nativeDir = Join-Path $sdk "native"
 
-$baseVersion = (Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $sdk "base_version.txt")).Trim()
-if ($baseVersion -ne "0.5.1") {
-    throw "Teamfight Manager 2 SDK 0.5.1 / Mod API 0.8 is required; found base version $baseVersion at $sdk"
+$modRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
+$vendorApi = (Resolve-Path -LiteralPath (Join-Path $modRoot "vendor\mod-api-stable")).Path
+if (-not $SdkDir) {
+    $gameRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $modRoot))
+    $bundledStableSdk = Join-Path $gameRoot "mod-sdk-stable"
+    if (Test-Path -LiteralPath $bundledStableSdk -PathType Container) {
+        $SdkDir = $bundledStableSdk
+    }
 }
-
-$toolchainFile = Join-Path $sdk "rust-toolchain.toml"
-$pinned = Select-String -LiteralPath $toolchainFile -Pattern '^\s*channel\s*=\s*"([^"]+)"' | ForEach-Object {
-    $_.Matches[0].Groups[1].Value
-} | Select-Object -First 1
-if ($pinned -ne "nightly-2026-05-24") {
-    throw "Official 0.5.1 toolchain nightly-2026-05-24 is required; found $pinned"
-}
-
-$modApi = Get-ChildItem -LiteralPath $depsDir -Filter "libmod_api-*.rlib"
-$gameView = Get-ChildItem -LiteralPath $depsDir -Filter "libgame_view-*.rlib"
-$engineCore = Get-ChildItem -LiteralPath $depsDir -Filter "libengine_core-*.rlib"
-if (
-    $modApi.Count -ne 1 -or
-    $gameView.Count -ne 1 -or
-    $engineCore.Count -ne 1
-) {
-    throw "The SDK must contain exactly one mod_api, game_view, and engine_core rlib"
-}
-
-$expectedModApiHash = "9EBB4FBC406C7348886F5F9DE251ACF37907C510E25CD8839E5EE38A78B5ADAC"
-$expectedGameViewHash = "BF1B953B00C65197A200A02BA7087BE81F970CB3893DE4967E4C146B6D07335C"
-$expectedEngineCoreHash = "5275DE1221836C5C25C309CE9438F2E08DF3AFEA61541B85B2C2A8822A8107ED"
-$actualModApiHash = Get-Sha256Hex -Path $modApi.FullName
-$actualGameViewHash = Get-Sha256Hex -Path $gameView.FullName
-$actualEngineCoreHash = Get-Sha256Hex -Path $engineCore.FullName
-if (
-    $actualModApiHash -ne $expectedModApiHash -or
-    $actualGameViewHash -ne $expectedGameViewHash -or
-    $actualEngineCoreHash -ne $expectedEngineCoreHash
-) {
-    throw "SDK fingerprint does not match the official Teamfight Manager 2 0.5.1 package"
+if ($SdkDir) {
+    Assert-StableSdkParity -VendoredApi $vendorApi -ExternalSdk $SdkDir
 }
 
 $manifest = Join-Path $modRoot "Cargo.toml"
 $targetDir = Join-Path $modRoot "target"
-$oldToolchain = $env:RUSTUP_TOOLCHAIN
-$oldFlags = $env:CARGO_ENCODED_RUSTFLAGS
-try {
-    $env:RUSTUP_TOOLCHAIN = $pinned
-    $flags = @(
-        "-L", "dependency=$depsDir",
-        "--extern", "mod_api=$($modApi.FullName)",
-        "--extern", "game_view=$($gameView.FullName)",
-        "--extern", "engine_core=$($engineCore.FullName)",
-        "-L", "native=$nativeDir"
-    )
-    $env:CARGO_ENCODED_RUSTFLAGS = $flags -join [char]31
-    cargo rustc --release --manifest-path $manifest --target-dir $targetDir --lib -- --crate-type cdylib
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-    }
+cargo build --release --manifest-path $manifest --target-dir $targetDir
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
 
-    $builtDll = Join-Path $targetDir "release\lol_mod.dll"
-    if (-not $OutDll) {
-        $outDll = Join-Path $modRoot "lol_mod.dll"
-    } else {
-        $outDll = [System.IO.Path]::GetFullPath($OutDll)
-        $outParent = Split-Path -Parent $outDll
-        New-Item -ItemType Directory -Force -Path $outParent | Out-Null
-    }
-    Copy-Item -LiteralPath $builtDll -Destination $outDll -Force
+$builtDll = Join-Path $targetDir "release\lol_mod.dll"
+if (-not $OutDll) {
+    $OutDll = Join-Path $modRoot "lol_mod.dll"
+} else {
+    $OutDll = [System.IO.Path]::GetFullPath($OutDll)
+    $outParent = Split-Path -Parent $OutDll
+    New-Item -ItemType Directory -Force -Path $outParent | Out-Null
+}
+Copy-Item -LiteralPath $builtDll -Destination $OutDll -Force
 
-    $env:LOL_MOD_DLL_TO_VERIFY = $outDll
-    $exported = @'
+$env:LOL_MOD_DLL_TO_VERIFY = $OutDll
+$exported = @'
 import ctypes
 import os
 
 library = ctypes.WinDLL(os.environ["LOL_MOD_DLL_TO_VERIFY"])
-api_version = library.tfm2_mod_api_version
-api_version.restype = ctypes.c_uint32
-print(api_version())
+entry = library.tfm2_mod_entry_stable
+entry.restype = ctypes.c_void_p
+required = library.tfm2_mod_required_abi_level
+required.restype = ctypes.c_uint32
+print(required())
 '@ | python -
-    if ($LASTEXITCODE -ne 0 -or $exported.Trim() -ne "8") {
-        throw "Built DLL did not export Teamfight Manager 2 Mod API 0.8 (raw 8)"
-    }
-    Write-Host "Build successful: $outDll (Mod API 0.8)"
-} finally {
-    $env:RUSTUP_TOOLCHAIN = $oldToolchain
-    $env:CARGO_ENCODED_RUSTFLAGS = $oldFlags
-    Remove-Item Env:LOL_MOD_DLL_TO_VERIFY -ErrorAction SilentlyContinue
+$probeExitCode = $LASTEXITCODE
+Remove-Item Env:LOL_MOD_DLL_TO_VERIFY -ErrorAction SilentlyContinue
+if ($probeExitCode -ne 0 -or $exported.Trim() -ne "1") {
+    throw "Built DLL did not export the baseline Teamfight Manager 2 stable ABI entry points"
 }
+
+Write-Output "Build successful: $OutDll (stable ABI, requires level 1)"

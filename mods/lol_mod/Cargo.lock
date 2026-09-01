@@ -4,4 +4,11 @@ version = 4
 
 [[package]]
 name = "lol_mod"
-version = "0.12.0"
+version = "0.12.1"
+dependencies = [
+ "mod-api-stable",
+]
+
+[[package]]
+name = "mod-api-stable"
+version = "0.1.0"
