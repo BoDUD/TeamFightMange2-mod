@@ -1,0 +1,2377 @@
+{
+  "schema_version": 1,
+  "generator": "mods/lol_mod/tools/build_lol_mod.py",
+  "purpose": "0.12.6 native encyclopedia scale and refined-AI target repair test closure",
+  "file_count": 473,
+  "total_size": 90036252,
+  "soft_budget": 100663296,
+  "hard_budget": 134217728,
+  "within_soft_budget": true,
+  "files": [
+    {
+      "path": "aseprite_resources/champions/briar#anim.fanim",
+      "size": 18653,
+      "sha256": "ebf73e93841103c66b32faa811a5009c654c89067948e1db65fd20796df898b3"
+    },
+    {
+      "path": "aseprite_resources/champions/briar#sheet.png",
+      "size": 458919,
+      "sha256": "c8d019e6bc425f25e7dc456a03a9521a4431e5a41ef65cff3f36569cf1c24693"
+    },
+    {
+      "path": "aseprite_resources/champions/demon#anim.fanim",
+      "size": 16078,
+      "sha256": "9d6a5419d234c7cca3cd2f978e4c0bd2540548d87ff60db8dfcdd8ffc3f2ffb7"
+    },
+    {
+      "path": "aseprite_resources/champions/demon#sheet.png",
+      "size": 1843472,
+      "sha256": "d2842247ce766d22513fbc5235be5a494f64a0e7fe376c8095d6e1e230f50072"
+    },
+    {
+      "path": "aseprite_resources/champions/kled#anim.fanim",
+      "size": 21658,
+      "sha256": "c67c1f41cd14df627dc238f5a681a13ecaa36b52e0829cff592ce5cc6fcd9903"
+    },
+    {
+      "path": "aseprite_resources/champions/kled#sheet.png",
+      "size": 3097068,
+      "sha256": "f13f22cc17807267f79a19221e0f744849b3e8bb5bc9917ff36dd48a1938e782"
+    },
+    {
+      "path": "aseprite_resources/champions/lucian#anim.fanim",
+      "size": 18627,
+      "sha256": "10efb0757b6b5955777a9bc970b61703df90bb153cefbcf286d31a716feac6d2"
+    },
+    {
+      "path": "aseprite_resources/champions/lucian#sheet.png",
+      "size": 360605,
+      "sha256": "4731b9b608ee8343f3bd949799b90ee91be3e272ba4cb439f22a15d433fab263"
+    },
+    {
+      "path": "aseprite_resources/champions/orianna#anim.fanim",
+      "size": 7316,
+      "sha256": "bf82a05db4934e9985761ca2bff06d88488465df21f41e34b10bb3af5926f9fe"
+    },
+    {
+      "path": "aseprite_resources/champions/orianna#sheet.png",
+      "size": 671926,
+      "sha256": "9ade8303037d6c02871047802b094207129d1a04436b1a8b84ba2753dc2ba70e"
+    },
+    {
+      "path": "aseprite_resources/champions/shen#anim.fanim",
+      "size": 7087,
+      "sha256": "4fcd4da62313dc2e5294310b2c1ba998f24ae063643b0bf0f29bd95845aa8e16"
+    },
+    {
+      "path": "aseprite_resources/champions/shen#sheet.png",
+      "size": 295064,
+      "sha256": "cb49516adc7d4b238fcae7ab676b04157ea6fc0d2af5b1d447ae4c7a0ef02a79"
+    },
+    {
+      "path": "aseprite_resources/champions/sivir#anim.fanim",
+      "size": 9858,
+      "sha256": "74875b39afa10b6c5143327b0c53a9aa05b72457cbe62e51d6ff049ad11c3540"
+    },
+    {
+      "path": "aseprite_resources/champions/sivir#sheet.png",
+      "size": 508071,
+      "sha256": "b985493fab0b8a3ea43332e6322ba707693056c9d61e62f82b9f3a49ac31167c"
+    },
+    {
+      "path": "aseprite_resources/champions/xayah#anim.fanim",
+      "size": 7909,
+      "sha256": "f8690cc55375de474c0d30ccd07d6ca04f1e47ae620a2cc44cfd7caad5ebec43"
+    },
+    {
+      "path": "aseprite_resources/champions/xayah#sheet.png",
+      "size": 574038,
+      "sha256": "6d63078fa27095489121afd97a699f328003a26b3a8b137e3e1b66fc1642e463"
+    },
+    {
+      "path": "aseprite_resources/champions/yone#anim.fanim",
+      "size": 19817,
+      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+    },
+    {
+      "path": "aseprite_resources/champions/yone#sheet.png",
+      "size": 1500490,
+      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919"
+    },
+    {
+      "path": "aseprite_resources/champions/yone_v7#anim.fanim",
+      "size": 19817,
+      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+    },
+    {
+      "path": "aseprite_resources/champions/yone_v7#sheet.png",
+      "size": 1500490,
+      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
+      "size": 1373,
+      "sha256": "eb7a1139a238afac01aac8e1b3982cd29bc73951f72d05c9b17c50fbf769d0d8"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_bleed#sheet.png",
+      "size": 73849,
+      "sha256": "f995d65ba50ed3e78811d8a2954f03fbe859bc0c5b4182939ccc85828166178f"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_e_scream#anim.fanim",
+      "size": 1390,
+      "sha256": "e19230e4ebbfa17888d490995bd086a109be47bc437fb0346e8cf1d35cd2d54e"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_e_scream#sheet.png",
+      "size": 229523,
+      "sha256": "4224f5e6b7c0a6981739a4c86d63d0b6ac809fec2143a826d7f60b6c7ccda25c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_frenzy#anim.fanim",
+      "size": 1466,
+      "sha256": "f81e40bb947f5bf824c5430e2b00f524297062744e3f686613cbb257191db1bc"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_frenzy#sheet.png",
+      "size": 295096,
+      "sha256": "f585cdaf30781c81a475fb8c3ba6ba91ab4f51b38e4b96b902d5e819702f796c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_q_overhead#anim.fanim",
+      "size": 1377,
+      "sha256": "754cabd4d14e6311c4a304540318f6b3d636af64a592a4a0e553ee97926dfca9"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_q_overhead#sheet.png",
+      "size": 131214,
+      "sha256": "9dd9118392c4e4512a4a28867dd2278642c05e9b613eebb0d9b1679282fb6f3f"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_arrival#anim.fanim",
+      "size": 721,
+      "sha256": "f8d43893fdb8a2d81fe4f37fc5b32ea54208e0a1afbef960dbc24c70a3972c2e"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_arrival#sheet.png",
+      "size": 147630,
+      "sha256": "0144d2381199cd752c01e8d55328e9c34ba8db248cb2f810fc75133381617bea"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_mark#anim.fanim",
+      "size": 715,
+      "sha256": "e7132c78601299294fcfb26d68d5f4859a35346d13f2eaab53a90c1b8ab0a90c"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_mark#sheet.png",
+      "size": 65673,
+      "sha256": "b99520bdcbad0b257aa13192d1cd8af925302bcc2647476f7e3e9b1eab1c03f0"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_trail#anim.fanim",
+      "size": 724,
+      "sha256": "a645745cfaf0cb71843f2068fa5c4dbc9c051e17c922ebf9551aa088f85d1262"
+    },
+    {
+      "path": "aseprite_resources/effects/briar_r_trail#sheet.png",
+      "size": 73849,
+      "sha256": "d8e84c14e55f35543809bd05f35630acd32f159c7b15b0db6a59cd746c8c1c82"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_e_joust#anim.fanim",
+      "size": 1423,
+      "sha256": "bda0620c7c9e9870640eec10f7b50ca7b6fe158f172ee1c59039ccbe1a5110d3"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_e_joust#sheet.png",
+      "size": 147582,
+      "sha256": "f727f195e2c626e082980fa7e19aac2ac3f34d86c795fd941f0ac2e82a0b5b2b"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_q_tether#anim.fanim",
+      "size": 3112,
+      "sha256": "a711bb124db316100e166bb58b49ad30a13a70dd679842185a2982c9ed70c806"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_q_tether#sheet.png",
+      "size": 147582,
+      "sha256": "000668ffc83f4bbfbc9782d2981d5ba3140eb21824ade1bd684a5455c646aa13"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_impact#anim.fanim",
+      "size": 1377,
+      "sha256": "ac639bcdf19ae113532f756c48b09e203875854b424fdf3620f646631a767288"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_impact#sheet.png",
+      "size": 196755,
+      "sha256": "add418a76b3d59a42cf40326e32df4557c60e4ef40546a86b71a475f6d7379cc"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_trail#anim.fanim",
+      "size": 4677,
+      "sha256": "175b13dda3a973ef81c56557c71ccbf211b15b016510a9b6965c92ccaf3f42bc"
+    },
+    {
+      "path": "aseprite_resources/effects/kled_r_trail#sheet.png",
+      "size": 196755,
+      "sha256": "a196b7b47425f578a0001ac49f9734b5a9ebf6a6d9f8ecaf0f646bbc593ec1df"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_attack#anim.fanim",
+      "size": 1381,
+      "sha256": "ce008659d6f84bb0c969308399372c3e3453a3893166dd76c80d9485c6f8768d"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_attack#sheet.png",
+      "size": 65641,
+      "sha256": "5ba126829766da572b77f1a38877a2cc4e1e4b05bb5c6e404cbfc622ef1e12bd"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_q#anim.fanim",
+      "size": 1400,
+      "sha256": "3604634b20370704e0715df902d05b2491894758946278a1b9d5fa497eb93075"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_q#sheet.png",
+      "size": 196723,
+      "sha256": "c338a7deda388f4f20eb553fc82fccb0d4ef804b3179bc57cd9630b0ec9f987b"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_r#anim.fanim",
+      "size": 1389,
+      "sha256": "bcacd894cad2358b8a902da598b24702f2a94f29f0b3748a567f89a509ab06b0"
+    },
+    {
+      "path": "aseprite_resources/effects/lucian_r#sheet.png",
+      "size": 65641,
+      "sha256": "e4b411d5c357b12f8209baa5c2de2e1ff4119b9cde973ef4a54c8b1e719cfa86"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_attack#anim.fanim",
+      "size": 1426,
+      "sha256": "c4f28c8553c1224f6e6bd4b4a4241d460939253296b577e473f929b0bd7fc750"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_attack#sheet.png",
+      "size": 32868,
+      "sha256": "492a550678a69f943918ef02d7aef44628e01753761a9961af80cc778ade99db"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_e_shield#anim.fanim",
+      "size": 2177,
+      "sha256": "037df2f9e92127948b8401f03d8b59cd5f41da0ad292e8cc5c708ad6c05200b4"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_e_shield#sheet.png",
+      "size": 307368,
+      "sha256": "330b9f25154c136bd941cac24fe893cde197577194a12097421c0361d0bf6512"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_ball#anim.fanim",
+      "size": 724,
+      "sha256": "03cb210b79872a142f3c85c2b95a8a927dcbb34bc322ed7a0734b73881799339"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_ball#sheet.png",
+      "size": 25708,
+      "sha256": "cd6e55b0fc11e72ae67f1ed08e5e92830bedab88af71f86db66060fdf7fbb643"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_field#anim.fanim",
+      "size": 1433,
+      "sha256": "705fce69163d96d80c13c6f4bfbc515942bb7b656b16bc8933f9cf2dd75447ae"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_q_field#sheet.png",
+      "size": 229523,
+      "sha256": "5ec0c7112f402397a16745728218d627458719867f9f507a61170ae4bf23fb1d"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_r_ring#anim.fanim",
+      "size": 2116,
+      "sha256": "f4fffb441c09654589515f3a54378e955fec0c1c895fc94a2d68f3b8b8a59f24"
+    },
+    {
+      "path": "aseprite_resources/effects/orianna_r_ring#sheet.png",
+      "size": 1229118,
+      "sha256": "518b2a8226ddafac8407fbdf56cd069bcfd3d70627bdf2e95c997fd268360b95"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_e#anim.fanim",
+      "size": 3095,
+      "sha256": "7a6a3a45931faf9d13615c82e2546f93617c24b313248629c12793669322a68f"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_e#sheet.png",
+      "size": 147598,
+      "sha256": "c927f77d3ce5fbed3775ee2e44aa1958a3e07118b529bb61ceba6d07de5e0920"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_q#anim.fanim",
+      "size": 4484,
+      "sha256": "ac7580bd93ab4b2aae88f8f34fea7d5431be31c9a915d2597d3f2042801f296a"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_q#sheet.png",
+      "size": 147598,
+      "sha256": "a74fa2d058e954867be902daed6d9e55142a94d60028b31c98b970277fe0bfa6"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_r#anim.fanim",
+      "size": 1605,
+      "sha256": "d613e6ac86bd7ff99475b6daca3a5ee500ff25f3fcdc9e42f31c37e32ce2a6f4"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_r#sheet.png",
+      "size": 401618,
+      "sha256": "e9cd473087867f2cae8ecbb217e00a24114b59fdc3a2dcaa2bc68f8f6a1ad969"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_attack#anim.fanim",
+      "size": 1425,
+      "sha256": "3dda3549398b816a694ca063745d3613b6f8e9b6bcf1ed89346121223f398017"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_attack#sheet.png",
+      "size": 49252,
+      "sha256": "605067b119a1d49bf9ae66e76cacd8b29ee8aaefe689bbfebcb247ccb683afa1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#anim.fanim",
+      "size": 1466,
+      "sha256": "d10c778f17589a046280a7d9173de87d1a249af46b357f89a8a7042c6743c3af"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_e_shield#sheet.png",
+      "size": 131214,
+      "sha256": "e9b1903e389c874a9ae66771348f691fa4412e3b36209e1bf862536bdf4c97d1"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#anim.fanim",
+      "size": 1466,
+      "sha256": "d3c9d6501f2a865908d153bbd623e7e2fd3a629a3928c44f0d032b48f34a6147"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_hunt_buff#sheet.png",
+      "size": 65641,
+      "sha256": "69e8ccc06a4c0524f39669a0b06210589e0cfc4199d6e1e523951b9f3ce1c8eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#anim.fanim",
+      "size": 1426,
+      "sha256": "2a0e39f13344ed81ef02e2a68ee9ba7e6fd9d5a7831e3584dcab99307d1b8a69"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_q#sheet.png",
+      "size": 98425,
+      "sha256": "c3e860fbd987dcfede77fdd0d9c8f92fed00b56df4577f135ed0284f163c043a"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#anim.fanim",
+      "size": 1383,
+      "sha256": "dc19a64b6567319688d11a40b23984aabd4ba2d95661e375932ff3f2286871eb"
+    },
+    {
+      "path": "aseprite_resources/effects/sivir_r_cast#sheet.png",
+      "size": 262296,
+      "sha256": "3146bcb5cae7a8b5b5684be6598e29caf512bb43a024ecfc1c74624a444adf80"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_attack#anim.fanim",
+      "size": 2140,
+      "sha256": "fd4b74a1328782ff057477b5e37d8bceb6860b9a4cfad8a52c9841a7b774cd9e"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_attack#sheet.png",
+      "size": 295064,
+      "sha256": "e78882cd2934002438344fd406bf030e69554781a8659d99dcdda716afa9f03c"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_e_disdain#anim.fanim",
+      "size": 2842,
+      "sha256": "6e855065b7a44c19d838e751167cc3f45b847efccbf62ccac35b1e883cba60f9"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_e_disdain#sheet.png",
+      "size": 590033,
+      "sha256": "84dee5b8df06b3ecffac210ae390e10bfa160227367b819414d6fd8398ad3691"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_r_chain#anim.fanim",
+      "size": 2867,
+      "sha256": "92e51c6ddf3bca25ff443fcd10dcc52a5926cb901d61e3f53a7b1393f9eafbf4"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_r_chain#sheet.png",
+      "size": 786656,
+      "sha256": "3cefc3e5f0099f7124c8cc463ec7c7f07c02d0e4bc941bb7b800dc31752d91a4"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_r_execute#anim.fanim",
+      "size": 1445,
+      "sha256": "4084e4f74be04c799ce05748bb0cd01ac6cf8582a0bd9786b9e9af8a7aedb0fd"
+    },
+    {
+      "path": "aseprite_resources/effects/urgot_r_execute#sheet.png",
+      "size": 524524,
+      "sha256": "fe527f95f008dcf5b781f2c678b5af94410b7f74b26e161da7fc6f14cee61064"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_attack#anim.fanim",
+      "size": 1427,
+      "sha256": "a25158a65d41809ec5ab74ab84537ed83318dcd0919d5967a3f6017fce87d22c"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_attack#sheet.png",
+      "size": 82073,
+      "sha256": "8a657fa4ff07ef9ca5dd3ab8c74198d8fbf38a6c57e9b6c1946f80a1acb6b043"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_e#anim.fanim",
+      "size": 3775,
+      "sha256": "e921d6a265bdeb7da948e8abacab30ea3db40e9858269b79407548bd525d83d8"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_e#sheet.png",
+      "size": 298561,
+      "sha256": "ebcc533b8adaf24125f3ae912aca5abcf8e0f5ff8b7e4e69a77f342f3677c30c"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_ground_feather#anim.fanim",
+      "size": 1436,
+      "sha256": "bfac010f5ab2c18914cb13ba3ec2827b9092388bc9cccbb626a6ac5b56d8b9ed"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_ground_feather#sheet.png",
+      "size": 101537,
+      "sha256": "83067c86d48424e3a30718807e3de561820a3c0648a418a2df05b685a708eda4"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_q#anim.fanim",
+      "size": 1427,
+      "sha256": "e2b0523dd571310423f1d9a861dd6ff6830b507fd83079c682ed4c607fd41802"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_q#sheet.png",
+      "size": 172222,
+      "sha256": "c425e1d3027f5ef27b13c720cddcf963cc3f84a0c15797e08c193d2f6bf1dd96"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_r#anim.fanim",
+      "size": 2133,
+      "sha256": "30caa39c59e2cc9cd8d68696dd502ecb5caa6529cfa9559152318b8d3b3605a3"
+    },
+    {
+      "path": "aseprite_resources/effects/xayah_r#sheet.png",
+      "size": 359733,
+      "sha256": "b9fc8a5ea92f9bf787c804c5712f701a92b172090906f015c7475bad63fe89f1"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#anim.fanim",
+      "size": 1434,
+      "sha256": "fd502a6c88c55dfb9b673045763e541a1f2ae22854d8579a45e3b332260b0ebe"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#sheet.png",
+      "size": 86185,
+      "sha256": "6e98efd49cbac3cb30319ec3c85cf1d55ba49d13c0c6142fc2c0328fab03ef55"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#anim.fanim",
+      "size": 2638,
+      "sha256": "26a2ff1a98447bfb171049cb706d4fb2a72a17c5043ac97a45fa049ee2b5dae5"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#sheet.png",
+      "size": 292080,
+      "sha256": "b7460e3c9e4ed09abb721bc83acce17c30eb46fd21a29c766fe19ba04dd3a1b5"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#anim.fanim",
+      "size": 1469,
+      "sha256": "9b3c688f319f0e0f3267bbf25ed77adb6a894a96c6b3db46bcf740c473cb08c3"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#sheet.png",
+      "size": 97009,
+      "sha256": "a6c6ec7a6f82489636b95440b1d9c01ca750ece86c9db0133ee93b81c8a1cf2c"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#anim.fanim",
+      "size": 2095,
+      "sha256": "dafc3e7666edf457a00d6e72b5ad58b16eb517d4ee95eabc252a6ba9b5a0413b"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#sheet.png",
+      "size": 408826,
+      "sha256": "e7d4c567b4867c9b75afab0034dac4c3a6c33812605ba33e93a4270061f24ac5"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#anim.fanim",
+      "size": 4440,
+      "sha256": "3be794ca5d91f9a3d4f740e6a708cd9f5ab9a6bdf7b40bfe7052415e3639ac50"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#sheet.png",
+      "size": 909741,
+      "sha256": "2866eceb1f60a609feb728957367c6e211b31c8617e4f29acf705524bb938c36"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#anim.fanim",
+      "size": 2802,
+      "sha256": "899605de9590163d6419a3a62cd137bff628f53465c9e15ae9b6c382c5e27228"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#sheet.png",
+      "size": 359673,
+      "sha256": "aa12ee513a48a816b80b9bb99e6d07a49270da13cecaf6cd0fa627a0351dcc83"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/background_5v5.png",
+      "size": 1302686,
+      "sha256": "f7b7f746c1b2ea6d4182d2024fcb96c8e7774f0b17d06c26cbadc780111d995e"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_5v5.png",
+      "size": 90117,
+      "sha256": "94d8a386d271ea48036a7ea42aa9ed7c6f1e331e6124e711f9d6bf4adeaa8c2f"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/bush_shadow_5v5.png",
+      "size": 13609,
+      "sha256": "3a62848b6beb27610786ef94b21c244f5a67f3f97e6e146662b6abf4f9ef8df4"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+      "size": 18500,
+      "sha256": "0cd847afcbed5b52e1e63cc0c4595fe1ddde67688b389a4e249da77ead528cfa"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/nexus_shadow.png",
+      "size": 257,
+      "sha256": "128d9471215f5510e4e39f340b01ec439b0d94759fd4dfbe4dcb504eac7e1dea"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/tower_shadow.png",
+      "size": 130,
+      "sha256": "a648a107fc724bc9a6ddcec305009491881dfa7ba0c97621cbaef33f4b465bd0"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5.png",
+      "size": 252950,
+      "sha256": "50ebd7da44dddeb8cd9fc5c7bbea136dfac7db9082fe4a66b1e2479b001eeff8"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_5v5_front.png",
+      "size": 30442,
+      "sha256": "653f0f2c0c7d18077cbdeccea7badea8ac99652e1fbe4a2adb1af806525e705b"
+    },
+    {
+      "path": "aseprite_resources/ingame/5v5/wall_shadow_5v5.png",
+      "size": 16264,
+      "sha256": "cc74a72a9128df6219f1ee062365e92fb126915a800534cc09bb68a516d1bd10"
+    },
+    {
+      "path": "aseprite_resources/ingame/bee#anim.fanim",
+      "size": 7511,
+      "sha256": "5136841cb8707d2dd9511dc9b688c5cafd028bdf9aea5755358ff6e494b8739e"
+    },
+    {
+      "path": "aseprite_resources/ingame/bee#sheet.png",
+      "size": 23946,
+      "sha256": "f6821bb8ad877f9f16cdce80d8e34466ea2db08c10ae6d01c6524ad424d5c260"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus#anim.fanim",
+      "size": 3790,
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus#sheet.png",
+      "size": 7742,
+      "sha256": "ca5a9b0dc2dccb3ee99c4e694e5c652efbd02078dfc52ba2fd3f5ef4390d4680"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#anim.fanim",
+      "size": 3788,
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_nexus_orb#sheet.png",
+      "size": 2657,
+      "sha256": "07deffbfc36eee1afb29bbb3048e6fa9fbd43489f019d383e9649f7ce7422eb8"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower#sheet.png",
+      "size": 45051,
+      "sha256": "aec3d327f62f6b83ecb6a145a25162fbd3b8b412fc1f0c9c13c2c823580ede20"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/blue_tower_orb#sheet.png",
+      "size": 13595,
+      "sha256": "afe8e0955c51ca0c40229b2f29eea7910689933e5e9a0c9859b279c914a0b1ca"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/cloud#sheet.png",
+      "size": 99018,
+      "sha256": "2f6a67a61e0d3dd737b9f831e1f02b054131aefa309a8a3ceda1fde7ced93a2d"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/elder#sheet.png",
+      "size": 102821,
+      "sha256": "371b3611992f8369161f6d561ecb1e2d4d03a53c10768bfd66c69dd6d98a311a"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/hextech#sheet.png",
+      "size": 96185,
+      "sha256": "2a531dd21507651c7fdb7b9cacef87bdddad84fc2797e0cd86c28d09dc2c9f8e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/infernal#sheet.png",
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/mountain#sheet.png",
+      "size": 97128,
+      "sha256": "1ae405c9c556b7f845cad4a01565d4a8c00ccb297312675bcbf2b429a8f64e41"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/dragon_variants/ocean#sheet.png",
+      "size": 95851,
+      "sha256": "7b59816613bd14ff183f9589938bb5d3565d7d4508a6cf5add238129cc5b0625"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#anim.fanim",
+      "size": 6660,
+      "sha256": "60e939aaf77653d069c77aad837187acecfdfb92bfe9213d32c248890bb5dbaa"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic#sheet.png",
+      "size": 418759,
+      "sha256": "6ff966c279ff649d3cc3dc634d1efc3c6b65a4a588f50d7257d3965fd56d728a"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#anim.fanim",
+      "size": 1073,
+      "sha256": "6625dbbe4034d22a4107dfcbf02339d02c9761dbe92d8249f7c54226ec55d1a0"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_buff_animation#sheet.png",
+      "size": 420,
+      "sha256": "7873bd1de70922b838c79290a5dd21e93f92574cba31317990a29c37f36361f3"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#data.sprite_sheet",
+      "size": 181,
+      "sha256": "27af66281b79951bcaebca5ea50dcdd6481dabeef0917716f1f45629797469ba"
+    },
+    {
+      "path": "aseprite_resources/ingame/epic_monster_hp_guage#sheet.png",
+      "size": 215,
+      "sha256": "ac2e1d7d0f44557c9a70e5dbf8c13ac0116621e2c5370a9f528270116c8b33ce"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#data.sprite_sheet",
+      "size": 1830,
+      "sha256": "055e6e0b012379c67ef41a4d373b8718db1bd5bf64f2800320c60bce51df3182"
+    },
+    {
+      "path": "aseprite_resources/ingame/item_icons_18x18#sheet.png",
+      "size": 15264,
+      "sha256": "ebea8ebbdc3e65025c1220ef2e92a1c060085ed966e4745a6c67873194ed1547"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#anim.fanim",
+      "size": 3915,
+      "sha256": "58d0665f5b609df098c2bdc64b072fa9c32e727ef8e0671e4d827e9f0d4fc7b7"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/krug#sheet.png",
+      "size": 126087,
+      "sha256": "49f568c2082d8754abbc6a1b502997a92ddc12af4dd3a09a123a7a12c642df4b"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#anim.fanim",
+      "size": 3912,
+      "sha256": "cae68aa3d9416f6f68ba26cb5a5fcad47fe78d0803fb74b08c306a8011d1a6aa"
+    },
+    {
+      "path": "aseprite_resources/ingame/lol_camp_variants/raptor#sheet.png",
+      "size": 62997,
+      "sha256": "942ec241e9f28526c5a1c73bc932ad11adfd5bf6a801afa96bb95ef7a1ab0e92"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#anim.fanim",
+      "size": 3915,
+      "sha256": "78c35736869ff9c6ddaebd58215dd0ff59a15cdb503b1a7c69c24895455ad4a7"
+    },
+    {
+      "path": "aseprite_resources/ingame/mushroom#sheet.png",
+      "size": 80579,
+      "sha256": "222067444c6513b882d39f86b9f240a660d5de7eb4f6dd6c77a686ab4b9e2614"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus#anim.fanim",
+      "size": 3790,
+      "sha256": "2fbcd73235a0c4a52b54a3999fe65f681d3006d66fd6d4bece4cc804e56e491e"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus#sheet.png",
+      "size": 8089,
+      "sha256": "2c5844d3a866f6eccd1f2530ea7125fec770b03fb4be0c2c19e4e5dbb1b1bb86"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus_orb#anim.fanim",
+      "size": 3788,
+      "sha256": "54360ab06f6023a392ed30e166e42b8b950a7f93ce10229244ec1f2f7d1dc660"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_nexus_orb#sheet.png",
+      "size": 2693,
+      "sha256": "c4d1c70ed8adaf540b89455f323470bed68a687a847330c2290a18b98354bf88"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#anim.fanim",
+      "size": 3796,
+      "sha256": "b2d367c206a27e063a700f5482f4ce67e76b9bec9c7d94c63543a10c95f22415"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower#sheet.png",
+      "size": 45122,
+      "sha256": "4f4e30dbb81561dd7776c835c78316d2a6268655f150aa4d0e38a36267cc527b"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#anim.fanim",
+      "size": 3792,
+      "sha256": "abf73e0116960de2fc6e319945902336febe13283d501ffde66cc57d9f826d19"
+    },
+    {
+      "path": "aseprite_resources/ingame/red_tower_orb#sheet.png",
+      "size": 13645,
+      "sha256": "9db77f580219b7d6a93245bd764a98e3f3d56126bf51c223f416b0ff0f180c49"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#anim.fanim",
+      "size": 3911,
+      "sha256": "00156cb830fc38c8ee5b3f02c962e9d6575c4c7b043eb6b41107a63d0b8fbf9f"
+    },
+    {
+      "path": "aseprite_resources/ingame/rhino#sheet.png",
+      "size": 87188,
+      "sha256": "a25830974a2eaf96a58e3e6c3b4fde36cf091115c5b69a87903a03e2c04fd818"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#anim.fanim",
+      "size": 3426,
+      "sha256": "61583b783e319cb7e6e9df8a3fa87c510097023b4758a5ea7203ab77de9b697e"
+    },
+    {
+      "path": "aseprite_resources/ingame/serpen#sheet.png",
+      "size": 89312,
+      "sha256": "ee9b04d5c6633853f7eb4b3e01225d6bd80397d36ee39f332bd6631504d2cf16"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#anim.fanim",
+      "size": 3909,
+      "sha256": "1690487058c0dd1c6766ab8f850ac84aa9e78cfc957736ea161a3b91c7381c4c"
+    },
+    {
+      "path": "aseprite_resources/ingame/stump#sheet.png",
+      "size": 64741,
+      "sha256": "4663a131eeea7b5c38969b2e7aee772428b979984969a36142d70e42b49d364a"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/blue_tower_projectile.png",
+      "size": 103,
+      "sha256": "7a8ff254fe17697029bb5fcd8f83bd479ead7022cc7b373cbd1f8d93b6099c41"
+    },
+    {
+      "path": "aseprite_resources/skill_effect/red_tower_projectile.png",
+      "size": 96,
+      "sha256": "488fc1f708cf967e60546837e94136301c589917c910c4b0b0925221df94d3f5"
+    },
+    {
+      "path": "champion/archer.data_champion",
+      "size": 21588,
+      "sha256": "866afddedefc76de57d43b91c2f48043ea4e5a942392ac5f4c13b48ed7707412"
+    },
+    {
+      "path": "champion/barrier_magician.data_champion",
+      "size": 14751,
+      "sha256": "a35e06531bd26db8ccaa19eefc5c1ab396c7a7254aab15f5e11d1abeac26e4af"
+    },
+    {
+      "path": "champion/berserker.data_champion",
+      "size": 18457,
+      "sha256": "ae2ad36abadc38fcea672b2dd58d98c9af23b254c9d62fc300b234a896028c19"
+    },
+    {
+      "path": "champion/boomerang_hunter.data_champion",
+      "size": 9854,
+      "sha256": "ac5a25bec11e024da3b4b380bba44f1ac07e0bcf1c6eaaf8c75b3412a860f6cd"
+    },
+    {
+      "path": "champion/cavalry_knight.data_champion",
+      "size": 12599,
+      "sha256": "2273ac521fe12d8a21161a4953c4e6fc5865d667ce98c6ff0b8c62820db21708"
+    },
+    {
+      "path": "champion/dancer.data_champion",
+      "size": 59423,
+      "sha256": "ece6963ada69c92243079085dcf78c54f1645dccba5d71ae2a3dd023093e07f3"
+    },
+    {
+      "path": "champion/demon.data_champion",
+      "size": 15122,
+      "sha256": "91b6fc709d4db37003c22ecb99a4ce531262e604a2fd11b939be0235a4bde8c9"
+    },
+    {
+      "path": "champion/dual_blader.data_champion",
+      "size": 30919,
+      "sha256": "0d8281807b61ea2b9e92ad7e4847b4e2c82359cfd36f766c0d45f9b3c5801297"
+    },
+    {
+      "path": "champion/lol_shen.data_champion",
+      "size": 16437,
+      "sha256": "c2988985eeaa57074aebab5b68a3f9d0e94442a11d34a052d3a4b95ecb23369f"
+    },
+    {
+      "path": "icons/briar_skill.png",
+      "size": 16516,
+      "sha256": "e242c877a5a92bbcdd42dafc2eb53e6cd128f0d6431809790b896ca44c6b09c5"
+    },
+    {
+      "path": "icons/briar_skill2.png",
+      "size": 16516,
+      "sha256": "eb09834b5683ae64b9ea3eabbc47f39494d3d139832b5997f3ea7870c0cfc993"
+    },
+    {
+      "path": "icons/briar_ult.png",
+      "size": 16516,
+      "sha256": "6f5145a79063beeae0a0ddfa47ac503fc3c6e280334e96c719c78923a34d5a1e"
+    },
+    {
+      "path": "icons/kled_skill.png",
+      "size": 16516,
+      "sha256": "c46b2034802e1b855222605b490dc68d228d1febbc1f7aac24ffa84ec960b89c"
+    },
+    {
+      "path": "icons/kled_skill2.png",
+      "size": 16516,
+      "sha256": "00fecd250135452f0f7d3c975c78875223e464a8a1dc32d17ee7b7c70875aac7"
+    },
+    {
+      "path": "icons/kled_ult.png",
+      "size": 16516,
+      "sha256": "0fb44116c7628de63cceb112dd7278c7251a30a5702ef3aa095befc84f97836a"
+    },
+    {
+      "path": "icons/lucian_skill.png",
+      "size": 16516,
+      "sha256": "87912c93085f3881c065c6dc5ea1835f5617d7f4b8555ee90b3f6d453b6ae076"
+    },
+    {
+      "path": "icons/lucian_skill2.png",
+      "size": 16516,
+      "sha256": "9b7126d43b069820a34f714964a1c01af9e33a06242c94e60a0dc3aa03cc0987"
+    },
+    {
+      "path": "icons/lucian_ult.png",
+      "size": 16516,
+      "sha256": "75657c9c9d5a52c5915daa784902baef5b68cce626c18a02c55842c4f1df59fc"
+    },
+    {
+      "path": "icons/orianna_skill.png",
+      "size": 16516,
+      "sha256": "1a12e8f5d5f11a2295747bb9ab9fa153176c5f09bf6692154c533abd3ab9c2d0"
+    },
+    {
+      "path": "icons/orianna_skill2.png",
+      "size": 16516,
+      "sha256": "51451672e45074ce279a3aa24b520494dee7766162e8b5a5c30912030db06cd6"
+    },
+    {
+      "path": "icons/orianna_ult.png",
+      "size": 16516,
+      "sha256": "21d230a132e2974ccc479047c9787cb2c10f44252b293bcc72d80a652014cbf5"
+    },
+    {
+      "path": "icons/shen_skill.png",
+      "size": 16516,
+      "sha256": "5f63141301b7e0d4e2a7ccd830179aba20f597ad2f54c1bb8257ead1a8396da1"
+    },
+    {
+      "path": "icons/shen_skill2.png",
+      "size": 16516,
+      "sha256": "d2021aab9454f3f25838bbd69a8d74d73dffdd1baf7e75790b917b88e0cd5f14"
+    },
+    {
+      "path": "icons/shen_ult.png",
+      "size": 16516,
+      "sha256": "6bf9c0a4cd2111d79119ba27527a112aee0099971c626622499315d1ebb2babb"
+    },
+    {
+      "path": "icons/sivir_skill.png",
+      "size": 16516,
+      "sha256": "dab16f83b67ce9876d96cfc5b881f4f401494bf0d97e1486c1fc35c1015fc30d"
+    },
+    {
+      "path": "icons/sivir_skill2.png",
+      "size": 16516,
+      "sha256": "f54a55e43c0be7bc3f6af1d9292bdf684bd4990eb7056eac4a8a456e0bceb025"
+    },
+    {
+      "path": "icons/sivir_ult.png",
+      "size": 16516,
+      "sha256": "106b51aadae466c81370ee59ab640efd3d266cc7419f936458655d4c70e4cec7"
+    },
+    {
+      "path": "icons/urgot_e.png",
+      "size": 16516,
+      "sha256": "6c5cfc8232d18d26238cdf4050ddecdb97d77cf58f1705ccd40c15c172d4ad98"
+    },
+    {
+      "path": "icons/urgot_r.png",
+      "size": 16516,
+      "sha256": "52520abd7484e079674f613bcc9da7230a554fbfcb01e412858b86238a1f06f0"
+    },
+    {
+      "path": "icons/urgot_w.png",
+      "size": 16516,
+      "sha256": "6a2a3406472bb485032ef76dfa23a0473b4c7e12e04e6f320d18e13ec6458ac3"
+    },
+    {
+      "path": "icons/xayah_skill.png",
+      "size": 16516,
+      "sha256": "d5cefadf1afec42edb14505ea202a771078666afa1a1e44fef1aa71800011886"
+    },
+    {
+      "path": "icons/xayah_skill2.png",
+      "size": 16516,
+      "sha256": "d9c15587c427753aadf4c91a1c0496b1f9e85232007dfe9d2bb0822f86e1f560"
+    },
+    {
+      "path": "icons/xayah_ult.png",
+      "size": 16516,
+      "sha256": "fe053b6915d9fe389a34aad2d678779430a3a1dc6c0e5edf6b5409669b58a943"
+    },
+    {
+      "path": "icons/yone_skill.png",
+      "size": 16516,
+      "sha256": "f4f6691a42874677ea0cb22a28043b009e1b8776ed78d3bd209bc22620cd840c"
+    },
+    {
+      "path": "icons/yone_skill2.png",
+      "size": 16516,
+      "sha256": "5d40a81ddfeeaa6a18c1d0d0bd9d357b625c51838c6f0519512f2d7875821a45"
+    },
+    {
+      "path": "icons/yone_ult.png",
+      "size": 16516,
+      "sha256": "3820739c8a77f884922351481250846b936b4412b0a0dfd3f767e957c914b8ba"
+    },
+    {
+      "path": "lol_mod.dll",
+      "size": 271360,
+      "sha256": "c1afaa3850f49c1210225116a072c3d6fd3c4dd639fa1f4f455e21114fb3d838"
+    },
+    {
+      "path": "mod.mod_info",
+      "size": 999,
+      "sha256": "25ce6ec6ed35c6db74f21db17973707d451381ba6b1feab2e685401082e4554f"
+    },
+    {
+      "path": "mod.override_info",
+      "size": 50643,
+      "sha256": "c79ec3667bbb560ac078253f4719a2336637da5eff81a64a6d4afed4b5c11f2d"
+    },
+    {
+      "path": "sound/bgm/lol_banpick.wav",
+      "size": 16154568,
+      "sha256": "cb7ab66a7601d80f40e3557bdb650bc5a57e1e1f9dafa5f5cfd8516a14b31bcd"
+    },
+    {
+      "path": "sound/bgm/lol_match.wav",
+      "size": 26460044,
+      "sha256": "1ecf65b2a842b51dd6a139ce12a60e0bf32278493346da5cff5cb8da83054f80"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left.sound_info",
+      "size": 142,
+      "sha256": "1b52371185d76056d51326763a41f1e6bcbb82fc1fd2db80505ccd49af4352da"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_hit_clip.wav",
+      "size": 57638,
+      "sha256": "0038c1c0770422f65630ff2a0457af144943192458695877791e8f8bfcb06397"
+    },
+    {
+      "path": "sound/sfx/baron_attack_left_launch_clip.wav",
+      "size": 161958,
+      "sha256": "c5c932ef3ec3fa940a74f51d07d9ab458bebc896a4da77b3cfed918ea6d6dede"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right.sound_info",
+      "size": 144,
+      "sha256": "ae639f5efe0a8fe3796dca8a403c7094494b07c69bbbdb6e3bb924ecfc3b2319"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_hit_clip.wav",
+      "size": 64696,
+      "sha256": "0164ae502b74e84812745cdc20b81b52ca13accc92b9723e61a07c841d7b6bc2"
+    },
+    {
+      "path": "sound/sfx/baron_attack_right_launch_clip.wav",
+      "size": 157514,
+      "sha256": "15eb7f2e5fbcc1c1a89180e658bc3753dcb8cb23a3c6195f3866cd59e0025977"
+    },
+    {
+      "path": "sound/sfx/baron_death.sound_info",
+      "size": 134,
+      "sha256": "3d333d7d0be2577b6cf06e1b6111b7316e0091d3349bae86d60a25bd2422ef21"
+    },
+    {
+      "path": "sound/sfx/baron_death_body_clip.wav",
+      "size": 687694,
+      "sha256": "773fd6e72c3e66cde5dc1846aaa783de008681226c5947b5134371a9fde6fff7"
+    },
+    {
+      "path": "sound/sfx/baron_death_mix_clip.wav",
+      "size": 687694,
+      "sha256": "b81a1122b36e3965fa45643d566e2520cc8b7ab36ac8a0f6fa4455a85763791a"
+    },
+    {
+      "path": "sound/sfx/baron_death_void_clip.wav",
+      "size": 483582,
+      "sha256": "6164007ed45b7a20780aafddcdf87b7e7a4f1ac70e8ab4b30a0352fe9fb9ef8d"
+    },
+    {
+      "path": "sound/sfx/briar_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "f93107e603b6b4f723d08d5e5f840edde7d2cac0e128cf58fcd8f1c8aff03617"
+    },
+    {
+      "path": "sound/sfx/briar_attack_cast_clip.wav",
+      "size": 23106,
+      "sha256": "e27bb0277e32881a20d34f7508c7f6e08ae3b3c38f489abfb3ec15f687128af5"
+    },
+    {
+      "path": "sound/sfx/briar_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "e5df281c490f91d02896f4454b8cb3f58d59df515ff685cde11014cfcefc9259"
+    },
+    {
+      "path": "sound/sfx/briar_attack_hit_clip.wav",
+      "size": 21298,
+      "sha256": "68245f2d6dd5014bd0dc8b0f9acf65e4f1cadd7f05c58b92103643192e753008"
+    },
+    {
+      "path": "sound/sfx/briar_e_cast.sound_info",
+      "size": 66,
+      "sha256": "65d7c0662c159fd864ae390022c7a7e9f531fbdd23076041476a5a1bbe9abf1a"
+    },
+    {
+      "path": "sound/sfx/briar_e_cast_clip.wav",
+      "size": 155652,
+      "sha256": "a1ee0a817fa95b3d704b259166fc68a14179036382be199ddd9bf1487413c43f"
+    },
+    {
+      "path": "sound/sfx/briar_e_hit.sound_info",
+      "size": 65,
+      "sha256": "479af707d263a562ecf1e6cda773ddcb79b6fb3ac49f2c55f22a73fcabbda483"
+    },
+    {
+      "path": "sound/sfx/briar_e_hit_clip.wav",
+      "size": 157934,
+      "sha256": "0c32c74a5283ef67b506349dbecf5fb4ed59d5d4eff407200240eb1c7ece7765"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_cast.sound_info",
+      "size": 71,
+      "sha256": "860de2d7a5d984d88810efba914406744b4dcbe7a675129772fe6679ca3cbc4c"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_cast_clip.wav",
+      "size": 75956,
+      "sha256": "db4cffd041a75599489a43ad1b5ca0567e9151f234f0b91fd743c45ab6f2bcc4"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_hit.sound_info",
+      "size": 70,
+      "sha256": "c4898c61e52ce640adda739128e29dfaa79cc4055140be2bdb84be25127002b0"
+    },
+    {
+      "path": "sound/sfx/briar_frenzy_hit_clip.wav",
+      "size": 64156,
+      "sha256": "7fa27203c0b13c871f18d8a76384f06a15368909d71a0f291f5f032876fcc4b6"
+    },
+    {
+      "path": "sound/sfx/briar_q_cast.sound_info",
+      "size": 66,
+      "sha256": "1ccfb41f6a6231ceb715b0595ac09162a161d78d04e59e46b59c5720d61e7ce0"
+    },
+    {
+      "path": "sound/sfx/briar_q_cast_clip.wav",
+      "size": 44598,
+      "sha256": "cd57601286e6a757f1da421217e45d4db211fe793c860bdde769dc25aa6f6a58"
+    },
+    {
+      "path": "sound/sfx/briar_r_cast.sound_info",
+      "size": 66,
+      "sha256": "8615197b0e393d1215b5d028e6de281a1d5b71a75564846f0105a8046ccb7ed2"
+    },
+    {
+      "path": "sound/sfx/briar_r_cast_clip.wav",
+      "size": 123192,
+      "sha256": "2d46df195ec8a4e3bc33475ee16249d031e3ce00ab27437bd132b07d1741e54d"
+    },
+    {
+      "path": "sound/sfx/briar_r_hit.sound_info",
+      "size": 65,
+      "sha256": "d3977e25f7228a653f891b32878c54c8210bdeeaa02b0ecca0295a76c130e3b1"
+    },
+    {
+      "path": "sound/sfx/briar_r_hit_clip.wav",
+      "size": 206696,
+      "sha256": "7ca8d4fca59221e2e0b8b717d26c764b893cfc9cb52c4d9f71349a5ce83d4189"
+    },
+    {
+      "path": "sound/sfx/kled_attack_cast.sound_info",
+      "size": 70,
+      "sha256": "9deb3089bd5196f1e762661bc9d40d0f1dfe3d310f66174ba5b701dd24085663"
+    },
+    {
+      "path": "sound/sfx/kled_attack_cast_clip.wav",
+      "size": 69974,
+      "sha256": "16fd3a29dc284076f54844c371d9cf8597c2bfaafbd55b81854bee7a28a208c9"
+    },
+    {
+      "path": "sound/sfx/kled_attack_hit.sound_info",
+      "size": 69,
+      "sha256": "45839e562245a5cbfcc2421d79c8d08a944699b9699a579edb3bedd504a74bca"
+    },
+    {
+      "path": "sound/sfx/kled_attack_hit_clip.wav",
+      "size": 78224,
+      "sha256": "39be91248916c1336c5c2c5bb007928c5e0c57e8ee1b50ab72c0df27288bae22"
+    },
+    {
+      "path": "sound/sfx/kled_e_cast.sound_info",
+      "size": 65,
+      "sha256": "a9719dd4e02b846b0385ff57a4f0691989d7181933bca7f57c384351a60f4389"
+    },
+    {
+      "path": "sound/sfx/kled_e_cast_clip.wav",
+      "size": 89220,
+      "sha256": "9683f33775376ddd3792548c1cd0669a18ce6e486e02e4aaa57691dc445afba4"
+    },
+    {
+      "path": "sound/sfx/kled_e_hit.sound_info",
+      "size": 64,
+      "sha256": "f4b5ce5ca1a7fe7579f2d0dc197f8e4049498072e81ce29fcbf1a04ed4bb3fce"
+    },
+    {
+      "path": "sound/sfx/kled_e_hit_clip.wav",
+      "size": 40544,
+      "sha256": "dd1c1546c73c43a99fb120a67fb438867bc1086485d39cc657188fe5d0ac4a13"
+    },
+    {
+      "path": "sound/sfx/kled_native_silence.sound_info",
+      "size": 73,
+      "sha256": "62129d3bf3a73c1ccc83996d0dc55cee706a25f6e6776dd99f840eac319930ed"
+    },
+    {
+      "path": "sound/sfx/kled_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "sound/sfx/kled_q_cast.sound_info",
+      "size": 65,
+      "sha256": "710f599fce21634922a1fa306a09829b51b79d88478086e7f8c73dc709bc9080"
+    },
+    {
+      "path": "sound/sfx/kled_q_cast_clip.wav",
+      "size": 91522,
+      "sha256": "a5a9a8dd86d83d571f9a7376556c456d2d2ffae68b7e31519be3ddb9a6e2cde9"
+    },
+    {
+      "path": "sound/sfx/kled_q_pull.sound_info",
+      "size": 65,
+      "sha256": "3709afe2c754230f1fda7fbd31fff03e457f054d295742414ca791937dbe2984"
+    },
+    {
+      "path": "sound/sfx/kled_q_pull_clip.wav",
+      "size": 126392,
+      "sha256": "e99807a667fd5598f24977b87ec5ad4f083ec1b27714852e86c11c0eb14526e3"
+    },
+    {
+      "path": "sound/sfx/kled_q_tether_on.sound_info",
+      "size": 70,
+      "sha256": "ba70486ca7e43629eb7c892706ce265a199e823db10c4eb7e0836d814f4a633c"
+    },
+    {
+      "path": "sound/sfx/kled_q_tether_on_clip.wav",
+      "size": 166714,
+      "sha256": "7538eff20d0632182d99c92df2774eab9e6c42f45e577b8e03b1ed93bcc5b25e"
+    },
+    {
+      "path": "sound/sfx/kled_r_cast.sound_info",
+      "size": 65,
+      "sha256": "366a3a194f4ef8b360a3681a7179c069b7a6ebc88e18d83f5679df8489126ed4"
+    },
+    {
+      "path": "sound/sfx/kled_r_cast_clip.wav",
+      "size": 154284,
+      "sha256": "0cbd97fdf6a13888643e549c59dbf4ffbc466a874f189ab64f29b3c75682a6fa"
+    },
+    {
+      "path": "sound/sfx/kled_r_impact.sound_info",
+      "size": 67,
+      "sha256": "074dd600d2e7f76759b2be9a31146efe1a6774f419a7e5ffc4158afe1e8f3a18"
+    },
+    {
+      "path": "sound/sfx/kled_r_impact_clip.wav",
+      "size": 224622,
+      "sha256": "f73a745601d5498223b1db2aa6a5c165a6574567fcc5b02ec6fbbe5064a21081"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_double_kill.wav",
+      "size": 266624,
+      "sha256": "33ded903792be89b2ba9ccb5b265f490f1e828955019b1bbf95a42cf91451bbb"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_penta_kill.wav",
+      "size": 390508,
+      "sha256": "4ac46721472862f4007116a58d7a96fbde11291b9298d70e207d9340d293e383"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_quadra_kill.wav",
+      "size": 351128,
+      "sha256": "b139bdb76b5f3a678d053b4bce96c1b32dcafd0e754fd3acb2bb6353226b3365"
+    },
+    {
+      "path": "sound/sfx/lol_announcer_triple_kill.wav",
+      "size": 325620,
+      "sha256": "654b67b6ee94f218286f60d06948f0f9c0360fc26e28d1998927c603f8558e3e"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_azakana_cast.sound_info",
+      "size": 82,
+      "sha256": "826fb24e542f67d88121edba81d5710fff8b55520ce82dd11c85f2b49218a798"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_azakana_cast_clip.wav",
+      "size": 97098,
+      "sha256": "8329b30c4d4265bb72ff75fc35b1dcd5e55a280ccc6d1e92cd4b2cba79445343"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_azakana_hit.sound_info",
+      "size": 81,
+      "sha256": "0f8a542675640b0b9862a111f048bff516f5962d2ae02464a2658e5ebbf9e4cf"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_azakana_hit_clip.wav",
+      "size": 75718,
+      "sha256": "dc6878f472a213a5bfbe04a729007f5cad071de9558e42e0375bdd64a7f89bf1"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_steel_cast.sound_info",
+      "size": 80,
+      "sha256": "40bfc3c60f2544e4d5bff847590de2854df14aa50abd61cf777e12db9ea45aff"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_steel_cast_clip.wav",
+      "size": 105658,
+      "sha256": "8bfe795a23f2fe047ddc01f2a5b9a7950b77adf8c8df6bbf957274deba25d5eb"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_steel_hit.sound_info",
+      "size": 79,
+      "sha256": "7daa72bf94a946fb7e2499a241ef7dd0de509fa30ad35226cf5bc228f6a9af6f"
+    },
+    {
+      "path": "sound/sfx/lol_yone_attack_steel_hit_clip.wav",
+      "size": 80764,
+      "sha256": "b64ba4ce48bb2f02e2e09abf3df19d12834631ea21f8d5f94fe12ecff22d1552"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_cast.sound_info",
+      "size": 69,
+      "sha256": "0f15889b1737f4d4b516471814c3cc2cf7f0b80f3401b728cb065b1efae1c3bd"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_cast_clip.wav",
+      "size": 176572,
+      "sha256": "dd9776d3950ccbb40917f2f822e17eec3b8b91dffebe4ee99c28929205146133"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_empowered_cast.sound_info",
+      "size": 79,
+      "sha256": "b578e6f8a4f502db8c62bcbf62bcd91b6f388992b87df0bc3637197cdbb87e29"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_empowered_cast_clip.wav",
+      "size": 312598,
+      "sha256": "ecb4bdb8ce1fb302b0aebb81685386b2dca5688a3b73e646fbac5b70937f2f6b"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_empowered_hit.sound_info",
+      "size": 78,
+      "sha256": "9e16304cfd9fa33f10c6f91f4d09d8bfbe6508db5178bd576eef8b686030a792"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_empowered_hit_clip.wav",
+      "size": 139472,
+      "sha256": "8ce74bd60c2d039d8706e37b45a231ba439ee0a81646d1dd94982355fe247ae6"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_hit.sound_info",
+      "size": 68,
+      "sha256": "e598d18047c2746c7619bf638e9fcf9c4bffd25601c567bf76209e2a68c42add"
+    },
+    {
+      "path": "sound/sfx/lol_yone_q_hit_clip.wav",
+      "size": 176644,
+      "sha256": "48c5b1782693c142544a0252b69916b5352d47d83acec9c38f2abe3960139838"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_arrival.sound_info",
+      "size": 72,
+      "sha256": "df2bf00157e84b6d02c73b63025fd74e442fc84fefa289965e31809d44c0528f"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_arrival_clip.wav",
+      "size": 279224,
+      "sha256": "5120573f6fbe11652bc942a5ae1e3e230260091bb901f2649eddb8bab65c10a3"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_cast.sound_info",
+      "size": 69,
+      "sha256": "05ccdbcc064a2b257b7181fcc53a3b7e4a70855665570508eb8f4f74a615eb80"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_cast_clip.wav",
+      "size": 222592,
+      "sha256": "98de932728df3507df27c8317b2269488356397d0e4531ea9c52b4cc1c1ef6e5"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_echo.sound_info",
+      "size": 70,
+      "sha256": "a4700f8e4fb85a113586c87dfd4f61fc83d732c6cbc422b6704f3de810e172d6"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_echo_clip.wav",
+      "size": 245316,
+      "sha256": "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_slash_azakana.sound_info",
+      "size": 79,
+      "sha256": "d1cb0c9de6c47b4c116696c9f044349cb321d1fdee54aa3edea047bf6804e911"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_slash_azakana_clip.wav",
+      "size": 17684,
+      "sha256": "af55b445d6c640c825e3fb1c0ae811d4d3037072cb9e5ee760c849f8c84552d0"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_slash_steel.sound_info",
+      "size": 77,
+      "sha256": "6964dfcb2b4bda8ea6a183b6cd74258a3d707aeb6f370d6f93724447bc528576"
+    },
+    {
+      "path": "sound/sfx/lol_yone_r_slash_steel_clip.wav",
+      "size": 17684,
+      "sha256": "4db973f0465e87a756b4946d36e1d2b1c445d5c848e1ef980fe247c68465ea40"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_cast.sound_info",
+      "size": 69,
+      "sha256": "6855e1144d32f20a335643bff94b1c514f3e02af97cbb7cf435bf657aa284554"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_cast_clip.wav",
+      "size": 216542,
+      "sha256": "e01f668c92c33da10692045988198359b3dbf70e4b831957f280630a41a95e3a"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_hit.sound_info",
+      "size": 68,
+      "sha256": "f173538a6256047ecf5185af67e40ee4230ae4d856202e59f41b3ec68306febc"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_hit_clip.wav",
+      "size": 72594,
+      "sha256": "05455d6ed5698e4f662387a83cd50a76a9e5552e1c10d5ab35821173da03d8bf"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_shield.sound_info",
+      "size": 71,
+      "sha256": "4a569b8fc771456dda42b71300fff8a93484998d4dff1c60a9be0ab87db62390"
+    },
+    {
+      "path": "sound/sfx/lol_yone_w_shield_clip.wav",
+      "size": 209394,
+      "sha256": "f9dadba4ed24767cae394876d1292634254f7802cfd686ed8d86fe3df8d5ca30"
+    },
+    {
+      "path": "sound/sfx/lucian_attack_cast.sound_info",
+      "size": 72,
+      "sha256": "eac619c4da94ceb54152b007171b727cfafb91ae5a1f6595e957926328b0aaf0"
+    },
+    {
+      "path": "sound/sfx/lucian_attack_cast_clip.wav",
+      "size": 88106,
+      "sha256": "e134c51fa71c8ec1fd9e3ba26fd4a5f520924d6b9d857c192a1f2cf0180c57ca"
+    },
+    {
+      "path": "sound/sfx/lucian_attack_hit.sound_info",
+      "size": 71,
+      "sha256": "8a4c1d933265f27b8301c4cb04c2c593c91f34252c2d82932597f119679dedb8"
+    },
+    {
+      "path": "sound/sfx/lucian_attack_hit_clip.wav",
+      "size": 65164,
+      "sha256": "0476cf36c308c3ecdc0fa2273a6bf7170cab18e5d04069f231115788696e69d7"
+    },
+    {
+      "path": "sound/sfx/lucian_e_cast.sound_info",
+      "size": 67,
+      "sha256": "9e21b31db9179d61ce3ce320824b255611b7c2fb4e4dba83a91ece6b7c0847a7"
+    },
+    {
+      "path": "sound/sfx/lucian_e_cast_clip.wav",
+      "size": 185522,
+      "sha256": "9124bdda0056c4c731d87ca8000c07472b4376a865868c31260414fdacd8a268"
+    },
+    {
+      "path": "sound/sfx/lucian_passive_cast.sound_info",
+      "size": 73,
+      "sha256": "769f19587fbbd2cb3b723a041d666e90bad146d2fb96be8e3331bba6e0927768"
+    },
+    {
+      "path": "sound/sfx/lucian_passive_cast_clip.wav",
+      "size": 100496,
+      "sha256": "c2e63d9ba92f1b4ea634d67e2d69da6bb1c277c3c596b226be1eb1c2bf6382ed"
+    },
+    {
+      "path": "sound/sfx/lucian_passive_hit.sound_info",
+      "size": 72,
+      "sha256": "7a3eff636abcf07fb3b5df0af21afbb0d32f01b72d915c1c2bf18f935acb5644"
+    },
+    {
+      "path": "sound/sfx/lucian_passive_hit_clip.wav",
+      "size": 60046,
+      "sha256": "2ecf21ff7e73cea37f9eee0ae525f4ac4b3b522878ac47621d154a7737ecc167"
+    },
+    {
+      "path": "sound/sfx/lucian_q_cast.sound_info",
+      "size": 67,
+      "sha256": "72c76d61b35a98ec806ec68f18daec0620a5652a8968c72eb39ea28f07863f7b"
+    },
+    {
+      "path": "sound/sfx/lucian_q_cast_clip.wav",
+      "size": 53488,
+      "sha256": "26cb7e3cc92812fc9800b963462ac2f40da89aad3d35c32f8147ca16657adf2f"
+    },
+    {
+      "path": "sound/sfx/lucian_r_cast.sound_info",
+      "size": 67,
+      "sha256": "3ef47745c1e2c1444915f7030d086e669bfeb4b5a17cbfb017bfbc05b247701e"
+    },
+    {
+      "path": "sound/sfx/lucian_r_cast_clip.wav",
+      "size": 141356,
+      "sha256": "126df11699fc793bffe4a1b74efcc9f52eb49533a7d01403f30bc83671435a1d"
+    },
+    {
+      "path": "sound/sfx/lucian_r_channel.sound_info",
+      "size": 70,
+      "sha256": "fb0cbb23b79cecee3d2c43379dfd43d11d18712756b540626ce164f2a4f9d47d"
+    },
+    {
+      "path": "sound/sfx/lucian_r_channel_clip.wav",
+      "size": 368996,
+      "sha256": "880a4bcadbeb3bfac8e3e43c94dce9c61098cece402e7049c967e59610bf30ac"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_cast.sound_info",
+      "size": 137,
+      "sha256": "915414c46245116f0fad3ab28b695922ae29c76742d093b74eb7bf0c4c531b2d"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_cast_clip.wav",
+      "size": 52040,
+      "sha256": "e7afba6278066ed33e9818e8f2b3c0b5a2e1d448dd75f65cd4205de317542ec1"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_hit.sound_info",
+      "size": 72,
+      "sha256": "ac38fd7b773a3c1291cca7df7eac0f62fff8abfdc1bc8bd064d62845eb8deffe"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_hit_clip.wav",
+      "size": 67332,
+      "sha256": "5e68059f1493b2f40dd5eb44f596c2fdff8b6d3891a5ce80a8fda8ce91cc5f85"
+    },
+    {
+      "path": "sound/sfx/orianna_attack_oncast_clip.wav",
+      "size": 40224,
+      "sha256": "aeef2849dc932c134adb6216f6a11b1bcfcd8f3c7b86809069d96d2c5cd8591f"
+    },
+    {
+      "path": "sound/sfx/orianna_e_cast.sound_info",
+      "size": 68,
+      "sha256": "bc3d7ff5730dafdc5d7019585caa6893bbee13f7248730a5e2eea683e9f78657"
+    },
+    {
+      "path": "sound/sfx/orianna_e_cast_clip.wav",
+      "size": 53706,
+      "sha256": "b70f082d01e428779b5884e5f1bafd27ced8a796812b21792f00547c3942e379"
+    },
+    {
+      "path": "sound/sfx/orianna_e_hit.sound_info",
+      "size": 67,
+      "sha256": "fe5c9f078e8407ddf8d62e940692d0787e5bd534f48defcd2bfb5b51554d9b8b"
+    },
+    {
+      "path": "sound/sfx/orianna_e_hit_clip.wav",
+      "size": 80544,
+      "sha256": "de2f05c3c46599f58684ed9f563437e42e65f6461e0f47b59835f5e11cd6676f"
+    },
+    {
+      "path": "sound/sfx/orianna_q_cast.sound_info",
+      "size": 68,
+      "sha256": "9cb4a10878e002a9652522b3a8f8a401000f52d051b5b1f72a19274b406ef9e9"
+    },
+    {
+      "path": "sound/sfx/orianna_q_cast_clip.wav",
+      "size": 56314,
+      "sha256": "666fc77ba6443241fd89e307a2fa1ac86678a4b5f85a440c405e5d5d7da97f5c"
+    },
+    {
+      "path": "sound/sfx/orianna_q_hit.sound_info",
+      "size": 67,
+      "sha256": "b6331edc40cb4c944744c00716f4c402da26b54ac3fb436d8c8a147c4bc225ba"
+    },
+    {
+      "path": "sound/sfx/orianna_q_hit_clip.wav",
+      "size": 54884,
+      "sha256": "4671deecc38aebc32253bc97cf97b1e5f73b7f20d430d049e6caa50c007d3c42"
+    },
+    {
+      "path": "sound/sfx/orianna_r_cast.sound_info",
+      "size": 68,
+      "sha256": "633c5bd16d9429f1c6500103d528c2891cdfb5dd16237b04d0a0565037638fda"
+    },
+    {
+      "path": "sound/sfx/orianna_r_cast_clip.wav",
+      "size": 69690,
+      "sha256": "60df9d50813099d69c95d3284d2dcf748f694f0d79d25546b989ce855f09b365"
+    },
+    {
+      "path": "sound/sfx/orianna_r_hit.sound_info",
+      "size": 67,
+      "sha256": "909b96812020aa230aa554989a80cae2715c871604e332e0726a938d5bf6b33b"
+    },
+    {
+      "path": "sound/sfx/orianna_r_hit_clip.wav",
+      "size": 194264,
+      "sha256": "362d79bedce6545e0d954317199d910cf53d3dc3bb456bbcfc2e18904cd2c3ff"
+    },
+    {
+      "path": "sound/sfx/shen_attack_cast.sound_info",
+      "size": 70,
+      "sha256": "6e2bbe70086896b65561e57be731389a15b77a18a79ad6754559d660ab5f1d7b"
+    },
+    {
+      "path": "sound/sfx/shen_attack_cast_clip.wav",
+      "size": 81490,
+      "sha256": "61386f179bf3420408709a1fe4cd46857c9b70f22a91aabbf00a579336e79585"
+    },
+    {
+      "path": "sound/sfx/shen_attack_hit.sound_info",
+      "size": 69,
+      "sha256": "2d1e2a8792e89b24112bcd03edff389aafa44b1531d6a8e325f6e2c9fe59a646"
+    },
+    {
+      "path": "sound/sfx/shen_attack_hit_clip.wav",
+      "size": 53460,
+      "sha256": "aa8bfdab63d0b60cb50d86c17c8aa5bb3fe7bc498fca643e498bae78ad96b634"
+    },
+    {
+      "path": "sound/sfx/shen_q_cast.sound_info",
+      "size": 65,
+      "sha256": "d7cdbdc364078335eaefb92e9c8d7941d6422bdb05d68be4697354d4eb3d2ff7"
+    },
+    {
+      "path": "sound/sfx/shen_q_cast_clip.wav",
+      "size": 105790,
+      "sha256": "4bb9198046c245fada7d6420708a0b7fadd2f304544c1a1eb0ddbe5bc969479d"
+    },
+    {
+      "path": "sound/sfx/shen_r_arrive.sound_info",
+      "size": 67,
+      "sha256": "6335a6212407e8593ba6379f7d2dcc85b08a2ce2c7b49a29a0a4501f05da13d8"
+    },
+    {
+      "path": "sound/sfx/shen_r_arrive_clip.wav",
+      "size": 271844,
+      "sha256": "412651e556e26b257766a4aa5fb468d1e78a16a60bab2b02b6a6b7b0fba88f48"
+    },
+    {
+      "path": "sound/sfx/shen_r_cast.sound_info",
+      "size": 65,
+      "sha256": "7640f61b959f0f8597f6545266d96ca591dda42e6bd7f2fddaffb326c650238e"
+    },
+    {
+      "path": "sound/sfx/shen_r_cast_clip.wav",
+      "size": 88244,
+      "sha256": "4539fcc64b14dae02cc9a0220eb3f253b1ef7cfd2d88bad0b2f05da0261675e7"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "5dc2ed2b9c3ae9e1e44f0c2711858de17c7435b8b8c9dde99828b60affa69755"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_cast_clip.wav",
+      "size": 150168,
+      "sha256": "5501e747a461dc2f9407c2da2ddb0d20b286d1e6ef69357c2448b17a7690f6f5"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "0139225ffbd6c108279b43aa61c329515fb761dd51b9bfa9a5e420e9c8e68912"
+    },
+    {
+      "path": "sound/sfx/sivir_attack_hit_clip.wav",
+      "size": 97664,
+      "sha256": "f6f93b62872842a797edf6b8c68e81dc5c1935f80511f5e9b672f3121766f153"
+    },
+    {
+      "path": "sound/sfx/sivir_e_cast.sound_info",
+      "size": 66,
+      "sha256": "c24d163f2c2e4e12e833123a3831df502917c17ddbc9af383ffaed545d5aac16"
+    },
+    {
+      "path": "sound/sfx/sivir_e_cast_clip.wav",
+      "size": 384430,
+      "sha256": "d3467e9725ac0a26596ac0afd8d82b8ec449d7543ef813d2ac259b0f8ef1dd7c"
+    },
+    {
+      "path": "sound/sfx/sivir_native_silence.sound_info",
+      "size": 116,
+      "sha256": "87101dbd4584768de437c411c3218ee9c5e40d22574c2fbe70c87e8661df1907"
+    },
+    {
+      "path": "sound/sfx/sivir_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "sound/sfx/sivir_q_hit.sound_info",
+      "size": 66,
+      "sha256": "0be471a92f3c4e7c4c17b45409263a0578b589b52c7069646e155a6c63cf6e74"
+    },
+    {
+      "path": "sound/sfx/sivir_q_hit_clip.wav",
+      "size": 57410,
+      "sha256": "61cd48f889957bee680e27efbc5f407334e8ae51c3329efbc32b1a5da1f0974c"
+    },
+    {
+      "path": "sound/sfx/sivir_q_out.sound_info",
+      "size": 65,
+      "sha256": "0c1978039a5dd700d4f84e167848b4315ee71f6bfe7b33941735dc32d8922ab0"
+    },
+    {
+      "path": "sound/sfx/sivir_q_out_clip.wav",
+      "size": 145700,
+      "sha256": "5134d38fc5323c0181407603c86553117d302e993dfc4107ecbec58478f754ca"
+    },
+    {
+      "path": "sound/sfx/sivir_q_return.sound_info",
+      "size": 68,
+      "sha256": "0f8aa3c2ec61e68726c99c7e8061e407eae6f6a47347c658dfee1d56ccd59b77"
+    },
+    {
+      "path": "sound/sfx/sivir_q_return_clip.wav",
+      "size": 181364,
+      "sha256": "90ad41739b900f039a96e44d90c2430298ad37376d3e75dbaed72739e39c9285"
+    },
+    {
+      "path": "sound/sfx/sivir_r_cast.sound_info",
+      "size": 66,
+      "sha256": "6ed9e3380739df0541ad71ef150bb51fcf35e9f68cf2feb8ed0ce7d7c83be119"
+    },
+    {
+      "path": "sound/sfx/sivir_r_cast_clip.wav",
+      "size": 297554,
+      "sha256": "50599bc5874670fcfb09e2687b58e7d053bc30f510e87255c3521b7da5f4ba62"
+    },
+    {
+      "path": "sound/sfx/urgot_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "86810f42255b18b784560bddf063f2c19e8c42b13b3cbfbb9a67e2c212389377"
+    },
+    {
+      "path": "sound/sfx/urgot_attack_cast_clip.wav",
+      "size": 96526,
+      "sha256": "c12b5f6da7bf6240ce788e254dae9011d89408e16c3607e683d58dc1c7e91682"
+    },
+    {
+      "path": "sound/sfx/urgot_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "e1be0c6da78962180dd33ea00cbff32afac63c0358d776845c7972a8b05bc4cf"
+    },
+    {
+      "path": "sound/sfx/urgot_attack_hit_clip.wav",
+      "size": 32778,
+      "sha256": "219ac122f5e1ff0cfe0b10d212e4880b0dd022c116b80cc09f0b7474c3643c2f"
+    },
+    {
+      "path": "sound/sfx/urgot_e_cast.sound_info",
+      "size": 66,
+      "sha256": "92d745ada256fe51b41a67d382020e8745e5a0cb3f15539b40b73dde88bed75c"
+    },
+    {
+      "path": "sound/sfx/urgot_e_cast_clip.wav",
+      "size": 120956,
+      "sha256": "c86b79295ef7736323c6bf17b624e590662937a6237c49c41f0ea06de236bacc"
+    },
+    {
+      "path": "sound/sfx/urgot_e_hit.sound_info",
+      "size": 65,
+      "sha256": "74d78caf43b302e18115879a0b3f086a6e2ac164de92ea7769f7cec5456a4cfd"
+    },
+    {
+      "path": "sound/sfx/urgot_e_hit_clip.wav",
+      "size": 89104,
+      "sha256": "40b4c3f8c1b4223b04b114e1499b28c7c3bd5f6e002bca8dc6fd09d7b50a3726"
+    },
+    {
+      "path": "sound/sfx/urgot_native_silence.sound_info",
+      "size": 74,
+      "sha256": "64dcd5f1d24356c63e259286e179e5ed2d1d6771cc3c5cc1614b3a03e55c0755"
+    },
+    {
+      "path": "sound/sfx/urgot_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "sound/sfx/urgot_r_cast.sound_info",
+      "size": 66,
+      "sha256": "6479207ad65478de09461e03181eb021ff2c8698de5418c4fd1e1dc06dfd0523"
+    },
+    {
+      "path": "sound/sfx/urgot_r_cast_clip.wav",
+      "size": 159574,
+      "sha256": "96f5d69d8ca23ccd8a73ae76151fd8d3b2d589ead79395f20184f134bf313cc3"
+    },
+    {
+      "path": "sound/sfx/urgot_r_execute.sound_info",
+      "size": 69,
+      "sha256": "cfb20fb0ff0b6f858936ab3ba09978077c43822ee10fe43dd13fba9dc8e372b1"
+    },
+    {
+      "path": "sound/sfx/urgot_r_execute_clip.wav",
+      "size": 265740,
+      "sha256": "4412a880c536005136a45056f30e23d247eee776af41e847c754dadc48985d48"
+    },
+    {
+      "path": "sound/sfx/urgot_r_fear.sound_info",
+      "size": 66,
+      "sha256": "827713a0e40d12d3192d525512006be69d6179a73d5a668b7ae3a39b5a24756e"
+    },
+    {
+      "path": "sound/sfx/urgot_r_fear_clip.wav",
+      "size": 256152,
+      "sha256": "7134ab49788fffb2f5b477d941e234d5bda38729473028aa4df525cc02d1c74b"
+    },
+    {
+      "path": "sound/sfx/urgot_r_latch.sound_info",
+      "size": 67,
+      "sha256": "9b5c9fd98bea4576f648ab620c6f7d315b834c3565eb2753e823534e74cf15cd"
+    },
+    {
+      "path": "sound/sfx/urgot_r_latch_clip.wav",
+      "size": 198212,
+      "sha256": "697419f718207ad09b357be09d7430808dd4a91c85234a1be1961c63f8b03674"
+    },
+    {
+      "path": "sound/sfx/urgot_r_pull.sound_info",
+      "size": 66,
+      "sha256": "f6af8dc9ed3245cfb97e811cbd28e258a48920f218d8b3b0e0bb545d7c745d99"
+    },
+    {
+      "path": "sound/sfx/urgot_r_pull_clip.wav",
+      "size": 196180,
+      "sha256": "c7d6dade9dd9198d3e242ecad0fb0ea60babcdabf4d8ff9da30b64f9c8850ff2"
+    },
+    {
+      "path": "sound/sfx/urgot_w_cast.sound_info",
+      "size": 66,
+      "sha256": "06e5095dd858ef19d6dc75e30651e7dd1e8134c076f839cc3dfd9b8af4a403e2"
+    },
+    {
+      "path": "sound/sfx/urgot_w_cast_clip.wav",
+      "size": 109494,
+      "sha256": "6f4b0d9964a07f117971d48de9a97166b7448e580b288988d9fa2a5b2f642d8b"
+    },
+    {
+      "path": "sound/sfx/urgot_w_shot.sound_info",
+      "size": 66,
+      "sha256": "408ac27548e92c0ae6faace8157b522e545aaec4d57745b71fa6c0d19ded0b67"
+    },
+    {
+      "path": "sound/sfx/urgot_w_shot_clip.wav",
+      "size": 49158,
+      "sha256": "7e99f5346efa97cc1e8a90ccc031078b2c38dd78568d98310b1b97cc9f964bca"
+    },
+    {
+      "path": "sound/sfx/xayah_attack_cast.sound_info",
+      "size": 71,
+      "sha256": "08c7f8c66fe6e4650006425f1adf8d378d0f745d824f4f2df85e5b76080596b8"
+    },
+    {
+      "path": "sound/sfx/xayah_attack_cast_clip.wav",
+      "size": 116760,
+      "sha256": "77696dc22aaf76d5650c4df249d437ae555b2db8f55ae46808ce8c687b44c6d6"
+    },
+    {
+      "path": "sound/sfx/xayah_attack_hit.sound_info",
+      "size": 70,
+      "sha256": "1735cf49dc9a6416df004e3cc61d5d282982423b4eb0ff1ce90476a62cc534ed"
+    },
+    {
+      "path": "sound/sfx/xayah_attack_hit_clip.wav",
+      "size": 27718,
+      "sha256": "a303e3afaeab139b25275ba3122985c0f737cfe4944a60f4ca7145aff4f37a22"
+    },
+    {
+      "path": "sound/sfx/xayah_e_cast.sound_info",
+      "size": 66,
+      "sha256": "0f1e6c8c25d2c47a70f708423ba2b08cab63d63cdb81457a857be3af93cad9e5"
+    },
+    {
+      "path": "sound/sfx/xayah_e_cast_clip.wav",
+      "size": 125030,
+      "sha256": "a8158ae96d4db5fdab5a7f13b901bc1ea422d0644bfa874867267b4b10f1b2a3"
+    },
+    {
+      "path": "sound/sfx/xayah_e_catch.sound_info",
+      "size": 67,
+      "sha256": "82ddc225c279939119dbceda8f6a68278689aa22dfbda5a8e26eb1c9d1b43ecd"
+    },
+    {
+      "path": "sound/sfx/xayah_e_catch_clip.wav",
+      "size": 13570,
+      "sha256": "6bee83ed149d2abfc317ceef37dba4add77efece6ac4bab41c9b07c34a32a7ad"
+    },
+    {
+      "path": "sound/sfx/xayah_e_hit.sound_info",
+      "size": 65,
+      "sha256": "419e2248e289d796f247a86307938dd35cac5bf41c23f1f6a63295bc61b17040"
+    },
+    {
+      "path": "sound/sfx/xayah_e_hit_clip.wav",
+      "size": 25446,
+      "sha256": "01db1a38dd4d99f009e753a4015c121dec32995da0d427ba7d54b9465fb107b7"
+    },
+    {
+      "path": "sound/sfx/xayah_e_launch.sound_info",
+      "size": 68,
+      "sha256": "d7d189171bfb6733ecd1ba5626c17fcec9e3254be77ef1253bce566e304aac5f"
+    },
+    {
+      "path": "sound/sfx/xayah_e_launch_clip.wav",
+      "size": 50596,
+      "sha256": "4e8d581dbc8d4d26c91576afcb3ce009ac2cab147e5657aed071051165d107e6"
+    },
+    {
+      "path": "sound/sfx/xayah_e_root.sound_info",
+      "size": 66,
+      "sha256": "0673b09851797c1512959714c6e433155a5a5dcab07c1bdcfb82830968018d8b"
+    },
+    {
+      "path": "sound/sfx/xayah_e_root_clip.wav",
+      "size": 215248,
+      "sha256": "eb611f7d83157bb216f684bbaadfed9c282ff4bddb4aa2ee820aff7c61d6f377"
+    },
+    {
+      "path": "sound/sfx/xayah_native_silence.sound_info",
+      "size": 74,
+      "sha256": "4a0692b574f9c93422ef44debddff613e7b77a0c93c54bc8af26c23bf82c22b9"
+    },
+    {
+      "path": "sound/sfx/xayah_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "sound/sfx/xayah_q_cast.sound_info",
+      "size": 66,
+      "sha256": "17aad4a35f0c19f23f5cabd82181ba79fab159d309f7b1d344aaa923766fdf76"
+    },
+    {
+      "path": "sound/sfx/xayah_q_cast_clip.wav",
+      "size": 169110,
+      "sha256": "1beab97f7dc53df3586e33765081a7e235bf60c05c5c94b29d5ae6e51fe0e22f"
+    },
+    {
+      "path": "sound/sfx/xayah_q_hit.sound_info",
+      "size": 65,
+      "sha256": "6736f92e707a15f3a0edf57e92a79032ee64058113970bde6b16045c8acf0583"
+    },
+    {
+      "path": "sound/sfx/xayah_q_hit_clip.wav",
+      "size": 97062,
+      "sha256": "f4e1de7d4233c9d1a160867820fcc8977cc24e158859440aa1391317427da52f"
+    },
+    {
+      "path": "sound/sfx/xayah_r_cast.sound_info",
+      "size": 66,
+      "sha256": "205d82920b632e796cbb927c19047117b3c749b944c1832db4a036ed7de5e172"
+    },
+    {
+      "path": "sound/sfx/xayah_r_cast_clip.wav",
+      "size": 259386,
+      "sha256": "342decee02b53317a7bd81384bf67b70ab0d669ce7de38d7eb3be11032980f56"
+    },
+    {
+      "path": "sound/sfx/yone_native_silence.sound_info",
+      "size": 73,
+      "sha256": "5813c5b2731e5a659c6c74abb46052739398b501c575f06557fdca7a13c07645"
+    },
+    {
+      "path": "sound/sfx/yone_native_silence_clip.wav",
+      "size": 4454,
+      "sha256": "73b42ab23be05ebeada04e01d7a8b903a1cdd1753a090c5032983da1066bacc2"
+    },
+    {
+      "path": "style/champion_view.champion_view",
+      "size": 1387,
+      "sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f"
+    },
+    {
+      "path": "text/champion.i18n",
+      "size": 52347,
+      "sha256": "ff2d6c49293cfc897b9ec1ddb5eb99e1451e8cc3119125ec96d0cf1874e285d8"
+    },
+    {
+      "path": "text/item.i18n",
+      "size": 8761,
+      "sha256": "19536efabe505d1214146da5bb103123ced315a5adbecb8dcdda20a0361d3f13"
+    },
+    {
+      "path": "text/object.i18n",
+      "size": 3817,
+      "sha256": "01ae4fdfa0ecd35ce23506202ba212c74373bae8c20ae20038c1d6c242fe25e8"
+    },
+    {
+      "path": "text/ui.i18n",
+      "size": 4199,
+      "sha256": "19d3764c3b742d40a03b75f9033d0eb80c0fba9cebb718b1933440095ecd3cc6"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/archer_blue.png",
+      "size": 195642,
+      "sha256": "a5f4a595d962e275bfddeaf41d71cbf70bcff6c1d4fa23f36a93306d8775323e"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/archer_red.png",
+      "size": 195642,
+      "sha256": "412d30fd2d0734ba328d8bd84c8298697cfb73922cdf19e5b8734907153c1938"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/barrier_magician_blue.png",
+      "size": 195642,
+      "sha256": "31d755d80452baecb39ea74b5c5a97f58be74b025a38cac47606a48fc91ae8e2"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/barrier_magician_red.png",
+      "size": 195642,
+      "sha256": "f4451fb2cf25dd33cc4e86d653d553342e8f6ab5e4975c8e1b8b6416b7e9f9b7"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/berserker_blue.png",
+      "size": 195642,
+      "sha256": "949ee9b2d50012899aeb0f00d223e6deb8b886fbba2146b8142adc61093a6039"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/berserker_red.png",
+      "size": 195642,
+      "sha256": "a439bc398d1c4c1064d448c3012ea0b72ccc1e08f131c69d051b4f088e7076f0"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/boomerang_hunter_blue.png",
+      "size": 195642,
+      "sha256": "a146d591c33fdc179a704e3cf431675ac818da5c8ec8ad1cae7cc4e4405de38f"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/boomerang_hunter_red.png",
+      "size": 195642,
+      "sha256": "4375f313916714b523d8a385b4548a0f86bcab29b9fc54f28c0715ccf1891567"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/cavalry_knight_blue.png",
+      "size": 195642,
+      "sha256": "a994ec99ab436933cf2fd3c38c75b906ebaa4454577b52b670b91e087f5e8381"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/cavalry_knight_red.png",
+      "size": 195642,
+      "sha256": "cbc72561d10ef2699481e2b4c297a7b585c551e960e18f2c6b2aeb0537ee33fe"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dancer_blue.png",
+      "size": 195642,
+      "sha256": "43413e42c70b95fbddf00ce42dae8ba73195211eee95e2150ba7f0d24aae72b2"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dancer_red.png",
+      "size": 195642,
+      "sha256": "b5f8e42e694a8956b2af3646f75fc8d85367f05954fe479bd606cdabc0c20955"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/demon_blue.png",
+      "size": 195642,
+      "sha256": "85c7883edf5cc50264a552b3f244d6bcf13b9f2ea2cbe37177fe8e9809b7c485"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/demon_red.png",
+      "size": 195642,
+      "sha256": "30a6040c1021c24cbec9d93b12cafaee57346ccf85f76b1197ecd55fd4f998e8"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dual_blader_blue.png",
+      "size": 195642,
+      "sha256": "9dbaf22a71fa2005d29775f8d632262fd8e352b0d34eed47bde3a91ddd8c4e3a"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dual_blader_red.png",
+      "size": 195642,
+      "sha256": "2180105a7e4f104271348a168c5656936372dce0e4f6926228dbc0bd713139b0"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/lol_shen_blue.png",
+      "size": 195642,
+      "sha256": "4dc2a81471712993bc3a739a9e37749a6de37c9166a26cc7814aa9044e2acad6"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/lol_shen_red.png",
+      "size": 195642,
+      "sha256": "fc69b0afd2c82200f01cf1d260b75b178bda1dc1bc80c0d943c960856add67fb"
+    },
+    {
+      "path": "ui/banpick/lol_bp_background.png",
+      "size": 2397738,
+      "sha256": "84b81761a1b30bed11bcad6e3972ac6807ff4015e3dfe6754f83b09c28ee921d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_bottom_chrome.png",
+      "size": 148254,
+      "sha256": "c5cc7e3db07a77c877231cddabc3e68b578a7421a13fd3e7d1c5ddcc05fa350c"
+    },
+    {
+      "path": "ui/banpick/lol_bp_champion_card_frame.png",
+      "size": 10004,
+      "sha256": "d5fac6bdfa395849af7ae5c5d38ddcaf940a8e9d40aa8d379efa345bda6cf6a8"
+    },
+    {
+      "path": "ui/banpick/lol_bp_champion_grid_frame.png",
+      "size": 203280,
+      "sha256": "42e76c63f82f66278703e0fe903078ef74239811ac9d1b281b8508e4484bc259"
+    },
+    {
+      "path": "ui/banpick/lol_bp_filter_toolbar.png",
+      "size": 34727,
+      "sha256": "84df1836dd7cae1c31759b04abcd7cfbb4a5544f386209c6432bc6faf33de2d4"
+    },
+    {
+      "path": "ui/banpick/lol_bp_header_chrome.png",
+      "size": 86485,
+      "sha256": "c9ee352e4e2d1a1a8b9483488178bbc2341be507ccda0b111e5d4292c1142d8b"
+    },
+    {
+      "path": "ui/banpick/lol_bp_side_pick_frame.png",
+      "size": 51300,
+      "sha256": "a094577b76e0b1bd1b52834396be49a4bd6a859b62018ab18432b17d3bc1edc9"
+    },
+    {
+      "path": "ui/banpick/lol_bp_skill_frame.png",
+      "size": 61675,
+      "sha256": "092d55000f4b8252f43ec0960bc83acac4a93f53a26a1b6c2026e3fd721bbb85"
+    },
+    {
+      "path": "ui/banpick/lol_bp_stat_frame.png",
+      "size": 49987,
+      "sha256": "376ace7bae6c346cec1594cad1cc45197d4b0400f2eecb92671eba3595f87da9"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_icon.png",
+      "size": 898,
+      "sha256": "012c5a096c9c5d63c60c3e9430eb3ba49f5fdc890b08ef7822e2f24599f6b64d"
+    },
+    {
+      "path": "ui/banpick/lol_bp_timer_plate.png",
+      "size": 4457,
+      "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a"
+    },
+    {
+      "path": "ui/champion_fullbody/archer.png",
+      "size": 16516,
+      "sha256": "30405f7c747bab463ab091ae8c501e6d4ad981e41040865c72f8a9671c049bbf"
+    },
+    {
+      "path": "ui/champion_fullbody/barrier_magician.png",
+      "size": 16516,
+      "sha256": "7ae9b9092a9ba6659f2383a0b83ef80bd289617cfb1b41c21c40c24f0977153b"
+    },
+    {
+      "path": "ui/champion_fullbody/berserker.png",
+      "size": 16516,
+      "sha256": "de737af5921979665e54a7155d5c9892f33db4e74af6f41ee84ee601ca877d8f"
+    },
+    {
+      "path": "ui/champion_fullbody/boomerang_hunter.png",
+      "size": 16516,
+      "sha256": "bdc2f630c7b81f2b7204e3e5da5fbe322e70645fe80de84ad2d4904d0cef2d73"
+    },
+    {
+      "path": "ui/champion_fullbody/cavalry_knight.png",
+      "size": 16516,
+      "sha256": "21ff28efff4d9b01ee3f010a851b94e873d20779c29ccc198f8dada40448cb2d"
+    },
+    {
+      "path": "ui/champion_fullbody/dancer.png",
+      "size": 16516,
+      "sha256": "4215c1ff3f50622a3af6c45b4d764e43916f0a8acbb7195578b36f1ae860a738"
+    },
+    {
+      "path": "ui/champion_fullbody/demon.png",
+      "size": 16516,
+      "sha256": "a41fe181be1ca37b81ef1be873388d061dcc8fcf3391247a797486b2d14b0b85"
+    },
+    {
+      "path": "ui/champion_fullbody/dual_blader.png",
+      "size": 31781,
+      "sha256": "579d6b4a6030ba5349c86b2e09c0db6a67201ea22c1abf3da4cfc9017c34ed10"
+    },
+    {
+      "path": "ui/champion_fullbody/lol_shen.png",
+      "size": 16516,
+      "sha256": "b45e4e7b082875ca4d3243671723d19546fb4bb81715862c191163113b906dc4"
+    },
+    {
+      "path": "ui/icons/morgard.svg",
+      "size": 9216,
+      "sha256": "cedf62ccde1ed663a412583f3211b87b28861c565345a71a5e97cc77584029de"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_blue.svg",
+      "size": 6411,
+      "sha256": "006d48e04753cae1427c66c5e0152ed6c1a087627f138f6d97f09e47a91012f5"
+    },
+    {
+      "path": "ui/icons/morgard_sticker_red.svg",
+      "size": 6411,
+      "sha256": "db30eed179885393aaeca8ffb61bdd32dbe85c7896b94460856576c2e8ca6e25"
+    },
+    {
+      "path": "ui/icons/serpen.svg",
+      "size": 8802,
+      "sha256": "c1e6db5a11dffbe8cad540e36710bd3f3a2a5288cdea83a144f944778a441e82"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_blue.svg",
+      "size": 7544,
+      "sha256": "edfaa454442fc6a1c8edb6344d6fec01257a4bd2ec0772d547af455e8e8d21c2"
+    },
+    {
+      "path": "ui/icons/serpen_sticker_red.svg",
+      "size": 7544,
+      "sha256": "a7e79222e0d166e99a8e2a701da67f0b5cc38f0e6945f556ef7e3e0b4c51a13d"
+    },
+    {
+      "path": "ui/icons/tower.svg",
+      "size": 7501,
+      "sha256": "3fed940159675ae03bdbdc09a103f46e62191df6d78e9c4bdf3b36f7439d86b0"
+    },
+    {
+      "path": "ui/ingame/epic.png",
+      "size": 479,
+      "sha256": "a2ba9eccdb15f7cbf12283bd098d024133dd6240fa37b11254081fcfe1560810"
+    },
+    {
+      "path": "ui/ingame/lol_hud_camera_info_blue.png",
+      "size": 19536,
+      "sha256": "9ac110d032b7da181ad9881ca734223ee285fd0f7a738f3cdac2142c027be3ae"
+    },
+    {
+      "path": "ui/ingame/lol_hud_camera_info_red.png",
+      "size": 18520,
+      "sha256": "874ff02ed0e7e0fe96add6ac6a201319c55560d5952cb77e20e88945eed8708c"
+    },
+    {
+      "path": "ui/ingame/lol_hud_center_kill.png",
+      "size": 15507,
+      "sha256": "500066d63e085ffd072a6d50c9710d62f1149aba0d31909131d7349e48c6b702"
+    },
+    {
+      "path": "ui/ingame/lol_hud_center_notify.png",
+      "size": 18368,
+      "sha256": "1488c0a5f48fcefc536683ace0c213521bb1827553e8e7c9e8cb31e6da633396"
+    },
+    {
+      "path": "ui/ingame/lol_hud_chat_icon.png",
+      "size": 929,
+      "sha256": "209598bc8c55cccbd35565c681feeafa3130fc633165d043e6d6d05ad943149a"
+    },
+    {
+      "path": "ui/ingame/lol_hud_detail_slot.png",
+      "size": 1201,
+      "sha256": "d2dd830581a8e769fd978184a1b9b58f81187a82fcbf5d49aefc8e1edb8e9664"
+    },
+    {
+      "path": "ui/ingame/lol_hud_kill_log.png",
+      "size": 5067,
+      "sha256": "25a95c02e8fc93a4edb8110d01710460aa5b27c084ae68760876be8e34cb444b"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_detail_blue.png",
+      "size": 10709,
+      "sha256": "95186f53f6f0d729b9697d4b16199ccaf70ad525747a8740b98128609f7f2e2a"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_detail_red.png",
+      "size": 9569,
+      "sha256": "dbc3e83daae5326fa46400b8eee876b6d0b312e16c98cf48d37b37ae5a1e08d0"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_info_blue.png",
+      "size": 8159,
+      "sha256": "b45e3f3517afdf61874a87256a4b8589e15e88db02e5e8bf74128a05530e5c16"
+    },
+    {
+      "path": "ui/ingame/lol_hud_player_info_red.png",
+      "size": 8355,
+      "sha256": "9aabe62bc54361d4cb798102fe918f62f2aba67e8a3479149e9ce5a31a671ff5"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_camera_info_blue.png",
+      "size": 13403,
+      "sha256": "61e71477acd2be8e05cf700781f443047c9d6cd81cc25cf3945bcfb586b9412f"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_camera_info_red.png",
+      "size": 12988,
+      "sha256": "92e54e8b30c28669b08bd5525ad9c0ba75223518fd528ae994e265f7e6862481"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_player_info_blue.png",
+      "size": 4179,
+      "sha256": "eaf6c2052702ad0671fd80fa7cb368d1b3a397bdb5098df8a1a00a0cc243eb96"
+    },
+    {
+      "path": "ui/ingame/lol_hud_wide_player_info_red.png",
+      "size": 4731,
+      "sha256": "3cc4fdc14ed500b23cf02fe524122b4882e2302ae09a8962caed377a6238e785"
+    },
+    {
+      "path": "ui/layout/ingame_component/camera_info.ui",
+      "size": 2969,
+      "sha256": "206db71f6dffeb48cd475e1bd2ddd372e5f5b5413bcbdefae1d6257eefa913ab"
+    },
+    {
+      "path": "ui/layout/ingame_component/center_kill.ui",
+      "size": 2745,
+      "sha256": "a3d721a3141878f3f306dfca146e2e73f90220459e0ca56e866fd60f89d5649d"
+    },
+    {
+      "path": "ui/layout/ingame_component/center_notify.ui",
+      "size": 613,
+      "sha256": "db4d59cf93ef684bb32ae27489b601f7b3d2fbcbe12cced1e72538800e4cf0c4"
+    },
+    {
+      "path": "ui/layout/ingame_component/chat.ui",
+      "size": 765,
+      "sha256": "ee7d553de22be05821235c84ceb71b0b353d60e1721e7b69bda94421491498fd"
+    },
+    {
+      "path": "ui/layout/ingame_component/detail_slot.ui",
+      "size": 823,
+      "sha256": "f6e4a1d712a853881dc14d453e6cc56557acec80ec2fdd733a5ebe2a27c0173f"
+    },
+    {
+      "path": "ui/layout/ingame_component/kill_log.ui",
+      "size": 1161,
+      "sha256": "680e49681fc22ae42056f045191314474cbbda1192cc2f555ff7e4b748c13951"
+    },
+    {
+      "path": "ui/layout/ingame_component/player_detail.ui",
+      "size": 2860,
+      "sha256": "0d67a717d490e847fa7a0e3ac803eb40049bebf1f12b81205b60f05a893ce709"
+    },
+    {
+      "path": "ui/layout/ingame_component/player_info.ui",
+      "size": 8005,
+      "sha256": "82072fceebbd8f117b09be31af7eb5eb399417711df4e708f5333d3c0c9cae01"
+    },
+    {
+      "path": "ui/layout/ingame_component/wide_camera_info.ui",
+      "size": 2989,
+      "sha256": "8953608f183b3eedf933ff8c43fb27af6693fbed83dc476b9e62f1f35e359fa2"
+    },
+    {
+      "path": "ui/layout/ingame_component/wide_player_info.ui",
+      "size": 7999,
+      "sha256": "763ba133ae4fc39a10b8035f8f3635db24679ee9f72d2406189a9b79990b843c"
+    }
+  ]
+}

@@ -595,7 +595,7 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
         q["range"],
         q["casting_type"],
         q["casting_target"],
-    ) == ("skill", 240, 30, 0, 65000, "Direction", "EnemyChampion")
+    ) == ("skill", 240, 30, 0, 65000, "Targeting", "EnemyChampion")
 
     stack2_switch = q["effect"]
     assert (stack2_switch["type"], stack2_switch["buff_name"]) == (
@@ -1779,23 +1779,14 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.1"
+    assert mod_info["version"] == "0.12.6"
     assert all(
         token in mod_info["description"]
         for token in (
-            "Steel and Azakana attacks",
-            "Q1/Q2",
-            "Q3 and W",
-            "Spirit Cleave",
-        )
-    )
-    assert all(
-        token in mod_info["description"]
-        for token in (
-            "unique asset/lol_mod/aseprite_resources/champions/yone_v7 actor key",
-            "byte-identical yone sheet and anim aliases",
-            "dedicated CasterAnimation at tick 0",
-            "Version 0.10.19 is retained as partial history",
+            "repair test",
+            "source-direct portrait",
+            "data_champion",
+            "pre-tick 5v5 structure guard",
         )
     )
     assert "E-only Soul Unbound" not in mod_info["description"]
@@ -1815,16 +1806,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.1"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.6"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.1"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.6"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.1"
+    assert quality_scope["release"] == "0.12.6"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

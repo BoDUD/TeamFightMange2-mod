@@ -11,10 +11,6 @@
     "remapping": "asset/lol_mod/style/champion_view",
     "type": "merge"
   },
-  "asset/base/ui/layout/champion_info_component/champion_slot": {
-    "remapping": "asset/lol_mod/ui/layout/champion_info_component/champion_slot",
-    "type": "override"
-  },
   "asset/base/ui/layout/ingame_component/player_info": {
     "remapping": "asset/lol_mod/ui/layout/ingame_component/player_info",
     "type": "override"
@@ -129,22 +125,6 @@
   },
   "asset/base/sound/sfx/shen_q_cast_clip": {
     "remapping": "asset/lol_mod/sound/sfx/shen_q_cast_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_shen_w_cast": {
-    "remapping": "asset/lol_mod/sound/sfx/shen_w_cast",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/shen_w_cast_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/shen_w_cast_clip",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/lol_shen_w_block": {
-    "remapping": "asset/lol_mod/sound/sfx/shen_w_block",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/shen_w_block_clip": {
-    "remapping": "asset/lol_mod/sound/sfx/shen_w_block_clip",
     "type": "override"
   },
   "asset/base/sound/sfx/lol_shen_r_cast": {

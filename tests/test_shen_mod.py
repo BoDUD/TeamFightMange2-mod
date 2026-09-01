@@ -79,7 +79,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.12.1"
+    assert mod_info["version"] == "0.12.6"
     assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.7"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
@@ -160,7 +160,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     assert (
         q["action_name"], q["cooltime"], q["duration"], q["start_timing"],
         q["range"], q["casting_type"], q["casting_target"],
-    ) == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion")
+    ) == ("skill", 360, 28, 8, 55000, "Targeting", "EnemyChampion")
     anchors = find_effect(
         q,
         "LinearProjectile",

@@ -1,18 +1,17 @@
 {
   "schema_version": 1,
-  "release": "0.12.1",
+  "release": "0.12.6",
   "runtime_compatibility": {
     "active_base_version": "0.5.7",
     "native_runtime": "stable_abi_level_1",
     "legacy_internal_extensions": "not_compiled",
-    "bp_layout_overrides": "enabled_against_exact_base_0.5.1_native_layouts",
+    "bp_layout_overrides": "legacy base-0.5.1 full overrides disabled; base 0.5.7 receives additive stable-ABI nodes",
     "inactive_until_matching_sdk": [
-      "dynamic Ban/Pick splash command rewriting",
       "client portrait command rewriting",
       "client database mutation",
       "deterministic elemental dragon server rewriting"
     ],
-    "reason": "Game 0.5.7 rejects classic Mod API DLLs built before 0.5.6. The production DLL now uses the official frozen stable ABI and does not compile any old client/server extension vtables. The four BP layout overrides remain historical 0.5.1-derived static assets; manual 0.5.7 UI verification is required."
+    "reason": "Game 0.5.7 rejects classic Mod API DLLs built before 0.5.6. The production DLL uses the official frozen stable ABI. BP chrome and exact-size side illustrations are appended to nodes that exist in the live 0.5.7 UI; the four historical 0.5.1-derived full layout overrides remain disabled."
   },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
@@ -29,16 +28,16 @@
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
-      "implementation": "post_render actor NinePatch replacement: remove the selected-card actor (including 120-140x140-190 transition poses), then append one illustration overlay",
-      "source_key": "suffix after /champions/ with terminal #sheet removed",
-      "texture_uv": "normalized 0,0,1,1",
+      "implementation": "stable-ABI UI traversal: append one noninteractive image node to each live done pick slot, route it from the localized champion label, then hide only that slot's native actor node",
+      "source_key": "localized name aliases for the nine League champions",
+      "texture_uv": "native 284x172 runtime PNG",
       "card_size": "284x172",
-      "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=61+184*slot",
-      "transition_geometry_is_detection_only": true,
-      "transition_actor_sprite_removed": true,
+      "fixed_card_anchors": "x=8 and y=1 inside each current base-0.5.7 done slot; red images are pre-mirrored",
+      "transition_geometry_is_detection_only": false,
+      "transition_actor_sprite_removed": false,
       "one_overlay_per_side_slot": true,
-      "card_detection": "RenderState pass key blue_picks/red_picks + pick_slot_N; relative-UI and geometry fallback",
-      "static_splash_nodes": false
+      "card_detection": "main.blue_picks/main.red_picks child traversal, capped at twelve slots per side",
+      "static_splash_nodes": true
     },
     "banpick_skin": {
       "imagegen_background": "ui/banpick/lol_bp_background.png",
@@ -57,7 +56,7 @@
       "native_layout_geometry_preserved": true,
       "noninteractive_decorative_node": true,
       "blue_red_card_palette_refined": true,
-      "page_local_controls_style": "style/bp_controls.style",
+      "page_local_controls_style": "not installed; native base-0.5.7 controls remain authoritative",
       "champion_list_stat_and_skill_panels_refined": true,
       "champion_card_actor_safe_area": {
         "canvas": "118x88 at y=4",
@@ -391,7 +390,7 @@
       "match_bgm_override_keys": 6,
       "banpick_music_source": "League Client rcp-fe-lol-champ-select completed-picks=6 official layer stack",
       "match_music_source": "Summoner's Rift Map11 phase_01 base/master layer",
-      "pcm16_44100_stereo_and_no_clipping": true,
+      "pcm16_22050_stereo_and_no_clipping": true,
       "runtime_music_assets": [
         "sound/bgm/lol_banpick.wav",
         "sound/bgm/lol_match.wav"
@@ -411,8 +410,10 @@
       ]
     },
     "encyclopedia_fullbody_runtime": {
-      "yone_default_hook": "static portrait/fullbody assets only under the stable ABI; the classic YoneManagementCardExtension raw RenderCommand route is retained as migration history but is not compiled",
-      "yone_0_10_11_route": "failed: the static dual_blader.icon / dual_blader.lol_fullbody_yone path assumed cloned slot roots were renamed to champion ids; official ChampionInfoUIRunner keeps every root id as champion_slot, so the path could never resolve",
+      "current_0_12_5_route": "the stable-ABI client walks from the actual UI root to the ChampionInfo contents whose cloned cards are keyed by their unique champion ids, spawns source-direct Xayah/Yone full-body images inside dancer and dual_blader, and hides each native icon only after its replacement is live",
+      "runner_id_disassembly_correction": "0.5.7 ChampionInfoUIRunner::init_champion_list writes the champion id into each cloned card root; the earlier claim that every root remained champion_slot was incorrect",
+      "yone_default_hook": "bounded stable-ABI UI traversal switches only the Yone management card to its dedicated full-body node; the classic raw RenderCommand route remains migration history and is not compiled",
+      "yone_0_10_11_route": "failed in that release; its static path was not proven live, and later 0.5.7 disassembly established that cloned roots are in fact renamed to champion ids",
       "yone_0_10_12_route": "failed: the ChampionInfoUIRunner positive gate was not discoverable in the live management card, so no yone_management_card_replace telemetry was emitted and the native battle idle remained visible",
       "yone_0_10_13_route": "failed: the route treated the post-SetImageScale screenshot size of approximately 93-96x110-123 as RenderCommand geometry, while the actual champion_slot #icon NinePatch remains a logical 85x93, so the replacement gate never matched",
       "yone_0_10_14_route": "failed for the reported surface: it corrected only the 85x93 management-card route, while the user screenshot came from a different BP actor route later measured as UI NinePatch 95x88; the existing Yone portrait helper was still reachable only through the opt-in broad extension",
@@ -432,7 +433,7 @@
         "required_abi_level": 1,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.1 fixes the 0.5.7 DLL load blocker through the stable ABI. Static Yone V7 UI assets remain packaged, but manual 0.5.7 management-card, BP and battle verification is required because raw render-command rewriting is outside the stable surface."
+      "live_status": "0.12.3 keeps the 0.5.7 stable ABI load fix, routes Xayah and Yone encyclopedia cards through localized full-body nodes with recycled-row restoration, validates Xayah's converted attack input before replacement, and restores BP chrome/side illustrations through additive nodes. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; manual 0.5.7 verification remains required."
     }
   },
   "packaged_variants": {

@@ -134,7 +134,7 @@ def test_all_native_bp_and_match_music_keys_use_two_audited_league_tracks() -> N
     assert reported_keys == expected_keys
 
 
-def test_league_music_outputs_are_pinned_pcm16_without_clipping() -> None:
+def test_league_music_outputs_are_pinned_runtime_optimized_pcm16_without_clipping() -> None:
     report = load_json(MOD / "qa" / "league_music_source_qa.json")
     for output in report["outputs"].values():
         path = MOD / output["path"]
@@ -143,7 +143,7 @@ def test_league_music_outputs_are_pinned_pcm16_without_clipping() -> None:
         actual = inspect_wav(path)
         assert actual["channels"] == 2
         assert actual["sample_width_bytes"] == 2
-        assert actual["sample_rate_hz"] == 44_100
+        assert actual["sample_rate_hz"] == 22_050
         assert actual["compression"] == "NONE"
         assert actual["frame_count"] == output["frame_count"]
         assert math.isclose(
@@ -153,6 +153,10 @@ def test_league_music_outputs_are_pinned_pcm16_without_clipping() -> None:
         assert 0 < peak < 32_767
         assert clipped == 0
         assert output["loop_boundary_max_delta_dbfs"] <= -30.0
+        assert output["runtime_transform"] == (
+            "adjacent-frame low-pass downsample from audited 44.1 kHz PCM16 "
+            "to 22.05 kHz PCM16"
+        )
 
 
 def test_native_multikill_dispatch_maps_to_verified_female1_takes() -> None:

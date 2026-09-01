@@ -423,6 +423,27 @@ def test_combat_runtime_avoids_unsafe_service_registry_and_panicking_unwrap() ->
     )
 
 
+def test_replaced_first_skills_always_supply_a_refined_ai_target() -> None:
+    """The 0.5.7 refined AI unwraps the active first-skill target.
+
+    Direction casts can enter the active-skill state without an entity target,
+    which repeatedly panics in plan_legacy line_defense:921, jungle:118 and
+    battle:373.  Keep projectile direction derived from a selected enemy.
+    """
+    expected_targets = {
+        "lol_shen": "EnemyChampion",
+        "boomerang_hunter": "EnemyWithoutTower",
+        "cavalry_knight": "EnemyChampion",
+        "dancer": "EnemyWithoutTower",
+        "dual_blader": "EnemyChampion",
+    }
+    for champion_id, expected_target in expected_targets.items():
+        champion = load_json(MOD / "champion" / f"{champion_id}.data_champion")
+        first_skill = champion["skill"]
+        assert first_skill["casting_type"] == "Targeting", champion_id
+        assert first_skill["casting_target"] == expected_target, champion_id
+
+
 def test_stale_base_050_client_server_extensions_are_opt_in_only() -> None:
     source = RUST_SOURCE.read_text(encoding="utf-8")
     guard = source.index("if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV)")
@@ -446,12 +467,16 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.1",
+        b"0.12.6",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
         b"lol_yone_e_damage_post_native",
         b"lol_yone_e_settle_native",
+        b"lol_bp_runtime_illustration",
+        b"lol_mod_fullbody_xayah",
+        b"lol_mod_fullbody_yone",
+        b"corrupt 5v5 pre-tick guard active",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"
     assert b"tfm2_mod_api_version" not in dll

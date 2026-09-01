@@ -910,17 +910,17 @@
     {
       "path": "champion/boomerang_hunter.data_champion",
       "size": 9854,
-      "sha256": "580e60f07c9a00aff0a9ea0918061ddc0a42d5d7e9eb114436e3e8e10b125012"
+      "sha256": "ac5a25bec11e024da3b4b380bba44f1ac07e0bcf1c6eaaf8c75b3412a860f6cd"
     },
     {
       "path": "champion/cavalry_knight.data_champion",
       "size": 12599,
-      "sha256": "a97cef9bce207b09a6d0f843f9ff4b3034910731030de66f107bd584049fba46"
+      "sha256": "2273ac521fe12d8a21161a4953c4e6fc5865d667ce98c6ff0b8c62820db21708"
     },
     {
       "path": "champion/dancer.data_champion",
       "size": 59423,
-      "sha256": "fa742d84cea47f7cdb5ceff796563b53dea17f2e35993ce1bc85dfe718136ca6"
+      "sha256": "ece6963ada69c92243079085dcf78c54f1645dccba5d71ae2a3dd023093e07f3"
     },
     {
       "path": "champion/demon.data_champion",
@@ -930,12 +930,12 @@
     {
       "path": "champion/dual_blader.data_champion",
       "size": 30919,
-      "sha256": "13c0535c2f59a9b521d31e2a02618fef99f3850bdb3c151d76e8c3bddd4416a5"
+      "sha256": "0d8281807b61ea2b9e92ad7e4847b4e2c82359cfd36f766c0d45f9b3c5801297"
     },
     {
       "path": "champion/lol_shen.data_champion",
       "size": 16437,
-      "sha256": "4d65e4fdf32f7ecb6d0e290978c03e66b2f3f90e5f58abce10eae69286a8ce1d"
+      "sha256": "c2988985eeaa57074aebab5b68a3f9d0e94442a11d34a052d3a4b95ecb23369f"
     },
     {
       "path": "icons/briar_skill.png",
@@ -1074,18 +1074,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 159232,
-      "sha256": "b2eb3ef4dad35122f8a07dc7590f8af825e57bf4b4cf058b61b8f41efe5cec84"
+      "size": 271360,
+      "sha256": "c1afaa3850f49c1210225116a072c3d6fd3c4dd639fa1f4f455e21114fb3d838"
     },
     {
       "path": "mod.mod_info",
-      "size": 1627,
-      "sha256": "2ee45138f2849da166937fd3cc5f14a43085605c98e14a91112f877d2d5499c3"
+      "size": 999,
+      "sha256": "25ce6ec6ed35c6db74f21db17973707d451381ba6b1feab2e685401082e4554f"
     },
     {
       "path": "mod.override_info",
-      "size": 51347,
-      "sha256": "3b7a761ed7a5a77ec87d1459736e73b8f68acd801b136782b45f4340f14f0960"
+      "size": 50643,
+      "sha256": "c79ec3667bbb560ac078253f4719a2336637da5eff81a64a6d4afed4b5c11f2d"
     },
     {
       "path": "qa/urgot_official_audio_sources.json",
@@ -1139,13 +1139,13 @@
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
-      "size": 32309096,
-      "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57"
+      "size": 16154568,
+      "sha256": "cb7ab66a7601d80f40e3557bdb650bc5a57e1e1f9dafa5f5cfd8516a14b31bcd"
     },
     {
       "path": "sound/bgm/lol_match.wav",
-      "size": 52920044,
-      "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2"
+      "size": 26460044,
+      "sha256": "1ecf65b2a842b51dd6a139ce12a60e0bf32278493346da5cff5cb8da83054f80"
     },
     {
       "path": "sound/sfx/baron_attack_left.sound_info",
@@ -2151,6 +2151,96 @@
       "path": "text/ui.i18n",
       "size": 4199,
       "sha256": "19d3764c3b742d40a03b75f9033d0eb80c0fba9cebb718b1933440095ecd3cc6"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/archer_blue.png",
+      "size": 195642,
+      "sha256": "a5f4a595d962e275bfddeaf41d71cbf70bcff6c1d4fa23f36a93306d8775323e"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/archer_red.png",
+      "size": 195642,
+      "sha256": "412d30fd2d0734ba328d8bd84c8298697cfb73922cdf19e5b8734907153c1938"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/barrier_magician_blue.png",
+      "size": 195642,
+      "sha256": "31d755d80452baecb39ea74b5c5a97f58be74b025a38cac47606a48fc91ae8e2"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/barrier_magician_red.png",
+      "size": 195642,
+      "sha256": "f4451fb2cf25dd33cc4e86d653d553342e8f6ab5e4975c8e1b8b6416b7e9f9b7"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/berserker_blue.png",
+      "size": 195642,
+      "sha256": "949ee9b2d50012899aeb0f00d223e6deb8b886fbba2146b8142adc61093a6039"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/berserker_red.png",
+      "size": 195642,
+      "sha256": "a439bc398d1c4c1064d448c3012ea0b72ccc1e08f131c69d051b4f088e7076f0"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/boomerang_hunter_blue.png",
+      "size": 195642,
+      "sha256": "a146d591c33fdc179a704e3cf431675ac818da5c8ec8ad1cae7cc4e4405de38f"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/boomerang_hunter_red.png",
+      "size": 195642,
+      "sha256": "4375f313916714b523d8a385b4548a0f86bcab29b9fc54f28c0715ccf1891567"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/cavalry_knight_blue.png",
+      "size": 195642,
+      "sha256": "a994ec99ab436933cf2fd3c38c75b906ebaa4454577b52b670b91e087f5e8381"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/cavalry_knight_red.png",
+      "size": 195642,
+      "sha256": "cbc72561d10ef2699481e2b4c297a7b585c551e960e18f2c6b2aeb0537ee33fe"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dancer_blue.png",
+      "size": 195642,
+      "sha256": "43413e42c70b95fbddf00ce42dae8ba73195211eee95e2150ba7f0d24aae72b2"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dancer_red.png",
+      "size": 195642,
+      "sha256": "b5f8e42e694a8956b2af3646f75fc8d85367f05954fe479bd606cdabc0c20955"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/demon_blue.png",
+      "size": 195642,
+      "sha256": "85c7883edf5cc50264a552b3f244d6bcf13b9f2ea2cbe37177fe8e9809b7c485"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/demon_red.png",
+      "size": 195642,
+      "sha256": "30a6040c1021c24cbec9d93b12cafaee57346ccf85f76b1197ecd55fd4f998e8"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dual_blader_blue.png",
+      "size": 195642,
+      "sha256": "9dbaf22a71fa2005d29775f8d632262fd8e352b0d34eed47bde3a91ddd8c4e3a"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/dual_blader_red.png",
+      "size": 195642,
+      "sha256": "2180105a7e4f104271348a168c5656936372dce0e4f6926228dbc0bd713139b0"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/lol_shen_blue.png",
+      "size": 195642,
+      "sha256": "4dc2a81471712993bc3a739a9e37749a6de37c9166a26cc7814aa9044e2acad6"
+    },
+    {
+      "path": "ui/banpick/champion_illustration/lol_shen_red.png",
+      "size": 195642,
+      "sha256": "fc69b0afd2c82200f01cf1d260b75b178bda1dc1bc80c0d943c960856add67fb"
     },
     {
       "path": "ui/banpick/lol_bp_background.png",

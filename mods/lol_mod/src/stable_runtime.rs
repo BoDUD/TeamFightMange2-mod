@@ -4,16 +4,545 @@
 //! but Cargo deliberately builds only this file. Only the frozen `*V1` value
 //! types and size-guarded stable host tables cross the DLL boundary.
 
+use std::collections::{HashSet, VecDeque};
+use std::fs::{self, OpenOptions};
+use std::io::Write;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use mod_api_stable::{
     declare_stable_mod, AttackTypeV1, BuffV1, CcKindV1, CcV1, InputKindV1, InputTargetKindV1,
-    InputTargetV1, InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableEffectType,
-    StableHost, StableMod, StablePlayerAi, StableSim,
+    InputTargetV1, InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient,
+    StableEffectType, StableExtension, StableHost, StableMatchHook, StableMod, StablePlayerAi,
+    StableSim,
 };
 
 const MOD_ID: &str = "lol_mod";
+
+const ENCYCLOPEDIA_TELEMETRY_FILE: &str = "lol_mod_encyclopedia_ui.tsv";
+const MOBA_MIN_TOWER_COUNT: usize = 6;
+const MOBA_EXPECTED_PLAYER_COUNT: usize = 10;
+const MOBA_EXPECTED_LANE_MASK: u8 = 0b1_1111;
+
+static UI_TELEMETRY_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+
+fn app_data_telemetry_path(file_name: &str) -> Option<PathBuf> {
+    let app_data = std::env::var_os("APPDATA")?;
+    Some(
+        PathBuf::from(app_data)
+            .join("TeamSamoyed")
+            .join("TeamfightManager2")
+            .join("data")
+            .join(file_name),
+    )
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct CorruptMobaMatchGuard;
+
+fn invalid_moba_structure(sim: &StableSim<'_>) -> Option<String> {
+    let player_count = sim.player_count();
+    let champion_count = sim.champion_count();
+    if player_count != MOBA_EXPECTED_PLAYER_COUNT {
+        return Some(format!("expected 10 players, found {player_count}"));
+    }
+    if champion_count != MOBA_EXPECTED_PLAYER_COUNT {
+        return Some(format!("expected 10 champions, found {champion_count}"));
+    }
+
+    let mut team_counts = [0usize; 2];
+    let mut lane_masks = [0u8; 2];
+    let mut champion_ids = Vec::with_capacity(MOBA_EXPECTED_PLAYER_COUNT);
+    for index in 0..player_count {
+        let Some(player) = sim.player_at(index) else {
+            return Some(format!("player_at({index}) is missing"));
+        };
+        let player_id = player.id();
+        let team = player.team();
+        if team > 1 {
+            return Some(format!("player {player_id} has invalid team {team}"));
+        }
+        let Some(lane) = player.lane() else {
+            return Some(format!("player {player_id} has no lane"));
+        };
+        let lane_bit = 1u8 << lane.code();
+        if lane_masks[team] & lane_bit != 0 {
+            return Some(format!(
+                "team {team} assigns lane {} more than once",
+                lane.code()
+            ));
+        }
+        lane_masks[team] |= lane_bit;
+        team_counts[team] += 1;
+
+        let Some(champion) = player.champion() else {
+            return Some(format!("player {player_id} has no champion entity"));
+        };
+        let champion_id = champion.id();
+        if !champion.is_champion() {
+            return Some(format!(
+                "player {player_id} entity {champion_id} is not a champion"
+            ));
+        }
+        if champion.team() != team {
+            return Some(format!(
+                "player {player_id} team {team} owns champion {champion_id} on team {}",
+                champion.team()
+            ));
+        }
+        if champion_ids.contains(&champion_id) {
+            return Some(format!("champion entity {champion_id} is assigned twice"));
+        }
+        champion_ids.push(champion_id);
+    }
+
+    for team in 0..2 {
+        if team_counts[team] != 5 {
+            return Some(format!(
+                "team {team} expected 5 players, found {}",
+                team_counts[team]
+            ));
+        }
+        if lane_masks[team] != MOBA_EXPECTED_LANE_MASK {
+            return Some(format!(
+                "team {team} lane mask is {:05b}, expected 11111",
+                lane_masks[team]
+            ));
+        }
+    }
+    None
+}
+
+impl StableMatchHook for CorruptMobaMatchGuard {
+    fn on_match_start(&self, sim: &mut StableSim<'_>) {
+        let tower_count = sim.tower_count();
+
+        // Other modes can legitimately be 1v1 or omit lanes. Only inspect a
+        // map that has the regular MOBA tower topology and roughly a 5v5
+        // population. This keeps valid live matches and custom modes intact.
+        let looks_like_moba = tower_count >= MOBA_MIN_TOWER_COUNT;
+        if !looks_like_moba {
+            return;
+        }
+
+        if invalid_moba_structure(sim).is_some() {
+            let seed = sim.seed();
+            // A broken generated match would otherwise enter the base 0.5.7
+            // plan_legacy AI and panic on its first unwrap. Resolve only that
+            // structurally invalid match, deterministically, before tick one.
+            sim.force_end(seed & 1 == 0);
+        }
+    }
+}
+
+const BP_RUNTIME_SCAN_INTERVAL_MICROS: u64 = 250_000;
+const BP_RUNTIME_ROOT_PATHS: [&str; 3] = ["main", "top.main", "banpick.main"];
+const BP_RUNTIME_MAX_PICK_SLOTS: usize = 12;
+const BP_RUNTIME_MAX_CHAMPION_CARDS: usize = 256;
+const ENCYCLOPEDIA_RUNTIME_MAX_NODES: usize = 4096;
+const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
+    "body.main.top.right.champion_info.data.champions.contents",
+    "main.top.right.champion_info.data.champions.contents",
+    "body.top.right.champion_info.data.champions.contents",
+    "top.right.champion_info.data.champions.contents",
+    "body.main.right.champion_info.data.champions.contents",
+    "main.right.champion_info.data.champions.contents",
+];
+
+#[derive(Debug, Default)]
+struct QualityBpExtension {
+    elapsed_micros: AtomicU64,
+    encyclopedia_container: Mutex<Option<String>>,
+    encyclopedia_telemetry_written: AtomicU64,
+}
+
+fn join_ui_path(parent: &str, child: &str) -> String {
+    if parent.is_empty() {
+        child.to_string()
+    } else {
+        format!("{parent}.{child}")
+    }
+}
+
+fn is_encyclopedia_container(client: &StableClient<'_>, path: &str) -> bool {
+    client.ui_exists(path) && client.ui_child_count(path).is_some()
+}
+
+fn has_known_encyclopedia_card(client: &StableClient<'_>, path: &str) -> bool {
+    ["dancer", "dual_blader"].iter().any(|champion_id| {
+        let card = join_ui_path(path, champion_id);
+        client.ui_exists(&join_ui_path(&card, "icon"))
+            && client.ui_exists(&join_ui_path(&card, "name"))
+    })
+}
+
+fn find_encyclopedia_container(client: &StableClient<'_>) -> Option<String> {
+    for candidate in ENCYCLOPEDIA_CONTAINER_CANDIDATES {
+        if is_encyclopedia_container(client, candidate) {
+            return Some(candidate.to_string());
+        }
+    }
+
+    // The stable UI path API exposes the champion-id keys assigned by
+    // ChampionInfoUIRunner. Walk from the real root instead of assuming that
+    // a localized main-screen layout keeps one fixed prefix forever.
+    let mut queue = VecDeque::new();
+    let mut visited = HashSet::new();
+    queue.push_back(String::new());
+    while let Some(path) = queue.pop_front() {
+        if !visited.insert(path.clone()) || visited.len() > ENCYCLOPEDIA_RUNTIME_MAX_NODES {
+            continue;
+        }
+        if client
+            .ui_runner_name(&path)
+            .is_some_and(|runner| runner.to_ascii_lowercase().contains("champion_info"))
+        {
+            let contents = join_ui_path(&path, "data.champions.contents");
+            if is_encyclopedia_container(client, &contents) {
+                return Some(contents);
+            }
+        }
+        let children = client.ui_child_names(&path);
+        if children
+            .iter()
+            .any(|child| matches!(child.as_str(), "dancer" | "dual_blader"))
+            && has_known_encyclopedia_card(client, &path)
+        {
+            return Some(path);
+        }
+        for child in children {
+            queue.push_back(join_ui_path(&path, &child));
+        }
+    }
+    None
+}
+
+fn append_encyclopedia_telemetry(container: &str, detail: &str) {
+    let Some(path) = app_data_telemetry_path(ENCYCLOPEDIA_TELEMETRY_FILE) else {
+        return;
+    };
+    let lock = UI_TELEMETRY_LOCK.get_or_init(|| Mutex::new(()));
+    let Ok(_guard) = lock.lock() else {
+        return;
+    };
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    let new_file = !path.exists();
+    let Ok(mut file) = OpenOptions::new().create(true).append(true).open(path) else {
+        return;
+    };
+    if new_file {
+        let _ = writeln!(file, "unix_ms\tmod_version\tcontainer\tdetail");
+    }
+    let unix_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |duration| duration.as_millis());
+    let detail = detail.replace(['\t', '\r', '\n'], " ");
+    let _ = writeln!(
+        file,
+        "{unix_ms}\t{}\t{container}\t{detail}",
+        env!("CARGO_PKG_VERSION")
+    );
+}
+
+fn sync_encyclopedia_card(
+    client: &mut StableClient<'_>,
+    container: &str,
+    champion_id: &str,
+    overlay_id: &str,
+    texture: &str,
+    width: f32,
+    height: f32,
+    bottom: f32,
+) -> bool {
+    let card = join_ui_path(container, champion_id);
+    let native_icon = join_ui_path(&card, "icon");
+    if !client.ui_exists(&native_icon) {
+        return false;
+    }
+    let overlay = join_ui_path(&card, overlay_id);
+    let source = format!(
+        r#"{overlay_id}:image {{ ignore_event: true; width: {width}px; height: {height}px; y: {bottom}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}"; }}"#
+    );
+    if !client.ui_exists(&overlay) && !client.ui_spawn_source(&card, &source) {
+        let _ = client.ui_set_visible(&native_icon, true);
+        return false;
+    }
+    if !client.ui_set_visible(&overlay, true) {
+        let _ = client.ui_set_visible(&native_icon, true);
+        return false;
+    }
+    // The source-direct portrait is spawned after the stock card children.
+    // Keep the two role icons above it just as they are above the native icon.
+    for role_icon in ["pos1", "pos2"] {
+        let role_icon = join_ui_path(&card, role_icon);
+        let _ = client.ui_set_properties(&role_icon, "z: 2;");
+    }
+    client.ui_set_visible(&native_icon, false)
+}
+
+fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
+    if client.client_main_tab().as_deref() != Some("GameInfo") {
+        return;
+    }
+    let cached = extension
+        .encyclopedia_container
+        .lock()
+        .ok()
+        .and_then(|guard| guard.clone());
+    let container = cached
+        .filter(|path| is_encyclopedia_container(client, path))
+        .or_else(|| find_encyclopedia_container(client));
+    let Some(container) = container else {
+        return;
+    };
+    if let Ok(mut cached) = extension.encyclopedia_container.lock() {
+        *cached = Some(container.clone());
+    }
+
+    let xayah = sync_encyclopedia_card(
+        client,
+        &container,
+        "dancer",
+        "lol_mod_fullbody_xayah",
+        "asset/lol_mod/ui/champion_fullbody/dancer",
+        85.0,
+        93.0,
+        93.0,
+    );
+    let yone = sync_encyclopedia_card(
+        client,
+        &container,
+        "dual_blader",
+        "lol_mod_fullbody_yone",
+        "asset/lol_mod/ui/champion_fullbody/dual_blader",
+        85.0,
+        93.0,
+        93.0,
+    );
+    if xayah
+        && yone
+        && extension
+            .encyclopedia_telemetry_written
+            .compare_exchange(0, 1, Ordering::Relaxed, Ordering::Relaxed)
+            .is_ok()
+    {
+        append_encyclopedia_telemetry(
+            &container,
+            "source-direct Xayah and Yone portraits active; native 85x93 card geometry restored; role icons raised above portraits",
+        );
+    }
+}
+
+fn bp_champion_id_from_name(name: &str) -> Option<&'static str> {
+    match name.trim() {
+        "lol_shen" | "Shen" | "慎" | "シェン" | "쉔" => Some("lol_shen"),
+        "archer" | "Lucian" | "卢锡安" | "路西恩" | "ルシアン" | "루시안" => {
+            Some("archer")
+        }
+        "barrier_magician" | "Orianna" | "奥利安娜" | "奧利安娜" | "オリアナ" | "오리아나" => {
+            Some("barrier_magician")
+        }
+        "berserker" | "Briar" | "贝蕾亚" | "貝蕾亞" | "ブライアー" | "브라이어" => {
+            Some("berserker")
+        }
+        "boomerang_hunter" | "Sivir" | "希维尔" | "希維爾" | "シヴィア" | "시비르" => {
+            Some("boomerang_hunter")
+        }
+        "cavalry_knight" | "Kled" | "克烈" | "クレッド" | "클레드" => {
+            Some("cavalry_knight")
+        }
+        "dancer" | "Xayah" | "霞" | "剎雅" | "ザヤ" | "자야" => Some("dancer"),
+        "demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳" => Some("demon"),
+        "dual_blader" | "Yone" | "永恩" | "犽凝" | "ヨネ" | "요네" => Some("dual_blader"),
+        _ => None,
+    }
+}
+
+fn ensure_ui_child(client: &mut StableClient<'_>, parent: &str, child: &str, source: &str) -> bool {
+    if !client.ui_exists(parent) {
+        return false;
+    }
+    let child_path = join_ui_path(parent, child);
+    client.ui_exists(&child_path) || client.ui_spawn_source(parent, source)
+}
+
+fn decorate_bp_shell(client: &mut StableClient<'_>, root: &str) {
+    let background = join_ui_path(root, "background");
+    ensure_ui_child(
+        client,
+        &background,
+        "lol_bp_runtime_background",
+        r#"lol_bp_runtime_background:image { ignore_event: true; width: 100%; height: 100%; z: -20; source: "asset/lol_mod/ui/banpick/lol_bp_background"; }"#,
+    );
+
+    let header = join_ui_path(root, "header");
+    ensure_ui_child(
+        client,
+        &header,
+        "lol_bp_runtime_header_chrome",
+        r#"lol_bp_runtime_header_chrome:image { ignore_event: true; width: 100%; height: 100%; z: -10; source: "asset/lol_mod/ui/banpick/lol_bp_header_chrome"; }"#,
+    );
+
+    let bottom = join_ui_path(root, "bottom");
+    ensure_ui_child(
+        client,
+        &bottom,
+        "lol_bp_runtime_bottom_chrome",
+        r#"lol_bp_runtime_bottom_chrome:image { ignore_event: true; width: 100%; height: 100%; z: -10; source: "asset/lol_mod/ui/banpick/lol_bp_bottom_chrome"; }"#,
+    );
+
+    ensure_ui_child(
+        client,
+        root,
+        "lol_bp_runtime_filter_toolbar",
+        r#"lol_bp_runtime_filter_toolbar:image { ignore_event: true; x: 305px; y: 55px; width: 1310px; height: 50px; z: -10; source: "asset/lol_mod/ui/banpick/lol_bp_filter_toolbar"; }"#,
+    );
+
+    let champion_grid = join_ui_path(root, "champions_bg");
+    ensure_ui_child(
+        client,
+        &champion_grid,
+        "lol_bp_runtime_champion_grid_frame",
+        r#"lol_bp_runtime_champion_grid_frame:image { ignore_event: true; width: 100%; height: 100%; z: 80; source: "asset/lol_mod/ui/banpick/lol_bp_champion_grid_frame"; }"#,
+    );
+
+    let timer_icon = join_ui_path(root, "timer_area.timer_icon");
+    ensure_ui_child(
+        client,
+        &timer_icon,
+        "lol_bp_runtime_timer_icon",
+        r#"lol_bp_runtime_timer_icon:image { ignore_event: true; width: 20px; height: 20px; z: 80; source: "asset/lol_mod/ui/banpick/lol_bp_timer_icon"; }"#,
+    );
+    let timer_bar = join_ui_path(root, "timer_area.timer_bar_bg");
+    ensure_ui_child(
+        client,
+        &timer_bar,
+        "lol_bp_runtime_timer_plate",
+        r#"lol_bp_runtime_timer_plate:image { ignore_event: true; width: 220px; height: 20px; z: -5; source: "asset/lol_mod/ui/banpick/lol_bp_timer_plate"; }"#,
+    );
+
+    let stat = join_ui_path(root, "champion_info.stat");
+    ensure_ui_child(
+        client,
+        &stat,
+        "lol_bp_runtime_stat_frame",
+        r#"lol_bp_runtime_stat_frame:image { ignore_event: true; width: 100%; height: 100%; z: 80; source: "asset/lol_mod/ui/banpick/lol_bp_stat_frame"; }"#,
+    );
+    for skill in ["skill1", "skill2", "ult"] {
+        let skill_path = join_ui_path(root, &format!("champion_info.{skill}"));
+        ensure_ui_child(
+            client,
+            &skill_path,
+            "lol_bp_runtime_skill_frame",
+            r#"lol_bp_runtime_skill_frame:image { ignore_event: true; x: -10px; y: -10px; width: 100%; height: 200px; z: 80; source: "asset/lol_mod/ui/banpick/lol_bp_skill_frame"; }"#,
+        );
+    }
+}
+
+fn decorate_bp_champion_cards(client: &mut StableClient<'_>, root: &str) {
+    let contents = join_ui_path(root, "champions.contents");
+    for child in client
+        .ui_child_names(&contents)
+        .into_iter()
+        .take(BP_RUNTIME_MAX_CHAMPION_CARDS)
+    {
+        let card = join_ui_path(&contents, &child);
+        ensure_ui_child(
+            client,
+            &card,
+            "lol_bp_runtime_champion_card_frame",
+            r#"lol_bp_runtime_champion_card_frame:image { ignore_event: true; width: 100%; height: 100%; z: 90; source: "asset/lol_mod/ui/banpick/lol_bp_champion_card_frame"; }"#,
+        );
+    }
+}
+
+fn sync_bp_pick_container(client: &mut StableClient<'_>, root: &str, side: &str) {
+    let container = join_ui_path(root, &format!("{side}_picks"));
+    for child in client
+        .ui_child_names(&container)
+        .into_iter()
+        .take(BP_RUNTIME_MAX_PICK_SLOTS)
+    {
+        let slot = join_ui_path(&container, &child);
+        ensure_ui_child(
+            client,
+            &slot,
+            "lol_bp_runtime_side_pick_frame",
+            r#"lol_bp_runtime_side_pick_frame:image { ignore_event: true; width: 100%; height: 100%; z: 90; source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame"; }"#,
+        );
+
+        let done = join_ui_path(&slot, "done");
+        if !client.ui_exists(&done) {
+            continue;
+        }
+        ensure_ui_child(
+            client,
+            &done,
+            "lol_bp_runtime_illustration",
+            r#"lol_bp_runtime_illustration:image { ignore_event: true; x: 8px; y: 1px; width: 284px; height: 172px; visible: false; sample_linear: true; z: -20; }"#,
+        );
+        let tint_source = if side == "red" {
+            r#"lol_bp_runtime_illustration_tint:color { ignore_event: true; x: 145px; width: 147px; height: 174px; visible: false; color: #07080ba8; z: -10; }"#
+        } else {
+            r#"lol_bp_runtime_illustration_tint:color { ignore_event: true; width: 158px; height: 174px; visible: false; color: #07080ba8; z: -10; }"#
+        };
+        ensure_ui_child(
+            client,
+            &done,
+            "lol_bp_runtime_illustration_tint",
+            tint_source,
+        );
+
+        let name = client.ui_text(&join_ui_path(&done, "name"));
+        let illustration = join_ui_path(&done, "lol_bp_runtime_illustration");
+        let tint = join_ui_path(&done, "lol_bp_runtime_illustration_tint");
+        let champion = join_ui_path(&done, "champion");
+        if let Some(champion_id) = name.as_deref().and_then(bp_champion_id_from_name) {
+            let source = format!(
+                "source: \"asset/lol_mod/ui/banpick/champion_illustration/{champion_id}_{side}\"; sample_linear: true;"
+            );
+            client.ui_set_properties(&illustration, &source);
+            client.ui_set_visible(&illustration, true);
+            client.ui_set_visible(&tint, true);
+            client.ui_set_visible(&champion, false);
+        } else if client.ui_visible(&illustration) == Some(true) {
+            client.ui_set_visible(&illustration, false);
+            client.ui_set_visible(&tint, false);
+            client.ui_set_visible(&champion, true);
+        }
+    }
+}
+
+fn sync_bp_runtime_ui(client: &mut StableClient<'_>) {
+    for root in BP_RUNTIME_ROOT_PATHS {
+        let blue_picks = join_ui_path(root, "blue_picks");
+        let red_picks = join_ui_path(root, "red_picks");
+        if !client.ui_exists(&blue_picks) || !client.ui_exists(&red_picks) {
+            continue;
+        }
+        decorate_bp_shell(client, root);
+        decorate_bp_champion_cards(client, root);
+        sync_bp_pick_container(client, root, "blue");
+        sync_bp_pick_container(client, root, "red");
+    }
+}
+
+impl StableExtension for QualityBpExtension {
+    fn post_update(&self, client: &mut StableClient<'_>, dt_micros: u64) {
+        let previous = self.elapsed_micros.fetch_add(dt_micros, Ordering::Relaxed);
+        if previous.saturating_add(dt_micros) < BP_RUNTIME_SCAN_INTERVAL_MICROS {
+            return;
+        }
+        self.elapsed_micros.store(0, Ordering::Relaxed);
+
+        sync_bp_runtime_ui(client);
+        sync_encyclopedia_portraits(self, client);
+    }
+}
 
 const XAYAH_FEATHER_STATE_TTL_TICKS: usize = 600;
 const XAYAH_FEATHER_MAX_STATES: usize = 128;
@@ -634,7 +1163,7 @@ fn init(host: &StableHost) -> StableMod {
     host.log(
         LogLevel::Info,
         &format!(
-            "lol_mod stable ABI loaded on game {}.{}.{} (host ABI {}; mod version {})",
+            "lol_mod stable ABI loaded on game {}.{}.{} (host ABI {}; mod version {}; corrupt 5v5 pre-tick guard active)",
             version.major,
             version.minor,
             version.patch,
@@ -694,6 +1223,8 @@ fn init(host: &StableHost) -> StableMod {
         ShenShadowDashTauntNativeEffect,
     );
     registration.add_player_input_ai(ShenShadowDashInputAi);
+    registration.set_match_hook(CorruptMobaMatchGuard);
+    registration.set_extension(QualityBpExtension::default());
     registration
 }
 

@@ -32,6 +32,7 @@ ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
 CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 CHAMPION_PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
+RUNTIME_BP_ILLUSTRATION_DIR = MOD_ROOT / "ui" / "banpick" / "champion_illustration"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
@@ -184,6 +185,18 @@ CHAMPION_FULLBODY_SHEETS = {
     "dancer": ACTOR_DIR / "xayah#sheet.png",
     "dual_blader": ACTOR_DIR / "yone_v7#sheet.png",
 }
+RUNTIME_BP_CHAMPION_IDS = (
+    "lol_shen",
+    "archer",
+    "barrier_magician",
+    "berserker",
+    "boomerang_hunter",
+    "cavalry_knight",
+    "dancer",
+    "demon",
+    "dual_blader",
+)
+RUNTIME_BP_ILLUSTRATION_SIZE = (284, 172)
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
 ARCHER_SKILL_ICON_BOXES = {
@@ -262,6 +275,33 @@ def save_png(path: Path, image: Image.Image) -> None:
         + _png_chunk(b"IEND", b"")
     )
     path.write_bytes(encoded)
+
+
+def build_runtime_bp_illustrations() -> list[Path]:
+    """Downsample authored BP splashes to their exact on-screen card size.
+
+    The 1420x860 images remain build/QA sources. Shipping a 5x copy for every
+    champion makes detailed match transitions scale poorly, so the stable UI
+    route reads these 284x172 blue/red assets instead. Red cards are mirrored
+    ahead of time because the stable UI image runner does not expose flip_x.
+    """
+
+    RUNTIME_BP_ILLUSTRATION_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for champion_id in RUNTIME_BP_CHAMPION_IDS:
+        source_path = MOD_ROOT / "BanPickIllust" / f"{champion_id}.png"
+        source = Image.open(source_path).convert("RGBA")
+        if source.size != (1420, 860):
+            raise ValueError(
+                f"{source_path.relative_to(MOD_ROOT)} must remain 1420x860, got {source.size}"
+            )
+        blue = source.resize(RUNTIME_BP_ILLUSTRATION_SIZE, Image.Resampling.LANCZOS)
+        red = blue.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        for side, image in (("blue", blue), ("red", red)):
+            output = RUNTIME_BP_ILLUSTRATION_DIR / f"{champion_id}_{side}.png"
+            save_png(output, image)
+            outputs.append(output)
+    return outputs
 
 
 def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]:
@@ -2374,7 +2414,9 @@ def build_shen_q() -> dict[str, object]:
         "start_timing": 8,
         "cancelable": True,
         "range": 55000,
-        "casting_type": "Direction",
+        # plan_legacy stores a concrete target for the active first-skill
+        # action and unwraps it in refined line/jungle/battle planning.
+        "casting_type": "Targeting",
         "casting_target": "EnemyChampion",
         "attack_type": "Skill",
         "can_use_with_move": False,
@@ -3944,7 +3986,8 @@ def build_sivir_data() -> Path:
             "cancelable": False,
             "range": 75000,
             "growth_range": 0,
-            "casting_type": "Direction",
+            # Refined plan_legacy requires a concrete first-skill target.
+            "casting_type": "Targeting",
             "casting_target": "EnemyWithoutTower",
             "attack_type": "Skill",
             "can_use_with_move": False,
@@ -4995,6 +5038,8 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
             "qa/yone_skill_contract_qa.md",
             "sound/sfx/yone_native_silence.sound_info",
             "sound/sfx/yone_native_silence_clip.wav",
+            "ui/banpick/champion_illustration/dual_blader_blue.png",
+            "ui/banpick/champion_illustration/dual_blader_red.png",
         }
     )
     yone_audio_audit = json.loads(
@@ -5036,6 +5081,80 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
         ],
     }
     path = MOD_ROOT / "build_manifest.json"
+    write_json(path, payload)
+    return path
+
+
+RUNTIME_EXCLUDED_PREFIXES = (
+    # QA evidence is committed and release-audited, but the game never reads
+    # it. Keeping it out of the active mod avoids needless directory scans.
+    "qa/",
+    # Full-resolution authored BP splashes are build/QA inputs. The active
+    # stable UI route uses exact-size copies in ui/banpick/champion_illustration.
+    "BanPickIllust/",
+    # Compact/grid/scoreboard replacements belong to the retired classic
+    # render-command route.
+    "ui/champion_portrait/",
+    # The stable extension injects the two requested source-direct portraits
+    # into the live cards, so their PNGs stay in the runtime. The retired
+    # static shared-template experiment remains build evidence only.
+    "ui/layout/champion_info_component/",
+    # These exact base-0.5.1 templates once crashed the draft scene when used
+    # as full overrides. Base 0.5.7 receives additive stable-ABI decorations
+    # instead, so the historical layout baselines stay out of the game folder.
+    "ui/layout/banpick/",
+)
+
+RUNTIME_EXCLUDED_PATHS = {
+    # Historical visual evidence for data-only skills; no active champion,
+    # override or stable callback references these sheets/audio events.
+    "aseprite_resources/effects/shen_w#anim.fanim",
+    "aseprite_resources/effects/shen_w#sheet.png",
+    "aseprite_resources/effects/urgot_w_cannon#anim.fanim",
+    "aseprite_resources/effects/urgot_w_cannon#sheet.png",
+    "sound/sfx/shen_w_cast.sound_info",
+    "sound/sfx/shen_w_cast_clip.wav",
+    "sound/sfx/shen_w_block.sound_info",
+    "sound/sfx/shen_w_block_clip.wav",
+    "style/bp_controls.style",
+}
+
+RUNTIME_SOFT_BUDGET_BYTES = 96 * 1024 * 1024
+RUNTIME_HARD_BUDGET_BYTES = 128 * 1024 * 1024
+
+
+def build_runtime_manifest(build_manifest_path: Path) -> Path:
+    """Publish only files that the active stable-ABI mod can reach."""
+
+    build_payload = json.loads(build_manifest_path.read_text(encoding="utf-8"))
+    runtime_rows = [
+        row
+        for row in build_payload.get("files", [])
+        if row.get("path") not in RUNTIME_EXCLUDED_PATHS
+        and not any(
+            str(row.get("path", "")).startswith(prefix)
+            for prefix in RUNTIME_EXCLUDED_PREFIXES
+        )
+    ]
+    total_bytes = sum(int(row["size"]) for row in runtime_rows)
+    if total_bytes > RUNTIME_HARD_BUDGET_BYTES:
+        raise RuntimeError(
+            f"Runtime package is {total_bytes / (1024 * 1024):.1f} MiB, "
+            f"above the {RUNTIME_HARD_BUDGET_BYTES / (1024 * 1024):.0f} MiB hard cap"
+        )
+
+    payload = {
+        "schema_version": 1,
+        "generator": "mods/lol_mod/tools/build_lol_mod.py",
+        "purpose": "0.12.6 native encyclopedia scale and refined-AI target repair test closure",
+        "file_count": len(runtime_rows),
+        "total_size": total_bytes,
+        "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,
+        "hard_budget": RUNTIME_HARD_BUDGET_BYTES,
+        "within_soft_budget": total_bytes <= RUNTIME_SOFT_BUDGET_BYTES,
+        "files": runtime_rows,
+    }
+    path = MOD_ROOT / "runtime_manifest.json"
     write_json(path, payload)
     return path
 
@@ -5116,9 +5235,11 @@ def main() -> int:
     urgot_outputs = build_urgot_assets()
     yone_outputs = build_yone_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
+    runtime_bp_illustrations = build_runtime_bp_illustrations()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
     manifest = None if args.skip_manifest else build_manifest(yone_outputs)
+    runtime_manifest = None if manifest is None else build_runtime_manifest(manifest)
     for path in [
         actor_sheet,
         actor_anim,
@@ -5157,9 +5278,11 @@ def main() -> int:
         *urgot_outputs,
         *yone_outputs,
         *champion_fullbody_portraits,
+        *runtime_bp_illustrations,
         *orianna_briar_hd_surface_qa,
         *legacy_battle_actor_scale_qa,
         *([manifest] if manifest else []),
+        *([runtime_manifest] if runtime_manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))
     return 0

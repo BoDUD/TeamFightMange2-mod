@@ -194,7 +194,7 @@ def test_q_is_exactly_two_penetrating_feathers_and_second_is_delayed_six_ticks()
         q["range"],
         q["casting_type"],
         q["casting_target"],
-    ) == ("skill1", 360, 28, 8, 72000, "Direction", "EnemyWithoutTower")
+    ) == ("skill1", 360, 28, 8, 72000, "Targeting", "EnemyWithoutTower")
     projectiles = find_effect(q, "LinearProjectile", name="lol_xayah_q_feather")
     assert len(projectiles) == 2
     for projectile in projectiles:
@@ -399,6 +399,13 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
     assert "get_run_away_without_skill_input" not in runtime
     assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
 
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    stable_gate = stable_runtime.split(
+        "impl StablePlayerAi for XayahFeatherInputGate", 1
+    )[1].split("const URGOT_PASSIVE_COOLDOWN_TICKS", 1)[0]
+    assert "Some(InputV1::action(InputKindV1::Attack, base_input.target))" in stable_gate
+    assert "ctx.is_valid_input(&attack).then_some(attack)" not in stable_gate
+
     qa = load_json("qa/xayah_replacement_qa.json")
     assert qa["ground_feather_limit"] == {
         "visual_markers_shipped": True,
@@ -507,7 +514,35 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert "#lol_fullbody_xayah:image" in champion_slot
     assert 'source: "asset/lol_mod/ui/champion_fullbody/dancer";' in champion_slot
 
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    assert "find_encyclopedia_container" in stable_runtime
+    assert "sync_encyclopedia_card" in stable_runtime
+    assert "ui_runner_name" in stable_runtime
+    assert 'contains("champion_info")' in stable_runtime
+    assert '"dancer"' in stable_runtime
+    assert '"dual_blader"' in stable_runtime
+    assert "lol_mod_fullbody_xayah" in stable_runtime
+    assert "lol_mod_fullbody_yone" in stable_runtime
+    assert "asset/lol_mod/ui/champion_fullbody/dancer" in stable_runtime
+    assert "asset/lol_mod/ui/champion_fullbody/dual_blader" in stable_runtime
+    assert "width: {width}px; height: {height}px; y: {bottom}px; z: 1" in stable_runtime
+    assert stable_runtime.count("85.0,\n        93.0,\n        93.0,") == 2
+    assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
+    show_overlay = stable_runtime.index("client.ui_set_visible(&overlay, true)")
+    hide_native = stable_runtime.index("client.ui_set_visible(&native_icon, false)")
+    assert show_overlay < hide_native
+
     override = load_json("mod.override_info")
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    runtime_paths = {
+        row["path"] for row in load_json("runtime_manifest.json")["files"]
+    }
+    assert "ui/champion_fullbody/dancer.png" in runtime_paths
+    assert "ui/champion_fullbody/dual_blader.png" in runtime_paths
+    assert not any(
+        path.startswith("ui/layout/champion_info_component/")
+        for path in runtime_paths
+    )
     assert override["asset/base/aseprite_resources/champions/dancer#sheet"]["remapping"] == (
         "asset/lol_mod/aseprite_resources/champions/xayah#sheet"
     )

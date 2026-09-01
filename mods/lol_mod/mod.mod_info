@@ -3,9 +3,9 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
-  "version": "0.12.1",
-  "description": "PR #11 integration test build for Teamfight Manager 2 base 0.5.7, ported from the deprecated classic Mod API to the official stable ABI. It preserves Xayah AI feather state, Urgot 008 passive/R, Shen taunt/AI and the stateless Yone Q/W/R native behavior without loading classic client/server extension vtables. Steel and Azakana attacks, Q1/Q2, Q3 and W Spirit Cleave keep dedicated CasterAnimation at tick 0. The unique asset/lol_mod/aseprite_resources/champions/yone_v7 actor key contains the V7 4262x88 atlas while byte-identical yone sheet and anim aliases protect saved seasons that still reference the 3502x88 native prefix. The 0.10.5 W save floor, 0.10.17 UI asset route and 0.10.20 final Yone behavior remain current; Version 0.10.19 is retained as partial history only. Retired Yone E behavior and visual resources are removed; old embedded saved-season native names resolve only through no-op compatibility aliases. Urgot passive cooldown state is isolated by simulation seed and bounded by TTL/LRU cleanup so hidden simulations cannot consume live-match state. Raw render-command rewriting from the old 0.10.17 classic runtime is intentionally inactive under the stable ABI; the committed static portrait assets remain packaged and require manual in-game verification.",
-  "last_updated": "2026-09-01",
+  "version": "0.12.6",
+  "description": "Teamfight Manager 2 base 0.5.7 repair test build. Xayah and Yone encyclopedia cards use a complete source-direct portrait at the native 85x93 geometry, with role icons kept above the art. The five replaced champions whose first skills were direction-only now select a concrete enemy target, preventing refined plan_legacy line, jungle and battle planners from repeatedly unwrapping a missing active-skill target. All nine League data_champion definitions, BP chrome and illustrations, Rift map/towers/Nexus, HUD art, announcer audio and BP/match music remain active. The deterministic pre-tick 5v5 structure guard still resolves only malformed matches.",
+  "last_updated": "2026-09-02",
   "dependencies": [
     {
       "mod_id": "base",

@@ -196,6 +196,9 @@ PRESERVED_UI_SHA256_ALTERNATES = {
         "66539e56d720673c0311d1dbdb19a0ed9d4db619a1fb0746b2c9a0eb43ea5309",
         # PR #11 integration with the final Yone V7 face/card cameras.
         "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
+        # Retired 0.12.4 native-camera experiment; 0.12.5 restores compact
+        # face cameras and uses source-direct encyclopedia portraits instead.
+        "d9deb50d044fd1a29cdd77b0266f8dbce419503ee3ff0a0dabfc6408db981913",
     },
 }
 

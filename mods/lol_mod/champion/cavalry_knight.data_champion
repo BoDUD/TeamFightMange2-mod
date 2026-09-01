@@ -76,7 +76,7 @@
     "cancelable": false,
     "range": 65000,
     "growth_range": 0,
-    "casting_type": "Direction",
+    "casting_type": "Targeting",
     "casting_target": "EnemyChampion",
     "attack_type": "Skill",
     "can_use_with_move": false,

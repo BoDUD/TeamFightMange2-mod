@@ -208,7 +208,7 @@
     "start_timing": 8,
     "cancelable": true,
     "range": 55000,
-    "casting_type": "Direction",
+    "casting_type": "Targeting",
     "casting_target": "EnemyChampion",
     "attack_type": "Skill",
     "can_use_with_move": false,

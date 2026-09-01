@@ -109,7 +109,7 @@
     "cancelable": false,
     "range": 75000,
     "growth_range": 0,
-    "casting_type": "Direction",
+    "casting_type": "Targeting",
     "casting_target": "EnemyWithoutTower",
     "attack_type": "Skill",
     "can_use_with_move": false,

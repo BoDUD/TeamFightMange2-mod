@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.12.1"
+    assert load_json("mod.mod_info")["version"] == "0.12.6"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"
@@ -209,7 +209,7 @@ def test_kled_q_is_one_nonpenetrating_beartrap_projectile_with_delayed_tether() 
         skill["start_timing"],
         skill["casting_type"],
         skill["casting_target"],
-    ) == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion")
+    ) == ("skill1", 65000, 360, 36, 8, "Targeting", "EnemyChampion")
     assert not find_effect(skill, "Rush")
     projectiles = find_effect(skill, "LinearProjectile", name="lol_kled_q_beartrap_projectile")
     assert len(projectiles) == 1

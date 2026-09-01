@@ -222,14 +222,15 @@
       ],
       "channels": 2,
       "sample_width_bytes": 2,
-      "sample_rate_hz": 44100,
-      "frame_count": 8077263,
-      "duration_seconds": 183.1578911564626,
+      "sample_rate_hz": 22050,
+      "frame_count": 4038631,
+      "duration_seconds": 183.15786848072563,
       "compression": "NONE",
-      "size_bytes": 32309096,
-      "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57",
-      "loop_boundary_max_delta": 74,
-      "loop_boundary_max_delta_dbfs": -52.92436430457484
+      "size_bytes": 16154568,
+      "sha256": "cb7ab66a7601d80f40e3557bdb650bc5a57e1e1f9dafa5f5cfd8516a14b31bcd",
+      "runtime_transform": "adjacent-frame low-pass downsample from audited 44.1 kHz PCM16 to 22.05 kHz PCM16",
+      "loop_boundary_max_delta": 271,
+      "loop_boundary_max_delta_dbfs": -41.64934780534586
     },
     "lol_match": {
       "path": "sound/bgm/lol_match.wav",
@@ -244,14 +245,15 @@
       ],
       "channels": 2,
       "sample_width_bytes": 2,
-      "sample_rate_hz": 44100,
-      "frame_count": 13230000,
+      "sample_rate_hz": 22050,
+      "frame_count": 6615000,
       "duration_seconds": 300.0,
       "compression": "NONE",
-      "size_bytes": 52920044,
-      "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2",
-      "loop_boundary_max_delta": 555,
-      "loop_boundary_max_delta_dbfs": -35.423139036740835
+      "size_bytes": 26460044,
+      "sha256": "1ecf65b2a842b51dd6a139ce12a60e0bf32278493346da5cff5cb8da83054f80",
+      "runtime_transform": "adjacent-frame low-pass downsample from audited 44.1 kHz PCM16 to 22.05 kHz PCM16",
+      "loop_boundary_max_delta": 144,
+      "loop_boundary_max_delta_dbfs": -47.14148378092899
     }
   }
 }

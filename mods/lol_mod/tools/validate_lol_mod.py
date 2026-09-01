@@ -877,8 +877,8 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             q.get("start_timing"), q.get("range"), q.get("casting_type"),
             q.get("casting_target"),
         )
-        == ("skill", 360, 28, 8, 55000, "Direction", "EnemyChampion"),
-        "Q must use a stock-AI enemy-gated direction cast instead of self-casting into empty space",
+        == ("skill", 360, 28, 8, 55000, "Targeting", "EnemyChampion"),
+        "Q must use a concrete stock-AI target for refined plan_legacy compatibility",
     )
     for unsafe_type in ("RangeProjectile", "Attack", "ApAttack", "Shield"):
         check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
@@ -3507,8 +3507,8 @@ def validate_sivir_data_contract(champion: dict[str, Any]) -> None:
             q.get("action_name"), q.get("range"), q.get("cooltime"), q.get("duration"),
             q.get("start_timing"), q.get("casting_type"), q.get("casting_target"), q.get("attack_type"),
         )
-        == ("skill", 75000, 360, 26, 18, "Direction", "EnemyWithoutTower", "Skill"),
-        "Sivir Q slot/timing/direction mismatch",
+        == ("skill", 75000, 360, 26, 18, "Targeting", "EnemyWithoutTower", "Skill"),
+        "Sivir Q slot/timing/refined-AI target mismatch",
     )
     outgoing = find_effect(q, "LinearProjectile", name="lol_sivir_q_outgoing")
     check(len(outgoing) == 1, "Sivir Q must contain one outbound LinearProjectile")
@@ -3962,7 +3962,7 @@ def validate_kled_data_contract(champion: dict[str, Any]) -> None:
             skill.get("casting_type"),
             skill.get("casting_target"),
         )
-        == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion"),
+        == ("skill1", 65000, 360, 36, 8, "Targeting", "EnemyChampion"),
         "Kled Q action timing or targeting changed",
     )
     check(not find_effect(skill, "Rush"), "Kled Q must never move the caster through Rush")
@@ -7465,7 +7465,10 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
         for key, letter in (("skill", "Q"), ("skill2", "E"), ("ult", "R")):
             check(str(description.get(key, "")).startswith(letter), f"{locale} Xayah {key} must be labeled {letter}")
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("dancer", {})
-    check(style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}, "Xayah compact/card camera contract changed")
+    check(
+        style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}},
+        "Xayah compact face camera or centered battle camera changed",
+    )
     check(Image.open(MOD_ROOT / "BanPickIllust/dancer.png").size == (1420, 860), "Xayah BP splash must be 1420x860")
     check(Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").size == (64, 64), "Xayah encyclopedia portrait must be 64x64")
     rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
@@ -7941,7 +7944,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             q.get("action_name"), q.get("cooltime"), q.get("duration"), q.get("start_timing"),
             q.get("range"), q.get("casting_type"), q.get("casting_target"),
         )
-        == ("skill", 240, 30, 0, 65000, "Direction", "EnemyChampion"),
+        == ("skill", 240, 30, 0, 65000, "Targeting", "EnemyChampion"),
         "Yone Q timing, range, or targeting changed",
     )
     q_stack2 = q.get("effect", {})
@@ -8617,7 +8620,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.1", "lol_mod version must be 0.12.1")
+    check(mod_info.get("version") == "0.12.6", "lol_mod version must be 0.12.6")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.7"}],
         "lol_mod must declare base >=0.5.7",
@@ -8636,12 +8639,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.7", "stable ABI", "0.10.5", "0.10.17", "0.10.19", "0.10.20",
-                "V7", "4262x88", "3502x88",
+                "0.5.7", "repair test", "source-direct portrait",
+                "pre-tick 5v5 structure guard", "data_champion", "BP/match music",
             )
-        )
-        and "saved" in description.casefold(),
-        "mod metadata must document V7, the retained 0.10.17 UI route and the 0.10.5 saved-season floor",
+        ),
+        "mod metadata must disclose the source-direct encyclopedia route and narrow simulation guard",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -10534,7 +10536,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.1", "lol_mod version must be 0.12.1")
+    check(mod_info.get("version") == "0.12.6", "lol_mod version must be 0.12.6")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)
