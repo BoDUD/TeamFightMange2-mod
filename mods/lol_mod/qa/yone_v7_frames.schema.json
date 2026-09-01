@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teamfight-manager2.local/lol_mod/yone_v7_frames.schema.json",
+  "title": "Yone V7 dual-sword actor frame contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "route",
+    "atlas_size",
+    "palette_file",
+    "body_preview",
+    "weapon_contract",
+    "frames"
+  ],
+  "properties": {
+    "schema_version": {"const": 7},
+    "route": {"const": "dual-sword-v7"},
+    "atlas_size": {"const": [4262, 88]},
+    "palette_file": {"$ref": "#/$defs/safePngOrJsonPath"},
+    "body_preview": {"$ref": "#/$defs/safePngOrJsonPath"},
+    "weapon_contract": {"$ref": "#/$defs/weaponContract"},
+    "frames": {
+      "type": "array",
+      "minItems": 67,
+      "maxItems": 67,
+      "items": {"$ref": "#/$defs/frame"}
+    }
+  },
+  "$defs": {
+    "safePngOrJsonPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "rect": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 1},
+        {"type": "integer", "minimum": 1}
+      ],
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0},
+        {"type": "integer", "minimum": 0}
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "weaponContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "weapons",
+        "always_dual_actions",
+        "semantic_animation_tags",
+        "long_blade_overlay_policy"
+      ],
+      "properties": {
+        "version": {"const": 2},
+        "weapons": {"const": ["steel", "azakana"]},
+        "always_dual_actions": {"const": ["idle", "run"]},
+        "semantic_animation_tags": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "attack_steel",
+            "attack_azakana",
+            "skill_q12",
+            "skill_q3",
+            "skill_w_azakana",
+            "ult"
+          ],
+          "properties": {
+            "attack_steel": {"const": "steel"},
+            "attack_azakana": {"const": "azakana"},
+            "skill_q12": {"const": "steel"},
+            "skill_q3": {"const": "steel"},
+            "skill_w_azakana": {"const": "azakana"},
+            "ult": {"const": "dual"}
+          }
+        },
+        "long_blade_overlay_policy": {
+          "const": "caster-follow effects extend the active blade outside the compact actor frame"
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "index",
+        "file",
+        "rect",
+        "bottom_margin",
+        "face_bbox",
+        "eye_pixels",
+        "mask_bbox",
+        "foot_zones",
+        "face_visibility",
+        "active_weapon",
+        "weapons_present",
+        "steel_blade_bbox",
+        "azakana_blade_bbox",
+        "steel_hand_anchor",
+        "azakana_hand_anchor",
+        "steel_tip",
+        "azakana_tip",
+        "steel_span_px",
+        "azakana_span_px",
+        "steel_connectedness",
+        "azakana_connectedness",
+        "steel_pixel_count",
+        "azakana_pixel_count",
+        "steel_crop_ratio",
+        "azakana_crop_ratio",
+        "steel_source_tip_survived",
+        "azakana_source_tip_survived"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "skill2",
+            "hit",
+            "attack",
+            "skill2_dash",
+            "ult",
+            "run",
+            "skill2_attack",
+            "idle",
+            "dead",
+            "skill",
+            "attack_azakana",
+            "skill_q3"
+          ]
+        },
+        "index": {"type": "integer", "minimum": 0},
+        "file": {
+          "allOf": [
+            {"$ref": "#/$defs/safePngOrJsonPath"},
+            {"pattern": "\\.png$"}
+          ]
+        },
+        "rect": {"$ref": "#/$defs/rect"},
+        "bottom_margin": {"type": "integer", "minimum": 0},
+        "face_bbox": {
+          "oneOf": [
+            {"$ref": "#/$defs/rect"},
+            {"type": "null"}
+          ]
+        },
+        "eye_pixels": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/point"},
+          "uniqueItems": true
+        },
+        "mask_bbox": {
+          "oneOf": [
+            {"$ref": "#/$defs/rect"},
+            {"type": "null"}
+          ]
+        },
+        "foot_zones": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/rect"}
+        },
+        "face_visibility": {
+          "enum": ["front", "profile", "hidden"]
+        },
+        "active_weapon": {
+          "enum": ["steel", "azakana", "dual"]
+        },
+        "weapons_present": {
+          "const": ["steel", "azakana"]
+        },
+        "steel_blade_bbox": {"$ref": "#/$defs/rect"},
+        "azakana_blade_bbox": {"$ref": "#/$defs/rect"},
+        "steel_hand_anchor": {"$ref": "#/$defs/point"},
+        "azakana_hand_anchor": {"$ref": "#/$defs/point"},
+        "steel_tip": {"$ref": "#/$defs/point"},
+        "azakana_tip": {"$ref": "#/$defs/point"},
+        "steel_span_px": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "azakana_span_px": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "steel_connectedness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "azakana_connectedness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "steel_pixel_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "azakana_pixel_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "steel_crop_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "azakana_crop_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "steel_source_tip_survived": {"type": "boolean"},
+        "azakana_source_tip_survived": {"type": "boolean"}
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Shen image-gen prompts
 
-All eight accepted sources were generated with the built-in `image_gen` path on 2026-07-10. The requested `#ff00ff` background was removed with the installed imagegen chroma-key helper before packing.
+The original Shen source set was generated with the built-in `image_gen` path on 2026-07-10. On 2026-07-14 the second active slot was rebuilt from W into E, so the W icon/VFX sources below became inactive provenance and two new E sources replaced them. Every active Shen chroma source uses the installed imagegen background-removal helper before packing.
 
 ## Actor model contact sheet
 
@@ -14,9 +14,15 @@ Create a NEW exact 3 columns x 3 rows contact sheet containing NINE UNIQUE seque
 
 Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Twilight Assault: a teal-violet spectral spirit blade pulled through a dark indigo enemy silhouette with a diagonal slash and three energized strike marks. Centered emblem, limited palette, hard pixel clusters, strong outline, readable at 32x32, generous padding, flat `#ff00ff` chroma background. No text, frame, logo, watermark, portrait, 3D rendering, blur, or circular shield motif.
 
-## W icon
+## Superseded W icon (inactive)
 
 Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Spirit's Refuge: a circular teal-violet spirit field in slight top-down perspective protecting two allied silhouettes beneath a segmented dome while enemy weapon strikes stop at the rim. Centered protection emblem, limited palette, hard pixel clusters, strong outline, readable at 32x32, flat `#ff00ff` chroma background. No text, frame, logo, watermark, detailed portrait, sword as main motif, teleport columns, 3D rendering, or blur.
+
+## E icon (active)
+
+- Execution ID: `exec-50b58747-dec1-41d1-9494-f321d174200f`.
+- Imported target: `source/imagegen/shen_e_icon_source.png`; accepted alpha source: `source/processed/shen_e_icon_source_alpha.png`.
+- Prompt contract: a new square hard-edged pixel-art Shadow Dash icon using the accepted Shen model and Q/W/R palette references; the compact masked indigo ninja lunges horizontally with a cyan-violet spectral wake and a sharp taunt-impact ripple. Flat `#ff00ff`; no shield dome, refuge field, text, letters, UI border, duplicate body, logo, or watermark.
 
 ## R icon
 
@@ -26,9 +32,15 @@ Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Stand Unite
 
 Use case: stylized-concept. Exact 4x2 source sheet of eight sequential final-scale pixel-art phases for Twilight Assault: a compact spectral spirit blade/crescent traveling screen-right through materialize, brighten, launch, elongate, pulse, pass-through flare, taper, and dissipate. Teal/cyan/violet/white, crisp hard pixels, dark-violet edge, stable 64x64-cell footprint, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, floor, shadow, generic fireball, realistic sword, huge explosion, or soft transparency.
 
-## W VFX
+## Superseded W VFX (inactive)
 
 Use case: stylized-concept. Exact 3x2 source sheet of six sequential final-scale pixel-art phases for Spirit's Refuge: a slight top-down elliptical ground ring progressing from faint rune to growing ring, locked spectral blade segments, stable field, interception sparks, and fade. Teal/cyan/violet/white, crisp hard pixels, stable 112x64-cell footprint with empty center, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, opaque dome, teleport columns, generic circle, or soft transparency.
+
+## E Shadow Dash VFX (active)
+
+- Execution ID: `exec-7537fd9a-649e-4628-b972-8cabb7ea6505`.
+- Imported target: `source/imagegen/shen_e_vfx_contact.png`; accepted alpha source: `source/processed/shen_e_vfx_contact_alpha.png`.
+- Prompt contract: exact 3x2 effect-only contact sheet; frames 1-3 build a compact horizontal cyan-violet dash wake and frames 4-6 flash, fracture, then fade a small taunt impact. The six cells keep one scale/baseline and generous padding on flat `#ff00ff`; no actor, shield/refuge field, large ground ring, projectile arrow, labels, grid, logo, or watermark.
 
 ## R VFX
 
@@ -524,3 +536,140 @@ The first 320-pixel-detail actor/run route above is retained only as rejected pr
 - Ground Feather VFX v1: execution `exec-178182ff-7735-4228-b339-62352f37295c`; `source/imagegen/xayah_ground_feather_contact_v1.png` -> `source/processed/xayah_ground_feather_contact_v1_alpha.png`. Exact 4x2 rows for one embedded Q Feather and one five-Feather R landing fan. Runtime packing reduces them to 48x40 / 72x48, plays once, and forces the fourth frame fully transparent so the fixed 180-tick data projectile cannot leave a permanently visible ghost.
 
 All corrective chroma sources used the installed `remove_chroma_key.py` helper with border auto-key, soft matte, thresholds 12/220 and despill. Validation found transparent corners and zero visible green-dominant residue in every accepted output.
+
+# Yone V4 exact-native ImageGen replacement (rejected)
+
+The former four-plate V3 route was rejected after live card review: its face
+collapsed at the real 1x/2.2x runtime scale and its long legs approached the
+name-band divider. The following deleted files are retained here only as
+rejected provenance and must never be restored or packed:
+
+- `source/imagegen/yone_core_contact.png`
+- `source/imagegen/yone_run_contact.png`
+- `source/imagegen/yone_wr_body_contact.png`
+- `source/imagegen/yone_defeat_contact.png`
+- their four `source/processed/*_alpha.png` derivatives
+- `source/processed/yone_native_body_master.png`
+
+V4 attempted to start from a new consistent adult action contact, then authored every
+runtime body directly on its final native rectangle. There is no whole-sheet
+downscale, per-frame resize, pack-time repaint, face overlay, or V3 fallback.
+The actor builder copies each validated RGBA frame byte-for-byte into the
+runtime atlas. Live review subsequently rejected V4 as a thin, skeletal actor
+with a 7x7 unreadable face. All V4 images, generator, validator, schema and
+native frames are retired in 0.10.7 and must never be restored or published.
+
+## Yone V4 action contact
+
+- ImageGen execution: `exec-84116646-6624-4e3c-af78-2badc8a5b25a`.
+- Imported target: `source/imagegen/yone_v4_action_contact.png`.
+- Key prompt: one consistent adult-proportioned Yone in a strict 5x4 action
+  sheet, long dark hair and rear-left red Azakana mask, black/navy red-and-gold
+  Ionian clothing, readable blue-white and red swords, complete feet, and
+  distinct idle/run/attack/Q/W/R/hit/defeat silhouettes on flat magenta; no
+  text, border, watermark, duplicate actor, scenery, or cropped extremity.
+
+## Yone V4 native idle and 54-frame route
+
+- Card-critical idle source: `source/imagegen/yone_v4_idle_candidate_43x55.png`.
+- Final native manifest: `source/native/yone_v4/frames.json`.
+- Final palette contract: `source/native/yone_v4/palette.json`.
+- Final body frames: `source/native/yone_v4/frames/*.png` (54 visible frames).
+- Generator: `tools/generate_yone_v4_native.py`; validator:
+  `tools/validate_yone_v4.py`.
+- The rejected idle was exactly 43x55 with a 7x7 annotated face, distinct dark
+  eye/nose/mouth/jaw pixels, a separate rear mask, 14px native bottom margin,
+  and a 6px gap above the real 141x138 card divider after the game's 2.2x
+  nearest-neighbour route. Every action frame has hard alpha, no magenta
+  residue, at most 32 opaque palette colours, explicit foot/baseline metadata,
+  and an exact source-to-atlas byte identity check.
+
+# Yone V5 full-model rebuild (rejected history)
+
+V5 is a clean body rebuild, not a face patch over V4. It keeps the already
+accepted Q/W/R icons, effects and gameplay data unchanged while replacing all
+54 visible actor frames. The card-critical idle uses a fixed 22-role hard RGBA
+palette, a connected 8x10 skin region, a real interior eye framed by an exact
+`eye_outline` role, complete feet and an 8px gap above the real card divider.
+Every runtime body frame is written once at its final native dimensions and is
+then copied byte-for-byte into the 3502x88 atlas.
+
+Live UI review rejected this route. The card and compact UI still reused and
+enlarged the same 43x55 battle idle pixels, so the model remained sparse and
+unclear even though its native-frame, palette, face-annotation, foot-clearance
+and card-safe-area checks passed. V5 is retained below only as provenance; it
+is not an accepted visual source and must not be restored as a V6 fallback.
+
+## Yone V5 rejected source record
+
+- Golden idle source execution: `exec-243ff99f-e977-470b-a29b-b0dab435d583`;
+  `source/imagegen/yone_v5_idle_source.png` ->
+  `source/imagegen/yone_v5_idle_golden_43x55.png`.
+- Motion contact SHA-256 `f20b8a6287729b516078a986b2fe51c8fd8f8bbea6cf8aeaa83bd3174ea4cc89`;
+  imported as `source/imagegen/yone_v5_motion_contact.png`.
+- Attack/Q/W contact SHA-256 `2b0cbbe7cebe320719af33615b4324cf944398aafe008c96488aeb9884ee8de7`;
+  imported as `source/imagegen/yone_v5_attack_q_w_contact.png`.
+- Corrected Q5 SHA-256 `2c9fe1578a8b2171cca63c967d47875ee9e2b44df7ba6093b817f383134eb5e0`;
+  imported as `source/imagegen/yone_v5_q5_contact.png`.
+- R contact SHA-256 `66e6d96b6eb1365e03e42f5aac52e662535d37c2c8993a5518fa338a9243d0c4`;
+  imported as `source/imagegen/yone_v5_ult_contact.png`.
+- Final manifest: `source/native/yone_v5/frames.json`; palette:
+  `source/native/yone_v5/palette.json`; generator:
+  `tools/generate_yone_v5_native.py`; validator:
+  `tools/validate_yone_v5.py`.
+- The four stable idle frames all derive directly from the golden model. The
+  validator reconstructs the complete opaque 141x138 card, rejects fake
+  hair/border eye annotations, checks connected skin, feet and UI clearance,
+  and fails if any retired V3/V4 body path enters the repository or release
+  manifest.
+
+# Yone V6 source-direct UI and same-model native rebuild
+
+V6 starts from zero on `2026-07-20`. It does not target another champion's
+proportions. Its acceptance goal is simply a clear, non-blurry Yone identity at
+the actual display size: readable face, hair, clothing and two swords, with
+complete feet and no model deformation.
+
+The V6 presentation deliberately has two outputs from one model identity:
+
+- UI art is source-direct and high-resolution. Card and compact presentation
+  use their dedicated V6 UI source instead of enlarging the 43x55 battle idle.
+- Battle art is a separate from-zero native action rebuild using the same V6
+  face, hair, costume, body and dual-sword design across idle, motion,
+  attack/Q/W and R contacts. It keeps the official native animation canvas and
+  timing contract without treating the high-resolution UI sprite as a battle
+  frame.
+
+Current V6 source set:
+
+- `source/imagegen/yone_v6_idle_source.png`: the sole source-direct high-resolution
+  UI and V6 model-identity source. Chroma removal clears transparent RGB, then
+  proportional LANCZOS reduction, hard alpha and a 128-colour ceiling produce
+  the dedicated UI outputs.
+- `ui/champion_fullbody/dual_blader.png`: 85x93 full-body UI actor, placed 1:1
+  in the card route rather than enlarged from the battle atlas.
+- `ui/champion_portrait/dual_blader_compact.png`: 64x64 compact portrait.
+- `ui/champion_portrait/dual_blader_scoreboard.png`: 48x64 scoreboard portrait.
+- `ui/champion_portrait/dual_blader_grid.png`: 90x122 BP-grid portrait.
+- `qa/yone_v6_ui_card.png`: 141x138 card-route proof using the 85x93 full-body
+  actor at 1:1; this is QA evidence, not a substitute for an in-game screenshot.
+- `source/imagegen/yone_v6_motion_contact.png`: same-model native motion poses.
+  Hash-locked cells 0-3 are the sole native idle inputs; no 43x55 candidate
+  process image is an active or published source.
+- `source/imagegen/yone_v6_attack_q_w_contact.png`: same-model attack/Q poses.
+- `source/imagegen/yone_v6_w_contact.png`: W-only 3x2 same-model horizontal
+  cleave poses; W body motion stays separate from attack/Q source cells.
+- `source/imagegen/yone_v6_ult_contact.png`: same-model R poses.
+
+Q/W/R gameplay, VFX, icons and audio are outside this visual rebuild and remain
+unchanged. Source generation, packing and automated checks do not establish
+live acceptance. V6 remains pending user verification in BP, compact UI and an
+actual battle.
+
+## Yone V7 source-direct UI model (0.10.20)
+
+- Tool/mode: built-in ImageGen, reference-guided `exact-character-isolation and high-resolution pixel-art reconstruction`.
+- Accepted source: `source/imagegen/yone_v7_ui_source.png`.
+- Composition reference: the user's accepted compact hero-card screenshot; only its character proportions, readable head-to-body ratio, separated legs/boots and card occupancy were used. Card chrome, icons, divider and dark background were explicitly excluded.
+- Prompt contract: one centered full-body Yone on a flat magenta chroma key; readable two-eye human face, long tied navy hair and left-rear red oni mask; navy/gold/red outfit; exactly two complete hand-connected swords (silver-blue steel down-left, red Azakana down-right); both tips near boot height; distinct legs and boots; no cropped weapon, UI, text, logo, extra limb, blur, painterly rendering or 3D treatment.
+- Runtime processing: remove the magenta plate, crop the authoritative subject, apply one LANCZOS reduction per UI destination, then hard-alpha and palette-finish. The 85x93 fullbody is pasted 1:1 into `qa/yone_v7_ui_card.png`; no battle-atlas frame is enlarged.

@@ -797,13 +797,13 @@
     },
     {
       "path": "aseprite_resources/effects/xayah_e#sheet.png",
-      "size_bytes": 297280,
-      "sha256": "1635fba0808b22b6e4daee43eaa74e809d7a20a80ffdb7252a94b845b95d0538"
+      "size_bytes": 298561,
+      "sha256": "ebcc533b8adaf24125f3ae912aca5abcf8e0f5ff8b7e4e69a77f342f3677c30c"
     },
     {
       "path": "aseprite_resources/effects/xayah_e#anim.fanim",
-      "size_bytes": 3769,
-      "sha256": "e90036f8631b4851307d7a38f250907eead5722758c96c7518be185ea0ed9df1"
+      "size_bytes": 3992,
+      "sha256": "6351ef22194add19bb8a8c5ef728f8479ac54b536832678704d0a9497043efdd"
     },
     {
       "path": "aseprite_resources/effects/xayah_r#sheet.png",

@@ -4,32 +4,53 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use engine_core::assets::ImageHandle;
 use engine_core::render_state::RenderCommand;
 use game_view::{ClientDatabase, MatchUIRunner};
 use mod_api::MatchType;
 use mod_api::*;
 
 const MOD_ID: &str = "lol_mod";
+// Teamfight Manager 2 updated its runtime to base 0.5.1 on 2026-07-15, while
+// the bundled SDK still identifies itself as base 0.5.0.  The client/server
+// extension traits expose internal game_view/game_core structures whose ABI
+// is not covered by the stable Mod API version.  Calling those old extension
+// vtables during 0.5.1 Ban/Pick caused the host renderer to unwrap a missing
+// value and terminate. Require an explicit developer opt-in before registering
+// any client/server extension through the stale internal ABI. Static 0.5.1 UI
+// overrides and stable combat-native Mod API hooks remain active by default.
+const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str = "LOL_MOD_ALLOW_BASE_050_INTERNAL_EXTENSIONS";
 const DRAGON_SEED_EVENT: &str = "dragon_variant_seed";
 const DRAGON_EVENT_VERSION: &str = "v1";
 const DRAGON_TELEMETRY_ENV: &str = "LOL_QA_DRAGON_VARIANT_TELEMETRY";
 const DRAGON_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_dragon_variant_runtime_telemetry.tsv";
 const BP_TELEMETRY_PATH: &str = "ModData/lol_mod/quality_bp_runtime_telemetry.tsv";
 const BP_TELEMETRY_ROW_LIMIT: usize = 80;
+const BP_TELEMETRY_CRITICAL_ROW_LIMIT: usize = BP_TELEMETRY_ROW_LIMIT + 16;
+// Keep battle-atlas evidence independent from the noisy BP/UI geometry audit.
+// Otherwise the process-wide UI budget can be exhausted before a match starts,
+// silently hiding the exact Game Sprite frames this release needs to diagnose.
+const YONE_GAME_TELEMETRY_ROW_LIMIT: usize = 96;
 const PICK_SLOT_LIMIT: usize = 5;
 const BP_CARD_WIDTH: f32 = 284.0;
 const BP_CARD_HEIGHT: f32 = 172.0;
 const BP_CARD_EDGE_INSET: f32 = 15.0;
-const BP_CARD_TOP: f32 = 98.0;
-const BP_CARD_STEP_Y: f32 = 188.0;
+// Base 0.5.1 moved the side-pick stacks to y=60 and reduced each slot step
+// to 184px (174px slot + 10px spacing).  The 284x172 splash sits one pixel
+// inside the slot, so its first top edge is y=61.
+const BP_CARD_TOP: f32 = 61.0;
+const BP_CARD_STEP_Y: f32 = 184.0;
 const BP_NATIVE_ACTOR_WIDTH: f32 = 137.0;
 const BP_NATIVE_ACTOR_HEIGHT: f32 = 184.0;
 const BP_NATIVE_ACTOR_BLUE_X: f32 = 160.0;
 const BP_NATIVE_ACTOR_RED_INSET: f32 = 294.0;
-const BP_NATIVE_ACTOR_TOP: f32 = 87.0;
+// The native 137x184 actor begins at local y=-10 under a stack rooted at
+// y=60, yielding a global top edge of 50 on base 0.5.1.
+const BP_NATIVE_ACTOR_TOP: f32 = 50.0;
 // The native pick-complete animation briefly scales the 137x184 actor down to
 // roughly 125x147 and starts the red-side slide at x ~= 1579 on a 1920-wide
 // pass.  Keep this transition band wider than the settled card band, while
@@ -51,6 +72,19 @@ const BP_DANCER_TRANSITION_MIN_WIDTH: f32 = 80.0;
 const BP_DANCER_TRANSITION_MAX_WIDTH: f32 = 82.0;
 const BP_DANCER_TRANSITION_MIN_HEIGHT: f32 = 124.0;
 const BP_DANCER_TRANSITION_MAX_HEIGHT: f32 = 142.0;
+// Official 009 Dual Blader's native idle frame is 43x55 and the picked-side
+// surface renders it at 3x. Keep its settled 129x165 actor centre distinct
+// from both the measured 95x88 shared Ban/Pick UI command and the generic
+// 137x184 contract.
+const BP_DUAL_BLADER_ACTOR_WIDTH: f32 = 129.0;
+const BP_DUAL_BLADER_ACTOR_HEIGHT: f32 = 165.0;
+// Live 0.10.0 telemetry records Dual Blader's picked-side slide from
+// 114.4x134.1 through 129x165. These limits deliberately remain disjoint
+// from the 92..98x86..90 shared Ban/Pick portrait command below.
+const BP_DUAL_BLADER_TRANSITION_MIN_WIDTH: f32 = 112.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_WIDTH: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT: f32 = 132.0;
+const BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT: f32 = 168.0;
 const KLED_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/cavalry_knight#sheet",
     "asset/lol_mod/aseprite_resources/champions/kled#sheet",
@@ -63,11 +97,36 @@ const XAYAH_ACTOR_SHEET_TEXTURES: [&str; 2] = [
     "asset/base/aseprite_resources/champions/dancer#sheet",
     "asset/lol_mod/aseprite_resources/champions/xayah#sheet",
 ];
-const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str =
-    "asset/lol_mod/ui/champion_portrait/dancer_compact";
-const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str =
-    "asset/lol_mod/ui/champion_portrait/dancer_grid";
-const SPLASH_SPECS: [(&str, &str); 7] = [
+const XAYAH_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_compact";
+const XAYAH_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dancer_grid";
+const URGOT_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/demon_compact";
+const URGOT_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/demon_scoreboard";
+const URGOT_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/demon_grid";
+
+const YONE_ACTOR_SHEET_TEXTURES: [&str; 3] = [
+    "asset/base/aseprite_resources/champions/dual_blader#sheet",
+    "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
+    "asset/lol_mod/aseprite_resources/champions/yone#sheet",
+];
+const YONE_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dual_blader_compact";
+const YONE_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/dual_blader_scoreboard";
+const YONE_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/dual_blader_grid";
+const YONE_BP_PORTRAIT_SOURCE_HEIGHT: f32 = 122.0;
+const YONE_BP_GRID_SAMPLE_HEIGHT: f32 = 88.0;
+// The post-pick side cards reuse the same 95x88 command as the central grid,
+// but their native actors sit roughly nine logical pixels above the command
+// bottom. Keep the accepted 1:1 pixel proportions and restore that baseline.
+const YONE_ASSIGNMENT_Y_OFFSET: f32 = -9.0;
+const YONE_BP_GRID_VIEWPORT_LEFT: f32 = 335.0;
+const YONE_BP_GRID_VIEWPORT_RIGHT: f32 = 1585.0;
+const YONE_BP_GRID_VIEWPORT_TOP: f32 = 145.0;
+const YONE_BP_GRID_VIEWPORT_BOTTOM: f32 = 522.0;
+const YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_fullbody/dual_blader";
+const SPLASH_SPECS: [(&str, &str); 9] = [
     ("lol_shen", "asset/lol_mod/BanPickIllust/lol_shen"),
     ("archer", "asset/lol_mod/BanPickIllust/archer"),
     (
@@ -84,7 +143,33 @@ const SPLASH_SPECS: [(&str, &str); 7] = [
         "asset/lol_mod/BanPickIllust/cavalry_knight",
     ),
     ("dancer", "asset/lol_mod/BanPickIllust/dancer"),
+    ("demon", "asset/lol_mod/BanPickIllust/demon"),
+    ("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader"),
 ];
+const SHEN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_compact";
+const SHEN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/lol_shen_scoreboard";
+const SHEN_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/lol_shen_grid";
+const LUCIAN_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/archer_compact";
+const LUCIAN_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/archer_scoreboard";
+const LUCIAN_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/archer_grid";
+const SIVIR_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_compact";
+const SIVIR_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_scoreboard";
+const SIVIR_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/boomerang_hunter_grid";
+const ORIANNA_COMPACT_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_compact";
+const ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_scoreboard";
+const ORIANNA_BP_GRID_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/barrier_magician_grid";
+const BRIAR_COMPACT_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/berserker_compact";
+const BRIAR_SCOREBOARD_PORTRAIT_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_portrait/berserker_scoreboard";
+const BRIAR_BP_GRID_PORTRAIT_TEXTURE: &str = "asset/lol_mod/ui/champion_portrait/berserker_grid";
 
 // Elder is intentionally excluded: this feature selects one base elemental
 // drake for the whole match.  The relative names are retained for telemetry;
@@ -194,16 +279,100 @@ thread_local! {
 static DRAGON_TELEMETRY_LOCK: Mutex<()> = Mutex::new(());
 static BP_TELEMETRY_LOCK: Mutex<()> = Mutex::new(());
 static BP_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+static YONE_GAME_TELEMETRY_SEEN: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 struct LolModExtension;
 
+// The shared champion-card runner can expose the same low-resolution battle
+// idle through several UI geometries. Live 0.10.16 evidence proved that both
+// the central grid and the post-pick player-assignment phase can emit a UI
+// NinePatch at 95x88. Keep the command geometry intact, select a surface-aware
+// normalized crop from the accepted 90x122 source, and leave Game-pass Sprite
+// actors plus the independent management/compact/scoreboard routes untouched.
+// The broader client/server extension remains gated.
+struct YoneManagementCardExtension;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum YonePortraitSurface {
+    CentralBpGrid,
+    PlayerChampionAssignment,
+    Other,
+}
+
+impl YonePortraitSurface {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::CentralBpGrid => "central_bp_grid",
+            Self::PlayerChampionAssignment => "player_champion_assignment",
+            Self::Other => "other",
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+struct YonePortraitUiContext {
+    surface: YonePortraitSurface,
+    swap_visible: bool,
+    swap_phase_visible: bool,
+    champion_grid_visible: bool,
+}
+
+fn yone_ui_node_is_visible(ui: &GameUI, paths: &[&str]) -> bool {
+    paths
+        .iter()
+        .any(|path| ui.query(path).is_some_and(|node| node.visible))
+}
+
+fn detect_yone_portrait_ui_context(ui: &GameUI) -> YonePortraitUiContext {
+    // `banpick/layout.ui` keeps both surfaces under the same `main:match_ui`
+    // root. `header.swap_phase` is only a label and is not hidden by the base
+    // layout, so it is diagnostic-only. The root-level `swap` phase container
+    // (default hidden) is the authoritative assignment-stage signal.
+    let swap_visible = yone_ui_node_is_visible(ui, &["swap", "main.swap"]);
+    let swap_phase_visible = yone_ui_node_is_visible(
+        ui,
+        &["header.swap_phase", "main.header.swap_phase"],
+    );
+    let champion_grid_visible =
+        yone_ui_node_is_visible(ui, &["champions", "main.champions"]);
+    let surface = if swap_visible {
+        YonePortraitSurface::PlayerChampionAssignment
+    } else if champion_grid_visible {
+        YonePortraitSurface::CentralBpGrid
+    } else {
+        YonePortraitSurface::Other
+    };
+    YonePortraitUiContext {
+        surface,
+        swap_visible,
+        swap_phase_visible,
+        champion_grid_visible,
+    }
+}
+
+impl ModExtension for YoneManagementCardExtension {
+    fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+        sync_yone_encyclopedia_portrait(&mut ui.root);
+    }
+
+    fn post_render(&self, _scene: &Scene, ui: &GameUI, assets: &Assets, state: &mut RenderState) {
+        let context = detect_yone_portrait_ui_context(ui);
+        trace_yone_render_commands(ui, assets, state, context);
+        rewrite_yone_management_card_render_commands(state);
+        rewrite_yone_portrait_render_commands(state, context);
+    }
+}
+
 impl ModExtension for LolModExtension {
     fn post_update(&self, _scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+        // MatchUIRunner can remain mounted while the management champion list
+        // is visible.  Portrait replacement is independent from the match
+        // database, so gating it behind the `None` branch leaves the custom
+        // full-body nodes hidden and enlarges the 43x55 battle idle instead.
         if let Some(database) = match_ui_database(ui) {
             remember_database(database);
-        } else {
-            sync_encyclopedia_portraits(&mut ui.root);
         }
+        sync_encyclopedia_portraits(&mut ui.root);
 
         sync_deterministic_dragon();
     }
@@ -211,10 +380,20 @@ impl ModExtension for LolModExtension {
     fn post_render(&self, _scene: &Scene, ui: &GameUI, _assets: &Assets, state: &mut RenderState) {
         rewrite_dragon_render_commands(ui, state);
         rewrite_objective_render_text(ui, state);
-        rewrite_bp_render_commands(ui, state);
-        rewrite_kled_portrait_render_commands(state);
-        rewrite_xayah_portrait_render_commands(state);
+        rewrite_visual_commands(ui, state);
     }
+}
+
+fn rewrite_visual_commands(ui: &GameUI, state: &mut RenderState) {
+    rewrite_bp_render_commands(ui, state);
+    rewrite_kled_portrait_render_commands(state);
+    rewrite_xayah_portrait_render_commands(state);
+    rewrite_shen_lucian_portrait_render_commands(state);
+    rewrite_orianna_briar_portrait_render_commands(state);
+    rewrite_sivir_urgot_portrait_render_commands(state);
+    rewrite_yone_management_card_render_commands(state);
+    let context = detect_yone_portrait_ui_context(ui);
+    rewrite_yone_portrait_render_commands(state, context);
 }
 
 fn rewrite_kled_portrait_render_commands(state: &mut RenderState) {
@@ -244,9 +423,8 @@ fn rewrite_kled_portrait_render_commands(state: &mut RenderState) {
             // readable face there, so route only these exact UI geometries
             // to the rider-focused portrait.  Native battle frames are
             // rectangular and therefore cannot enter this branch.
-            let is_compact_square = (14.0..=52.0).contains(w)
-                && (14.0..=52.0).contains(h)
-                && (*w - *h).abs() <= 2.0;
+            let is_compact_square =
+                (14.0..=52.0).contains(w) && (14.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
             // Ban/pick grid telemetry identifies native 006 at 90x122, with
             // a small scale transition around 86x122.  Keep that full-body
             // surface distinct from the head-focused compact icon.
@@ -300,9 +478,8 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
             // Square report, scoreboard, side-list, and HUD commands receive
             // the v3 two-eye face crop.  Battle actor commands are Sprite
             // commands and cannot enter this NinePatch-only UI route.
-            let is_compact_square = (14.0..=52.0).contains(w)
-                && (14.0..=52.0).contains(h)
-                && (*w - *h).abs() <= 2.0;
+            let is_compact_square =
+                (14.0..=52.0).contains(w) && (14.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
             // Dancer's center hero-grid preview is the native 27x47 idle rect
             // rendered at 2x.  Keep this tight 54x94 geometry disjoint from
             // the telemetry-proven 81x125-141 picked-side transition; the
@@ -337,6 +514,666 @@ fn rewrite_xayah_portrait_render_commands(state: &mut RenderState) {
             *top = 0.0;
             *bottom = 0.0;
             *sample_nearest = true;
+        }
+    }
+}
+
+fn legacy_portrait_assets(texture: &str) -> Option<(&'static str, &'static str, &'static str)> {
+    match texture {
+        "asset/base/aseprite_resources/champions/lol_shen#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/lol_shen#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/shen#sheet" => Some((
+            SHEN_COMPACT_PORTRAIT_TEXTURE,
+            SHEN_SCOREBOARD_PORTRAIT_TEXTURE,
+            SHEN_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/archer#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/archer#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/lucian#sheet" => Some((
+            LUCIAN_COMPACT_PORTRAIT_TEXTURE,
+            LUCIAN_SCOREBOARD_PORTRAIT_TEXTURE,
+            LUCIAN_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/boomerang_hunter#sheet"
+        | "asset/base/aseprite_resources/champions/sivir#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/boomerang_hunter#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/sivir#sheet" => Some((
+            SIVIR_COMPACT_PORTRAIT_TEXTURE,
+            SIVIR_SCOREBOARD_PORTRAIT_TEXTURE,
+            SIVIR_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/barrier_magician#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/barrier_magician#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/orianna#sheet" => Some((
+            ORIANNA_COMPACT_PORTRAIT_TEXTURE,
+            ORIANNA_SCOREBOARD_PORTRAIT_TEXTURE,
+            ORIANNA_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/berserker#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/berserker#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/briar#sheet" => Some((
+            BRIAR_COMPACT_PORTRAIT_TEXTURE,
+            BRIAR_SCOREBOARD_PORTRAIT_TEXTURE,
+            BRIAR_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        "asset/base/aseprite_resources/champions/demon#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/demon#sheet"
+        | "asset/lol_mod/aseprite_resources/champions/urgot#sheet" => Some((
+            URGOT_COMPACT_PORTRAIT_TEXTURE,
+            URGOT_SCOREBOARD_PORTRAIT_TEXTURE,
+            URGOT_BP_GRID_PORTRAIT_TEXTURE,
+        )),
+        _ => None,
+    }
+}
+
+fn rewrite_shen_lucian_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/lol_shen#sheet")
+            || texture.contains("/shen#sheet")
+            || texture.contains("/archer#sheet")
+            || texture.contains("/lucian#sheet")
+    });
+}
+
+fn rewrite_orianna_briar_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/barrier_magician#sheet")
+            || texture.contains("/orianna#sheet")
+            || texture.contains("/berserker#sheet")
+            || texture.contains("/briar#sheet")
+    });
+}
+
+fn rewrite_sivir_urgot_portrait_render_commands(state: &mut RenderState) {
+    rewrite_legacy_portrait_render_commands(state, |texture| {
+        texture.contains("/boomerang_hunter#sheet")
+            || texture.contains("/sivir#sheet")
+            || texture.contains("/demon#sheet")
+            || texture.contains("/urgot#sheet")
+    });
+}
+
+fn rewrite_legacy_portrait_render_commands(
+    state: &mut RenderState,
+    accepts_texture: impl Fn(&str) -> bool,
+) {
+    for commands in state.commands.values_mut() {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !accepts_texture(texture) {
+                continue;
+            }
+            let Some((compact, scoreboard, grid)) = legacy_portrait_assets(texture) else {
+                continue;
+            };
+
+            // Report/scoreboard rows and the larger side-list use independent
+            // source-direct face crops. Battle actors are Sprite commands and
+            // therefore cannot enter this UI-only NinePatch route.
+            let is_scoreboard_square = (14.0..=38.0).contains(w);
+            let is_scoreboard_square =
+                is_scoreboard_square && (14.0..=38.0).contains(h) && (*w - *h).abs() <= 2.0;
+            let is_compact_square = (39.0..=52.0).contains(w);
+            let is_compact_square =
+                is_compact_square && (39.0..=52.0).contains(h) && (*w - *h).abs() <= 2.0;
+            // Most legacy actors arrive as a fixed 128px square. Urgot's new
+            // 80x64 actor atlas can also arrive as a 160x128 rectangle; both
+            // are center-preserving routes to the dedicated 90x122 grid art.
+            let is_urgot = texture.contains("/demon#sheet") || texture.contains("/urgot#sheet");
+            let is_bp_grid = (124.0..=132.0).contains(w)
+                && (124.0..=132.0).contains(h)
+                && (*w - *h).abs() <= 2.0;
+            let is_bp_grid = if is_urgot {
+                (124.0..=164.0).contains(w) && (120.0..=132.0).contains(h)
+            } else {
+                is_bp_grid
+            };
+            let replacement = if is_scoreboard_square {
+                scoreboard
+            } else if is_compact_square {
+                compact
+            } else if is_bp_grid {
+                let center_x = *x + *w * 0.5;
+                let center_y = *y + *h * 0.5;
+                *w = 90.0;
+                *h = 122.0;
+                *x = center_x - *w * 0.5;
+                *y = center_y - *h * 0.5;
+                grid
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+        }
+    }
+}
+
+fn is_yone_actor_sheet_texture(texture: &str) -> bool {
+    YONE_ACTOR_SHEET_TEXTURES.contains(&texture)
+        || texture.contains("/aseprite_resources/champions/dual_blader")
+        || texture.contains("/aseprite_resources/champions/yone")
+}
+
+#[derive(Clone, Copy)]
+struct YoneV7FrameSignature {
+    rect: (i32, i32, i32, i32),
+    inferred_action: &'static str,
+    tag_candidates: &'static str,
+    frame: usize,
+}
+
+// These are the 18 diagnostic body rectangles that distinguish the V7
+// behavior tree from the official 3502px atlas prefix. W deliberately keeps
+// both aliases because skill_w_azakana and skill2_attack share those frames;
+// RenderCommand exposes the sampled rectangle, not the animation-state name.
+const YONE_V7_DIAGNOSTIC_FRAMES: [YoneV7FrameSignature; 18] = [
+    YoneV7FrameSignature { rect: (3502, 0, 45, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 0 },
+    YoneV7FrameSignature { rect: (3548, 0, 49, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 1 },
+    YoneV7FrameSignature { rect: (3598, 0, 59, 47), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 2 },
+    YoneV7FrameSignature { rect: (3658, 0, 59, 49), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 3 },
+    YoneV7FrameSignature { rect: (3718, 0, 61, 49), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 4 },
+    YoneV7FrameSignature { rect: (3780, 0, 51, 51), inferred_action: "attack", tag_candidates: "attack_azakana", frame: 5 },
+    YoneV7FrameSignature { rect: (3832, 0, 31, 49), inferred_action: "skill", tag_candidates: "skill_q3", frame: 0 },
+    YoneV7FrameSignature { rect: (3864, 0, 31, 43), inferred_action: "skill", tag_candidates: "skill_q3", frame: 1 },
+    YoneV7FrameSignature { rect: (3896, 0, 31, 55), inferred_action: "skill", tag_candidates: "skill_q3", frame: 2 },
+    YoneV7FrameSignature { rect: (3928, 0, 71, 57), inferred_action: "skill", tag_candidates: "skill_q3", frame: 3 },
+    YoneV7FrameSignature { rect: (4000, 0, 83, 67), inferred_action: "skill", tag_candidates: "skill_q3", frame: 4 },
+    YoneV7FrameSignature { rect: (4084, 0, 85, 77), inferred_action: "skill", tag_candidates: "skill_q3", frame: 5 },
+    YoneV7FrameSignature { rect: (4170, 0, 91, 87), inferred_action: "skill", tag_candidates: "skill_q3", frame: 6 },
+    YoneV7FrameSignature { rect: (2046, 0, 31, 43), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 0 },
+    YoneV7FrameSignature { rect: (2078, 0, 31, 45), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 1 },
+    YoneV7FrameSignature { rect: (2110, 0, 59, 53), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 2 },
+    YoneV7FrameSignature { rect: (2170, 0, 59, 55), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 3 },
+    YoneV7FrameSignature { rect: (2230, 0, 57, 51), inferred_action: "skill2", tag_candidates: "skill_w_azakana|skill2_attack", frame: 4 },
+];
+
+fn yone_actor_texture_route(texture: &str) -> &'static str {
+    match texture {
+        "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet" => "active_yone_v7",
+        "asset/lol_mod/aseprite_resources/champions/yone#sheet" => "legacy_saved_data_alias",
+        "asset/base/aseprite_resources/champions/dual_blader#sheet" => "base_override_source",
+        _ => "fuzzy_yone_actor_source",
+    }
+}
+
+fn normalized_texture_rect_to_pixels(
+    x: f32,
+    y: f32,
+    width: f32,
+    height: f32,
+    atlas_width: f32,
+    atlas_height: f32,
+) -> Option<(i32, i32, i32, i32)> {
+    let normalized = x >= -0.0001
+        && y >= -0.0001
+        && width >= 0.0
+        && height >= 0.0
+        && x + width <= 1.0001
+        && y + height <= 1.0001;
+    normalized.then(|| {
+        (
+            (x * atlas_width).round() as i32,
+            (y * atlas_height).round() as i32,
+            (width * atlas_width).round() as i32,
+            (height * atlas_height).round() as i32,
+        )
+    })
+}
+
+fn infer_yone_v7_frame(
+    source_rect: (i32, i32, i32, i32),
+) -> Option<YoneV7FrameSignature> {
+    YONE_V7_DIAGNOSTIC_FRAMES
+        .iter()
+        .copied()
+        .find(|signature| signature.rect == source_rect)
+}
+
+fn is_yone_scoreboard_portrait_geometry(width: f32, height: f32) -> bool {
+    if !(14.0..=38.0).contains(&width) || !(14.0..=40.0).contains(&height) {
+        return false;
+    }
+    width >= 14.0 && height / width >= 1.15 && height / width <= 1.50
+}
+
+fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {
+    (14.0..=52.0).contains(&width)
+        && (14.0..=52.0).contains(&height)
+        && (width - height).abs() <= 2.0
+}
+
+fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {
+    // quality_bp_runtime_telemetry.tsv from 0.10.15 records the shared BP actor
+    // command as UI/NinePatch/95x88. Geometry alone cannot distinguish the
+    // central grid from the left/right player cards; position and live phase
+    // visibility are applied separately below.
+    (92.0..=98.0).contains(&width) && (86.0..=90.0).contains(&height)
+}
+
+fn is_yone_central_bp_grid_position(x: f32, y: f32, width: f32, height: f32) -> bool {
+    // banpick/layout.ui declares the central champions viewport at
+    // x=335..1585, y=145..522. Test the command centre so the 95x88 actor can
+    // never be confused with the same-sized #done actor in an edge pick card.
+    let center_x = x + width * 0.5;
+    let center_y = y + height * 0.5;
+    (YONE_BP_GRID_VIEWPORT_LEFT..=YONE_BP_GRID_VIEWPORT_RIGHT).contains(&center_x)
+        && (YONE_BP_GRID_VIEWPORT_TOP..=YONE_BP_GRID_VIEWPORT_BOTTOM).contains(&center_y)
+}
+
+fn is_yone_management_card_geometry(width: f32, height: f32) -> bool {
+    // champion_info_component/champion_slot.ui declares #icon as 85x93.
+    // RenderCommand uses that unscaled logical size even when the final
+    // screenshot is enlarged by SetImageScale. The one-pixel tolerance covers
+    // layout rounding while remaining disjoint from the live BP source
+    // command (95x88), BP side cards (129x165) and compact portraits (<=52x52).
+    (width - 85.0).abs() <= 1.0 && (height - 93.0).abs() <= 1.0
+}
+
+fn trace_yone_render_commands(
+    ui: &GameUI,
+    assets: &Assets,
+    state: &RenderState,
+    context: YonePortraitUiContext,
+) {
+    // Keep the diagnostic bounded by the existing once-per-signature writer.
+    // This records the real command variant before either default rewrite, so
+    // a live BP run can distinguish the measured 95x88 UI NinePatch source
+    // from the separate Game Sprite without dumping RenderState every frame.
+    write_bp_render_telemetry_once(
+        "yone_ui_render_hook",
+        context.surface.as_str(),
+        None,
+        "",
+        "",
+        &format!(
+            "version=0.10.20;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}",
+            ui.root.id,
+            context.surface.as_str(),
+            context.swap_visible,
+            context.swap_phase_visible,
+            context.champion_grid_visible,
+        ),
+    );
+    for (pass, commands) in &state.commands {
+        for command in commands {
+            match command {
+                RenderCommand::NinePatch {
+                    texture,
+                    texture_rect,
+                    x,
+                    y,
+                    w,
+                    h,
+                    z,
+                    sample_nearest,
+                    ..
+                } if is_yone_actor_sheet_texture(texture.as_str()) => {
+                    let is_shared_bp =
+                        pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);
+                    let central_position =
+                        is_yone_central_bp_grid_position(*x, *y, *w, *h);
+                    let route = if is_yone_management_card_geometry(*w, *h) {
+                        "management"
+                    } else if is_shared_bp && context.swap_visible {
+                        "player_assignment"
+                    } else if is_shared_bp
+                        && context.champion_grid_visible
+                        && central_position
+                    {
+                        "bp_grid"
+                    } else if is_shared_bp && context.champion_grid_visible {
+                        "bp_side_card"
+                    } else if is_shared_bp {
+                        "shared_95x88_other"
+                    } else if is_yone_scoreboard_portrait_geometry(*w, *h) {
+                        "scoreboard"
+                    } else if is_yone_compact_portrait_geometry(*w, *h) {
+                        "compact"
+                    } else {
+                        "unclassified"
+                    };
+                    write_bp_render_telemetry_once(
+                        "yone_ui_render_command",
+                        context.surface.as_str(),
+                        None,
+                        texture,
+                        "",
+                        &format!(
+                            "version=0.10.20;kind=NinePatch;pass={pass};route={route};surface={};root={};swap_visible={};champion_grid_visible={};central_position={central_position};geometry={:.0},{:.0},{:.0},{:.0};z={z};uv={:.4},{:.4},{:.4},{:.4};sample_nearest={sample_nearest}",
+                            context.surface.as_str(),
+                            ui.root.id,
+                            context.swap_visible,
+                            context.champion_grid_visible,
+                            *x,
+                            *y,
+                            *w,
+                            *h,
+                            texture_rect.x,
+                            texture_rect.y,
+                            texture_rect.w,
+                            texture_rect.h,
+                        ),
+                    );
+                }
+                RenderCommand::Sprite {
+                    texture,
+                    texture_rect,
+                    flip_x,
+                    flip_y,
+                    sample_nearest,
+                    ..
+                }
+                    if is_yone_actor_sheet_texture(texture.as_str())
+                        && pass.to_string() == "Game" =>
+                {
+                    let atlas = assets
+                        .get::<Box<dyn ImageHandle>>(texture)
+                        .map(|image| (image.width(), image.height()));
+                    let route = yone_actor_texture_route(texture);
+                    let atlas_detail = atlas.map_or_else(
+                        || "missing".to_owned(),
+                        |(width, height)| format!("{width:.0}x{height:.0}"),
+                    );
+                    write_bp_render_telemetry_once(
+                        "yone_game_sprite_atlas",
+                        context.surface.as_str(),
+                        None,
+                        texture,
+                        "",
+                        &format!(
+                            "version=0.10.20;kind=Sprite;pass={pass};surface={};root={};route={route};atlas={atlas_detail};expected_atlas=4262x88;atlas_missing={}",
+                            context.surface.as_str(),
+                            ui.root.id,
+                            atlas.is_none(),
+                        ),
+                    );
+                    let source_rect = atlas.and_then(|(atlas_width, atlas_height)| {
+                        normalized_texture_rect_to_pixels(
+                            texture_rect.x,
+                            texture_rect.y,
+                            texture_rect.w,
+                            texture_rect.h,
+                            atlas_width,
+                            atlas_height,
+                        )
+                    });
+                    if let Some(source_rect) = source_rect {
+                        let signature = infer_yone_v7_frame(source_rect);
+                        write_bp_render_telemetry_once(
+                            "yone_game_sprite_sample",
+                            context.surface.as_str(),
+                            None,
+                            texture,
+                            "",
+                            &format!(
+                                "version=0.10.20;pass={pass};route={route};atlas={atlas_detail};uv={:.6},{:.6},{:.6},{:.6};source_px={},{},{},{};inferred_action={};tag_candidates={};frame={};flip_x={flip_x};flip_y={flip_y};sample_nearest={sample_nearest};game_tick=unavailable",
+                                texture_rect.x,
+                                texture_rect.y,
+                                texture_rect.w,
+                                texture_rect.h,
+                                source_rect.0,
+                                source_rect.1,
+                                source_rect.2,
+                                source_rect.3,
+                                signature.map_or("unavailable_for_shared_frame", |row| row.inferred_action),
+                                signature.map_or("unavailable_for_shared_frame", |row| row.tag_candidates),
+                                signature.map_or_else(|| "unavailable".to_owned(), |row| row.frame.to_string()),
+                            ),
+                        );
+                        if let Some(signature) = signature {
+                            write_bp_render_telemetry_once(
+                                "yone_game_sprite_v7_frame",
+                                context.surface.as_str(),
+                                None,
+                                texture,
+                                "",
+                                &format!(
+                                    "version=0.10.20;pass={pass};route={route};atlas={atlas_detail};uv={:.6},{:.6},{:.6},{:.6};source_px={},{},{},{};inferred_action={};tag_candidates={};frame={};flip_x={flip_x};flip_y={flip_y};sample_nearest={sample_nearest};game_tick=unavailable",
+                                    texture_rect.x,
+                                    texture_rect.y,
+                                    texture_rect.w,
+                                    texture_rect.h,
+                                    signature.rect.0,
+                                    signature.rect.1,
+                                    signature.rect.2,
+                                    signature.rect.3,
+                                    signature.inferred_action,
+                                    signature.tag_candidates,
+                                    signature.frame,
+                                ),
+                            );
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+fn rewrite_yone_management_card_render_commands(state: &mut RenderState) {
+    // One deduplicated lifecycle row makes a future live failure
+    // distinguishable from a geometry miss without logging every frame.
+    write_bp_render_telemetry_once(
+        "yone_management_card_render_hook",
+        "management",
+        None,
+        "",
+        "",
+        "version=0.10.20;logical_contract=85x93",
+    );
+    for (pass, commands) in &mut state.commands {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !is_yone_actor_sheet_texture(texture.as_str()) {
+                continue;
+            }
+
+            let source = texture.clone();
+            let original_size = (*w, *h);
+            if (80.0..=90.0).contains(w) && (88.0..=98.0).contains(h) {
+                write_bp_render_telemetry_once(
+                    "yone_management_card_candidate",
+                    "management",
+                    None,
+                    &source,
+                    "",
+                    &format!(
+                        "version=0.10.20;pass={pass};logical_geometry={:.1},{:.1},{:.1},{:.1}",
+                        *x, *y, *w, *h,
+                    ),
+                );
+            }
+            if !is_yone_management_card_geometry(*w, *h) {
+                continue;
+            }
+
+            *texture = YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            texture_rect.h = 1.0;
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+
+            write_bp_render_telemetry_once(
+                "yone_management_card_replace",
+                "management",
+                None,
+                &source,
+                YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE,
+                &format!(
+                    "version=0.10.20;from_size={:.1}x{:.1};to_size={:.1}x{:.1};pass={pass};geometry_preserved=true",
+                    original_size.0, original_size.1, *w, *h,
+                ),
+            );
+        }
+    }
+}
+
+fn rewrite_yone_portrait_render_commands(
+    state: &mut RenderState,
+    context: YonePortraitUiContext,
+) {
+    for (pass, commands) in &mut state.commands {
+        for command in commands {
+            let RenderCommand::NinePatch {
+                texture,
+                texture_rect,
+                x,
+                y,
+                w,
+                h,
+                z,
+                left,
+                right,
+                top,
+                bottom,
+                sample_nearest,
+                ..
+            } = command
+            else {
+                continue;
+            };
+            if !is_yone_actor_sheet_texture(texture.as_str()) {
+                continue;
+            }
+
+            // Rectangular scoreboard rows and square compact portraits keep
+            // their original geometry. The shared Ban/Pick command is 95x88
+            // in both the central grid and the edge player cards. Distinguish
+            // the grid by its declared viewport and the assignment phase by
+            // the root-level #swap container. Never expand width or height.
+            let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);
+            let is_compact = is_yone_compact_portrait_geometry(*w, *h);
+            let is_shared_bp_geometry =
+                pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);
+            let central_position = is_yone_central_bp_grid_position(*x, *y, *w, *h);
+            let is_bp_grid = is_shared_bp_geometry
+                && !context.swap_visible
+                && context.champion_grid_visible
+                && central_position;
+            let is_assignment = is_shared_bp_geometry && context.swap_visible;
+            let is_side_card = is_shared_bp_geometry
+                && !context.swap_visible
+                && context.champion_grid_visible
+                && !central_position;
+            let source = texture.clone();
+            let original_geometry = (*x, *y, *w, *h);
+            let replacement = if is_scoreboard {
+                YONE_SCOREBOARD_PORTRAIT_TEXTURE
+            } else if is_compact {
+                YONE_COMPACT_PORTRAIT_TEXTURE
+            } else if is_bp_grid || is_assignment || is_side_card {
+                YONE_BP_GRID_PORTRAIT_TEXTURE
+            } else {
+                continue;
+            };
+
+            *texture = replacement.to_owned();
+            texture_rect.x = 0.0;
+            texture_rect.y = 0.0;
+            texture_rect.w = 1.0;
+            let sample_mode = if is_bp_grid || is_assignment || is_side_card {
+                texture_rect.h =
+                    YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT;
+                "top_88_of_122"
+            } else {
+                texture_rect.h = 1.0;
+                "full"
+            };
+            let baseline_offset = if is_assignment || is_side_card {
+                // Screenshot scale is about 1.32; -9 logical pixels restores
+                // roughly 12 screen pixels of bottom space without scaling or
+                // deforming the already accepted face, torso, legs or swords.
+                *y += YONE_ASSIGNMENT_Y_OFFSET;
+                YONE_ASSIGNMENT_Y_OFFSET
+            } else {
+                0.0
+            };
+            *left = 0.0;
+            *right = 0.0;
+            *top = 0.0;
+            *bottom = 0.0;
+            *sample_nearest = true;
+
+            let event = if is_bp_grid {
+                "yone_bp_grid_replace"
+            } else if is_assignment {
+                "yone_assignment_replace"
+            } else if is_side_card {
+                "yone_bp_side_card_replace"
+            } else if is_scoreboard {
+                "yone_scoreboard_replace"
+            } else {
+                "yone_compact_replace"
+            };
+            write_bp_render_telemetry_once(
+                event,
+                context.surface.as_str(),
+                None,
+                &source,
+                replacement,
+                &format!(
+                    "version=0.10.20;kind=NinePatch;pass={pass};route={event};surface={};from_geometry={:.0},{:.0},{:.0},{:.0};to_geometry={:.0},{:.0},{:.0},{:.0};z={z};size_mode=preserved;baseline_offset={baseline_offset:.0};sample_mode={sample_mode};uv=0,0,1,{:.6}",
+                    context.surface.as_str(),
+                    original_geometry.0,
+                    original_geometry.1,
+                    original_geometry.2,
+                    original_geometry.3,
+                    *x,
+                    *y,
+                    *w,
+                    *h,
+                    texture_rect.h,
+                ),
+            );
         }
     }
 }
@@ -711,6 +1548,8 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
         ("boomerang_hunter", "lol_fullbody_sivir"),
         ("cavalry_knight", "lol_fullbody_kled"),
         ("dancer", "lol_fullbody_xayah"),
+        ("demon", "lol_fullbody_urgot"),
+        ("dual_blader", "lol_fullbody_yone"),
     ] {
         // The live encyclopedia is nested below
         // main.top.right.champion_info; keep the shorter path for SDK fixtures.
@@ -722,6 +1561,43 @@ fn sync_encyclopedia_portraits(root: &mut Node) {
             set_visible(root, &format!("{prefix}.{portrait_node}"), true);
         }
     }
+}
+
+fn sync_yone_encyclopedia_portrait(root: &mut Node) {
+    // ChampionInfoUIRunner clones the shared champion_slot template without
+    // changing its root id to the champion id. Every card is therefore named
+    // `champion_slot`; paths ending in `.dual_blader` can never resolve. Walk
+    // the real clones and identify Yone from the fields populated by the stock
+    // runner, then toggle only that clone's two local image nodes.
+    if root.id == "champion_slot" && is_yone_management_slot(root) {
+        if let Some(icon) = root.query_mut("icon") {
+            icon.visible = false;
+        }
+        if let Some(portrait) = root.query_mut("lol_fullbody_yone") {
+            portrait.visible = true;
+        }
+    }
+    for child in &mut root.child {
+        sync_yone_encyclopedia_portrait(child);
+    }
+}
+
+fn is_yone_management_slot(slot: &Node) -> bool {
+    let by_name = slot
+        .query("name")
+        .and_then(|node| node.runner_as::<LabelRunner>())
+        .is_some_and(|runner| {
+            let text = runner.text.as_str();
+            matches!(text, "永恩" | "Yone") || text.contains("dual_blader")
+        });
+    let by_source = slot
+        .query("icon")
+        .and_then(|node| node.runner_as::<ImageRunner>())
+        .is_some_and(|runner| {
+            let source = runner.style.normal.source.as_str();
+            source.contains("dual_blader") || source.contains("/champions/yone")
+        });
+    by_name || by_source
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -791,7 +1667,7 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
         "",
         "",
         &format!(
-            "version=0.9.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
+            "version=0.12.1;root={};queried_blue={queried_blue};queried_red={queried_red};queried_delegate={queried_delegate};tree_blue={tree_blue};tree_red={tree_red};matched_passes={matched_passes};passes={}",
             ui.root.id,
             state.commands.len(),
         ),
@@ -900,7 +1776,10 @@ fn rewrite_bp_render_commands(ui: &GameUI, state: &mut RenderState) {
                 ..
             } = &mut overlay
             else {
-                unreachable!("cloned NinePatch changed variant")
+                // Never let an unexpected render-command variant unwind into
+                // the host process. The source command was a NinePatch, but
+                // an ABI mismatch must degrade to the native actor safely.
+                continue;
             };
             *texture = asset.to_owned();
             texture_rect.x = 0.0;
@@ -1062,6 +1941,16 @@ fn bp_actor_contract(champion_id: &str) -> BpActorContract {
             max_height: BP_DANCER_TRANSITION_MAX_HEIGHT,
         };
     }
+    if champion_id == "dual_blader" {
+        return BpActorContract {
+            width: BP_DUAL_BLADER_ACTOR_WIDTH,
+            height: BP_DUAL_BLADER_ACTOR_HEIGHT,
+            min_width: BP_DUAL_BLADER_TRANSITION_MIN_WIDTH,
+            max_width: BP_DUAL_BLADER_TRANSITION_MAX_WIDTH,
+            min_height: BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT,
+            max_height: BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT,
+        };
+    }
     BpActorContract {
         width: BP_NATIVE_ACTOR_WIDTH,
         height: BP_NATIVE_ACTOR_HEIGHT,
@@ -1138,7 +2027,10 @@ fn bp_geometry_is_actor_sized_near_pick_edge(
 }
 
 fn bp_slot_from_geometry(y: f32, height: f32) -> Option<usize> {
-    let raw = ((y + height * 0.5 - 60.0) / 188.0).floor();
+    // Actor variants have different heights but share the native actor
+    // centre.  Treat each 184px band beginning at the first actor top as one
+    // slot so settled and slide-transition commands resolve identically.
+    let raw = ((y + height * 0.5 - BP_NATIVE_ACTOR_TOP) / BP_CARD_STEP_Y).floor();
     if raw < 0.0 {
         return None;
     }
@@ -1170,6 +2062,8 @@ fn splash_id_from_source(source: &str) -> Option<&'static str> {
         "sivir" | "boomerang_hunter" => Some("boomerang_hunter"),
         "kled" | "cavalry_knight" => Some("cavalry_knight"),
         "xayah" | "dancer" => Some("dancer"),
+        "urgot" | "demon" => Some("demon"),
+        "yone_v7" | "yone" | "dual_blader" => Some("dual_blader"),
         _ => None,
     }
 }
@@ -1183,11 +2077,23 @@ fn write_bp_render_telemetry_once(
     detail: &str,
 ) {
     let signature = format!("{event}\t{side}\t{slot_index:?}\t{source}\t{target}\t{detail}");
-    let seen = BP_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()));
+    let is_yone_game_event = event.starts_with("yone_game_sprite_");
+    let seen = if is_yone_game_event {
+        YONE_GAME_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()))
+    } else {
+        BP_TELEMETRY_SEEN.get_or_init(|| Mutex::new(HashSet::new()))
+    };
     let Ok(mut seen) = seen.lock() else {
         return;
     };
-    if seen.len() >= BP_TELEMETRY_ROW_LIMIT || !seen.insert(signature) {
+    let row_limit = if is_yone_game_event {
+        YONE_GAME_TELEMETRY_ROW_LIMIT
+    } else if event.ends_with("_replace") {
+        BP_TELEMETRY_CRITICAL_ROW_LIMIT
+    } else {
+        BP_TELEMETRY_ROW_LIMIT
+    };
+    if seen.len() >= row_limit || !seen.insert(signature) {
         return;
     }
     drop(seen);
@@ -1296,14 +2202,8 @@ fn xayah_player_for_caster(
         let Some(champion) = player.champion() else {
             return None;
         };
-        (champion.handle() == caster_handle).then(|| {
-            (
-                player_id,
-                player.team(),
-                player.position(),
-                caster_handle,
-            )
-        })
+        (champion.handle() == caster_handle)
+            .then(|| (player_id, player.team(), player.position(), caster_handle))
     })
 }
 
@@ -1349,7 +2249,10 @@ impl ModEffectType for XayahFeatherAiStateEffect {
                 updated_tick: now,
                 expiry_tick: now,
             });
-            states.last_mut().expect("Xayah state was just inserted")
+            let Some(state) = states.last_mut() else {
+                return;
+            };
+            state
         };
         if state.expiry_tick <= now {
             state.count = 0;
@@ -1422,15 +2325,436 @@ impl ModPlayerInputAi for XayahFeatherInputGate {
         // DataActionDef has no buff-based cast predicate in Mod API 0.8.
         // Replace an empty Bladecaller decision before it reaches the action,
         // so its cooldown, cast animation, SFX and effect tree are not spent.
+        // Do not call PlayerAiContext fallback helpers here: hidden simulations
+        // can omit score state and abort while BP is transitioning into a match.
         let attack = Input::Attack { target };
-        if ctx.is_valid_input(&attack) {
-            PlayerInputDecision::Replace(attack)
-        } else if let Some(retreat) = ctx.get_run_away_without_skill_input() {
-            PlayerInputDecision::Replace(retreat)
+        PlayerInputDecision::Replace(attack)
+    }
+}
+
+const URGOT_PASSIVE_COOLDOWN_TICKS: usize = 120;
+const URGOT_PASSIVE_STATE_TTL_TICKS: usize = 3600;
+const URGOT_PASSIVE_MAX_STATES: usize = 128;
+const URGOT_PASSIVE_FLAT_DAMAGE: usize = 20;
+const URGOT_PASSIVE_ATTACK_RATIO_PERCENT: usize = 30;
+const URGOT_PASSIVE_TARGET_MAX_HP_PERCENT: usize = 2;
+const URGOT_R_EXECUTE_THRESHOLD_PERCENT: usize = 25;
+
+#[derive(Debug)]
+struct UrgotPassiveCooldown {
+    simulation_seed: u64,
+    caster_id: usize,
+    ready_tick: usize,
+    last_seen_tick: usize,
+    last_access_serial: u64,
+}
+
+static URGOT_PASSIVE_COOLDOWNS: OnceLock<Mutex<Vec<UrgotPassiveCooldown>>> = OnceLock::new();
+static URGOT_PASSIVE_ACCESS_SERIAL: AtomicU64 = AtomicU64::new(1);
+
+fn next_urgot_passive_access_serial() -> u64 {
+    URGOT_PASSIVE_ACCESS_SERIAL.fetch_add(1, Ordering::Relaxed)
+}
+
+fn urgot_passive_cooldowns() -> &'static Mutex<Vec<UrgotPassiveCooldown>> {
+    URGOT_PASSIVE_COOLDOWNS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotPassiveNativeEffect;
+
+impl ModEffectType for UrgotPassiveNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        // This native callback runs after the data-driven Attack in the same
+        // projectile payload. Reacquire both entities here: that Attack may
+        // already have killed or removed either participant through combat
+        // resolution, retaliation, or another engine-owned effect.
+        let Some((caster_attack, caster_alive)) = ctx
+            .get_entity(caster_id)
+            .map(|caster| (caster.stat().attack, caster.is_alive()))
+        else {
+            return;
+        };
+        if !caster_alive {
+            return;
+        }
+        let Some((target_max_hp, target_alive)) = ctx
+            .get_entity(target_id)
+            .map(|target| (target.hp().max, target.is_alive()))
+        else {
+            return;
+        };
+        if !target_alive || target_max_hp == 0 {
+            return;
+        }
+
+        let simulation_seed = ctx.seed();
+        let now = ctx.tick();
+        let Ok(mut cooldowns) = urgot_passive_cooldowns().lock() else {
+            return;
+        };
+        // Hidden and foreground simulations share this process but not their
+        // entity/tick domains. Persist only a simulation seed plus entity id;
+        // prune within the same seed and cap abandoned timelines with an LRU.
+        cooldowns.retain(|cooldown| {
+            cooldown.simulation_seed != simulation_seed
+                || now < cooldown.last_seen_tick
+                || now.saturating_sub(cooldown.last_seen_tick) <= URGOT_PASSIVE_STATE_TTL_TICKS
+        });
+        let access_serial = next_urgot_passive_access_serial();
+        if let Some(cooldown) = cooldowns.iter_mut().find(|cooldown| {
+            cooldown.simulation_seed == simulation_seed && cooldown.caster_id == caster_id
+        }) {
+            let timeline_restarted = now < cooldown.last_seen_tick;
+            cooldown.last_seen_tick = now;
+            cooldown.last_access_serial = access_serial;
+            if !timeline_restarted && now < cooldown.ready_tick {
+                return;
+            }
+            cooldown.ready_tick = now.saturating_add(URGOT_PASSIVE_COOLDOWN_TICKS);
         } else {
-            PlayerInputDecision::Replace(attack)
+            if cooldowns.len() >= URGOT_PASSIVE_MAX_STATES {
+                if let Some((oldest_index, _)) = cooldowns
+                    .iter()
+                    .enumerate()
+                    .min_by_key(|(_, cooldown)| cooldown.last_access_serial)
+                {
+                    cooldowns.remove(oldest_index);
+                }
+            }
+            cooldowns.push(UrgotPassiveCooldown {
+                simulation_seed,
+                caster_id,
+                ready_tick: now.saturating_add(URGOT_PASSIVE_COOLDOWN_TICKS),
+                last_seen_tick: now,
+                last_access_serial: access_serial,
+            });
+        }
+        drop(cooldowns);
+
+        let damage = URGOT_PASSIVE_FLAT_DAMAGE
+            .saturating_add(caster_attack.saturating_mul(URGOT_PASSIVE_ATTACK_RATIO_PERCENT) / 100)
+            .saturating_add(
+                target_max_hp.saturating_mul(URGOT_PASSIVE_TARGET_MAX_HP_PERCENT) / 100,
+            );
+        ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotRCheckNativeEffect;
+
+impl ModEffectType for UrgotRCheckNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some((target_hp, target_alive)) = ctx
+            .get_entity(target_id)
+            .map(|target| (target.hp(), target.is_alive()))
+        else {
+            return;
+        };
+        if !target_alive || target_hp.max == 0 {
+            return;
+        }
+        let execute_limit = target_hp
+            .max
+            .saturating_mul(URGOT_R_EXECUTE_THRESHOLD_PERCENT)
+            / 100;
+        if target_hp.current > execute_limit {
+            return;
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
+            return;
+        }
+
+        // The reel and pull are data-driven behind this short-lived marker.
+        // Targets above the execute threshold keep the chain slow but are
+        // never grabbed, matching Fear Beyond Death's recast condition.
+        let mut ready = BuffState::default();
+        let Ok(name) = "lol_urgot_r_execute_ready".try_into() else {
+            return;
+        };
+        ready.name = name;
+        ready.duration = BuffType::Time { tick: 2 };
+        ctx.add_buff(caster_id, ready);
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct UrgotRExecuteNativeEffect;
+
+impl ModEffectType for UrgotRExecuteNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        let Some((target_hp, target_shield, target_alive)) = ctx
+            .get_entity(target_id)
+            .map(|target| (target.hp(), target.shield(), target.is_alive()))
+        else {
+            return;
+        };
+        if !target_alive || target_hp.max == 0 {
+            return;
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
+            return;
+        }
+
+        // Deal enough physical damage to cross current HP and shield, then
+        // query the entity again. Undying/invulnerability therefore prevents
+        // the success marker and, in turn, prevents the execute VFX, splash
+        // damage and fear branch in demon.data_champion.
+        let lethal_damage = target_hp
+            .current
+            .saturating_add(target_shield)
+            .saturating_add(target_hp.max);
+        ctx.deal_damage(caster_id, target_id, lethal_damage, 0, AttackType::Skill);
+        let executed = ctx
+            .get_entity(target_id)
+            .is_some_and(|target| !target.is_alive());
+        if !executed {
+            return;
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
+            return;
+        }
+
+        let mut success = BuffState::default();
+        let Ok(name) = "lol_urgot_r_execute_success".try_into() else {
+            return;
+        };
+        success.name = name;
+        success.duration = BuffType::Time { tick: 2 };
+        ctx.add_buff(caster_id, success);
+    }
+}
+
+const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
+
+#[derive(Clone, Copy, Debug, Default)]
+struct ShenShadowDashAiHintNativeEffect;
+
+impl ModEffectType for ShenShadowDashAiHintNativeEffect {
+    fn apply(&self, _ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, _input: InputTarget) {}
+
+    fn expected_cc_time(&self) -> Option<usize> {
+        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct ShenShadowDashTauntNativeEffect;
+
+impl ModEffectType for ShenShadowDashTauntNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let InputTarget::Target { target_id } = input else {
+            return;
+        };
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+            || !ctx
+                .get_entity(target_id)
+                .is_some_and(|target| target.is_alive())
+        {
+            return;
+        }
+
+        ctx.apply_cc(
+            target_id,
+            CCState::Taunt {
+                tick: SHEN_SHADOW_DASH_TAUNT_TICKS,
+                target: caster_id,
+            },
+        );
+    }
+
+    fn expected_cc_time(&self) -> Option<usize> {
+        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct ShenShadowDashInputAi;
+
+impl ModPlayerInputAi for ShenShadowDashInputAi {
+    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
+        Box::new(self.clone())
+    }
+
+    fn id(&self) -> &str {
+        "lol_shen_shadow_dash_input_ai"
+    }
+
+    fn think(
+        &mut self,
+        ctx: &mut PlayerAiContext<'_, '_, '_>,
+        base_input: Option<Input>,
+    ) -> PlayerInputDecision {
+        if !matches!(ctx.champion_name(), "lol_shen" | "Shen" | "慎") {
+            return PlayerInputDecision::Pass;
+        }
+        let target = match base_input {
+            Some(Input::Skill { target }) | Some(Input::Attack { target }) => target,
+            _ => return PlayerInputDecision::Pass,
+        };
+        let shadow_dash = Input::Skill2 { target };
+        if ctx.is_valid_input(&shadow_dash) {
+            PlayerInputDecision::Replace(shadow_dash)
+        } else {
+            PlayerInputDecision::Pass
         }
     }
+}
+
+const YONE_W_RANGE: i128 = 42_000;
+const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;
+// cos(40 degrees)^2: Spirit Cleave is an 80-degree forward cone.
+const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;
+const YONE_W_FLAT_DAMAGE: usize = 35;
+const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;
+const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;
+const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;
+
+#[derive(Clone, Copy, Debug, Default)]
+struct YoneSpiritCleaveConeNativeEffect;
+
+impl ModEffectType for YoneSpiritCleaveConeNativeEffect {
+    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
+        let Some((caster_pos, caster_team, caster_attack, true)) = ctx
+            .get_entity(caster_id)
+            .map(|caster| {
+                (
+                    caster.pos(),
+                    caster.team(),
+                    caster.stat().attack,
+                    caster.is_alive(),
+                )
+            })
+        else {
+            return;
+        };
+        let (dir_x, dir_y) = match input {
+            InputTarget::Dir { dir_x, dir_y } => (i128::from(dir_x), i128::from(dir_y)),
+            InputTarget::Pos { x, y } => (
+                i128::from(x) - i128::from(caster_pos.x),
+                i128::from(y) - i128::from(caster_pos.y),
+            ),
+            InputTarget::Target { target_id } => {
+                let Some(target_pos) = ctx.get_entity(target_id).map(|target| target.pos()) else {
+                    return;
+                };
+                (
+                    i128::from(target_pos.x) - i128::from(caster_pos.x),
+                    i128::from(target_pos.y) - i128::from(caster_pos.y),
+                )
+            }
+            InputTarget::None => return,
+        };
+        if dir_x == 0 && dir_y == 0 {
+            return;
+        }
+
+        let dir_sq = dir_x * dir_x + dir_y * dir_y;
+        let mut hits: Vec<(usize, usize)> = Vec::new();
+        let mut champion_hits = 0usize;
+        for index in 0..ctx.entity_count() {
+            let Some(target) = ctx.entity_at(index) else {
+                continue;
+            };
+            let target_id = target.id();
+            if target_id == caster_id
+                || target.team() == caster_team
+                || !target.is_alive()
+                || !target.is_targetable()
+                || target.is_tower()
+            {
+                continue;
+            }
+
+            let target_pos = target.pos();
+            let dx = i128::from(target_pos.x) - i128::from(caster_pos.x);
+            let dy = i128::from(target_pos.y) - i128::from(caster_pos.y);
+            let distance_sq = dx * dx + dy * dy;
+            let hit_range = YONE_W_RANGE + target.radius() as i128;
+            if distance_sq > hit_range * hit_range {
+                continue;
+            }
+
+            let dot = dx * dir_x + dy * dir_y;
+            if dot <= 0
+                || dot * dot * YONE_W_COS_SQ_SCALE
+                    < distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE
+            {
+                continue;
+            }
+
+            let damage = YONE_W_FLAT_DAMAGE
+                .saturating_add(
+                    caster_attack.saturating_mul(YONE_W_ATTACK_RATIO_PERCENT) / 100,
+                )
+                .saturating_add(
+                    target
+                        .hp()
+                        .max
+                        .saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT)
+                        / 100,
+                );
+            champion_hits += usize::from(target.is_champion());
+            hits.push((target_id, damage));
+        }
+        if hits.is_empty() {
+            return;
+        }
+
+        // Scan first and mutate second so every target is resolved from one
+        // immutable cone snapshot. No process-global ledger means hidden and
+        // foreground GameCtx instances cannot share or steal W state.
+        for (target_id, damage) in hits {
+            ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);
+        }
+        if !ctx
+            .get_entity(caster_id)
+            .is_some_and(|caster| caster.is_alive())
+        {
+            return;
+        }
+
+        let shield_tier = champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS);
+        let marker_name = format!("lol_yone_w_shield_tier_{shield_tier}");
+        let Ok(name) = marker_name.as_str().try_into() else {
+            return;
+        };
+        let mut marker = BuffState::default();
+        marker.name = name;
+        marker.duration = BuffType::Time { tick: 3 };
+        ctx.add_buff(caster_id, marker);
+    }
+}
+
+// Saved seasons embed their champion definitions. Keep retired native names
+// resolvable so a pre-W save can enter Ban/Pick on the current runtime without
+// restoring any of the deleted E or legacy Shen behavior.
+#[derive(Clone, Copy, Debug, Default)]
+struct LegacySavedNativeCompatibilityEffect;
+
+impl ModEffectType for LegacySavedNativeCompatibilityEffect {
+    fn apply(&self, _ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, _input: InputTarget) {}
 }
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
@@ -1459,11 +2783,66 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             change: XayahFeatherStateChange::Clear,
         },
     );
+    registration.add_native_effect(
+        "lol_yone_w_cone_native",
+        YoneSpiritCleaveConeNativeEffect,
+    );
+    // 0.10.4 saves embed the retired three-stage rectangular W tree. Keep its
+    // native names resolvable for load/BP compatibility, but current saves use
+    // the stateless cone callback above and never enter these aliases.
+    registration.add_native_effect(
+        "lol_yone_w_begin_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_w_collect_hit_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_w_settle_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_start_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_begin_return_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_damage_pre_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_damage_post_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_yone_e_settle_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
     registration.add_player_input_ai(XayahFeatherInputGate);
-    registration.set_extension(LolModExtension);
-    registration.set_server_extension(LolDragonServerExtension {
-        announced: Mutex::new(HashSet::new()),
-    });
+    registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
+    registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
+    registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_ai_hint_native",
+        ShenShadowDashAiHintNativeEffect,
+    );
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_taunt_native",
+        ShenShadowDashTauntNativeEffect,
+    );
+    registration.add_player_input_ai(ShenShadowDashInputAi);
+    if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
+        registration.set_extension(LolModExtension);
+        registration.set_server_extension(LolDragonServerExtension {
+            announced: Mutex::new(HashSet::new()),
+        });
+    } else {
+        registration.set_extension(YoneManagementCardExtension);
+    }
     registration
 }
 

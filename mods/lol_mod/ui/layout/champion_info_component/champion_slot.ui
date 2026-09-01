@@ -129,6 +129,38 @@ champion_slot:color_icon_button {
     ignore_event: true;
   }
 
+  #lol_fullbody_urgot:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/demon";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
+  #lol_fullbody_yone:image {
+    width: 85px;
+    height: 93px;
+
+    pivot_y: 1;
+    y: 93px;
+
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+
+    source: "asset/lol_mod/ui/champion_fullbody/dual_blader";
+    sample_linear: false;
+    visible: false;
+    ignore_event: true;
+  }
+
   #name:label {
     @"asset/base/style/main#label";
     width: 108px;

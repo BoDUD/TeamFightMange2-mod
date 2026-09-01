@@ -1,10 +1,11 @@
 [package]
 name = "lol_mod"
-version = "0.9.1"
+version = "0.12.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+path = "src/stable_runtime.rs"
 
 [dependencies]
-# The Teamfight Manager 2 SDK injects the matching prebuilt mod_api crate.
+mod-api-stable = { path = "vendor/mod-api-stable" }

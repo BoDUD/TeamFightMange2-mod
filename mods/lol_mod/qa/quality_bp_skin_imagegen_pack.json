@@ -41,10 +41,10 @@
       },
       "runtime": {
         "path": "ui/banpick/lol_bp_timer_plate.png",
-        "size_bytes": 3673,
-        "sha256": "528bfc4606486d13f10aa6d02830087b9e0558fe724de3c11195e7a2d35c2071",
+        "size_bytes": 4457,
+        "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a",
         "dimensions": [
-          170,
+          220,
           20
         ],
         "mode": "RGBA"
@@ -102,7 +102,7 @@
         "partial_alpha_pixels": 1080
       }
     },
-    "visibility_contract": "plate replaces #timer_bar_bg inside native #timer_area; no independent always-visible root sibling"
+    "visibility_contract": "ignore-event plate is a child of native #timer_bar_bg:color and remains behind native dynamic #timer_bar; the icon overlay is nested in the native timer icon without adding a LeftToRight layout participant"
   },
   "components": {
     "imagegen_prompts": {
@@ -124,11 +124,11 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_header_chrome.png",
-          "size_bytes": 159218,
-          "sha256": "53abac7b478367442e7b6bd05525a3e1b78d6030d1d0dbc2b301fbffdf03003f",
+          "size_bytes": 86485,
+          "sha256": "c9ee352e4e2d1a1a8b9483488178bbc2341be507ccda0b111e5d4292c1142d8b",
           "dimensions": [
             1920,
-            85
+            50
           ],
           "mode": "RGBA"
         },
@@ -150,9 +150,9 @@
         "packing_method": "alpha_bbox_nine_slice_horizontal_backing_edge_defringe",
         "target_margins_px": [
           14,
-          18,
+          10,
           14,
-          18
+          10
         ],
         "runtime_safe_insets_px": [
           0,
@@ -166,8 +166,8 @@
         ],
         "edge_defringe": {
           "edge_band_px": 8,
-          "magenta_dominant_partial_pixels_before": 3819,
-          "recolored_pixels": 3819,
+          "magenta_dominant_partial_pixels_before": 1092,
+          "recolored_pixels": 1092,
           "magenta_dominant_partial_pixels_after": 0
         }
       },
@@ -184,11 +184,11 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_bottom_chrome.png",
-          "size_bytes": 222368,
-          "sha256": "8805fa3c928fb0c0abeed80ae5fa7baa34312ea356673c7d32832a8970623557",
+          "size_bytes": 148254,
+          "sha256": "c5cc7e3db07a77c877231cddabc3e68b578a7421a13fd3e7d1c5ddcc05fa350c",
           "dimensions": [
             1920,
-            150
+            100
           ],
           "mode": "RGBA"
         },
@@ -210,7 +210,7 @@
         "packing_method": "alpha_bbox_nine_slice_horizontal_backing_edge_defringe",
         "target_margins_px": [
           16,
-          12,
+          8,
           16,
           4
         ],
@@ -226,8 +226,8 @@
         ],
         "edge_defringe": {
           "edge_band_px": 8,
-          "magenta_dominant_partial_pixels_before": 3013,
-          "recolored_pixels": 3013,
+          "magenta_dominant_partial_pixels_before": 2053,
+          "recolored_pixels": 2053,
           "magenta_dominant_partial_pixels_after": 0
         }
       },
@@ -244,10 +244,10 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_champion_card_frame.png",
-          "size_bytes": 9111,
-          "sha256": "1be7c3e742c5fb3bce5ff38722a0706524971b0c5e1548150db82e28ad61cd4a",
+          "size_bytes": 10004,
+          "sha256": "d5fac6bdfa395849af7ae5c5d38ddcaf940a8e9d40aa8d379efa345bda6cf6a8",
           "dimensions": [
-            119,
+            132,
             130
           ],
           "mode": "RGBA"
@@ -291,10 +291,10 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_filter_toolbar.png",
-          "size_bytes": 34255,
-          "sha256": "a22173d171cb65cd1d4146eff41b2a350c2698f57ced2571582d42609e4b0d14",
+          "size_bytes": 34727,
+          "sha256": "84df1836dd7cae1c31759b04abcd7cfbb4a5544f386209c6432bc6faf33de2d4",
           "dimensions": [
-            1260,
+            1310,
             50
           ],
           "mode": "RGBA"
@@ -343,11 +343,11 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_champion_grid_frame.png",
-          "size_bytes": 183484,
-          "sha256": "3849533bff2d3f0b48ac7093e9231618040401350e88b13ca02618c8d49e08d1",
+          "size_bytes": 203280,
+          "sha256": "42e76c63f82f66278703e0fe903078ef74239811ac9d1b281b8508e4484bc259",
           "dimensions": [
-            1250,
-            377
+            1300,
+            570
           ],
           "mode": "RGBA"
         },
@@ -395,11 +395,11 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_stat_frame.png",
-          "size_bytes": 100793,
-          "sha256": "741508ff478eef71b5803eb8549fb1cf60aec2917ff3a4a749c56d0ac87729cf",
+          "size_bytes": 49987,
+          "sha256": "376ace7bae6c346cec1594cad1cc45197d4b0400f2eecb92671eba3595f87da9",
           "dimensions": [
-            549,
-            371
+            1300,
+            70
           ],
           "mode": "RGBA"
         },
@@ -447,11 +447,11 @@
         },
         "runtime": {
           "path": "ui/banpick/lol_bp_skill_frame.png",
-          "size_bytes": 56601,
-          "sha256": "80727bb739778f06151227cf6a48f01f71914ddf2598c5b3f9c73330233b3b44",
+          "size_bytes": 61675,
+          "sha256": "092d55000f4b8252f43ec0960bc83acac4a93f53a26a1b6c2026e3fd721bbb85",
           "dimensions": [
-            687,
-            115
+            427,
+            200
           ],
           "mode": "RGBA"
         },
@@ -541,25 +541,31 @@
     },
     "control_style": {
       "path": "style/bp_controls.style",
-      "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d"
+      "sha256": "38c3a90bc8d05efdbbc2e3507780c2fcbdbd63e493826aa4c627b338c352e80d",
+      "active_in_layout": false,
+      "reason": "base 0.5.1 native control style and interaction contract preserved"
     },
     "champion_slot": {
       "path": "ui/layout/banpick/champion_slot.ui",
-      "sha256": "346f9152e84c86705f39df0d8926f83fc62ccf40d7086dcd408a791827c478a6",
-      "native_baseline_normalized_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
-      "restored_native_sha256": "10486b077d5c89daf8bef68996ee429d950a4258a6e974af04265f55b0ad610a",
+      "sha256": "dc619d3da0ef28a65886671521ae4755cfd5dc20f94d749122450d1881ac728c",
+      "native_baseline_normalized_sha256": "25b28e532e443bcabb357ec1e223bed55a334f881d4a8a53ab24652de8174d72",
+      "restored_native_sha256": "25b28e532e443bcabb357ec1e223bed55a334f881d4a8a53ab24652de8174d72",
       "preview_safe_area": {
-        "root_dimensions": [
-          119,
+        "layout_root_dimensions": [
+          132.4444,
+          130
+        ],
+        "runtime_frame_dimensions": [
+          132,
           130
         ],
         "icon_canvas_dimensions": [
-          118,
+          131.4444,
           88
         ],
-        "top_inset_px": 4,
+        "top_inset_px": 0,
         "name_band_height_px": 38,
-        "icon_bottom_px": 92,
+        "icon_bottom_px": 88,
         "name_band_top_px": 92,
         "icon_stops_before_name_band": true,
         "frame_render_order": "before_icon_canvas",
@@ -568,20 +574,20 @@
         "frame_visible_regression_fix": true,
         "root_and_click_geometry_unchanged": true,
         "render_camera_and_actor_contract_unchanged": true,
-        "purpose": "keep tall weapons and head silhouettes below the ornate top rim without changing the 119x130 card hit target or actor animation"
+        "purpose": "draw the ornate frame behind the exact base 0.5.1 132.4444x130 card hit target without moving its native icon canvas"
       }
     },
     "chrome_safe_area": {
       "header": {
         "layout_dimensions": [
           1920,
-          85
+          50
         ],
         "target_margins_px": [
           14,
-          18,
+          10,
           14,
-          18
+          10
         ],
         "runtime_transparent_insets_px": [
           0,
@@ -591,45 +597,45 @@
         ],
         "native_control_bboxes_px": {
           "delegate": [
-            15,
-            23,
+            10,
+            5,
             300,
-            63
+            45
           ],
           "step": [
-            335,
+            310,
             0,
-            549,
-            85
+            524,
+            50
           ],
           "description": [
             418,
             0,
             1502,
-            85
+            50
           ],
           "swap_phase": [
             1371,
-            1,
+            0,
             1877,
-            84
+            50
           ]
         },
         "straight_dark_backing_under_side_controls": true,
         "full_vertical_coverage": [
           0,
-          85
+          50
         ],
         "native_header_control_geometry_unchanged": true
       },
       "bottom": {
         "layout_dimensions": [
           1920,
-          150
+          100
         ],
         "target_margins_px": [
           16,
-          12,
+          8,
           16,
           4
         ],
@@ -644,69 +650,69 @@
             0,
             0,
             300,
-            150
+            100
           ],
           "red": [
             1620,
             0,
             1920,
-            150
+            100
           ]
         },
         "native_central_control_bboxes_px": {
           "blue_name": [
-            348,
-            25,
-            770,
-            75
+            500,
+            5,
+            816,
+            35
           ],
           "blue_logo": [
-            830,
-            25,
-            900,
-            95
+            888,
+            40,
+            940,
+            92
           ],
           "red_logo": [
-            1020,
-            25,
-            1090,
-            95
+            980,
+            40,
+            1032,
+            92
           ],
           "red_name": [
-            1150,
-            25,
-            1572,
-            75
+            1104,
+            5,
+            1420,
+            35
           ],
           "blue_bans": [
-            335,
-            85,
-            651,
-            145
+            515,
+            40,
+            801,
+            94
           ],
           "red_bans": [
-            1269,
-            85,
-            1585,
-            145
+            1119,
+            40,
+            1405,
+            94
           ],
           "need_win": [
-            927,
-            34,
-            993,
-            62
+            929,
+            69,
+            991,
+            89
           ],
           "versus": [
             950,
-            65,
+            43,
             970,
-            84
+            63
           ],
           "matchup": [
-            818,
-            112,
-            1103,
-            145
+            826,
+            5,
+            1094,
+            35
           ]
         },
         "bright_side_wings_confined_to_px": {
@@ -722,25 +728,63 @@
         "straight_dark_backing_under_side_controls": true,
         "full_vertical_coverage": [
           0,
-          150
+          100
         ],
         "native_footer_control_geometry_unchanged": true
       },
       "background_asset_or_layout_rollback": false,
       "purpose": "keep generated chrome inside the viewport and behind native labels, timer, team information, and corner buttons without moving their interaction geometry"
     },
+    "side_pick_runtime_geometry": {
+      "base_version": "0.5.1",
+      "pick_list": {
+        "top_px": 60,
+        "width_px": 300,
+        "height_px": 910,
+        "slot_width_px": 300,
+        "slot_height_px": 174,
+        "slot_spacing_px": 10,
+        "slot_step_y_px": 184,
+        "slot_top_formula": "60 + 184 * slot_index"
+      },
+      "native_actor": {
+        "blue_local_x_px": 160,
+        "red_local_x_px": 6,
+        "red_global_x_formula": "map_width - 294",
+        "local_y_px": -10,
+        "width_px": 137,
+        "height_px": 184,
+        "icon_height_px": 172,
+        "global_top_formula": "50 + 184 * slot_index"
+      },
+      "dynamic_splash": {
+        "render_width_px": 284,
+        "render_height_px": 172,
+        "blue_command_x_px": 15,
+        "red_command_x_formula": "map_width - 15",
+        "red_flip_x": true,
+        "command_y_formula": "61 + 184 * slot_index",
+        "replaces_legacy_y_formula": "98 + 188 * slot_index",
+        "rewrite_bp_render_commands_requires_0_5_1_anchor_update": true
+      },
+      "derivation": "native #blue_picks/#red_picks start at y=60; five 300x174 slots use TopToBottom spacing=10. Native #done/#champion is y=-10, while the 284x172 splash stays one pixel inside each 174px card."
+    },
     "blue_pick_slot": {
       "path": "ui/layout/banpick/blue_pick_slot.ui",
-      "sha256": "3d7644b288784ed8d4c1585b10ad39bdd018ef5a8d33f412552ad82c4716805f"
+      "sha256": "cf99acf419d25e9481436e09325641380271ba1c65976a1816b8caacf8caa0ca",
+      "native_baseline_normalized_sha256": "bce47f951f8d469df30ba6daf35ee577f4a9fd01173793dcd6d8d8b9fe4e9c61",
+      "restored_native_sha256": "bce47f951f8d469df30ba6daf35ee577f4a9fd01173793dcd6d8d8b9fe4e9c61"
     },
     "red_pick_slot": {
       "path": "ui/layout/banpick/red_pick_slot.ui",
-      "sha256": "a342d2077d5aa512a8e852bb6d0227c154db14965c9c87609c446a06236e0f31"
+      "sha256": "702be1ba2d5fc4b74fab8e435d44aabd13b0461898954c1a9c379733290edd89",
+      "native_baseline_normalized_sha256": "b0f0492d2666d44d582596e965efb0a232c7576daeb2e612d61b37314be7b4c4",
+      "restored_native_sha256": "b0f0492d2666d44d582596e965efb0a232c7576daeb2e612d61b37314be7b4c4"
     },
     "contact_sheet": {
       "path": "qa/quality_bp_component_contact.png",
-      "size_bytes": 505645,
-      "sha256": "98a69d08d1892efd53bfa844f793776a2c92bdf13a4ce80fd0f58d851c29cb2d",
+      "size_bytes": 480102,
+      "sha256": "d432a8c042adda7bb4ec208402cced351eaf39e770a82d7c4c8b5c1170c722e8",
       "dimensions": [
         1200,
         800
@@ -754,16 +798,16 @@
       "source_path": "source/imagegen/ui/lol_bp_panel_frame_v1_source.png",
       "runtime_dimensions": [
         [
-          1250,
-          377
+          1300,
+          570
         ],
         [
-          549,
-          371
+          1300,
+          70
         ],
         [
-          687,
-          115
+          427,
+          200
         ]
       ],
       "alpha": "keyed exterior; low-contrast dark centre; slim 9-slice-safe frame",
@@ -778,27 +822,27 @@
           40
         ],
         [
+          220,
+          40
+        ],
+        [
           170,
           40
         ],
         [
-          164,
+          260,
           40
         ],
         [
-          248,
+          110,
           40
         ],
         [
-          108,
+          290,
           40
         ],
         [
-          285,
-          40
-        ],
-        [
-          639,
+          645,
           67
         ]
       ],
@@ -817,60 +861,90 @@
     }
   ],
   "imagegen_asset_requests": [],
+  "native_bundle": {
+    "path": "D:\\steam\\steamapps\\common\\Teamfight Manager2\\bundle.game_data",
+    "base_version": "0.5.1",
+    "layouts": {
+      "red_pick_slot": {
+        "asset_key": "asset/base/ui/layout/banpick/red_pick_slot",
+        "asset_type": "ui",
+        "raw_size_bytes": 11470,
+        "raw_sha256": "22d9b11aa578396e7fc35aec9b67b4b315a7a68bda9d4aec10d3787abb1c1148",
+        "normalized_sha256": "b0f0492d2666d44d582596e965efb0a232c7576daeb2e612d61b37314be7b4c4",
+        "line_count": 618
+      },
+      "layout": {
+        "asset_key": "asset/base/ui/layout/banpick/layout",
+        "asset_type": "ui",
+        "raw_size_bytes": 69620,
+        "raw_sha256": "3cf90d1a4ea61b3aa40a2821af969654f37f08bc60d14c70306ef286b1e40522",
+        "normalized_sha256": "4ca21b5ef930e75602428a1951a68a60fa324e5b5a2b09da1748ed2080b95a93",
+        "line_count": 3571
+      },
+      "champion_slot": {
+        "asset_key": "asset/base/ui/layout/banpick/champion_slot",
+        "asset_type": "ui",
+        "raw_size_bytes": 5700,
+        "raw_sha256": "f4de97761fe62bbcd9ab16992dd4c59e4932953f52443ed183a6e4a80af77818",
+        "normalized_sha256": "25b28e532e443bcabb357ec1e223bed55a334f881d4a8a53ab24652de8174d72",
+        "line_count": 348
+      },
+      "blue_pick_slot": {
+        "asset_key": "asset/base/ui/layout/banpick/blue_pick_slot",
+        "asset_type": "ui",
+        "raw_size_bytes": 11355,
+        "raw_sha256": "2f7267964232e1da8043ee7fa5674b64c55e0c287dd5046dd0f8a5ffdf0b9faf",
+        "normalized_sha256": "bce47f951f8d469df30ba6daf35ee577f4a9fd01173793dcd6d8d8b9fe4e9c61",
+        "line_count": 614
+      }
+    },
+    "generation_contract": "each active BP override is generated from the current bundle payload; stripping exact ignore-event decoration blocks restores the normalized native payload byte-for-byte"
+  },
   "layout": {
     "path": "ui/layout/banpick/layout.ui",
-    "sha256": "d62cff711c1c5c3bebbf0fcded689bd1f13e140de910ef8dad2ec265e32e5258",
-    "native_baseline_sha256": "992a454554179402ada48c1dda6bcae470be0f64da00cbd0e9b5308e00ee96dc",
-    "native_baseline_normalized_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
-    "restored_native_sha256": "c8e3e90310f1f72deb401a10be46bd227ef29461522826e5f041b9e608029c05",
+    "sha256": "20d6f8ef9e0239890ca7da2df51e30ac285e5cdef77c5d4db55612fee4f77750",
+    "native_baseline_sha256": "3cf90d1a4ea61b3aa40a2821af969654f37f08bc60d14c70306ef286b1e40522",
+    "native_baseline_normalized_sha256": "4ca21b5ef930e75602428a1951a68a60fa324e5b5a2b09da1748ed2080b95a93",
+    "restored_native_sha256": "4ca21b5ef930e75602428a1951a68a60fa324e5b5a2b09da1748ed2080b95a93",
     "allowed_changes": [
-      "one ignore_event image node",
-      "BP-local background/panel/border color values",
-      "BP-local style references",
-      "ImageGen timer plate/icon sources inside the native timer geometry",
-      "ignore_event component chrome overlays inside native BP nodes"
+      "ignore_event image decoration nodes only",
+      "no native node ids, types, geometry, events, visibility, text, or sources changed"
     ]
   },
   "geometry_contract": {
-    "header_85": true,
-    "bottom_150": true,
-    "blue_picks_native": true,
-    "red_picks_native": true,
-    "champion_grid_native": true,
-    "champion_info_native": true,
-    "swap_native": true,
-    "timer_area_native": true,
-    "timer_bar_native": true,
-    "champion_slot_native": true,
-    "pick_slots_native": true,
-    "skill_cards_native": true
+    "header_50": true,
+    "bottom_100": true,
+    "blue_picks_0_5_1": true,
+    "red_picks_0_5_1": true,
+    "champion_grid_0_5_1": true,
+    "champion_info_0_5_1": true,
+    "skill_cards_0_5_1": true,
+    "timer_0_5_1": true,
+    "swap_0_5_1": true,
+    "champion_slot_0_5_1": true,
+    "pick_slots_0_5_1": true
   },
   "static_checks": {
-    "runtime_dimensions_1920x1080": true,
-    "decorative_node_is_noninteractive": true,
-    "decorative_source_is_mod_local": true,
-    "decorative_source_not_champion_scan_candidate": true,
+    "bundle_is_current_base_0_5_1": true,
     "native_geometry_contract": true,
-    "bvp_runtime_nodes_absent": true,
-    "v1_background_source_removed": true,
-    "timer_plate_is_visibility_scoped": true,
-    "timer_icon_is_imagegen_asset": true,
-    "timer_runtime_dimensions": true,
-    "timer_runtime_has_alpha": true,
-    "bp_controls_use_local_style_only": true,
-    "champion_slot_override_registered": true,
-    "champion_preview_uses_safe_top_inset": true,
-    "champion_preview_stops_before_name_band": true,
-    "champion_frame_uses_proven_native_sibling_order": true,
-    "header_footer_chrome_uses_control_safe_margins_and_backing": true,
-    "header_footer_chrome_has_no_magenta_key_fringe": true,
-    "component_palette_is_lol_style": true,
+    "required_0_5_1_runtime_nodes_present": true,
+    "native_node_types_preserved": true,
+    "layout_restores_exact_native": false,
+    "champion_slot_restores_exact_native": true,
+    "blue_pick_slot_restores_exact_native": true,
+    "red_pick_slot_restores_exact_native": true,
+    "all_four_overrides_registered": false,
+    "decorative_nodes_are_noninteractive": true,
+    "native_control_styles_preserved": true,
+    "turn_outline_draws_above_side_frame": true,
+    "wait_overlay_keeps_native_order": true,
+    "timer_decoration_keeps_native_dynamic_bar": true,
     "component_imagegen_runtime_dimensions": true,
     "component_imagegen_runtime_has_alpha": true,
-    "component_overlays_are_noninteractive": true,
-    "champion_slot_restores_after_skin_delta": true,
+    "header_footer_chrome_has_no_magenta_key_fringe": true,
     "component_contact_generated": true,
-    "native_layout_restores_after_skin_delta": true,
-    "layout_override_registered": true
+    "bvp_runtime_nodes_absent": true,
+    "legacy_bp_component_overrides_disabled_for_base_0_5_1": true,
+    "legacy_bp_layout_override_disabled_for_base_0_5_1": true
   }
 }

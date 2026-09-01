@@ -1,0 +1,515 @@
+{
+  "id": "demon",
+  "category": "Melee",
+  "tags": [
+    "AD",
+    "Melee",
+    "Tank",
+    "CC"
+  ],
+  "sprite": "asset/lol_mod/aseprite_resources/champions/demon",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/lol_mod/icons/urgot_w",
+    "asset/lol_mod/icons/urgot_e",
+    "asset/lol_mod/icons/urgot_r"
+  ],
+  "stat": {
+    "attack": 100,
+    "magic_power": 0,
+    "hp": 1050,
+    "defence": 35,
+    "magic_resistance": 25,
+    "move_speed": 900,
+    "hp_regen": 3,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 18,
+    "magic_power": 0,
+    "hp": 105,
+    "defence": 7,
+    "magic_resistance": 4,
+    "move_speed": 4,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.demon.attack",
+    "duration": 28,
+    "cooltime": 72,
+    "start_timing": 14,
+    "cancelable": true,
+    "range": 40000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_urgot_attack_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "attack",
+          "tick": 28
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_urgot_attack_muzzle_visual"
+        },
+        {
+          "type": "Delayed",
+          "tick": 8,
+          "effects": [
+            {
+              "type": "TargetProjectile",
+              "speed": 7600,
+              "name": "lol_urgot_attack_projectile",
+              "y_offset": 0,
+              "applied_target": "Enemy",
+              "applied_effects": [
+                {
+                  "effect": {
+                    "type": "Combine",
+                    "effects": [
+                      {
+                        "type": "Attack",
+                        "damage": 0,
+                        "attack_ratio": 100
+                      },
+                      {
+                        "type": "Native",
+                        "effect_ref": "lol_urgot_passive_native"
+                      },
+                      {
+                        "type": "ViewEffect",
+                        "name": "lol_urgot_attack_impact_visual"
+                      },
+                      {
+                        "type": "TargetSfx",
+                        "name": "lol_urgot_attack_hit"
+                      }
+                    ]
+                  },
+                  "casting_type": "Targeting"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "skill": {
+    "action_name": "attack",
+    "description": "#asset/base/text/champion?description.demon.skill",
+    "duration": 16,
+    "cooltime": 600,
+    "start_timing": 1,
+    "cancelable": false,
+    "range": 60000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_urgot_w_cast"
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "lol_urgot_w_purge",
+            "duration": {
+              "Time": {
+                "tick": 240
+              }
+            },
+            "move_speed_mult": -12,
+            "defence": 20,
+            "magic_resistance": 10
+          }
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_urgot_w_shot"
+        },
+        {
+          "type": "Attack",
+          "damage": 96,
+          "attack_ratio": 240
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "transform",
+    "description": "#asset/base/text/champion?description.demon.skill2",
+    "duration": 30,
+    "cooltime": 420,
+    "start_timing": 4,
+    "cancelable": false,
+    "range": 45000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_urgot_e_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "transform",
+          "tick": 30
+        },
+        {
+          "type": "WithSelf",
+          "effects": [
+            {
+              "type": "Shield",
+              "amount": 160,
+              "attack_ratio": 70,
+              "ap_ratio": 0,
+              "tick": 180
+            }
+          ]
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_urgot_e_disdain_visual"
+        },
+        {
+          "type": "RushMoveToBack",
+          "speed": 4500,
+          "applied_effects": [
+            {
+              "type": "Attack",
+              "damage": 70,
+              "attack_ratio": 90
+            },
+            {
+              "type": "Knockback",
+              "speed": 2600,
+              "tick": 8
+            },
+            {
+              "type": "Airborne",
+              "duration": 60
+            },
+            {
+              "type": "ViewEffect",
+              "name": "lol_urgot_e_flip_visual"
+            },
+            {
+              "type": "TargetSfx",
+              "name": "lol_urgot_e_hit"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.demon.ult",
+    "duration": 30,
+    "cooltime": 3000,
+    "start_timing": 12,
+    "cancelable": false,
+    "range": 90000,
+    "growth_range": 0,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": false,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "RemoveCasterBuff",
+          "name": "lol_urgot_w_purge"
+        },
+        {
+          "type": "Sfx",
+          "name": "lol_urgot_r_cast"
+        },
+        {
+          "type": "CasterAnimation",
+          "name": "ult",
+          "tick": 30
+        },
+        {
+          "type": "CasterViewEffect",
+          "name": "lol_urgot_r_launch_visual"
+        },
+        {
+          "type": "LinearProjectile",
+          "penetrate": false,
+          "speed": 7000,
+          "range": 90000,
+          "name": "lol_urgot_r_chain_projectile",
+          "shape": {
+            "Circle": {
+              "radius": 10000
+            }
+          },
+          "applied_target": "EnemyChampion",
+          "applied_effects": [
+            {
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "Attack",
+                    "damage": 80,
+                    "attack_ratio": 60
+                  },
+                  {
+                    "type": "AddBuff",
+                    "buff_state": {
+                      "name": "lol_urgot_r_slow",
+                      "duration": {
+                        "Time": {
+                          "tick": 90
+                        }
+                      },
+                      "move_speed_mult": -35
+                    }
+                  },
+                  {
+                    "type": "ViewEffect",
+                    "name": "lol_urgot_r_chain_visual"
+                  },
+                  {
+                    "type": "TargetSfx",
+                    "name": "lol_urgot_r_latch"
+                  },
+                  {
+                    "type": "Delayed",
+                    "tick": 45,
+                    "effects": [
+                      {
+                        "type": "Native",
+                        "effect_ref": "lol_urgot_r_check_native"
+                      },
+                      {
+                        "type": "SwitchByBuff",
+                        "buff_name": "lol_urgot_r_execute_ready",
+                        "effect_none": {
+                          "type": "Combine",
+                          "effects": []
+                        },
+                        "effect_buff": {
+                          "type": "Combine",
+                          "effects": [
+                            {
+                              "type": "Grab",
+                              "speed": 7000,
+                              "tick": 12
+                            },
+                            {
+                              "type": "Bind",
+                              "duration": 12
+                            },
+                            {
+                              "type": "ViewEffect",
+                              "name": "lol_urgot_r_pull_visual"
+                            },
+                            {
+                              "type": "TargetSfx",
+                              "name": "lol_urgot_r_pull"
+                            },
+                            {
+                              "type": "Delayed",
+                              "tick": 12,
+                              "effects": [
+                                {
+                                  "type": "Native",
+                                  "effect_ref": "lol_urgot_r_execute_native"
+                                },
+                                {
+                                  "type": "SwitchByBuff",
+                                  "buff_name": "lol_urgot_r_execute_success",
+                                  "effect_none": {
+                                    "type": "Combine",
+                                    "effects": []
+                                  },
+                                  "effect_buff": {
+                                    "type": "Combine",
+                                    "effects": [
+                                      {
+                                        "type": "CasterViewEffect",
+                                        "name": "lol_urgot_r_execute_visual"
+                                      },
+                                      {
+                                        "type": "CasterViewEffect",
+                                        "name": "lol_urgot_r_fear_visual"
+                                      },
+                                      {
+                                        "type": "Sfx",
+                                        "name": "lol_urgot_r_execute"
+                                      },
+                                      {
+                                        "type": "Sfx",
+                                        "name": "lol_urgot_r_fear"
+                                      },
+                                      {
+                                        "type": "RangeEffect",
+                                        "shape": {
+                                          "Circle": {
+                                            "radius": 32000
+                                          }
+                                        },
+                                        "target": "EnemyChampion",
+                                        "apply_type": "AroundCaster",
+                                        "effects": [
+                                          {
+                                            "type": "Attack",
+                                            "damage": 30,
+                                            "attack_ratio": 30
+                                          },
+                                          {
+                                            "type": "Fear",
+                                            "tick": 45
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "type": "RemoveCasterBuff",
+                                        "name": "lol_urgot_r_execute_success"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "RemoveCasterBuff",
+                              "name": "lol_urgot_r_execute_ready"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "casting_type": "Targeting"
+            }
+          ],
+          "end_effects": []
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Animated",
+      "name": "lol_urgot_attack_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
+      "name": "lol_urgot_r_chain_projectile",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
+      "tag": "projectile",
+      "z": 2,
+      "repeat": true
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "lol_urgot_attack_muzzle_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "muzzle",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_attack_impact_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_attack",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_launch_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
+      "tag": "launch",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_e_disdain_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_e_disdain",
+      "tag": "shield",
+      "z": 1,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_e_flip_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_e_disdain",
+      "tag": "flip",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_chain_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
+      "tag": "latch",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_pull_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_chain",
+      "tag": "pull",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_execute_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_execute",
+      "tag": "execute",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_urgot_r_fear_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/urgot_r_execute",
+      "tag": "fear",
+      "z": 2,
+      "is_follow": true
+    }
+  ],
+  "view_buffs": []
+}

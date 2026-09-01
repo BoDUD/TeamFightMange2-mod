@@ -19,11 +19,11 @@ Encyclopedia, disabled state and selection:
 
 Cards, HUD, face, feet and motion:
 
-- [x] The corrected `face(5,-32)` crop was accepted after live review: both red eyes and the lower face are centered in the compact lineup/avatar surface, while the full selection card keeps the same model. Remaining encyclopedia/disabled/report surfaces are still covered by their separate unchecked gates below.
+- [ ] Recheck the new source-direct compact routes. The earlier `face(5,-32)` live crop remains a compatibility fallback, but 14-38px scoreboard/report commands now use `berserker_scoreboard` and 39-52px side-list/HUD commands use the independent `berserker_compact` asset. Both must show the red eyes and lower face without falling back to the packed actor.
 - [ ] Full-body/card/battle views at `center(0,-12)` show both feet completely above the crop; hair, restraint, hands and feet do not touch or disappear behind the card/HUD edge.
 - [ ] The pale face plane, separated red eyes and dark restraint remain readable at actual compact scale rather than only in the enlarged contact sheet.
 - [ ] Nine-phase source to native-eight-frame adaptation is smooth: normal `run` shows source phases 1-8, `berserk_run` shows phases 2-9, both keep eight frames and 0.640000048 seconds, and their union visibly exercises all nine unique source phases without repeated-frame stutter, sliding or size jumps.
-- [ ] Idle, normal attack, Snack, Q, E, R, hit, fall, grounded, defeated and death-fade actions keep one body, one scale and the y=46 exclusive foot baseline; the transparent terminal death frame leaves no duplicate corpse.
+- [ ] Idle, normal attack, Snack, Q, E, R, hit, fall, grounded, defeated and death-fade actions keep one body, one aspect-preserving scale and the y=46 exclusive foot baseline. Primary idle and both run tags remain 38px tall; horizontal lunge/throw poses may be shorter without x-only compression. The transparent terminal death frame leaves no duplicate corpse.
 
 Passive and basic attacks:
 
@@ -61,4 +61,4 @@ Audio and final evidence:
 - [ ] Bleed ticks do not dispatch a guessed repeating sound, and the excluded stereo three-second Snack source is not accidentally mapped.
 - [ ] Final evidence includes the forced-index-12 write, complete startup log, encyclopedia search, disabled/enabled pool state, selection screen, compact HUD/face/feet screenshots, nine-phase run capture, passive/Q/E/R combat captures and both R target-death cases.
 
-2026-07-11 avatar correction evidence is stored outside the active mod at `briar_evidence/after_fix_avatar.png` and `briar_evidence/after_fix_card.png`. The previous 96x96 Q-ring screenshot is superseded by the 2026-07-12 overhead-marker rebuild and is not acceptance evidence for the current asset. No complete all-surface/all-mechanic live pass is claimed; every unrelated box remains unchecked.
+2026-07-11 avatar correction evidence is stored outside the active mod at `briar_evidence/after_fix_avatar.png` and `briar_evidence/after_fix_card.png`, but it predates the source-direct scoreboard/side-list assets and is not current HD-surface acceptance evidence. The previous 96x96 Q-ring screenshot is superseded by the 2026-07-12 overhead-marker rebuild and is not acceptance evidence for the current asset. No complete all-surface/all-mechanic live pass is claimed; every unrelated box remains unchecked.

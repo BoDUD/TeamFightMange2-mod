@@ -1,0 +1,679 @@
+{
+  "schema_version": 1,
+  "champion": "Briar",
+  "native_id": "berserker",
+  "accepted_source": "source/processed/briar_actor_contact_alpha.png",
+  "accepted_source_sha256": "603cd8f5a153a400cbef6056699646b9a465120b457f3f6ca86975699a7973f0",
+  "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+  "skill_logic_changed": false,
+  "battle_actor": {
+    "sheet": "aseprite_resources/champions/briar#sheet.png",
+    "animation": "aseprite_resources/champions/briar#anim.fanim",
+    "uniform_xy_scale": true,
+    "x_only_compression": false,
+    "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+    "foot_baseline_exclusive_y": 45,
+    "first_idle_alpha_bbox": [
+      21,
+      7,
+      43,
+      45
+    ],
+    "face_readability": {
+      "sample_box": [
+        23,
+        7,
+        41,
+        28
+      ],
+      "opaque_pixels": 313,
+      "red_accent_pixels": 9,
+      "luminance_dynamic_range": 234.89
+    },
+    "core_actions": {
+      "idle": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            21,
+            7,
+            43,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          22,
+          22
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "berserk_idle": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            15,
+            8,
+            48,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ],
+          [
+            19,
+            8,
+            44,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          37,
+          37
+        ],
+        "visible_width_range": [
+          25,
+          33
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "run": {
+        "frame_count": 8,
+        "alpha_bboxes": [
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            48,
+            45
+          ],
+          [
+            13,
+            7,
+            51,
+            45
+          ],
+          [
+            18,
+            7,
+            45,
+            45
+          ],
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            47,
+            45
+          ],
+          [
+            18,
+            7,
+            45,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          27,
+          38
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "berserk_run": {
+        "frame_count": 8,
+        "alpha_bboxes": [
+          [
+            16,
+            7,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            48,
+            45
+          ],
+          [
+            13,
+            7,
+            51,
+            45
+          ],
+          [
+            18,
+            7,
+            45,
+            45
+          ],
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            16,
+            7,
+            47,
+            45
+          ],
+          [
+            18,
+            7,
+            45,
+            45
+          ],
+          [
+            15,
+            7,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          38,
+          38
+        ],
+        "visible_width_range": [
+          27,
+          38
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            11,
+            8,
+            53,
+            45
+          ],
+          [
+            11,
+            8,
+            53,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          37,
+          38
+        ],
+        "visible_width_range": [
+          22,
+          42
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack2": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            12,
+            10,
+            52,
+            45
+          ],
+          [
+            12,
+            10,
+            52,
+            45
+          ],
+          [
+            18,
+            8,
+            45,
+            45
+          ],
+          [
+            18,
+            8,
+            45,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          38
+        ],
+        "visible_width_range": [
+          22,
+          40
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "berserk_attack": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            15,
+            7,
+            48,
+            45
+          ],
+          [
+            11,
+            8,
+            53,
+            45
+          ],
+          [
+            12,
+            10,
+            52,
+            45
+          ],
+          [
+            18,
+            8,
+            45,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          38
+        ],
+        "visible_width_range": [
+          27,
+          42
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill1": {
+        "frame_count": 3,
+        "alpha_bboxes": [
+          [
+            19,
+            8,
+            44,
+            45
+          ],
+          [
+            19,
+            8,
+            44,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          37,
+          37
+        ],
+        "visible_width_range": [
+          25,
+          33
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill2": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            16,
+            7,
+            47,
+            45
+          ],
+          [
+            16,
+            7,
+            47,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            21,
+            7,
+            43,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          38
+        ],
+        "visible_width_range": [
+          22,
+          31
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill2_berserk": {
+        "frame_count": 4,
+        "alpha_bboxes": [
+          [
+            16,
+            7,
+            47,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          38
+        ],
+        "visible_width_range": [
+          27,
+          33
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "ult": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            18,
+            10,
+            46,
+            45
+          ],
+          [
+            18,
+            10,
+            46,
+            45
+          ],
+          [
+            12,
+            20,
+            51,
+            45
+          ],
+          [
+            12,
+            20,
+            51,
+            45
+          ],
+          [
+            15,
+            8,
+            48,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          25,
+          37
+        ],
+        "visible_width_range": [
+          28,
+          39
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "alpha_bboxes": [
+          [
+            15,
+            9,
+            49,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          36
+        ],
+        "visible_width_range": [
+          34,
+          34
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      }
+    }
+  },
+  "surfaces": {
+    "side_card": {
+      "path": "BanPickIllust/berserker.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "hard_alpha": false,
+      "opaque_pixels": 1216644,
+      "sha256": "30a6aa3eb4e842d49bb7e149e4275ae0f44563955212ab0fb0f1d7ca6bc0c408"
+    },
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/berserker.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        15,
+        2,
+        48,
+        60
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1260,
+      "sha256": "de737af5921979665e54a7155d5c9892f33db4e74af6f41ee84ee601ca877d8f"
+    },
+    "sidebar": {
+      "path": "ui/champion_portrait/berserker_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        11,
+        8,
+        53,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1538,
+      "sha256": "ad493562203d4386e691f7e71f84171a709981be341a1fe808a25ded6a07b457"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/berserker_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        7,
+        10,
+        57,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1750,
+      "sha256": "e3adc62bde3aea2dbc73bc5579e374d5077b65c6c81b250d0789577cd4b38191"
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/berserker_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        21,
+        4,
+        68,
+        86
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 2506,
+      "sha256": "9df4c9dba3a291e29a19c38c7007fc666979e512e11e8837137de95a35737960",
+      "name_band_y": 96,
+      "name_band_clearance": 10
+    }
+  },
+  "runtime_routing": {
+    "scoreboard_square_px": [
+      14,
+      38
+    ],
+    "sidebar_square_px": [
+      39,
+      52
+    ],
+    "bp_native_grid_px": [
+      124,
+      132
+    ],
+    "bp_replacement_dimensions": [
+      90,
+      122
+    ],
+    "battle_sprite_commands_untouched": true
+  }
+}

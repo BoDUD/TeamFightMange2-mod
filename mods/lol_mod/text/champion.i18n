@@ -4,9 +4,9 @@
       "lol_shen": {
         "name": "Shen",
         "attack": "Ninja Blade: Shen makes a steady melee strike for 100% Attack physical damage.",
-        "skill": "Twilight Assault: Sends the spirit blade through enemies, dealing 40 + 60% Ability Power magic damage and slowing them by 25% for 1.5 seconds. Hitting an enemy grants Shen a 120 shield for 2 seconds.",
-        "skill2": "Spirit's Refuge: Creates a defensive field around Shen. Allied champions in the field gain a 150 + 40% Ability Power shield for 2.5 seconds, while enemy champions lose 30% Attack Speed for 2 seconds.",
-        "ult": "Stand United: Targets a distant allied champion and grants a 900 + 80% Ability Power shield for 3 seconds. After 0.8 seconds Shen teleports to the ally and taunts nearby enemy champions for 0.75 seconds. The data-champion AI chooses an ally; exact lowest-health targeting is not guaranteed."
+        "skill": "Q — Twilight Assault: Recalls Shen's spirit blade and empowers his next 3 basic attacks for 8 seconds. Each empowered strike deals 20 + 20% Ability Power bonus magic damage.",
+        "skill2": "E — Shadow Dash: Dashes in the chosen direction through enemy champions. Each champion hit takes 60 physical damage and is taunted for 1.5 seconds.",
+        "ult": "R — Stand United: Shields a distant allied champion for 900 + 80% Ability Power for 3 seconds, then teleports Shen to that ally."
       },
       "archer": {
         "name": "Lucian",
@@ -49,6 +49,20 @@
         "skill": "Q — Double Daggers: Throws two piercing feathers along the chosen direction, with the second launched 0.1 seconds later. Each feather deals 25 + 45% Attack physical damage and both together add two stored Feathers, up to five. Casting prepares three Clean Cuts. Cooldown: 6 seconds.",
         "skill2": "E — Bladecaller: As its own skill2 action, sends a fast invisible direction anchor and recalls the stored Feather count along that line. One Feather uses a single return, two use a double return, and three or more use the Bladecaller cluster. Damage scales from 20 + 25% Attack to 80 + 65% Attack; only the 3/4/5-Feather branches add a 0.75-second center root against non-tower enemies. Casting consumes the count and prepares three Clean Cuts. Cooldown: 12 seconds.",
         "ult": "R — Featherstorm: Xayah gains a 1-second damage and crowd-control safety window, then sends one wide, piercing fan forward for 80 + 70% Attack physical damage. It sets the stored Feather count to five and prepares three Clean Cuts; it never recalls Feathers or triggers E automatically. Cooldown: 50 seconds. The safety window approximates LoL untargetability without removing Xayah from the battlefield."
+      },
+      "demon": {
+        "name": "Urgot",
+        "attack": "Echoing Flames: Fires a basic shot for 100% Attack physical damage. Once every 2 seconds per Urgot, the shotgun legs add 20 + 30% Attack + 2% of the target's maximum Health as physical damage.",
+        "skill": "W — Purge: Fires a stable compressed shot at one valid non-tower enemy, immediately dealing 96 + 240% Attack physical damage. Urgot then loses 12% Move Speed and gains 20 Defence and 10 Magic Resistance for 4 seconds. Cooldown: 10 seconds.",
+        "skill2": "E — Disdain: Gains a 160 + 70% Attack shield for 3 seconds, rushes behind a targeted enemy champion, deals 70 + 90% Attack physical damage, stuns for 1 second and flings the target behind him. Cooldown: 7 seconds.",
+        "ult": "R — Fear Beyond Death: Fires a non-piercing drill up to 900 range. The first enemy champion hit takes 80 + 60% Attack physical damage and is slowed by 35% for 1.5 seconds. After 0.75 seconds Urgot reels the victim in; if their current Health is 25% or lower at that moment, he executes them. Only a successful execution deals 30 + 30% Attack physical damage and fears enemy champions within 320 range for 0.75 seconds. Cooldown: 50 seconds."
+      },
+      "dual_blader": {
+        "name": "Yone",
+        "attack": "Way of the Hunter: Basic attacks alternate between the steel blade and Azakana blade, each dealing 100% Attack physical damage.",
+        "skill": "Q — Mortal Steel: Q1 and Q2 thrust forward for 25 + 80% Attack physical damage. After both hit, Q3 dashes forward, launches a tornado, and knocks enemies airborne for 0.75 seconds.",
+        "skill2": "W — Spirit Cleave: An 80° cone deals 35 + 45% Attack + 6% target max HP physical damage. Hit: gain a 1.5s, 50 + 20% Attack shield, increased by 1–5 champions hit. No attack-speed scaling; cast/cooldown: 0.5/8s.",
+        "ult": "R — Fate Sealed: Strikes seven times while moving behind the target, deals physical and fixed damage, and knocks the target airborne once. Cooldown: 50 seconds."
       }
     }
   },
@@ -57,9 +71,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎进行稳定的近战攻击，造成100%攻击力的物理伤害。",
-        "skill": "暮光斩：灵刃穿过敌人，造成40 + 60%法术强度的魔法伤害，并使其减速25%，持续1.5秒。命中敌人后，慎获得120点护盾，持续2秒。",
-        "skill2": "灵佑领域：慎在身边展开防御领域。范围内友方英雄获得150 + 40%法术强度的护盾，持续2.5秒；敌方英雄的攻击速度降低30%，持续2秒。",
-        "ult": "秘奥义！慈悲度魂落：选择一名远处友方英雄，给予900 + 80%法术强度的护盾，持续3秒。0.8秒后慎传送至其身边，并嘲讽附近敌方英雄0.75秒。数据英雄AI会选择一名友军，但不保证始终锁定最低生命值目标。"
+        "skill": "Q—奥义！暮临：召回魂刃，强化接下来3次普攻，持续8秒。每次强化额外造成20 + 20%法术强度的魔法伤害。",
+        "skill2": "E—奥义！影缚：向指定方向冲刺并穿过敌方英雄。命中的英雄受到60点物理伤害，并被嘲讽1.5秒。",
+        "ult": "R—秘奥义！慈悲度魂落：为远处友方英雄提供900 + 80%法术强度的护盾，持续3秒，随后传送至其身边。"
       },
       "archer": {
         "name": "卢锡安",
@@ -102,6 +116,20 @@
         "skill": "Q—双刃：朝指定方向投出两枚可穿透的羽刃，第二枚在0.1秒后发射。每枚造成25 + 45%攻击力的物理伤害，并使储存羽毛增加2枚，最多5枚。施放后准备三次锐切。冷却6秒。",
         "skill2": "E—倒钩：作为独立的skill2技能，先朝指定方向放出高速不可见定位投射物，再按储存羽毛数量沿该直线召回。1枚显示单羽、2枚显示双羽、3枚及以上显示倒钩羽簇；伤害从20 + 25%攻击力提高至80 + 65%攻击力，只有3/4/5枚分支会对非防御塔敌人额外产生0.75秒中心定身。施放会消耗羽毛计数并准备三次锐切。冷却12秒。",
         "ult": "R—暴风羽刃：霞获得1秒的伤害与控制防护窗口，随后向前发射一片宽阔且可穿透的羽刃扇形，造成80 + 70%攻击力的物理伤害。技能把储存羽毛设为5枚并准备三次锐切，绝不会自动召回羽毛或自动触发E。冷却50秒。防护窗口是数据系统对《英雄联盟》不可被选取效果的近似实现，霞仍留在战场上。"
+      },
+      "demon": {
+        "name": "厄加特",
+        "attack": "回响烈焰：普攻造成100%攻击力的物理伤害。每个厄加特拥有独立的2秒散弹腿冷却；就绪时额外造成20 + 30%攻击力 + 目标2%最大生命值的物理伤害。",
+        "skill": "W—净除：向一个合法的非防御塔敌人发射一次稳定的压缩射击，立即造成96 + 240%攻击力的物理伤害。随后厄加特在4秒内移动速度降低12%，护甲提高20，魔抗提高10。冷却10秒。",
+        "skill2": "E—鄙弃：获得160 + 70%攻击力的护盾，持续3秒；随后冲到目标敌方英雄身后，造成70 + 90%攻击力的物理伤害、眩晕1秒，并把目标背摔到自己身后。冷却7秒。",
+        "ult": "R—超越死亡的恐惧：发射一枚最远900距离、不可穿透的钻头。首名命中的敌方英雄受到80 + 60%攻击力的物理伤害，并被减速35%，持续1.5秒。0.75秒后将目标拉回；若此时目标当前生命值不高于25%，则真实斩杀。只有斩杀实际成功后，才会对自身320范围内敌方英雄造成30 + 30%攻击力的物理伤害并恐惧0.75秒。冷却50秒。"
+      },
+      "dual_blader": {
+        "name": "永恩",
+        "attack": "狩人之道：普攻在钢剑与亚扎卡纳之剑间交替，每次造成100%攻击力的物理伤害。",
+        "skill": "Q—错玉切：向前突刺，造成25 + 80%攻击力的物理伤害。连续命中两次后，下一次向前突进并释放旋风，将敌人击飞0.75秒。",
+        "skill2": "W—凛神斩：前方80°锥形造成35+45%攻击力+目标最大生命值6%物理伤害。命中敌人获得1.5秒50+20%攻击力护盾；英雄命中按1至5人提高。攻速缩放未实现，施法/冷却固定0.5/8秒。",
+        "ult": "R—封尘绝念斩：突进至目标身后并连续斩击七次，造成物理与固定伤害，并将目标击飞一次。冷却50秒。"
       }
     }
   },
@@ -110,9 +138,9 @@
       "lol_shen": {
         "name": "慎",
         "attack": "忍刃：慎進行穩定的近戰攻擊，造成100%攻擊力的物理傷害。",
-        "skill": "暮光斬：靈刃穿過敵人，造成40 + 60%法術強度的魔法傷害，並使其減速25%，持續1.5秒。命中敵人後，慎獲得120點護盾，持續2秒。",
-        "skill2": "靈佑領域：慎在身邊展開防禦領域。範圍內友方英雄獲得150 + 40%法術強度的護盾，持續2.5秒；敵方英雄的攻擊速度降低30%，持續2秒。",
-        "ult": "秘奧義！慈悲度魂落：選擇一名遠處友方英雄，給予900 + 80%法術強度的護盾，持續3秒。0.8秒後慎傳送至其身邊，並嘲諷附近敵方英雄0.75秒。資料英雄AI會選擇一名友軍，但不保證始終鎖定最低生命值目標。"
+        "skill": "Q—奧義！暮臨：召回魂刃，強化接下來3次普攻，持續8秒。每次強化額外造成20 + 20%法術強度的魔法傷害。",
+        "skill2": "E—奧義！影縛：向指定方向衝刺並穿過敵方英雄。命中的英雄受到60點物理傷害，並被嘲諷1.5秒。",
+        "ult": "R—秘奧義！慈悲度魂落：為遠處友方英雄提供900 + 80%法術強度的護盾，持續3秒，隨後傳送至其身邊。"
       },
       "archer": {
         "name": "路西恩",
@@ -155,11 +183,32 @@
         "skill": "Q—雙刃：朝指定方向投出兩枚可穿透的羽刃，第二枚在0.1秒後發射。每枚造成25 + 45%攻擊力的物理傷害，並使儲存羽毛增加2枚，最多5枚。施放後準備三次銳切。冷卻6秒。",
         "skill2": "E—倒鉤：作為獨立的skill2技能，先朝指定方向放出高速不可見定位投射物，再按儲存羽毛數量沿該直線召回。1枚顯示單羽、2枚顯示雙羽、3枚及以上顯示倒鉤羽簇；傷害從20 + 25%攻擊力提高至80 + 65%攻擊力，只有3/4/5枚分支會對非防禦塔敵人額外產生0.75秒中心定身。施放會消耗羽毛計數並準備三次銳切。冷卻12秒。",
         "ult": "R—暴風羽刃：剎雅獲得1秒的傷害與控制防護窗口，隨後向前發射一片寬闊且可穿透的羽刃扇形，造成80 + 70%攻擊力的物理傷害。技能把儲存羽毛設為5枚並準備三次銳切，絕不會自動召回羽毛或自動觸發E。冷卻50秒。防護窗口是資料系統對《英雄聯盟》不可被選取效果的近似實作，剎雅仍留在戰場上。"
+      },
+      "demon": {
+        "name": "厄加特",
+        "attack": "迴響烈焰：普攻造成100%攻擊力的物理傷害。每個厄加特擁有獨立的2秒散彈腿冷卻；就緒時額外造成20 + 30%攻擊力 + 目標2%最大生命值的物理傷害。",
+        "skill": "W—淨除：向一個合法的非防禦塔敵人發射一次穩定的壓縮射擊，立即造成96 + 240%攻擊力的物理傷害。隨後厄加特在4秒內移動速度降低12%，護甲提高20，魔抗提高10。冷卻10秒。",
+        "skill2": "E—鄙棄：獲得160 + 70%攻擊力的護盾，持續3秒；隨後衝到目標敵方英雄身後，造成70 + 90%攻擊力的物理傷害、暈眩1秒，並把目標背摔到自己身後。冷卻7秒。",
+        "ult": "R—超越死亡的恐懼：發射一枚最遠900距離、不可穿透的鑽頭。首名命中的敵方英雄受到80 + 60%攻擊力的物理傷害，並被減速35%，持續1.5秒。0.75秒後將目標拉回；若此時目標當前生命值不高於25%，則真正處決。只有處決實際成功後，才會對自身320範圍內敵方英雄造成30 + 30%攻擊力的物理傷害並恐懼0.75秒。冷卻50秒。"
+      },
+      "dual_blader": {
+        "name": "犽凝",
+        "attack": "狩人之道：普攻在鋼劍與亞扎卡納之劍間交替，每次造成100%攻擊力的物理傷害。",
+        "skill": "Q—錯玉切：向前突刺，造成25 + 80%攻擊力的物理傷害。連續命中兩次後，下一次向前突進並釋放旋風，將敵人擊飛0.75秒。",
+        "skill2": "W—凜神斬：前方80°錐形造成35+45%攻擊力+目標最大生命值6%物理傷害。命中敵人獲得1.5秒50+20%攻擊力護盾；英雄命中按1至5人提高。攻速縮放未實現，施法/冷卻固定0.5/8秒。",
+        "ult": "R—封塵絕念斬：突進至目標身後並連續斬擊七次，造成物理與固定傷害，並將目標擊飛一次。冷卻50秒。"
       }
     }
   },
   "ja": {
     "description": {
+      "lol_shen": {
+        "name": "シェン",
+        "attack": "忍刀：攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—護刃招来：霊剣を呼び戻し、8秒間、次の通常攻撃3回を強化する。各攻撃は20 + 魔力20%の追加魔法ダメージを与える。",
+        "skill2": "E—殺気駆け：指定方向へダッシュして敵チャンピオンを通過する。命中時に60物理ダメージを与え、1.5秒間タウントする。",
+        "ult": "R—瞬身護法：遠くの味方に900 + 魔力80%のシールドを3秒間付与し、その味方の元へテレポートする。"
+      },
       "barrier_magician": {
         "name": "オリアナ",
         "attack": "ぜんまい仕掛け：オリアナの機械弾は攻撃力100%の物理ダメージに加え、10 + 魔力15%の魔法ダメージを与える。",
@@ -194,11 +243,32 @@
         "skill": "Q—ダブルダガー：指定方向へ貫通する羽根を2枚投げ、2枚目は0.1秒後に発射する。各羽根は25 + 攻撃力45%の物理ダメージを与え、保存羽根を2枚増やして最大5枚にする。発動後はクリーンカットを3回準備する。クールダウン6秒。",
         "skill2": "E—ブレードコーラー：独立したskill2として不可視の方向アンカーを出し、保存羽根数を同じ直線で回収する。1枚は単羽、2枚は双羽、3枚以上はクラスター表示となり、ダメージは20 + 攻撃力25%から80 + 攻撃力65%まで増加する。3/4/5枚の分岐だけが中心線を0.75秒拘束する。羽根数を消費し、クリーンカットを3回準備する。クールダウン12秒。",
         "ult": "R—フェザーストーム：1秒間ダメージと妨害に対する防護を得た後、幅広い貫通羽根の扇を前方へ放ち、80 + 攻撃力70%の物理ダメージを与える。保存羽根を5枚にし、クリーンカットを3回準備する。羽根の呼び戻しやEの自動発動は行わない。クールダウン50秒。防護はLoLの対象指定不可を近似したもので、ザヤは戦場から消えない。"
+      },
+      "demon": {
+        "name": "アーゴット",
+        "attack": "エコーフレイム：通常攻撃は攻撃力100%の物理ダメージを与える。アーゴットごとに2秒のショットガン脚クールダウンを持ち、準備完了時は20 + 攻撃力30% + 対象の最大体力2%の追加物理ダメージを与える。",
+        "skill": "W—パージ：有効なタワー以外の敵1体に安定した圧縮射撃を行い、即座に96 + 攻撃力の240%の物理ダメージを与える。その後4秒間、移動速度-12%、防御+20、魔法耐性+10。クールダウン10秒。",
+        "skill2": "E—ディスデイン：3秒間160 + 攻撃力70%のシールドを得て、対象の敵チャンピオンの背後へ突進する。70 + 攻撃力90%の物理ダメージ、1秒スタンを与え、対象を自分の背後へ投げる。クールダウン7秒。",
+        "ult": "R—デスグラインダー：最大900の非貫通ドリルを撃ち、最初の敵チャンピオンへ80 + 攻撃力60%の物理ダメージと1.5秒間35%スロウを与える。0.75秒後に引き寄せ、その時点の現在体力が25%以下なら処刑する。実際に処刑できた場合のみ、周囲320の敵チャンピオンへ30 + 攻撃力30%の物理ダメージと0.75秒の恐怖を与える。クールダウン50秒。"
+      },
+      "dual_blader": {
+        "name": "ヨネ",
+        "attack": "狩人の道：通常攻撃は鋼の剣とアザカナの剣を交互に使い、攻撃力100%の物理ダメージを与える。",
+        "skill": "Q—斬命刀：前方を突き、25 + 攻撃力80%の物理ダメージを与える。2回命中すると、次は前進して旋風を放ち、敵を0.75秒ノックアップする。",
+        "skill2": "W—霊断刀：前方80°扇形に35+攻撃力45%+対象最大体力6%の物理ダメージ。命中時1.5秒、攻撃力50+20%のシールドを得て、英雄1～5体で増加。攻速比例は未実装、詠唱/クールダウンは0.5/8秒固定。",
+        "ult": "R—運命の封印：対象の背後へ移動しながら7回斬り、物理・固定ダメージを与えて一度ノックアップする。クールダウン50秒。"
       }
     }
   },
   "ko": {
     "description": {
+      "lol_shen": {
+        "name": "쉔",
+        "attack": "닌자 검: 공격력의 100%만큼 물리 피해를 입힙니다.",
+        "skill": "Q—황혼 강습: 영혼의 검을 불러와 8초 동안 다음 기본 공격 3회를 강화합니다. 각 공격은 20 + 주문력의 20%만큼 추가 마법 피해를 입힙니다.",
+        "skill2": "E—그림자 돌진: 지정 방향으로 돌진해 적 챔피언을 통과합니다. 적중 시 60의 물리 피해를 입히고 1.5초 동안 도발합니다.",
+        "ult": "R—단결된 의지: 멀리 있는 아군에게 3초 동안 900 + 주문력의 80%만큼 보호막을 부여한 뒤 해당 아군에게 순간이동합니다."
+      },
       "barrier_magician": {
         "name": "오리아나",
         "attack": "시계태엽 감기: 오리아나의 기계 탄환이 공격력의 100%만큼 물리 피해를 입히고 10 + 주문력의 15%만큼 추가 마법 피해를 입힙니다.",
@@ -233,6 +303,20 @@
         "skill": "Q—깃털 연타: 지정 방향으로 관통 깃털 2개를 던지며 두 번째 깃털은 0.1초 뒤 발사됩니다. 각 깃털은 25 + 공격력의 45%만큼 물리 피해를 입히고 저장된 깃털을 2개 늘려 최대 5개로 만듭니다. 사용 후 관통상 3회를 준비합니다. 재사용 대기시간은 6초입니다.",
         "skill2": "E—깃부르미: 독립된 skill2로 보이지 않는 방향 기준점을 보내고 저장된 깃털 수를 같은 직선으로 회수합니다. 1개는 단일, 2개는 이중, 3개 이상은 깃털 무리로 표시되며 피해는 20 + 공격력의 25%에서 80 + 공격력의 65%까지 증가합니다. 3/4/5개 분기만 중심선을 0.75초 속박합니다. 깃털 수를 소모하고 관통상 3회를 준비합니다. 재사용 대기시간은 12초입니다.",
         "ult": "R—저항의 비상: 1초 동안 피해와 군중 제어 방호를 얻은 뒤 넓고 관통하는 깃털 부채를 전방으로 발사해 80 + 공격력의 70%만큼 물리 피해를 입힙니다. 저장 깃털을 5개로 만들고 관통상 3회를 준비하며, 깃털 회수나 E를 자동으로 발동하지 않습니다. 재사용 대기시간은 50초입니다. 방호 창은 LoL의 대상 지정 불가를 근사하며 자야는 전장에서 사라지지 않습니다."
+      },
+      "demon": {
+        "name": "우르곳",
+        "attack": "메아리치는 불꽃: 기본 공격으로 공격력의 100%만큼 물리 피해를 입힙니다. 우르곳마다 2초의 산탄포 다리 재사용 대기시간이 있으며, 준비되면 20 + 공격력의 30% + 대상 최대 체력의 2%만큼 추가 물리 피해를 입힙니다.",
+        "skill": "W—심판의 원: 유효한 포탑이 아닌 적 하나에게 안정적인 압축 사격을 가해 즉시 96 + 공격력의 240%만큼 물리 피해를 입힙니다. 이후 4초 동안 이동 속도가 12% 감소하고 방어력 20과 마법 저항력 10을 얻습니다. 재사용 대기시간 10초입니다.",
+        "skill2": "E—경멸: 3초 동안 160 + 공격력의 70%만큼 보호막을 얻고 대상 적 챔피언의 뒤로 돌진합니다. 70 + 공격력의 90%만큼 물리 피해와 1초 기절을 주고 대상을 자신의 뒤로 넘깁니다. 재사용 대기시간 7초입니다.",
+        "ult": "R—불사의 공포: 최대 900 사거리의 비관통 드릴을 발사합니다. 처음 적중한 적 챔피언에게 80 + 공격력의 60%만큼 물리 피해를 주고 1.5초 동안 35% 둔화시킵니다. 0.75초 후 끌어당기며 현재 체력이 25% 이하라면 처형합니다. 실제 처형에 성공한 경우에만 주변 320의 적 챔피언에게 30 + 공격력의 30%만큼 물리 피해와 0.75초 공포를 줍니다. 재사용 대기시간 50초입니다."
+      },
+      "dual_blader": {
+        "name": "요네",
+        "attack": "사냥꾼의 길: 기본 공격은 강철검과 아자카나 검을 번갈아 사용하며 공격력의 100%만큼 물리 피해를 줍니다.",
+        "skill": "Q—필멸의 검: 전방을 찔러 25 + 공격력의 80%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 전진하며 회오리를 날려 적을 0.75초 띄웁니다.",
+        "skill2": "W—영혼 가르기: 전방 80° 부채꼴에 35+공격력 45%+대상 최대 체력 6% 물리 피해. 적중 시 1.5초 동안 공격력 50+20% 보호막을 얻고 영웅 1~5명에 따라 증가합니다. 공속 비례는 미구현이며 시전/쿨다운은 0.5/8초 고정입니다.",
+        "ult": "R—운명봉인: 대상 뒤로 이동하며 일곱 번 베어 물리 및 고정 피해를 주고 한 번 공중에 띄웁니다. 재사용 대기시간은 50초입니다."
       }
     }
   }

@@ -16,7 +16,12 @@ import wave
 from PIL import Image, ImageDraw
 
 from build_kled import build_all as build_kled_assets
+from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
+from build_yone import build_all as build_yone_assets
+from qa_legacy_battle_actor_scale import (
+    build_all as build_legacy_battle_actor_scale_qa,
+)
 
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +31,7 @@ EFFECT_DIR = MOD_ROOT / "aseprite_resources" / "effects"
 ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
 CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
+CHAMPION_PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
@@ -46,12 +52,12 @@ ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
 ICON_SOURCES = {
     "shen_skill.png": SOURCE / "shen_q_icon_source_alpha.png",
-    "shen_skill2.png": SOURCE / "shen_w_icon_source_alpha.png",
+    "shen_skill2.png": SOURCE / "shen_e_icon_source_alpha.png",
     "shen_ult.png": SOURCE / "shen_r_icon_source_alpha.png",
 }
 VFX_SOURCES = {
     "shen_q": (SOURCE / "shen_q_vfx_contact_alpha.png", 4, 2, (64, 64), (58, 48)),
-    "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 30)),
+    "shen_e": (SOURCE / "shen_e_vfx_contact_alpha.png", 3, 2, (96, 64), (88, 40)),
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
@@ -146,6 +152,28 @@ SIVIR_ACTOR_KEEP_BOXES: list[tuple[int, int, int, int]] = [
     (640, 915, 875, 1160),
     (885, 925, 1175, 1160),
 ]
+
+# Battle actors are sized independently from source-direct UI portraits.  The
+# five legacy 64x64 atlases previously drifted into a 38-44px scale class even
+# though their occupied native actors and the accepted Yone/Kled references
+# sit mostly in the mid/high 30s.  Keep explicit per-champion targets: weapons,
+# hair and body proportions differ too much for one roster-wide multiplier.
+SHEN_BATTLE_IDLE_HEIGHT = 36
+SHEN_BATTLE_FOOT_BASELINE = 45
+SHEN_BATTLE_MAX_SIZE = (40, 38)
+LUCIAN_BATTLE_IDLE_HEIGHT = 36
+LUCIAN_BATTLE_FOOT_BASELINE = 45
+LUCIAN_BATTLE_MAX_SIZE = (36, 40)
+ORIANNA_BATTLE_IDLE_HEIGHT = 36
+ORIANNA_BATTLE_FOOT_BASELINE = 42
+ORIANNA_BATTLE_MAX_SIZE = (36, 36)
+BRIAR_BATTLE_IDLE_HEIGHT = 38
+BRIAR_BATTLE_FOOT_BASELINE = 45
+BRIAR_BATTLE_MAX_SIZE = (42, 40)
+SIVIR_BATTLE_IDLE_HEIGHT = 36
+SIVIR_BATTLE_FOOT_BASELINE = 45
+SIVIR_BATTLE_MAX_SIZE = (44, 38)
+
 CHAMPION_FULLBODY_SHEETS = {
     "lol_shen": ACTOR_DIR / "shen#sheet.png",
     "archer": ACTOR_DIR / "lucian#sheet.png",
@@ -154,6 +182,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
     "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
     "dancer": ACTOR_DIR / "xayah#sheet.png",
+    "dual_blader": ACTOR_DIR / "yone_v7#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -246,15 +275,248 @@ def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]
     ]
 
 
+def render_source_direct_ui_subject(
+    source: Image.Image,
+    size: tuple[int, int],
+    *,
+    max_subject: tuple[int, int],
+    bottom: int,
+    colors: int,
+) -> Image.Image:
+    """Render a UI surface directly from accepted high-resolution actor art.
+
+    UI portraits must never enlarge the already reduced 36-40px battle atlas.
+    This helper keeps one uniform x/y scale, then gives compact and grid assets
+    explicit transparent safety margins for their real runtime geometries.
+    """
+
+    source = hard_alpha(source)
+    subject = source.crop(alpha_bbox(source))
+    scale = min(max_subject[0] / subject.width, max_subject[1] / subject.height)
+    subject = subject.resize(
+        (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+        Image.Resampling.LANCZOS,
+    )
+    subject = palette_finish(subject, colors)
+    subject = subject.crop(alpha_bbox(subject))
+    output = Image.new("RGBA", size, (0, 0, 0, 0))
+    x = (size[0] - subject.width) // 2
+    y = min(size[1] - subject.height, bottom - subject.height)
+    if x < 0 or y < 0:
+        raise ValueError(
+            f"UI subject {subject.size} does not fit {size} with bottom={bottom}"
+        )
+    output.alpha_composite(subject, (x, y))
+    return output
+
+
+def source_direct_actor_cell(
+    source_path: Path,
+    *,
+    columns: int,
+    rows: int,
+    index: int,
+    keep_box: tuple[int, int, int, int] | None,
+) -> Image.Image:
+    source = Image.open(source_path).convert("RGBA")
+    cell = hard_alpha(split_grid(source, columns, rows)[index])
+    if keep_box is not None:
+        masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
+        masked.alpha_composite(cell.crop(keep_box), (keep_box[0], keep_box[1]))
+        cell = masked
+    return cell.crop(alpha_bbox(cell))
+
+
+def build_source_direct_portrait_set(
+    champion_id: str,
+    full_body: Image.Image,
+    *,
+    compact_focus: tuple[float, float, float, float],
+    scoreboard_focus: tuple[float, float, float, float] | None = None,
+) -> list[Path]:
+    """Build encyclopedia, compact-row, and BP-grid art as separate assets."""
+
+    CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
+    CHAMPION_PORTRAIT_DIR.mkdir(parents=True, exist_ok=True)
+    full_body = hard_alpha(full_body).crop(alpha_bbox(hard_alpha(full_body)))
+
+    encyclopedia = render_source_direct_ui_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+        colors=128,
+    )
+    encyclopedia_path = CHAMPION_FULLBODY_DIR / f"{champion_id}.png"
+    save_png(encyclopedia_path, encyclopedia)
+
+    width, height = full_body.size
+    left, top, right, bottom = compact_focus
+    focus = full_body.crop(
+        (
+            round(width * left),
+            round(height * top),
+            round(width * right),
+            round(height * bottom),
+        )
+    )
+    compact = render_source_direct_ui_subject(
+        focus,
+        (64, 64),
+        max_subject=(50, 50),
+        bottom=58,
+        colors=128,
+    )
+    compact_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png"
+    save_png(compact_path, compact)
+
+    scoreboard_focus = scoreboard_focus or compact_focus
+    left, top, right, bottom = scoreboard_focus
+    scoreboard_source = full_body.crop(
+        (
+            round(width * left),
+            round(height * top),
+            round(width * right),
+            round(height * bottom),
+        )
+    )
+    scoreboard = render_source_direct_ui_subject(
+        scoreboard_source,
+        (64, 64),
+        max_subject=(50, 50),
+        bottom=58,
+        colors=128,
+    )
+    scoreboard_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png"
+    save_png(scoreboard_path, scoreboard)
+
+    # The reusable 90x122 BP surface reserves y=86..121 for its name/icon
+    # band. Ending visible pixels at y<=86 leaves ten clear pixels before the
+    # native y=96 label boundary and prevents feet/weapons touching the name.
+    grid = render_source_direct_ui_subject(
+        full_body,
+        (90, 122),
+        max_subject=(72, 82),
+        bottom=86,
+        colors=128,
+    )
+    grid_path = CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png"
+    save_png(grid_path, grid)
+    return [encyclopedia_path, compact_path, scoreboard_path, grid_path]
+
+
 def build_champion_fullbody_portraits() -> list[Path]:
-    """Export the complete first idle frame for encyclopedia-only portraits."""
+    """Export per-surface portraits without upscaling packed battle pixels."""
     CHAMPION_FULLBODY_DIR.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
     for champion_id, sheet_path in CHAMPION_FULLBODY_SHEETS.items():
-        # Kled and Xayah retain tight native atlas geometry whose first idle
+        # Kled, Xayah and Yone retain tight native atlas geometry whose first idle
         # frame is not the sheet's top-left 64x64 cell. Their dedicated
         # builders export portraits from each exact native idle rectangle.
-        if champion_id in {"cavalry_knight", "dancer"}:
+        if champion_id in {"cavalry_knight", "dancer", "dual_blader"}:
+            continue
+        if champion_id == "lol_shen":
+            source = source_direct_actor_cell(
+                ACTOR_SOURCE,
+                columns=4,
+                rows=3,
+                index=0,
+                keep_box=ACTOR_KEEP_BOXES[0],
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Drop the detached spirit blade and keep helmet,
+                    # shoulders, eyeslit and upper torso in compact rows.
+                    compact_focus=(0.25, 0.0, 1.0, 0.60),
+                    scoreboard_focus=(0.28, 0.0, 0.98, 0.48),
+                )
+            )
+            continue
+        if champion_id == "archer":
+            source = source_direct_actor_cell(
+                LUCIAN_ACTOR_SOURCE,
+                columns=4,
+                rows=3,
+                index=0,
+                keep_box=LUCIAN_ACTOR_KEEP_BOXES[0],
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Preserve hair, both eyes, shoulders and coat collar;
+                    # omit lower legs that made 18px rows unreadably tiny.
+                    compact_focus=(0.04, 0.0, 0.96, 0.60),
+                    scoreboard_focus=(0.08, 0.0, 0.92, 0.48),
+                )
+            )
+            continue
+        if champion_id == "barrier_magician":
+            source = source_direct_actor_cell(
+                ORIANNA_ACTOR_SOURCE,
+                columns=4,
+                rows=4,
+                index=0,
+                keep_box=None,
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Sidebar/HUD keeps face, crown, shoulders and enough
+                    # clockwork torso to remain recognizably Orianna.
+                    compact_focus=(0.0, 0.0, 1.0, 0.65),
+                    # The 18/26/34px report and scoreboard rows need a tighter
+                    # porcelain-face crop than the 46px side list.
+                    scoreboard_focus=(0.08, 0.0, 0.92, 0.52),
+                )
+            )
+            continue
+        if champion_id == "berserker":
+            source = source_direct_actor_cell(
+                BRIAR_ACTOR_SOURCE,
+                columns=4,
+                rows=4,
+                index=0,
+                keep_box=None,
+            )
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # Preserve white hair, red eyes, shoulders and pillory in
+                    # the larger battle-side list without shrinking to feet.
+                    compact_focus=(0.0, 0.0, 1.0, 0.68),
+                    # Scoreboard rows prioritize both eyes and the red crystal.
+                    scoreboard_focus=(0.03, 0.0, 0.97, 0.52),
+                )
+            )
+            continue
+        if champion_id == "boomerang_hunter":
+            # Sivir's accepted source is a hand-spaced 1254x1254 contact
+            # sheet rather than an evenly divided grid.  Pull the complete
+            # first idle pose directly from its source keep-box so none of the
+            # UI surfaces ever enlarge the reduced battle atlas.
+            source = hard_alpha(Image.open(SIVIR_ACTOR_SOURCE).convert("RGBA"))
+            source = keep_alpha_components(
+                source.crop(SIVIR_ACTOR_KEEP_BOXES[0]), 200
+            )
+            source = source.crop(alpha_bbox(source))
+            outputs.extend(
+                build_source_direct_portrait_set(
+                    champion_id,
+                    source,
+                    # The side list keeps the face, circlet, shoulders and
+                    # crossed blade.  The first source pose looks to screen
+                    # right, so the tiny scoreboard must keep the complete
+                    # right edge of the head instead of cutting through the
+                    # second eye/cheek at 18-34px rendering.
+                    compact_focus=(0.14, 0.0, 0.92, 0.73),
+                    scoreboard_focus=(0.42, 0.0, 1.0, 0.53),
+                )
+            )
             continue
         with Image.open(sheet_path) as opened:
             sheet = opened.convert("RGBA")
@@ -390,33 +652,76 @@ def fit_cell(
     return output
 
 
+def pack_stable_actor_pose(
+    subject: Image.Image,
+    *,
+    target_height: int,
+    max_visible: tuple[int, int],
+    foot_baseline: int,
+    palette_colors: int = 96,
+) -> Image.Image:
+    """Pack one live actor pose with a stable visible-height contract.
+
+    The earlier battle-only resize used one source-space multiplier. That keeps
+    geometry proportional, but it does not keep generated poses in one runtime
+    scale class: crouch/cast cells with a shorter source bbox became visibly
+    15-25% smaller in the 64x64 atlas. This helper normalizes the authored pose
+    height, preserves x/y aspect ratio, applies the champion footprint cap, and
+    keeps the same exclusive foot anchor. Death/fade and weapon-only frames stay
+    on their dedicated paths.
+    """
+
+    scale = min(
+        target_height / subject.height,
+        max_visible[0] / subject.width,
+        max_visible[1] / subject.height,
+    )
+    resized = subject.resize(
+        (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
+        Image.Resampling.LANCZOS,
+    )
+    resized = palette_finish(resized, palette_colors)
+    frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    frame.alpha_composite(
+        resized,
+        ((64 - resized.width) // 2, foot_baseline - resized.height),
+    )
+    return frame
+
+
 def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     source = Image.open(ACTOR_SOURCE).convert("RGBA")
     cells = split_grid(source, 4, 3)
     base_frames: list[Image.Image] = []
-    # A proven 64x64 additive actor (Galio) occupies about 35 pixels in idle.
-    # Keep Shen in that same battle/UI scale class instead of letting the large
-    # image-gen source fill the full frame and get cropped in compact cards.
-    actor_scale = 0.145
+    # The accepted high-resolution source already contains a clean face and
+    # silhouette. Normalize every pose to Shen's narrow live-body height band
+    # with one aspect-preserving x/y scale. UI surfaces are source-direct and
+    # therefore do not constrain the battle actor scale.
+    masked_subjects: list[Image.Image] = []
     for cell, keep_box in zip(cells, ACTOR_KEEP_BOXES, strict=True):
         masked = Image.new("RGBA", cell.size, (0, 0, 0, 0))
         kept = cell.crop(keep_box)
         masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
         masked = hard_alpha(masked)
-        subject = masked.crop(alpha_bbox(masked))
-        resized = subject.resize(
-            (max(1, round(subject.width * actor_scale)), max(1, round(subject.height * actor_scale))),
-            Image.Resampling.LANCZOS,
+        # Preserve Shen's detached spirit blade (roughly 2k+ source pixels),
+        # but discard smaller generated Q/E sparks that otherwise enlarge the
+        # crop and shrink only those actor poses during packing.
+        masked = keep_alpha_components(masked, 2000)
+        masked_subjects.append(masked.crop(alpha_bbox(masked)))
+    # Keep standing/cast poses inside a narrow 33-36px band. The final hit pose
+    # remains compressed as a recoil, but no longer swaps to a tiny scale class.
+    base_pose_heights = (36, 36, 36, 36, 36, 35, 35, 35, 35, 35, 36, 33)
+    for subject, target_height in zip(
+        masked_subjects, base_pose_heights, strict=True
+    ):
+        base_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=target_height,
+                max_visible=SHEN_BATTLE_MAX_SIZE,
+                foot_baseline=SHEN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 40)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        x = (64 - resized.width) // 2
-        # The proven 64x64 additive contract keeps the actor's foot baseline at
-        # y=45. Bottom-aligning at y=62 makes the same model sit 17 px too low in
-        # encyclopedia cards, compact portraits, and the battle map.
-        y = 45 - resized.height
-        frame.alpha_composite(resized, (x, y))
-        base_frames.append(frame)
 
     # The original contact sheet only supplied three broad run poses. A second
     # image-gen pass supplies nine unique gait phases so the reduced sprite keeps
@@ -425,20 +730,29 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
     run_frames: list[Image.Image] = []
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
+        cell = keep_alpha_components(cell, 2000)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(36 / subject.height, 58 / subject.width)
-        resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-            Image.Resampling.LANCZOS,
+        run_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=SHEN_BATTLE_IDLE_HEIGHT,
+                max_visible=SHEN_BATTLE_MAX_SIZE,
+                foot_baseline=SHEN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 40)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        run_frames.append(frame)
 
     # Runtime atlas order: two idles, nine generated run phases, then the seven
     # non-run actions from the accepted 4x3 actor source.
-    frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[5:12]]
+    frames = [
+        base_frames[0],
+        base_frames[1],
+        *run_frames,
+        *base_frames[5:10],
+        # The authored R body cell has a connected ground ring. Shen already
+        # owns a separate R VFX sheet, so keep the clean channel pose here.
+        base_frames[9],
+        base_frames[11],
+    ]
 
     atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
     for index, frame in enumerate(frames):
@@ -475,7 +789,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
 
 
 def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
-    """Pack Lucian at Shen's 64x64 scale from separate actor and run masters."""
+    """Pack Lucian at his native-like 64x64 scale from actor/run masters."""
     source = Image.open(LUCIAN_ACTOR_SOURCE).convert("RGBA")
     source_cells: list[Image.Image] = []
     for index, (cell, keep_box) in enumerate(
@@ -487,27 +801,31 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
             kept = cell.crop(keep_box)
             masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
             cell = masked
-        if index == 10:
-            cell = keep_largest_alpha_component(cell)
+        # Actor flashes and isolated source-edge pixels belong to the dedicated
+        # projectile/VFX sheets. They must not influence Lucian's body crop.
+        cell = keep_largest_alpha_component(cell)
         source_cells.append(cell)
     source_subjects = [cell.crop(alpha_bbox(cell)) for cell in source_cells]
 
-    # Shen's accepted actor is 36px tall on a y=45 foot baseline. Derive one
-    # scale from Lucian's two idles and reuse it for every combat pose so cards,
-    # the HUD and the battle map all keep the same native-size silhouette.
-    idle_height = max(subject.height for subject in source_subjects[:2])
-    actor_scale = 36 / idle_height
-    base_frames: list[Image.Image] = []
-    for subject in source_subjects:
-        scale = min(actor_scale, 58 / subject.width, 43 / subject.height)
-        resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-            Image.Resampling.LANCZOS,
+    # Native Archer idles are about 31-33px high. Keep a small readability
+    # allowance for the accepted high-resolution Lucian model, then normalize
+    # every combat/run pose to the same narrow live-body height band. Wide gun
+    # poses remain aspect-preserving and never get a separate x/y multiplier.
+    # The two dash cells came from a shorter source crop and the raised-guns R
+    # cell from a taller one. Normalize those authored postures explicitly so
+    # E no longer shrinks Lucian and R no longer enlarges him on state entry.
+    base_pose_heights = (36, 36, 36, 36, 36, 36, 34, 34, 39, 36, 35, 14)
+    base_frames = [
+        pack_stable_actor_pose(
+            subject,
+            target_height=target_height,
+            max_visible=LUCIAN_BATTLE_MAX_SIZE,
+            foot_baseline=LUCIAN_BATTLE_FOOT_BASELINE,
         )
-        resized = palette_finish(resized, 40)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        base_frames.append(frame)
+        for subject, target_height in zip(
+            source_subjects, base_pose_heights, strict=True
+        )
+    ]
 
     # A dedicated image-gen 3x3 run loop supplies nine distinct alternating
     # contact/passing phases. It uses Shen's height, compact width and foot
@@ -516,23 +834,26 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
     run_frames: list[Image.Image] = []
     for cell in split_grid(run_source, 3, 3):
         cell = hard_alpha(cell)
+        cell = keep_largest_alpha_component(cell)
         subject = cell.crop(alpha_bbox(cell))
-        scale = min(36 / subject.height, 58 / subject.width)
-        resized = subject.resize(
-            (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
-            Image.Resampling.LANCZOS,
+        run_frames.append(
+            pack_stable_actor_pose(
+                subject,
+                target_height=LUCIAN_BATTLE_IDLE_HEIGHT,
+                max_visible=LUCIAN_BATTLE_MAX_SIZE,
+                foot_baseline=LUCIAN_BATTLE_FOOT_BASELINE,
+            )
         )
-        resized = palette_finish(resized, 40)
-        frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 45 - resized.height))
-        run_frames.append(frame)
 
     # Runtime contract: two idles, nine run phases, then ten actor actions.
     # Q stays a normal 64x64 pose; its direction-aware beam is a projectile
     # binding, so mirroring the actor can no longer put the beam behind him.
     frames = [base_frames[0], base_frames[1], *run_frames, *base_frames[2:12]]
-    atlas = Image.new("RGBA", (64 * len(frames), 64), (0, 0, 0, 0))
-    for index, frame in enumerate(frames):
+    r_source = Image.open(LUCIAN_VFX_SOURCES["lucian_r"][0]).convert("RGBA")
+    r_projectile = fit_cell(split_grid(r_source, 4, 2)[0], (64, 64), (48, 18))
+    atlas_frames = [*frames, r_projectile]
+    atlas = Image.new("RGBA", (64 * len(atlas_frames), 64), (0, 0, 0, 0))
+    for index, frame in enumerate(atlas_frames):
         atlas.alpha_composite(frame, (index * 64, 0))
 
     ACTOR_DIR.mkdir(parents=True, exist_ok=True)
@@ -550,6 +871,26 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         "skill": ([0, 14, 14, 14, 14, 14, 14, 14, 14, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
         "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
         "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
+        # Lucian replaces the native Archer by ID, so engine-owned presentation
+        # paths can still request these Archer tags directly.  Missing any one
+        # eventually unwraps a nonexistent animation during hidden simulation or
+        # Ban/Pick.  Reuse the accepted Lucian poses while preserving the native
+        # frame counts and durations exactly.
+        "ult_old": (
+            [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
+            [0.080000006] * 7 + [0.1] * 4,
+        ),
+        "ult_pre": ([0, 17, 17], [0.080000006] * 3),
+        "ult_loop": ([18, 18, 18, 18], [0.030000001] * 4),
+        "ult_end": ([18, 17, 0], [0.080000006] * 3),
+        "ult_projectile": ([21], [0.080000006]),
+        "old_ult_buff_effect": ([18, 18, 17, 0], [0.1] * 4),
+        "skill_attack": ([13, 11, 0], [0.080000006] * 3),
+        "skill_dash": ([15, 16, 16], [0.080000006] * 3),
+        "old_ult_pre": (
+            [0, 17, 17, 18, 18, 18, 18],
+            [0.080000006] * 7,
+        ),
         "hit": ([19], [0.12]),
         "dead": ([20], [0.60]),
     }
@@ -576,35 +917,79 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
 def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
     """Pack Orianna with the exact native Barrier Magician action contract."""
     source = Image.open(ORIANNA_ACTOR_SOURCE).convert("RGBA")
-    cells = [hard_alpha(cell) for cell in split_grid(source, 4, 4)]
+    # Several attack/hit cells contain opaque two-pixel strips on the top cell
+    # edge. They are invisible at source preview size but expand the alpha bbox
+    # by ~60px and make only those runtime bodies 20% smaller. Keep the actual
+    # connected actor silhouette; Orianna's ball and spell read live in VFX.
+    cells = [
+        keep_largest_alpha_component(hard_alpha(cell))
+        for cell in split_grid(source, 4, 4)
+    ]
     subjects = [cell.crop(alpha_bbox(cell)) for cell in cells]
 
-    # Live card review showed the first pass was too small in the face and sat
-    # low enough to clip its boots.  The corrected model is purpose-authored
-    # for a 38px silhouette and uses y=42 as its exclusive foot baseline.
-    # One scale is derived from all idle poses and preserved for every action.
+    # Native Barrier Magician idles occupy roughly 32-34px. Keep Orianna in
+    # that native-like class while preserving the reviewed y=42 exclusive foot
+    # baseline. One scale is derived from all idle poses and kept for every
+    # action; compact UI art is sourced independently.
     idle_height = max(subject.height for subject in subjects[:4])
-    actor_scale = 38 / idle_height
+    actor_scale = ORIANNA_BATTLE_IDLE_HEIGHT / idle_height
 
     def actor_frame(subject: Image.Image, *, target_height: int | None = None) -> Image.Image:
         scale = actor_scale if target_height is None else target_height / subject.height
-        scale = min(scale, 58 / subject.width, 43 / subject.height)
+        scale = min(
+            scale,
+            ORIANNA_BATTLE_MAX_SIZE[0] / subject.width,
+            ORIANNA_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        # Retain the higher palette budget so porcelain shading, cyan eyes and
+        # brass joints do not collapse into muddy blocks at native-like scale.
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 42 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, ORIANNA_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    base_frames = [actor_frame(subject) for subject in subjects]
-    run_source = Image.open(ORIANNA_RUN_SOURCE).convert("RGBA")
-    run_subjects = [
-        hard_alpha(cell).crop(alpha_bbox(hard_alpha(cell)))
-        for cell in split_grid(run_source, 3, 3)
+    # Generated attack/hit cells are visibly shorter than the idle model, while
+    # the wide second R pose hits the horizontal cap and shrinks the whole body.
+    # Normalize every live pose; keep only true death/ground poses on the source
+    # scale path. R's large silhouette remains in its separate ring VFX.
+    base_pose_heights: tuple[int | None, ...] = (
+        36,
+        36,
+        36,
+        36,
+        35,
+        35,
+        34,
+        None,
+        36,
+        36,
+        36,
+        36,
+        36,
+        36,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(subject, target_height=target_height)
+        for subject, target_height in zip(subjects, base_pose_heights, strict=True)
     ]
-    run_frames = [actor_frame(subject, target_height=38) for subject in run_subjects]
+    run_source = Image.open(ORIANNA_RUN_SOURCE).convert("RGBA")
+    run_subjects: list[Image.Image] = []
+    for cell in split_grid(run_source, 3, 3):
+        cleaned = keep_largest_alpha_component(hard_alpha(cell))
+        run_subjects.append(cleaned.crop(alpha_bbox(cleaned)))
+    run_frames = [
+        actor_frame(subject, target_height=ORIANNA_BATTLE_IDLE_HEIGHT)
+        for subject in run_subjects
+    ]
 
     def shifted(frame: Image.Image, dx: int, dy: int) -> Image.Image:
         result = Image.new("RGBA", frame.size, (0, 0, 0, 0))
@@ -648,7 +1033,12 @@ def build_orianna_actor() -> tuple[Path, Path, list[Image.Image]]:
             [0.080000006] * 5,
         ),
         "ult": (
-            [base_frames[12], shifted(base_frames[12], 0, -1), base_frames[13], shifted(base_frames[13], 0, -1)],
+            [
+                base_frames[12],
+                shifted(base_frames[12], 0, -1),
+                base_frames[12],
+                shifted(base_frames[12], 0, -1),
+            ],
             [0.080000006] * 4,
         ),
     }
@@ -684,26 +1074,66 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
     """Pack Briar while retaining every native Berserker animation tag."""
 
     actor_cells = [
-        hard_alpha(cell)
+        # Q/R projectiles and generated bottom-edge fragments are separate from
+        # Briar's connected body. Leaving them in the source bbox shrank only E
+        # charge and R throw even though the actor used the same nominal scale.
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(BRIAR_ACTOR_SOURCE).convert("RGBA"), 4, 4)
     ]
     actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    actor_scale = 38 / idle_height
+    # Native Berserker and the accepted Yone/Kled references establish a 38px
+    # body class. Reuse Briar's own 38px scale for every source pose; x and y
+    # are never resized independently and compact UI art remains source-direct.
+    actor_scale = BRIAR_BATTLE_IDLE_HEIGHT / idle_height
 
     def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
         scale = actor_scale if fixed_height is None else fixed_height / subject.height
-        scale = min(scale, 58 / subject.width, 44 / subject.height)
+        scale = min(
+            scale,
+            BRIAR_BATTLE_MAX_SIZE[0] / subject.width,
+            BRIAR_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        resized = palette_finish(resized, 96)
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, BRIAR_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    # Normalize live upright/lunge poses without touching the genuine fall,
+    # grounded and defeated silhouettes. The R chase cell remains a horizontal
+    # dive at the shared source scale and is assessed by silhouette area rather
+    # than incorrectly stretched to standing height.
+    base_pose_heights: tuple[int | None, ...] = (
+        38,
+        38,
+        38,
+        37,
+        35,
+        37,
+        37,
+        37,
+        38,
+        36,
+        35,
+        None,
+        36,
+        None,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(subject, fixed_height=target_height)
+        for subject, target_height in zip(
+            actor_subjects, base_pose_heights, strict=True
+        )
+    ]
 
     # The accepted Q-break pose contains a handful of generated yellow/orange
     # pixels outside Briar's body. At runtime those isolated pixels read as a
@@ -725,11 +1155,14 @@ def build_briar_actor() -> tuple[Path, Path, list[Image.Image]]:
                 q_pixels[x, y] = (0, 0, 0, 0)
     base_frames[6] = q_break
     run_cells = [
-        hard_alpha(cell)
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(BRIAR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
     run_frames = [
-        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=38) for cell in run_cells
+        actor_frame(
+            cell.crop(alpha_bbox(cell)), fixed_height=BRIAR_BATTLE_IDLE_HEIGHT
+        )
+        for cell in run_cells
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -813,28 +1246,97 @@ def build_sivir_actor() -> tuple[Path, Path, list[Image.Image]]:
         for box in SIVIR_ACTOR_KEEP_BOXES
     ]
     actor_subjects = [cell.crop(alpha_bbox(cell)) for cell in actor_cells]
+    # Pose 7 holds the crossblade high above Sivir's head.  Keeping the whole
+    # weapon inside the actor texture forced that one R frame to shrink by
+    # almost half.  The dedicated R cast sheet already carries the readable
+    # ability flourish, so trim only the oversized overhead blade region and
+    # preserve Sivir's body at the same scale as every other action.
+    r_subject = actor_subjects[7]
+    actor_subjects[7] = r_subject.crop((0, 55, r_subject.width, r_subject.height))
     idle_height = max(subject.height for subject in actor_subjects[:2])
-    actor_scale = 36 / idle_height
+    # Native Boomerang Hunter idles occupy 33-35px. A 36px Sivir target keeps
+    # the face/crossblade readable without returning to the oversized 44px
+    # legacy-HD body. Run poses are independently source-normalized to that same
+    # final live-body height.
+    actor_scale = SIVIR_BATTLE_IDLE_HEIGHT / idle_height
 
-    def actor_frame(subject: Image.Image, *, fixed_height: int | None = None) -> Image.Image:
-        scale = actor_scale if fixed_height is None else fixed_height / subject.height
-        scale = min(scale, 58 / subject.width, 42 / subject.height)
+    def actor_frame(
+        subject: Image.Image,
+        *,
+        target_height: int | None = None,
+        source_scale: float | None = None,
+    ) -> Image.Image:
+        if target_height is not None:
+            scale = target_height / subject.height
+        elif source_scale is not None:
+            scale = source_scale
+        else:
+            raise ValueError("Sivir actor pose needs target_height or source_scale")
+        scale = min(
+            scale,
+            SIVIR_BATTLE_MAX_SIZE[0] / subject.width,
+            SIVIR_BATTLE_MAX_SIZE[1] / subject.height,
+        )
         resized = subject.resize(
             (max(1, round(subject.width * scale)), max(1, round(subject.height * scale))),
             Image.Resampling.LANCZOS,
         )
-        resized = palette_finish(resized, 48)
+        resized = palette_finish(resized, 96)
+        if (
+            resized.width > SIVIR_BATTLE_MAX_SIZE[0]
+            or resized.height > SIVIR_BATTLE_MAX_SIZE[1]
+        ):
+            raise ValueError(
+                f"Sivir actor subject {resized.size} exceeds the stable 64x64 contract"
+            )
         frame = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-        frame.alpha_composite(resized, ((64 - resized.width) // 2, 46 - resized.height))
+        frame.alpha_composite(
+            resized,
+            ((64 - resized.width) // 2, SIVIR_BATTLE_FOOT_BASELINE - resized.height),
+        )
         return frame
 
-    base_frames = [actor_frame(subject) for subject in actor_subjects]
+    # Normalize every live pose into the same visible class. Horizontal fall,
+    # defeated, kneel and seated cells preserve their authored source scale.
+    base_pose_heights: tuple[int | None, ...] = (
+        36,
+        36,
+        34,
+        34,
+        36,
+        33,
+        35,
+        36,
+        35,
+        35,
+        33,
+        35,
+        None,
+        None,
+        None,
+        None,
+    )
+    base_frames = [
+        actor_frame(
+            subject,
+            target_height=target_height,
+            source_scale=actor_scale if target_height is None else None,
+        )
+        for subject, target_height in zip(
+            actor_subjects, base_pose_heights, strict=True
+        )
+    ]
     run_cells = [
-        hard_alpha(cell)
+        keep_largest_alpha_component(hard_alpha(cell))
         for cell in split_grid(Image.open(SIVIR_RUN_SOURCE).convert("RGBA"), 3, 3)
     ]
+    run_subjects = [cell.crop(alpha_bbox(cell)) for cell in run_cells]
+    # The dedicated run source was authored at mixed crop heights; normalize its
+    # eight runtime phases to one visible height while preserving every pose's
+    # aspect ratio and the native frame timing.
     run_frames = [
-        actor_frame(cell.crop(alpha_bbox(cell)), fixed_height=36) for cell in run_cells
+        actor_frame(subject, target_height=SIVIR_BATTLE_IDLE_HEIGHT)
+        for subject in run_subjects
     ]
 
     def faded(frame: Image.Image, opacity: float) -> Image.Image:
@@ -1094,19 +1596,98 @@ def build_vfx() -> list[Path]:
     outputs: list[Path] = []
     for name, (source_path, columns, rows, frame_size, max_visible) in VFX_SOURCES.items():
         source = Image.open(source_path).convert("RGBA")
-        if name == "shen_w":
-            frames = []
-            for cell in split_grid(source, columns, rows):
-                cell = hard_alpha(cell)
-                subject = cell.crop(alpha_bbox(cell)).resize(max_visible, Image.Resampling.LANCZOS)
-                subject = palette_finish(subject)
-                centered = Image.new("RGBA", frame_size, (0, 0, 0, 0))
-                x = (frame_size[0] - subject.width) // 2
-                y = round(44 - subject.height / 2)
-                centered.alpha_composite(subject, (x, y))
-                frames.append(centered)
-        else:
-            frames = [fit_cell(cell, frame_size, max_visible) for cell in split_grid(source, columns, rows)]
+        frames: list[Image.Image] = []
+        for index, cell in enumerate(split_grid(source, columns, rows)):
+            visible_size = (80, 52) if name == "shen_e" and index >= 3 else max_visible
+            frame = fit_cell(cell, frame_size, visible_size)
+            if name == "shen_q":
+                # Twilight Assault must remain readable against the Rift's
+                # dark river and wall tiles.  The generated source contains a
+                # few almost-black outline/fade cells; a top-level return can
+                # otherwise render only those pixels before disappearing.
+                # Keep the source silhouette, but lift every opaque spirit
+                # blade pixel into a restrained cyan-blue emissive range.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(170, round(energy * 0.62))),
+                            max(green, min(255, energy + 76)),
+                            max(blue, min(255, energy + 112)),
+                            alpha,
+                        )
+            if name == "shen_e" and index < 3:
+                # The dash wake is a cast/readability cue, not terrain shadow.
+                # Lift the formerly near-black first phase so even the first
+                # rendered tick is visibly cyan before the looping wake begins.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(144, max(28, round(energy * 0.46)))),
+                            max(green, min(255, max(150, energy + 110))),
+                            max(blue, min(255, max(210, energy + 150))),
+                            alpha,
+                        )
+            if name == "shen_e" and index >= 3:
+                # Shadow Dash itself stays cyan-violet, while its target-bound
+                # crowd-control read is deliberately red-magenta.  The color
+                # separation plus the larger foreground mask makes the full
+                # 90-tick taunt unmistakable in a crowded fight.
+                pixels = frame.load()
+                for y in range(frame.height):
+                    for x in range(frame.width):
+                        red, green, blue, alpha = pixels[x, y]
+                        if alpha == 0:
+                            continue
+                        if max(red, green, blue) >= 205 and max(red, green, blue) - min(red, green, blue) <= 70:
+                            pixels[x, y] = (255, max(155, min(225, green)), 255, alpha)
+                            continue
+                        energy = max(red, green, blue)
+                        pixels[x, y] = (
+                            max(red, min(255, energy + 72)),
+                            min(112, round(green * 0.38)),
+                            max(blue, min(255, round(energy * 0.90))),
+                            alpha,
+                        )
+            frames.append(frame)
+        if name == "shen_e":
+            # The bottom row is impact/taunt feedback, not a second dash wake.
+            # Keep any unusually wide generated spark compact so the collision
+            # reads at the target instead of looking like another projectile.
+            for index in range(3, len(frames)):
+                frame = frames[index]
+                bbox = frame.getchannel("A").getbbox()
+                if bbox is None:
+                    continue
+                width = bbox[2] - bbox[0]
+                height = bbox[3] - bbox[1]
+                if width <= height * 2:
+                    continue
+                subject = frame.crop(bbox).resize(
+                    (height * 2, height), Image.Resampling.LANCZOS
+                )
+                compact = Image.new("RGBA", frame_size, (0, 0, 0, 0))
+                compact.alpha_composite(
+                    subject,
+                    ((frame_size[0] - subject.width) // 2, bbox[1]),
+                )
+                frames[index] = compact
+        if name == "shen_q":
+            # Projectile effects are looked up by name when their first frame
+            # is rendered.  The invisible endpoint helper still needs a valid
+            # view record, otherwise base 0.5.1 can unwrap a missing view and
+            # stall the whole simulation.  Reserve one truly transparent cell
+            # instead of relying on an unregistered "no-view" projectile.
+            frames.append(Image.new("RGBA", frame_size, (0, 0, 0, 0)))
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -1114,9 +1695,29 @@ def build_vfx() -> list[Path]:
         anim = EFFECT_DIR / f"{name}#anim.fanim"
         save_png(sheet, atlas)
         if name == "shen_q":
-            anims = {"projectile": effect_anim(64, 64, list(range(8)), [0.06] * 8)}
-        elif name == "shen_w":
-            anims = {"field": effect_anim(112, 64, list(range(6)), [0.42] * 6)}
+            anims = {
+                "anchor": effect_anim(64, 64, [len(frames) - 1], [0.01]),
+                # Skip the source's nearly empty opening cell in the moving
+                # recall.  Fade-only cells remain reserved for arrival/remove.
+                "recall": effect_anim(64, 64, [1, 2, 3, 4, 5, 4, 3, 2], [0.05] * 8),
+                "empowered_hit": effect_anim(64, 64, [3, 4, 5, 4], [0.05, 0.06, 0.08, 0.10]),
+                "recall_arrival": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
+                "empower_pre": effect_anim(64, 64, [1, 2], [0.06, 0.08]),
+                "empower_loop": effect_anim(64, 64, [2, 3, 4, 3], [0.09, 0.09, 0.10, 0.09]),
+                "empower_remove": effect_anim(64, 64, [6, 7], [0.06, 0.10]),
+            }
+        elif name == "shen_e":
+            anims = {
+                "dash": effect_anim(96, 64, [0, 1, 2], [0.06, 0.06, 0.08]),
+                "dash_start": effect_anim(96, 64, [0, 1, 2], [0.05, 0.06, 0.08]),
+                "impact": effect_anim(96, 64, [3, 4, 5], [0.06, 0.08, 0.12]),
+                "trail_pre": effect_anim(96, 64, [0], [0.04]),
+                "trail_loop": effect_anim(96, 64, [1, 2], [0.05, 0.06]),
+                "trail_remove": effect_anim(96, 64, [2], [0.08]),
+                "taunt_pre": effect_anim(96, 64, [3], [0.05]),
+                "taunt_loop": effect_anim(96, 64, [4], [0.08]),
+                "taunt_remove": effect_anim(96, 64, [5], [0.12]),
+            }
         else:
             anims = {
                 "guard": effect_anim(112, 112, [0, 1, 2, 3, 4], [0.08, 0.10, 0.14, 0.22, 0.26]),
@@ -1670,6 +2271,460 @@ def lucian_culling_projectile() -> dict[str, object]:
         ],
         "end_effects": [],
     }
+
+
+def shen_timed_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
+    return {
+        "name": name,
+        "duration": {"Time": {"tick": tick}},
+        **stats,
+    }
+
+
+SHEN_Q_MARKERS = tuple(
+    f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)
+)
+SHEN_Q_ANCHOR_NAME = "lol_shen_twilight_assault_blade_anchor"
+SHEN_Q_EMPOWERED_WINDOW = "lol_shen_twilight_assault_empowered_window"
+SHEN_SHADOW_DASH_DISTANCE = 60000
+# Rush.range is the swept collision radius, not the distance travelled.  The
+# action's top-level range owns Shadow Dash's travel distance.
+SHEN_SHADOW_DASH_COLLISION_RADIUS = 10000
+SHEN_SHADOW_DASH_AI_HINT_NATIVE = "lol_shen_shadow_dash_ai_hint_native"
+SHEN_SHADOW_DASH_CAST_FLASH = "lol_shen_shadow_dash_cast_flash"
+
+
+def shen_attack_branch(
+    buff_name: str,
+) -> dict[str, object]:
+    consume_effects: list[dict[str, object]] = [
+        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+        {"type": "ApAttack", "damage": 20, "attack_ratio": 20},
+        {
+            "type": "ViewEffect",
+            "name": "lol_shen_twilight_assault_empowered_hit",
+        },
+        {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+        {"type": "RemoveCasterBuff", "name": buff_name},
+    ]
+    if buff_name == SHEN_Q_MARKERS[-1]:
+        # The separate presentation marker survives the first two empowered
+        # attacks and disappears with the final charge.
+        consume_effects.append(
+            {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW}
+        )
+    return {
+        "type": "Combine",
+        "effects": [
+            {"type": "Sfx", "name": "lol_shen_attack_cast"},
+            {
+                "type": "Delayed",
+                "tick": 10,
+                "effects": consume_effects,
+            },
+        ],
+    }
+
+
+def build_shen_attack() -> dict[str, object]:
+    normal_attack: dict[str, object] = {
+        "type": "Combine",
+        "effects": [
+            {"type": "Sfx", "name": "lol_shen_attack_cast"},
+            {
+                "type": "Delayed",
+                "tick": 10,
+                "effects": [
+                    {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                ],
+            },
+        ],
+    }
+    branches = list(SHEN_Q_MARKERS)
+    effect = normal_attack
+    for buff_name in reversed(branches):
+        effect = {
+            "type": "SwitchByBuff",
+            "buff_name": buff_name,
+            "effect_buff": shen_attack_branch(buff_name),
+            "effect_none": effect,
+        }
+    return {
+        "action_name": "attack",
+        "description": "#asset/base/text/champion?description.lol_shen.attack",
+        "duration": 24,
+        "cooltime": 70,
+        "start_timing": 10,
+        "cancelable": True,
+        "range": 25000,
+        "casting_type": "Targeting",
+        "casting_target": "Enemy",
+        "attack_type": "BaseAttack",
+        "effect": effect,
+    }
+
+
+def build_shen_q() -> dict[str, object]:
+    return {
+        "action_name": "skill",
+        "description": "#asset/base/text/champion?description.lol_shen.skill",
+        "duration": 28,
+        "cooltime": 360,
+        "start_timing": 8,
+        "cancelable": True,
+        "range": 55000,
+        "casting_type": "Direction",
+        "casting_target": "EnemyChampion",
+        "attack_type": "Skill",
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_q_cast"},
+                {"type": "CasterAnimation", "name": "skill", "tick": 28},
+                *(
+                    {"type": "RemoveCasterBuff", "name": name}
+                    for name in SHEN_Q_MARKERS
+                ),
+                {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW},
+                {
+                    # BackToCaster requires a projectile endpoint.  This
+                    # transparent-view, no-damage anchor reaches the selected
+                    # direction first; its endpoint then becomes the spirit
+                    # blade's one and only visible return origin.
+                    "type": "LinearProjectile",
+                    "penetrate": False,
+                    "speed": 60000,
+                    "range": 55000,
+                    "name": SHEN_Q_ANCHOR_NAME,
+                    "shape": {"Circle": {"radius": 1000}},
+                    "applied_target": "EnemyChampion",
+                    "applied_effects": [],
+                    "end_effects": [
+                        {
+                            "type": "BackToCasterLinearProjectile",
+                            "penetrate": True,
+                            "speed": 12000,
+                            "range": 130000,
+                            "name": "lol_shen_twilight_assault_blade_recall",
+                            "shape": {"Circle": {"radius": 7500}},
+                            "applied_target": "EnemyChampion",
+                            "applied_effects": [],
+                            "end_effects": [
+                                {
+                                    "type": "ViewEffect",
+                                    "name": "lol_shen_twilight_assault_recall_arrival",
+                                },
+                                *(
+                                    {
+                                        "type": "AddCasterBuff",
+                                        "buff_state": shen_timed_buff(name, 480),
+                                    }
+                                    for name in SHEN_Q_MARKERS
+                                ),
+                                {
+                                    "type": "AddCasterBuff",
+                                    "buff_state": shen_timed_buff(
+                                        SHEN_Q_EMPOWERED_WINDOW, 480
+                                    ),
+                                },
+                            ],
+                        }
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_e() -> dict[str, object]:
+    return {
+        "action_name": "skill2",
+        "description": "#asset/base/text/champion?description.lol_shen.skill2",
+        "duration": 30,
+        "cooltime": 720,
+        "start_timing": 4,
+        "cancelable": False,
+        "range": SHEN_SHADOW_DASH_DISTANCE,
+        "casting_type": "Direction",
+        "casting_target": "EnemyChampion",
+        "attack_type": "Skill",
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_attack_cast"},
+                {"type": "CasterAnimation", "name": "run", "tick": 30},
+                {
+                    "type": "CasterViewEffect",
+                    "name": SHEN_SHADOW_DASH_CAST_FLASH,
+                },
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff("lol_shen_shadow_dash_trail_window", 30),
+                },
+                {
+                    # RushEffect does not propagate expected_cc_time from its
+                    # collision payload.  Rust registers this no-op effect so
+                    # the root Combine exposes Shadow Dash's 90-tick taunt to
+                    # the stock AI without applying CC before a real hit.
+                    "type": "Native",
+                    "effect_ref": SHEN_SHADOW_DASH_AI_HINT_NATIVE,
+                },
+                {
+                    "type": "Rush",
+                    "speed": 4000,
+                    "move_speed_ratio": 100,
+                    "range": SHEN_SHADOW_DASH_COLLISION_RADIUS,
+                    "casting_target": "EnemyChampion",
+                    "penetrate": True,
+                    "applied_effects": [
+                        {
+                            "casting_type": "Targeting",
+                            "effect": {
+                                "type": "Combine",
+                                "effects": [
+                                    {"type": "Attack", "damage": 60, "attack_ratio": 0},
+                                    {
+                                        "type": "Native",
+                                        "effect_ref": "lol_shen_shadow_dash_taunt_native",
+                                    },
+                                    {
+                                        "type": "AddBuff",
+                                        "buff_state": shen_timed_buff(
+                                            "lol_shen_shadow_dash_taunted", 90
+                                        ),
+                                    },
+                                    {"type": "ViewEffect", "name": "lol_shen_shadow_dash_impact"},
+                                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                                ],
+                            },
+                        }
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_ult() -> dict[str, object]:
+    return {
+        "action_name": "ult",
+        "description": "#asset/base/text/champion?description.lol_shen.ult",
+        "duration": 72,
+        "cooltime": 3000,
+        "start_timing": 1,
+        "range": 960000,
+        "casting_type": "Position",
+        "casting_target": "AllyNotSelf",
+        "attack_type": "Skill",
+        "cancelable": False,
+        "can_use_with_move": False,
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_r_cast"},
+                {
+                    "type": "AddCasterBuff",
+                    "buff_state": shen_timed_buff("lol_shen_stand_united_channel", 48),
+                },
+                {
+                    "type": "RangeProjectile",
+                    "name": "lol_shen_stand_united_guard",
+                    "delay": 1,
+                    "apply": 1,
+                    "shape": {"Circle": {"radius": 6000}},
+                    "applied_target": "AllyNotSelf",
+                    "applied_effects": [
+                        {
+                            "effect": {
+                                "type": "Shield",
+                                "amount": 900,
+                                "attack_ratio": 0,
+                                "ap_ratio": 80,
+                                "tick": 180,
+                            },
+                            "casting_type": "Targeting",
+                        },
+                        {
+                            "effect": {
+                                "type": "AddBuff",
+                                "buff_state": shen_timed_buff(
+                                    "lol_shen_stand_united_shield_window", 180
+                                ),
+                            },
+                            "casting_type": "Targeting",
+                        },
+                        {
+                            "effect": {
+                                "type": "ViewEffect",
+                                "name": "lol_shen_stand_united_guard_visual",
+                            },
+                            "casting_type": "Targeting",
+                        },
+                    ],
+                    "end_effects": [],
+                },
+                {
+                    "type": "Delayed",
+                    "tick": 48,
+                    "effects": [
+                        {"type": "Teleport"},
+                        {"type": "Sfx", "name": "lol_shen_r_arrive"},
+                        {
+                            "type": "CasterViewEffect",
+                            "name": "lol_shen_stand_united_arrival_visual",
+                        },
+                    ],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_data() -> Path:
+    path = MOD_ROOT / "champion" / "lol_shen.data_champion"
+    # Construct from an immutable in-code template.  Never read the generated
+    # output as the next build's input: that made stale view records and test
+    # contamination survive otherwise clean rebuilds.
+    champion: dict[str, object] = {
+        "id": "lol_shen",
+        "category": "Melee",
+        "tags": ["Melee", "Tank", "Shield", "CC", "Magic"],
+        "sprite": "asset/lol_mod/aseprite_resources/champions/shen",
+        "anim_prefix": "",
+        "skill_icons": [
+            "asset/lol_mod/icons/shen_skill",
+            "asset/lol_mod/icons/shen_skill2",
+            "asset/lol_mod/icons/shen_ult",
+        ],
+        "stat": {
+            "attack": 75,
+            "magic_power": 20,
+            "hp": 1100,
+            "defence": 40,
+            "magic_resistance": 35,
+            "move_speed": 1000,
+            "hp_regen": 3,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "growth": {
+            "attack": 4,
+            "magic_power": 8,
+            "hp": 120,
+            "defence": 7,
+            "magic_resistance": 6,
+            "move_speed": 5,
+            "hp_regen": 1,
+            "stack": 0,
+            "crit_chance": 0,
+        },
+        "attack": build_shen_attack(),
+        "skill": build_shen_q(),
+        "skill2": build_shen_e(),
+        "ult": build_shen_ult(),
+        "view_projectiles": [
+            {
+                "type": "Animated",
+                "name": SHEN_Q_ANCHOR_NAME,
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "anchor",
+                "z": 0,
+                "repeat": True,
+            },
+            {
+                "type": "Animated",
+                "name": "lol_shen_twilight_assault_blade_recall",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+                "tag": "recall",
+                "z": 3,
+                "repeat": True,
+            },
+        ],
+        "view_effects": [
+        {
+            "type": "Animation",
+            "name": "lol_shen_twilight_assault_empowered_hit",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "empowered_hit",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_twilight_assault_recall_arrival",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "recall_arrival",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": SHEN_SHADOW_DASH_CAST_FLASH,
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "tag": "dash_start",
+            "z": 3,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_shadow_dash_impact",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "tag": "impact",
+            "z": 2,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_stand_united_guard_visual",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+            "tag": "guard",
+            "z": 1,
+            "is_follow": True,
+        },
+        {
+            "type": "Animation",
+            "name": "lol_shen_stand_united_arrival_visual",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+            "tag": "arrival",
+            "z": 1,
+            "is_follow": False,
+        },
+        ],
+        "view_buffs": [
+        {
+            "type": "ThreePhase",
+            "name": SHEN_Q_EMPOWERED_WINDOW,
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "pre_tag": "empower_pre",
+            "loop_tag": "empower_loop",
+            "remove_tag": "empower_remove",
+            "z": 3,
+        },
+        {
+            "type": "ThreePhase",
+            "name": "lol_shen_shadow_dash_trail_window",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "pre_tag": "trail_pre",
+            "loop_tag": "trail_loop",
+            "remove_tag": "trail_remove",
+            "z": 3,
+        },
+        {
+            "type": "ThreePhase",
+            "name": "lol_shen_shadow_dash_taunted",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
+            "pre_tag": "taunt_pre",
+            "loop_tag": "taunt_loop",
+            "remove_tag": "taunt_remove",
+            "z": 3,
+        },
+        ],
+    }
+    write_json(path, champion)
+    return path
 
 
 def build_lucian_data() -> Path:
@@ -3093,7 +4148,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
     draw = ImageDraw.Draw(actor_contact)
     labels = [
         "idle A", "idle B", *[f"run {index}" for index in range(1, 10)],
-        "attack A", "attack B", "attack C", "Q cast", "W cast", "R cast", "hit/dead",
+        "attack A", "attack B", "attack C", "Q cast", "E cast", "R cast", "hit/dead",
     ]
     for index, (frame, label) in enumerate(zip(actor_frames, labels, strict=True)):
         x = (index % 6) * 128
@@ -3106,7 +4161,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
 
     icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
     draw = ImageDraw.Draw(icon_contact)
-    for index, (path, label) in enumerate(zip(icons, ["Q", "W", "R"], strict=True)):
+    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
         icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
         icon_contact.alpha_composite(icon, (index * 192, 0))
         draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
@@ -3388,6 +4443,383 @@ def build_sivir_qa_contacts(
     return [actor_path, icon_path, vfx_path]
 
 
+def _hd_surface_record(path: Path) -> dict[str, object]:
+    image = Image.open(path).convert("RGBA")
+    alpha = image.getchannel("A")
+    bbox = alpha.getbbox()
+    histogram = alpha.histogram()
+    return {
+        "path": path.relative_to(MOD_ROOT).as_posix(),
+        "dimensions": list(image.size),
+        "alpha_bbox": list(bbox) if bbox else None,
+        "hard_alpha": sum(histogram[1:255]) == 0,
+        "opaque_pixels": histogram[255],
+        "sha256": sha256(path),
+    }
+
+
+def _hd_actor_record(
+    champion: str,
+    actor_sheet: Path,
+    actor_anim: Path,
+    core_tags: tuple[str, ...],
+    *,
+    foot_baseline: int,
+    expected_idle_height: int,
+    accent: str,
+    max_visible_width: int = 58,
+    max_visible_height: int = 44,
+) -> dict[str, object]:
+    sheet = Image.open(actor_sheet).convert("RGBA")
+    anims = json.loads(actor_anim.read_text(encoding="utf-8"))["anims"]
+    action_records: dict[str, object] = {}
+    for tag in core_tags:
+        bboxes: list[list[int]] = []
+        for frame_row in anims[tag]["frames"]:
+            data = frame_row["data"]
+            frame = sheet.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            bbox = frame.getchannel("A").getbbox()
+            if bbox is None:
+                raise ValueError(f"{champion} HD actor {tag} contains an empty frame")
+            if (
+                bbox[2] - bbox[0] > max_visible_width
+                or bbox[3] - bbox[1] > max_visible_height
+            ):
+                raise ValueError(
+                    f"{champion} HD actor {tag} exceeds "
+                    f"{max_visible_width}x{max_visible_height}: {bbox}"
+                )
+            if bbox[3] > foot_baseline:
+                raise ValueError(
+                    f"{champion} HD actor {tag} crosses y={foot_baseline}: {bbox}"
+                )
+            bboxes.append(list(bbox))
+        action_records[tag] = {
+            "frame_count": len(bboxes),
+            "alpha_bboxes": bboxes,
+            "visible_height_range": [
+                min(row[3] - row[1] for row in bboxes),
+                max(row[3] - row[1] for row in bboxes),
+            ],
+            "visible_width_range": [
+                min(row[2] - row[0] for row in bboxes),
+                max(row[2] - row[0] for row in bboxes),
+            ],
+            "bottom_range": [min(row[3] for row in bboxes), max(row[3] for row in bboxes)],
+        }
+
+    idle_data = anims["idle"]["frames"][0]["data"]
+    idle = sheet.crop(
+        (
+            idle_data["x"],
+            idle_data["y"],
+            idle_data["x"] + idle_data["w"],
+            idle_data["y"] + idle_data["h"],
+        )
+    )
+    idle_bbox = idle.getchannel("A").getbbox()
+    if idle_bbox is None:
+        raise ValueError(f"{champion} HD primary idle is empty")
+    if idle_bbox[3] - idle_bbox[1] != expected_idle_height:
+        raise ValueError(
+            f"{champion} HD idle height changed: {idle_bbox}, expected {expected_idle_height}"
+        )
+    margin = max(1, round((idle_bbox[2] - idle_bbox[0]) * 0.08))
+    face_box = (
+        idle_bbox[0] + margin,
+        idle_bbox[1],
+        idle_bbox[2] - margin,
+        idle_bbox[1] + round((idle_bbox[3] - idle_bbox[1]) * 0.56),
+    )
+    opaque_luma: list[float] = []
+    accent_pixels = 0
+    for y in range(face_box[1], face_box[3]):
+        for x in range(face_box[0], face_box[2]):
+            red, green, blue, alpha = idle.getpixel((x, y))
+            if alpha < 128:
+                continue
+            opaque_luma.append((299 * red + 587 * green + 114 * blue) / 1000)
+            if accent == "cyan":
+                accent_pixels += (
+                    green >= 100
+                    and blue >= 115
+                    and blue >= red + 20
+                    and green >= red + 10
+                )
+            elif accent == "gold":
+                accent_pixels += (
+                    red >= 120
+                    and green >= 70
+                    and red >= green + 12
+                    and green >= blue + 24
+                )
+            else:
+                accent_pixels += red >= 100 and green <= 70 and blue <= 90
+    dynamic_range = max(opaque_luma) - min(opaque_luma) if opaque_luma else 0.0
+    if len(opaque_luma) < 120 or accent_pixels < 2 or dynamic_range < 140:
+        raise ValueError(
+            f"{champion} battle face is not readable: opaque={len(opaque_luma)}, "
+            f"accent={accent_pixels}, range={dynamic_range:.1f}"
+        )
+    return {
+        "sheet": actor_sheet.relative_to(MOD_ROOT).as_posix(),
+        "animation": actor_anim.relative_to(MOD_ROOT).as_posix(),
+        "uniform_xy_scale": True,
+        "x_only_compression": False,
+        "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+        "foot_baseline_exclusive_y": foot_baseline,
+        "first_idle_alpha_bbox": list(idle_bbox),
+        "face_readability": {
+            "sample_box": list(face_box),
+            "opaque_pixels": len(opaque_luma),
+            f"{accent}_accent_pixels": accent_pixels,
+            "luminance_dynamic_range": round(dynamic_range, 2),
+        },
+        "core_actions": action_records,
+    }
+
+
+def _build_hd_surface_contact(
+    champion: str,
+    champion_id: str,
+    actor_sheet: Path,
+    output_path: Path,
+) -> None:
+    contact = Image.new("RGBA", (1120, 300), (10, 18, 31, 255))
+    draw = ImageDraw.Draw(contact)
+    label = (212, 226, 238, 255)
+    draw.text((16, 10), f"{champion.upper()} HD / SOURCE-DIRECT UI SURFACES", fill=label)
+
+    idle = Image.open(actor_sheet).convert("RGBA").crop((0, 0, 64, 64))
+    draw.text((16, 42), "battle idle 64", fill=label)
+    contact.alpha_composite(idle.resize((128, 128), Image.Resampling.NEAREST), (16, 62))
+
+    surface_specs = (
+        ("sidebar 46", CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png", 46),
+        (
+            "scoreboard 34",
+            CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png",
+            34,
+        ),
+    )
+    for index, (surface_label, path, runtime_size) in enumerate(surface_specs):
+        x = 170 + index * 150
+        draw.text((x, 42), surface_label, fill=label)
+        tile = Image.new("RGBA", (128, 128), (7, 13, 23, 255))
+        portrait = Image.open(path).convert("RGBA")
+        runtime = portrait.resize((runtime_size, runtime_size), Image.Resampling.NEAREST)
+        zoom = runtime.resize((runtime_size * 2, runtime_size * 2), Image.Resampling.NEAREST)
+        tile.alpha_composite(runtime, ((128 - runtime.width) // 2, 8))
+        tile.alpha_composite(zoom, ((128 - zoom.width) // 2, 128 - zoom.height))
+        contact.alpha_composite(tile, (x, 62))
+
+    grid_x = 470
+    draw.text((grid_x, 42), "BP grid 90x122 / name y=96", fill=label)
+    grid_tile = Image.new("RGBA", (110, 142), (7, 13, 23, 255))
+    grid = Image.open(CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png").convert("RGBA")
+    grid_tile.alpha_composite(grid, (10, 10))
+    grid_draw = ImageDraw.Draw(grid_tile)
+    grid_draw.rectangle((10, 106, 99, 131), fill=(34, 46, 64, 255))
+    grid_draw.text((31, 111), "NAME", fill=(166, 181, 196, 255))
+    contact.alpha_composite(grid_tile, (grid_x, 62))
+
+    full_x = 650
+    draw.text((full_x, 42), "encyclopedia 64", fill=label)
+    full_tile = Image.new("RGBA", (142, 142), (7, 13, 23, 255))
+    fullbody = Image.open(CHAMPION_FULLBODY_DIR / f"{champion_id}.png").convert("RGBA")
+    full_tile.alpha_composite(fullbody.resize((128, 128), Image.Resampling.NEAREST), (7, 7))
+    contact.alpha_composite(full_tile, (full_x, 62))
+
+    splash_x = 820
+    draw.text((splash_x, 42), "BP side card / 1420x860", fill=label)
+    splash = Image.open(MOD_ROOT / "BanPickIllust" / f"{champion_id}.png").convert("RGBA")
+    splash.thumbnail((284, 172), Image.Resampling.LANCZOS)
+    contact.alpha_composite(splash, (splash_x, 62))
+    draw.text(
+        (16, 254),
+        "Battle keeps one aspect-preserving scale; UI crops come directly from the accepted HD idle source.",
+        fill=label,
+    )
+    save_png(output_path, contact)
+
+
+def build_orianna_briar_hd_surface_qa() -> list[Path]:
+    specs = (
+        {
+            "champion": "Shen",
+            "champion_id": "lol_shen",
+            "source": ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "shen#sheet.png",
+            "actor_anim": ACTOR_DIR / "shen#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
+            "baseline": SHEN_BATTLE_FOOT_BASELINE,
+            "idle_height": SHEN_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": SHEN_BATTLE_MAX_SIZE[0],
+            "max_visible_height": SHEN_BATTLE_MAX_SIZE[1],
+            "accent": "cyan",
+            "qa": QA_DIR / "shen_hd_surface_qa.json",
+            "contact": QA_DIR / "shen_portrait_surface_final.png",
+        },
+        {
+            "champion": "Lucian",
+            "champion_id": "archer",
+            "source": LUCIAN_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "lucian#sheet.png",
+            "actor_anim": ACTOR_DIR / "lucian#anim.fanim",
+            "tags": (
+                "idle",
+                "run",
+                "attack_right",
+                "attack_left",
+                "attack_double",
+                "skill",
+                "skill2",
+                "ult",
+                "hit",
+            ),
+            "baseline": LUCIAN_BATTLE_FOOT_BASELINE,
+            "idle_height": LUCIAN_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": LUCIAN_BATTLE_MAX_SIZE[0],
+            "max_visible_height": LUCIAN_BATTLE_MAX_SIZE[1],
+            "accent": "cyan",
+            "qa": QA_DIR / "lucian_hd_surface_qa.json",
+            "contact": QA_DIR / "lucian_portrait_surface_final.png",
+        },
+        {
+            "champion": "Orianna",
+            "champion_id": "barrier_magician",
+            "source": ORIANNA_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "orianna#sheet.png",
+            "actor_anim": ACTOR_DIR / "orianna#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill1", "skill2", "ult", "hit"),
+            "baseline": ORIANNA_BATTLE_FOOT_BASELINE,
+            "idle_height": ORIANNA_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": ORIANNA_BATTLE_MAX_SIZE[0],
+            "max_visible_height": ORIANNA_BATTLE_MAX_SIZE[1],
+            "accent": "cyan",
+            "qa": QA_DIR / "orianna_hd_surface_qa.json",
+            "contact": QA_DIR / "orianna_portrait_surface_final.png",
+        },
+        {
+            "champion": "Briar",
+            "champion_id": "berserker",
+            "source": BRIAR_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "briar#sheet.png",
+            "actor_anim": ACTOR_DIR / "briar#anim.fanim",
+            "tags": (
+                "idle",
+                "berserk_idle",
+                "run",
+                "berserk_run",
+                "attack",
+                "attack2",
+                "berserk_attack",
+                "skill1",
+                "skill2",
+                "skill2_berserk",
+                "ult",
+                "hit",
+            ),
+            "baseline": BRIAR_BATTLE_FOOT_BASELINE,
+            "idle_height": BRIAR_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": BRIAR_BATTLE_MAX_SIZE[0],
+            "max_visible_height": BRIAR_BATTLE_MAX_SIZE[1],
+            "accent": "red",
+            "qa": QA_DIR / "briar_hd_surface_qa.json",
+            "contact": QA_DIR / "briar_portrait_surface_final.png",
+        },
+        {
+            "champion": "Sivir",
+            "champion_id": "boomerang_hunter",
+            "source": SIVIR_ACTOR_SOURCE,
+            "actor_sheet": ACTOR_DIR / "sivir#sheet.png",
+            "actor_anim": ACTOR_DIR / "sivir#anim.fanim",
+            "tags": ("idle", "run", "attack", "skill", "skill2", "ult", "hit"),
+            "baseline": SIVIR_BATTLE_FOOT_BASELINE,
+            "idle_height": SIVIR_BATTLE_IDLE_HEIGHT,
+            "max_visible_width": SIVIR_BATTLE_MAX_SIZE[0],
+            "max_visible_height": SIVIR_BATTLE_MAX_SIZE[1],
+            "accent": "gold",
+            "qa": QA_DIR / "sivir_hd_surface_qa.json",
+            "contact": QA_DIR / "sivir_portrait_surface_final.png",
+        },
+    )
+    outputs: list[Path] = []
+    for spec in specs:
+        champion_id = str(spec["champion_id"])
+        surface_paths = {
+            "side_card": MOD_ROOT / "BanPickIllust" / f"{champion_id}.png",
+            "encyclopedia": CHAMPION_FULLBODY_DIR / f"{champion_id}.png",
+            "sidebar": CHAMPION_PORTRAIT_DIR / f"{champion_id}_compact.png",
+            "scoreboard": CHAMPION_PORTRAIT_DIR / f"{champion_id}_scoreboard.png",
+            "bp_grid": CHAMPION_PORTRAIT_DIR / f"{champion_id}_grid.png",
+        }
+        records = {name: _hd_surface_record(path) for name, path in surface_paths.items()}
+        grid_bbox = records["bp_grid"]["alpha_bbox"]
+        if not isinstance(grid_bbox, list) or grid_bbox[3] > 86:
+            raise ValueError(f"{spec['champion']} BP-grid alpha enters the name band")
+        records["bp_grid"]["name_band_y"] = 96
+        records["bp_grid"]["name_band_clearance"] = 96 - grid_bbox[3]
+        for name in ("sidebar", "scoreboard"):
+            bbox = records[name]["alpha_bbox"]
+            if not isinstance(bbox, list):
+                raise ValueError(f"{spec['champion']} {name} portrait is empty")
+            if (
+                bbox[2] - bbox[0] > 50
+                or bbox[3] - bbox[1] > 50
+                or min(bbox[0], bbox[1], 64 - bbox[2], 64 - bbox[3]) < 6
+            ):
+                raise ValueError(f"{spec['champion']} {name} portrait is unsafe: {bbox}")
+        if records["sidebar"]["sha256"] == records["scoreboard"]["sha256"]:
+            raise ValueError(f"{spec['champion']} sidebar and scoreboard crops are not independent")
+
+        battle_actor = _hd_actor_record(
+            str(spec["champion"]),
+            Path(spec["actor_sheet"]),
+            Path(spec["actor_anim"]),
+            tuple(spec["tags"]),
+            foot_baseline=int(spec["baseline"]),
+            expected_idle_height=int(spec["idle_height"]),
+            accent=str(spec["accent"]),
+            max_visible_width=int(spec.get("max_visible_width", 58)),
+            max_visible_height=int(spec.get("max_visible_height", 44)),
+        )
+        payload = {
+            "schema_version": 1,
+            "champion": spec["champion"],
+            "native_id": champion_id,
+            "accepted_source": Path(spec["source"]).relative_to(MOD_ROOT).as_posix(),
+            "accepted_source_sha256": sha256(Path(spec["source"])),
+            "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+            "skill_logic_changed": False,
+            "battle_actor": battle_actor,
+            "surfaces": records,
+            "runtime_routing": {
+                "scoreboard_square_px": [14, 38],
+                "sidebar_square_px": [39, 52],
+                "bp_native_grid_px": [124, 132],
+                "bp_replacement_dimensions": [90, 122],
+                "battle_sprite_commands_untouched": True,
+            },
+        }
+        write_json(Path(spec["qa"]), payload)
+        _build_hd_surface_contact(
+            str(spec["champion"]),
+            champion_id,
+            Path(spec["actor_sheet"]),
+            Path(spec["contact"]),
+        )
+        outputs.extend([Path(spec["qa"]), Path(spec["contact"])])
+    return outputs
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -3512,7 +4944,7 @@ def normalize_manifest_text_lf(path: Path) -> None:
         path.write_bytes(normalized)
 
 
-def build_manifest() -> Path:
+def build_manifest(yone_outputs: list[Path]) -> Path:
     runtime_roots = [
         MOD_ROOT / "mod.mod_info",
         MOD_ROOT / "mod.override_info",
@@ -3525,12 +4957,19 @@ def build_manifest() -> Path:
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
         MOD_ROOT / "lol_mod.dll",
-        # Public source/provenance records for the image-gen and official
-        # Riot-audio inputs shipped with the Xayah replacement.
+        # Keep compact provenance records available to an installed test mod,
+        # but never copy contact sheets, previews, or other bulky QA images
+        # into the active game directory.
         QA_DIR / "xayah_imagegen_sources.json",
         QA_DIR / "xayah_official_audio_sources.json",
         QA_DIR / "xayah_ui_scale_qa.json",
-        QA_DIR / "xayah_portrait_surface_final.png",
+        QA_DIR / "urgot_visual_qa.json",
+        QA_DIR / "urgot_official_audio_sources.json",
+        QA_DIR / "yone_visual_contract.json",
+        QA_DIR / "yone_imagegen_sources.json",
+        QA_DIR / "yone_visual_qa.md",
+        QA_DIR / "yone_skill_contract_qa.md",
+        QA_DIR / "yone_official_audio_sources.json",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -3538,6 +4977,50 @@ def build_manifest() -> Path:
             files.append(root)
         elif root.is_dir():
             files.extend(path for path in root.rglob("*") if path.is_file())
+
+    # Most of the historical pack predates builder-owned output inventories,
+    # so its runtime roots are still scanned above.  Yone is stricter: only
+    # files returned by build_yone plus the explicitly pinned data/audio
+    # inputs below may enter the release.  This turns an unknown leftover E
+    # asset into a build failure instead of silently republishing it.
+    declared_yone_paths = {
+        path.relative_to(MOD_ROOT).as_posix()
+        for path in yone_outputs
+        if path.is_relative_to(MOD_ROOT)
+    }
+    declared_yone_paths.update(
+        {
+            "champion/dual_blader.data_champion",
+            "qa/yone_official_audio_sources.json",
+            "qa/yone_skill_contract_qa.md",
+            "sound/sfx/yone_native_silence.sound_info",
+            "sound/sfx/yone_native_silence_clip.wav",
+        }
+    )
+    yone_audio_audit = json.loads(
+        (QA_DIR / "yone_official_audio_sources.json").read_text(encoding="utf-8")
+    )
+    for output in yone_audio_audit.get("outputs", []):
+        for record_key in ("sound_info", "wav"):
+            relative = output.get(record_key, {}).get("path")
+            if relative:
+                declared_yone_paths.add(relative)
+
+    def is_yone_release_path(relative: str) -> bool:
+        folded = relative.casefold()
+        return "yone" in folded or "dual_blader" in folded
+
+    undeclared_yone_paths = sorted(
+        path.relative_to(MOD_ROOT).as_posix()
+        for path in files
+        if is_yone_release_path(path.relative_to(MOD_ROOT).as_posix())
+        and path.relative_to(MOD_ROOT).as_posix() not in declared_yone_paths
+    )
+    if undeclared_yone_paths:
+        raise RuntimeError(
+            "Undeclared Yone files would enter the release manifest:\n"
+            + "\n".join(undeclared_yone_paths)
+        )
     for path in files:
         normalize_manifest_text_lf(path)
     payload = {
@@ -3604,6 +5087,7 @@ def main() -> int:
     actor_sheet, actor_anim, actor_frames = build_actor()
     icons = build_icons()
     vfx = build_vfx()
+    shen_champion = build_shen_data()
     qa = build_qa_contacts(actor_frames, icons)
     lucian_sheet, lucian_anim, lucian_frames = build_lucian_actor()
     lucian_icons = build_lucian_icons()
@@ -3629,13 +5113,18 @@ def main() -> int:
     sivir_imagegen_audit = build_sivir_imagegen_audit()
     kled_outputs = build_kled_assets()
     xayah_outputs = build_xayah_assets()
+    urgot_outputs = build_urgot_assets()
+    yone_outputs = build_yone_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
-    manifest = None if args.skip_manifest else build_manifest()
+    orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
+    legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
+    manifest = None if args.skip_manifest else build_manifest(yone_outputs)
     for path in [
         actor_sheet,
         actor_anim,
         *icons,
         *vfx,
+        shen_champion,
         *qa,
         lucian_sheet,
         lucian_anim,
@@ -3665,7 +5154,11 @@ def main() -> int:
         sivir_imagegen_audit,
         *kled_outputs,
         *xayah_outputs,
+        *urgot_outputs,
+        *yone_outputs,
         *champion_fullbody_portraits,
+        *orianna_briar_hd_surface_qa,
+        *legacy_battle_actor_scale_qa,
         *([manifest] if manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))

@@ -1,0 +1,7581 @@
+{
+  "schema_version": 7,
+  "champion": "Yone",
+  "generator": "built-in image_gen followed by final-scale native pixel authorship",
+  "generated_on": "2026-07-22",
+  "processing": "dual-sword-v7: 67 final 1x RGBA body PNGs preserve the 54-frame native prefix and add isolated Azakana-AA/Q3 frames in an atlas extension; build-time packing is byte-identical",
+  "body_source": {
+    "schema_version": 7,
+    "route": "dual-sword-v7",
+    "manifest": "source/native/yone_v7/frames.json",
+    "manifest_sha256": "adfacc49b535d3d9ad704335974db16fd0840d87c88da609ceb3f8634e608ea3",
+    "atlas_size": [
+      4262,
+      88
+    ],
+    "frame_count": 67,
+    "weapon_contract": {
+      "version": 2,
+      "weapons": [
+        "steel",
+        "azakana"
+      ],
+      "always_dual_actions": [
+        "idle",
+        "run"
+      ],
+      "semantic_animation_tags": {
+        "attack_steel": "steel",
+        "attack_azakana": "azakana",
+        "skill_q12": "steel",
+        "skill_q3": "steel",
+        "skill_w_azakana": "azakana",
+        "ult": "dual"
+      },
+      "long_blade_overlay_policy": "caster-follow effects extend the active blade outside the compact actor frame"
+    },
+    "palette": {
+      "path": "source/native/yone_v7/palette.json",
+      "schema_version": 7,
+      "route": "dual-sword-v7",
+      "opaque_color_count": 48,
+      "roles": [
+        "transparent",
+        "eye_outline",
+        "source_00",
+        "source_01",
+        "skin_00",
+        "skin_01",
+        "mask_00",
+        "source_02",
+        "source_03",
+        "source_04",
+        "skin_02",
+        "skin_03",
+        "skin_04",
+        "mask_01",
+        "source_05",
+        "source_06",
+        "source_07",
+        "source_08",
+        "mask_02",
+        "mask_03",
+        "source_09",
+        "source_10",
+        "source_11",
+        "source_12",
+        "source_13",
+        "source_14",
+        "mask_04",
+        "mask_05",
+        "source_15",
+        "source_16",
+        "source_17",
+        "source_18",
+        "source_19",
+        "source_20",
+        "source_21",
+        "source_22",
+        "source_23",
+        "source_24",
+        "source_25",
+        "source_26",
+        "source_27",
+        "source_28",
+        "source_29",
+        "steel_dark",
+        "steel_mid",
+        "steel_highlight",
+        "azakana_dark",
+        "azakana_red",
+        "azakana_highlight"
+      ],
+      "weapon_roles": {
+        "steel": {
+          "dark": [
+            "steel_dark"
+          ],
+          "mid": [
+            "steel_mid"
+          ],
+          "highlight": [
+            "steel_highlight"
+          ]
+        },
+        "azakana": {
+          "dark": [
+            "azakana_dark"
+          ],
+          "red": [
+            "azakana_red"
+          ],
+          "highlight": [
+            "azakana_highlight"
+          ]
+        }
+      },
+      "sha256": "172f588e113660b423b4b1718f101ed81bec384239772949404763b446803cce"
+    },
+    "body_preview": "source/native/yone_v7/preview/yone_v7_actor_card.png",
+    "body_preview_kind": "complete opaque 141x138 runtime-card proof",
+    "body_preview_sha256": "5f08c3ad9ffa5fb737f6049f1bd9fa7427336356a40ffc36e270bdc73502b909",
+    "contact_preview": "source/native/yone_v7/preview/yone_v7_native_contact.png",
+    "body_processing": "none; exact final 1x RGBA byte copy"
+  },
+  "body_frames": {
+    "skill2[0]": {
+      "source": "source/native/yone_v7/frames/skill2_00.png",
+      "native_rect": [
+        1970,
+        0,
+        31,
+        49
+      ],
+      "source_size": [
+        31,
+        49
+      ],
+      "source_alpha_bbox": [
+        1,
+        8,
+        30,
+        44
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        12,
+        17,
+        6,
+        10
+      ],
+      "eye_pixels": [
+        [
+          14,
+          20
+        ],
+        [
+          12,
+          19
+        ]
+      ],
+      "mask_bbox": [
+        2,
+        11,
+        10,
+        15
+      ],
+      "foot_zones": [
+        [
+          1,
+          40,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            26,
+            29,
+            3,
+            9
+          ],
+          "hand_anchor": [
+            27,
+            29
+          ],
+          "tip": [
+            26,
+            37
+          ],
+          "span_px": 8.062,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            15,
+            31,
+            14,
+            13
+          ],
+          "hand_anchor": [
+            16,
+            32
+          ],
+          "tip": [
+            28,
+            42
+          ],
+          "span_px": 15.62,
+          "connectedness": 1.0,
+          "pixel_count": 57,
+          "crop_ratio": 0.5488,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 44,
+      "sha256": "683c5ad0fba5047109525dc94033249673598f267cc3d3af8e79ba7b9ff62180",
+      "pack_transform": "none"
+    },
+    "hit[0]": {
+      "source": "source/native/yone_v7/frames/hit_00.png",
+      "native_rect": [
+        874,
+        0,
+        43,
+        53
+      ],
+      "source_size": [
+        43,
+        53
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        42,
+        38
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        15,
+        6,
+        7,
+        9
+      ],
+      "eye_pixels": [
+        [
+          21,
+          9
+        ]
+      ],
+      "mask_bbox": [
+        3,
+        3,
+        10,
+        13
+      ],
+      "foot_zones": [
+        [
+          1,
+          34,
+          41,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            26,
+            7,
+            11
+          ],
+          "hand_anchor": [
+            7,
+            26
+          ],
+          "tip": [
+            2,
+            36
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 33,
+          "crop_ratio": 0.0345,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            30,
+            20,
+            11,
+            15
+          ],
+          "hand_anchor": [
+            31,
+            21
+          ],
+          "tip": [
+            39,
+            34
+          ],
+          "span_px": 15.264,
+          "connectedness": 1.0,
+          "pixel_count": 58,
+          "crop_ratio": 0.0323,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "12f665f6833887fd8cd2b1e3110754ed5ddfff8b947ce5bc7c739a4b59f36c85",
+      "pack_transform": "none"
+    },
+    "attack[0]": {
+      "source": "source/native/yone_v7/frames/attack_00.png",
+      "native_rect": [
+        544,
+        0,
+        45,
+        51
+      ],
+      "source_size": [
+        45,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        44,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        22,
+        15,
+        7,
+        4
+      ],
+      "eye_pixels": [
+        [
+          24,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        7,
+        6,
+        9
+      ],
+      "foot_zones": [
+        [
+          1,
+          33,
+          43,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            34,
+            20,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            35,
+            21
+          ],
+          "tip": [
+            41,
+            20
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.3333,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            3,
+            23,
+            9,
+            6
+          ],
+          "hand_anchor": [
+            11,
+            24
+          ],
+          "tip": [
+            3,
+            28
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "617f40655b46b4d9377a6d4546544d796e8a192da5b06bc0e31fa30bcddc279f",
+      "pack_transform": "none"
+    },
+    "attack[1]": {
+      "source": "source/native/yone_v7/frames/attack_01.png",
+      "native_rect": [
+        590,
+        0,
+        49,
+        51
+      ],
+      "source_size": [
+        49,
+        51
+      ],
+      "source_alpha_bbox": [
+        4,
+        1,
+        48,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        26,
+        11,
+        7,
+        10
+      ],
+      "eye_pixels": [
+        [
+          27,
+          15
+        ],
+        [
+          31,
+          14
+        ]
+      ],
+      "mask_bbox": [
+        15,
+        4,
+        12,
+        18
+      ],
+      "foot_zones": [
+        [
+          4,
+          33,
+          44,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            38,
+            21,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            39,
+            22
+          ],
+          "tip": [
+            45,
+            21
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.48,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            4,
+            25,
+            9,
+            4
+          ],
+          "hand_anchor": [
+            12,
+            26
+          ],
+          "tip": [
+            4,
+            28
+          ],
+          "span_px": 8.246,
+          "connectedness": 1.0,
+          "pixel_count": 20,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "bdba8a8c43fec9f76da95c1adbd0e2a8aaabaa85c92556f67396d8ead34ed9dc",
+      "pack_transform": "none"
+    },
+    "attack[2]": {
+      "source": "source/native/yone_v7/frames/attack_02.png",
+      "native_rect": [
+        640,
+        0,
+        59,
+        47
+      ],
+      "source_size": [
+        59,
+        47
+      ],
+      "source_alpha_bbox": [
+        11,
+        1,
+        58,
+        35
+      ],
+      "bottom_margin": 12,
+      "face_bbox": [
+        32,
+        15,
+        7,
+        6
+      ],
+      "eye_pixels": [
+        [
+          32,
+          18
+        ],
+        [
+          38,
+          18
+        ]
+      ],
+      "mask_bbox": [
+        21,
+        7,
+        6,
+        15
+      ],
+      "foot_zones": [
+        [
+          11,
+          31,
+          47,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            44,
+            19,
+            12,
+            3
+          ],
+          "hand_anchor": [
+            45,
+            20
+          ],
+          "tip": [
+            55,
+            19
+          ],
+          "span_px": 10.05,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            11,
+            23,
+            8,
+            5
+          ],
+          "hand_anchor": [
+            18,
+            24
+          ],
+          "tip": [
+            11,
+            27
+          ],
+          "span_px": 7.616,
+          "connectedness": 1.0,
+          "pixel_count": 18,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "2c9bb65b11f52bf14e304273948272d633991efb41611912760cf49e0f9b6330",
+      "pack_transform": "none"
+    },
+    "attack[3]": {
+      "source": "source/native/yone_v7/frames/attack_03.png",
+      "native_rect": [
+        700,
+        0,
+        59,
+        49
+      ],
+      "source_size": [
+        59,
+        49
+      ],
+      "source_alpha_bbox": [
+        9,
+        1,
+        58,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        32,
+        16,
+        8,
+        6
+      ],
+      "eye_pixels": [
+        [
+          32,
+          19
+        ],
+        [
+          38,
+          19
+        ]
+      ],
+      "mask_bbox": [
+        20,
+        8,
+        11,
+        15
+      ],
+      "foot_zones": [
+        [
+          9,
+          32,
+          49,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            44,
+            20,
+            12,
+            3
+          ],
+          "hand_anchor": [
+            45,
+            21
+          ],
+          "tip": [
+            55,
+            20
+          ],
+          "span_px": 10.05,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.1111,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            10,
+            24,
+            8,
+            6
+          ],
+          "hand_anchor": [
+            17,
+            25
+          ],
+          "tip": [
+            10,
+            29
+          ],
+          "span_px": 8.062,
+          "connectedness": 1.0,
+          "pixel_count": 20,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "1b8d9647575af2b8a7e23493e4810c4bd16c8542da69dd1e5fe819c3e09edfea",
+      "pack_transform": "none"
+    },
+    "attack[4]": {
+      "source": "source/native/yone_v7/frames/attack_04.png",
+      "native_rect": [
+        760,
+        0,
+        61,
+        49
+      ],
+      "source_size": [
+        61,
+        49
+      ],
+      "source_alpha_bbox": [
+        2,
+        1,
+        59,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        33,
+        11,
+        7,
+        8
+      ],
+      "eye_pixels": [
+        [
+          34,
+          14
+        ],
+        [
+          38,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        22,
+        4,
+        11,
+        16
+      ],
+      "foot_zones": [
+        [
+          2,
+          32,
+          57,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            45,
+            19,
+            13,
+            3
+          ],
+          "hand_anchor": [
+            46,
+            20
+          ],
+          "tip": [
+            57,
+            21
+          ],
+          "span_px": 11.045,
+          "connectedness": 1.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            11,
+            23,
+            8,
+            6
+          ],
+          "hand_anchor": [
+            18,
+            24
+          ],
+          "tip": [
+            11,
+            28
+          ],
+          "span_px": 8.062,
+          "connectedness": 1.0,
+          "pixel_count": 20,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "8e3ce4b9a0ce0a63ac36325228a21182035ebe90a935895935b5bc3a7ed305c3",
+      "pack_transform": "none"
+    },
+    "attack[5]": {
+      "source": "source/native/yone_v7/frames/attack_05.png",
+      "native_rect": [
+        822,
+        0,
+        51,
+        51
+      ],
+      "source_size": [
+        51,
+        51
+      ],
+      "source_alpha_bbox": [
+        4,
+        1,
+        50,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        25,
+        15,
+        7,
+        4
+      ],
+      "eye_pixels": [
+        [
+          27,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        14,
+        7,
+        6,
+        9
+      ],
+      "foot_zones": [
+        [
+          4,
+          33,
+          46,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            37,
+            20,
+            11,
+            3
+          ],
+          "hand_anchor": [
+            38,
+            21
+          ],
+          "tip": [
+            47,
+            22
+          ],
+          "span_px": 9.055,
+          "connectedness": 1.0,
+          "pixel_count": 31,
+          "crop_ratio": 0.1111,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            4,
+            23,
+            11,
+            6
+          ],
+          "hand_anchor": [
+            14,
+            24
+          ],
+          "tip": [
+            4,
+            28
+          ],
+          "span_px": 10.77,
+          "connectedness": 1.0,
+          "pixel_count": 26,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "7efd7a8e8ded82beec90a9d2cfa0e50c2788f1c4c87369e3531c66a68a45ce64",
+      "pack_transform": "none"
+    },
+    "skill2_dash[0]": {
+      "source": "source/native/yone_v7/frames/skill2_dash_00.png",
+      "native_rect": [
+        2002,
+        0,
+        43,
+        43
+      ],
+      "source_size": [
+        43,
+        43
+      ],
+      "source_alpha_bbox": [
+        1,
+        3,
+        42,
+        39
+      ],
+      "bottom_margin": 4,
+      "face_bbox": [
+        26,
+        17,
+        8,
+        5
+      ],
+      "eye_pixels": [
+        [
+          33,
+          20
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        9,
+        9,
+        14
+      ],
+      "foot_zones": [
+        [
+          1,
+          35,
+          41,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            32,
+            24,
+            8,
+            4
+          ],
+          "hand_anchor": [
+            33,
+            25
+          ],
+          "tip": [
+            39,
+            27
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 17,
+          "crop_ratio": 0.76,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            14,
+            11,
+            8
+          ],
+          "hand_anchor": [
+            11,
+            20
+          ],
+          "tip": [
+            2,
+            15
+          ],
+          "span_px": 10.296,
+          "connectedness": 1.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.1765,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "a4b08227b45f5c5723c2c70faf2246018bbaec6eb8c28953553d1da581a4b6b9",
+      "pack_transform": "none"
+    },
+    "ult[0]": {
+      "source": "source/native/yone_v7/frames/ult_00.png",
+      "native_rect": [
+        2288,
+        0,
+        49,
+        51
+      ],
+      "source_size": [
+        49,
+        51
+      ],
+      "source_alpha_bbox": [
+        7,
+        9,
+        39,
+        46
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        22,
+        16,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          23,
+          19
+        ],
+        [
+          26,
+          19
+        ]
+      ],
+      "mask_bbox": [
+        13,
+        11,
+        9,
+        10
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            7,
+            34,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            14,
+            35
+          ],
+          "tip": [
+            9,
+            45
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 44,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            30,
+            34,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            31,
+            35
+          ],
+          "tip": [
+            37,
+            45
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "ae86dce8d53d5165c72e40c67bfb32772a0782f5d5f5d62d9e5b3268c62ab2b6",
+      "pack_transform": "none"
+    },
+    "ult[1]": {
+      "source": "source/native/yone_v7/frames/ult_01.png",
+      "native_rect": [
+        2338,
+        0,
+        59,
+        53
+      ],
+      "source_size": [
+        59,
+        53
+      ],
+      "source_alpha_bbox": [
+        8,
+        9,
+        48,
+        47
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        29,
+        17,
+        6,
+        10
+      ],
+      "eye_pixels": [
+        [
+          30,
+          21
+        ]
+      ],
+      "mask_bbox": [
+        19,
+        12,
+        10,
+        10
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            8,
+            12,
+            18,
+            18
+          ],
+          "hand_anchor": [
+            24,
+            28
+          ],
+          "tip": [
+            9,
+            12
+          ],
+          "span_px": 21.932,
+          "connectedness": 1.0,
+          "pixel_count": 81,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            28,
+            13,
+            20,
+            18
+          ],
+          "hand_anchor": [
+            29,
+            29
+          ],
+          "tip": [
+            47,
+            15
+          ],
+          "span_px": 22.804,
+          "connectedness": 1.0,
+          "pixel_count": 84,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "d1cd2c75f96e37279841df4e6f04cb77125b453dd2875fb621802f966de61a38",
+      "pack_transform": "none"
+    },
+    "ult[2]": {
+      "source": "source/native/yone_v7/frames/ult_02.png",
+      "native_rect": [
+        2398,
+        0,
+        59,
+        57
+      ],
+      "source_size": [
+        59,
+        57
+      ],
+      "source_alpha_bbox": [
+        2,
+        11,
+        58,
+        49
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        34,
+        21,
+        7,
+        11
+      ],
+      "eye_pixels": [
+        [
+          36,
+          25
+        ],
+        [
+          39,
+          25
+        ]
+      ],
+      "mask_bbox": [
+        23,
+        14,
+        11,
+        18
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            34,
+            16,
+            11
+          ],
+          "hand_anchor": [
+            16,
+            35
+          ],
+          "tip": [
+            2,
+            42
+          ],
+          "span_px": 15.652,
+          "connectedness": 1.0,
+          "pixel_count": 54,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            44,
+            26,
+            12,
+            7
+          ],
+          "hand_anchor": [
+            45,
+            31
+          ],
+          "tip": [
+            55,
+            26
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 26,
+          "crop_ratio": 0.3478,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "4f2601dd207e91781a510a6c474bd6ccd0cc0b0b154d5edd64c64eea65d4d5ec",
+      "pack_transform": "none"
+    },
+    "ult[3]": {
+      "source": "source/native/yone_v7/frames/ult_03.png",
+      "native_rect": [
+        2458,
+        0,
+        61,
+        53
+      ],
+      "source_size": [
+        61,
+        53
+      ],
+      "source_alpha_bbox": [
+        2,
+        5,
+        60,
+        43
+      ],
+      "bottom_margin": 10,
+      "face_bbox": [
+        37,
+        19,
+        6,
+        4
+      ],
+      "eye_pixels": [
+        [
+          38,
+          19
+        ]
+      ],
+      "mask_bbox": [
+        23,
+        11,
+        14,
+        13
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            46,
+            21,
+            12,
+            6
+          ],
+          "hand_anchor": [
+            47,
+            25
+          ],
+          "tip": [
+            57,
+            21
+          ],
+          "span_px": 10.77,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 0.3721,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            25,
+            16,
+            13
+          ],
+          "hand_anchor": [
+            16,
+            26
+          ],
+          "tip": [
+            2,
+            35
+          ],
+          "span_px": 16.643,
+          "connectedness": 1.0,
+          "pixel_count": 60,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "81c6e2c4d1e1a0515605f2b2aaeb288237578165afc1e33dc566b13218fd61af",
+      "pack_transform": "none"
+    },
+    "ult[4]": {
+      "source": "source/native/yone_v7/frames/ult_04.png",
+      "native_rect": [
+        2520,
+        0,
+        51,
+        51
+      ],
+      "source_size": [
+        51,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        2,
+        50,
+        39
+      ],
+      "bottom_margin": 12,
+      "face_bbox": [
+        29,
+        14,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          30,
+          16
+        ],
+        [
+          34,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        18,
+        6,
+        10,
+        16
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            24,
+            11,
+            11
+          ],
+          "hand_anchor": [
+            11,
+            25
+          ],
+          "tip": [
+            2,
+            32
+          ],
+          "span_px": 11.402,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.1765,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            43,
+            17,
+            6,
+            6
+          ],
+          "hand_anchor": [
+            44,
+            21
+          ],
+          "tip": [
+            46,
+            17
+          ],
+          "span_px": 4.472,
+          "connectedness": 1.0,
+          "pixel_count": 20,
+          "crop_ratio": 0.6923,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "3e907edc032ffcd458717a56d817256c2076947ca14151c7635c9456a526b101",
+      "pack_transform": "none"
+    },
+    "ult[5]": {
+      "source": "source/native/yone_v7/frames/ult_05.png",
+      "native_rect": [
+        2572,
+        0,
+        59,
+        47
+      ],
+      "source_size": [
+        59,
+        47
+      ],
+      "source_alpha_bbox": [
+        16,
+        12,
+        41,
+        36
+      ],
+      "bottom_margin": 11,
+      "face_bbox": [
+        29,
+        18,
+        4,
+        4
+      ],
+      "eye_pixels": [
+        [
+          30,
+          20
+        ]
+      ],
+      "mask_bbox": [
+        23,
+        14,
+        6,
+        5
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            16,
+            12,
+            12,
+            13
+          ],
+          "hand_anchor": [
+            26,
+            23
+          ],
+          "tip": [
+            17,
+            12
+          ],
+          "span_px": 14.213,
+          "connectedness": 1.0,
+          "pixel_count": 53,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            28,
+            13,
+            13,
+            14
+          ],
+          "hand_anchor": [
+            29,
+            25
+          ],
+          "tip": [
+            38,
+            13
+          ],
+          "span_px": 15.0,
+          "connectedness": 1.0,
+          "pixel_count": 58,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 35,
+      "sha256": "df285adc5cfda1fa06b19c9a94780ca5c61c65c474c229937d67addb982a4857",
+      "pack_transform": "none"
+    },
+    "ult[6]": {
+      "source": "source/native/yone_v7/frames/ult_06.png",
+      "native_rect": [
+        2632,
+        0,
+        59,
+        49
+      ],
+      "source_size": [
+        59,
+        49
+      ],
+      "source_alpha_bbox": [
+        15,
+        14,
+        52,
+        40
+      ],
+      "bottom_margin": 9,
+      "face_bbox": [
+        32,
+        21,
+        5,
+        6
+      ],
+      "eye_pixels": [
+        [
+          32,
+          25
+        ]
+      ],
+      "mask_bbox": [
+        25,
+        16,
+        8,
+        6
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            36,
+            23,
+            16,
+            5
+          ],
+          "hand_anchor": [
+            37,
+            26
+          ],
+          "tip": [
+            51,
+            23
+          ],
+          "span_px": 14.318,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            15,
+            28,
+            9,
+            7
+          ],
+          "hand_anchor": [
+            22,
+            29
+          ],
+          "tip": [
+            15,
+            32
+          ],
+          "span_px": 7.616,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 41,
+      "sha256": "1bddd7a1a3d8533789024a0e275aca2d35b5deea87a807cfb5a6c3372344a1a7",
+      "pack_transform": "none"
+    },
+    "ult[7]": {
+      "source": "source/native/yone_v7/frames/ult_07.png",
+      "native_rect": [
+        2692,
+        0,
+        61,
+        53
+      ],
+      "source_size": [
+        61,
+        53
+      ],
+      "source_alpha_bbox": [
+        6,
+        7,
+        60,
+        46
+      ],
+      "bottom_margin": 7,
+      "face_bbox": [
+        32,
+        22,
+        7,
+        8
+      ],
+      "eye_pixels": [
+        [
+          34,
+          25
+        ],
+        [
+          37,
+          25
+        ]
+      ],
+      "mask_bbox": [
+        18,
+        15,
+        14,
+        16
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            6,
+            7,
+            14,
+            11
+          ],
+          "hand_anchor": [
+            18,
+            16
+          ],
+          "tip": [
+            6,
+            8
+          ],
+          "span_px": 14.422,
+          "connectedness": 1.0,
+          "pixel_count": 51,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            42,
+            36,
+            16,
+            10
+          ],
+          "hand_anchor": [
+            43,
+            37
+          ],
+          "tip": [
+            57,
+            45
+          ],
+          "span_px": 16.125,
+          "connectedness": 1.0,
+          "pixel_count": 39,
+          "crop_ratio": 0.0465,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "a9075f865f639ad48529b4578f5bb81adb1dfcc21e48bb7eed390704dd7848c9",
+      "pack_transform": "none"
+    },
+    "ult[8]": {
+      "source": "source/native/yone_v7/frames/ult_08.png",
+      "native_rect": [
+        2754,
+        0,
+        55,
+        57
+      ],
+      "source_size": [
+        55,
+        57
+      ],
+      "source_alpha_bbox": [
+        4,
+        12,
+        54,
+        51
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        27,
+        26,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          27,
+          29
+        ],
+        [
+          31,
+          30
+        ]
+      ],
+      "mask_bbox": [
+        18,
+        18,
+        5,
+        6
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            4,
+            12,
+            13,
+            9
+          ],
+          "hand_anchor": [
+            16,
+            19
+          ],
+          "tip": [
+            4,
+            12
+          ],
+          "span_px": 13.892,
+          "connectedness": 1.0,
+          "pixel_count": 33,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            39,
+            34,
+            14,
+            10
+          ],
+          "hand_anchor": [
+            40,
+            35
+          ],
+          "tip": [
+            52,
+            42
+          ],
+          "span_px": 13.892,
+          "connectedness": 1.0,
+          "pixel_count": 49,
+          "crop_ratio": 0.1905,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "75f35374afe2eca8959c97875fd80d69a3dad9568002681064e42fa5ed3d91f3",
+      "pack_transform": "none"
+    },
+    "ult[9]": {
+      "source": "source/native/yone_v7/frames/ult_09.png",
+      "native_rect": [
+        2810,
+        0,
+        59,
+        53
+      ],
+      "source_size": [
+        59,
+        53
+      ],
+      "source_alpha_bbox": [
+        2,
+        8,
+        58,
+        46
+      ],
+      "bottom_margin": 7,
+      "face_bbox": [
+        34,
+        19,
+        6,
+        5
+      ],
+      "eye_pixels": [
+        [
+          35,
+          22
+        ]
+      ],
+      "mask_bbox": [
+        21,
+        12,
+        12,
+        11
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            46,
+            30,
+            10,
+            6
+          ],
+          "hand_anchor": [
+            47,
+            31
+          ],
+          "tip": [
+            55,
+            35
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 23,
+          "crop_ratio": 0.5217,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            25,
+            12,
+            9
+          ],
+          "hand_anchor": [
+            12,
+            26
+          ],
+          "tip": [
+            2,
+            31
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "3f6cd733eaaa8f13a12f13446558cf4b3c76ec63af2363c417297042fc494f3c",
+      "pack_transform": "none"
+    },
+    "ult[10]": {
+      "source": "source/native/yone_v7/frames/ult_10.png",
+      "native_rect": [
+        2870,
+        0,
+        59,
+        51
+      ],
+      "source_size": [
+        59,
+        51
+      ],
+      "source_alpha_bbox": [
+        15,
+        5,
+        46,
+        43
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        29,
+        12,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          30,
+          15
+        ],
+        [
+          34,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        19,
+        7,
+        10,
+        10
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            15,
+            33,
+            7,
+            9
+          ],
+          "hand_anchor": [
+            20,
+            33
+          ],
+          "tip": [
+            15,
+            41
+          ],
+          "span_px": 9.434,
+          "connectedness": 1.0,
+          "pixel_count": 23,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            37,
+            31,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            38,
+            32
+          ],
+          "tip": [
+            44,
+            42
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "2becbaf32bbbfbbde34434a1d301dcbcec295e99ab249e1fd6e70212d13ad7c9",
+      "pack_transform": "none"
+    },
+    "ult[11]": {
+      "source": "source/native/yone_v7/frames/ult_11.png",
+      "native_rect": [
+        2930,
+        0,
+        61,
+        49
+      ],
+      "source_size": [
+        61,
+        49
+      ],
+      "source_alpha_bbox": [
+        15,
+        5,
+        46,
+        43
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        29,
+        12,
+        7,
+        11
+      ],
+      "eye_pixels": [
+        [
+          31,
+          16
+        ],
+        [
+          29,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        20,
+        7,
+        10,
+        17
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            15,
+            32,
+            8,
+            10
+          ],
+          "hand_anchor": [
+            21,
+            32
+          ],
+          "tip": [
+            15,
+            41
+          ],
+          "span_px": 10.817,
+          "connectedness": 1.0,
+          "pixel_count": 30,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            37,
+            31,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            38,
+            32
+          ],
+          "tip": [
+            44,
+            42
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "90d974894183d7a5b9c38e19a6e73417007e001d3db89c2ce96065989ba6fb12",
+      "pack_transform": "none"
+    },
+    "ult[12]": {
+      "source": "source/native/yone_v7/frames/ult_12.png",
+      "native_rect": [
+        2992,
+        0,
+        53,
+        51
+      ],
+      "source_size": [
+        53,
+        51
+      ],
+      "source_alpha_bbox": [
+        4,
+        9,
+        43,
+        46
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        24,
+        17,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          26,
+          20
+        ],
+        [
+          29,
+          20
+        ]
+      ],
+      "mask_bbox": [
+        15,
+        12,
+        9,
+        9
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            4,
+            12,
+            17,
+            17
+          ],
+          "hand_anchor": [
+            19,
+            27
+          ],
+          "tip": [
+            5,
+            12
+          ],
+          "span_px": 20.518,
+          "connectedness": 1.0,
+          "pixel_count": 76,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            23,
+            12,
+            20,
+            18
+          ],
+          "hand_anchor": [
+            24,
+            28
+          ],
+          "tip": [
+            42,
+            14
+          ],
+          "span_px": 22.804,
+          "connectedness": 1.0,
+          "pixel_count": 84,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 44,
+      "sha256": "cc7b45a03c066b580065457a7f952a79ff0940d759cff44b715d3ab8dd79a15d",
+      "pack_transform": "none"
+    },
+    "run[0]": {
+      "source": "source/native/yone_v7/frames/run_00.png",
+      "native_rect": [
+        220,
+        0,
+        41,
+        49
+      ],
+      "source_size": [
+        41,
+        49
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        39,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        23,
+        9,
+        7,
+        8
+      ],
+      "eye_pixels": [
+        [
+          23,
+          12
+        ],
+        [
+          25,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        4,
+        12,
+        13
+      ],
+      "foot_zones": [
+        [
+          1,
+          32,
+          38,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            22,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            7,
+            22
+          ],
+          "tip": [
+            2,
+            29
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.3478,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            24,
+            10,
+            12
+          ],
+          "hand_anchor": [
+            30,
+            25
+          ],
+          "tip": [
+            37,
+            35
+          ],
+          "span_px": 12.207,
+          "connectedness": 1.0,
+          "pixel_count": 47,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "50aa790f39e644a8c17f452061c31b2955416654b2d9aaa3b3c6d6af178f1a38",
+      "pack_transform": "none"
+    },
+    "run[1]": {
+      "source": "source/native/yone_v7/frames/run_01.png",
+      "native_rect": [
+        262,
+        0,
+        39,
+        51
+      ],
+      "source_size": [
+        39,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        38,
+        33
+      ],
+      "bottom_margin": 18,
+      "face_bbox": [
+        22,
+        9,
+        7,
+        9
+      ],
+      "eye_pixels": [
+        [
+          22,
+          13
+        ],
+        [
+          25,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        14,
+        4,
+        10,
+        15
+      ],
+      "foot_zones": [
+        [
+          1,
+          29,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            21,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            7,
+            21
+          ],
+          "tip": [
+            2,
+            28
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.1818,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            30,
+            21,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            31,
+            21
+          ],
+          "tip": [
+            36,
+            28
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.3636,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "ca2fbba34b8aa5cddafda4499d9fc1e2965c7c633a69d98195063daa5b47f674",
+      "pack_transform": "none"
+    },
+    "run[2]": {
+      "source": "source/native/yone_v7/frames/run_02.png",
+      "native_rect": [
+        302,
+        0,
+        39,
+        53
+      ],
+      "source_size": [
+        39,
+        53
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        38,
+        33
+      ],
+      "bottom_margin": 20,
+      "face_bbox": [
+        25,
+        9,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          27,
+          12
+        ],
+        [
+          25,
+          11
+        ]
+      ],
+      "mask_bbox": [
+        15,
+        3,
+        10,
+        13
+      ],
+      "foot_zones": [
+        [
+          1,
+          29,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            19,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            8,
+            20
+          ],
+          "tip": [
+            4,
+            29
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            32,
+            22,
+            5,
+            8
+          ],
+          "hand_anchor": [
+            33,
+            22
+          ],
+          "tip": [
+            36,
+            29
+          ],
+          "span_px": 7.616,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.5652,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "fbb660b5795b657e09afa9685b0bacd57aab2d30e81e2a0863f219641e907822",
+      "pack_transform": "none"
+    },
+    "run[3]": {
+      "source": "source/native/yone_v7/frames/run_03.png",
+      "native_rect": [
+        342,
+        0,
+        39,
+        51
+      ],
+      "source_size": [
+        39,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        38,
+        34
+      ],
+      "bottom_margin": 17,
+      "face_bbox": [
+        24,
+        9,
+        7,
+        9
+      ],
+      "eye_pixels": [
+        [
+          24,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        16,
+        3,
+        9,
+        11
+      ],
+      "foot_zones": [
+        [
+          1,
+          30,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            21,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            7,
+            21
+          ],
+          "tip": [
+            2,
+            28
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.0455,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            31,
+            23,
+            6,
+            9
+          ],
+          "hand_anchor": [
+            32,
+            23
+          ],
+          "tip": [
+            36,
+            31
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 26,
+          "crop_ratio": 0.4783,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "7f6746e3de7926e1241436b195e142cfa96bcdb93daa59a18b2d74992b4c5b24",
+      "pack_transform": "none"
+    },
+    "run[4]": {
+      "source": "source/native/yone_v7/frames/run_04.png",
+      "native_rect": [
+        382,
+        0,
+        41,
+        49
+      ],
+      "source_size": [
+        41,
+        49
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        40,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        24,
+        10,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          26,
+          13
+        ],
+        [
+          29,
+          13
+        ]
+      ],
+      "mask_bbox": [
+        13,
+        4,
+        12,
+        14
+      ],
+      "foot_zones": [
+        [
+          1,
+          32,
+          39,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            22,
+            6,
+            9
+          ],
+          "hand_anchor": [
+            6,
+            22
+          ],
+          "tip": [
+            2,
+            30
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 26,
+          "crop_ratio": 0.2692,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            32,
+            24,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            33,
+            24
+          ],
+          "tip": [
+            38,
+            31
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.4583,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "1a35585676a7d528c9c7ec241430db50839bc84da3c019fed203aafb838e16c6",
+      "pack_transform": "none"
+    },
+    "run[5]": {
+      "source": "source/native/yone_v7/frames/run_05.png",
+      "native_rect": [
+        424,
+        0,
+        39,
+        51
+      ],
+      "source_size": [
+        39,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        38,
+        34
+      ],
+      "bottom_margin": 17,
+      "face_bbox": [
+        22,
+        9,
+        7,
+        9
+      ],
+      "eye_pixels": [
+        [
+          25,
+          13
+        ]
+      ],
+      "mask_bbox": [
+        14,
+        4,
+        10,
+        9
+      ],
+      "foot_zones": [
+        [
+          1,
+          30,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            21,
+            7,
+            9
+          ],
+          "hand_anchor": [
+            7,
+            21
+          ],
+          "tip": [
+            2,
+            29
+          ],
+          "span_px": 9.434,
+          "connectedness": 1.0,
+          "pixel_count": 23,
+          "crop_ratio": 0.2,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            31,
+            22,
+            6,
+            7
+          ],
+          "hand_anchor": [
+            32,
+            22
+          ],
+          "tip": [
+            36,
+            28
+          ],
+          "span_px": 7.211,
+          "connectedness": 1.0,
+          "pixel_count": 18,
+          "crop_ratio": 0.381,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "2aa75933dc2cfed9420a52a2bcf7361727a2118e2c277e721875db93a60b2afc",
+      "pack_transform": "none"
+    },
+    "run[6]": {
+      "source": "source/native/yone_v7/frames/run_06.png",
+      "native_rect": [
+        464,
+        0,
+        39,
+        53
+      ],
+      "source_size": [
+        39,
+        53
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        37,
+        33
+      ],
+      "bottom_margin": 20,
+      "face_bbox": [
+        23,
+        9,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          23,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        10,
+        3,
+        14,
+        15
+      ],
+      "foot_zones": [
+        [
+          1,
+          29,
+          36,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            19,
+            9,
+            9
+          ],
+          "hand_anchor": [
+            9,
+            20
+          ],
+          "tip": [
+            4,
+            27
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 35,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            28,
+            22,
+            9,
+            11
+          ],
+          "hand_anchor": [
+            29,
+            23
+          ],
+          "tip": [
+            35,
+            32
+          ],
+          "span_px": 10.817,
+          "connectedness": 1.0,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "0cda0ad82383f2230b0120309d9e09d79345fe49fe1757be8fcb2f1c9fa72c1b",
+      "pack_transform": "none"
+    },
+    "run[7]": {
+      "source": "source/native/yone_v7/frames/run_07.png",
+      "native_rect": [
+        504,
+        0,
+        39,
+        51
+      ],
+      "source_size": [
+        39,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        38,
+        34
+      ],
+      "bottom_margin": 17,
+      "face_bbox": [
+        24,
+        9,
+        7,
+        9
+      ],
+      "eye_pixels": [
+        [
+          24,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        16,
+        3,
+        9,
+        11
+      ],
+      "foot_zones": [
+        [
+          1,
+          30,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            21,
+            7,
+            8
+          ],
+          "hand_anchor": [
+            7,
+            21
+          ],
+          "tip": [
+            2,
+            28
+          ],
+          "span_px": 8.602,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.0455,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            31,
+            23,
+            6,
+            9
+          ],
+          "hand_anchor": [
+            32,
+            23
+          ],
+          "tip": [
+            36,
+            31
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 26,
+          "crop_ratio": 0.4783,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "7f6746e3de7926e1241436b195e142cfa96bcdb93daa59a18b2d74992b4c5b24",
+      "pack_transform": "none"
+    },
+    "skill2_attack[0]": {
+      "source": "source/native/yone_v7/frames/skill2_attack_00.png",
+      "native_rect": [
+        2046,
+        0,
+        31,
+        43
+      ],
+      "source_size": [
+        31,
+        43
+      ],
+      "source_alpha_bbox": [
+        1,
+        6,
+        30,
+        40
+      ],
+      "bottom_margin": 3,
+      "face_bbox": [
+        11,
+        14,
+        6,
+        9
+      ],
+      "eye_pixels": [
+        [
+          13,
+          17
+        ],
+        [
+          16,
+          17
+        ]
+      ],
+      "mask_bbox": [
+        2,
+        9,
+        9,
+        15
+      ],
+      "foot_zones": [
+        [
+          1,
+          36,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            26,
+            26,
+            3,
+            8
+          ],
+          "hand_anchor": [
+            27,
+            26
+          ],
+          "tip": [
+            26,
+            33
+          ],
+          "span_px": 7.071,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.871,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            14,
+            27,
+            15,
+            13
+          ],
+          "hand_anchor": [
+            15,
+            28
+          ],
+          "tip": [
+            28,
+            38
+          ],
+          "span_px": 16.401,
+          "connectedness": 1.0,
+          "pixel_count": 60,
+          "crop_ratio": 0.4595,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 44,
+      "sha256": "b0d793ba610ef3775e0c7c477f37e5e4f50d96c6b760c37028efe42e57f3536f",
+      "pack_transform": "none"
+    },
+    "skill2_attack[1]": {
+      "source": "source/native/yone_v7/frames/skill2_attack_01.png",
+      "native_rect": [
+        2078,
+        0,
+        31,
+        45
+      ],
+      "source_size": [
+        31,
+        45
+      ],
+      "source_alpha_bbox": [
+        1,
+        4,
+        30,
+        41
+      ],
+      "bottom_margin": 4,
+      "face_bbox": [
+        13,
+        14,
+        7,
+        8
+      ],
+      "eye_pixels": [
+        [
+          13,
+          17
+        ],
+        [
+          19,
+          18
+        ]
+      ],
+      "mask_bbox": [
+        5,
+        6,
+        10,
+        17
+      ],
+      "foot_zones": [
+        [
+          1,
+          37,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            26,
+            3,
+            10
+          ],
+          "hand_anchor": [
+            3,
+            26
+          ],
+          "tip": [
+            2,
+            35
+          ],
+          "span_px": 9.055,
+          "connectedness": 1.0,
+          "pixel_count": 30,
+          "crop_ratio": 0.9375,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            26,
+            28,
+            3,
+            12
+          ],
+          "hand_anchor": [
+            27,
+            28
+          ],
+          "tip": [
+            26,
+            39
+          ],
+          "span_px": 11.045,
+          "connectedness": 1.0,
+          "pixel_count": 36,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 44,
+      "sha256": "7da034106bf79e979d9c4c2b3334f41bdfca2d03e9999fc77d5b0580f2f44e3e",
+      "pack_transform": "none"
+    },
+    "skill2_attack[2]": {
+      "source": "source/native/yone_v7/frames/skill2_attack_02.png",
+      "native_rect": [
+        2110,
+        0,
+        59,
+        53
+      ],
+      "source_size": [
+        59,
+        53
+      ],
+      "source_alpha_bbox": [
+        8,
+        6,
+        58,
+        45
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        31,
+        15,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          32,
+          18
+        ],
+        [
+          36,
+          18
+        ]
+      ],
+      "mask_bbox": [
+        20,
+        10,
+        11,
+        10
+      ],
+      "foot_zones": [
+        [
+          8,
+          41,
+          50,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            8,
+            31,
+            13,
+            7
+          ],
+          "hand_anchor": [
+            20,
+            32
+          ],
+          "tip": [
+            8,
+            37
+          ],
+          "span_px": 13.0,
+          "connectedness": 1.0,
+          "pixel_count": 31,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            44,
+            6,
+            13,
+            20
+          ],
+          "hand_anchor": [
+            45,
+            24
+          ],
+          "tip": [
+            54,
+            6
+          ],
+          "span_px": 20.125,
+          "connectedness": 1.0,
+          "pixel_count": 76,
+          "crop_ratio": 0.4384,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "173f7da4e193b24f0606f93f5c7b2db73355e29cebe8b0a7a13d41bcc8afb9ce",
+      "pack_transform": "none"
+    },
+    "skill2_attack[3]": {
+      "source": "source/native/yone_v7/frames/skill2_attack_03.png",
+      "native_rect": [
+        2170,
+        0,
+        59,
+        55
+      ],
+      "source_size": [
+        59,
+        55
+      ],
+      "source_alpha_bbox": [
+        1,
+        8,
+        58,
+        46
+      ],
+      "bottom_margin": 9,
+      "face_bbox": [
+        29,
+        21,
+        9,
+        7
+      ],
+      "eye_pixels": [
+        [
+          29,
+          24
+        ],
+        [
+          37,
+          24
+        ]
+      ],
+      "mask_bbox": [
+        19,
+        13,
+        9,
+        15
+      ],
+      "foot_zones": [
+        [
+          1,
+          42,
+          57,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            28,
+            12,
+            10
+          ],
+          "hand_anchor": [
+            12,
+            29
+          ],
+          "tip": [
+            2,
+            35
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 44,
+          "crop_ratio": 0.3902,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            46,
+            26,
+            11,
+            8
+          ],
+          "hand_anchor": [
+            47,
+            27
+          ],
+          "tip": [
+            56,
+            32
+          ],
+          "span_px": 10.296,
+          "connectedness": 1.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.6104,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "29b4605e29fee78ee4906240154e0850f0bf2c2387d9b2926731b74de0fd5a18",
+      "pack_transform": "none"
+    },
+    "skill2_attack[4]": {
+      "source": "source/native/yone_v7/frames/skill2_attack_04.png",
+      "native_rect": [
+        2230,
+        0,
+        57,
+        51
+      ],
+      "source_size": [
+        57,
+        51
+      ],
+      "source_alpha_bbox": [
+        2,
+        6,
+        56,
+        44
+      ],
+      "bottom_margin": 7,
+      "face_bbox": [
+        25,
+        18,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          25,
+          21
+        ],
+        [
+          30,
+          21
+        ]
+      ],
+      "mask_bbox": [
+        15,
+        10,
+        10,
+        14
+      ],
+      "foot_zones": [
+        [
+          2,
+          40,
+          54,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            26,
+            10,
+            15
+          ],
+          "hand_anchor": [
+            10,
+            27
+          ],
+          "tip": [
+            4,
+            40
+          ],
+          "span_px": 14.318,
+          "connectedness": 1.0,
+          "pixel_count": 54,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            40,
+            29,
+            15,
+            15
+          ],
+          "hand_anchor": [
+            41,
+            30
+          ],
+          "tip": [
+            54,
+            42
+          ],
+          "span_px": 17.692,
+          "connectedness": 1.0,
+          "pixel_count": 66,
+          "crop_ratio": 0.3231,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "1b1a1937de76994d9455b53e1dd31664e4726942120a5cc7929caabd2c3c4ff9",
+      "pack_transform": "none"
+    },
+    "idle[0]": {
+      "source": "source/native/yone_v7/frames/idle_00.png",
+      "native_rect": [
+        44,
+        0,
+        43,
+        55
+      ],
+      "source_size": [
+        43,
+        55
+      ],
+      "source_alpha_bbox": [
+        5,
+        2,
+        39,
+        40
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        21,
+        10,
+        6,
+        10
+      ],
+      "eye_pixels": [
+        [
+          22,
+          14
+        ],
+        [
+          25,
+          13
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        5,
+        9,
+        10
+      ],
+      "foot_zones": [
+        [
+          5,
+          36,
+          34,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            5,
+            28,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            12,
+            29
+          ],
+          "tip": [
+            7,
+            39
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 44,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            27,
+            10,
+            13
+          ],
+          "hand_anchor": [
+            30,
+            28
+          ],
+          "tip": [
+            37,
+            39
+          ],
+          "span_px": 13.038,
+          "connectedness": 1.0,
+          "pixel_count": 49,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "7ee6980796d64c5ae90ca5d7ed976a284e11499d8b10c8ea1a01f32a469bb59c",
+      "pack_transform": "none"
+    },
+    "idle[1]": {
+      "source": "source/native/yone_v7/frames/idle_01.png",
+      "native_rect": [
+        88,
+        0,
+        43,
+        53
+      ],
+      "source_size": [
+        43,
+        53
+      ],
+      "source_alpha_bbox": [
+        5,
+        1,
+        38,
+        38
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        20,
+        9,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          21,
+          12
+        ],
+        [
+          25,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        3,
+        9,
+        10
+      ],
+      "foot_zones": [
+        [
+          5,
+          34,
+          33,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            5,
+            27,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            11,
+            28
+          ],
+          "tip": [
+            7,
+            37
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            26,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            30,
+            27
+          ],
+          "tip": [
+            36,
+            37
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "9121a874f5f3671f888ad7355fd1482a781a4debbdfe623926a846093cbbd428",
+      "pack_transform": "none"
+    },
+    "idle[2]": {
+      "source": "source/native/yone_v7/frames/idle_02.png",
+      "native_rect": [
+        132,
+        0,
+        43,
+        51
+      ],
+      "source_size": [
+        43,
+        51
+      ],
+      "source_alpha_bbox": [
+        6,
+        1,
+        38,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        21,
+        9,
+        6,
+        10
+      ],
+      "eye_pixels": [
+        [
+          22,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        3,
+        9,
+        14
+      ],
+      "foot_zones": [
+        [
+          6,
+          33,
+          32,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            6,
+            26,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            12,
+            27
+          ],
+          "tip": [
+            8,
+            36
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            25,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            30,
+            26
+          ],
+          "tip": [
+            36,
+            36
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 43,
+      "sha256": "d87ad15cf24c4e59b6a273f9f2395e6d8c130730ebdfb4a4f8418a05a714f8d9",
+      "pack_transform": "none"
+    },
+    "idle[3]": {
+      "source": "source/native/yone_v7/frames/idle_03.png",
+      "native_rect": [
+        176,
+        0,
+        43,
+        53
+      ],
+      "source_size": [
+        43,
+        53
+      ],
+      "source_alpha_bbox": [
+        5,
+        1,
+        38,
+        38
+      ],
+      "bottom_margin": 15,
+      "face_bbox": [
+        20,
+        9,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          21,
+          12
+        ],
+        [
+          25,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        3,
+        9,
+        10
+      ],
+      "foot_zones": [
+        [
+          5,
+          34,
+          33,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            5,
+            27,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            11,
+            28
+          ],
+          "tip": [
+            7,
+            37
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            26,
+            9,
+            12
+          ],
+          "hand_anchor": [
+            30,
+            27
+          ],
+          "tip": [
+            36,
+            37
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 45,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "9121a874f5f3671f888ad7355fd1482a781a4debbdfe623926a846093cbbd428",
+      "pack_transform": "none"
+    },
+    "dead[0]": {
+      "source": "source/native/yone_v7/frames/dead_00.png",
+      "native_rect": [
+        918,
+        0,
+        43,
+        51
+      ],
+      "source_size": [
+        43,
+        51
+      ],
+      "source_alpha_bbox": [
+        1,
+        11,
+        42,
+        45
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        20,
+        20,
+        6,
+        8
+      ],
+      "eye_pixels": [
+        [
+          25,
+          24
+        ]
+      ],
+      "mask_bbox": [
+        7,
+        13,
+        14,
+        12
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            28,
+            6,
+            8
+          ],
+          "hand_anchor": [
+            6,
+            28
+          ],
+          "tip": [
+            2,
+            35
+          ],
+          "span_px": 8.062,
+          "connectedness": 1.0,
+          "pixel_count": 24,
+          "crop_ratio": 0.3182,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            31,
+            29,
+            10,
+            11
+          ],
+          "hand_anchor": [
+            32,
+            30
+          ],
+          "tip": [
+            39,
+            39
+          ],
+          "span_px": 11.402,
+          "connectedness": 1.0,
+          "pixel_count": 43,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "8bd51484a01160445653cde4ac68ad6effee4f22fa13a1c4b0045883697f480a",
+      "pack_transform": "none"
+    },
+    "dead[1]": {
+      "source": "source/native/yone_v7/frames/dead_01.png",
+      "native_rect": [
+        962,
+        0,
+        41,
+        49
+      ],
+      "source_size": [
+        41,
+        49
+      ],
+      "source_alpha_bbox": [
+        6,
+        15,
+        37,
+        43
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        22,
+        26,
+        6,
+        5
+      ],
+      "eye_pixels": [
+        [
+          27,
+          28
+        ],
+        [
+          22,
+          27
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        18,
+        12,
+        13
+      ],
+      "foot_zones": [],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            16,
+            38,
+            10,
+            5
+          ],
+          "hand_anchor": [
+            17,
+            39
+          ],
+          "tip": [
+            25,
+            42
+          ],
+          "span_px": 8.544,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            29,
+            37,
+            8,
+            6
+          ],
+          "hand_anchor": [
+            30,
+            38
+          ],
+          "tip": [
+            36,
+            41
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 25,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 44,
+      "sha256": "777cf69a0e6097f6792f6f17bcdcabf60300c4c2b9b1c103365ebc7909fe25a1",
+      "pack_transform": "none"
+    },
+    "dead[2]": {
+      "source": "source/native/yone_v7/frames/dead_02.png",
+      "native_rect": [
+        1004,
+        0,
+        41,
+        45
+      ],
+      "source_size": [
+        41,
+        45
+      ],
+      "source_alpha_bbox": [
+        13,
+        16,
+        29,
+        40
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        22,
+        25,
+        5,
+        5
+      ],
+      "eye_pixels": [
+        [
+          22,
+          27
+        ]
+      ],
+      "mask_bbox": [
+        16,
+        19,
+        4,
+        6
+      ],
+      "foot_zones": [],
+      "face_visibility": "profile",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            15,
+            32,
+            4,
+            7
+          ],
+          "hand_anchor": [
+            17,
+            32
+          ],
+          "tip": [
+            15,
+            38
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 20,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            20,
+            16,
+            8,
+            5
+          ],
+          "hand_anchor": [
+            21,
+            19
+          ],
+          "tip": [
+            27,
+            16
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 18,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 43,
+      "sha256": "0d8a453708ca0fcda2a8b694c2f6ff9760c32f1939a667097f191949656e5c0c",
+      "pack_transform": "none"
+    },
+    "dead[3]": {
+      "source": "source/native/yone_v7/frames/dead_03.png",
+      "native_rect": [
+        1046,
+        0,
+        41,
+        39
+      ],
+      "source_size": [
+        41,
+        39
+      ],
+      "source_alpha_bbox": [
+        14,
+        23,
+        30,
+        35
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [],
+      "face_visibility": "hidden",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            14,
+            32,
+            7,
+            3
+          ],
+          "hand_anchor": [
+            20,
+            33
+          ],
+          "tip": [
+            14,
+            34
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            22,
+            32,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            23,
+            33
+          ],
+          "tip": [
+            29,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 25,
+      "sha256": "e7288c5f996e7357321c2edb65ac0c60b1c5a6428268e9a7f74b4e247a8690ae",
+      "pack_transform": "none"
+    },
+    "dead[4]": {
+      "source": "source/native/yone_v7/frames/dead_04.png",
+      "native_rect": [
+        1088,
+        0,
+        41,
+        39
+      ],
+      "source_size": [
+        41,
+        39
+      ],
+      "source_alpha_bbox": [
+        13,
+        23,
+        29,
+        35
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [],
+      "face_visibility": "hidden",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            15,
+            32,
+            5,
+            3
+          ],
+          "hand_anchor": [
+            19,
+            33
+          ],
+          "tip": [
+            15,
+            34
+          ],
+          "span_px": 4.123,
+          "connectedness": 1.0,
+          "pixel_count": 15,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            21,
+            32,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            22,
+            33
+          ],
+          "tip": [
+            28,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 25,
+      "sha256": "5797ad2dea90add3b73d86951d468c6d01f164877156de8ac0182ca04a1a6ee6",
+      "pack_transform": "none"
+    },
+    "dead[5]": {
+      "source": "source/native/yone_v7/frames/dead_05.png",
+      "native_rect": [
+        1130,
+        0,
+        41,
+        39
+      ],
+      "source_size": [
+        41,
+        39
+      ],
+      "source_alpha_bbox": [
+        8,
+        23,
+        27,
+        35
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [],
+      "face_visibility": "hidden",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            11,
+            32,
+            7,
+            3
+          ],
+          "hand_anchor": [
+            17,
+            33
+          ],
+          "tip": [
+            11,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            21,
+            32,
+            6,
+            3
+          ],
+          "hand_anchor": [
+            22,
+            33
+          ],
+          "tip": [
+            26,
+            34
+          ],
+          "span_px": 4.123,
+          "connectedness": 1.0,
+          "pixel_count": 16,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 29,
+      "sha256": "bf6a9f32151ed0f72c8d7e5766eccf57e11eaf7aaa3b75f9c37ad0b650df327c",
+      "pack_transform": "none"
+    },
+    "dead[6]": {
+      "source": "source/native/yone_v7/frames/dead_06.png",
+      "native_rect": [
+        1172,
+        0,
+        41,
+        39
+      ],
+      "source_size": [
+        41,
+        39
+      ],
+      "source_alpha_bbox": [
+        8,
+        23,
+        30,
+        35
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [],
+      "face_visibility": "hidden",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            12,
+            32,
+            7,
+            3
+          ],
+          "hand_anchor": [
+            18,
+            33
+          ],
+          "tip": [
+            12,
+            34
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            22,
+            32,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            23,
+            33
+          ],
+          "tip": [
+            29,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 34,
+      "sha256": "80ac4af616cacfc1916a56978bdc9e1f02491929fa6d8090ff08c013689c91ec",
+      "pack_transform": "none"
+    },
+    "dead[7]": {
+      "source": "source/native/yone_v7/frames/dead_07.png",
+      "native_rect": [
+        1214,
+        0,
+        41,
+        39
+      ],
+      "source_size": [
+        41,
+        39
+      ],
+      "source_alpha_bbox": [
+        9,
+        23,
+        31,
+        35
+      ],
+      "bottom_margin": 4,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [],
+      "face_visibility": "hidden",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            13,
+            32,
+            7,
+            3
+          ],
+          "hand_anchor": [
+            19,
+            33
+          ],
+          "tip": [
+            13,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            23,
+            32,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            24,
+            33
+          ],
+          "tip": [
+            30,
+            32
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 34,
+      "sha256": "4939e3b46f6c432fe7c86ee4c22822583c56292aec09e921d971e7683b9e6782",
+      "pack_transform": "none"
+    },
+    "skill[0]": {
+      "source": "source/native/yone_v7/frames/skill_00.png",
+      "native_rect": [
+        1260,
+        0,
+        31,
+        49
+      ],
+      "source_size": [
+        31,
+        49
+      ],
+      "source_alpha_bbox": [
+        1,
+        6,
+        30,
+        44
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        16,
+        16,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          18,
+          20
+        ],
+        [
+          22,
+          20
+        ]
+      ],
+      "mask_bbox": [
+        4,
+        9,
+        12,
+        13
+      ],
+      "foot_zones": [
+        [
+          1,
+          40,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            20,
+            26,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            21,
+            27
+          ],
+          "tip": [
+            27,
+            28
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.9286,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            3,
+            31,
+            7,
+            5
+          ],
+          "hand_anchor": [
+            9,
+            32
+          ],
+          "tip": [
+            3,
+            35
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 17,
+          "crop_ratio": 0.6087,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "df7740c7c061cec0d9dfb6bfe962baf7a07c4b3c9fe70ae91053146f1fa730ca",
+      "pack_transform": "none"
+    },
+    "skill[1]": {
+      "source": "source/native/yone_v7/frames/skill_01.png",
+      "native_rect": [
+        1292,
+        0,
+        31,
+        43
+      ],
+      "source_size": [
+        31,
+        43
+      ],
+      "source_alpha_bbox": [
+        1,
+        1,
+        30,
+        37
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        17,
+        11,
+        7,
+        10
+      ],
+      "eye_pixels": [
+        [
+          18,
+          15
+        ],
+        [
+          22,
+          14
+        ]
+      ],
+      "mask_bbox": [
+        6,
+        4,
+        12,
+        18
+      ],
+      "foot_zones": [
+        [
+          1,
+          33,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            20,
+            21,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            21,
+            22
+          ],
+          "tip": [
+            27,
+            21
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            3,
+            25,
+            7,
+            4
+          ],
+          "hand_anchor": [
+            9,
+            26
+          ],
+          "tip": [
+            3,
+            28
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 16,
+          "crop_ratio": 0.8125,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "f08ea00b321ccb7d84d4efc25eb37860c5331c90cf89101eb021b780e57e73bf",
+      "pack_transform": "none"
+    },
+    "skill[2]": {
+      "source": "source/native/yone_v7/frames/skill_02.png",
+      "native_rect": [
+        1324,
+        0,
+        31,
+        55
+      ],
+      "source_size": [
+        31,
+        55
+      ],
+      "source_alpha_bbox": [
+        1,
+        10,
+        30,
+        48
+      ],
+      "bottom_margin": 7,
+      "face_bbox": [
+        18,
+        21,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          18,
+          25
+        ],
+        [
+          20,
+          25
+        ]
+      ],
+      "mask_bbox": [
+        6,
+        13,
+        13,
+        13
+      ],
+      "foot_zones": [
+        [
+          1,
+          44,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            20,
+            30,
+            8,
+            3
+          ],
+          "hand_anchor": [
+            21,
+            31
+          ],
+          "tip": [
+            27,
+            30
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            3,
+            35,
+            7,
+            5
+          ],
+          "hand_anchor": [
+            9,
+            36
+          ],
+          "tip": [
+            3,
+            39
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 17,
+          "crop_ratio": 0.7,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "d1b0e34b54ac56012e209bbed754a4fb11e82c600f59cf329dbf35d7ea40babf",
+      "pack_transform": "none"
+    },
+    "skill[3]": {
+      "source": "source/native/yone_v7/frames/skill_03.png",
+      "native_rect": [
+        1356,
+        0,
+        71,
+        57
+      ],
+      "source_size": [
+        71,
+        57
+      ],
+      "source_alpha_bbox": [
+        13,
+        12,
+        70,
+        51
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        38,
+        24,
+        9,
+        9
+      ],
+      "eye_pixels": [
+        [
+          38,
+          28
+        ],
+        [
+          40,
+          28
+        ]
+      ],
+      "mask_bbox": [
+        25,
+        16,
+        14,
+        18
+      ],
+      "foot_zones": [
+        [
+          13,
+          47,
+          57,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            52,
+            33,
+            16,
+            3
+          ],
+          "hand_anchor": [
+            53,
+            34
+          ],
+          "tip": [
+            67,
+            33
+          ],
+          "span_px": 14.036,
+          "connectedness": 1.0,
+          "pixel_count": 46,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            14,
+            38,
+            9,
+            6
+          ],
+          "hand_anchor": [
+            22,
+            39
+          ],
+          "tip": [
+            14,
+            43
+          ],
+          "span_px": 8.944,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "73f09eb79e081bc815685c5c89fcd9038e626f06e89518658af6da461fb62837",
+      "pack_transform": "none"
+    },
+    "skill[4]": {
+      "source": "source/native/yone_v7/frames/skill_04.png",
+      "native_rect": [
+        1428,
+        0,
+        83,
+        67
+      ],
+      "source_size": [
+        83,
+        67
+      ],
+      "source_alpha_bbox": [
+        9,
+        20,
+        73,
+        59
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        43,
+        31,
+        9,
+        12
+      ],
+      "eye_pixels": [
+        [
+          45,
+          36
+        ],
+        [
+          50,
+          36
+        ]
+      ],
+      "mask_bbox": [
+        31,
+        23,
+        13,
+        21
+      ],
+      "foot_zones": [
+        [
+          9,
+          55,
+          64,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            57,
+            41,
+            16,
+            3
+          ],
+          "hand_anchor": [
+            58,
+            42
+          ],
+          "tip": [
+            72,
+            41
+          ],
+          "span_px": 14.036,
+          "connectedness": 1.0,
+          "pixel_count": 46,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            19,
+            45,
+            9,
+            5
+          ],
+          "hand_anchor": [
+            27,
+            46
+          ],
+          "tip": [
+            19,
+            49
+          ],
+          "span_px": 8.544,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "52dfc9b652c8d62056f24d1e334236e3216a05433086318e791339892d482ac0",
+      "pack_transform": "none"
+    },
+    "skill[5]": {
+      "source": "source/native/yone_v7/frames/skill_05.png",
+      "native_rect": [
+        1512,
+        0,
+        85,
+        77
+      ],
+      "source_size": [
+        85,
+        77
+      ],
+      "source_alpha_bbox": [
+        20,
+        28,
+        74,
+        67
+      ],
+      "bottom_margin": 10,
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
+      "foot_zones": [
+        [
+          20,
+          63,
+          54,
+          4
+        ]
+      ],
+      "face_visibility": "hidden",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            61,
+            49,
+            13,
+            4
+          ],
+          "hand_anchor": [
+            62,
+            50
+          ],
+          "tip": [
+            73,
+            52
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            20,
+            54,
+            9,
+            5
+          ],
+          "hand_anchor": [
+            28,
+            55
+          ],
+          "tip": [
+            20,
+            58
+          ],
+          "span_px": 8.544,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "503a4b65690ba63b4c6bb5ae8eabfd05a4efccc9929044feb1a0ee6ce8a1c859",
+      "pack_transform": "none"
+    },
+    "skill[6]": {
+      "source": "source/native/yone_v7/frames/skill_06.png",
+      "native_rect": [
+        1598,
+        0,
+        91,
+        87
+      ],
+      "source_size": [
+        91,
+        87
+      ],
+      "source_alpha_bbox": [
+        24,
+        40,
+        76,
+        79
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        47,
+        50,
+        8,
+        10
+      ],
+      "eye_pixels": [
+        [
+          49,
+          54
+        ],
+        [
+          53,
+          54
+        ]
+      ],
+      "mask_bbox": [
+        35,
+        43,
+        12,
+        18
+      ],
+      "foot_zones": [
+        [
+          24,
+          75,
+          52,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            59,
+            61,
+            17,
+            3
+          ],
+          "hand_anchor": [
+            60,
+            62
+          ],
+          "tip": [
+            75,
+            63
+          ],
+          "span_px": 15.033,
+          "connectedness": 1.0,
+          "pixel_count": 49,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            24,
+            64,
+            12,
+            6
+          ],
+          "hand_anchor": [
+            35,
+            65
+          ],
+          "tip": [
+            24,
+            69
+          ],
+          "span_px": 11.705,
+          "connectedness": 1.0,
+          "pixel_count": 28,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "0cbc52f7200f2ca90ca9ec0d758acf0fa8142e6dfd53600a55d0a029017f42ef",
+      "pack_transform": "none"
+    },
+    "attack_azakana[0]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_00.png",
+      "native_rect": [
+        3502,
+        0,
+        45,
+        51
+      ],
+      "source_size": [
+        45,
+        51
+      ],
+      "source_alpha_bbox": [
+        2,
+        1,
+        43,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        21,
+        10,
+        6,
+        10
+      ],
+      "eye_pixels": [
+        [
+          22,
+          13
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        4,
+        10,
+        17
+      ],
+      "foot_zones": [
+        [
+          2,
+          33,
+          41,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            25,
+            10,
+            11
+          ],
+          "hand_anchor": [
+            10,
+            26
+          ],
+          "tip": [
+            4,
+            35
+          ],
+          "span_px": 10.817,
+          "connectedness": 1.0,
+          "pixel_count": 42,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            30,
+            19,
+            12,
+            8
+          ],
+          "hand_anchor": [
+            31,
+            25
+          ],
+          "tip": [
+            41,
+            19
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 29,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "a2302077b81b02c90dbed8d31252c4c8993eef0c6850c5d66b9769b9c38a007b",
+      "pack_transform": "none"
+    },
+    "attack_azakana[1]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_01.png",
+      "native_rect": [
+        3548,
+        0,
+        49,
+        51
+      ],
+      "source_size": [
+        49,
+        51
+      ],
+      "source_alpha_bbox": [
+        4,
+        1,
+        48,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        26,
+        13,
+        6,
+        5
+      ],
+      "eye_pixels": [
+        [
+          31,
+          16
+        ]
+      ],
+      "mask_bbox": [
+        15,
+        6,
+        6,
+        8
+      ],
+      "foot_zones": [
+        [
+          4,
+          33,
+          44,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            4,
+            25,
+            11,
+            10
+          ],
+          "hand_anchor": [
+            13,
+            26
+          ],
+          "tip": [
+            4,
+            32
+          ],
+          "span_px": 10.817,
+          "connectedness": 1.0,
+          "pixel_count": 42,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            34,
+            21,
+            12,
+            3
+          ],
+          "hand_anchor": [
+            35,
+            22
+          ],
+          "tip": [
+            45,
+            21
+          ],
+          "span_px": 10.05,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.1111,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 45,
+      "sha256": "14dddf607301111040a19b57f19b89fd0bb4c8d5c4991eba5b312081d45e1215",
+      "pack_transform": "none"
+    },
+    "attack_azakana[2]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_02.png",
+      "native_rect": [
+        3598,
+        0,
+        59,
+        47
+      ],
+      "source_size": [
+        59,
+        47
+      ],
+      "source_alpha_bbox": [
+        9,
+        1,
+        55,
+        35
+      ],
+      "bottom_margin": 12,
+      "face_bbox": [
+        33,
+        11,
+        6,
+        7
+      ],
+      "eye_pixels": [
+        [
+          34,
+          14
+        ],
+        [
+          38,
+          14
+        ]
+      ],
+      "mask_bbox": [
+        20,
+        4,
+        13,
+        14
+      ],
+      "foot_zones": [
+        [
+          9,
+          31,
+          46,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            45,
+            25,
+            10,
+            10
+          ],
+          "hand_anchor": [
+            46,
+            26
+          ],
+          "tip": [
+            53,
+            34
+          ],
+          "span_px": 10.63,
+          "connectedness": 1.0,
+          "pixel_count": 41,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            9,
+            9,
+            12,
+            8
+          ],
+          "hand_anchor": [
+            20,
+            15
+          ],
+          "tip": [
+            9,
+            9
+          ],
+          "span_px": 12.53,
+          "connectedness": 1.0,
+          "pixel_count": 30,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "89508181a91b9f9dec570806ac5afae790d73341880767c3b184c1baa5c48db0",
+      "pack_transform": "none"
+    },
+    "attack_azakana[3]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_03.png",
+      "native_rect": [
+        3658,
+        0,
+        59,
+        49
+      ],
+      "source_size": [
+        59,
+        49
+      ],
+      "source_alpha_bbox": [
+        8,
+        1,
+        48,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        37,
+        11,
+        8,
+        10
+      ],
+      "eye_pixels": [
+        [
+          37,
+          15
+        ],
+        [
+          40,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        28,
+        4,
+        10,
+        18
+      ],
+      "foot_zones": [
+        [
+          8,
+          32,
+          40,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            10,
+            20,
+            14,
+            3
+          ],
+          "hand_anchor": [
+            23,
+            21
+          ],
+          "tip": [
+            10,
+            20
+          ],
+          "span_px": 13.038,
+          "connectedness": 1.0,
+          "pixel_count": 42,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            8,
+            11,
+            14,
+            8
+          ],
+          "hand_anchor": [
+            21,
+            17
+          ],
+          "tip": [
+            8,
+            11
+          ],
+          "span_px": 14.318,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "f2d918ca04a686a895b54e98fa841233fe4dc3cc228916b17a9895e541d3c9f8",
+      "pack_transform": "none"
+    },
+    "attack_azakana[4]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_04.png",
+      "native_rect": [
+        3718,
+        0,
+        61,
+        49
+      ],
+      "source_size": [
+        61,
+        49
+      ],
+      "source_alpha_bbox": [
+        7,
+        1,
+        59,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        35,
+        15,
+        6,
+        4
+      ],
+      "eye_pixels": [
+        [
+          36,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        21,
+        7,
+        9,
+        12
+      ],
+      "foot_zones": [
+        [
+          7,
+          32,
+          52,
+          4
+        ]
+      ],
+      "face_visibility": "profile",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            45,
+            21,
+            13,
+            4
+          ],
+          "hand_anchor": [
+            46,
+            22
+          ],
+          "tip": [
+            57,
+            24
+          ],
+          "span_px": 11.18,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            7,
+            11,
+            14,
+            9
+          ],
+          "hand_anchor": [
+            20,
+            18
+          ],
+          "tip": [
+            7,
+            11
+          ],
+          "span_px": 14.765,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "e9bf4970e8d5e85577cf01af0aab77d0d7d6fe2ab35c24f4df53909b9935cba0",
+      "pack_transform": "none"
+    },
+    "attack_azakana[5]": {
+      "source": "source/native/yone_v7/frames/attack_azakana_05.png",
+      "native_rect": [
+        3780,
+        0,
+        51,
+        51
+      ],
+      "source_size": [
+        51,
+        51
+      ],
+      "source_alpha_bbox": [
+        2,
+        1,
+        50,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        26,
+        11,
+        9,
+        11
+      ],
+      "eye_pixels": [
+        [
+          26,
+          16
+        ],
+        [
+          29,
+          15
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        4,
+        16,
+        19
+      ],
+      "foot_zones": [
+        [
+          2,
+          33,
+          48,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "azakana",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            40,
+            22,
+            8,
+            4
+          ],
+          "hand_anchor": [
+            41,
+            23
+          ],
+          "tip": [
+            47,
+            25
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 17,
+          "crop_ratio": 0.1538,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            13,
+            11,
+            8
+          ],
+          "hand_anchor": [
+            11,
+            19
+          ],
+          "tip": [
+            2,
+            14
+          ],
+          "span_px": 10.296,
+          "connectedness": 1.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 48,
+      "sha256": "a08430e5e2b774d4cdd9760e40efbeb18d2ac206a45a09a20f2e8c9b2ea006a9",
+      "pack_transform": "none"
+    },
+    "skill_q3[0]": {
+      "source": "source/native/yone_v7/frames/skill_q3_00.png",
+      "native_rect": [
+        3832,
+        0,
+        31,
+        49
+      ],
+      "source_size": [
+        31,
+        49
+      ],
+      "source_alpha_bbox": [
+        1,
+        8,
+        30,
+        44
+      ],
+      "bottom_margin": 5,
+      "face_bbox": [
+        17,
+        19,
+        8,
+        11
+      ],
+      "eye_pixels": [
+        [
+          19,
+          23
+        ],
+        [
+          23,
+          23
+        ]
+      ],
+      "mask_bbox": [
+        5,
+        12,
+        13,
+        19
+      ],
+      "foot_zones": [
+        [
+          1,
+          40,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            26,
+            36,
+            3,
+            7
+          ],
+          "hand_anchor": [
+            27,
+            36
+          ],
+          "tip": [
+            26,
+            42
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            18,
+            4,
+            8
+          ],
+          "hand_anchor": [
+            4,
+            24
+          ],
+          "tip": [
+            2,
+            18
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.7714,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "60f10248948efb13cbc67209dad63ae107eeda6bf14651ebcac85cf15f3866ca",
+      "pack_transform": "none"
+    },
+    "skill_q3[1]": {
+      "source": "source/native/yone_v7/frames/skill_q3_01.png",
+      "native_rect": [
+        3864,
+        0,
+        31,
+        43
+      ],
+      "source_size": [
+        31,
+        43
+      ],
+      "source_alpha_bbox": [
+        1,
+        2,
+        30,
+        37
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        23,
+        12,
+        7,
+        11
+      ],
+      "eye_pixels": [
+        [
+          26,
+          16
+        ],
+        [
+          29,
+          16
+        ]
+      ],
+      "mask_bbox": [
+        11,
+        5,
+        13,
+        19
+      ],
+      "foot_zones": [
+        [
+          1,
+          33,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            3,
+            21,
+            7,
+            3
+          ],
+          "hand_anchor": [
+            9,
+            22
+          ],
+          "tip": [
+            3,
+            21
+          ],
+          "span_px": 6.083,
+          "connectedness": 1.0,
+          "pixel_count": 21,
+          "crop_ratio": 0.3929,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            12,
+            6,
+            8
+          ],
+          "hand_anchor": [
+            6,
+            18
+          ],
+          "tip": [
+            3,
+            12
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 27,
+          "crop_ratio": 0.5556,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "4a941a0666d69cdc67b931e8dbbcc92df6be65518b2d50e8eec951c19b32a55e",
+      "pack_transform": "none"
+    },
+    "skill_q3[2]": {
+      "source": "source/native/yone_v7/frames/skill_q3_02.png",
+      "native_rect": [
+        3896,
+        0,
+        31,
+        55
+      ],
+      "source_size": [
+        31,
+        55
+      ],
+      "source_alpha_bbox": [
+        1,
+        11,
+        30,
+        48
+      ],
+      "bottom_margin": 7,
+      "face_bbox": [
+        20,
+        22,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          22,
+          26
+        ],
+        [
+          20,
+          25
+        ]
+      ],
+      "mask_bbox": [
+        6,
+        14,
+        15,
+        18
+      ],
+      "foot_zones": [
+        [
+          1,
+          44,
+          29,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            20,
+            33,
+            8,
+            4
+          ],
+          "hand_anchor": [
+            21,
+            34
+          ],
+          "tip": [
+            27,
+            36
+          ],
+          "span_px": 6.325,
+          "connectedness": 1.0,
+          "pixel_count": 17,
+          "crop_ratio": 1.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            2,
+            23,
+            5,
+            8
+          ],
+          "hand_anchor": [
+            5,
+            29
+          ],
+          "tip": [
+            2,
+            23
+          ],
+          "span_px": 6.708,
+          "connectedness": 1.0,
+          "pixel_count": 22,
+          "crop_ratio": 0.6842,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "4174ddf1e103ff25433183405261d191bdfdc586d04c50b55c570efe06706d38",
+      "pack_transform": "none"
+    },
+    "skill_q3[3]": {
+      "source": "source/native/yone_v7/frames/skill_q3_03.png",
+      "native_rect": [
+        3928,
+        0,
+        71,
+        57
+      ],
+      "source_size": [
+        71,
+        57
+      ],
+      "source_alpha_bbox": [
+        12,
+        12,
+        67,
+        51
+      ],
+      "bottom_margin": 6,
+      "face_bbox": [
+        39,
+        23,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          39,
+          27
+        ],
+        [
+          41,
+          27
+        ]
+      ],
+      "mask_bbox": [
+        27,
+        15,
+        13,
+        18
+      ],
+      "foot_zones": [
+        [
+          12,
+          47,
+          55,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            53,
+            35,
+            14,
+            4
+          ],
+          "hand_anchor": [
+            54,
+            36
+          ],
+          "tip": [
+            66,
+            38
+          ],
+          "span_px": 12.166,
+          "connectedness": 1.0,
+          "pixel_count": 29,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            12,
+            26,
+            11,
+            8
+          ],
+          "hand_anchor": [
+            22,
+            32
+          ],
+          "tip": [
+            12,
+            26
+          ],
+          "span_px": 11.662,
+          "connectedness": 1.0,
+          "pixel_count": 28,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "d5f38618ef38a85baaef662668d782848ca0865691a03c36a713a827bcb9302e",
+      "pack_transform": "none"
+    },
+    "skill_q3[4]": {
+      "source": "source/native/yone_v7/frames/skill_q3_04.png",
+      "native_rect": [
+        4000,
+        0,
+        83,
+        67
+      ],
+      "source_size": [
+        83,
+        67
+      ],
+      "source_alpha_bbox": [
+        16,
+        20,
+        80,
+        59
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        46,
+        31,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          48,
+          35
+        ],
+        [
+          52,
+          35
+        ]
+      ],
+      "mask_bbox": [
+        34,
+        23,
+        12,
+        17
+      ],
+      "foot_zones": [
+        [
+          16,
+          55,
+          64,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            58,
+            43,
+            15,
+            4
+          ],
+          "hand_anchor": [
+            59,
+            44
+          ],
+          "tip": [
+            72,
+            46
+          ],
+          "span_px": 13.153,
+          "connectedness": 1.0,
+          "pixel_count": 31,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            16,
+            32,
+            15,
+            9
+          ],
+          "hand_anchor": [
+            30,
+            39
+          ],
+          "tip": [
+            16,
+            32
+          ],
+          "span_px": 15.652,
+          "connectedness": 1.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "074b2cb869f05717db888f5184efe0fc85cc869b8f55d4d7efb2c1ef2356b73d",
+      "pack_transform": "none"
+    },
+    "skill_q3[5]": {
+      "source": "source/native/yone_v7/frames/skill_q3_05.png",
+      "native_rect": [
+        4084,
+        0,
+        85,
+        77
+      ],
+      "source_size": [
+        85,
+        77
+      ],
+      "source_alpha_bbox": [
+        17,
+        28,
+        62,
+        67
+      ],
+      "bottom_margin": 10,
+      "face_bbox": [
+        51,
+        39,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          53,
+          43
+        ],
+        [
+          57,
+          43
+        ]
+      ],
+      "mask_bbox": [
+        39,
+        31,
+        12,
+        16
+      ],
+      "foot_zones": [
+        [
+          17,
+          63,
+          45,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            19,
+            49,
+            16,
+            3
+          ],
+          "hand_anchor": [
+            34,
+            50
+          ],
+          "tip": [
+            19,
+            49
+          ],
+          "span_px": 15.033,
+          "connectedness": 1.0,
+          "pixel_count": 48,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            17,
+            39,
+            16,
+            9
+          ],
+          "hand_anchor": [
+            32,
+            46
+          ],
+          "tip": [
+            17,
+            39
+          ],
+          "span_px": 16.553,
+          "connectedness": 1.0,
+          "pixel_count": 36,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 46,
+      "sha256": "009c3ca90377006e7ce8bf6cafd50c8884c94248934245aeb8a744cd533c618a",
+      "pack_transform": "none"
+    },
+    "skill_q3[6]": {
+      "source": "source/native/yone_v7/frames/skill_q3_06.png",
+      "native_rect": [
+        4170,
+        0,
+        91,
+        87
+      ],
+      "source_size": [
+        91,
+        87
+      ],
+      "source_alpha_bbox": [
+        21,
+        40,
+        74,
+        79
+      ],
+      "bottom_margin": 8,
+      "face_bbox": [
+        48,
+        51,
+        8,
+        9
+      ],
+      "eye_pixels": [
+        [
+          48,
+          55
+        ],
+        [
+          50,
+          55
+        ]
+      ],
+      "mask_bbox": [
+        34,
+        44,
+        15,
+        17
+      ],
+      "foot_zones": [
+        [
+          21,
+          75,
+          53,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "steel",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            62,
+            68,
+            12,
+            11
+          ],
+          "hand_anchor": [
+            63,
+            69
+          ],
+          "tip": [
+            73,
+            77
+          ],
+          "span_px": 12.806,
+          "connectedness": 1.0,
+          "pixel_count": 47,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            21,
+            49,
+            14,
+            9
+          ],
+          "hand_anchor": [
+            34,
+            56
+          ],
+          "tip": [
+            21,
+            49
+          ],
+          "span_px": 14.765,
+          "connectedness": 1.0,
+          "pixel_count": 34,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 47,
+      "sha256": "d02773ed47664764f68d853efb4196bb070fdfad4e1c32e6ac3ce1329156a51b",
+      "pack_transform": "none"
+    }
+  },
+  "body_imagegen_inputs": [
+    {
+      "path": "source/imagegen/yone_v7_motion_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1518074,
+      "sha256": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_attack_q_contact.png",
+      "dimensions": [
+        1568,
+        1003
+      ],
+      "size_bytes": 1721115,
+      "sha256": "e919e5629c5a56c0a9aaed220ce5b001449b31d70abe43523c5b2086aad29e4d",
+      "alpha_bbox": [
+        0,
+        0,
+        1568,
+        1003
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_w_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1484840,
+      "sha256": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_ult_contact.png",
+      "dimensions": [
+        1567,
+        1004
+      ],
+      "size_bytes": 1533482,
+      "sha256": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
+      "alpha_bbox": [
+        0,
+        0,
+        1567,
+        1004
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    }
+  ],
+  "ui_only_imagegen_inputs": [
+    {
+      "path": "source/imagegen/yone_v7_ui_source.png",
+      "dimensions": [
+        1237,
+        1271
+      ],
+      "size_bytes": 1245113,
+      "sha256": "d35243fd9de1cf34d9e7bb3e0e454c6c431ea3f1a7de1f7e578e4f8e812b7910",
+      "alpha_bbox": [
+        0,
+        0,
+        1237,
+        1271
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ],
+      "role": "UI provenance only; never a native battle-frame input"
+    }
+  ],
+  "retired_body_routes": [
+    "source/imagegen/yone_v4_action_contact.png",
+    "source/imagegen/yone_v4_idle_candidate_43x55.png",
+    "source/native/yone_v4",
+    "source/imagegen/yone_v5_idle_source.png",
+    "source/imagegen/yone_v5_idle_golden_43x55.png",
+    "source/imagegen/yone_v5_motion_contact.png",
+    "source/imagegen/yone_v5_attack_q_w_contact.png",
+    "source/imagegen/yone_v5_q5_contact.png",
+    "source/imagegen/yone_v5_ult_contact.png",
+    "source/native/yone_v5",
+    "source/imagegen/yone_v6_motion_contact.png",
+    "source/imagegen/yone_v6_attack_q_w_contact.png",
+    "source/imagegen/yone_v6_w_contact.png",
+    "source/imagegen/yone_v6_ult_contact.png",
+    "source/native/yone_v6"
+  ],
+  "sources": [
+    {
+      "path": "source/imagegen/yone_v7_ui_source.png",
+      "dimensions": [
+        1237,
+        1271
+      ],
+      "size_bytes": 1245113,
+      "sha256": "d35243fd9de1cf34d9e7bb3e0e454c6c431ea3f1a7de1f7e578e4f8e812b7910",
+      "alpha_bbox": [
+        0,
+        0,
+        1237,
+        1271
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_motion_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1518074,
+      "sha256": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_attack_q_contact.png",
+      "dimensions": [
+        1568,
+        1003
+      ],
+      "size_bytes": 1721115,
+      "sha256": "e919e5629c5a56c0a9aaed220ce5b001449b31d70abe43523c5b2086aad29e4d",
+      "alpha_bbox": [
+        0,
+        0,
+        1568,
+        1003
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_w_contact.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "size_bytes": 1484840,
+      "sha256": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
+      "alpha_bbox": [
+        0,
+        0,
+        1536,
+        1024
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_v7_ult_contact.png",
+      "dimensions": [
+        1567,
+        1004
+      ],
+      "size_bytes": 1533482,
+      "sha256": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
+      "alpha_bbox": [
+        0,
+        0,
+        1567,
+        1004
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_qw_vfx_contact.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 1545908,
+      "sha256": "5a6389c90f731e9ae17c68d9c70db36f0d6cf399da763715b6bdee82d1d724fa",
+      "alpha_bbox": [
+        0,
+        0,
+        1402,
+        1122
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_w_vfx_contact_v2.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 1442156,
+      "sha256": "87edf0c1db70f49f42960e4891e0dde109f135733bc54bc5917102d8e4182c59",
+      "alpha_bbox": [
+        0,
+        0,
+        1983,
+        793
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_q3_vfx_contact.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 1201367,
+      "sha256": "34d1465dc54595cecabb48b1baf84b1346821cdbf6682039d4164b7fd8a85e86",
+      "alpha_bbox": [
+        0,
+        0,
+        1983,
+        793
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_r_vfx_contact.png",
+      "dimensions": [
+        1619,
+        971
+      ],
+      "size_bytes": 1307902,
+      "sha256": "af7574fb88597f7ae5f0d06d6c47d6cb198bfceefcf9ddd83742b5f582077f7b",
+      "alpha_bbox": [
+        0,
+        0,
+        1619,
+        971
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/yone_icons_source.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 1591210,
+      "sha256": "292a158dfd06f90fc9bb00c69321535ff07ca65bf99a61dfde600f4d389f7f2e",
+      "alpha_bbox": [
+        0,
+        0,
+        1983,
+        793
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "source/imagegen/bp_splash/dual_blader.png",
+      "dimensions": [
+        1611,
+        976
+      ],
+      "size_bytes": 2476957,
+      "sha256": "0f33a13d13fa9e9a88ee7cf2898870ea28c0735951fb9a2376f3bbf1d721ecac",
+      "alpha_bbox": [
+        0,
+        0,
+        1611,
+        976
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    }
+  ],
+  "processed": [
+    {
+      "path": "source/processed/yone_qw_vfx_contact_alpha.png",
+      "dimensions": [
+        1402,
+        1122
+      ],
+      "size_bytes": 679005,
+      "sha256": "0bc6776946f2dc2727cdc285eed5c652306a4f3bc50c18639bd7bef191dba70f",
+      "alpha_bbox": [
+        38,
+        66,
+        1358,
+        1067
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_w_vfx_contact_v2_alpha.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 676853,
+      "sha256": "1e479de44162cffd3f611b9e57f36b30c1d1b6b7cb8b70866e13b8747b57708d",
+      "alpha_bbox": [
+        7,
+        7,
+        1976,
+        786
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_r_vfx_contact_alpha.png",
+      "dimensions": [
+        1619,
+        971
+      ],
+      "size_bytes": 363430,
+      "sha256": "df026c1e62fa66f3f51e212e5814be24be195c757a3525aad10e686038404b00",
+      "alpha_bbox": [
+        28,
+        145,
+        1605,
+        859
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "source/processed/yone_q3_vfx_contact_alpha.png",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "size_bytes": 328171,
+      "sha256": "672509269e091ca5ed495057aa8cbaea12fa914942c02570c253181eab885ed0",
+      "alpha_bbox": [
+        70,
+        136,
+        1940,
+        725
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "runtime": [
+    {
+      "path": "aseprite_resources/champions/yone_v7#sheet.png",
+      "dimensions": [
+        4262,
+        88
+      ],
+      "size_bytes": 1500490,
+      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919",
+      "alpha_bbox": [
+        49,
+        1,
+        4244,
+        79
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/champions/yone_v7#anim.fanim",
+      "size_bytes": 19817,
+      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+    },
+    {
+      "path": "aseprite_resources/champions/yone#sheet.png",
+      "dimensions": [
+        4262,
+        88
+      ],
+      "size_bytes": 1500490,
+      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919",
+      "alpha_bbox": [
+        49,
+        1,
+        4244,
+        79
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/champions/yone#anim.fanim",
+      "size_bytes": 19817,
+      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#sheet.png",
+      "dimensions": [
+        224,
+        96
+      ],
+      "size_bytes": 86185,
+      "sha256": "6e98efd49cbac3cb30319ec3c85cf1d55ba49d13c0c6142fc2c0328fab03ef55",
+      "alpha_bbox": [
+        6,
+        2,
+        157,
+        94
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_attack#anim.fanim",
+      "size_bytes": 1434,
+      "sha256": "fd502a6c88c55dfb9b673045763e541a1f2ae22854d8579a45e3b332260b0ebe"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#sheet.png",
+      "dimensions": [
+        480,
+        152
+      ],
+      "size_bytes": 292080,
+      "sha256": "b7460e3c9e4ed09abb721bc83acce17c30eb46fd21a29c766fe19ba04dd3a1b5",
+      "alpha_bbox": [
+        2,
+        2,
+        371,
+        150
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q#anim.fanim",
+      "size_bytes": 2638,
+      "sha256": "26a2ff1a98447bfb171049cb706d4fb2a72a17c5043ac97a45fa049ee2b5dae5"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#sheet.png",
+      "dimensions": [
+        672,
+        152
+      ],
+      "size_bytes": 408826,
+      "sha256": "e7d4c567b4867c9b75afab0034dac4c3a6c33812605ba33e93a4270061f24ac5",
+      "alpha_bbox": [
+        2,
+        2,
+        558,
+        150
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_tornado#anim.fanim",
+      "size_bytes": 2095,
+      "sha256": "dafc3e7666edf457a00d6e72b5ad58b16eb517d4ee95eabc252a6ba9b5a0413b"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#sheet.png",
+      "dimensions": [
+        144,
+        168
+      ],
+      "size_bytes": 97009,
+      "sha256": "a6c6ec7a6f82489636b95440b1d9c01ca750ece86c9db0133ee93b81c8a1cf2c",
+      "alpha_bbox": [
+        9,
+        2,
+        133,
+        166
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_q3_ready_wind#anim.fanim",
+      "size_bytes": 1469,
+      "sha256": "9b3c688f319f0e0f3267bbf25ed77adb6a894a96c6b3db46bcf740c473cb08c3"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#sheet.png",
+      "dimensions": [
+        576,
+        156
+      ],
+      "size_bytes": 359673,
+      "sha256": "aa12ee513a48a816b80b9bb99e6d07a49270da13cecaf6cd0fa627a0351dcc83",
+      "alpha_bbox": [
+        4,
+        2,
+        458,
+        154
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_w#anim.fanim",
+      "size_bytes": 2802,
+      "sha256": "899605de9590163d6419a3a62cd137bff628f53465c9e15ae9b6c382c5e27228"
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#sheet.png",
+      "dimensions": [
+        768,
+        296
+      ],
+      "size_bytes": 909741,
+      "sha256": "2866eceb1f60a609feb728957367c6e211b31c8617e4f29acf705524bb938c36",
+      "alpha_bbox": [
+        2,
+        3,
+        638,
+        294
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "aseprite_resources/effects/yone_r#anim.fanim",
+      "size_bytes": 4440,
+      "sha256": "3be794ca5d91f9a3d4f740e6a708cd9f5ab9a6bdf7b40bfe7052415e3639ac50"
+    },
+    {
+      "path": "icons/yone_skill.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "f4f6691a42874677ea0cb22a28043b009e1b8776ed78d3bd209bc22620cd840c",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "icons/yone_skill2.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "5d40a81ddfeeaa6a18c1d0d0bd9d357b625c51838c6f0519512f2d7875821a45",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "icons/yone_ult.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "3820739c8a77f884922351481250846b936b4412b0a0dfd3f767e957c914b8ba",
+      "alpha_bbox": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "BanPickIllust/dual_blader.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "size_bytes": 4886098,
+      "sha256": "e20d5b3c8590ff756745d5b7cd0fecd06305699c9a0a69517b91c4f6188b4de5",
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_fullbody/dual_blader.png",
+      "dimensions": [
+        85,
+        93
+      ],
+      "size_bytes": 31781,
+      "sha256": "579d6b4a6030ba5349c86b2e09c0db6a67201ea22c1abf3da4cfc9017c34ed10",
+      "alpha_bbox": [
+        4,
+        14,
+        70,
+        86
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "18b0fa02e4f2a3302db7aef4f86eb2ae0550b112b747e205173553c09ed46868",
+      "alpha_bbox": [
+        8,
+        8,
+        55,
+        58
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_scoreboard.png",
+      "dimensions": [
+        48,
+        64
+      ],
+      "size_bytes": 12420,
+      "sha256": "7057bef2ef92e3f99e2c9c27c82197cb4ffbe9a6f81533b44f55dc6d1b6d1485",
+      "alpha_bbox": [
+        5,
+        6,
+        42,
+        60
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_portrait/dual_blader_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "size_bytes": 44110,
+      "sha256": "085fff15752878a884b45337cffad12b220733afad161da93f70910944435333",
+      "alpha_bbox": [
+        5,
+        12,
+        73,
+        86
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ]
+}

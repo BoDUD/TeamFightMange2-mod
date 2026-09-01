@@ -8,6 +8,14 @@ import wave
 
 from PIL import Image
 
+from legacy_hd_assertions import (
+    animation_frames,
+    assert_actor_tag_scale,
+    assert_legacy_hd_portrait_set,
+    assert_readable_upper_detail,
+    assert_uniform_aspect_ratio,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
@@ -271,7 +279,7 @@ def test_sivir_preserves_native_animation_tags_counts_timings_and_transparent_de
     for row in anim["run"]["frames"]:
         data = row["data"]
         frame = sheet.crop((data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"]))
-        assert frame.getchannel("A").getbbox()[3] == 46
+        assert frame.getchannel("A").getbbox()[3] == 45
         run_hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
     assert len(set(run_hashes)) == 8
     attack_hashes = []
@@ -291,6 +299,100 @@ def test_sivir_preserves_native_animation_tags_counts_timings_and_transparent_de
         )
         attack_hashes.append(hashlib.sha256(frame.tobytes()).hexdigest())
     assert len(set(attack_hashes)) >= 4
+
+
+def test_sivir_legacy_hd_actor_and_each_ui_surface_use_their_own_safe_crop() -> None:
+    sheet_path = MOD / "aseprite_resources/champions/sivir#sheet.png"
+    anim_path = MOD / "aseprite_resources/champions/sivir#anim.fanim"
+    idle_bboxes = assert_actor_tag_scale(
+        sheet_path,
+        anim_path,
+        "idle",
+        min_height=36,
+        max_height=36,
+        baseline=45,
+        min_unique_frames=2,
+    )
+    run_bboxes = assert_actor_tag_scale(
+        sheet_path,
+        anim_path,
+        "run",
+        min_height=35,
+        max_height=37,
+        baseline=45,
+        min_unique_frames=8,
+    )
+    ult_bboxes = assert_actor_tag_scale(
+        sheet_path,
+        anim_path,
+        "ult",
+        min_height=35,
+        max_height=36,
+        baseline=45,
+        min_unique_frames=3,
+    )
+    # The accepted source subjects are 179x212 (idle A) and 222x231 (run A).
+    # Their packed bboxes retain those ratios: no x-only compression is used.
+    assert_uniform_aspect_ratio((179, 212), idle_bboxes[0], tolerance=0.04)
+    assert_uniform_aspect_ratio((222, 231), run_bboxes[0], tolerance=0.04)
+    assert ult_bboxes[0][3] - ult_bboxes[0][1] == 36
+    assert_readable_upper_detail(animation_frames(sheet_path, anim_path, "idle")[0])
+
+    surfaces = assert_legacy_hd_portrait_set(
+        MOD,
+        "boomerang_hunter",
+        side_card_relative="BanPickIllust/boomerang_hunter.png",
+    )
+    assert surfaces == {
+        "encyclopedia": (7, 2, 56, 60),
+        "compact": (9, 8, 54, 58),
+        "scoreboard": (11, 8, 53, 58),
+        "bp_grid": (10, 4, 79, 86),
+    }
+
+    # Sivir faces screen-right in the accepted idle source.  The old tiny-row
+    # crop ended before the right edge of her head, leaving the skin/circlet
+    # cluster at x=47 and making the scoreboard look like half a face.  Keep
+    # that readable cluster centred after the real 18-34px nearest resize.
+    scoreboard = Image.open(
+        MOD / "ui/champion_portrait/boomerang_hunter_scoreboard.png"
+    ).convert("RGBA")
+    warm_face_pixels = []
+    for y in range(8, 42):
+        for x in range(scoreboard.width):
+            red, green, blue, alpha = scoreboard.getpixel((x, y))
+            if (
+                alpha
+                and red >= 105
+                and 45 <= green <= 155
+                and blue <= 105
+                and red >= green + 20
+            ):
+                warm_face_pixels.append((x, y))
+    assert len(warm_face_pixels) >= 240
+    face_center_x = sum(x for x, _ in warm_face_pixels) / len(warm_face_pixels)
+    assert 31 <= face_center_x <= 39
+
+    qa = load_json("qa/sivir_hd_surface_qa.json")
+    assert qa["champion"] == "Sivir"
+    assert qa["native_id"] == "boomerang_hunter"
+    assert qa["source_route"] == (
+        "existing processed high-resolution ImageGen idle; no new generation"
+    )
+    assert qa["skill_logic_changed"] is False
+    assert qa["battle_actor"]["uniform_xy_scale"] is True
+    assert qa["battle_actor"]["x_only_compression"] is False
+    assert qa["surfaces"]["bp_grid"]["name_band_clearance"] >= 10
+
+    runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    for marker in (
+        "boomerang_hunter_compact",
+        "boomerang_hunter_scoreboard",
+        "boomerang_hunter_grid",
+        "asset/base/aseprite_resources/champions/boomerang_hunter#sheet",
+        "asset/lol_mod/aseprite_resources/champions/sivir#sheet",
+    ):
+        assert marker in runtime
 
 
 def test_sivir_e_surrounds_actor_and_r_speed_vfx_stays_at_feet() -> None:
@@ -444,6 +546,11 @@ def test_sivir_runtime_assets_are_current_in_build_manifest() -> None:
         )},
         "sound/sfx/sivir_native_silence.sound_info",
         "sound/sfx/sivir_native_silence_clip.wav",
+        "ui/champion_fullbody/boomerang_hunter.png",
+        "ui/champion_portrait/boomerang_hunter_compact.png",
+        "ui/champion_portrait/boomerang_hunter_scoreboard.png",
+        "ui/champion_portrait/boomerang_hunter_grid.png",
+        "BanPickIllust/boomerang_hunter.png",
     }
     assert required.issubset(files)
     for relative in required:

@@ -1703,6 +1703,14 @@
   "view_projectiles": [
     {
       "type": "Animated",
+      "name": "lol_xayah_e_anchor",
+      "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+      "tag": "anchor",
+      "z": 0,
+      "repeat": true
+    },
+    {
+      "type": "Animated",
       "name": "lol_xayah_attack_feather",
       "anim": "asset/lol_mod/aseprite_resources/effects/xayah_attack",
       "tag": "projectile",

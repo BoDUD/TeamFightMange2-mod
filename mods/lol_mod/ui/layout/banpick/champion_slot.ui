@@ -1,38 +1,38 @@
 champion_slot:banpick_champion_slot {
-  width: 119px;
+  width: 132.4444px;
   height: 130px;
 
   base: {
-    back_color: #07131ff2;
-    down_color: #06101aff;
-    text_color: #f0e6d2ff;
+    back_color: #161721ff;
+    down_color: #0f1016ff;
+    text_color: #e8e8e8ff;
   }
 
   blue_picked: {
-    back_color: #0b2742ff;
-    down_color: #061424ff;
-    text_color: #9ed8ffff;
+    back_color: #0d1440ff;
+    down_color: #05081aff;
+    text_color: #adb9ffff;
   }
 
   red_picked: {
-    back_color: #34141dff;
-    down_color: #19080dff;
-    text_color: #ffbbc1ff;
+    back_color: #3b0f13ff;
+    down_color: #180608ff;
+    text_color: #f7b1b8ff;
   }
 
   banned: {
-    back_color: #30343bff;
-    down_color: #171a1fff;
-    text_color: #68717aff;
+    back_color: #666666ff;
+    down_color: #333333ff;
+    text_color: #666666ff;
   }
 
   line_width: 1;
-  rounding: 6;
+  rounding: 12;
   down_height: 38;
 
   line_color: {
-    normal: #29475cff;
-    hover: #c8aa6eff;
+    normal: #4a4c56ff;
+    hover: #e8e8e8ff;
   }
 
   hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
@@ -46,9 +46,8 @@ champion_slot:banpick_champion_slot {
   }
 
   #icon:canvas {
-    width: 118px;
+    width: 131.4444px;
     height: 88px;
-    y: 4px;
 
     anchor_x: 0.5;
     pivot_x: 0.5;
@@ -58,7 +57,7 @@ champion_slot:banpick_champion_slot {
 
   #name:label {
     @"asset/base/style/main#label";
-    width: 118px;
+    width: 131.4444px;
     height: 37px;
     ignore_event: true;
 
@@ -100,7 +99,7 @@ champion_slot:banpick_champion_slot {
     width: 26px;
     height: 26px;
 
-    color: #2376a7ff;
+    color: #263cbfff;
     rounding: Uniform {
       rounding: 8;
     }
@@ -129,7 +128,7 @@ champion_slot:banpick_champion_slot {
     width: 26px;
     height: 26px;
 
-    color: #b33b4bff;
+    color: #b02e3aff;
     rounding: Uniform {
       rounding: 8;
     }
@@ -203,8 +202,8 @@ champion_slot:banpick_champion_slot {
     visible: false;
     ignore_event: true;
 
-    back_color: #07131ff2;
-    color: #39566eff;
+    back_color: #161721ff;
+    color: #4a4c56ff;
 
     stroke: 1;
     z: 101;
@@ -247,7 +246,7 @@ champion_slot:banpick_champion_slot {
     width: 18px;
     height: 18px;
     source: "asset/base/ui/icons/mid";
-    x: 77px;
+    x: 90.4444px;
     y: 66px;
     ignore_event: true;
     visible: false;
@@ -257,7 +256,7 @@ champion_slot:banpick_champion_slot {
     width: 18px;
     height: 18px;
     source: "asset/base/ui/icons/mid";
-    x: 98px;
+    x: 111.4444px;
     y: 66px;
     ignore_event: true;
     visible: false;
@@ -273,8 +272,8 @@ champion_slot:banpick_champion_slot {
     ignore_event: true;
     z: 101;
 
-    back_color: #07131ff2;
-    color: #39566eff;
+    back_color: #161721ff;
+    color: #4a4c56ff;
     stroke: 1;
 
     rounding: Uniform {
@@ -289,7 +288,7 @@ champion_slot:banpick_champion_slot {
       y: 4px;
       z: 101;
       size: 12;
-      color: #8090a0ff;
+      color: #8a8c96ff;
       align_y: Center;
     }
 

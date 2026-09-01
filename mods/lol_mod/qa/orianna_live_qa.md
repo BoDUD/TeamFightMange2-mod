@@ -14,7 +14,7 @@ Reviewer/live gates:
 
 - [ ] In Simplified Chinese search the encyclopedia for the actual short display name “奥利安娜”; in the other maintained locales search “Orianna”, “オリアナ” and “오리아나”. Official 003 must appear exactly once.
 - [ ] Existing Classic saves may keep native Barrier Mage unavailable. For visibility QA, use Options → Gameplay → Custom champion pool and enable `barrier_magician` (or unlock all); this must reveal the same official 003 entry, never an extra `lol_orianna` entry.
-- [ ] Card, draft, weekly report, scoreboard, side list and battle HUD show a readable full-body/compact portrait at provisional `face(0,-34)` / `center(0,-12)` offsets.
+- [ ] Card, draft, weekly report, scoreboard, side list and battle HUD show the current source-direct assets: `barrier_magician_grid` for the BP grid, the independent scoreboard/compact crops for square rows, the 64x64 encyclopedia body and the 1420x860 picked-side illustration. `face(0,-34)` / `center(0,-12)` remain compatibility fallbacks, not the primary compact rendering route.
 - [ ] A current battle screenshot visibly contains Orianna; another champion or draft telemetry alone is not accepted.
 - [ ] Idle, run, attack, Q, E, R, hit and death preserve actor scale and avoid terrain/UI clipping.
 - [ ] Basic attacks visibly launch the ImageGen v3 cyan/ivory/brass mechanical dart and its separate contact spark on dark terrain, while dealing the physical hit plus small AP clockwork bonus without spawning a second actor-sized Ball.

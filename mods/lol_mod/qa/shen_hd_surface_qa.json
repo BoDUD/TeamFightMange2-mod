@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "champion": "Shen",
+  "native_id": "lol_shen",
+  "accepted_source": "source/processed/shen_actor_contact_alpha.png",
+  "accepted_source_sha256": "ab06e734e0a9829284c37526ca90ffe355d8ca353e8f73d05e45674370eae236",
+  "source_route": "existing processed high-resolution ImageGen idle; no new generation",
+  "skill_logic_changed": false,
+  "battle_actor": {
+    "sheet": "aseprite_resources/champions/shen#sheet.png",
+    "animation": "aseprite_resources/champions/shen#anim.fanim",
+    "uniform_xy_scale": true,
+    "x_only_compression": false,
+    "resampling": "LANCZOS source fit, hard alpha, 96-color final palette",
+    "foot_baseline_exclusive_y": 45,
+    "first_idle_alpha_bbox": [
+      18,
+      9,
+      46,
+      45
+    ],
+    "face_readability": {
+      "sample_box": [
+        20,
+        9,
+        44,
+        29
+      ],
+      "opaque_pixels": 322,
+      "cyan_accent_pixels": 13,
+      "luminance_dynamic_range": 214.58
+    },
+    "core_actions": {
+      "idle": {
+        "frame_count": 7,
+        "alpha_bboxes": [
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          36
+        ],
+        "visible_width_range": [
+          27,
+          28
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "run": {
+        "frame_count": 9,
+        "alpha_bboxes": [
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            17,
+            9,
+            47,
+            45
+          ],
+          [
+            16,
+            9,
+            48,
+            45
+          ],
+          [
+            16,
+            9,
+            48,
+            45
+          ],
+          [
+            16,
+            9,
+            48,
+            45
+          ],
+          [
+            17,
+            9,
+            46,
+            45
+          ],
+          [
+            17,
+            9,
+            46,
+            45
+          ],
+          [
+            17,
+            9,
+            47,
+            45
+          ],
+          [
+            16,
+            9,
+            47,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          36,
+          36
+        ],
+        "visible_width_range": [
+          28,
+          32
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "attack": {
+        "frame_count": 6,
+        "alpha_bboxes": [
+          [
+            14,
+            10,
+            50,
+            45
+          ],
+          [
+            12,
+            11,
+            52,
+            45
+          ],
+          [
+            12,
+            11,
+            52,
+            45
+          ],
+          [
+            16,
+            10,
+            47,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          34,
+          36
+        ],
+        "visible_width_range": [
+          28,
+          40
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill": {
+        "frame_count": 7,
+        "alpha_bboxes": [
+          [
+            14,
+            10,
+            50,
+            45
+          ],
+          [
+            16,
+            10,
+            48,
+            45
+          ],
+          [
+            16,
+            10,
+            48,
+            45
+          ],
+          [
+            16,
+            10,
+            48,
+            45
+          ],
+          [
+            16,
+            10,
+            47,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          36
+        ],
+        "visible_width_range": [
+          27,
+          36
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "skill2": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            17,
+            10,
+            46,
+            45
+          ],
+          [
+            17,
+            10,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            45,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          36
+        ],
+        "visible_width_range": [
+          27,
+          29
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "ult": {
+        "frame_count": 5,
+        "alpha_bboxes": [
+          [
+            18,
+            9,
+            46,
+            45
+          ],
+          [
+            17,
+            10,
+            46,
+            45
+          ],
+          [
+            17,
+            10,
+            46,
+            45
+          ],
+          [
+            17,
+            10,
+            46,
+            45
+          ],
+          [
+            18,
+            9,
+            46,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          35,
+          36
+        ],
+        "visible_width_range": [
+          28,
+          29
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      },
+      "hit": {
+        "frame_count": 1,
+        "alpha_bboxes": [
+          [
+            14,
+            12,
+            50,
+            45
+          ]
+        ],
+        "visible_height_range": [
+          33,
+          33
+        ],
+        "visible_width_range": [
+          36,
+          36
+        ],
+        "bottom_range": [
+          45,
+          45
+        ]
+      }
+    }
+  },
+  "surfaces": {
+    "side_card": {
+      "path": "BanPickIllust/lol_shen.png",
+      "dimensions": [
+        1420,
+        860
+      ],
+      "alpha_bbox": [
+        0,
+        0,
+        1420,
+        860
+      ],
+      "hard_alpha": false,
+      "opaque_pixels": 1216644,
+      "sha256": "a2c3893a42b3c3f2af3772a7267b19966f22cf1f2a2842dabbf4cb97ded89a35"
+    },
+    "encyclopedia": {
+      "path": "ui/champion_fullbody/lol_shen.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        9,
+        2,
+        55,
+        60
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1490,
+      "sha256": "b45e4e7b082875ca4d3243671723d19546fb4bb81715862c191163113b906dc4"
+    },
+    "sidebar": {
+      "path": "ui/champion_portrait/lol_shen_compact.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        7,
+        8,
+        57,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1743,
+      "sha256": "0605a6f72bf17605d7aeb94b19452c504003aab83822800dca8c622bbaaa5c39"
+    },
+    "scoreboard": {
+      "path": "ui/champion_portrait/lol_shen_scoreboard.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "alpha_bbox": [
+        7,
+        15,
+        57,
+        58
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 1488,
+      "sha256": "47f2e6684facbd431e5f1340303dc7b0f000944c2308222987b07faed2d00cc0"
+    },
+    "bp_grid": {
+      "path": "ui/champion_portrait/lol_shen_grid.png",
+      "dimensions": [
+        90,
+        122
+      ],
+      "alpha_bbox": [
+        12,
+        4,
+        77,
+        86
+      ],
+      "hard_alpha": true,
+      "opaque_pixels": 2933,
+      "sha256": "298170d01e5ab5c1cc0badc0a9d539fca21be4b64b6b1ca41a217d1c6a01d169",
+      "name_band_y": 96,
+      "name_band_clearance": 10
+    }
+  },
+  "runtime_routing": {
+    "scoreboard_square_px": [
+      14,
+      38
+    ],
+    "sidebar_square_px": [
+      39,
+      52
+    ],
+    "bp_native_grid_px": [
+      124,
+      132
+    ],
+    "bp_replacement_dimensions": [
+      90,
+      122
+    ],
+    "battle_sprite_commands_untouched": true
+  }
+}

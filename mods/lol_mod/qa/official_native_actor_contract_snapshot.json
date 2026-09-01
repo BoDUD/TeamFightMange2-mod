@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "tfm2-official-native-actors-2026-07-14",
+  "source": {
+    "bundle_filename": "bundle.game_data",
+    "bundle_sha256": "0fa9cd7dfbcd85be55503ceb96336e8955f6fb5bb1d7a540e161d4aa92e1cc2d",
+    "asset_key_pattern": "asset/base/aseprite_resources/champions/<native_id>#sheet + #anim",
+    "animation_contract_canonicalization": "SHA-256 of UTF-8 JSON for tag -> durations rounded to 8 decimals, sort_keys=true, separators=(',', ':')"
+  },
+  "champions": {
+    "archer": {
+      "asset_key": "asset/base/aseprite_resources/champions/archer",
+      "idle_height_range": [
+        31,
+        33
+      ],
+      "run_height_range": [
+        26,
+        31
+      ],
+      "animation_contract": {
+        "sha256": "e2c6c7d68adf7aac81383265542f67bb32493680c1c26fa952e527a3b4145eca",
+        "tag_frame_counts": {
+          "attack": 6,
+          "dead": 9,
+          "hit": 1,
+          "idle": 4,
+          "old_ult_buff_effect": 4,
+          "old_ult_pre": 7,
+          "run": 8,
+          "skill": 6,
+          "skill2": 7,
+          "skill_attack": 3,
+          "skill_dash": 3,
+          "ult_end": 3,
+          "ult_loop": 4,
+          "ult_old": 11,
+          "ult_pre": 3,
+          "ult_projectile": 1
+        }
+      }
+    },
+    "barrier_magician": {
+      "asset_key": "asset/base/aseprite_resources/champions/barrier_magician",
+      "idle_height_range": [
+        32,
+        34
+      ],
+      "run_height_range": [
+        30,
+        33
+      ],
+      "animation_contract": {
+        "sha256": "c7a905b72eba04effd990dabed15861c70e0edfb501a8f2e9d1c0b15f91fe4d2",
+        "tag_frame_counts": {
+          "attack": 5,
+          "dead": 9,
+          "hit": 1,
+          "idle": 4,
+          "run": 8,
+          "skill1": 5,
+          "skill2": 5,
+          "ult": 4
+        }
+      }
+    },
+    "berserker": {
+      "asset_key": "asset/base/aseprite_resources/champions/berserker",
+      "idle_height_range": [
+        37,
+        39
+      ],
+      "run_height_range": [
+        36,
+        38
+      ],
+      "animation_contract": {
+        "sha256": "4105635b6b299349b81d41de861cc6e2b6e2c5d48d6f0fbe74c16cb7cb3b86ef",
+        "tag_frame_counts": {
+          "attack": 5,
+          "attack2": 5,
+          "berserk_attack": 5,
+          "berserk_dead": 10,
+          "berserk_hit": 1,
+          "berserk_idle": 4,
+          "berserk_run": 8,
+          "berserk_ult": 5,
+          "berserk_ult_attack": 3,
+          "berserk_ult_dash": 1,
+          "berserk_ult_pre": 1,
+          "dead": 10,
+          "hit": 1,
+          "idle": 4,
+          "run": 8,
+          "skill1": 3,
+          "skill1_effect_old": 7,
+          "skill2": 4,
+          "skill2_berserk": 4,
+          "skill2_effect": 4,
+          "ult": 5,
+          "ult_attack": 3,
+          "ult_dash": 1,
+          "ult_pre": 1
+        }
+      }
+    },
+    "boomerang_hunter": {
+      "asset_key": "asset/base/aseprite_resources/champions/boomerang_hunter",
+      "idle_height_range": [
+        33,
+        35
+      ],
+      "run_height_range": [
+        29,
+        34
+      ],
+      "animation_contract": {
+        "sha256": "6c3428900194b4b4970117d932dc738c6d092f5f56f1f022a73040f577e1c6f1",
+        "tag_frame_counts": {
+          "attack": 6,
+          "big_boomerang": 1,
+          "boomerang": 1,
+          "dead": 9,
+          "hit": 1,
+          "idle": 4,
+          "idle_no_boomerang": 4,
+          "run": 8,
+          "skill": 7,
+          "skill2": 7,
+          "ult": 6,
+          "ult_boomerang": 1
+        }
+      }
+    }
+  }
+}

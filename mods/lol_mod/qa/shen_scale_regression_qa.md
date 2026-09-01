@@ -2,14 +2,14 @@
 
 The first live pass was rejected after six user-supplied surfaces showed the same problem in encyclopedia, ban/pick, lineup cards, scoreboard portraits, battle side portraits, and the map actor.
 
-| Metric | Rejected build | Accepted contract target |
+| Metric | Rejected build | HD contract target |
 | --- | ---: | ---: |
-| Idle visible height | 54 px | 36 px (reference additive contract: ~35 px) |
-| Core action visible-height range | 47–54 px | 31–36 px |
+| Idle visible height | 54 px | 40 px inside the accepted 64 px battle frame |
+| Core action visible-height range | 47–54 px | 34–42 px from natural crouch/raised-pose differences at one source scale |
 | Foot baseline inside 64×64 frame | y=62 | y=45 |
-| Compact camera | shared/experimental | `face {x:6,y:-34}` |
-| Full-body/BP/battle camera | `center {x:0,y:-12}` | `center {x:0,y:-12}` |
+| Compact surfaces | shared actor-atlas camera | source-direct 64×64 scoreboard and side-list crops |
+| Full-body/BP | enlarged packed idle | source-direct 64×64 encyclopedia and 90×122 grid assets |
 
-The accepted rebuild keeps the exact same image-gen actor anchor and action poses. It changes only the uniform packing scale and frame placement. `validate_lol_mod.py` now fails if any actor frame crosses y=46, if the first idle does not end at y=44–46, or if core scale varies by more than 22%.
+The HD rebuild keeps the exact same accepted image-gen actor anchor and action poses. It raises the idle target from 36 to 40 pixels, increases palette capacity from 40 to 96 colors, and applies one scale factor to idle/run/attack/skill/hit/dead sources. `validate_lol_mod.py` still fails if any actor frame crosses y=46 or leaves the battle-safe side margins.
 
-A second user screenshot pass proved that compact portrait scale and vertical placement were already in the official range, but the floating blade pulled Shen's helmet 12 rendered pixels to the right. Source-to-screen pixel matching established a fixed 2x render, so `face.x=6` is the measured per-champion correction; `face.y=-34` and the battle `center` remain unchanged.
+The remaining UI blur came from enlarging the already reduced battle idle. Encyclopedia, side-list, scoreboard, and BP-grid art are now derived independently from the accepted 1448×1086 source. Grid art ends at y=86 before the name band; compact assets retain transparent safety margins. The picked side card continues to use Shen's independent 1420×860 illustration. Legacy `face` and `center` offsets remain unchanged as fallbacks.

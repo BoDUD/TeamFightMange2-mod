@@ -563,8 +563,13 @@ def build_vfx() -> list[Path]:
                 ("return_cluster", [8, 9, 10, 11], (80, 44), 0.06),
                 ("root", [12, 13, 14, 15], (72, 72), 0.07),
                 ("hit", [12, 13, 14, 15], (48, 48), 0.06),
+                # Bladecaller's outbound endpoint helper is a rendered
+                # LinearProjectile. Give it a real, fully transparent view
+                # tag so the 0.5.1 renderer never unwraps a missing binding.
+                ("anchor", [0], (1, 1), 0.01),
             ],
             grid=(4, 4),
+            transparent_terminal_tags=frozenset({"anchor"}),
         )
     )
     outputs.extend(
@@ -1309,8 +1314,20 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         raise ValueError(f"Xayah final face opening is below 6x6 pixels: {face_bbox}")
 
     e_anim = json.loads((EFFECT_DIR / "xayah_e#anim.fanim").read_text(encoding="utf-8"))["anims"]
-    if list(e_anim) != ["return_single", "return_double", "return_cluster", "root", "hit"]:
+    if list(e_anim) != ["return_single", "return_double", "return_cluster", "root", "hit", "anchor"]:
         raise ValueError(f"Xayah E VFX tags are not independently packed: {list(e_anim)}")
+    anchor_data = e_anim["anchor"]["frames"][0]["data"]
+    e_sheet = Image.open(EFFECT_DIR / "xayah_e#sheet.png").convert("RGBA")
+    anchor_frame = e_sheet.crop(
+        (
+            anchor_data["x"],
+            anchor_data["y"],
+            anchor_data["x"] + anchor_data["w"],
+            anchor_data["y"] + anchor_data["h"],
+        )
+    )
+    if anchor_frame.getchannel("A").getbbox() is not None:
+        raise ValueError("Xayah E endpoint anchor view must remain fully transparent")
     r_anim = json.loads((EFFECT_DIR / "xayah_r#anim.fanim").read_text(encoding="utf-8"))["anims"]
     if list(r_anim) != ["fan", "hit", "guard"]:
         raise ValueError(f"Xayah R guard tag is missing: {list(r_anim)}")

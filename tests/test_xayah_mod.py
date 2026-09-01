@@ -396,6 +396,7 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
     assert "let Some(Input::Skill2 { target }) = base_input else" in runtime
     assert "if feather_count >= XAYAH_AI_MIN_RECALL_FEATHERS" in runtime
     assert "PlayerInputDecision::Replace(attack)" in runtime
+    assert "get_run_away_without_skill_input" not in runtime
     assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
 
     qa = load_json("qa/xayah_replacement_qa.json")
@@ -420,6 +421,14 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
 def test_xayah_visual_registry_is_distinct_for_attack_q_e_and_r() -> None:
     xayah = load_json("champion/dancer.data_champion")
     projectiles = {view["name"]: view for view in xayah["view_projectiles"]}
+    assert projectiles["lol_xayah_e_anchor"] == {
+        "type": "Animated",
+        "name": "lol_xayah_e_anchor",
+        "anim": "asset/lol_mod/aseprite_resources/effects/xayah_e",
+        "tag": "anchor",
+        "z": 0,
+        "repeat": True,
+    }
     assert projectiles["lol_xayah_attack_feather"]["anim"].endswith("/xayah_attack")
     assert projectiles["lol_xayah_q_feather"]["anim"].endswith("/xayah_q")
     for name, tag in {
@@ -588,6 +597,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
             "return_cluster": 4,
             "root": 4,
             "hit": 4,
+            "anchor": 1,
         },
         "xayah_r": {"fan": 4, "hit": 4, "guard": 4},
         "xayah_ground_feather": {"ground_single": 4, "ground_fan": 4},
@@ -599,6 +609,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
             "return_cluster": (80, 44),
             "root": (72, 72),
             "hit": (48, 48),
+            "anchor": (1, 1),
         },
         "xayah_r": {"fan": (104, 72), "hit": (96, 72), "guard": (72, 72)},
         "xayah_ground_feather": {
@@ -620,7 +631,10 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
                 data = frame["data"]
                 crop = sheet.crop((data["x"], data["y"], data["x"] + data["w"], data["y"] + data["h"]))
                 bbox = crop.getchannel("A").getbbox()
-                if name == "xayah_ground_feather" and frame_index == len(value["frames"]) - 1:
+                if (
+                    name == "xayah_ground_feather"
+                    and frame_index == len(value["frames"]) - 1
+                ) or (name == "xayah_e" and tag == "anchor"):
                     assert bbox is None, (name, tag, "terminal frame must hide bounded-TTL ghosts")
                 else:
                     assert bbox is not None, (name, tag, frame_index)
@@ -747,7 +761,7 @@ def test_xayah_official_audio_is_pinned_mono_pcm16_and_full_volume() -> None:
 
 def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    assert 'const SPLASH_SPECS: [(&str, &str); 7]' in runtime
+    assert 'const SPLASH_SPECS: [(&str, &str); 9]' in runtime
     assert '("dancer", "asset/lol_mod/BanPickIllust/dancer")' in runtime
     assert '("dancer", "lol_fullbody_xayah")' in " ".join(runtime.split())
     assert '"xayah" | "dancer" => Some("dancer")' in runtime
@@ -770,9 +784,10 @@ def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
         "icons/xayah_skill.png", "icons/xayah_skill2.png", "icons/xayah_ult.png",
         "BanPickIllust/dancer.png", "ui/champion_fullbody/dancer.png",
         "ui/champion_portrait/dancer_compact.png", "ui/champion_portrait/dancer_grid.png",
-        "qa/xayah_ui_scale_qa.json", "qa/xayah_portrait_surface_final.png",
-        "qa/xayah_imagegen_sources.json", "qa/xayah_official_audio_sources.json",
+        "qa/xayah_ui_scale_qa.json", "qa/xayah_imagegen_sources.json",
+        "qa/xayah_official_audio_sources.json",
     }
     for name in ("xayah_attack", "xayah_q", "xayah_e", "xayah_r", "xayah_ground_feather"):
         required.update({f"aseprite_resources/effects/{name}#sheet.png", f"aseprite_resources/effects/{name}#anim.fanim"})
     assert required <= manifest_paths
+    assert not any(path.startswith("qa/") and path.endswith(".png") for path in manifest_paths)

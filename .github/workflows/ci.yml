@@ -1,4 +1,4 @@
-name: Shen, Lucian, Orianna, Briar, Sivir, and Kled mod CI
+name: League champion mod CI
 
 on:
   pull_request:
@@ -19,8 +19,17 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
+      - name: Compile native DLL against the vendored stable ABI
+        shell: pwsh
+        run: |
+          rustup toolchain install stable --profile minimal
+          ./mods/lol_mod/tools/build_native_dll.ps1 -OutDll (Join-Path $env:RUNNER_TEMP "lol_mod-ci.dll")
       - run: python mods/lol_mod/tools/build_lol_mod.py
+      - name: Runtime reference closure and non-panicking DLL gates
+        run: python -m pytest -q tests/test_runtime_reference_closure.py
       - run: python mods/lol_mod/tools/validate_lol_mod.py
+      - name: Portrait surface and crop regression gates
+        run: python -m pytest -q tests/test_yone_portrait_ci.py
       - run: python -m pytest -q
       - name: Generated actor, effects, icons, BP, fullbody, QA audit, and manifest are committed
         run: >-
@@ -47,7 +56,11 @@ jobs:
           mods/lol_mod/sound/sfx/sivir_native_silence.sound_info
           mods/lol_mod/sound/sfx/sivir_native_silence_clip.wav
           mods/lol_mod/BanPickIllust/cavalry_knight.png
+          mods/lol_mod/BanPickIllust/dual_blader.png
           mods/lol_mod/ui/champion_fullbody/cavalry_knight.png
+          mods/lol_mod/ui/champion_fullbody/dual_blader.png
+          mods/lol_mod/ui/champion_portrait/dual_blader_compact.png
+          mods/lol_mod/ui/champion_portrait/dual_blader_grid.png
           mods/lol_mod/qa/shen_actor_contact_final.png
           mods/lol_mod/qa/shen_skill_icons_final.png
           mods/lol_mod/qa/lucian_actor_contact_final.png
@@ -69,6 +82,10 @@ jobs:
           mods/lol_mod/qa/kled_compact_portrait_qa.md
           mods/lol_mod/qa/kled_imagegen_sources.json
           mods/lol_mod/qa/kled_official_audio_sources.json
+          mods/lol_mod/qa/yone_visual_contract.json
+          mods/lol_mod/qa/yone_imagegen_sources.json
+          mods/lol_mod/qa/yone_visual_qa.md
+          mods/lol_mod/qa/yone_visual_final.png
           mods/lol_mod/qa/quality_map_imagegen_pack.json
           mods/lol_mod/qa/quality_map_composite_preview.png
           mods/lol_mod/qa/quality_map_surface_detail_preview.png
