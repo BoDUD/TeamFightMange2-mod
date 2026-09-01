@@ -396,6 +396,7 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
     assert "let Some(Input::Skill2 { target }) = base_input else" in runtime
     assert "if feather_count >= XAYAH_AI_MIN_RECALL_FEATHERS" in runtime
     assert "PlayerInputDecision::Replace(attack)" in runtime
+    assert "get_run_away_without_skill_input" not in runtime
     assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
 
     qa = load_json("qa/xayah_replacement_qa.json")
@@ -783,9 +784,10 @@ def test_xayah_runtime_bp_fullbody_builder_and_manifest_wiring() -> None:
         "icons/xayah_skill.png", "icons/xayah_skill2.png", "icons/xayah_ult.png",
         "BanPickIllust/dancer.png", "ui/champion_fullbody/dancer.png",
         "ui/champion_portrait/dancer_compact.png", "ui/champion_portrait/dancer_grid.png",
-        "qa/xayah_ui_scale_qa.json", "qa/xayah_portrait_surface_final.png",
-        "qa/xayah_imagegen_sources.json", "qa/xayah_official_audio_sources.json",
+        "qa/xayah_ui_scale_qa.json", "qa/xayah_imagegen_sources.json",
+        "qa/xayah_official_audio_sources.json",
     }
     for name in ("xayah_attack", "xayah_q", "xayah_e", "xayah_r", "xayah_ground_feather"):
         required.update({f"aseprite_resources/effects/{name}#sheet.png", f"aseprite_resources/effects/{name}#anim.fanim"})
     assert required <= manifest_paths
+    assert not any(path.startswith("qa/") and path.endswith(".png") for path in manifest_paths)

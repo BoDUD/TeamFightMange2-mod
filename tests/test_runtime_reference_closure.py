@@ -378,9 +378,26 @@ def test_all_registered_native_effects_are_referenced_by_combat_data() -> None:
             if effect.get("type") == "Native" and isinstance(effect.get("effect_ref"), str):
                 used.add(effect["effect_ref"])
 
-    assert registrations == used, (
+    compatibility = set(
+        re.findall(
+            r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
+            r"LegacySavedNativeCompatibilityEffect,\s*\);",
+            source,
+        )
+    )
+    assert compatibility == {
+        "lol_yone_e_start_native",
+        "lol_yone_e_begin_return_native",
+        "lol_yone_e_damage_pre_native",
+        "lol_yone_e_damage_post_native",
+        "lol_yone_e_settle_native",
+        "lol_yone_w_begin_native",
+        "lol_yone_w_collect_hit_native",
+        "lol_yone_w_settle_native",
+    }
+    assert registrations == used | compatibility, (
         f"Native effect registry/data mismatch: missing={sorted(used - registrations)}, "
-        f"orphaned={sorted(registrations - used)}"
+        f"unexpected={sorted(registrations - used - compatibility)}"
     )
 
 
@@ -411,7 +428,12 @@ def test_stale_base_050_client_server_extensions_are_opt_in_only() -> None:
     guard = source.index("if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV)")
     registration_return = source.index("\n    registration\n}", guard)
     guarded = source[guard:registration_return]
-    assert guarded.count("registration.set_extension") == 1
+    legacy_branch = guarded.split("} else {", 1)[0]
+    default_branch = guarded.split("} else {", 1)[1]
+    assert legacy_branch.count("registration.set_extension") == 1
+    assert "registration.set_extension(LolModExtension);" in legacy_branch
+    assert default_branch.count("registration.set_extension") == 1
+    assert "registration.set_extension(YoneManagementCardExtension);" in default_branch
     assert guarded.count("registration.set_server_extension") == 1
     assert "LolRenderOnlyExtension" not in source
     assert source[registration_return:].count("registration.set_extension") == 0
@@ -426,7 +448,7 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"lol_yone_e_damage_pre_native",
         b"lol_yone_e_damage_post_native",
         b"lol_yone_e_settle_native",
-        b"version=0.11.2",
+        b"version=0.12.0",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"
     for retired in (

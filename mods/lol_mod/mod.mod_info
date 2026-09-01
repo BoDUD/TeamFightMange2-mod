@@ -1,11 +1,11 @@
 {
   "id": "lol_mod",
   "mod_id": "lol_mod",
-  "name": "League Champions & Rift Quality Pack / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7",
+  "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
-  "version": "0.11.2",
-  "description": "Teamfight Manager 2 v0.5.1 compatibility build. It restores the League-style Ban/Pick chrome and illustration assets on top of exact native 0.5.1 layouts while preserving the new turn outline, wait overlay, and skill-name nodes. All stale 0.5.0 client/server extension vtables, including dynamic render-command rewrites, remain disabled by default to prevent the third-Ban Option::unwrap crash. Yone's E ledger no longer calls the legacy opaque GameCtx service registry during level-1 attacks, and Shen's transparent Q endpoint now has a complete projectile-view binding so base 0.5.1 cannot unwrap a missing runtime asset. Stable combat-native Mod API 0.8 hooks remain enabled.",
-  "last_updated": "2026-07-15",
+  "version": "0.12.0",
+  "description": "PR #11 integration test build for the current Teamfight Manager 2 base 0.5.7 QA target, compiled through the official base 0.5.1 Mod API 0.8 SDK. It preserves the Urgot 008, Shen and Ban/Pick compatibility fixes from PR #11 while absorbing PR #10's final stateless Yone Q/W/R implementation. Steel and Azakana attacks, Q1/Q2, Q3 and W Spirit Cleave use dedicated CasterAnimation at tick 0. The unique asset/lol_mod/aseprite_resources/champions/yone_v7 actor key contains the V7 4262x88 atlas while byte-identical yone sheet and anim aliases protect saved seasons that still reference the 3502x88 native prefix. The 0.10.5 W save floor, 0.10.17 UI route and 0.10.20 final Yone behavior remain current; Version 0.10.19 is retained as partial history only. Retired Yone E behavior and visual resources are removed; old embedded save names resolve only through no-op compatibility aliases. Urgot passive cooldown state is isolated by simulation seed and bounded by TTL/LRU cleanup so hidden simulations cannot consume live-match state. Broad legacy client/server extensions still require explicit opt-in, while the narrowly scoped Yone portrait extension remains the default UI path.",
+  "last_updated": "2026-09-01",
   "dependencies": [
     {
       "mod_id": "base",

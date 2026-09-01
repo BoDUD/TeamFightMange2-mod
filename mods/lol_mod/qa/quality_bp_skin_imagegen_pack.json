@@ -929,11 +929,11 @@
     "native_geometry_contract": true,
     "required_0_5_1_runtime_nodes_present": true,
     "native_node_types_preserved": true,
-    "layout_restores_exact_native": true,
+    "layout_restores_exact_native": false,
     "champion_slot_restores_exact_native": true,
     "blue_pick_slot_restores_exact_native": true,
     "red_pick_slot_restores_exact_native": true,
-    "all_four_overrides_registered": true,
+    "all_four_overrides_registered": false,
     "decorative_nodes_are_noninteractive": true,
     "native_control_styles_preserved": true,
     "turn_outline_draws_above_side_frame": true,
@@ -943,6 +943,8 @@
     "component_imagegen_runtime_has_alpha": true,
     "header_footer_chrome_has_no_magenta_key_fringe": true,
     "component_contact_generated": true,
-    "bvp_runtime_nodes_absent": true
+    "bvp_runtime_nodes_absent": true,
+    "legacy_bp_component_overrides_disabled_for_base_0_5_1": true,
+    "legacy_bp_layout_override_disabled_for_base_0_5_1": true
   }
 }

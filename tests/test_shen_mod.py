@@ -79,7 +79,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.11.2"
+    assert mod_info["version"] == "0.12.0"
     assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.1"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
@@ -524,7 +524,7 @@ def test_shen_q_e_r_contract_uses_recall_empowerment_and_native_taunt() -> None:
     assert "PlayerInputDecision::Replace(shadow_dash)" in runtime
     assert "registration.add_player_input_ai(ShenShadowDashInputAi);" in runtime
     shen_native = runtime.split("impl ModEffectType for ShenShadowDashTauntNativeEffect {", 1)[1].split(
-        "\nfn init(", 1
+        "\n#[derive(Clone, Debug, Default)]\nstruct ShenShadowDashInputAi;", 1
     )[0]
     assert ".unwrap(" not in shen_native
     assert ".get_entity(caster_id)" in shen_native
@@ -642,8 +642,12 @@ def test_official_sdk_deserializes_shen_data_champion() -> None:
     assert "use game_core::DataChampionInfo;" in source.read_text(encoding="utf-8")
     assert "serde_json::from_str" in source.read_text(encoding="utf-8")
     assert script.is_file()
-    sdk = ROOT.parent / "mod-sdk"
-    if not sdk.is_dir():
+    sdk_candidates = (
+        ROOT.parent / "mod-sdk-0.5.1-package" / "mod-sdk",
+        ROOT.parent / "mod-sdk",
+    )
+    sdk = next((candidate for candidate in sdk_candidates if candidate.is_dir()), None)
+    if sdk is None:
         return
     result = subprocess.run(
         [
@@ -762,7 +766,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     assert "overlays.push(candidate.overlay)" in source
     assert "commands.extend(overlays)" in source
     assert '"overlay_append"' in source
-    assert '"version=0.11.2;root=' in source
+    assert '"version=0.12.0;root=' in source
     assert 'let marker = "/champions/"' in source
     assert "source.find(marker)? + marker.len()" in source
     assert '.strip_suffix("#sheet")' in source
@@ -826,7 +830,7 @@ def test_quality_runtime_uses_live_ui_paths_and_seeded_dragon_variants() -> None
     registration_return = source.index("\n    registration\n}", server_registration)
     assert guard < client_registration < server_registration < registration_return
     guarded_registration = source[guard:registration_return]
-    assert guarded_registration.count("registration.set_extension") == 1
+    assert guarded_registration.count("registration.set_extension") == 2
     assert source[registration_return:].count("registration.set_extension") == 0
     assert "dragon_variant_index" in source
     for variant in variants:

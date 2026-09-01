@@ -176,8 +176,14 @@ def test_echoing_flames_is_a_real_native_two_second_shotgun_cooldown():
     assert "const URGOT_PASSIVE_FLAT_DAMAGE: usize = 20;" in source
     assert "const URGOT_PASSIVE_ATTACK_RATIO_PERCENT: usize = 30;" in source
     assert "const URGOT_PASSIVE_TARGET_MAX_HP_PERCENT: usize = 2;" in source
+    assert "const URGOT_PASSIVE_STATE_TTL_TICKS: usize = 3600;" in source
+    assert "const URGOT_PASSIVE_MAX_STATES: usize = 128;" in source
     assert "struct UrgotPassiveCooldown" in source
-    assert "if now < cooldown.ready_tick" in source
+    assert "let simulation_seed = ctx.seed();" in source
+    assert "!timeline_restarted && now < cooldown.ready_tick" in source
+    assert "cooldown.simulation_seed == simulation_seed" in source
+    assert "cooldowns.len() >= URGOT_PASSIVE_MAX_STATES" in source
+    assert "min_by_key(|(_, cooldown)| cooldown.last_access_serial)" in source
     assert "target_max_hp.saturating_mul(URGOT_PASSIVE_TARGET_MAX_HP_PERCENT)" in source
     assert "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);" in source
 
@@ -189,7 +195,7 @@ def test_echoing_flames_is_a_real_native_two_second_shotgun_cooldown():
     assert passive_impl
     body = passive_impl.group("body")
     caster_snapshot = body.index(
-        ".map(|caster| (caster.handle(), caster.stat().attack, caster.is_alive()))"
+        ".map(|caster| (caster.stat().attack, caster.is_alive()))"
     )
     caster_reject = body.index("if !caster_alive")
     target_snapshot = body.index(

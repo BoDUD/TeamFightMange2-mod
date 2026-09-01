@@ -181,7 +181,18 @@ def test_bp_0_5_1_qa_and_override_contract() -> None:
 
     assert qa["schema"] == "lol_mod.quality_bp_skin_imagegen_pack.v1"
     assert qa["native_bundle"]["base_version"] == "0.5.1"
-    assert all(qa["static_checks"].values())
+    active_checks = {
+        key: value
+        for key, value in qa["static_checks"].items()
+        if key not in {"all_four_overrides_registered", "layout_restores_exact_native"}
+    }
+    assert all(active_checks.values())
+    assert qa["static_checks"][
+        "legacy_bp_component_overrides_disabled_for_base_0_5_1"
+    ] is True
+    assert qa["static_checks"][
+        "legacy_bp_layout_override_disabled_for_base_0_5_1"
+    ] is True
     assert all(qa["geometry_contract"].values())
     assert qa["layout"]["restored_native_sha256"] == qa["layout"][
         "native_baseline_normalized_sha256"
@@ -212,10 +223,7 @@ def test_bp_0_5_1_qa_and_override_contract() -> None:
         "asset/base/ui/layout/banpick/red_pick_slot",
         "asset/base/ui/layout/banpick/champion_slot",
     ):
-        assert override[asset_key] == {
-            "remapping": asset_key.replace("asset/base/", "asset/lol_mod/", 1),
-            "type": "override",
-        }
+        assert asset_key not in override
 
 
 def test_quality_builder_rebuilds_bp_from_the_current_bundle() -> None:

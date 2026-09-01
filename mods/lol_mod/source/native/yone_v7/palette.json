@@ -1,0 +1,471 @@
+{
+  "schema_version": 7,
+  "route": "dual-sword-v7",
+  "weapon_roles": {
+    "steel": {
+      "dark": [
+        "steel_dark"
+      ],
+      "mid": [
+        "steel_mid"
+      ],
+      "highlight": [
+        "steel_highlight"
+      ]
+    },
+    "azakana": {
+      "dark": [
+        "azakana_dark"
+      ],
+      "red": [
+        "azakana_red"
+      ],
+      "highlight": [
+        "azakana_highlight"
+      ]
+    }
+  },
+  "colors": [
+    {
+      "role": "transparent",
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "role": "eye_outline",
+      "rgba": [
+        5,
+        7,
+        14,
+        255
+      ]
+    },
+    {
+      "role": "source_00",
+      "rgba": [
+        18,
+        22,
+        38,
+        255
+      ]
+    },
+    {
+      "role": "source_01",
+      "rgba": [
+        92,
+        48,
+        29,
+        255
+      ]
+    },
+    {
+      "role": "skin_00",
+      "rgba": [
+        218,
+        132,
+        73,
+        255
+      ]
+    },
+    {
+      "role": "skin_01",
+      "rgba": [
+        248,
+        190,
+        122,
+        255
+      ]
+    },
+    {
+      "role": "mask_00",
+      "rgba": [
+        191,
+        27,
+        22,
+        255
+      ]
+    },
+    {
+      "role": "source_02",
+      "rgba": [
+        224,
+        157,
+        35,
+        255
+      ]
+    },
+    {
+      "role": "source_03",
+      "rgba": [
+        224,
+        238,
+        246,
+        255
+      ]
+    },
+    {
+      "role": "source_04",
+      "rgba": [
+        243,
+        225,
+        161,
+        255
+      ]
+    },
+    {
+      "role": "skin_02",
+      "rgba": [
+        240,
+        202,
+        124,
+        255
+      ]
+    },
+    {
+      "role": "skin_03",
+      "rgba": [
+        233,
+        160,
+        53,
+        255
+      ]
+    },
+    {
+      "role": "skin_04",
+      "rgba": [
+        164,
+        136,
+        80,
+        255
+      ]
+    },
+    {
+      "role": "mask_01",
+      "rgba": [
+        208,
+        77,
+        16,
+        255
+      ]
+    },
+    {
+      "role": "source_05",
+      "rgba": [
+        118,
+        76,
+        32,
+        255
+      ]
+    },
+    {
+      "role": "source_06",
+      "rgba": [
+        60,
+        71,
+        95,
+        255
+      ]
+    },
+    {
+      "role": "source_07",
+      "rgba": [
+        53,
+        62,
+        85,
+        255
+      ]
+    },
+    {
+      "role": "source_08",
+      "rgba": [
+        48,
+        57,
+        78,
+        255
+      ]
+    },
+    {
+      "role": "mask_02",
+      "rgba": [
+        199,
+        40,
+        9,
+        255
+      ]
+    },
+    {
+      "role": "mask_03",
+      "rgba": [
+        111,
+        38,
+        23,
+        255
+      ]
+    },
+    {
+      "role": "source_09",
+      "rgba": [
+        44,
+        51,
+        69,
+        255
+      ]
+    },
+    {
+      "role": "source_10",
+      "rgba": [
+        50,
+        37,
+        41,
+        255
+      ]
+    },
+    {
+      "role": "source_11",
+      "rgba": [
+        33,
+        45,
+        63,
+        255
+      ]
+    },
+    {
+      "role": "source_12",
+      "rgba": [
+        28,
+        37,
+        54,
+        255
+      ]
+    },
+    {
+      "role": "source_13",
+      "rgba": [
+        24,
+        31,
+        52,
+        255
+      ]
+    },
+    {
+      "role": "source_14",
+      "rgba": [
+        23,
+        29,
+        38,
+        255
+      ]
+    },
+    {
+      "role": "mask_04",
+      "rgba": [
+        158,
+        14,
+        59,
+        255
+      ]
+    },
+    {
+      "role": "mask_05",
+      "rgba": [
+        110,
+        10,
+        62,
+        255
+      ]
+    },
+    {
+      "role": "source_15",
+      "rgba": [
+        64,
+        5,
+        62,
+        255
+      ]
+    },
+    {
+      "role": "source_16",
+      "rgba": [
+        66,
+        11,
+        5,
+        255
+      ]
+    },
+    {
+      "role": "source_17",
+      "rgba": [
+        24,
+        20,
+        39,
+        255
+      ]
+    },
+    {
+      "role": "source_18",
+      "rgba": [
+        29,
+        15,
+        12,
+        255
+      ]
+    },
+    {
+      "role": "source_19",
+      "rgba": [
+        29,
+        2,
+        29,
+        255
+      ]
+    },
+    {
+      "role": "source_20",
+      "rgba": [
+        29,
+        3,
+        3,
+        255
+      ]
+    },
+    {
+      "role": "source_21",
+      "rgba": [
+        12,
+        20,
+        36,
+        255
+      ]
+    },
+    {
+      "role": "source_22",
+      "rgba": [
+        12,
+        18,
+        24,
+        255
+      ]
+    },
+    {
+      "role": "source_23",
+      "rgba": [
+        10,
+        11,
+        20,
+        255
+      ]
+    },
+    {
+      "role": "source_24",
+      "rgba": [
+        7,
+        6,
+        15,
+        255
+      ]
+    },
+    {
+      "role": "source_25",
+      "rgba": [
+        7,
+        5,
+        4,
+        255
+      ]
+    },
+    {
+      "role": "source_26",
+      "rgba": [
+        6,
+        1,
+        13,
+        255
+      ]
+    },
+    {
+      "role": "source_27",
+      "rgba": [
+        4,
+        1,
+        3,
+        255
+      ]
+    },
+    {
+      "role": "source_28",
+      "rgba": [
+        6,
+        1,
+        0,
+        255
+      ]
+    },
+    {
+      "role": "source_29",
+      "rgba": [
+        0,
+        0,
+        0,
+        255
+      ]
+    },
+    {
+      "role": "steel_dark",
+      "rgba": [
+        27,
+        49,
+        69,
+        255
+      ]
+    },
+    {
+      "role": "steel_mid",
+      "rgba": [
+        101,
+        174,
+        216,
+        255
+      ]
+    },
+    {
+      "role": "steel_highlight",
+      "rgba": [
+        238,
+        250,
+        255,
+        255
+      ]
+    },
+    {
+      "role": "azakana_dark",
+      "rgba": [
+        72,
+        9,
+        22,
+        255
+      ]
+    },
+    {
+      "role": "azakana_red",
+      "rgba": [
+        205,
+        27,
+        40,
+        255
+      ]
+    },
+    {
+      "role": "azakana_highlight",
+      "rgba": [
+        255,
+        98,
+        72,
+        255
+      ]
+    }
+  ]
+}

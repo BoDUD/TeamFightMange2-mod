@@ -6,7 +6,7 @@
     "Melee",
     "CC"
   ],
-  "sprite": "asset/lol_mod/aseprite_resources/champions/yone",
+  "sprite": "asset/lol_mod/aseprite_resources/champions/yone_v7",
   "anim_prefix": "",
   "skill_icons": [
     "asset/lol_mod/icons/yone_skill",
@@ -40,7 +40,7 @@
     "description": "#asset/base/text/champion?description.dual_blader.attack",
     "duration": 20,
     "cooltime": 50,
-    "start_timing": 13,
+    "start_timing": 0,
     "cancelable": true,
     "range": 25000,
     "growth_range": 0,
@@ -55,36 +55,43 @@
         "type": "Combine",
         "effects": [
           {
+            "type": "CasterAnimation",
+            "name": "attack_steel",
+            "tick": 20
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "lol_yone_attack_steel_swing"
+          },
+          {
             "type": "Sfx",
             "name": "lol_yone_attack_steel_cast"
           },
           {
-            "type": "Native",
-            "effect_ref": "lol_yone_e_damage_pre_native"
-          },
-          {
-            "type": "Attack",
-            "damage": 0,
-            "attack_ratio": 100
-          },
-          {
-            "type": "Native",
-            "effect_ref": "lol_yone_e_damage_post_native"
-          },
-          {
-            "type": "ViewEffect",
-            "name": "lol_yone_attack_steel_hit"
-          },
-          {
-            "type": "TargetSfx",
-            "name": "lol_yone_attack_steel_hit"
-          },
-          {
-            "type": "AddCasterBuff",
-            "buff_state": {
-              "name": "lol_yone_azakana_ready",
-              "duration": "Permanent"
-            }
+            "type": "Delayed",
+            "tick": 13,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 100
+              },
+              {
+                "type": "ViewEffect",
+                "name": "lol_yone_attack_steel_hit"
+              },
+              {
+                "type": "TargetSfx",
+                "name": "lol_yone_attack_steel_hit"
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "lol_yone_azakana_ready",
+                  "duration": "Permanent"
+                }
+              }
+            ]
           }
         ]
       },
@@ -92,33 +99,40 @@
         "type": "Combine",
         "effects": [
           {
+            "type": "CasterAnimation",
+            "name": "attack_azakana",
+            "tick": 20
+          },
+          {
+            "type": "CasterViewEffect",
+            "name": "lol_yone_attack_azakana_swing"
+          },
+          {
             "type": "Sfx",
             "name": "lol_yone_attack_azakana_cast"
           },
           {
-            "type": "Native",
-            "effect_ref": "lol_yone_e_damage_pre_native"
-          },
-          {
-            "type": "Attack",
-            "damage": 0,
-            "attack_ratio": 100
-          },
-          {
-            "type": "Native",
-            "effect_ref": "lol_yone_e_damage_post_native"
-          },
-          {
-            "type": "ViewEffect",
-            "name": "lol_yone_attack_azakana_hit"
-          },
-          {
-            "type": "TargetSfx",
-            "name": "lol_yone_attack_azakana_hit"
-          },
-          {
-            "type": "RemoveCasterBuff",
-            "name": "lol_yone_azakana_ready"
+            "type": "Delayed",
+            "tick": 13,
+            "effects": [
+              {
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 100
+              },
+              {
+                "type": "ViewEffect",
+                "name": "lol_yone_attack_azakana_hit"
+              },
+              {
+                "type": "TargetSfx",
+                "name": "lol_yone_attack_azakana_hit"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "lol_yone_azakana_ready"
+              }
+            ]
           }
         ]
       }
@@ -129,7 +143,7 @@
     "description": "#asset/base/text/champion?description.dual_blader.skill",
     "duration": 30,
     "cooltime": 240,
-    "start_timing": 8,
+    "start_timing": 0,
     "cancelable": false,
     "range": 65000,
     "growth_range": 0,
@@ -147,77 +161,79 @@
           "type": "Combine",
           "effects": [
             {
+              "type": "CasterAnimation",
+              "name": "skill_q12",
+              "tick": 30
+            },
+            {
               "type": "Sfx",
               "name": "lol_yone_q_cast"
             },
             {
-              "type": "CasterAnimation",
-              "name": "skill",
-              "tick": 30
+              "type": "CasterViewEffect",
+              "name": "lol_yone_q_blade"
             },
             {
-              "type": "LinearProjectile",
-              "penetrate": true,
-              "speed": 8000,
-              "range": 60000,
-              "name": "lol_yone_q_projectile",
-              "shape": {
-                "Circle": {
-                  "radius": 8000
-                }
-              },
-              "applied_target": "EnemyWithoutTower",
-              "applied_effects": [
+              "type": "Delayed",
+              "tick": 8,
+              "effects": [
                 {
-                  "casting_type": "Targeting",
-                  "effect": {
-                    "type": "Combine",
-                    "effects": [
-                      {
-                        "type": "Native",
-                        "effect_ref": "lol_yone_e_damage_pre_native"
-                      },
-                      {
-                        "type": "Attack",
-                        "damage": 25,
-                        "attack_ratio": 80
-                      },
-                      {
-                        "type": "Native",
-                        "effect_ref": "lol_yone_e_damage_post_native"
-                      },
-                      {
-                        "type": "ViewEffect",
-                        "name": "lol_yone_q_hit"
-                      },
-                      {
-                        "type": "TargetSfx",
-                        "name": "lol_yone_q_hit"
-                      },
-                      {
-                        "type": "SwitchByBuff",
-                        "buff_name": "lol_yone_mortal_steel_stack_1",
-                        "effect_none": {
-                          "type": "AddCasterBuff",
-                          "buff_state": {
-                            "name": "lol_yone_mortal_steel_stack_1",
-                            "duration": {
-                              "Time": {
-                                "tick": 360
+                  "type": "LinearProjectile",
+                  "penetrate": true,
+                  "speed": 8000,
+                  "range": 60000,
+                  "name": "lol_yone_q_projectile",
+                  "shape": {
+                    "Circle": {
+                      "radius": 8000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [
+                    {
+                      "casting_type": "Targeting",
+                      "effect": {
+                        "type": "Combine",
+                        "effects": [
+                          {
+                            "type": "Attack",
+                            "damage": 25,
+                            "attack_ratio": 80
+                          },
+                          {
+                            "type": "ViewEffect",
+                            "name": "lol_yone_q_hit"
+                          },
+                          {
+                            "type": "TargetSfx",
+                            "name": "lol_yone_q_hit"
+                          },
+                          {
+                            "type": "SwitchByBuff",
+                            "buff_name": "lol_yone_mortal_steel_stack_1",
+                            "effect_none": {
+                              "type": "AddCasterBuff",
+                              "buff_state": {
+                                "name": "lol_yone_mortal_steel_stack_1",
+                                "duration": {
+                                  "Time": {
+                                    "tick": 360
+                                  }
+                                }
                               }
+                            },
+                            "effect_buff": {
+                              "type": "Combine",
+                              "effects": []
                             }
                           }
-                        },
-                        "effect_buff": {
-                          "type": "Combine",
-                          "effects": []
-                        }
+                        ]
                       }
-                    ]
-                  }
+                    }
+                  ],
+                  "end_effects": []
                 }
-              ],
-              "end_effects": []
+              ]
             }
           ]
         },
@@ -225,167 +241,171 @@
           "type": "Combine",
           "effects": [
             {
+              "type": "CasterAnimation",
+              "name": "skill_q12",
+              "tick": 30
+            },
+            {
               "type": "Sfx",
               "name": "lol_yone_q_cast"
             },
             {
-              "type": "CasterAnimation",
-              "name": "skill",
-              "tick": 30
+              "type": "CasterViewEffect",
+              "name": "lol_yone_q_blade"
             },
             {
-              "type": "LinearProjectile",
-              "penetrate": true,
-              "speed": 8000,
-              "range": 60000,
-              "name": "lol_yone_q_projectile",
-              "shape": {
-                "Circle": {
-                  "radius": 8000
-                }
-              },
-              "applied_target": "EnemyWithoutTower",
-              "applied_effects": [
+              "type": "Delayed",
+              "tick": 8,
+              "effects": [
                 {
-                  "casting_type": "Targeting",
-                  "effect": {
-                  "type": "Combine",
-                  "effects": [
+                  "type": "LinearProjectile",
+                  "penetrate": true,
+                  "speed": 8000,
+                  "range": 60000,
+                  "name": "lol_yone_q_projectile",
+                  "shape": {
+                    "Circle": {
+                      "radius": 8000
+                    }
+                  },
+                  "applied_target": "EnemyWithoutTower",
+                  "applied_effects": [
                     {
-                      "type": "Native",
-                      "effect_ref": "lol_yone_e_damage_pre_native"
-                    },
-                    {
-                      "type": "Attack",
-                      "damage": 25,
-                      "attack_ratio": 80
-                    },
-                    {
-                      "type": "Native",
-                      "effect_ref": "lol_yone_e_damage_post_native"
-                    },
-                    {
-                      "type": "ViewEffect",
-                      "name": "lol_yone_q_hit"
-                    },
-                    {
-                      "type": "TargetSfx",
-                      "name": "lol_yone_q_hit"
-                    },
-                    {
-                      "type": "SwitchByBuff",
-                      "buff_name": "lol_yone_mortal_steel_stack_2",
-                      "effect_none": {
+                      "casting_type": "Targeting",
+                      "effect": {
                         "type": "Combine",
                         "effects": [
                           {
-                            "type": "RemoveCasterBuff",
-                            "name": "lol_yone_mortal_steel_stack_1"
+                            "type": "Attack",
+                            "damage": 25,
+                            "attack_ratio": 80
                           },
                           {
-                            "type": "AddCasterBuff",
-                            "buff_state": {
-                              "name": "lol_yone_mortal_steel_stack_2",
-                              "duration": {
-                                "Time": {
-                                  "tick": 360
+                            "type": "ViewEffect",
+                            "name": "lol_yone_q_hit"
+                          },
+                          {
+                            "type": "TargetSfx",
+                            "name": "lol_yone_q_hit"
+                          },
+                          {
+                            "type": "SwitchByBuff",
+                            "buff_name": "lol_yone_mortal_steel_stack_2",
+                            "effect_none": {
+                              "type": "Combine",
+                              "effects": [
+                                {
+                                  "type": "RemoveCasterBuff",
+                                  "name": "lol_yone_mortal_steel_stack_1"
+                                },
+                                {
+                                  "type": "AddCasterBuff",
+                                  "buff_state": {
+                                    "name": "lol_yone_mortal_steel_stack_2",
+                                    "duration": {
+                                      "Time": {
+                                        "tick": 360
+                                      }
+                                    }
+                                  }
                                 }
-                              }
+                              ]
+                            },
+                            "effect_buff": {
+                              "type": "Combine",
+                              "effects": []
                             }
                           }
                         ]
-                      },
-                      "effect_buff": {
-                        "type": "Combine",
-                        "effects": []
                       }
                     }
-                  ]
+                  ],
+                  "end_effects": []
                 }
-              }
-            ],
-            "end_effects": []
-          }
-        ]
+              ]
+            }
+          ]
         }
       },
       "effect_buff": {
         "type": "Combine",
         "effects": [
           {
-            "type": "RemoveCasterBuff",
-            "name": "lol_yone_mortal_steel_stack_2"
+            "type": "CasterAnimation",
+            "name": "skill_q3",
+            "tick": 30
           },
           {
             "type": "Sfx",
             "name": "lol_yone_q_empowered_cast"
           },
           {
-            "type": "CasterAnimation",
-            "name": "skill",
-            "tick": 30
+            "type": "CasterViewEffect",
+            "name": "lol_yone_q3_blade"
           },
           {
-            "type": "RushTime",
-            "speed": 4000,
+            "type": "Delayed",
             "tick": 8,
-            "range": 0,
-            "casting_target": "None",
-            "penetrate": true,
-            "applied_effects": []
-          },
-          {
-            "type": "LinearProjectile",
-            "penetrate": true,
-            "speed": 8000,
-            "range": 65000,
-            "name": "lol_yone_q_empowered_projectile",
-            "shape": {
-              "Circle": {
-                "radius": 9000
-              }
-            },
-            "applied_target": "EnemyWithoutTower",
-            "applied_effects": [
+            "effects": [
               {
-                "casting_type": "Targeting",
-                "effect": {
-                  "type": "Combine",
-                  "effects": [
-                    {
-                      "type": "Native",
-                      "effect_ref": "lol_yone_e_damage_pre_native"
-                    },
-                    {
-                      "type": "Attack",
-                      "damage": 25,
-                      "attack_ratio": 80
-                    },
-                    {
-                      "type": "Native",
-                      "effect_ref": "lol_yone_e_damage_post_native"
-                    },
-                    {
-                      "type": "Airborne",
-                      "duration": 45
-                    },
-                    {
-                      "type": "ViewEffect",
-                      "name": "lol_yone_q_empowered_hit"
-                    },
-                    {
-                      "type": "ViewEffect",
-                      "name": "lol_yone_q3_airborne_cue"
-                    },
-                    {
-                      "type": "TargetSfx",
-                      "name": "lol_yone_q_empowered_hit"
+                "type": "RemoveCasterBuff",
+                "name": "lol_yone_mortal_steel_stack_2"
+              },
+              {
+                "type": "RushTime",
+                "speed": 4000,
+                "tick": 8,
+                "range": 0,
+                "casting_target": "None",
+                "penetrate": true,
+                "applied_effects": []
+              },
+              {
+                "type": "LinearProjectile",
+                "penetrate": true,
+                "speed": 8000,
+                "range": 65000,
+                "name": "lol_yone_q_empowered_projectile",
+                "shape": {
+                  "Circle": {
+                    "radius": 9000
+                  }
+                },
+                "applied_target": "EnemyWithoutTower",
+                "applied_effects": [
+                  {
+                    "casting_type": "Targeting",
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Attack",
+                          "damage": 25,
+                          "attack_ratio": 80
+                        },
+                        {
+                          "type": "Airborne",
+                          "duration": 45
+                        },
+                        {
+                          "type": "ViewEffect",
+                          "name": "lol_yone_q_empowered_hit"
+                        },
+                        {
+                          "type": "ViewEffect",
+                          "name": "lol_yone_q3_airborne_cue"
+                        },
+                        {
+                          "type": "TargetSfx",
+                          "name": "lol_yone_q_empowered_hit"
+                        }
+                      ]
                     }
-                  ]
-                }
+                  }
+                ],
+                "end_effects": []
               }
-            ],
-            "end_effects": []
+            ]
           }
         ]
       }
@@ -394,14 +414,14 @@
   "skill2": {
     "action_name": "skill2",
     "description": "#asset/base/text/champion?description.dual_blader.skill2",
-    "duration": 24,
-    "cooltime": 720,
-    "start_timing": 4,
+    "duration": 30,
+    "cooltime": 480,
+    "start_timing": 0,
     "cancelable": false,
-    "range": 60000,
+    "range": 42000,
     "growth_range": 0,
     "casting_type": "Direction",
-    "casting_target": "EnemyChampion",
+    "casting_target": "EnemyWithoutTower",
     "attack_type": "Skill",
     "can_use_with_move": false,
     "effect": {
@@ -409,80 +429,294 @@
       "effects": [
         {
           "type": "CasterAnimation",
-          "name": "skill2_attack",
-          "tick": 24
+          "name": "skill_w_azakana",
+          "tick": 30
         },
         {
-          "type": "Native",
-          "effect_ref": "lol_yone_e_start_native"
+          "type": "Sfx",
+          "name": "lol_yone_w_cast"
         },
         {
           "type": "CasterViewEffect",
-          "name": "lol_yone_e_body_anchor"
+          "name": "lol_yone_w_crescent_cast"
         },
         {
-          "type": "AddCasterBuff",
-          "buff_state": {
-            "name": "lol_yone_e_spirit_form",
-            "duration": {
-              "Time": {
-                "tick": 240
-              }
-            },
-            "move_speed_mult": 20
-          }
-        },
-        {
-          "type": "RushTime",
-          "penetrate": true,
-          "speed": 4500,
+          "type": "Delayed",
           "tick": 8,
-          "range": 0,
-          "casting_target": "None",
-          "applied_effects": []
-        },
-        {
-          "type": "Delayed",
-          "tick": 240,
           "effects": [
             {
               "type": "Native",
-              "effect_ref": "lol_yone_e_begin_return_native"
+              "effect_ref": "lol_yone_w_cone_native"
             },
             {
-              "type": "RemoveCasterBuff",
-              "name": "lol_yone_e_spirit_form"
-            },
-            {
-              "type": "AddCasterBuff",
-              "buff_state": {
-                "name": "lol_yone_e_returning",
-                "duration": {
-                  "Time": {
-                    "tick": 60
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_0",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 50,
+                        "attack_ratio": 20,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_0"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
                   }
-                },
-                "move_speed_mult": 300,
-                "cc_immune": true
+                ]
               }
-            }
-          ]
-        },
-        {
-          "type": "Delayed",
-          "tick": 300,
-          "effects": [
-            {
-              "type": "Native",
-              "effect_ref": "lol_yone_e_settle_native"
             },
             {
-              "type": "RemoveCasterBuff",
-              "name": "lol_yone_e_returning"
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_1",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 100,
+                        "attack_ratio": 40,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_1"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
+                  }
+                ]
+              }
             },
             {
-              "type": "CasterViewEffect",
-              "name": "lol_yone_e_return_burst"
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_2",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 125,
+                        "attack_ratio": 50,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_2"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_3",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 150,
+                        "attack_ratio": 60,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_3"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_4",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 175,
+                        "attack_ratio": 70,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_4"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "SwitchByBuff",
+              "buff_name": "lol_yone_w_shield_tier_5",
+              "effect_none": {
+                "type": "Combine",
+                "effects": []
+              },
+              "effect_buff": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 200,
+                        "attack_ratio": 80,
+                        "ap_ratio": 0,
+                        "tick": 90
+                      }
+                    ]
+                  },
+                  {
+                    "type": "RemoveCasterBuff",
+                    "name": "lol_yone_w_shield_tier_5"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "CasterViewEffect",
+                    "name": "lol_yone_w_shield"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_hit"
+                  },
+                  {
+                    "type": "Sfx",
+                    "name": "lol_yone_w_shield"
+                  }
+                ]
+              }
             }
           ]
         }
@@ -539,17 +773,9 @@
               "tick": 8,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -566,17 +792,9 @@
               "tick": 16,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -593,17 +811,9 @@
               "tick": 24,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -620,17 +830,9 @@
               "tick": 32,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -647,17 +849,9 @@
               "tick": 40,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -674,17 +868,9 @@
               "tick": 48,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "Attack",
                   "damage": 12,
                   "attack_ratio": 16
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -701,17 +887,9 @@
               "tick": 60,
               "effects": [
                 {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_pre_native"
-                },
-                {
                   "type": "FixedAttack",
                   "damage": 30,
                   "attack_ratio": 25
-                },
-                {
-                  "type": "Native",
-                  "effect_ref": "lol_yone_e_damage_post_native"
                 },
                 {
                   "type": "ViewEffect",
@@ -749,6 +927,22 @@
   "view_effects": [
     {
       "type": "Animation",
+      "name": "lol_yone_attack_steel_swing",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "steel_hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_attack_azakana_swing",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
+      "tag": "azakana_hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
       "name": "lol_yone_attack_steel_hit",
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
       "tag": "steel_hit",
@@ -761,6 +955,22 @@
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_attack",
       "tag": "azakana_hit",
       "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q_blade",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "hit",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_q3_blade",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_q",
+      "tag": "empowered_hit",
+      "z": 3,
       "is_follow": true
     },
     {
@@ -789,17 +999,25 @@
     },
     {
       "type": "Animation",
-      "name": "lol_yone_e_body_anchor",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "tag": "anchor",
-      "z": 1,
-      "is_follow": false
+      "name": "lol_yone_w_crescent_cast",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "crescent",
+      "z": 3,
+      "is_follow": true
     },
     {
       "type": "Animation",
-      "name": "lol_yone_e_return_burst",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "tag": "return_burst",
+      "name": "lol_yone_w_hit",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "impact",
+      "z": 2,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_w_shield",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+      "tag": "shield",
       "z": 2,
       "is_follow": true
     },
@@ -853,24 +1071,6 @@
       "loop_tag": "loop",
       "remove_tag": "remove",
       "z": 1
-    },
-    {
-      "type": "ThreePhase",
-      "name": "lol_yone_e_spirit_form",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "pre_tag": "spirit_pre",
-      "loop_tag": "spirit_loop",
-      "remove_tag": "spirit_remove",
-      "z": 2
-    },
-    {
-      "type": "ThreePhase",
-      "name": "lol_yone_e_returning",
-      "anim": "asset/lol_mod/aseprite_resources/effects/yone_spirit",
-      "pre_tag": "return_pre",
-      "loop_tag": "return_loop",
-      "remove_tag": "return_remove",
-      "z": 2
     }
   ]
 }

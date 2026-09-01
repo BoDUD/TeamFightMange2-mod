@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://teamfight-manager2.local/lol_mod/yone_v7_palette.schema.json",
+  "title": "Yone V7 fixed RGBA role palette",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "route", "weapon_roles", "colors"],
+  "properties": {
+    "schema_version": {"const": 7},
+    "route": {"const": "dual-sword-v7"},
+    "weapon_roles": {
+      "const": {
+        "steel": {
+          "dark": ["steel_dark"],
+          "mid": ["steel_mid"],
+          "highlight": ["steel_highlight"]
+        },
+        "azakana": {
+          "dark": ["azakana_dark"],
+          "red": ["azakana_red"],
+          "highlight": ["azakana_highlight"]
+        }
+      }
+    },
+    "colors": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 49,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "rgba"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "rgba": {
+            "type": "array",
+            "prefixItems": [
+              {"type": "integer", "minimum": 0, "maximum": 255},
+              {"type": "integer", "minimum": 0, "maximum": 255},
+              {"type": "integer", "minimum": 0, "maximum": 255},
+              {"enum": [0, 255]}
+            ],
+            "minItems": 4,
+            "maxItems": 4
+          }
+        }
+      }
+    }
+  }
+}

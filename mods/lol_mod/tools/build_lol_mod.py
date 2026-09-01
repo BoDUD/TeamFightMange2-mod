@@ -182,7 +182,7 @@ CHAMPION_FULLBODY_SHEETS = {
     "boomerang_hunter": ACTOR_DIR / "sivir#sheet.png",
     "cavalry_knight": ACTOR_DIR / "kled#sheet.png",
     "dancer": ACTOR_DIR / "xayah#sheet.png",
-    "dual_blader": ACTOR_DIR / "yone#sheet.png",
+    "dual_blader": ACTOR_DIR / "yone_v7#sheet.png",
 }
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
@@ -871,11 +871,11 @@ def build_lucian_actor() -> tuple[Path, Path, list[Image.Image]]:
         "skill": ([0, 14, 14, 14, 14, 14, 14, 14, 14, 0], [0.04, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.05, 0.08]),
         "skill2": ([15, 16, 16, 16, 1], [0.05, 0.06, 0.07, 0.07, 0.05]),
         "ult": ([17, *([18] * 15), 0], [0.12, *([0.14] * 15), 0.22]),
-        # Same-ID Archer keeps native presentation paths even when Lucian's
-        # data-champion payload owns the action.  The engine requests these
-        # names directly; a missing alias eventually unwraps a nonexistent
-        # animation.  Reuse the accepted fixed-scale Lucian poses while
-        # preserving the official frame counts and durations.
+        # Lucian replaces the native Archer by ID, so engine-owned presentation
+        # paths can still request these Archer tags directly.  Missing any one
+        # eventually unwraps a nonexistent animation during hidden simulation or
+        # Ban/Pick.  Reuse the accepted Lucian poses while preserving the native
+        # frame counts and durations exactly.
         "ult_old": (
             [0, 17, 17, 18, 18, 18, 18, 18, 18, 17, 0],
             [0.080000006] * 7 + [0.1] * 4,
@@ -4944,7 +4944,7 @@ def normalize_manifest_text_lf(path: Path) -> None:
         path.write_bytes(normalized)
 
 
-def build_manifest() -> Path:
+def build_manifest(yone_outputs: list[Path]) -> Path:
     runtime_roots = [
         MOD_ROOT / "mod.mod_info",
         MOD_ROOT / "mod.override_info",
@@ -4957,25 +4957,19 @@ def build_manifest() -> Path:
         MOD_ROOT / "text",
         MOD_ROOT / "sound",
         MOD_ROOT / "lol_mod.dll",
-        # Public source/provenance records for the image-gen and official
-        # Riot-audio inputs shipped with the Xayah replacement.
+        # Keep compact provenance records available to an installed test mod,
+        # but never copy contact sheets, previews, or other bulky QA images
+        # into the active game directory.
         QA_DIR / "xayah_imagegen_sources.json",
         QA_DIR / "xayah_official_audio_sources.json",
         QA_DIR / "xayah_ui_scale_qa.json",
-        QA_DIR / "xayah_portrait_surface_final.png",
         QA_DIR / "urgot_visual_qa.json",
         QA_DIR / "urgot_official_audio_sources.json",
-        QA_DIR / "urgot_actor_contact_final.png",
-        QA_DIR / "urgot_vfx_contact_final.png",
-        QA_DIR / "urgot_skill_icons_final.png",
-        QA_DIR / "urgot_portrait_surface_final.png",
         QA_DIR / "yone_visual_contract.json",
         QA_DIR / "yone_imagegen_sources.json",
         QA_DIR / "yone_visual_qa.md",
-        QA_DIR / "yone_visual_final.png",
         QA_DIR / "yone_skill_contract_qa.md",
         QA_DIR / "yone_official_audio_sources.json",
-        QA_DIR / "legacy_battle_actor_scale_qa.json",
     ]
     files: list[Path] = []
     for root in runtime_roots:
@@ -4983,6 +4977,50 @@ def build_manifest() -> Path:
             files.append(root)
         elif root.is_dir():
             files.extend(path for path in root.rglob("*") if path.is_file())
+
+    # Most of the historical pack predates builder-owned output inventories,
+    # so its runtime roots are still scanned above.  Yone is stricter: only
+    # files returned by build_yone plus the explicitly pinned data/audio
+    # inputs below may enter the release.  This turns an unknown leftover E
+    # asset into a build failure instead of silently republishing it.
+    declared_yone_paths = {
+        path.relative_to(MOD_ROOT).as_posix()
+        for path in yone_outputs
+        if path.is_relative_to(MOD_ROOT)
+    }
+    declared_yone_paths.update(
+        {
+            "champion/dual_blader.data_champion",
+            "qa/yone_official_audio_sources.json",
+            "qa/yone_skill_contract_qa.md",
+            "sound/sfx/yone_native_silence.sound_info",
+            "sound/sfx/yone_native_silence_clip.wav",
+        }
+    )
+    yone_audio_audit = json.loads(
+        (QA_DIR / "yone_official_audio_sources.json").read_text(encoding="utf-8")
+    )
+    for output in yone_audio_audit.get("outputs", []):
+        for record_key in ("sound_info", "wav"):
+            relative = output.get(record_key, {}).get("path")
+            if relative:
+                declared_yone_paths.add(relative)
+
+    def is_yone_release_path(relative: str) -> bool:
+        folded = relative.casefold()
+        return "yone" in folded or "dual_blader" in folded
+
+    undeclared_yone_paths = sorted(
+        path.relative_to(MOD_ROOT).as_posix()
+        for path in files
+        if is_yone_release_path(path.relative_to(MOD_ROOT).as_posix())
+        and path.relative_to(MOD_ROOT).as_posix() not in declared_yone_paths
+    )
+    if undeclared_yone_paths:
+        raise RuntimeError(
+            "Undeclared Yone files would enter the release manifest:\n"
+            + "\n".join(undeclared_yone_paths)
+        )
     for path in files:
         normalize_manifest_text_lf(path)
     payload = {
@@ -5080,7 +5118,7 @@ def main() -> int:
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
-    manifest = None if args.skip_manifest else build_manifest()
+    manifest = None if args.skip_manifest else build_manifest(yone_outputs)
     for path in [
         actor_sheet,
         actor_anim,

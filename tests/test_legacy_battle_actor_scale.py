@@ -183,8 +183,8 @@ def test_reference_scale_envelope_and_official_contract_evidence_are_recorded() 
     assert references["demon"]["idle_height_range"] == [46, 46]
     assert references["cavalry_knight"]["idle_height_range"] == [40, 40]
     if "dual_blader" in references:
-        assert references["dual_blader"]["idle_height_range"] == [37, 38]
-        assert qa["reference_idle_height_envelope_px"] == [37, 46]
+        assert references["dual_blader"]["idle_height_range"] == [36, 38]
+        assert qa["reference_idle_height_envelope_px"] == [36, 46]
     else:
         # PR #9 is independently buildable before the Yone/009 branch lands.
         assert qa["reference_idle_height_envelope_px"] == [40, 46]

@@ -4,6 +4,20 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-Sha256Hex {
+    param([Parameter(Mandatory = $true)][string]$LiteralPath)
+
+    $stream = [System.IO.File]::OpenRead($LiteralPath)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = $sha256.ComputeHash($stream)
+        return ([System.BitConverter]::ToString($bytes)).Replace("-", "").ToLowerInvariant()
+    } finally {
+        $sha256.Dispose()
+        $stream.Dispose()
+    }
+}
+
 $sourceMod = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 if ([string]::IsNullOrWhiteSpace($GameRoot)) {
     $GameRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\..\.."))
@@ -48,7 +62,7 @@ foreach ($row in $manifest.files) {
     if ((Get-Item -LiteralPath $source).Length -ne $row.size) {
         throw "Source runtime size mismatch before install: $($row.path)"
     }
-    $hash = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
+    $hash = Get-Sha256Hex -LiteralPath $source
     if ($hash -ne $row.sha256) {
         throw "Source runtime hash mismatch before install: $($row.path)"
     }
@@ -109,7 +123,7 @@ foreach ($row in $manifest.files) {
     if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) {
         throw "Installed runtime file missing: $installed"
     }
-    $hash = (Get-FileHash -LiteralPath $installed -Algorithm SHA256).Hash.ToLowerInvariant()
+    $hash = Get-Sha256Hex -LiteralPath $installed
     if ($hash -ne $row.sha256) {
         throw "Installed runtime hash mismatch: $($row.path)"
     }
