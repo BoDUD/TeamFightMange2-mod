@@ -8270,7 +8270,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.9", "lol_mod version must be 0.12.9")
+    check(mod_info.get("version") == "0.12.10", "lol_mod version must be 0.12.10")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -9253,14 +9253,24 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     for required in (
         'client.client_main_tab().as_deref() != Some("GameInfo")',
         "find_encyclopedia_container(client)",
-        'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0',
-        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0',
+        '"dancer",',
+        '"dual_blader",',
+        "ENCYCLOPEDIA_ICON_WIDTH,",
+        "ENCYCLOPEDIA_ICON_HEIGHT,",
+        "ENCYCLOPEDIA_FINISHED_HERO_SCALE,",
+        "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,",
         '"stock champion-icon resolver; raw source mutation disabled;',
     ):
         check(
             required in encyclopedia_batch,
             f"Xayah/Yone encyclopedia batch resolver is missing: {required}",
         )
+    check(
+        "const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;" in rust
+        and "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;" in rust
+        and "1.75" not in encyclopedia_batch,
+        "Xayah/Yone encyclopedia cards must use the finished-hero 2.0 scale and shared y=60 full-body foot line",
+    )
     for required in (
         "ENCYCLOPEDIA_CONTAINER_CANDIDATES",
         "ENCYCLOPEDIA_RUNTIME_MAX_NODES",
@@ -9751,7 +9761,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.9", "lol_mod version must be 0.12.9")
+    check(mod_info.get("version") == "0.12.10", "lol_mod version must be 0.12.10")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

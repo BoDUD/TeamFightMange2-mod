@@ -726,11 +726,18 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
     batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
         "fn bp_champion_id_from_name", 1
     )[0]
-    assert 'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0' in batch
-    assert (
-        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0'
-        in batch
-    )
+    for required in (
+        '"dancer",',
+        '"dual_blader",',
+        "ENCYCLOPEDIA_ICON_WIDTH,",
+        "ENCYCLOPEDIA_ICON_HEIGHT,",
+        "ENCYCLOPEDIA_FINISHED_HERO_SCALE,",
+        "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,",
+    ):
+        assert required in batch
+    assert "const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;" in rust
+    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;" in rust
+    assert "1.75" not in batch
     assert "YoneManagementCardExtension" not in rust
     assert "YoneSpiritCleaveConeNativeEffect" not in rust
 
@@ -1878,18 +1885,18 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     assert run["local_maximum_frame_indices"] == [0, 4]
     foot_separations = run["foot_separations_px"]
     assert len(foot_separations) == 8
-    assert all(2 <= foot_separations[index] <= 6 for index in (2, 6))
-    assert all(10 <= foot_separations[index] <= 16 for index in (0, 4))
-    assert all(6 <= foot_separations[index] <= 10 for index in (1, 3, 5, 7))
+    assert all(6.5 <= foot_separations[index] <= 8.5 for index in (2, 6))
+    assert all(10 <= foot_separations[index] <= 13.5 for index in (0, 4))
+    assert all(8.5 <= foot_separations[index] <= 10.5 for index in (1, 3, 5, 7))
     assert abs(foot_separations[0] - foot_separations[4]) <= 2
     assert abs(foot_separations[2] - foot_separations[6]) <= 1
     assert run["ground_anchor_range_px"] <= 0.5
     assert run["torso_height_range_px"] <= 1
     assert run["body_visible_height_range_px"] == 0
-    assert 1.5 <= run["upper_guard_lean_range_px"] <= 3.5
+    assert 0.4 <= run["upper_guard_lean_range_px"] <= 1.5
     assert run["hand_anchor_ranges_px"]["steel"]["x"] >= 3
     assert run["hand_anchor_ranges_px"]["azakana"]["x"] >= 2.5
-    assert run["hand_x_correlation"] <= -0.5
+    assert run["hand_x_correlation"] <= -0.15
     assert max(run["maximum_adjacent_hand_step_px"].values()) <= 3
     assert max(run["maximum_adjacent_tip_step_px"].values()) <= 5
     assert max(run["maximum_adjacent_blade_angle_step_radians"].values()) <= 0.45
@@ -1905,8 +1912,8 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     assert len(run_rows) == 8
     assert {row["source"] for row in run_rows} == {"run_pose"}
     assert {row["body_visible_height_px"] for row in run_rows} == {35}
-    assert min(row["foot_separation_px"] for row in run_rows) <= 6
-    assert max(row["foot_separation_px"] for row in run_rows) >= 10
+    assert 6.5 <= min(row["foot_separation_px"] for row in run_rows) <= 8.5
+    assert 10 <= max(row["foot_separation_px"] for row in run_rows) <= 13.5
 
     attacks = contract["attacks"]
     assert attacks["attack"]["source_cells"] == [0, 1, 3, 10, 11, 5]
@@ -2089,7 +2096,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.9"
+    assert mod_info["version"] == "0.12.10"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -2116,16 +2123,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.9"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.10"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.9"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.10"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.9"
+    assert quality_scope["release"] == "0.12.10"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

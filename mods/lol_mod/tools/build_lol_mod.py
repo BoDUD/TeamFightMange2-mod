@@ -4948,7 +4948,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.9 full-leg encyclopedia framing and articulated Yone presentation test closure",
+        "purpose": "0.12.10 finished-hero encyclopedia scale and restrained Yone gait test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

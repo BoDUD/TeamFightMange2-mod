@@ -141,6 +141,14 @@ const BP_RUNTIME_ROOT_PATHS: [&str; 3] = ["main", "top.main", "banpick.main"];
 const BP_RUNTIME_MAX_PICK_SLOTS: usize = 12;
 const BP_RUNTIME_MAX_CHAMPION_CARDS: usize = 256;
 const ENCYCLOPEDIA_RUNTIME_MAX_NODES: usize = 4096;
+// The stock 0.5.8 champion slot is 85x93 and the stable host documents 2.0 as
+// the game's normal champion-icon scale. Full-body replacements share a y=60
+// foot line so they finish ten pixels above the native tier selector at y=70.
+// Keep these values common to Xayah and Yone instead of tuning one-off scales.
+const ENCYCLOPEDIA_ICON_WIDTH: f32 = 85.0;
+const ENCYCLOPEDIA_ICON_HEIGHT: f32 = 93.0;
+const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;
+const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;
 const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
     "body.main.top.right.champion_info.data.champions.contents",
     "main.top.right.champion_info.data.champions.contents",
@@ -290,9 +298,10 @@ fn sync_encyclopedia_card(
     // The stock tier dropdown occupies card y=70..92 at z=103. Xayah and
     // Yone use tightly cropped non-64px idle frames, so the game's usual 2x
     // face-icon camera placed their lower legs behind that control. Keep the
-    // engine-owned resolver, but fit these two cards at the measured 1.75x
-    // scale and bottom-anchor the resolved image above the dropdown. This is
-    // encyclopedia-local and therefore cannot move BP, HUD or sidebar icons.
+    // engine-owned resolver at the same 2.0 scale used by finished heroes,
+    // then bottom-anchor the resolved image ten pixels above the dropdown.
+    // This is encyclopedia-local and therefore cannot move BP, HUD or sidebar
+    // icons.
     // Only move the icon after the resolver has installed the measured frame.
     // If the optional resolver slot is unavailable, preserve the stock
     // fallback's original geometry as well as its original source.
@@ -337,8 +346,24 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         *cached = Some(container.clone());
     }
 
-    let xayah = sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0, 1.75, 49.0);
-    let yone = sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0);
+    let xayah = sync_encyclopedia_card(
+        client,
+        &container,
+        "dancer",
+        ENCYCLOPEDIA_ICON_WIDTH,
+        ENCYCLOPEDIA_ICON_HEIGHT,
+        ENCYCLOPEDIA_FINISHED_HERO_SCALE,
+        ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
+    );
+    let yone = sync_encyclopedia_card(
+        client,
+        &container,
+        "dual_blader",
+        ENCYCLOPEDIA_ICON_WIDTH,
+        ENCYCLOPEDIA_ICON_HEIGHT,
+        ENCYCLOPEDIA_FINISHED_HERO_SCALE,
+        ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
+    );
     if xayah.icon_exists
         && yone.icon_exists
         && extension
@@ -349,7 +374,7 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         append_encyclopedia_telemetry(
             &container,
             &format!(
-                "stock champion-icon resolver; raw source mutation disabled; measured full-leg fit scale=1.75 xayah_bottom_y=49 yone_bottom_y=60; xayah runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}",
+                "stock champion-icon resolver; raw source mutation disabled; finished-hero scale=2.0 shared_fullbody_bottom_y=60 tier_y=70; xayah runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}",
                 xayah.runner,
                 xayah.resolver_bound,
                 xayah.positioned,

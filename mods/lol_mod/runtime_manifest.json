@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.9 full-leg encyclopedia framing and articulated Yone presentation test closure",
+  "purpose": "0.12.10 finished-hero encyclopedia scale and restrained Yone gait test closure",
   "file_count": 468,
-  "total_size": 90129990,
+  "total_size": 90130137,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6"
+      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6"
+      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1016,12 +1016,12 @@
     {
       "path": "lol_mod.dll",
       "size": 268800,
-      "sha256": "011f389cbd0076048e51f830c1e7a167f293018a2633301547d7f07f2e285a2c"
+      "sha256": "226666b790490f71b73956fdb41601a317218abcae531be2916f608c414f2c4c"
     },
     {
       "path": "mod.mod_info",
-      "size": 1199,
-      "sha256": "a537710715279d810edb1cd0aa8e8f20f1108f46ed3d90f17c374bb14dce28b2"
+      "size": 1346,
+      "sha256": "6330244991cd07685f7b19a7d7b4f258fbac81de7e0d4bc0fb160e9a9765bfdb"
     },
     {
       "path": "mod.override_info",

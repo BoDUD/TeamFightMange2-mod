@@ -422,6 +422,9 @@ def _recompose_stride_pair(
     stride_ratio: float = 0.14,
     neutral_inset_ratio: float = 0.0,
     torso_sway_phases: tuple[float, ...] | None = None,
+    drop_ratio: float = 0.045,
+    lift_ratio: float = 0.035,
+    torso_sway_ratio: float = 0.04,
     articulated_cycle: bool = False,
 ) -> tuple[Image.Image, Image.Image]:
     """Articulate two source leg identities without repainting the actor.
@@ -458,9 +461,9 @@ def _recompose_stride_pair(
     # action rectangle or touching the one-pixel transparent frame border.
     maximum_stride = max(8, round(body_height * stride_ratio))
     neutral_inset = round(maximum_stride * neutral_inset_ratio)
-    maximum_drop = max(4, round(body_height * 0.045))
-    maximum_lift = max(3, round(body_height * 0.035))
-    maximum_torso_sway = max(3, round(body_height * 0.04))
+    maximum_drop = max(2, round(body_height * drop_ratio))
+    maximum_lift = max(2, round(body_height * lift_ratio))
+    maximum_torso_sway = max(2, round(body_height * torso_sway_ratio))
     leg_radius = max(16, round(body_height * 0.24))
     pad_x = round(
         maximum_stride
@@ -592,7 +595,9 @@ def recompose_run_articulated_pair(
     The upper-body guard rhythm moves both sword hands without inserting a
     contact pose. The lower compositor keeps the original left/right pixel
     groups as identities, closes them at frames 2/6 and alternates which leg
-    renders in front between the two passing steps.
+    renders in front between the two passing steps. Keep source-space offsets
+    modest: the previous 0.18/1.0 pass over-separated the legs and visibly
+    deformed the tiny native actor during the crossover.
     """
 
     return _recompose_stride_pair(
@@ -600,9 +605,12 @@ def recompose_run_articulated_pair(
         raw_weapon_source,
         frame_index,
         stride_phases=RUN_STRIDE_PHASES,
-        stride_ratio=0.18,
-        neutral_inset_ratio=1.0,
-        torso_sway_phases=(0.0, 0.8, 1.2, 0.8, 0.0, -0.8, -1.2, -0.8),
+        stride_ratio=0.105,
+        neutral_inset_ratio=0.35,
+        torso_sway_phases=(0.0, 0.3, 0.5, 0.3, 0.0, -0.3, -0.5, -0.3),
+        drop_ratio=0.022,
+        lift_ratio=0.018,
+        torso_sway_ratio=0.025,
         articulated_cycle=True,
     )
 
@@ -1577,7 +1585,7 @@ def motion_pose_metrics(
             "foot_separation_px": round(centres[1] - centres[0], 3),
             "stride_pose": (
                 "crossing"
-                if centres[1] - centres[0] <= 6.0
+                if centres[1] - centres[0] <= 8.0
                 else "extended"
                 if centres[1] - centres[0] >= 10.0
                 else "passing"
@@ -2183,7 +2191,12 @@ def main() -> int:
         failures.append(f"run_crossing_pose_count={run_stride_pose_counts['crossing']}")
     if run_stride_pose_counts["extended"] < 2:
         failures.append(f"run_extended_pose_count={run_stride_pose_counts['extended']}")
-    if run_foot_separations and min(run_foot_separations) < 1.5:
+    # Calibrate the gait against finished combined-mod actors instead of
+    # forcing an artificial deep crossover.  Measured with this same lower-
+    # body clustering pass, Briar spans about 5.4..14.3px and Orianna about
+    # 7.7..12.0px. Yone should stay near the latter: a readable narrow passing
+    # step at frames 2/6, moderate contacts at 0/4, and no 15px+ split.
+    if run_foot_separations and min(run_foot_separations) < 6.0:
         failures.append(
             f"run_foot_separation_min={min(run_foot_separations):.3f}"
         )
@@ -2196,12 +2209,12 @@ def main() -> int:
         failures.append(f"run_contact_step_indices={run_local_maximum_indices}")
     if run_extended_frame_indices != [0, 4]:
         failures.append(f"run_extended_frame_indices={run_extended_frame_indices}")
-    if any(not 2.0 <= run_foot_separations[index] <= 6.0 for index in (2, 6)):
+    if any(not 6.5 <= run_foot_separations[index] <= 8.5 for index in (2, 6)):
         failures.append(f"run_crossing_foot_separations={run_foot_separations}")
-    if any(not 10.0 <= run_foot_separations[index] <= 16.0 for index in (0, 4)):
+    if any(not 10.0 <= run_foot_separations[index] <= 13.5 for index in (0, 4)):
         failures.append(f"run_contact_foot_separations={run_foot_separations}")
     if any(
-        not 6.0 <= run_foot_separations[index] <= 10.0
+        not 8.5 <= run_foot_separations[index] <= 10.5
         for index in (1, 3, 5, 7)
     ):
         failures.append(f"run_transition_foot_separations={run_foot_separations}")
@@ -2226,7 +2239,7 @@ def main() -> int:
             "run_body_height_range="
             f"{max(run_body_heights) - min(run_body_heights)}"
         )
-    if run_torso_leans and not 1.5 <= max(run_torso_leans) - min(run_torso_leans) <= 3.5:
+    if run_torso_leans and not 0.4 <= max(run_torso_leans) - min(run_torso_leans) <= 1.5:
         failures.append(
             "run_upper_guard_lean_range="
             f"{max(run_torso_leans) - min(run_torso_leans):.3f}"
@@ -2235,7 +2248,7 @@ def main() -> int:
         failures.append(f"weak_steel_hand_motion={run_hand_ranges['steel']}")
     if run_hand_ranges["azakana"]["x"] < 2.5 or run_hand_ranges["azakana"]["y"] < 1.0:
         failures.append(f"weak_azakana_hand_motion={run_hand_ranges['azakana']}")
-    if run_hand_x_correlation > -0.35:
+    if run_hand_x_correlation > -0.15:
         failures.append(f"run_hand_x_correlation={run_hand_x_correlation:.3f}")
     for weapon, adjacent_step in run_maximum_adjacent_hand_steps.items():
         if adjacent_step > 3.0:
@@ -2318,7 +2331,7 @@ def main() -> int:
             "attack_durations_seconds": build_yone.NATIVE_CONTRACT["attack"]["durations"],
         },
         "run": {
-            "source": "approved upright V7 guard poses; authored upper-body articulation plus lower-body crossover strengthening",
+            "source": "approved upright V7 guard poses; authored upper-body articulation plus moderate finished-hero-calibrated passing-step motion",
             "pose_sources": [list(source) for source in RUN_POSE_SOURCES],
             "stride_phases": list(RUN_STRIDE_PHASES),
             "passing_leg_sides": list(RUN_PASSING_LEG_SIDES),

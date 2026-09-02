@@ -1818,18 +1818,14 @@
       "bottom_margin": 13,
       "face_bbox": [
         19,
-        8,
+        9,
         5,
-        10
+        6
       ],
       "eye_pixels": [
         [
           20,
-          11
-        ],
-        [
-          23,
-          11
+          12
         ]
       ],
       "mask_bbox": [
@@ -1846,7 +1842,7 @@
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "profile",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1854,17 +1850,17 @@
       ],
       "steel_blade_bbox": [
         6,
-        24,
+        25,
         8,
         11
       ],
       "steel_hand_anchor": [
         12,
-        25
+        26
       ],
       "steel_tip": [
         8,
-        34
+        35
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -1875,7 +1871,7 @@
         26,
         24,
         9,
-        10
+        11
       ],
       "azakana_hand_anchor": [
         27,
@@ -1883,11 +1879,11 @@
       ],
       "azakana_tip": [
         33,
-        33
+        34
       ],
-      "azakana_span_px": 10.0,
+      "azakana_span_px": 10.817,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 39,
+      "azakana_pixel_count": 40,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -1902,28 +1898,9 @@
         51
       ],
       "bottom_margin": 14,
-      "face_bbox": [
-        18,
-        13,
-        6,
-        5
-      ],
-      "eye_pixels": [
-        [
-          18,
-          15
-        ],
-        [
-          23,
-          15
-        ]
-      ],
-      "mask_bbox": [
-        10,
-        5,
-        8,
-        9
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
           5,
@@ -1932,7 +1909,7 @@
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1940,17 +1917,17 @@
       ],
       "steel_blade_bbox": [
         5,
-        25,
+        26,
         8,
         11
       ],
       "steel_hand_anchor": [
         11,
-        26
+        27
       ],
       "steel_tip": [
         7,
-        35
+        36
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -1961,7 +1938,7 @@
         25,
         25,
         9,
-        10
+        11
       ],
       "azakana_hand_anchor": [
         26,
@@ -1969,11 +1946,11 @@
       ],
       "azakana_tip": [
         32,
-        34
+        35
       ],
-      "azakana_span_px": 10.0,
+      "azakana_span_px": 10.817,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 39,
+      "azakana_pixel_count": 40,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -1989,32 +1966,32 @@
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        18,
-        12,
+        17,
+        11,
         6,
-        7
+        9
       ],
       "eye_pixels": [
         [
-          18,
-          16
+          19,
+          14
         ],
         [
-          23,
-          16
+          17,
+          13
         ]
       ],
       "mask_bbox": [
-        10,
+        9,
         5,
         9,
-        13
+        14
       ],
       "foot_zones": [
         [
-          4,
+          3,
           34,
-          33,
+          34,
           4
         ]
       ],
@@ -2025,18 +2002,18 @@
         "azakana"
       ],
       "steel_blade_bbox": [
-        4,
-        26,
+        3,
+        27,
         8,
         11
       ],
       "steel_hand_anchor": [
-        10,
-        27
+        9,
+        28
       ],
       "steel_tip": [
-        6,
-        36
+        5,
+        37
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -2047,7 +2024,7 @@
         26,
         25,
         11,
-        9
+        10
       ],
       "azakana_hand_anchor": [
         27,
@@ -2055,11 +2032,11 @@
       ],
       "azakana_tip": [
         36,
-        32
+        33
       ],
-      "azakana_span_px": 10.817,
+      "azakana_span_px": 11.402,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 40,
+      "azakana_pixel_count": 43,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -2075,32 +2052,32 @@
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        18,
+        17,
         10,
         6,
-        8
+        6
       ],
       "eye_pixels": [
         [
-          18,
-          12
+          19,
+          13
         ],
         [
-          20,
+          17,
           12
         ]
       ],
       "mask_bbox": [
-        10,
+        9,
         4,
         9,
         10
       ],
       "foot_zones": [
         [
-          4,
+          3,
           33,
-          33,
+          34,
           4
         ]
       ],
@@ -2111,18 +2088,18 @@
         "azakana"
       ],
       "steel_blade_bbox": [
-        4,
-        25,
+        3,
+        26,
         8,
         11
       ],
       "steel_hand_anchor": [
-        10,
-        26
+        9,
+        27
       ],
       "steel_tip": [
-        6,
-        35
+        5,
+        36
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -2133,7 +2110,7 @@
         26,
         24,
         11,
-        9
+        10
       ],
       "azakana_hand_anchor": [
         27,
@@ -2141,11 +2118,11 @@
       ],
       "azakana_tip": [
         36,
-        31
+        32
       ],
-      "azakana_span_px": 10.817,
+      "azakana_span_px": 11.402,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 40,
+      "azakana_pixel_count": 43,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -2162,31 +2139,35 @@
       "bottom_margin": 13,
       "face_bbox": [
         20,
-        12,
-        5,
+        9,
+        6,
         7
       ],
       "eye_pixels": [
         [
-          23,
-          16
+          22,
+          12
+        ],
+        [
+          25,
+          12
         ]
       ],
       "mask_bbox": [
         11,
         4,
         9,
-        16
+        12
       ],
       "foot_zones": [
         [
           3,
           32,
-          36,
+          37,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2195,39 +2176,39 @@
       "steel_blade_bbox": [
         3,
         25,
-        8,
-        10
+        9,
+        11
       ],
       "steel_hand_anchor": [
-        9,
+        10,
         26
       ],
       "steel_tip": [
         5,
-        34
+        35
       ],
-      "steel_span_px": 8.944,
+      "steel_span_px": 10.296,
       "steel_connectedness": 1.0,
-      "steel_pixel_count": 36,
+      "steel_pixel_count": 39,
       "steel_crop_ratio": 0.0,
       "steel_source_tip_survived": true,
       "azakana_blade_bbox": [
-        28,
+        29,
         24,
-        11,
-        9
+        10,
+        10
       ],
       "azakana_hand_anchor": [
-        29,
+        30,
         25
       ],
       "azakana_tip": [
         38,
-        31
+        32
       ],
-      "azakana_span_px": 10.817,
+      "azakana_span_px": 10.63,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 40,
+      "azakana_pixel_count": 41,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -2242,55 +2223,36 @@
         51
       ],
       "bottom_margin": 14,
-      "face_bbox": [
-        17,
-        9,
-        6,
-        9
-      ],
-      "eye_pixels": [
-        [
-          17,
-          12
-        ],
-        [
-          19,
-          12
-        ]
-      ],
-      "mask_bbox": [
-        8,
-        4,
-        9,
-        10
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
-          4,
+          3,
           33,
-          33,
+          34,
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
         "azakana"
       ],
       "steel_blade_bbox": [
-        4,
-        25,
+        3,
+        26,
         8,
         11
       ],
       "steel_hand_anchor": [
-        10,
-        26
+        9,
+        27
       ],
       "steel_tip": [
-        6,
-        35
+        5,
+        36
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -2301,7 +2263,7 @@
         26,
         24,
         11,
-        9
+        10
       ],
       "azakana_hand_anchor": [
         27,
@@ -2309,11 +2271,11 @@
       ],
       "azakana_tip": [
         36,
-        31
+        32
       ],
-      "azakana_span_px": 10.817,
+      "azakana_span_px": 11.402,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 40,
+      "azakana_pixel_count": 43,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -2328,24 +2290,9 @@
         53
       ],
       "bottom_margin": 15,
-      "face_bbox": [
-        17,
-        10,
-        6,
-        9
-      ],
-      "eye_pixels": [
-        [
-          18,
-          13
-        ]
-      ],
-      "mask_bbox": [
-        8,
-        5,
-        9,
-        13
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
           4,
@@ -2354,7 +2301,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2362,17 +2309,17 @@
       ],
       "steel_blade_bbox": [
         4,
-        26,
+        27,
         8,
         11
       ],
       "steel_hand_anchor": [
         10,
-        27
+        28
       ],
       "steel_tip": [
         6,
-        36
+        37
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -2380,22 +2327,22 @@
       "steel_crop_ratio": 0.0,
       "steel_source_tip_survived": true,
       "azakana_blade_bbox": [
-        26,
+        27,
         25,
-        11,
-        9
+        10,
+        10
       ],
       "azakana_hand_anchor": [
-        27,
+        28,
         26
       ],
       "azakana_tip": [
         36,
-        32
+        33
       ],
-      "azakana_span_px": 10.817,
+      "azakana_span_px": 10.63,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 40,
+      "azakana_pixel_count": 41,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },
@@ -2411,26 +2358,26 @@
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        17,
-        13,
-        6,
+        18,
+        10,
+        5,
         6
       ],
       "eye_pixels": [
         [
-          21,
-          16
+          19,
+          13
         ],
         [
-          17,
-          15
+          22,
+          12
         ]
       ],
       "mask_bbox": [
-        8,
-        5,
-        8,
-        9
+        9,
+        4,
+        9,
+        10
       ],
       "foot_zones": [
         [
@@ -2448,17 +2395,17 @@
       ],
       "steel_blade_bbox": [
         5,
-        25,
+        26,
         8,
         11
       ],
       "steel_hand_anchor": [
         11,
-        26
+        27
       ],
       "steel_tip": [
         7,
-        35
+        36
       ],
       "steel_span_px": 9.849,
       "steel_connectedness": 1.0,
@@ -2469,7 +2416,7 @@
         25,
         25,
         9,
-        10
+        11
       ],
       "azakana_hand_anchor": [
         26,
@@ -2477,11 +2424,11 @@
       ],
       "azakana_tip": [
         32,
-        34
+        35
       ],
-      "azakana_span_px": 10.0,
+      "azakana_span_px": 10.817,
       "azakana_connectedness": 1.0,
-      "azakana_pixel_count": 39,
+      "azakana_pixel_count": 40,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true
     },

@@ -524,14 +524,13 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert '"boomerang_hunter" | "Sivir"' in stable_runtime
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
-    assert (
-        'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0'
-        in stable_runtime
-    )
-    assert (
-        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0'
-        in stable_runtime
-    )
+    assert "const ENCYCLOPEDIA_ICON_WIDTH: f32 = 85.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_ICON_HEIGHT: f32 = 93.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;" in stable_runtime
+    assert "1.75" not in stable_runtime.split("fn sync_encyclopedia_portraits", 1)[1].split(
+        "fn bp_champion_id_from_name", 1
+    )[0]
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
 
     # Regression: 0.12.6 hid the native icon after an unproven spawned PNG;
