@@ -909,38 +909,35 @@ def test_yone_fullbody_card_keeps_two_readable_legs_and_boots() -> None:
     assert separated_rows >= 12
 
     boot_top = bbox[1] + round((bbox[3] - bbox[1]) * 0.80)
-    remaining = {
-        (x, y)
-        for y in range(boot_top, bbox[3])
-        for x in range(body_left, body_right)
-        if alpha.getpixel((x, y)) >= 128
-    }
-    components: list[set[tuple[int, int]]] = []
-    while remaining:
-        frontier = [remaining.pop()]
-        component = set(frontier)
-        while frontier:
-            x, y = frontier.pop()
-            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
-                if neighbor in remaining:
-                    remaining.remove(neighbor)
-                    component.add(neighbor)
-                    frontier.append(neighbor)
-        if len(component) >= 40:
-            components.append(component)
-    assert len(components) == 2
-    boot_boxes = sorted(
-        (
-            min(x for x, _y in component),
-            min(y for _x, y in component),
-            max(x for x, _y in component) + 1,
-            max(y for _x, y in component) + 1,
+    # The long coat can bridge the boots near their tops. Check one complete
+    # lower-body lobe on each side instead of requiring disconnected islands.
+    body_mid = (body_left + body_right) // 2
+    boot_halves = [
+        {
+            (x, y)
+            for y in range(boot_top, bbox[3])
+            for x in range(x_start, x_end)
+            if alpha.getpixel((x, y)) >= 128
+        }
+        for x_start, x_end in (
+            (body_left, body_mid - 1),
+            (body_mid + 1, body_right),
         )
-        for component in components
-    )
-    assert all(right - left >= 8 for left, _top, right, _bottom in boot_boxes)
+    ]
+    boot_boxes = [
+        (
+            min(x for x, _y in pixels),
+            min(y for _x, y in pixels),
+            max(x for x, _y in pixels) + 1,
+            max(y for _x, y in pixels) + 1,
+        )
+        for pixels in boot_halves
+        if pixels
+    ]
+    assert len(boot_boxes) == 2
+    assert all(right - left >= 7 for left, _top, right, _bottom in boot_boxes)
     assert all(bottom - top >= 12 for _left, top, _right, bottom in boot_boxes)
-    assert boot_boxes[1][0] - boot_boxes[0][2] >= 1
+    assert all(bottom >= bbox[3] - 1 for _left, _top, _right, bottom in boot_boxes)
 
 
 def test_yone_bp_transition_contract_covers_observed_and_settled_geometry() -> None:

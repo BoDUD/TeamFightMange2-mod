@@ -8,7 +8,7 @@
     "schema_version": 7,
     "route": "dual-sword-v7",
     "manifest": "source/native/yone_v7/frames.json",
-    "manifest_sha256": "adfacc49b535d3d9ad704335974db16fd0840d87c88da609ceb3f8634e608ea3",
+    "manifest_sha256": "48f3656a55f90e44d034aa82ffda2e1e01b3003ecd9148889787bda28a060b87",
     "atlas_size": [
       4262,
       88
@@ -53,6 +53,7 @@
         "skin_02",
         "skin_03",
         "skin_04",
+        "skin_05",
         "mask_01",
         "source_05",
         "source_06",
@@ -82,7 +83,6 @@
         "source_26",
         "source_27",
         "source_28",
-        "source_29",
         "steel_dark",
         "steel_mid",
         "steel_highlight",
@@ -114,11 +114,11 @@
           ]
         }
       },
-      "sha256": "172f588e113660b423b4b1718f101ed81bec384239772949404763b446803cce"
+      "sha256": "98d8c94d0587d6344e7c56c71b494872624f203a5f19f10000991dc618000a23"
     },
     "body_preview": "source/native/yone_v7/preview/yone_v7_actor_card.png",
     "body_preview_kind": "complete opaque 141x138 runtime-card proof",
-    "body_preview_sha256": "5f08c3ad9ffa5fb737f6049f1bd9fa7427336356a40ffc36e270bdc73502b909",
+    "body_preview_sha256": "686a4e53459ede51d00a0891a7915749da02533c10eae413cd388893d1d88890",
     "contact_preview": "source/native/yone_v7/preview/yone_v7_native_contact.png",
     "body_processing": "none; exact final 1x RGBA byte copy"
   },
@@ -146,7 +146,7 @@
         12,
         17,
         6,
-        10
+        6
       ],
       "eye_pixels": [
         [
@@ -162,7 +162,7 @@
         2,
         11,
         10,
-        15
+        10
       ],
       "foot_zones": [
         [
@@ -224,8 +224,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "683c5ad0fba5047109525dc94033249673598f267cc3d3af8e79ba7b9ff62180",
+      "opaque_palette_size": 43,
+      "sha256": "dae80b1c550493b9d8423942b16dfa25dd3023379d394f2e744d5ad34a52f275",
       "pack_transform": "none"
     },
     "hit[0]": {
@@ -326,7 +326,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "12f665f6833887fd8cd2b1e3110754ed5ddfff8b947ce5bc7c739a4b59f36c85",
+      "sha256": "ccc2405d81ef9d4449a3cfe4f7423167e945343438d59300170f8780d5dfc3c9",
       "pack_transform": "none"
     },
     "attack[0]": {
@@ -350,21 +350,25 @@
       "bottom_margin": 14,
       "face_bbox": [
         22,
-        15,
+        11,
         7,
-        4
+        8
       ],
       "eye_pixels": [
         [
           24,
-          15
+          14
+        ],
+        [
+          28,
+          14
         ]
       ],
       "mask_bbox": [
         11,
-        7,
-        6,
-        9
+        4,
+        11,
+        12
       ],
       "foot_zones": [
         [
@@ -374,7 +378,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "steel",
       "weapons_present": [
         "steel",
@@ -427,7 +431,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "617f40655b46b4d9377a6d4546544d796e8a192da5b06bc0e31fa30bcddc279f",
+      "sha256": "429e67d0197bf93d7ba07af559b4ec9ab807dfd5789c64d7e3b09e1f961d361d",
       "pack_transform": "none"
     },
     "attack[1]": {
@@ -531,8 +535,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "bdba8a8c43fec9f76da95c1adbd0e2a8aaabaa85c92556f67396d8ead34ed9dc",
+      "opaque_palette_size": 47,
+      "sha256": "709ef96dc31f26b1b2de6cbed26a465719a7d22a786b187631846797b1bf0202",
       "pack_transform": "none"
     },
     "attack[2]": {
@@ -556,25 +560,21 @@
       "bottom_margin": 12,
       "face_bbox": [
         32,
-        15,
+        11,
         7,
-        6
+        10
       ],
       "eye_pixels": [
         [
-          32,
-          18
-        ],
-        [
-          38,
-          18
+          34,
+          15
         ]
       ],
       "mask_bbox": [
         21,
-        7,
-        6,
-        15
+        4,
+        12,
+        18
       ],
       "foot_zones": [
         [
@@ -584,7 +584,7 @@
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "profile",
       "active_weapon": "steel",
       "weapons_present": [
         "steel",
@@ -636,8 +636,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "2c9bb65b11f52bf14e304273948272d633991efb41611912760cf49e0f9b6330",
+      "opaque_palette_size": 45,
+      "sha256": "790b8857e2fe4092c75b6dfd8074f6bd6550f482c6b1f28267f6a3aee6c998b6",
       "pack_transform": "none"
     },
     "attack[3]": {
@@ -653,39 +653,39 @@
         49
       ],
       "source_alpha_bbox": [
-        9,
+        10,
         1,
         58,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        32,
-        16,
+        33,
+        11,
         8,
-        6
+        11
       ],
       "eye_pixels": [
         [
-          32,
-          19
+          35,
+          16
         ],
         [
-          38,
-          19
+          39,
+          16
         ]
       ],
       "mask_bbox": [
         20,
-        8,
-        11,
-        15
+        4,
+        13,
+        19
       ],
       "foot_zones": [
         [
-          9,
+          10,
           32,
-          49,
+          48,
           4
         ]
       ],
@@ -698,38 +698,38 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            44,
+            45,
             20,
-            12,
+            11,
             3
           ],
           "hand_anchor": [
-            45,
+            46,
             21
           ],
           "tip": [
             55,
             20
           ],
-          "span_px": 10.05,
+          "span_px": 9.055,
           "connectedness": 1.0,
-          "pixel_count": 34,
-          "crop_ratio": 0.1111,
+          "pixel_count": 31,
+          "crop_ratio": 0.1852,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            10,
+            11,
             24,
             8,
             6
           ],
           "hand_anchor": [
-            17,
+            18,
             25
           ],
           "tip": [
-            10,
+            11,
             29
           ],
           "span_px": 8.062,
@@ -742,7 +742,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "1b8d9647575af2b8a7e23493e4810c4bd16c8542da69dd1e5fe819c3e09edfea",
+      "sha256": "37b861595fbc051e2afccf3667bddf84dfc462bf5571cb2a69431f2417a77405",
       "pack_transform": "none"
     },
     "attack[4]": {
@@ -758,7 +758,7 @@
         49
       ],
       "source_alpha_bbox": [
-        2,
+        11,
         1,
         59,
         36
@@ -788,9 +788,9 @@
       ],
       "foot_zones": [
         [
-          2,
+          11,
           32,
-          57,
+          48,
           4
         ]
       ],
@@ -846,8 +846,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "8e3ce4b9a0ce0a63ac36325228a21182035ebe90a935895935b5bc3a7ed305c3",
+      "opaque_palette_size": 47,
+      "sha256": "8066a06815838e82e3135ec22e56d1caeaeae078cd27bfeb204ecfe520f63b07",
       "pack_transform": "none"
     },
     "attack[5]": {
@@ -871,21 +871,25 @@
       "bottom_margin": 14,
       "face_bbox": [
         25,
-        15,
+        11,
         7,
-        4
+        8
       ],
       "eye_pixels": [
         [
           27,
-          15
+          14
+        ],
+        [
+          31,
+          14
         ]
       ],
       "mask_bbox": [
         14,
-        7,
-        6,
-        9
+        4,
+        11,
+        12
       ],
       "foot_zones": [
         [
@@ -895,7 +899,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "steel",
       "weapons_present": [
         "steel",
@@ -948,7 +952,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "7efd7a8e8ded82beec90a9d2cfa0e50c2788f1c4c87369e3531c66a68a45ce64",
+      "sha256": "8785ec6b89c9ab89a94c7f5006d0d6a42cd31e9ecb3e3cd872d56fc58c220fc5",
       "pack_transform": "none"
     },
     "skill2_dash[0]": {
@@ -972,21 +976,25 @@
       "bottom_margin": 4,
       "face_bbox": [
         26,
-        17,
-        8,
-        5
+        13,
+        7,
+        9
       ],
       "eye_pixels": [
         [
-          33,
-          20
+          28,
+          17
+        ],
+        [
+          32,
+          17
         ]
       ],
       "mask_bbox": [
         12,
-        9,
-        9,
-        14
+        6,
+        15,
+        17
       ],
       "foot_zones": [
         [
@@ -996,7 +1004,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1049,7 +1057,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "a4b08227b45f5c5723c2c70faf2246018bbaec6eb8c28953553d1da581a4b6b9",
+      "sha256": "81665c0a2672fd4c57eca74a09d29dcccce945a4948c39c06d9bd6875e318d4b",
       "pack_transform": "none"
     },
     "ult[0]": {
@@ -1146,8 +1154,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "ae86dce8d53d5165c72e40c67bfb32772a0782f5d5f5d62d9e5b3268c62ab2b6",
+      "opaque_palette_size": 45,
+      "sha256": "a753cf3d616ba45bef3e9434848b907112c9555a7671dc3c59a344b400715ece",
       "pack_transform": "none"
     },
     "ult[1]": {
@@ -1241,7 +1249,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "d1cd2c75f96e37279841df4e6f04cb77125b453dd2875fb621802f966de61a38",
+      "sha256": "00ada83dd93ba7f9d0281aaf923da7e8fc581df15e8c366ac93f49f660a902ae",
       "pack_transform": "none"
     },
     "ult[2]": {
@@ -1339,7 +1347,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "4f2601dd207e91781a510a6c474bd6ccd0cc0b0b154d5edd64c64eea65d4d5ec",
+      "sha256": "7c82e0eeb939d5e2553a454535393800aaa2e4701b12897f4fedc00961a71810",
       "pack_transform": "none"
     },
     "ult[3]": {
@@ -1363,21 +1371,21 @@
       "bottom_margin": 10,
       "face_bbox": [
         37,
-        19,
+        15,
         6,
-        4
+        8
       ],
       "eye_pixels": [
         [
           38,
-          19
+          18
         ]
       ],
       "mask_bbox": [
         23,
-        11,
+        8,
         14,
-        13
+        16
       ],
       "foot_zones": [],
       "face_visibility": "profile",
@@ -1432,8 +1440,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "81c6e2c4d1e1a0515605f2b2aaeb288237578165afc1e33dc566b13218fd61af",
+      "opaque_palette_size": 47,
+      "sha256": "731cc5933c80fa600aff3236da541de89735f027c32fb58eaab3a28bfa90ea1f",
       "pack_transform": "none"
     },
     "ult[4]": {
@@ -1457,9 +1465,9 @@
       "bottom_margin": 12,
       "face_bbox": [
         29,
-        14,
-        6,
-        8
+        12,
+        7,
+        10
       ],
       "eye_pixels": [
         [
@@ -1472,10 +1480,10 @@
         ]
       ],
       "mask_bbox": [
-        18,
-        6,
-        10,
-        16
+        15,
+        5,
+        14,
+        17
       ],
       "foot_zones": [],
       "face_visibility": "front",
@@ -1530,8 +1538,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "3e907edc032ffcd458717a56d817256c2076947ca14151c7635c9456a526b101",
+      "opaque_palette_size": 47,
+      "sha256": "e968fd10e3f6c43571d42282094a714845a7502fde6fc06043f6d061d246ee4c",
       "pack_transform": "none"
     },
     "ult[5]": {
@@ -1624,8 +1632,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 35,
-      "sha256": "df285adc5cfda1fa06b19c9a94780ca5c61c65c474c229937d67addb982a4857",
+      "opaque_palette_size": 36,
+      "sha256": "7a2a2baf25dfa3e5c772a0d05367befa0bcb94eda21c359e476da0b9c8035298",
       "pack_transform": "none"
     },
     "ult[6]": {
@@ -1641,26 +1649,26 @@
         49
       ],
       "source_alpha_bbox": [
-        15,
+        13,
         14,
-        52,
+        50,
         40
       ],
       "bottom_margin": 9,
       "face_bbox": [
-        32,
+        30,
         21,
         5,
         6
       ],
       "eye_pixels": [
         [
-          32,
+          30,
           25
         ]
       ],
       "mask_bbox": [
-        25,
+        23,
         16,
         8,
         6
@@ -1675,17 +1683,17 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            36,
+            34,
             23,
             16,
             5
           ],
           "hand_anchor": [
-            37,
+            35,
             26
           ],
           "tip": [
-            51,
+            49,
             23
           ],
           "span_px": 14.318,
@@ -1696,17 +1704,17 @@
         },
         "azakana": {
           "blade_bbox": [
-            15,
+            13,
             28,
             9,
             7
           ],
           "hand_anchor": [
-            22,
+            20,
             29
           ],
           "tip": [
-            15,
+            13,
             32
           ],
           "span_px": 7.616,
@@ -1719,7 +1727,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 41,
-      "sha256": "1bddd7a1a3d8533789024a0e275aca2d35b5deea87a807cfb5a6c3372344a1a7",
+      "sha256": "05dcb89f9bf68d79e6095e324a75e00ab8df87f030db1a113154542e4eafa9e9",
       "pack_transform": "none"
     },
     "ult[7]": {
@@ -1817,7 +1825,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "a9075f865f639ad48529b4578f5bb81adb1dfcc21e48bb7eed390704dd7848c9",
+      "sha256": "c223538d4c8adfafd7aad28bfa8f6d23e49f4d6c7e58ecafa8f1769a7c9e46d3",
       "pack_transform": "none"
     },
     "ult[8]": {
@@ -1840,29 +1848,25 @@
       ],
       "bottom_margin": 6,
       "face_bbox": [
-        27,
         26,
+        22,
         7,
-        7
+        11
       ],
       "eye_pixels": [
         [
-          27,
-          29
-        ],
-        [
-          31,
-          30
+          26,
+          27
         ]
       ],
       "mask_bbox": [
-        18,
-        18,
-        5,
-        6
+        17,
+        16,
+        10,
+        9
       ],
       "foot_zones": [],
-      "face_visibility": "front",
+      "face_visibility": "profile",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1873,49 +1877,49 @@
           "blade_bbox": [
             4,
             12,
-            13,
+            12,
             9
           ],
           "hand_anchor": [
-            16,
+            15,
             19
           ],
           "tip": [
             4,
             12
           ],
-          "span_px": 13.892,
+          "span_px": 13.038,
           "connectedness": 1.0,
-          "pixel_count": 33,
+          "pixel_count": 30,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            39,
+            38,
             34,
-            14,
+            15,
             10
           ],
           "hand_anchor": [
-            40,
+            39,
             35
           ],
           "tip": [
             52,
             42
           ],
-          "span_px": 13.892,
+          "span_px": 14.765,
           "connectedness": 1.0,
-          "pixel_count": 49,
-          "crop_ratio": 0.1905,
+          "pixel_count": 51,
+          "crop_ratio": 0.119,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "75f35374afe2eca8959c97875fd80d69a3dad9568002681064e42fa5ed3d91f3",
+      "opaque_palette_size": 45,
+      "sha256": "d3aaad3c5597e81803368efe2cdf507d4e43064416e79ba362bd21d996e50233",
       "pack_transform": "none"
     },
     "ult[9]": {
@@ -1938,25 +1942,29 @@
       ],
       "bottom_margin": 7,
       "face_bbox": [
-        34,
+        33,
         19,
-        6,
-        5
+        8,
+        9
       ],
       "eye_pixels": [
         [
           35,
-          22
+          23
+        ],
+        [
+          39,
+          23
         ]
       ],
       "mask_bbox": [
-        21,
+        20,
         12,
-        12,
-        11
+        14,
+        16
       ],
       "foot_zones": [],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1965,43 +1973,43 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            46,
+            47,
             30,
-            10,
+            9,
             6
           ],
           "hand_anchor": [
-            47,
+            48,
             31
           ],
           "tip": [
             55,
             35
           ],
-          "span_px": 8.944,
+          "span_px": 8.062,
           "connectedness": 1.0,
-          "pixel_count": 23,
-          "crop_ratio": 0.5217,
+          "pixel_count": 21,
+          "crop_ratio": 0.5652,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
             2,
             25,
-            12,
+            13,
             9
           ],
           "hand_anchor": [
-            12,
+            13,
             26
           ],
           "tip": [
             2,
             31
           ],
-          "span_px": 11.18,
+          "span_px": 12.083,
           "connectedness": 1.0,
-          "pixel_count": 38,
+          "pixel_count": 43,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
@@ -2009,7 +2017,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "3f6cd733eaaa8f13a12f13446558cf4b3c76ec63af2363c417297042fc494f3c",
+      "sha256": "5d397080c8d015ea9c77ded5891f128b37d492215c69da29b2aacb3e28e69722",
       "pack_transform": "none"
     },
     "ult[10]": {
@@ -2107,7 +2115,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "2becbaf32bbbfbbde34434a1d301dcbcec295e99ab249e1fd6e70212d13ad7c9",
+      "sha256": "f28625987b13e7e1c9fdd631dc97dfbbff5e7cb50b059c929a824cf6fc5f7f56",
       "pack_transform": "none"
     },
     "ult[11]": {
@@ -2205,7 +2213,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "90d974894183d7a5b9c38e19a6e73417007e001d3db89c2ce96065989ba6fb12",
+      "sha256": "59e3ef5a29daf468dc1436f3f97d5579548e659454f6b68b4d70fc472021dab1",
       "pack_transform": "none"
     },
     "ult[12]": {
@@ -2302,8 +2310,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "cc7b45a03c066b580065457a7f952a79ff0940d759cff44b715d3ab8dd79a15d",
+      "opaque_palette_size": 46,
+      "sha256": "e7daa9028eab272e6f65ec9fdfc868b8ad7e8870bf7854756c712b4d57204ab5",
       "pack_transform": "none"
     },
     "run[0]": {
@@ -2319,39 +2327,39 @@
         49
       ],
       "source_alpha_bbox": [
+        4,
         1,
-        1,
-        39,
+        36,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        23,
-        9,
-        7,
-        8
+        19,
+        8,
+        6,
+        7
       ],
       "eye_pixels": [
         [
-          23,
-          12
+          20,
+          11
         ],
         [
-          25,
-          12
+          23,
+          11
         ]
       ],
       "mask_bbox": [
-        12,
-        4,
-        12,
-        13
+        9,
+        3,
+        10,
+        10
       ],
       "foot_zones": [
         [
-          1,
+          4,
           32,
-          38,
+          32,
           4
         ]
       ],
@@ -2364,51 +2372,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            22,
-            7,
-            8
+            4,
+            25,
+            8,
+            11
           ],
           "hand_anchor": [
-            7,
-            22
+            10,
+            26
           ],
           "tip": [
-            2,
-            29
+            6,
+            35
           ],
-          "span_px": 8.602,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.3478,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            29,
+            27,
             24,
-            10,
+            9,
             12
           ],
           "hand_anchor": [
-            30,
+            28,
             25
           ],
           "tip": [
-            37,
+            34,
             35
           ],
-          "span_px": 12.207,
+          "span_px": 11.662,
           "connectedness": 1.0,
-          "pixel_count": 47,
+          "pixel_count": 45,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "50aa790f39e644a8c17f452061c31b2955416654b2d9aaa3b3c6d6af178f1a38",
+      "opaque_palette_size": 44,
+      "sha256": "e4552fc0e351b9a14e9cbf5e74861478424af5f5262f0e97627ef02c793ed94c",
       "pack_transform": "none"
     },
     "run[1]": {
@@ -2424,43 +2432,24 @@
         51
       ],
       "source_alpha_bbox": [
+        5,
         1,
-        1,
-        38,
+        34,
         33
       ],
       "bottom_margin": 18,
-      "face_bbox": [
-        22,
-        9,
-        7,
-        9
-      ],
-      "eye_pixels": [
-        [
-          22,
-          13
-        ],
-        [
-          25,
-          12
-        ]
-      ],
-      "mask_bbox": [
-        14,
-        4,
-        10,
-        15
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
-          1,
+          5,
           29,
-          37,
+          29,
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2469,51 +2458,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            21,
-            7,
-            8
+            5,
+            23,
+            8,
+            10
           ],
           "hand_anchor": [
-            7,
-            21
+            11,
+            24
           ],
           "tip": [
-            2,
-            28
+            7,
+            32
           ],
-          "span_px": 8.602,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.1818,
+          "pixel_count": 36,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            30,
-            21,
-            7,
-            8
+            26,
+            23,
+            8,
+            10
           ],
           "hand_anchor": [
-            31,
-            21
+            27,
+            24
           ],
           "tip": [
-            36,
-            28
+            32,
+            32
           ],
-          "span_px": 8.602,
+          "span_px": 9.434,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.3636,
+          "pixel_count": 37,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "ca2fbba34b8aa5cddafda4499d9fc1e2965c7c633a69d98195063daa5b47f674",
+      "opaque_palette_size": 42,
+      "sha256": "31cc9f221f99668c599122be0b0350d423339440de34200ece08c81e115ab9a2",
       "pack_transform": "none"
     },
     "run[2]": {
@@ -2529,39 +2518,39 @@
         53
       ],
       "source_alpha_bbox": [
+        5,
         1,
-        1,
-        38,
+        35,
         33
       ],
       "bottom_margin": 20,
       "face_bbox": [
-        25,
-        9,
-        6,
-        7
+        19,
+        8,
+        5,
+        6
       ],
       "eye_pixels": [
         [
-          27,
-          12
+          20,
+          11
         ],
         [
-          25,
-          11
+          23,
+          10
         ]
       ],
       "mask_bbox": [
-        15,
-        3,
         10,
-        13
+        3,
+        9,
+        9
       ],
       "foot_zones": [
         [
-          1,
+          5,
           29,
-          37,
+          30,
           4
         ]
       ],
@@ -2574,51 +2563,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            19,
+            5,
+            23,
             8,
-            11
+            10
           ],
           "hand_anchor": [
-            8,
-            20
+            11,
+            24
           ],
           "tip": [
-            4,
-            29
+            7,
+            32
           ],
-          "span_px": 9.849,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 38,
+          "pixel_count": 36,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            32,
-            22,
-            5,
-            8
+            26,
+            23,
+            9,
+            10
           ],
           "hand_anchor": [
-            33,
-            22
+            27,
+            24
           ],
           "tip": [
-            36,
-            29
+            33,
+            32
           ],
-          "span_px": 7.616,
+          "span_px": 10.0,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.5652,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "fbb660b5795b657e09afa9685b0bacd57aab2d30e81e2a0863f219641e907822",
+      "opaque_palette_size": 43,
+      "sha256": "daa7018c077c667bcfee7d447dad0044580878651038d69af1215c3da3f1cd9a",
       "pack_transform": "none"
     },
     "run[3]": {
@@ -2634,35 +2623,35 @@
         51
       ],
       "source_alpha_bbox": [
+        4,
         1,
-        1,
-        38,
+        34,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        24,
-        9,
-        7,
+        18,
+        8,
+        5,
         9
       ],
       "eye_pixels": [
         [
-          24,
-          15
+          19,
+          11
         ]
       ],
       "mask_bbox": [
-        16,
+        9,
         3,
         9,
-        11
+        9
       ],
       "foot_zones": [
         [
-          1,
+          4,
           30,
-          37,
+          30,
           4
         ]
       ],
@@ -2675,51 +2664,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            21,
-            7,
-            8
+            4,
+            24,
+            8,
+            10
           ],
           "hand_anchor": [
-            7,
-            21
+            10,
+            25
           ],
           "tip": [
-            2,
-            28
+            6,
+            33
           ],
-          "span_px": 8.602,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.0455,
+          "pixel_count": 36,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            31,
+            25,
             23,
-            6,
-            9
+            9,
+            11
           ],
           "hand_anchor": [
-            32,
-            23
+            26,
+            24
           ],
           "tip": [
-            36,
-            31
+            32,
+            33
           ],
-          "span_px": 8.944,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 26,
-          "crop_ratio": 0.4783,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "7f6746e3de7926e1241436b195e142cfa96bcdb93daa59a18b2d74992b4c5b24",
+      "opaque_palette_size": 44,
+      "sha256": "f5f0e12d02ce2c4a522098c30ec95d7934020069d2c5fc5e08258567096aea19",
       "pack_transform": "none"
     },
     "run[4]": {
@@ -2735,39 +2724,39 @@
         49
       ],
       "source_alpha_bbox": [
+        3,
         1,
-        1,
-        40,
+        35,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        24,
-        10,
-        7,
+        18,
+        8,
+        5,
         7
       ],
       "eye_pixels": [
         [
-          26,
-          13
+          19,
+          11
         ],
         [
-          29,
-          13
+          22,
+          11
         ]
       ],
       "mask_bbox": [
-        13,
-        4,
-        12,
-        14
+        9,
+        3,
+        9,
+        10
       ],
       "foot_zones": [
         [
-          1,
+          3,
           32,
-          39,
+          32,
           4
         ]
       ],
@@ -2780,51 +2769,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            22,
-            6,
-            9
+            3,
+            25,
+            8,
+            11
           ],
           "hand_anchor": [
-            6,
-            22
+            9,
+            26
           ],
           "tip": [
-            2,
-            30
+            5,
+            35
           ],
-          "span_px": 8.944,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 26,
-          "crop_ratio": 0.2692,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            32,
-            24,
-            7,
-            8
+            26,
+            25,
+            9,
+            11
           ],
           "hand_anchor": [
-            33,
-            24
+            27,
+            26
           ],
           "tip": [
-            38,
-            31
+            33,
+            35
           ],
-          "span_px": 8.602,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.4583,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "1a35585676a7d528c9c7ec241430db50839bc84da3c019fed203aafb838e16c6",
+      "opaque_palette_size": 45,
+      "sha256": "d6e185c51b0054d4c86576b775a92bd7469f83c6a550ca5b55f3516729d67b79",
       "pack_transform": "none"
     },
     "run[5]": {
@@ -2840,39 +2829,43 @@
         51
       ],
       "source_alpha_bbox": [
+        5,
         1,
-        1,
-        38,
+        34,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        22,
-        9,
-        7,
-        9
+        18,
+        12,
+        6,
+        6
       ],
       "eye_pixels": [
         [
-          25,
-          13
+          22,
+          15
+        ],
+        [
+          18,
+          16
         ]
       ],
       "mask_bbox": [
-        14,
-        4,
         10,
-        9
+        4,
+        7,
+        8
       ],
       "foot_zones": [
         [
-          1,
+          5,
           30,
-          37,
+          29,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2881,51 +2874,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            21,
-            7,
-            9
+            5,
+            24,
+            8,
+            10
           ],
           "hand_anchor": [
-            7,
-            21
+            11,
+            25
           ],
           "tip": [
-            2,
-            29
+            7,
+            33
           ],
-          "span_px": 9.434,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 23,
-          "crop_ratio": 0.2,
+          "pixel_count": 36,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            31,
-            22,
-            6,
-            7
+            26,
+            23,
+            8,
+            11
           ],
           "hand_anchor": [
-            32,
-            22
+            27,
+            24
           ],
           "tip": [
-            36,
-            28
+            32,
+            33
           ],
-          "span_px": 7.211,
+          "span_px": 10.296,
           "connectedness": 1.0,
-          "pixel_count": 18,
-          "crop_ratio": 0.381,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 48,
-      "sha256": "2aa75933dc2cfed9420a52a2bcf7361727a2118e2c277e721875db93a60b2afc",
+      "opaque_palette_size": 42,
+      "sha256": "2a002476a4bdfdf2c12223b9d900a7b2536b290930026d980a80e605523334ee",
       "pack_transform": "none"
     },
     "run[6]": {
@@ -2941,35 +2934,35 @@
         53
       ],
       "source_alpha_bbox": [
+        6,
         1,
-        1,
-        37,
+        35,
         33
       ],
       "bottom_margin": 20,
       "face_bbox": [
-        23,
-        9,
+        19,
+        8,
         6,
-        8
+        6
       ],
       "eye_pixels": [
         [
-          23,
-          12
+          19,
+          10
         ]
       ],
       "mask_bbox": [
-        10,
+        11,
         3,
-        14,
-        15
+        10,
+        12
       ],
       "foot_zones": [
         [
-          1,
+          6,
           29,
-          36,
+          29,
           4
         ]
       ],
@@ -2982,38 +2975,38 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            19,
-            9,
-            9
+            6,
+            23,
+            8,
+            10
           ],
           "hand_anchor": [
-            9,
-            20
+            12,
+            24
           ],
           "tip": [
-            4,
-            27
+            8,
+            32
           ],
-          "span_px": 8.602,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 35,
+          "pixel_count": 36,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            28,
+            26,
             22,
             9,
             11
           ],
           "hand_anchor": [
-            29,
+            27,
             23
           ],
           "tip": [
-            35,
+            33,
             32
           ],
           "span_px": 10.817,
@@ -3025,8 +3018,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "0cda0ad82383f2230b0120309d9e09d79345fe49fe1757be8fcb2f1c9fa72c1b",
+      "opaque_palette_size": 42,
+      "sha256": "fa660572cc03110bf24c013f50c5de88758cc3d65b5c756dc3ca163ee05f6e52",
       "pack_transform": "none"
     },
     "run[7]": {
@@ -3042,39 +3035,43 @@
         51
       ],
       "source_alpha_bbox": [
+        5,
         1,
-        1,
-        38,
+        34,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        24,
-        9,
-        7,
-        9
+        18,
+        12,
+        6,
+        6
       ],
       "eye_pixels": [
         [
-          24,
+          22,
           15
+        ],
+        [
+          18,
+          16
         ]
       ],
       "mask_bbox": [
-        16,
-        3,
-        9,
-        11
+        10,
+        4,
+        7,
+        8
       ],
       "foot_zones": [
         [
-          1,
+          5,
           30,
-          37,
+          29,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -3083,51 +3080,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            21,
-            7,
-            8
+            5,
+            24,
+            8,
+            10
           ],
           "hand_anchor": [
-            7,
-            21
+            11,
+            25
           ],
           "tip": [
-            2,
-            28
+            7,
+            33
           ],
-          "span_px": 8.602,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 24,
-          "crop_ratio": 0.0455,
+          "pixel_count": 36,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            31,
+            26,
             23,
-            6,
-            9
+            8,
+            11
           ],
           "hand_anchor": [
-            32,
-            23
+            27,
+            24
           ],
           "tip": [
-            36,
-            31
+            32,
+            33
           ],
-          "span_px": 8.944,
+          "span_px": 10.296,
           "connectedness": 1.0,
-          "pixel_count": 26,
-          "crop_ratio": 0.4783,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "7f6746e3de7926e1241436b195e142cfa96bcdb93daa59a18b2d74992b4c5b24",
+      "opaque_palette_size": 42,
+      "sha256": "2a002476a4bdfdf2c12223b9d900a7b2536b290930026d980a80e605523334ee",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
@@ -3169,7 +3166,7 @@
         2,
         9,
         9,
-        15
+        14
       ],
       "foot_zones": [
         [
@@ -3231,8 +3228,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "b0d793ba610ef3775e0c7c477f37e5e4f50d96c6b760c37028efe42e57f3536f",
+      "opaque_palette_size": 43,
+      "sha256": "27e6cd681af9e1e327771ea602b96b887c256e3ac910a70994abc37641643279",
       "pack_transform": "none"
     },
     "skill2_attack[1]": {
@@ -3255,26 +3252,26 @@
       ],
       "bottom_margin": 4,
       "face_bbox": [
-        13,
         14,
-        7,
-        8
+        12,
+        6,
+        7
       ],
       "eye_pixels": [
         [
-          13,
-          17
+          14,
+          15
         ],
         [
-          19,
-          18
+          16,
+          15
         ]
       ],
       "mask_bbox": [
         5,
         6,
-        10,
-        17
+        11,
+        14
       ],
       "foot_zones": [
         [
@@ -3337,7 +3334,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 44,
-      "sha256": "7da034106bf79e979d9c4c2b3334f41bdfca2d03e9999fc77d5b0580f2f44e3e",
+      "sha256": "cae0e1d7797742f0505be677eedf3ff4c43d25d9b167dec35ea963e54b63085f",
       "pack_transform": "none"
     },
     "skill2_attack[2]": {
@@ -3441,8 +3438,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "173f7da4e193b24f0606f93f5c7b2db73355e29cebe8b0a7a13d41bcc8afb9ce",
+      "opaque_palette_size": 44,
+      "sha256": "ca0a4ddc82e03da390b21b8d8daf3a376fbc2d2aec26ff7c33da7154580e3971",
       "pack_transform": "none"
     },
     "skill2_attack[3]": {
@@ -3466,25 +3463,25 @@
       "bottom_margin": 9,
       "face_bbox": [
         29,
-        21,
-        9,
-        7
+        17,
+        10,
+        11
       ],
       "eye_pixels": [
         [
-          29,
-          24
+          31,
+          22
         ],
         [
-          37,
-          24
+          34,
+          21
         ]
       ],
       "mask_bbox": [
         19,
+        11,
         13,
-        9,
-        15
+        17
       ],
       "foot_zones": [
         [
@@ -3546,8 +3543,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "29b4605e29fee78ee4906240154e0850f0bf2c2387d9b2926731b74de0fd5a18",
+      "opaque_palette_size": 46,
+      "sha256": "5c36f0c3e578c778df73f0f55cd7d81b3977b8137775247abe2568253202266c",
       "pack_transform": "none"
     },
     "skill2_attack[4]": {
@@ -3571,25 +3568,25 @@
       "bottom_margin": 7,
       "face_bbox": [
         25,
-        18,
-        6,
-        8
+        15,
+        7,
+        11
       ],
       "eye_pixels": [
         [
           25,
-          21
+          19
         ],
         [
-          30,
-          21
+          27,
+          18
         ]
       ],
       "mask_bbox": [
-        15,
-        10,
-        10,
-        14
+        14,
+        9,
+        12,
+        18
       ],
       "foot_zones": [
         [
@@ -3651,8 +3648,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "1b1a1937de76994d9455b53e1dd31664e4726942120a5cc7929caabd2c3c4ff9",
+      "opaque_palette_size": 45,
+      "sha256": "8ecb0836f4036cfd3ab250822d8f6d9167c67c77e9932947f5b30de05fc1ab51",
       "pack_transform": "none"
     },
     "idle[0]": {
@@ -3692,9 +3689,9 @@
       ],
       "mask_bbox": [
         11,
-        5,
-        9,
-        10
+        4,
+        10,
+        11
       ],
       "foot_zones": [
         [
@@ -3756,8 +3753,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "7ee6980796d64c5ae90ca5d7ed976a284e11499d8b10c8ea1a01f32a469bb59c",
+      "opaque_palette_size": 45,
+      "sha256": "3dc56b174c35397f28f52929bce4e1823445d88630f4910290e9deb4ed57da6b",
       "pack_transform": "none"
     },
     "idle[1]": {
@@ -3861,8 +3858,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "9121a874f5f3671f888ad7355fd1482a781a4debbdfe623926a846093cbbd428",
+      "opaque_palette_size": 46,
+      "sha256": "c9a3ffbea80230755533710eca92413ecd8c8c0cb3691edefe27249e43ae325b",
       "pack_transform": "none"
     },
     "idle[2]": {
@@ -3963,7 +3960,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "d87ad15cf24c4e59b6a273f9f2395e6d8c130730ebdfb4a4f8418a05a714f8d9",
+      "sha256": "84922c29ebd06a73263ab41b7d04bd4a315835088e1f19062460f814f31a252e",
       "pack_transform": "none"
     },
     "idle[3]": {
@@ -4067,8 +4064,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "9121a874f5f3671f888ad7355fd1482a781a4debbdfe623926a846093cbbd428",
+      "opaque_palette_size": 46,
+      "sha256": "c9a3ffbea80230755533710eca92413ecd8c8c0cb3691edefe27249e43ae325b",
       "pack_transform": "none"
     },
     "dead[0]": {
@@ -4104,9 +4101,9 @@
       ],
       "mask_bbox": [
         7,
-        13,
+        12,
         14,
-        12
+        14
       ],
       "foot_zones": [],
       "face_visibility": "profile",
@@ -4162,7 +4159,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "8bd51484a01160445653cde4ac68ad6effee4f22fa13a1c4b0045883697f480a",
+      "sha256": "ea39f31951a76e02b8d237d0238b350c1c569780f02b060e70ba96e6bad6b4c3",
       "pack_transform": "none"
     },
     "dead[1]": {
@@ -4201,10 +4198,10 @@
         ]
       ],
       "mask_bbox": [
-        12,
+        11,
         18,
-        12,
-        13
+        13,
+        14
       ],
       "foot_zones": [],
       "face_visibility": "front",
@@ -4259,8 +4256,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "777cf69a0e6097f6792f6f17bcdcabf60300c4c2b9b1c103365ebc7909fe25a1",
+      "opaque_palette_size": 43,
+      "sha256": "55aee541506a95a45151e1373affe1ee902ef9eb37b0d658bf68bd680b1acab5",
       "pack_transform": "none"
     },
     "dead[2]": {
@@ -4353,8 +4350,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 43,
-      "sha256": "0d8a453708ca0fcda2a8b694c2f6ff9760c32f1939a667097f191949656e5c0c",
+      "opaque_palette_size": 42,
+      "sha256": "0b15828e90bf9c0763c73523d437a80ca8e44d8cbcbadfb09e568e07bf04351a",
       "pack_transform": "none"
     },
     "dead[3]": {
@@ -4433,7 +4430,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 25,
-      "sha256": "e7288c5f996e7357321c2edb65ac0c60b1c5a6428268e9a7f74b4e247a8690ae",
+      "sha256": "0b89974b457fef8e6283a461bd6e42dfbbae5c4e5afbc47fde211bff4129be9f",
       "pack_transform": "none"
     },
     "dead[4]": {
@@ -4512,7 +4509,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 25,
-      "sha256": "5797ad2dea90add3b73d86951d468c6d01f164877156de8ac0182ca04a1a6ee6",
+      "sha256": "c5a61984ad5ecd11359e5bd43e919908ac01913fa29ac50bb2a15f7474ae81b0",
       "pack_transform": "none"
     },
     "dead[5]": {
@@ -4591,7 +4588,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 29,
-      "sha256": "bf6a9f32151ed0f72c8d7e5766eccf57e11eaf7aaa3b75f9c37ad0b650df327c",
+      "sha256": "ba0514bbf6d320f3c440293a8ba7e99ee3010353a817ada7a1874d52e37c0782",
       "pack_transform": "none"
     },
     "dead[6]": {
@@ -4669,8 +4666,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 34,
-      "sha256": "80ac4af616cacfc1916a56978bdc9e1f02491929fa6d8090ff08c013689c91ec",
+      "opaque_palette_size": 32,
+      "sha256": "5fc5abd31c2728904ec9d3ee03fcb2be063a0a641c97a42cfa6ac0445bb8103e",
       "pack_transform": "none"
     },
     "dead[7]": {
@@ -4748,8 +4745,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 34,
-      "sha256": "4939e3b46f6c432fe7c86ee4c22822583c56292aec09e921d971e7683b9e6782",
+      "opaque_palette_size": 32,
+      "sha256": "346551d8c9c1295c822855be165ce7b1fc5a6921a82657cb7766164104448a21",
       "pack_transform": "none"
     },
     "skill[0]": {
@@ -4854,7 +4851,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "df7740c7c061cec0d9dfb6bfe962baf7a07c4b3c9fe70ae91053146f1fa730ca",
+      "sha256": "9b067c2609951a10d7c8ef319cb75b22083cc134aae8b2de5b02a989808f1c3b",
       "pack_transform": "none"
     },
     "skill[1]": {
@@ -4952,14 +4949,14 @@
           "span_px": 6.325,
           "connectedness": 1.0,
           "pixel_count": 16,
-          "crop_ratio": 0.8125,
+          "crop_ratio": 0.7647,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "f08ea00b321ccb7d84d4efc25eb37860c5331c90cf89101eb021b780e57e73bf",
+      "sha256": "2d9b763b003b2f9421bb12ed82653c561ce6a04233dc5adf8dda894417af5b79",
       "pack_transform": "none"
     },
     "skill[2]": {
@@ -5001,7 +4998,7 @@
         6,
         13,
         13,
-        13
+        17
       ],
       "foot_zones": [
         [
@@ -5064,7 +5061,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "d1b0e34b54ac56012e209bbed754a4fb11e82c600f59cf329dbf35d7ea40babf",
+      "sha256": "66a63fd17d7614783fc122968511916ccbce795fdfc762c17c55b0eeb421be81",
       "pack_transform": "none"
     },
     "skill[3]": {
@@ -5103,9 +5100,9 @@
         ]
       ],
       "mask_bbox": [
-        25,
+        24,
         16,
-        14,
+        15,
         18
       ],
       "foot_zones": [
@@ -5169,7 +5166,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "73f09eb79e081bc815685c5c89fcd9038e626f06e89518658af6da461fb62837",
+      "sha256": "d56c3852315755f3a892c3d8929dfbb9699b3e2742313fee046672cd3d38e8cb",
       "pack_transform": "none"
     },
     "skill[4]": {
@@ -5185,7 +5182,7 @@
         67
       ],
       "source_alpha_bbox": [
-        9,
+        19,
         20,
         73,
         59
@@ -5215,9 +5212,9 @@
       ],
       "foot_zones": [
         [
-          9,
+          19,
           55,
-          64,
+          54,
           4
         ]
       ],
@@ -5273,8 +5270,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "52dfc9b652c8d62056f24d1e334236e3216a05433086318e791339892d482ac0",
+      "opaque_palette_size": 46,
+      "sha256": "2571ea118edac03c6af72b34d2181d5f1cf80ccd35b5da257f41b1286e52a938",
       "pack_transform": "none"
     },
     "skill[5]": {
@@ -5296,9 +5293,28 @@
         67
       ],
       "bottom_margin": 10,
-      "face_bbox": null,
-      "eye_pixels": [],
-      "mask_bbox": null,
+      "face_bbox": [
+        43,
+        39,
+        8,
+        8
+      ],
+      "eye_pixels": [
+        [
+          43,
+          42
+        ],
+        [
+          45,
+          42
+        ]
+      ],
+      "mask_bbox": [
+        31,
+        31,
+        12,
+        13
+      ],
       "foot_zones": [
         [
           20,
@@ -5307,7 +5323,7 @@
           4
         ]
       ],
-      "face_visibility": "hidden",
+      "face_visibility": "front",
       "active_weapon": "steel",
       "weapons_present": [
         "steel",
@@ -5359,8 +5375,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "503a4b65690ba63b4c6bb5ae8eabfd05a4efccc9929044feb1a0ee6ce8a1c859",
+      "opaque_palette_size": 45,
+      "sha256": "d7bece2572b468a4757fc2f356cac84cdb1d066c6419d5e7b32f18933a157990",
       "pack_transform": "none"
     },
     "skill[6]": {
@@ -5386,7 +5402,7 @@
         47,
         50,
         8,
-        10
+        9
       ],
       "eye_pixels": [
         [
@@ -5401,8 +5417,8 @@
       "mask_bbox": [
         35,
         43,
-        12,
-        18
+        14,
+        17
       ],
       "foot_zones": [
         [
@@ -5465,7 +5481,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "0cbc52f7200f2ca90ca9ec0d758acf0fa8142e6dfd53600a55d0a029017f42ef",
+      "sha256": "c2fc78d5393345721bd8ad36d070aa6580c86224caee40cc470800d793f0018a",
       "pack_transform": "none"
     },
     "attack_azakana[0]": {
@@ -5570,7 +5586,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "a2302077b81b02c90dbed8d31252c4c8993eef0c6850c5d66b9769b9c38a007b",
+      "sha256": "22b8e65babbaf1923223ea72e77911db1179eeb95d72a5f9f202c104fa743bed",
       "pack_transform": "none"
     },
     "attack_azakana[1]": {
@@ -5594,21 +5610,21 @@
       "bottom_margin": 14,
       "face_bbox": [
         26,
-        13,
+        9,
         6,
-        5
+        9
       ],
       "eye_pixels": [
         [
-          31,
-          16
+          27,
+          13
         ]
       ],
       "mask_bbox": [
         15,
-        6,
-        6,
-        8
+        4,
+        10,
+        10
       ],
       "foot_zones": [
         [
@@ -5670,8 +5686,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "14dddf607301111040a19b57f19b89fd0bb4c8d5c4991eba5b312081d45e1215",
+      "opaque_palette_size": 46,
+      "sha256": "50b46cc11c1f6ca0a24dd042c3840d4a7cca8ce666f14697d766934a92cfed18",
       "pack_transform": "none"
     },
     "attack_azakana[2]": {
@@ -5710,10 +5726,10 @@
         ]
       ],
       "mask_bbox": [
-        20,
+        21,
         4,
-        13,
-        14
+        12,
+        13
       ],
       "foot_zones": [
         [
@@ -5775,8 +5791,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "89508181a91b9f9dec570806ac5afae790d73341880767c3b184c1baa5c48db0",
+      "opaque_palette_size": 46,
+      "sha256": "0623157038f35805fa4e32eb0da6f48b6ed47e172fe53332ccf1d9561e7e982b",
       "pack_transform": "none"
     },
     "attack_azakana[3]": {
@@ -5815,9 +5831,9 @@
         ]
       ],
       "mask_bbox": [
-        28,
+        26,
         4,
-        10,
+        12,
         18
       ],
       "foot_zones": [
@@ -5881,7 +5897,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "f2d918ca04a686a895b54e98fa841233fe4dc3cc228916b17a9895e541d3c9f8",
+      "sha256": "44ea9faf8ebec9754b71f2b43d7913d0c9c69df17aefbae7797357e3dba50e00",
       "pack_transform": "none"
     },
     "attack_azakana[4]": {
@@ -5904,22 +5920,26 @@
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        35,
-        15,
-        6,
-        4
+        34,
+        11,
+        7,
+        8
       ],
       "eye_pixels": [
         [
           36,
-          15
+          14
+        ],
+        [
+          40,
+          14
         ]
       ],
       "mask_bbox": [
         21,
-        7,
-        9,
-        12
+        4,
+        14,
+        16
       ],
       "foot_zones": [
         [
@@ -5929,7 +5949,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "azakana",
       "weapons_present": [
         "steel",
@@ -5982,7 +6002,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "e9bf4970e8d5e85577cf01af0aab77d0d7d6fe2ab35c24f4df53909b9935cba0",
+      "sha256": "a1f56c4f0dec6b57ffdb47eddfe1a7bdcd0ef28d2152f34dbc0a5894d2dddba5",
       "pack_transform": "none"
     },
     "attack_azakana[5]": {
@@ -6087,7 +6107,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "a08430e5e2b774d4cdd9760e40efbeb18d2ac206a45a09a20f2e8c9b2ea006a9",
+      "sha256": "1b237f2945ed10d752b6c6bbfd8a62935ed46a6f56f3fc8701ce6e6ad047f29a",
       "pack_transform": "none"
     },
     "skill_q3[0]": {
@@ -6192,7 +6212,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "60f10248948efb13cbc67209dad63ae107eeda6bf14651ebcac85cf15f3866ca",
+      "sha256": "756d03dfceeac43fb0a85d74051ce5315e87ee8fb728ca2cc3c36f9bc4a09b7a",
       "pack_transform": "none"
     },
     "skill_q3[1]": {
@@ -6297,7 +6317,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "4a941a0666d69cdc67b931e8dbbcc92df6be65518b2d50e8eec951c19b32a55e",
+      "sha256": "6ab6ec7671aa38e70b3ae5dcea4840d89908d63f40125c9735521be50f76113e",
       "pack_transform": "none"
     },
     "skill_q3[2]": {
@@ -6402,7 +6422,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "4174ddf1e103ff25433183405261d191bdfdc586d04c50b55c570efe06706d38",
+      "sha256": "42110224e3bd467d6b8687aad4175a53794d6d634a4be2a92cac042e80677271",
       "pack_transform": "none"
     },
     "skill_q3[3]": {
@@ -6506,8 +6526,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "d5f38618ef38a85baaef662668d782848ca0865691a03c36a713a827bcb9302e",
+      "opaque_palette_size": 47,
+      "sha256": "50c6ba614453c3f719f6958e5c1293c04260790d6d7973168e9940168e55de6d",
       "pack_transform": "none"
     },
     "skill_q3[4]": {
@@ -6525,7 +6545,7 @@
       "source_alpha_bbox": [
         16,
         20,
-        80,
+        73,
         59
       ],
       "bottom_margin": 8,
@@ -6555,7 +6575,7 @@
         [
           16,
           55,
-          64,
+          57,
           4
         ]
       ],
@@ -6612,7 +6632,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "074b2cb869f05717db888f5184efe0fc85cc869b8f55d4d7efb2c1ef2356b73d",
+      "sha256": "a061219cdeb426ffd1d2550497457f07ac725bfd60ffbb44ce01be85260510b6",
       "pack_transform": "none"
     },
     "skill_q3[5]": {
@@ -6651,10 +6671,10 @@
         ]
       ],
       "mask_bbox": [
-        39,
+        38,
         31,
-        12,
-        16
+        13,
+        17
       ],
       "foot_zones": [
         [
@@ -6717,7 +6737,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "009c3ca90377006e7ce8bf6cafd50c8884c94248934245aeb8a744cd533c618a",
+      "sha256": "5d86c8e7966997d1ba1d5b764c69004f8df8b1c7b95d6183695245deed22a254",
       "pack_transform": "none"
     },
     "skill_q3[6]": {
@@ -6822,7 +6842,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "d02773ed47664764f68d853efb4196bb070fdfad4e1c32e6ac3ce1329156a51b",
+      "sha256": "ea4828e8e6cd6e9e6412aa8394dd7fc518c8abb4078afd7e7be1c20da2c6814c",
       "pack_transform": "none"
     }
   },
@@ -7240,7 +7260,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919",
+      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246",
       "alpha_bbox": [
         49,
         1,
@@ -7264,7 +7284,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919",
+      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246",
       "alpha_bbox": [
         49,
         1,
@@ -7508,12 +7528,12 @@
         93
       ],
       "size_bytes": 31781,
-      "sha256": "579d6b4a6030ba5349c86b2e09c0db6a67201ea22c1abf3da4cfc9017c34ed10",
+      "sha256": "858d1382c467149a6e7e32d6e5b81e94cb3276e5a2a2159010689507d38c6015",
       "alpha_bbox": [
-        4,
-        14,
-        70,
-        86
+        5,
+        8,
+        79,
+        88
       ],
       "alpha_extrema": [
         0,

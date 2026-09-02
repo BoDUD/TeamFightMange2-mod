@@ -819,56 +819,32 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             "asset/lol_mod/icons/shen_skill2",
             "asset/lol_mod/icons/shen_ult",
         ],
-        "skill icon order must be Q/E/R",
+        "skill icon order must be Q/W/R",
     )
-    expected_stats = {
+    for key, value in {
         "hp": 1100,
         "attack": 75,
         "magic_power": 20,
         "defence": 40,
         "magic_resistance": 35,
         "move_speed": 1000,
-    }
-    for key, value in expected_stats.items():
+    }.items():
         check(champion.get("stat", {}).get(key) == value, f"base stat {key} must be {value}")
 
     attack = champion.get("attack", {})
-    check(attack.get("range") == 25000, "basic attack range must use engine units (25000)")
-    check(attack.get("cooltime") == 70, "basic attack cooltime must be 70 ticks")
-    q_switches = find_effect(attack, "SwitchByBuff")
     check(
-        [effect.get("buff_name") for effect in q_switches]
-        == [
-            "lol_shen_twilight_assault_charge_3",
-            "lol_shen_twilight_assault_charge_2",
-            "lol_shen_twilight_assault_charge_1",
-        ],
-        "Q basic-attack state must consume the three recall charges in order",
+        (
+            attack.get("action_name"), attack.get("range"), attack.get("cooltime"),
+            attack.get("casting_type"), attack.get("casting_target"),
+        )
+        == ("attack", 25000, 70, "Targeting", "Enemy"),
+        "Shen basic attack contract mismatch",
     )
-    empowered_hits = find_effect(attack, "ApAttack")
     check(
-        [(effect.get("damage"), effect.get("attack_ratio")) for effect in empowered_hits]
-        == [(20, 20)] * 3,
-        "Q must expose exactly three 20 + 20% AP empowered attacks",
+        find_effect(attack, "Attack", damage=0, attack_ratio=100)
+        == [{"type": "Attack", "damage": 0, "attack_ratio": 100}],
+        "Shen basic attack damage contract mismatch",
     )
-    for switch in q_switches:
-        buff_branch = switch.get("effect_buff", {})
-        delayed = [effect for effect in buff_branch.get("effects", []) if effect.get("type") == "Delayed"]
-        check(len(delayed) == 1, f"Q {switch.get('buff_name')} branch must have one direct delayed hit")
-        if delayed:
-            removed = [
-                effect.get("name")
-                for effect in delayed[0].get("effects", [])
-                if effect.get("type") == "RemoveCasterBuff"
-            ]
-            expected_removed = [switch.get("buff_name")]
-            if switch.get("buff_name") == "lol_shen_twilight_assault_charge_1":
-                expected_removed.append("lol_shen_twilight_assault_empowered_window")
-            check(
-                removed == expected_removed,
-                f"Q {switch.get('buff_name')} branch must consume its marker and close the shared window after charge 1",
-            )
-    check(not find_effect(attack, "AddCasterBuff"), "Q attacks must consume, not refresh, the shared charge window")
 
     q = champion.get("skill", {})
     check(
@@ -877,275 +853,153 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
             q.get("start_timing"), q.get("range"), q.get("casting_type"),
             q.get("casting_target"),
         )
-        == ("skill", 360, 28, 8, 55000, "Targeting", "EnemyChampion"),
-        "Q must use a concrete stock-AI target for refined plan_legacy compatibility",
+        == ("skill", 360, 36, 14, 60000, "Targeting", "EnemyChampion"),
+        "Shen Q restored target-directed projectile contract mismatch",
     )
-    for unsafe_type in ("RangeProjectile", "Attack", "ApAttack", "Shield"):
-        check(not find_effect(q, unsafe_type), f"Q cast must not contain {unsafe_type}")
-    anchors = find_effect(
-        q,
-        "LinearProjectile",
-        name="lol_shen_twilight_assault_blade_anchor",
-    )
-    check(len(anchors) == 1, "Q must contain one transparent endpoint-only blade anchor")
-    if anchors:
-        blade_anchor = anchors[0]
+    projectiles = find_effect(q, "LinearProjectile", name="lol_shen_twilight_assault_projectile")
+    check(len(projectiles) == 1, "Shen Q must contain exactly one Twilight Slash projectile")
+    if projectiles:
+        projectile = projectiles[0]
         check(
             (
-                blade_anchor.get("penetrate"), blade_anchor.get("speed"),
-                blade_anchor.get("range"), blade_anchor.get("shape"),
-                blade_anchor.get("applied_target"), blade_anchor.get("applied_effects"),
+                projectile.get("penetrate"), projectile.get("speed"),
+                projectile.get("range"), projectile.get("shape"),
+                projectile.get("applied_target"),
             )
-            == (False, 60000, 55000, {"Circle": {"radius": 1000}}, "EnemyChampion", []),
-            "Q transparent blade-anchor projectile contract mismatch",
-        )
-    check(len(find_effect(q, "LinearProjectile")) == 1, "Q may use only the one transparent endpoint anchor")
-    recalls = find_effect(
-        q,
-        "BackToCasterLinearProjectile",
-        name="lol_shen_twilight_assault_blade_recall",
-    )
-    check(len(recalls) == 1, "Q must contain one visible BackToCaster blade recall")
-    if recalls:
-        blade_recall = recalls[0]
-        check(
-            (
-                blade_recall.get("penetrate"), blade_recall.get("speed"),
-                blade_recall.get("range"), blade_recall.get("shape"),
-                blade_recall.get("applied_target"), blade_recall.get("applied_effects"),
-            )
-            == (True, 12000, 130000, {"Circle": {"radius": 7500}}, "EnemyChampion", []),
-            "Q blade-recall projectile contract mismatch",
+            == (True, 4200, 60000, {"Circle": {"radius": 8000}}, "EnemyWithoutTower"),
+            "Shen Q projectile geometry contract mismatch",
         )
         check(
-            bool(anchors) and anchors[0].get("end_effects") == [blade_recall],
-            "Q visible recall must be the transparent blade anchor's only direct end effect",
+            bool(find_effect(projectile, "ApAttack", damage=40, attack_ratio=60)),
+            "Shen Q damage must be 40 + 60% AP",
+        )
+        q_buffs = {
+            effect.get("buff_state", {}).get("name"): effect.get("buff_state", {})
+            for effect in find_effect(projectile, "AddBuff") + find_effect(projectile, "AddCasterBuff")
+        }
+        check(
+            q_buffs.get("lol_shen_twilight_assault_slow")
+            == {
+                "name": "lol_shen_twilight_assault_slow",
+                "duration": {"Time": {"tick": 90}},
+                "move_speed_mult": -25,
+            },
+            "Shen Q must slow the struck enemy by 25% for 90 ticks",
         )
         check(
-            bool(find_effect(
-                blade_recall.get("end_effects", []),
-                "ViewEffect",
-                name="lol_shen_twilight_assault_recall_arrival",
-            )),
-            "Q blade recall must end with the dedicated arrival visual",
+            q_buffs.get("lol_shen_twilight_assault_guard")
+            == {
+                "name": "lol_shen_twilight_assault_guard",
+                "duration": {"Time": {"tick": 120}},
+            },
+            "Shen Q guard marker mismatch",
         )
-    direct_q_effects = q.get("effect", {}).get("effects", [])
+        check(
+            bool(find_effect(projectile, "Shield", amount=120, ap_ratio=0, tick=120)),
+            "Shen Q must grant Shen a 120 shield for 120 ticks",
+        )
     check(
-        not [effect for effect in direct_q_effects if effect.get("type") == "AddCasterBuff"],
-        "Q must not grant empowerment before the visible blade has returned",
+        find_effect(q, "Sfx", name="lol_shen_q_cast")
+        == [{"type": "Sfx", "name": "lol_shen_q_cast"}],
+        "Shen Q cast SFX must be present exactly once",
     )
-    recall_end_effects = recalls[0].get("end_effects", []) if recalls else []
-    q_grants = [effect for effect in recall_end_effects if effect.get("type") == "AddCasterBuff"]
-    q_windows = {
-        effect.get("buff_state", {}).get("name"): effect.get("buff_state", {}).get("duration")
-        for effect in q_grants
-    }
-    check(
-        q_windows
-        == {
-            "lol_shen_twilight_assault_charge_3": {"Time": {"tick": 480}},
-            "lol_shen_twilight_assault_charge_2": {"Time": {"tick": 480}},
-            "lol_shen_twilight_assault_charge_1": {"Time": {"tick": 480}},
-            "lol_shen_twilight_assault_empowered_window": {"Time": {"tick": 480}},
-        },
-        "Q return must grant three attack charges and one shared 480-tick visible window",
-    )
-    direct_q_removals = {
-        effect.get("name")
-        for effect in direct_q_effects
-        if effect.get("type") == "RemoveCasterBuff"
-    }
-    check(
-        direct_q_removals
-        == {
-            *(f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)),
-            "lol_shen_twilight_assault_empowered_window",
-        },
-        "Q cast must clear the previous three charges and their visible shared window",
-    )
-    q_serialized = json.dumps(q, ensure_ascii=False)
-    for retired in (
-        "blade_outbound", "blade_return", "through_charge", "return_resolved",
-        "through_attack_speed", "pull_slow",
-    ):
-        check(retired not in q_serialized, f"retired Shen Q branch remains active: {retired}")
 
-    e = champion.get("skill2", {})
+    w = champion.get("skill2", {})
     check(
         (
-            e.get("action_name"), e.get("cooltime"), e.get("duration"),
-            e.get("start_timing"), e.get("range"), e.get("casting_type"),
-            e.get("casting_target"),
+            w.get("action_name"), w.get("cooltime"), w.get("duration"),
+            w.get("start_timing"), w.get("range"), w.get("casting_type"),
+            w.get("casting_target"),
         )
-        == ("skill2", 720, 30, 4, 60000, "Direction", "EnemyChampion"),
-        "E direction-dash timing or target contract mismatch",
+        == ("skill2", 480, 30, 10, 0, "None", "AllyOnlySelf"),
+        "Shen W restored Spirit's Refuge contract mismatch",
     )
-    rushes = find_effect(e, "Rush")
-    check(len(rushes) == 1, "E must contain exactly one Rush")
-    if rushes:
-        rush = rushes[0]
+    w_ranges = find_effect(w, "RangeEffect")
+    check(len(w_ranges) == 2, "Shen W must contain ally and enemy range effects")
+    ally_ranges = [effect for effect in w_ranges if effect.get("target") == "AllyChampion"]
+    enemy_ranges = [effect for effect in w_ranges if effect.get("target") == "EnemyChampion"]
+    for effect in w_ranges:
         check(
-            (
-                rush.get("speed"), rush.get("move_speed_ratio"), rush.get("range"),
-                rush.get("casting_target"), rush.get("penetrate"),
-            )
-            == (4000, 100, 10000, "EnemyChampion", True),
-            "E Rush speed, 10,000 swept collision radius, target or penetration mismatch",
+            effect.get("shape") == {"Circle": {"radius": 35000}}
+            and effect.get("apply_type") == "AroundCaster",
+            "Shen W ranges must be 35000 AroundCaster circles",
         )
-        applied = rush.get("applied_effects", [])
-        check(
-            len(applied) == 1 and applied[0].get("casting_type") == "Targeting",
-            "E Rush must own exactly one direct Targeting collision payload",
-        )
-        rush_payload = applied[0].get("effect", {}) if applied else {}
-        direct_payload = (
-            rush_payload.get("effects", []) if rush_payload.get("type") == "Combine" else []
-        )
-        check(
-            [effect.get("type") for effect in direct_payload]
-            == ["Attack", "Native", "AddBuff", "ViewEffect", "TargetSfx"],
-            "E collision payload order must keep the native taunt directly on Rush hit",
-        )
-        check(
-            len(direct_payload) > 1
-            and direct_payload[1]
-            == {"type": "Native", "effect_ref": "lol_shen_shadow_dash_taunt_native"},
-            "E Native taunt must be the direct second effect of the Rush collision payload",
-        )
-        check(bool(find_effect(rush, "Attack", damage=60, attack_ratio=0)), "E physical hit mismatch")
-        check(not find_effect(rush, "Taunt"), "E must not duplicate the native taunt with a data Taunt")
-        check(
-            bool(find_effect(rush, "Native", effect_ref="lol_shen_shadow_dash_taunt_native")),
-            "E must call the native taunt effect on every crossed champion",
-        )
-        taunt_markers = [
-            effect
-            for effect in find_effect(rush, "AddBuff")
-            if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_taunted"
-        ]
-        check(
-            len(taunt_markers) == 1
-            and taunt_markers[0].get("buff_state")
+    check(
+        len(ally_ranges) == 1
+        and bool(find_effect(ally_ranges[0], "Shield", amount=150, ap_ratio=40, tick=150)),
+        "Shen W ally field must grant 150 + 40% AP shield for 150 ticks",
+    )
+    check(
+        len(enemy_ranges) == 1
+        and any(
+            effect.get("buff_state")
             == {
-                "name": "lol_shen_shadow_dash_taunted",
-                "duration": {"Time": {"tick": 90}},
-            },
-            "E named taunt marker must last exactly 90 ticks",
-        )
-    trail_windows = [
-        effect.get("buff_state", {})
-        for effect in find_effect(e, "AddCasterBuff")
-        if effect.get("buff_state", {}).get("name") == "lol_shen_shadow_dash_trail_window"
-    ]
-    check(
-        trail_windows == [{"name": "lol_shen_shadow_dash_trail_window", "duration": {"Time": {"tick": 30}}}],
-        "E must keep a dash-length trail marker",
-    )
-    direct_e_effects = e.get("effect", {}).get("effects", [])
-    check(
-        [effect for effect in direct_e_effects if effect.get("type") == "Native"]
-        == [{"type": "Native", "effect_ref": "lol_shen_shadow_dash_ai_hint_native"}],
-        "E root must contain exactly one no-op native CC-scoring hint",
+                "name": "lol_shen_spirit_refuge_as_slow",
+                "duration": {"Time": {"tick": 120}},
+                "attack_speed_mult": -30,
+            }
+            for effect in find_effect(enemy_ranges[0], "AddBuff")
+        ),
+        "Shen W enemy field must reduce attack speed by 30% for 120 ticks",
     )
     check(
-        [effect for effect in direct_e_effects if effect.get("type") == "CasterViewEffect"]
-        == [{"type": "CasterViewEffect", "name": "lol_shen_shadow_dash_cast_flash"}],
-        "E root must show exactly one visible dash-start flash",
+        find_effect(w, "CasterViewEffect", name="lol_shen_spirit_refuge_visual")
+        == [{"type": "CasterViewEffect", "name": "lol_shen_spirit_refuge_visual"}],
+        "Shen W field visual must be emitted exactly once",
     )
-    check(not find_effect(e, "RangeEffect"), "E must not retain W's caster-centered field")
-    check(not find_effect(e, "Shield"), "E must not retain W's ally shield")
+    check(
+        find_effect(w, "Sfx", name="lol_shen_w_cast")
+        == [{"type": "Sfx", "name": "lol_shen_w_cast"}],
+        "Shen W cast SFX must be present exactly once",
+    )
+    check(
+        find_effect(w, "Sfx", name="lol_shen_w_block")
+        == [{"type": "Sfx", "name": "lol_shen_w_block"}],
+        "Shen W block SFX must be present exactly once",
+    )
 
     ult = champion.get("ult", {})
-    check(ult.get("range") == 960000, "R range must be 960000")
-    check(ult.get("cooltime") == 3000, "R cooldown must be 3000 ticks")
-    check(ult.get("casting_target") == "AllyNotSelf", "R must target AllyNotSelf")
-    check(bool(find_effect(ult, "Shield", amount=900, ap_ratio=80, tick=180)), "R shield contract mismatch")
-    delayed = [effect for effect in find_effect(ult, "Delayed", tick=48)]
-    check(len(delayed) == 1, "R must have one 48-tick arrival delay")
-    if delayed:
-        check(bool(find_effect(delayed[0], "Teleport")), "R delayed arrival must contain a real Teleport")
-        check(not find_effect(delayed[0], "Taunt"), "R arrival must not carry E's taunt")
-        arrive_sfx = [effect.get("name") for effect in find_effect(delayed[0], "Sfx")]
-        check("lol_shen_r_arrive" in arrive_sfx, "R arrival SFX must be inside the 48-tick delay")
-    enemy_arrival_ranges = [
-        effect
-        for effect in find_effect(ult, "RangeEffect")
-        if effect.get("target") == "EnemyChampion"
-    ]
-    check(not enemy_arrival_ranges, "R must not retain the old circular arrival taunt")
-
-    serialized = json.dumps(champion, ensure_ascii=False)
-    for retired in ("spirit_refuge", "lol_shen_w_", "shen_w"):
-        check(retired not in serialized, f"retired W payload remains active: {retired}")
-    required_markers = {
-        "lol_shen_twilight_assault_charge_3",
-        "lol_shen_twilight_assault_charge_2",
-        "lol_shen_twilight_assault_charge_1",
-        "lol_shen_twilight_assault_empowered_window",
-        "lol_shen_shadow_dash_trail_window",
-        "lol_shen_shadow_dash_taunted",
-        "lol_shen_stand_united_channel",
-        "lol_shen_stand_united_shield_window",
-    }
-    for marker in required_markers:
-        check(marker in serialized, f"named state marker missing: {marker}")
-    projectile_views = champion.get("view_projectiles", [])
     check(
-        projectile_views
-        == [
-            {
-                "type": "Animated",
-                "name": "lol_shen_twilight_assault_blade_anchor",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "anchor",
-                "z": 0,
-                "repeat": True,
-            },
-            {
-                "type": "Animated",
-                "name": "lol_shen_twilight_assault_blade_recall",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "recall",
-                "z": 3,
-                "repeat": True,
-            },
-        ],
-        "Shen transparent logic projectiles and visible Q recall are not registered exactly once",
+        (
+            ult.get("action_name"), ult.get("range"), ult.get("cooltime"),
+            ult.get("casting_type"), ult.get("casting_target"),
+        )
+        == ("ult", 960000, 3000, "Position", "AllyNotSelf"),
+        "Shen R shield-teleport contract mismatch",
     )
-    view_effects = champion.get("view_effects", [])
+    check(bool(find_effect(ult, "Shield", amount=900, ap_ratio=80, tick=180)), "Shen R shield contract mismatch")
+    delayed = find_effect(ult, "Delayed", tick=48)
+    check(len(delayed) == 1, "Shen R must have one 48-tick arrival delay")
+    if delayed:
+        check(bool(find_effect(delayed[0], "Teleport")), "Shen R delayed arrival must teleport")
+        check(
+            find_effect(delayed[0], "Sfx", name="lol_shen_r_arrive")
+            == [{"type": "Sfx", "name": "lol_shen_r_arrive"}],
+            "Shen R arrival SFX must be inside the delayed arrival",
+        )
+        check(bool(find_effect(delayed[0], "Taunt", duration=45)), "Shen R arrival must taunt for 45 ticks")
+
     check(
-        view_effects
+        champion.get("view_projectiles")
+        == [{
+            "type": "Animated",
+            "name": "lol_shen_twilight_assault_projectile",
+            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
+            "tag": "projectile",
+            "z": 2,
+            "repeat": True,
+        }],
+        "Shen Q projectile renderer contract mismatch",
+    )
+    check(
+        champion.get("view_effects")
         == [
             {
                 "type": "Animation",
-                "name": "lol_shen_twilight_assault_empowered_hit",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "empowered_hit",
-                "z": 2,
-                "is_follow": True,
-            },
-            {
-                "type": "Animation",
-                "name": "lol_shen_twilight_assault_recall_arrival",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "recall_arrival",
-                "z": 2,
-                "is_follow": True,
-            },
-            {
-                "type": "Animation",
-                "name": "lol_shen_shadow_dash_cast_flash",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-                "tag": "dash_start",
-                "z": 3,
-                "is_follow": True,
-            },
-            {
-                "type": "Animation",
-                "name": "lol_shen_shadow_dash_impact",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-                "tag": "impact",
-                "z": 2,
+                "name": "lol_shen_spirit_refuge_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_w",
+                "tag": "field",
+                "z": -1,
                 "is_follow": True,
             },
             {
@@ -1165,188 +1019,44 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
                 "is_follow": False,
             },
         ],
-        "Shen Q/E/R view-effect registration mismatch",
+        "Shen W/R renderer contract mismatch",
     )
-    check(
-        champion.get("view_buffs", [])
-        == [
-            {
-                "type": "ThreePhase",
-                "name": "lol_shen_twilight_assault_empowered_window",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "pre_tag": "empower_pre",
-                "loop_tag": "empower_loop",
-                "remove_tag": "empower_remove",
-                "z": 3,
-            },
-            {
-                "type": "ThreePhase",
-                "name": "lol_shen_shadow_dash_trail_window",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-                "pre_tag": "trail_pre",
-                "loop_tag": "trail_loop",
-                "remove_tag": "trail_remove",
-                "z": 3,
-            },
-            {
-                "type": "ThreePhase",
-                "name": "lol_shen_shadow_dash_taunted",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-                "pre_tag": "taunt_pre",
-                "loop_tag": "taunt_loop",
-                "remove_tag": "taunt_remove",
-                "z": 3,
-            },
-        ],
-        "Shen Q empowered-window and E dash-trail/taunt marker visuals are not registered",
-    )
-    check(
-        find_effect(q, "Sfx", name="lol_shen_q_cast")
-        == [{"type": "Sfx", "name": "lol_shen_q_cast"}],
-        "Shen Q must play its verified cast event exactly once",
-    )
-    check(
-        find_effect(e, "Sfx", name="lol_shen_attack_cast")
-        == [{"type": "Sfx", "name": "lol_shen_attack_cast"}],
-        "Shen E must play its verified reused cast event exactly once",
-    )
-    check(
-        find_effect(e, "TargetSfx", name="lol_shen_attack_hit")
-        == [{"type": "TargetSfx", "name": "lol_shen_attack_hit"}],
-        "Shen E Rush collision must play its verified reused hit event exactly once",
-    )
+    check(champion.get("view_buffs") == [], "Restored Shen must not register legacy E/Q buff renderers")
+
+    serialized = json.dumps(champion, ensure_ascii=False)
+    for retired in (
+        "lol_shen_shadow_dash", "shen_e",
+        "lol_shen_twilight_assault_charge",
+        "lol_shen_twilight_assault_blade_recall",
+    ):
+        check(retired not in serialized, f"retired Shen rework payload remains active: {retired}")
+    for marker in (
+        "lol_shen_twilight_assault_slow",
+        "lol_shen_twilight_assault_guard",
+        "lol_shen_spirit_refuge_shield_window",
+        "lol_shen_spirit_refuge_as_slow",
+        "lol_shen_stand_united_channel",
+        "lol_shen_stand_united_shield_window",
+        "lol_shen_stand_united_arrival_cc",
+    ):
+        check(marker in serialized, f"restored Shen state marker missing: {marker}")
 
     shen_anims = {
-        "asset/lol_mod/aseprite_resources/effects/shen_q": load_json(
-            "aseprite_resources/effects/shen_q#anim.fanim"
-        ).get("anims", {}),
-        "asset/lol_mod/aseprite_resources/effects/shen_e": load_json(
-            "aseprite_resources/effects/shen_e#anim.fanim"
-        ).get("anims", {}),
-        "asset/lol_mod/aseprite_resources/effects/shen_r": load_json(
-            "aseprite_resources/effects/shen_r#anim.fanim"
-        ).get("anims", {}),
+        "shen_q": load_json("aseprite_resources/effects/shen_q#anim.fanim").get("anims", {}),
+        "shen_w": load_json("aseprite_resources/effects/shen_w#anim.fanim").get("anims", {}),
+        "shen_r": load_json("aseprite_resources/effects/shen_r#anim.fanim").get("anims", {}),
     }
-    for view in [*projectile_views, *view_effects, *champion.get("view_buffs", [])]:
-        tags = shen_anims.get(str(view.get("anim", "")))
-        if tags is None:
-            continue
-        for field in ("tag", "pre_tag", "loop_tag", "remove_tag"):
-            if field in view:
-                check(
-                    view.get(field) in tags,
-                    f"Shen renderer {view.get('name')} references missing {field}={view.get(field)}",
-                )
-
-    def shen_tag_visibility(sheet_name: str, tag: str) -> list[tuple[int, int]]:
-        anims = shen_anims[
-            f"asset/lol_mod/aseprite_resources/effects/{sheet_name}"
-        ]
-        sheet = Image.open(
-            MOD_ROOT / f"aseprite_resources/effects/{sheet_name}#sheet.png"
-        ).convert("RGBA")
-        metrics: list[tuple[int, int]] = []
-        for frame in anims.get(tag, {}).get("frames", []):
-            data = frame.get("data", {})
-            cell = sheet.crop(
-                (
-                    data.get("x", 0), data.get("y", 0),
-                    data.get("x", 0) + data.get("w", 0),
-                    data.get("y", 0) + data.get("h", 0),
-                )
-            )
-            pixels = (
-                cell.get_flattened_data()
-                if hasattr(cell, "get_flattened_data")
-                else cell.getdata()
-            )
-            opaque = [pixel for pixel in pixels if pixel[3] >= 192]
-            bright = sum(
-                0.2126 * red + 0.7152 * green + 0.0722 * blue >= 105
-                for red, green, blue, _alpha in opaque
-            )
-            metrics.append((len(opaque), bright))
-        return metrics
-
-    for sheet_name, tag, minimum_opaque, minimum_bright in (
-        ("shen_q", "recall", 480, 200),
-        ("shen_q", "empower_loop", 480, 200),
-        ("shen_e", "dash_start", 300, 250),
-        ("shen_e", "trail_loop", 800, 700),
-    ):
-        metrics = shen_tag_visibility(sheet_name, tag)
-        check(bool(metrics), f"Shen visible runtime tag is empty: {sheet_name}:{tag}")
-        check(
-            all(opaque >= minimum_opaque and bright >= minimum_bright for opaque, bright in metrics),
-            f"Shen {sheet_name}:{tag} is too dim/sparse for live combat readability: {metrics}",
-        )
-
-    shen_live_qa_path = MOD_ROOT / "qa/shen_live_qa.md"
-    check(shen_live_qa_path.is_file(), "Shen live QA checklist is missing")
-    if shen_live_qa_path.is_file():
-        shen_live_qa = shen_live_qa_path.read_text(encoding="utf-8")
-        for marker in (
-            "lol_shen_twilight_assault_blade_anchor",
-            "lol_shen_twilight_assault_blade_recall",
-            "lol_shen_twilight_assault_empowered_window",
-            "lol_shen_shadow_dash_cast_flash",
-            "lol_shen_shadow_dash_ai_hint_native",
-            "lol_shen_shadow_dash_taunt_native",
-            "Repeated AI matches include E casts",
-            "1.5-second forced-target taunt",
-        ):
-            check(marker in shen_live_qa, f"Shen live QA is missing the current Q/E proof: {marker}")
+    check(set(shen_anims["shen_q"]) == {"projectile"}, "Shen Q animation must expose only projectile")
+    check(set(shen_anims["shen_w"]) == {"field"}, "Shen W animation must expose only field")
+    check({"guard", "arrival"}.issubset(shen_anims["shen_r"]), "Shen R animation tags are incomplete")
 
     runtime = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
-    for marker in (
-        "struct ShenShadowDashAiHintNativeEffect;",
-        "struct ShenShadowDashTauntNativeEffect;",
-        "CCState::Taunt {",
-        "target: caster_id",
-        "const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;",
-        "fn expected_cc_time(&self) -> Option<usize>",
-        "Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)",
-        '"lol_shen_shadow_dash_ai_hint_native"',
-        '"lol_shen_shadow_dash_taunt_native"',
-    ):
-        check(marker in runtime, f"Shen native E runtime proof is missing: {marker}")
-    if "impl ModEffectType for ShenShadowDashAiHintNativeEffect {" in runtime:
-        shen_ai_hint = runtime.split(
-            "impl ModEffectType for ShenShadowDashAiHintNativeEffect {", 1
-        )[1].split("\n#[derive", 1)[0]
-        check("fn apply(" in shen_ai_hint, "Shen E AI hint must implement a no-op apply")
-        check("_caster_id: usize" in shen_ai_hint and "_input: InputTarget" in shen_ai_hint, "Shen E AI hint must ignore its root payload safely")
-        check("Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)" in shen_ai_hint, "Shen E AI hint must advertise its 90-tick expected CC")
-        check("ctx." not in shen_ai_hint, "Shen E root AI hint must remain a gameplay no-op")
-    for marker in (
-        "struct ShenShadowDashInputAi;",
-        "impl ModPlayerInputAi for ShenShadowDashInputAi",
-        '"lol_shen_shadow_dash_input_ai"',
-        "Some(Input::Skill { target }) | Some(Input::Attack { target })",
-        "let shadow_dash = Input::Skill2 { target };",
-        "ctx.is_valid_input(&shadow_dash)",
-        "PlayerInputDecision::Replace(shadow_dash)",
-        "registration.add_player_input_ai(ShenShadowDashInputAi);",
-    ):
-        check(marker in runtime, f"Shen E input-AI liveness proof is missing: {marker}")
-    if "impl ModEffectType for ShenShadowDashTauntNativeEffect {" in runtime:
-        shen_native = runtime.split(
-            "impl ModEffectType for ShenShadowDashTauntNativeEffect {", 1
-        )[1].split("\n#[derive(Clone, Debug, Default)]\nstruct ShenShadowDashInputAi;", 1)[0]
-        check(".unwrap(" not in shen_native, "Shen E native effect must not unwrap stale entities")
-        check(
-            ".get_entity(caster_id)" in shen_native
-            and ".get_entity(target_id)" in shen_native
-            and shen_native.count(".is_some_and(|") == 2,
-            "Shen E native effect must revalidate both live entities before applying taunt",
-        )
-        check(
-            shen_native.count("ctx.apply_cc(") == 1
-            and "ctx.apply_cc(\n            target_id,\n            CCState::Taunt {" in shen_native
-            and shen_native.count("tick: SHEN_SHADOW_DASH_TAUNT_TICKS") == 1
-            and shen_native.count("target: caster_id") == 1,
-            "Shen E runtime impl must contain exactly one caster-targeted native taunt",
-        )
+    stable_runtime = (MOD_ROOT / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    for retired in ("ShenShadowDash", "lol_shen_shadow_dash", "shen_shadow_dash"):
+        check(retired not in runtime, f"retired Shen E runtime remains in src/lib.rs: {retired}")
+        check(retired not in stable_runtime, f"retired Shen E runtime remains in stable_runtime.rs: {retired}")
+
+
 
 
 def validate_orianna_replacement_uniqueness() -> None:
@@ -4897,48 +4607,41 @@ def validate_lucian_actor_and_icons(champion: dict[str, Any]) -> None:
             check(icon.getchannel("A").getbbox() == (0, 0, 64, 64), f"{relative} must be full-bleed")
 
 
-def validate_compact_view_and_e_layout() -> None:
+def validate_compact_view_and_restored_w_layout() -> None:
     style = load_json("style/champion_view.champion_view")
     shen = style.get("entries", {}).get("lol_shen", {})
     check(shen.get("face") == {"x": 6, "y": -34}, "compact portrait must center Shen's head at face x=6/y=-34")
     check(shen.get("center") == {"x": 0, "y": -12}, "battle/card center offset must remain x=0/y=-12")
 
-    e_path = MOD_ROOT / "aseprite_resources/effects/shen_e#sheet.png"
-    check(e_path.is_file(), "Shen E sheet is missing")
-    if not e_path.is_file():
+    w_path = MOD_ROOT / "aseprite_resources/effects/shen_w#sheet.png"
+    check(w_path.is_file(), "Shen W sheet is missing")
+    if not w_path.is_file():
         return
-    e_sheet = Image.open(e_path).convert("RGBA")
-    check(e_sheet.size == (576, 64), f"E sheet must be 576x64, got {e_sheet.size}")
+    w_sheet = Image.open(w_path).convert("RGBA")
+    check(w_sheet.size == (672, 64), f"W sheet must be 672x64, got {w_sheet.size}")
     for index in range(6):
-        frame = e_sheet.crop((index * 96, 0, (index + 1) * 96, 64))
+        frame = w_sheet.crop((index * 112, 0, (index + 1) * 112, 64))
         bbox = frame.getchannel("A").getbbox()
-        check(bbox is not None, f"E frame {index} is empty")
+        check(bbox is not None, f"W frame {index} is empty")
         if not bbox:
             continue
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
-        check(12 <= width <= 88, f"E frame {index} left the 12-88px readable width")
-        if index < 3:
-            check(8 <= height <= 40, f"E dash frame {index} left the 8-40px readable height")
-        else:
-            check(24 <= height <= 52, f"E taunt frame {index} left the 24-52px readable height")
-        check(bbox[0] >= 2 and bbox[2] <= 94 and bbox[1] >= 2 and bbox[3] <= 62, f"E frame {index} touches an atlas edge")
-        if index < 3:
-            check(width >= height * 2, f"E dash frame {index} is not a horizontal wake")
-        else:
-            check(width <= height * 2, f"E impact frame {index} does not read as a compact collision")
-    e_anim = load_json("aseprite_resources/effects/shen_e#anim.fanim")
+        check(48 <= width <= 108, f"W frame {index} left the 48-108px readable width")
+        check(20 <= height <= 60, f"W frame {index} left the 20-60px readable height")
+        check(
+            bbox[0] >= 2 and bbox[2] <= 110 and bbox[1] >= 2 and bbox[3] <= 62,
+            f"W frame {index} touches an atlas edge",
+        )
+    w_anim = load_json("aseprite_resources/effects/shen_w#anim.fanim")
     check(
-        set(e_anim.get("anims", {}))
-        == {
-            "dash", "dash_start", "impact", "trail_pre", "trail_loop", "trail_remove",
-            "taunt_pre", "taunt_loop", "taunt_remove",
-        },
-        "E animation must expose distinct dash, impact, trail and sustained-taunt tags",
+        set(w_anim.get("anims", {})) == {"field"},
+        "W animation must expose only the restored Spirit's Refuge field tag",
     )
-    check(len(e_anim.get("anims", {}).get("dash", {}).get("frames", [])) == 3, "E dash tag must have three frames")
-    check(len(e_anim.get("anims", {}).get("dash_start", {}).get("frames", [])) == 3, "E dash-start flash tag must have three frames")
-    check(len(e_anim.get("anims", {}).get("impact", {}).get("frames", [])) == 3, "E impact tag must have three frames")
+    check(
+        len(w_anim.get("anims", {}).get("field", {}).get("frames", [])) == 6,
+        "W field tag must have six frames",
+    )
 
     lucian = style.get("entries", {}).get("archer", {})
     check(lucian.get("face") == {"x": 0, "y": -34}, "Lucian compact portrait offset must be x=0/y=-34")
@@ -5023,19 +4726,17 @@ def validate_localization() -> None:
     shen_en = text.get("en", {}).get("description", {}).get("lol_shen", {})
     shen_zh_hans = text.get("zh-hans", {}).get("description", {}).get("lol_shen", {})
     shen_zh_hant = text.get("zh-hant", {}).get("description", {}).get("lol_shen", {})
-    check("Twilight Assault" in shen_en.get("skill", ""), "English Q text must name Twilight Assault")
-    check("next 3 basic attacks" in shen_en.get("skill", ""), "English Q text must disclose three empowered attacks")
-    check("recall" in shen_en.get("skill", "").lower(), "English Q text must describe the blade recall")
-    check("Shadow Dash" in shen_en.get("skill2", ""), "English second slot must be Shadow Dash")
-    check("taunted for 1.5 seconds" in shen_en.get("skill2", ""), "English E text must disclose the 1.5-second taunt")
-    check("奥义！暮临" in shen_zh_hans.get("skill", ""), "zh-hans Q must use the localized Twilight Assault name")
-    check("3次" in shen_zh_hans.get("skill", ""), "zh-hans Q must disclose three empowered attacks")
-    check("奥义！影缚" in shen_zh_hans.get("skill2", ""), "zh-hans second slot must be Shadow Dash")
-    check("嘲讽" in shen_zh_hans.get("skill2", ""), "zh-hans E must disclose taunt")
-    check("奧義！暮臨" in shen_zh_hant.get("skill", ""), "zh-hant Q must use the localized Twilight Assault name")
-    check("奧義！影縛" in shen_zh_hant.get("skill2", ""), "zh-hant second slot must be Shadow Dash")
-    check("lowest-health" in shen_en.get("ult", ""), "English R text must disclose the target-selection limitation")
-    check("taunt" not in shen_en.get("ult", "").lower(), "English R text must not retain the old arrival taunt")
+    check("Twilight Slash" in shen_en.get("skill", ""), "English Q text must name Twilight Slash")
+    check("25%" in shen_en.get("skill", "") and "120" in shen_en.get("skill", ""), "English Q text must disclose slow and shield")
+    check("Spirit's Refuge" in shen_en.get("skill2", ""), "English second slot must be Spirit's Refuge")
+    check("150" in shen_en.get("skill2", "") and "30%" in shen_en.get("skill2", ""), "English W text must disclose shield and attack-speed slow")
+    check("taunt" in shen_en.get("ult", "").lower() and "0.75" in shen_en.get("ult", ""), "English R text must disclose arrival taunt")
+    check("暮光斩" in shen_zh_hans.get("skill", ""), "zh-hans Q must use the restored name")
+    check("灵佑领域" in shen_zh_hans.get("skill2", ""), "zh-hans W must use the restored name")
+    check("嘲讽" in shen_zh_hans.get("ult", ""), "zh-hans R must disclose arrival taunt")
+    check("暮光斬" in shen_zh_hant.get("skill", ""), "zh-hant Q must use the restored name")
+    check("靈佑領域" in shen_zh_hant.get("skill2", ""), "zh-hant W must use the restored name")
+    check("嘲諷" in shen_zh_hant.get("ult", ""), "zh-hant R must disclose arrival taunt")
 
     columns_per_line = {"en": 60, "zh-hans": 52, "zh-hant": 52, "ja": 52, "ko": 52}
     forbidden_notes = (
@@ -5064,8 +4765,8 @@ def validate_localization() -> None:
 
 def validate_audio(champion: dict[str, Any], override: dict[str, Any]) -> None:
     sfx_names = sorted({effect.get("name") for effect in walk_effects(champion) if effect.get("type") in {"Sfx", "TargetSfx"}})
-    check(len(sfx_names) == 5, f"expected 5 active Shen sound events after W retirement, got {len(sfx_names)}")
-    check("lol_shen_w_cast" not in sfx_names and "lol_shen_w_block" not in sfx_names, "retired W audio events remain active")
+    check(len(sfx_names) == 7, f"expected 7 active Shen sound events with restored W, got {len(sfx_names)}")
+    check("lol_shen_w_cast" in sfx_names and "lol_shen_w_block" in sfx_names, "restored W audio events are missing")
     for name in sfx_names:
         source_key = f"asset/base/sound/sfx/{name}"
         event_override = override.get(source_key, {})
@@ -5843,7 +5544,7 @@ def validate_sivir_imagegen_and_qa_files() -> None:
 
 def validate_imagegen_sources() -> None:
     expected = {
-        "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "e_icon", "r_icon", "q_vfx", "e_vfx", "r_vfx"},
+        "qa/shen_imagegen_sources.json": {"actor_model", "run_cycle", "q_icon", "w_icon", "r_icon", "q_vfx", "w_vfx", "r_vfx"},
         "qa/lucian_imagegen_sources.json": {"actor_model", "run_cycle", "attack_vfx", "q_icon", "e_icon", "r_icon", "q_vfx", "r_vfx"},
         "qa/orianna_imagegen_sources.json": {
             "actor_model",
@@ -5900,7 +5601,8 @@ def validate_imagegen_sources() -> None:
                         f"processed image-gen source hash mismatch: {processed_path}",
                     )
     processed = sorted((MOD_ROOT / "source/processed").glob("*_alpha.png"))
-    # Shen/Lucian/Orianna contribute 25 active alpha sources. Briar adds six;
+    # Shen/Lucian/Orianna contribute 23 active alpha sources after Shen's
+    # retired E icon/VFX were removed and the original W sources restored. Briar adds six;
     # Sivir adds actor, run, and five distinct VFX contacts. Kled adds actor,
     # run, defeat, and three independent VFX contacts. Xayah's corrective
     # route adds seven disjoint body contacts plus attack/Q/E/R VFX contacts.
@@ -5909,7 +5611,7 @@ def validate_imagegen_sources() -> None:
     # Opaque icons and BP illustrations stay source-only.
     # Keep this as a minimum so later champions can extend the active set;
     # every discovered source still receives the full alpha-corner audit.
-    minimum_processed = 66
+    minimum_processed = 64
     check(
         len(processed) >= minimum_processed,
         f"processed image-gen source set must contain at least {minimum_processed} active PNGs",
@@ -7087,7 +6789,6 @@ def validate_native_dll() -> None:
         b"lol_yone_w_cone_native",
         b"lol_urgot_passive_native",
         b"lol_urgot_r_execute_native",
-        b"lol_shen_shadow_dash_taunt_native",
         b"lol_yone_e_settle_native",
     ):
         check(native_name in payload, f"stable DLL is missing native registration {native_name!r}")
@@ -7111,9 +6812,7 @@ def validate_native_dll() -> None:
         "use mod_api_stable::",
         "impl StableEffectType for UrgotPassiveNativeEffect",
         "impl StableEffectType for YoneSpiritCleaveConeNativeEffect",
-        "impl StableEffectType for ShenShadowDashTauntNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
-        "impl StablePlayerAi for ShenShadowDashInputAi",
         "declare_stable_mod!(init);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
@@ -7470,7 +7169,33 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
         "Xayah compact face camera or centered battle camera changed",
     )
     check(Image.open(MOD_ROOT / "BanPickIllust/dancer.png").size == (1420, 860), "Xayah BP splash must be 1420x860")
-    check(Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").size == (64, 64), "Xayah encyclopedia portrait must be 64x64")
+    fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").convert("RGBA")
+    fullbody_quality = source_direct_ui_quality(fullbody)
+    fullbody_bbox = fullbody_quality.get("alpha_bbox")
+    check(fullbody.size == (85, 93), "Xayah encyclopedia portrait must match the runtime 85x93 overlay")
+    check(fullbody_bbox is not None, "Xayah encyclopedia portrait must be visible")
+    if fullbody_bbox is not None:
+        fullbody_width = fullbody_bbox[2] - fullbody_bbox[0]
+        fullbody_height = fullbody_bbox[3] - fullbody_bbox[1]
+        check(44 <= fullbody_width <= 54, f"Xayah encyclopedia portrait width is outside its champion-specific range: {fullbody_bbox}")
+        check(80 <= fullbody_height <= 84, f"Xayah encyclopedia portrait height is outside its champion-specific range: {fullbody_bbox}")
+        check(fullbody_bbox[3] == 88, f"Xayah encyclopedia portrait must keep five pixels below its feet: {fullbody_bbox}")
+        check(fullbody_bbox[1] >= 4, f"Xayah encyclopedia portrait lost its top safety margin: {fullbody_bbox}")
+        check(
+            abs(fullbody_bbox[0] - (85 - fullbody_bbox[2])) <= 1,
+            f"Xayah encyclopedia portrait must stay horizontally centered: {fullbody_bbox}",
+        )
+    fullbody_alpha = fullbody.getchannel("A").histogram()
+    fullbody_coverage = fullbody_alpha[255] / (85 * 93)
+    check(fullbody_quality.get("hard_alpha") is True, "Xayah encyclopedia portrait must use hard alpha")
+    check(
+        fullbody_quality.get("transparent_rgb_clear") is True,
+        "Xayah encyclopedia portrait must clear RGB under transparent pixels",
+    )
+    check(
+        0.15 <= fullbody_coverage <= 0.40,
+        f"Xayah encyclopedia portrait opaque coverage is outside its visible safe range: {fullbody_coverage:.4f}",
+    )
     rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
     for required_route in (
         "rewrite_xayah_portrait_render_commands(state);",
@@ -7772,7 +7497,7 @@ def validate_urgot_w(champion: dict[str, Any]) -> None:
 
     r_execute_rust = urgot_impl_block(
         "impl ModEffectType for UrgotRExecuteNativeEffect {",
-        "\nconst SHEN_SHADOW_DASH_TAUNT_TICKS",
+        "\nconst YONE_W_RANGE",
         "R execute",
     )
     caster_lookup = ".get_entity(caster_id)"
@@ -7932,10 +7657,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ):
         effects = branch.get("effects", [])
         check(
-            [effect.get("type") for effect in effects] == ["CasterAnimation", "CasterViewEffect", "Sfx", "Delayed"]
+            [effect.get("type") for effect in effects] == ["CasterAnimation", "Sfx", "Delayed"]
             and effects[0] == {"type": "CasterAnimation", "name": animation, "tick": 20}
-            and effects[3].get("tick") == 13,
-            f"Yone {label} attack must start its body/cast feedback at tick 0 and delay gameplay to tick 13",
+            and effects[2].get("tick") == 13,
+            f"Yone {label} attack must use the actor-owned sword and delay gameplay to tick 13",
         )
 
     q = champion.get("skill", {})
@@ -8044,10 +7769,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     ):
         effects = stage.get("effects", [])
         check(
-            [effect.get("type") for effect in effects] == ["CasterAnimation", "Sfx", "CasterViewEffect", "Delayed"]
+            [effect.get("type") for effect in effects] == ["CasterAnimation", "Sfx", "Delayed"]
             and effects[0] == {"type": "CasterAnimation", "name": animation, "tick": 30}
-            and effects[3].get("tick") == 8,
-            f"Yone {label} must start its body/cast feedback at tick 0 and delay gameplay to tick 8",
+            and effects[2].get("tick") == 8,
+            f"Yone {label} must let the actor own the physical blade and delay gameplay to tick 8",
         )
     check(
         len(find_effect(q3, "RemoveCasterBuff", name="lol_yone_mortal_steel_stack_2")) == 1,
@@ -9049,12 +8774,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         },
     }
     expected_all_views = {
-        "lol_yone_attack_steel_swing": ("yone_attack", "steel_hit"),
-        "lol_yone_attack_azakana_swing": ("yone_attack", "azakana_hit"),
         "lol_yone_attack_steel_hit": ("yone_attack", "steel_hit"),
         "lol_yone_attack_azakana_hit": ("yone_attack", "azakana_hit"),
-        "lol_yone_q_blade": ("yone_q", "hit"),
-        "lol_yone_q3_blade": ("yone_q", "empowered_hit"),
         "lol_yone_q_projectile": ("yone_q", "projectile"),
         "lol_yone_q_empowered_projectile": ("yone_q3_tornado", "tornado"),
         "lol_yone_q_hit": ("yone_q", "hit"),
@@ -9074,6 +8795,16 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         anim = str(view.get("anim", "")).removeprefix("asset/lol_mod/aseprite_resources/effects/")
         declared_views[str(view.get("name", ""))] = (anim, str(view.get("tag", "")))
     check(declared_views == expected_all_views, "Yone projectile/effect names must map exactly to active Q/W/R VFX sheets and tags")
+    duplicate_blade_views = {
+        "lol_yone_attack_steel_swing",
+        "lol_yone_attack_azakana_swing",
+        "lol_yone_q_blade",
+        "lol_yone_q3_blade",
+    }
+    check(
+        duplicate_blade_views.isdisjoint(declared_views),
+        "Yone actor-owned swords must not be redrawn as caster-following blade overlays",
+    )
     declared_buffs = {
         str(view.get("name", "")): (
             str(view.get("anim", "")).removeprefix("asset/lol_mod/aseprite_resources/effects/"),
@@ -9259,11 +8990,23 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         fullbody_alpha = fullbody_image.getchannel("A")
         fullbody_bbox = fullbody_alpha.getbbox()
         if fullbody_bbox is not None:
+            fullbody_width = fullbody_bbox[2] - fullbody_bbox[0]
+            fullbody_height = fullbody_bbox[3] - fullbody_bbox[1]
+            fullbody_pixels = (
+                fullbody_alpha.get_flattened_data()
+                if hasattr(fullbody_alpha, "get_flattened_data")
+                else fullbody_alpha.getdata()
+            )
+            fullbody_opaque = sum(1 for alpha in fullbody_pixels if alpha)
             check(
-                fullbody_bbox[2] - fullbody_bbox[0] <= 70
-                and fullbody_bbox[3] - fullbody_bbox[1] <= 82
-                and fullbody_bbox[3] <= 86,
-                f"Yone 85x93 fullbody exceeds the exact card destination: {fullbody_bbox}",
+                70 <= fullbody_width <= 76
+                and 76 <= fullbody_height <= 84
+                and fullbody_bbox[3] == 88
+                and 85 - fullbody_bbox[2] >= 0
+                and abs(fullbody_bbox[0] - (85 - fullbody_bbox[2])) <= 1
+                and fullbody_opaque >= 2300,
+                "Yone 85x93 encyclopedia fullbody is too small, off-center, "
+                f"or clipped: bbox={fullbody_bbox}, opaque={fullbody_opaque}",
             )
 
             # Ignore the two long swords when measuring the lower body. Their
@@ -9308,42 +9051,38 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             boot_top = fullbody_bbox[1] + round(
                 (fullbody_bbox[3] - fullbody_bbox[1]) * 0.80
             )
-            remaining = {
-                (x, y)
-                for y in range(boot_top, fullbody_bbox[3])
-                for x in range(body_left, body_right)
-                if fullbody_alpha.getpixel((x, y)) >= 128
-            }
-            boot_components: list[set[tuple[int, int]]] = []
-            while remaining:
-                frontier = [remaining.pop()]
-                component = set(frontier)
-                while frontier:
-                    x, y = frontier.pop()
-                    for neighbor in (
-                        (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)
-                    ):
-                        if neighbor in remaining:
-                            remaining.remove(neighbor)
-                            component.add(neighbor)
-                            frontier.append(neighbor)
-                if len(component) >= 40:
-                    boot_components.append(component)
-            boot_boxes = sorted(
-                (
-                    min(x for x, _ in component),
-                    min(y for _, y in component),
-                    max(x for x, _ in component) + 1,
-                    max(y for _, y in component) + 1,
+            # The long coat can legitimately bridge the two boots near their
+            # tops. Measure two lower-body lobes on opposite sides of the
+            # actor centre instead of requiring disconnected alpha islands.
+            body_mid = (body_left + body_right) // 2
+            boot_halves = [
+                {
+                    (x, y)
+                    for y in range(boot_top, fullbody_bbox[3])
+                    for x in range(x_start, x_end)
+                    if fullbody_alpha.getpixel((x, y)) >= 128
+                }
+                for x_start, x_end in (
+                    (body_left, body_mid - 1),
+                    (body_mid + 1, body_right),
                 )
-                for component in boot_components
-            )
+            ]
+            boot_boxes = [
+                (
+                    min(x for x, _ in pixels),
+                    min(y for _, y in pixels),
+                    max(x for x, _ in pixels) + 1,
+                    max(y for _, y in pixels) + 1,
+                )
+                for pixels in boot_halves
+                if pixels
+            ]
             check(
                 len(boot_boxes) == 2
-                and all(right - left >= 8 for left, _, right, _ in boot_boxes)
+                and all(right - left >= 7 for left, _, right, _ in boot_boxes)
                 and all(bottom - top >= 12 for _, top, _, bottom in boot_boxes)
-                and boot_boxes[1][0] - boot_boxes[0][2] >= 1,
-                f"Yone fullbody must retain two complete separated boot components: {boot_boxes}",
+                and all(bottom >= fullbody_bbox[3] - 1 for _, _, _, bottom in boot_boxes),
+                f"Yone fullbody must retain complete left/right boot lobes: {boot_boxes}",
             )
     compact_path = MOD_ROOT / "ui/champion_portrait/dual_blader_compact.png"
     if compact_path.is_file():
@@ -9436,13 +9175,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         fullbody_bbox = fullbody_image.getchannel("A").getbbox()
         check(
             fullbody_bbox is not None
-            and fullbody_bbox[3] <= 86
-            and not any(
-                fullbody_image.getpixel((x, y))[3]
-                for y in range(70, min(93, 96))
-                for x in range(max(0, 98 - actor_x), 85)
-            ),
-            "Yone V7 1:1 card actor overlaps the right-side icon safety region",
+            and fullbody_bbox[3] == 88
+            and abs(fullbody_bbox[0] - (85 - fullbody_bbox[2])) <= 1,
+            "Yone V7 encyclopedia fullbody must stay centered with five pixels "
+            f"of bottom clearance: {fullbody_bbox}",
         )
 
     if all(path.is_file() for path in portrait_paths):
@@ -10573,30 +10309,12 @@ def main() -> int:
     validate_animation(
         "aseprite_resources/effects/shen_q#sheet.png",
         "aseprite_resources/effects/shen_q#anim.fanim",
-        {
-            "anchor": 1,
-            "recall": 8,
-            "empowered_hit": 4,
-            "recall_arrival": 4,
-            "empower_pre": 2,
-            "empower_loop": 4,
-            "empower_remove": 2,
-        },
+        {"projectile": 8},
     )
     validate_animation(
-        "aseprite_resources/effects/shen_e#sheet.png",
-        "aseprite_resources/effects/shen_e#anim.fanim",
-        {
-            "dash": 3,
-            "dash_start": 3,
-            "impact": 3,
-            "trail_pre": 1,
-            "trail_loop": 2,
-            "trail_remove": 1,
-            "taunt_pre": 1,
-            "taunt_loop": 1,
-            "taunt_remove": 1,
-        },
+        "aseprite_resources/effects/shen_w#sheet.png",
+        "aseprite_resources/effects/shen_w#anim.fanim",
+        {"field": 6},
     )
     validate_animation("aseprite_resources/effects/shen_r#sheet.png", "aseprite_resources/effects/shen_r#anim.fanim", {"guard": 5, "arrival": 4})
     validate_animation(
@@ -10648,7 +10366,7 @@ def main() -> int:
     validate_animation("aseprite_resources/effects/lucian_r#sheet.png", "aseprite_resources/effects/lucian_r#anim.fanim", {"projectile": 8})
     validate_actor_and_icons(champion)
     validate_lucian_actor_and_icons(lucian)
-    validate_compact_view_and_e_layout()
+    validate_compact_view_and_restored_w_layout()
     validate_native_lucian_localization()
     validate_orianna_localization()
     validate_briar_localization_and_style()

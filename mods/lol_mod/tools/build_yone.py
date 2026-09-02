@@ -2572,7 +2572,14 @@ def yone_ui_surface_quality(image: Image.Image) -> dict[str, Any]:
 
 
 def render_yone_v7_ui_card_preview(fullbody: Image.Image) -> Image.Image:
-    """Recreate the 141x138 card with the 85x93 texture pasted at native 1:1."""
+    """Prove the encyclopedia fullbody route at native 1:1.
+
+    The encyclopedia owns a centered 85x93 image node.  Older QA borrowed a
+    BP/card icon exclusion zone from a different UI surface; that incorrectly
+    forced Yone's encyclopedia art leftward and smaller.  Keep the historical
+    141x138 proof canvas for stable QA artifacts, but only validate the real
+    centered 85x93 encyclopedia placement here.
+    """
 
     if fullbody.size != (85, 93):
         raise ValueError(f"Yone V7 card source must be 85x93, got {fullbody.size}")
@@ -2588,13 +2595,8 @@ def render_yone_v7_ui_card_preview(fullbody: Image.Image) -> Image.Image:
     actor_mask = Image.new("L", preview.size, 0)
     actor_mask.paste(fullbody.getchannel("A"), (actor_x, 0))
     actor_bbox = actor_mask.getbbox()
-    if actor_bbox is None or actor_bbox[3] > 86:
+    if actor_bbox is None or actor_bbox[3] > 88:
         raise ValueError(f"Yone V7 UI card actor placement is unsafe: {actor_bbox}")
-    if actor_mask.crop((98, 70, 141, 96)).getbbox() is not None:
-        raise ValueError("Yone V7 UI card actor overlaps the right-side icon area")
-    draw.arc((99, 72, 112, 88), 290, 70, fill=(236, 238, 242, 255), width=2)
-    draw.rectangle((119, 76, 130, 87), outline=(217, 220, 228, 255), width=2)
-    draw.rectangle((122, 79, 127, 84), fill=(104, 110, 125, 255))
     # The localized champion name is drawn by the engine text layer.  Do not
     # bake an approximate host-font or hand-drawn CJK glyph into this texture
     # proof: doing so can falsely make a correct UI asset show the wrong name.
@@ -2613,9 +2615,8 @@ def build_splash_and_portraits() -> list[Path]:
     fullbody = render_source_direct_ui_subject(
         full_body,
         (85, 93),
-        max_subject=(66, 78),
-        bottom=86,
-        x_offset=-5,
+        max_subject=(74, 84),
+        bottom=88,
     )
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
@@ -2679,12 +2680,8 @@ def image_record(path: Path) -> dict[str, Any]:
 
 
 RUNTIME_EFFECT_MAP = {
-    "lol_yone_attack_steel_swing": ["yone_attack", "steel_hit"],
-    "lol_yone_attack_azakana_swing": ["yone_attack", "azakana_hit"],
     "lol_yone_attack_steel_hit": ["yone_attack", "steel_hit"],
     "lol_yone_attack_azakana_hit": ["yone_attack", "azakana_hit"],
-    "lol_yone_q_blade": ["yone_q", "hit"],
-    "lol_yone_q3_blade": ["yone_q", "empowered_hit"],
     "lol_yone_q_projectile": ["yone_q", "projectile"],
     "lol_yone_q_empowered_projectile": ["yone_q3_tornado", "tornado"],
     "lol_yone_q_hit": ["yone_q", "hit"],
@@ -3056,7 +3053,7 @@ def build_qa(
         "- [x] Q1/Q2 use `skill_q12`, Q3 uses a separate lowered `skill_q3`, W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
         "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
-        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
+        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names and three pre-cone W names remain registered only as no-op saved-season compatibility aliases; no retired Shen dash native remains.\n"
         "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
         "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five V7 Azakana-led sweep poses; no code-drawn body is added during packing.\n"
         "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
@@ -3480,12 +3477,28 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     fullbody_bbox = fullbody.getchannel("A").getbbox()
     if fullbody.size != (85, 93) or fullbody_bbox is None:
         raise ValueError("Yone source-direct fullbody portrait must be 85x93")
-    if (
-        fullbody_bbox[2] - fullbody_bbox[0] > 70
-        or fullbody_bbox[3] - fullbody_bbox[1] > 82
-        or fullbody_bbox[3] > 86
+    fullbody_width = fullbody_bbox[2] - fullbody_bbox[0]
+    fullbody_height = fullbody_bbox[3] - fullbody_bbox[1]
+    fullbody_opaque = sum(
+        1
+        for alpha in (
+            fullbody.getchannel("A").get_flattened_data()
+            if hasattr(fullbody.getchannel("A"), "get_flattened_data")
+            else fullbody.getchannel("A").getdata()
+        )
+        if alpha
+    )
+    if not (
+        70 <= fullbody_width <= 76
+        and 76 <= fullbody_height <= 84
+        and fullbody_bbox[3] == 88
+        and abs(fullbody_bbox[0] - (85 - fullbody_bbox[2])) <= 1
+        and fullbody_opaque >= 2300
     ):
-        raise ValueError(f"Yone fullbody subject exceeds its exact card slot: {fullbody_bbox}")
+        raise ValueError(
+            "Yone encyclopedia fullbody is too small, off-center, or clipped: "
+            f"bbox={fullbody_bbox}, opaque={fullbody_opaque}"
+        )
     compact = Image.open(PORTRAIT_DIR / "dual_blader_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()
     if compact.size != (64, 64) or compact_bbox is None:

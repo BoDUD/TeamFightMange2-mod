@@ -2,8 +2,8 @@
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
   "purpose": "0.12.6 native encyclopedia scale and refined-AI target repair test closure",
-  "file_count": 473,
-  "total_size": 90036252,
+  "file_count": 477,
+  "total_size": 90313087,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919"
+      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "2bfd547fcc154e145012c49d53676aa7e07bf2792d611f1d642394550f081919"
+      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -299,24 +299,14 @@
       "sha256": "518b2a8226ddafac8407fbdf56cd069bcfd3d70627bdf2e95c997fd268360b95"
     },
     {
-      "path": "aseprite_resources/effects/shen_e#anim.fanim",
-      "size": 3095,
-      "sha256": "7a6a3a45931faf9d13615c82e2546f93617c24b313248629c12793669322a68f"
-    },
-    {
-      "path": "aseprite_resources/effects/shen_e#sheet.png",
-      "size": 147598,
-      "sha256": "c927f77d3ce5fbed3775ee2e44aa1958a3e07118b529bb61ceba6d07de5e0920"
-    },
-    {
       "path": "aseprite_resources/effects/shen_q#anim.fanim",
-      "size": 4484,
-      "sha256": "ac7580bd93ab4b2aae88f8f34fea7d5431be31c9a915d2597d3f2042801f296a"
+      "size": 1381,
+      "sha256": "c0289813821fc12a632b337080dd8d3d2bc8304a18825a40aa6376e78d269056"
     },
     {
       "path": "aseprite_resources/effects/shen_q#sheet.png",
-      "size": 147598,
-      "sha256": "a74fa2d058e954867be902daed6d9e55142a94d60028b31c98b970277fe0bfa6"
+      "size": 131214,
+      "sha256": "64973f0ab883ce5248dbbae9b14b3616732b573cf691ed2d4fd576d7dd89a524"
     },
     {
       "path": "aseprite_resources/effects/shen_r#anim.fanim",
@@ -327,6 +317,16 @@
       "path": "aseprite_resources/effects/shen_r#sheet.png",
       "size": 401618,
       "sha256": "e9cd473087867f2cae8ecbb217e00a24114b59fdc3a2dcaa2bc68f8f6a1ad969"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_w#anim.fanim",
+      "size": 1055,
+      "sha256": "9fbbbf68a9e4be5e5adc88bcb72aaa8dcb699f2aa1589b1a9e0c181710ed50c5"
+    },
+    {
+      "path": "aseprite_resources/effects/shen_w#sheet.png",
+      "size": 172174,
+      "sha256": "5f0911b5477155c4781501a6803630d68b87f5ea7c1738fd93d2d9dad2f29810"
     },
     {
       "path": "aseprite_resources/effects/sivir_attack#anim.fanim",
@@ -870,13 +870,13 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 30919,
-      "sha256": "0d8281807b61ea2b9e92ad7e4847b4e2c82359cfd36f766c0d45f9b3c5801297"
+      "size": 29511,
+      "sha256": "dff08f3d550a435cde35bdf3c2c7b62cce3a94426a5a7d078837a94177f2bfd6"
     },
     {
       "path": "champion/lol_shen.data_champion",
-      "size": 16437,
-      "sha256": "c2988985eeaa57074aebab5b68a3f9d0e94442a11d34a052d3a4b95ecb23369f"
+      "size": 10235,
+      "sha256": "4596b776404e3c3613ab36eb38f82339d12982c7682a5e259e36bf8b8e238267"
     },
     {
       "path": "icons/briar_skill.png",
@@ -946,7 +946,7 @@
     {
       "path": "icons/shen_skill2.png",
       "size": 16516,
-      "sha256": "d2021aab9454f3f25838bbd69a8d74d73dffdd1baf7e75790b917b88e0cd5f14"
+      "sha256": "d57d69999a85b06f8526f3919d7d6c3a51ce1a95c6ee9b0bcf08550b512f911a"
     },
     {
       "path": "icons/shen_ult.png",
@@ -1015,8 +1015,8 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 271360,
-      "sha256": "c1afaa3850f49c1210225116a072c3d6fd3c4dd639fa1f4f455e21114fb3d838"
+      "size": 268288,
+      "sha256": "23f1cd09ba7e994335ad372e7bac18332ce93111ca73788e51706812d2af7159"
     },
     {
       "path": "mod.mod_info",
@@ -1025,8 +1025,8 @@
     },
     {
       "path": "mod.override_info",
-      "size": 50643,
-      "sha256": "c79ec3667bbb560ac078253f4719a2336637da5eff81a64a6d4afed4b5c11f2d"
+      "size": 51171,
+      "sha256": "811297d603bbdbe415d28a580dd0bd100688c8297b768626ca76f8a9e41c07f0"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -1674,6 +1674,26 @@
       "sha256": "4539fcc64b14dae02cc9a0220eb3f253b1ef7cfd2d88bad0b2f05da0261675e7"
     },
     {
+      "path": "sound/sfx/shen_w_block.sound_info",
+      "size": 66,
+      "sha256": "c2e7df046a11b1174e91d1f167b113789f7aa53c2328430112601c962f0484f8"
+    },
+    {
+      "path": "sound/sfx/shen_w_block_clip.wav",
+      "size": 73142,
+      "sha256": "f3d544baa638f49aa4ed305f8d956427f68fb143246a8f955c4bd8a479377afb"
+    },
+    {
+      "path": "sound/sfx/shen_w_cast.sound_info",
+      "size": 65,
+      "sha256": "83bedd6cdc2620fec1b814a425f9b2c5c2eb214b4a49de0af19e58400c34457b"
+    },
+    {
+      "path": "sound/sfx/shen_w_cast_clip.wav",
+      "size": 194900,
+      "sha256": "334d52f8d43f49031444b0968b6bc22d37da3cc8f47014c30f3771819ed9afd8"
+    },
+    {
       "path": "sound/sfx/sivir_attack_cast.sound_info",
       "size": 71,
       "sha256": "5dc2ed2b9c3ae9e1e44f0c2711858de17c7435b8b8c9dde99828b60affa69755"
@@ -2000,8 +2020,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 52347,
-      "sha256": "ff2d6c49293cfc897b9ec1ddb5eb99e1451e8cc3119125ec96d0cf1874e285d8"
+      "size": 52849,
+      "sha256": "f90b81a099e0830b217a93144c7d67e0b8df958faff5e158b29c56cc994ceb00"
     },
     {
       "path": "text/item.i18n",
@@ -2190,8 +2210,8 @@
     },
     {
       "path": "ui/champion_fullbody/dancer.png",
-      "size": 16516,
-      "sha256": "4215c1ff3f50622a3af6c45b4d764e43916f0a8acbb7195578b36f1ae860a738"
+      "size": 31781,
+      "sha256": "aaccf807d104275ec23a6d63bd616282dd7146f0e9f55e34cdc97562a7fc3ae9"
     },
     {
       "path": "ui/champion_fullbody/demon.png",
@@ -2201,7 +2221,7 @@
     {
       "path": "ui/champion_fullbody/dual_blader.png",
       "size": 31781,
-      "sha256": "579d6b4a6030ba5349c86b2e09c0db6a67201ea22c1abf3da4cfc9017c34ed10"
+      "sha256": "858d1382c467149a6e7e32d6e5b81e94cb3276e5a2a2159010689507d38c6015"
     },
     {
       "path": "ui/champion_fullbody/lol_shen.png",

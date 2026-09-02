@@ -300,7 +300,7 @@ def test_v7_weapon_palette_roles_are_exclusive_from_body_mask_and_source_roles()
     )
 
 
-def test_v7_attack_q_q3_w_r_tags_keep_caster_follow_blade_overlays() -> None:
+def test_v7_actor_owns_attack_and_q_blades_without_duplicate_overlays() -> None:
     payload = json.loads(DATA_CHAMPION.read_text(encoding="utf-8"))
     effects = list(
         _walk_effects(
@@ -331,21 +331,23 @@ def test_v7_attack_q_q3_w_r_tags_keep_caster_follow_blade_overlays() -> None:
         for effect in effects
         if effect["type"] == "CasterViewEffect"
     }
-    assert {
+    duplicate_blade_overlays = {
         "lol_yone_attack_steel_swing",
         "lol_yone_attack_azakana_swing",
         "lol_yone_q_blade",
         "lol_yone_q3_blade",
+    }
+    assert caster_overlay_names.isdisjoint(duplicate_blade_overlays)
+    assert duplicate_blade_overlays.isdisjoint(
+        {row["name"] for row in payload["view_effects"]}
+    )
+    assert {
         "lol_yone_w_crescent_cast",
         "lol_yone_r_windup",
     } <= caster_overlay_names
 
     view_effects = {row["name"]: row for row in payload["view_effects"]}
     expected_overlays = {
-        "lol_yone_attack_steel_swing": ("steel_hit", 3),
-        "lol_yone_attack_azakana_swing": ("azakana_hit", 3),
-        "lol_yone_q_blade": ("hit", 3),
-        "lol_yone_q3_blade": ("empowered_hit", 3),
         "lol_yone_w_crescent_cast": ("crescent", 3),
         "lol_yone_r_windup": ("windup", 1),
         "lol_yone_r_slash_blue": ("slash_blue", 2),

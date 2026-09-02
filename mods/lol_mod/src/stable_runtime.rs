@@ -13,7 +13,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use mod_api_stable::{
-    declare_stable_mod, AttackTypeV1, BuffV1, CcKindV1, CcV1, InputKindV1, InputTargetKindV1,
+    declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1,
     InputTargetV1, InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient,
     StableEffectType, StableExtension, StableHost, StableMatchHook, StableMod, StablePlayerAi,
     StableSim,
@@ -930,105 +930,6 @@ impl StableEffectType for UrgotRExecuteNativeEffect {
     }
 }
 
-const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
-
-#[derive(Clone, Copy, Debug, Default)]
-struct ShenShadowDashAiHintNativeEffect;
-
-impl StableEffectType for ShenShadowDashAiHintNativeEffect {
-    fn apply(
-        &self,
-        _sim: &mut StableSim<'_>,
-        _rng_seed: u64,
-        _caster_id: usize,
-        _input: InputTargetV1,
-    ) {
-    }
-
-    fn expected_cc_time(&self) -> Option<usize> {
-        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default)]
-struct ShenShadowDashTauntNativeEffect;
-
-impl StableEffectType for ShenShadowDashTauntNativeEffect {
-    fn apply(
-        &self,
-        sim: &mut StableSim<'_>,
-        _rng_seed: u64,
-        caster_id: usize,
-        input: InputTargetV1,
-    ) {
-        if input.kind != InputTargetKindV1::Target.code() {
-            return;
-        }
-        let target_id = input.target_id;
-        if !sim
-            .get_entity(caster_id)
-            .is_some_and(|caster| caster.is_alive())
-            || !sim
-                .get_entity(target_id)
-                .is_some_and(|target| target.is_alive())
-        {
-            return;
-        }
-
-        let cc = CcV1 {
-            kind: CcKindV1::Taunt.code(),
-            tick: SHEN_SHADOW_DASH_TAUNT_TICKS,
-            target: caster_id,
-            ..CcV1::default()
-        };
-        sim.apply_cc(target_id, &cc);
-    }
-
-    fn expected_cc_time(&self) -> Option<usize> {
-        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
-    }
-}
-
-fn is_shen_name(name: &str) -> bool {
-    matches!(name, "lol_shen" | "Shen" | "慎")
-}
-
-#[derive(Clone, Debug, Default)]
-struct ShenShadowDashInputAi;
-
-impl StablePlayerAi for ShenShadowDashInputAi {
-    fn clone_box(&self) -> Box<dyn StablePlayerAi> {
-        Box::new(self.clone())
-    }
-
-    fn id(&self) -> String {
-        "lol_shen_shadow_dash_input_ai".to_string()
-    }
-
-    fn matches(&self, init: &StableAiInit) -> bool {
-        is_shen_name(&init.champion_name)
-    }
-
-    fn think(
-        &mut self,
-        ctx: &mut StableAiContext<'_>,
-        base_input: Option<InputV1>,
-    ) -> Option<InputV1> {
-        if !ctx.champion_name().as_deref().is_some_and(is_shen_name) {
-            return None;
-        }
-        let base_input = base_input?;
-        if !matches!(
-            InputKindV1::from_code(base_input.kind),
-            Some(InputKindV1::Skill | InputKindV1::Attack)
-        ) {
-            return None;
-        }
-        let shadow_dash = InputV1::action(InputKindV1::Skill2, base_input.target);
-        ctx.is_valid_input(&shadow_dash).then_some(shadow_dash)
-    }
-}
-
 const YONE_W_RANGE: i128 = 42_000;
 const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;
 const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;
@@ -1214,15 +1115,6 @@ fn init(host: &StableHost) -> StableMod {
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
-    registration.add_native_effect(
-        "lol_shen_shadow_dash_ai_hint_native",
-        ShenShadowDashAiHintNativeEffect,
-    );
-    registration.add_native_effect(
-        "lol_shen_shadow_dash_taunt_native",
-        ShenShadowDashTauntNativeEffect,
-    );
-    registration.add_player_input_ai(ShenShadowDashInputAi);
     registration.set_match_hook(CorruptMobaMatchGuard);
     registration.set_extension(QualityBpExtension::default());
     registration

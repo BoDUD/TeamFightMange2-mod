@@ -110,7 +110,10 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "attack_azakana": tuple(("attack_q", index) for index in (6, 2, 18, 21, 22, 23)),
     "skill2_dash": (("attack_q", 22),),
     "ult": tuple(("ult", index) for index in (0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2)),
-    "run": tuple(("motion", index) for index in (5, 6, 7, 8, 7, 6, 5, 8)),
+    # Keep the native eight-frame run contract, but derive it from the upright
+    # motion poses.  The previous 5-8 route used crouched combat poses and made
+    # Yone look permanently hunched while moving.
+    "run": tuple(("motion", index) for index in (0, 1, 2, 3, 2, 1, 0, 1)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
@@ -202,15 +205,7 @@ def keyed(source: Image.Image) -> Image.Image:
     return result
 
 
-def keep_actor_weapon_components(image: Image.Image) -> Image.Image:
-    """Keep the actor plus detached steel/Azakana components.
-
-    The old V6 route retained only the single largest 8-connected component.
-    That is unsafe for a dual-wielder because a one-pixel gap at a grip can
-    erase an entire blade.  V7 keeps every material component large enough to
-    be a real final-scale feature while still discarding isolated keying noise.
-    """
-
+def _material_components(image: Image.Image) -> list[set[tuple[int, int]]]:
     alpha = image.getchannel("A")
     remaining = {
         (x, y)
@@ -238,27 +233,63 @@ def keep_actor_weapon_components(image: Image.Image) -> Image.Image:
     if not components:
         raise ValueError("source has no actor component after chroma key")
     components.sort(key=len, reverse=True)
-    minimum = max(8, len(components[0]) // 500)
-    retained = [component for component in components if len(component) >= minimum]
-    # A body plus two weapons and an occasional separated hair tip are valid;
-    # more than eight material components indicates a contaminated source cell.
-    if len(retained) > 8:
-        retained = retained[:8]
+    return components
+
+
+def _render_components(
+    image: Image.Image, components: list[set[tuple[int, int]]]
+) -> Image.Image:
     output = Image.new("RGBA", image.size, (0, 0, 0, 0))
     source_pixels = image.load()
     output_pixels = output.load()
-    for component in retained:
+    for component in components:
         for x, y in component:
             output_pixels[x, y] = source_pixels[x, y]
     return output
 
 
-def prepare_subject(source: Image.Image) -> Image.Image:
-    cleaned = keep_actor_weapon_components(keyed(source))
-    return cleaned.crop(alpha_bbox(cleaned))
+def _clean_actor_crop(raw_crop: Image.Image, *, preserve_detached: bool) -> Image.Image:
+    """Return the actor representation used for body compositing.
+
+    Weapon geometry is recovered separately from ``raw_crop``.  For live
+    frames, keeping only the dominant body component prevents detached blade or
+    trail fragments from surviving underneath the authoritative native weapon
+    repaint.  Death poses intentionally contain separated dropped swords, so
+    they retain only large authored components via an explicit exception.
+    """
+
+    components = _material_components(raw_crop)
+    if preserve_detached:
+        minimum = max(64, round(len(components[0]) * 0.05))
+        retained = [component for component in components if len(component) >= minimum]
+        if not 1 <= len(retained) <= 3:
+            raise ValueError(
+                "Yone death source detached-component contract changed: "
+                f"{[len(component) for component in retained]}"
+            )
+    else:
+        retained = components[:1]
+
+    cleaned = _render_components(raw_crop, retained)
+    cleaned_components = _material_components(cleaned)
+    if preserve_detached:
+        if len(cleaned_components) != len(retained):
+            raise ValueError("Yone death component cleanup changed")
+    elif len(cleaned_components) != 1:
+        raise ValueError("Yone live actor cleanup retained detached source fragments")
+    return cleaned
 
 
-def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image.Image:
+def split_cell_pair(
+    sheet: Image.Image,
+    columns: int,
+    rows: int,
+    index: int,
+    *,
+    preserve_detached: bool = False,
+) -> tuple[Image.Image, Image.Image]:
+    """Return aligned ``(actor_crop, raw_keyed_crop)`` representations."""
+
     if not 0 <= index < columns * rows:
         raise ValueError(f"cell index {index} outside {columns}x{rows}")
     row, column = divmod(index, columns)
@@ -266,7 +297,18 @@ def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image
     right = round((column + 1) * sheet.width / columns)
     top = round(row * sheet.height / rows)
     bottom = round((row + 1) * sheet.height / rows)
-    return prepare_subject(sheet.crop((left, top, right, bottom)))
+    keyed_cell = keyed(sheet.crop((left, top, right, bottom)))
+    crop_box = alpha_bbox(keyed_cell)
+    raw_crop = keyed_cell.crop(crop_box)
+    actor_crop = _clean_actor_crop(raw_crop, preserve_detached=preserve_detached)
+    if actor_crop.size != raw_crop.size:
+        raise ValueError("Yone actor/raw source crops lost coordinate alignment")
+    return actor_crop, raw_crop
+
+
+def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image.Image:
+    actor_crop, _raw_crop = split_cell_pair(sheet, columns, rows, index)
+    return actor_crop
 
 
 def _source_weapon_candidate(
@@ -1190,14 +1232,25 @@ def load_subjects() -> tuple[
     w_sheet = Image.open(W_SOURCE).convert("RGBA")
     ult = Image.open(ULT_SOURCE).convert("RGBA")
     subjects: dict[tuple[str, int], Image.Image] = {}
+    raw_subjects: dict[tuple[str, int], Image.Image] = {}
     for index in range(20):
-        subjects[("motion", index)] = split_cell(motion, 5, 4, index)
+        key = ("motion", index)
+        subjects[key], raw_subjects[key] = split_cell_pair(
+            motion,
+            5,
+            4,
+            index,
+            preserve_detached=13 <= index <= 19,
+        )
     for index in range(24):
-        subjects[("attack_q", index)] = split_cell(attack, 6, 4, index)
+        key = ("attack_q", index)
+        subjects[key], raw_subjects[key] = split_cell_pair(attack, 6, 4, index)
     for index in range(6):
-        subjects[("w", index)] = split_cell(w_sheet, 3, 2, index)
+        key = ("w", index)
+        subjects[key], raw_subjects[key] = split_cell_pair(w_sheet, 3, 2, index)
     for index in range(15):
-        subjects[("ult", index)] = split_cell(ult, 5, 3, index)
+        key = ("ult", index)
+        subjects[key], raw_subjects[key] = split_cell_pair(ult, 5, 3, index)
     install_source_palette(subjects)
     used_keys = {
         (source_kind, int(cell_index))
@@ -1207,7 +1260,7 @@ def load_subjects() -> tuple[
     }
     traces = {
         key: {
-            weapon: extract_source_weapon_trace(subjects[key], weapon)
+            weapon: extract_source_weapon_trace(raw_subjects[key], weapon)
             for weapon in ("steel", "azakana")
         }
         for key in sorted(used_keys)

@@ -6,7 +6,7 @@
   "stability_contact": "qa/legacy_battle_actor_state_stability_contact.png",
   "stability_contact_sha256": "9bc4b310dd1a5a8262abd1ae29450269a6739e92a3205487efc9d6d8a602fcb0",
   "reference_scale_contact": "qa/legacy_battle_actor_reference_scale_contact.png",
-  "reference_scale_contact_sha256": "90ea95870a55bc07d4296e0476221352ea985618694a5063da5d3b638e0fae40",
+  "reference_scale_contact_sha256": "fcf18224dcb300ab2612797fd4774c21a8966bdec6a633163dff7ccac3ccc722",
   "reference_idle_height_envelope_px": [
     36,
     46
@@ -69,57 +69,57 @@
           "frame_count": 8,
           "alpha_bboxes": [
             [
+              4,
               1,
-              1,
-              39,
+              36,
               36
             ],
             [
+              5,
               1,
-              1,
-              38,
+              34,
               33
             ],
             [
+              5,
               1,
-              1,
-              38,
+              35,
               33
             ],
             [
+              4,
               1,
-              1,
-              38,
+              34,
               34
             ],
             [
+              3,
               1,
-              1,
-              40,
+              35,
               36
             ],
             [
+              5,
               1,
-              1,
-              38,
+              34,
               34
             ],
             [
+              6,
               1,
-              1,
-              37,
+              35,
               33
             ],
             [
+              5,
               1,
-              1,
-              38,
+              34,
               34
             ]
           ],
           "visible_width_range": [
-            36,
-            39
+            29,
+            32
           ],
           "visible_height_range": [
             32,
@@ -152,13 +152,13 @@
               35
             ],
             [
-              9,
+              10,
               1,
               58,
               36
             ],
             [
-              2,
+              11,
               1,
               59,
               36
@@ -172,7 +172,7 @@
           ],
           "visible_width_range": [
             43,
-            57
+            48
           ],
           "visible_height_range": [
             34,
@@ -316,9 +316,9 @@
               36
             ],
             [
-              15,
+              13,
               14,
-              52,
+              50,
               40
             ],
             [

@@ -778,16 +778,19 @@
     "encyclopedia": {
       "path": "ui/champion_fullbody/dancer.png",
       "dimensions": [
-        64,
-        64
+        85,
+        93
       ],
       "alpha_bbox": [
-        16,
+        19,
         4,
-        47,
-        60
+        66,
+        88
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 2573,
+      "transparent_rgb_clean": true
     },
     "compact": {
       "path": "ui/champion_portrait/dancer_compact.png",
@@ -801,7 +804,10 @@
         50,
         58
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 1399,
+      "transparent_rgb_clean": true
     },
     "bp_grid": {
       "path": "ui/champion_portrait/dancer_grid.png",
@@ -815,7 +821,10 @@
         68,
         86
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 2477,
+      "transparent_rgb_clean": true
     }
   },
   "bp_geometry": {

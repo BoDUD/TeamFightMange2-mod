@@ -832,8 +832,8 @@
     },
     {
       "path": "ui/champion_fullbody/dancer.png",
-      "size_bytes": 16516,
-      "sha256": "4215c1ff3f50622a3af6c45b4d764e43916f0a8acbb7195578b36f1ae860a738"
+      "size_bytes": 31781,
+      "sha256": "aaccf807d104275ec23a6d63bd616282dd7146f0e9f55e34cdc97562a7fc3ae9"
     },
     {
       "path": "ui/champion_portrait/dancer_compact.png",

@@ -49,169 +49,41 @@
     "casting_target": "Enemy",
     "attack_type": "BaseAttack",
     "effect": {
-      "type": "SwitchByBuff",
-      "buff_name": "lol_shen_twilight_assault_charge_3",
-      "effect_buff": {
-        "type": "Combine",
-        "effects": [
-          {
-            "type": "Sfx",
-            "name": "lol_shen_attack_cast"
-          },
-          {
-            "type": "Delayed",
-            "tick": 10,
-            "effects": [
-              {
-                "type": "Attack",
-                "damage": 0,
-                "attack_ratio": 100
-              },
-              {
-                "type": "ApAttack",
-                "damage": 20,
-                "attack_ratio": 20
-              },
-              {
-                "type": "ViewEffect",
-                "name": "lol_shen_twilight_assault_empowered_hit"
-              },
-              {
-                "type": "TargetSfx",
-                "name": "lol_shen_attack_hit"
-              },
-              {
-                "type": "RemoveCasterBuff",
-                "name": "lol_shen_twilight_assault_charge_3"
-              }
-            ]
-          }
-        ]
-      },
-      "effect_none": {
-        "type": "SwitchByBuff",
-        "buff_name": "lol_shen_twilight_assault_charge_2",
-        "effect_buff": {
-          "type": "Combine",
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "Sfx",
+          "name": "lol_shen_attack_cast"
+        },
+        {
+          "type": "Delayed",
+          "tick": 10,
           "effects": [
             {
-              "type": "Sfx",
-              "name": "lol_shen_attack_cast"
+              "type": "Attack",
+              "damage": 0,
+              "attack_ratio": 100
             },
             {
-              "type": "Delayed",
-              "tick": 10,
-              "effects": [
-                {
-                  "type": "Attack",
-                  "damage": 0,
-                  "attack_ratio": 100
-                },
-                {
-                  "type": "ApAttack",
-                  "damage": 20,
-                  "attack_ratio": 20
-                },
-                {
-                  "type": "ViewEffect",
-                  "name": "lol_shen_twilight_assault_empowered_hit"
-                },
-                {
-                  "type": "TargetSfx",
-                  "name": "lol_shen_attack_hit"
-                },
-                {
-                  "type": "RemoveCasterBuff",
-                  "name": "lol_shen_twilight_assault_charge_2"
-                }
-              ]
+              "type": "TargetSfx",
+              "name": "lol_shen_attack_hit"
             }
           ]
-        },
-        "effect_none": {
-          "type": "SwitchByBuff",
-          "buff_name": "lol_shen_twilight_assault_charge_1",
-          "effect_buff": {
-            "type": "Combine",
-            "effects": [
-              {
-                "type": "Sfx",
-                "name": "lol_shen_attack_cast"
-              },
-              {
-                "type": "Delayed",
-                "tick": 10,
-                "effects": [
-                  {
-                    "type": "Attack",
-                    "damage": 0,
-                    "attack_ratio": 100
-                  },
-                  {
-                    "type": "ApAttack",
-                    "damage": 20,
-                    "attack_ratio": 20
-                  },
-                  {
-                    "type": "ViewEffect",
-                    "name": "lol_shen_twilight_assault_empowered_hit"
-                  },
-                  {
-                    "type": "TargetSfx",
-                    "name": "lol_shen_attack_hit"
-                  },
-                  {
-                    "type": "RemoveCasterBuff",
-                    "name": "lol_shen_twilight_assault_charge_1"
-                  },
-                  {
-                    "type": "RemoveCasterBuff",
-                    "name": "lol_shen_twilight_assault_empowered_window"
-                  }
-                ]
-              }
-            ]
-          },
-          "effect_none": {
-            "type": "Combine",
-            "effects": [
-              {
-                "type": "Sfx",
-                "name": "lol_shen_attack_cast"
-              },
-              {
-                "type": "Delayed",
-                "tick": 10,
-                "effects": [
-                  {
-                    "type": "Attack",
-                    "damage": 0,
-                    "attack_ratio": 100
-                  },
-                  {
-                    "type": "TargetSfx",
-                    "name": "lol_shen_attack_hit"
-                  }
-                ]
-              }
-            ]
-          }
         }
-      }
+      ]
     }
   },
   "skill": {
     "action_name": "skill",
     "description": "#asset/base/text/champion?description.lol_shen.skill",
-    "duration": 28,
+    "duration": 36,
     "cooltime": 360,
-    "start_timing": 8,
+    "start_timing": 14,
     "cancelable": true,
-    "range": 55000,
+    "range": 60000,
     "casting_type": "Targeting",
     "casting_target": "EnemyChampion",
     "attack_type": "Skill",
-    "can_use_with_move": false,
     "effect": {
       "type": "Combine",
       "effects": [
@@ -220,105 +92,68 @@
           "name": "lol_shen_q_cast"
         },
         {
-          "type": "CasterAnimation",
-          "name": "skill",
-          "tick": 28
-        },
-        {
-          "type": "RemoveCasterBuff",
-          "name": "lol_shen_twilight_assault_charge_3"
-        },
-        {
-          "type": "RemoveCasterBuff",
-          "name": "lol_shen_twilight_assault_charge_2"
-        },
-        {
-          "type": "RemoveCasterBuff",
-          "name": "lol_shen_twilight_assault_charge_1"
-        },
-        {
-          "type": "RemoveCasterBuff",
-          "name": "lol_shen_twilight_assault_empowered_window"
-        },
-        {
           "type": "LinearProjectile",
-          "penetrate": false,
-          "speed": 60000,
-          "range": 55000,
-          "name": "lol_shen_twilight_assault_blade_anchor",
+          "penetrate": true,
+          "speed": 4200,
+          "range": 60000,
+          "name": "lol_shen_twilight_assault_projectile",
           "shape": {
             "Circle": {
-              "radius": 1000
+              "radius": 8000
             }
           },
-          "applied_target": "EnemyChampion",
-          "applied_effects": [],
-          "end_effects": [
+          "applied_target": "EnemyWithoutTower",
+          "applied_effects": [
             {
-              "type": "BackToCasterLinearProjectile",
-              "penetrate": true,
-              "speed": 12000,
-              "range": 130000,
-              "name": "lol_shen_twilight_assault_blade_recall",
-              "shape": {
-                "Circle": {
-                  "radius": 7500
-                }
-              },
-              "applied_target": "EnemyChampion",
-              "applied_effects": [],
-              "end_effects": [
-                {
-                  "type": "ViewEffect",
-                  "name": "lol_shen_twilight_assault_recall_arrival"
-                },
-                {
-                  "type": "AddCasterBuff",
-                  "buff_state": {
-                    "name": "lol_shen_twilight_assault_charge_3",
-                    "duration": {
-                      "Time": {
-                        "tick": 480
+              "casting_type": "Targeting",
+              "effect": {
+                "type": "Combine",
+                "effects": [
+                  {
+                    "type": "ApAttack",
+                    "damage": 40,
+                    "attack_ratio": 60
+                  },
+                  {
+                    "type": "AddBuff",
+                    "buff_state": {
+                      "name": "lol_shen_twilight_assault_slow",
+                      "duration": {
+                        "Time": {
+                          "tick": 90
+                        }
+                      },
+                      "move_speed_mult": -25
+                    }
+                  },
+                  {
+                    "type": "AddCasterBuff",
+                    "buff_state": {
+                      "name": "lol_shen_twilight_assault_guard",
+                      "duration": {
+                        "Time": {
+                          "tick": 120
+                        }
                       }
                     }
-                  }
-                },
-                {
-                  "type": "AddCasterBuff",
-                  "buff_state": {
-                    "name": "lol_shen_twilight_assault_charge_2",
-                    "duration": {
-                      "Time": {
-                        "tick": 480
+                  },
+                  {
+                    "type": "WithSelf",
+                    "effects": [
+                      {
+                        "type": "Shield",
+                        "amount": 120,
+                        "attack_ratio": 0,
+                        "ap_ratio": 0,
+                        "tick": 120
                       }
-                    }
+                    ]
                   }
-                },
-                {
-                  "type": "AddCasterBuff",
-                  "buff_state": {
-                    "name": "lol_shen_twilight_assault_charge_1",
-                    "duration": {
-                      "Time": {
-                        "tick": 480
-                      }
-                    }
-                  }
-                },
-                {
-                  "type": "AddCasterBuff",
-                  "buff_state": {
-                    "name": "lol_shen_twilight_assault_empowered_window",
-                    "duration": {
-                      "Time": {
-                        "tick": 480
-                      }
-                    }
-                  }
-                }
-              ]
+                ]
+              }
             }
-          ]
+          ],
+          "end_effects": []
         }
       ]
     }
@@ -327,88 +162,85 @@
     "action_name": "skill2",
     "description": "#asset/base/text/champion?description.lol_shen.skill2",
     "duration": 30,
-    "cooltime": 720,
-    "start_timing": 4,
+    "cooltime": 480,
+    "start_timing": 10,
     "cancelable": false,
-    "range": 60000,
-    "casting_type": "Direction",
-    "casting_target": "EnemyChampion",
+    "range": 0,
+    "casting_type": "None",
+    "casting_target": "AllyOnlySelf",
     "attack_type": "Skill",
-    "can_use_with_move": false,
     "effect": {
       "type": "Combine",
       "effects": [
         {
           "type": "Sfx",
-          "name": "lol_shen_attack_cast"
-        },
-        {
-          "type": "CasterAnimation",
-          "name": "run",
-          "tick": 30
+          "name": "lol_shen_w_cast"
         },
         {
           "type": "CasterViewEffect",
-          "name": "lol_shen_shadow_dash_cast_flash"
+          "name": "lol_shen_spirit_refuge_visual"
         },
         {
-          "type": "AddCasterBuff",
-          "buff_state": {
-            "name": "lol_shen_shadow_dash_trail_window",
-            "duration": {
-              "Time": {
-                "tick": 30
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "AllyChampion",
+          "apply_type": "AroundCaster",
+          "effects": [
+            {
+              "type": "Shield",
+              "amount": 150,
+              "attack_ratio": 0,
+              "ap_ratio": 40,
+              "tick": 150
+            },
+            {
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "lol_shen_spirit_refuge_shield_window",
+                "duration": {
+                  "Time": {
+                    "tick": 150
+                  }
+                }
               }
             }
-          }
+          ]
         },
         {
-          "type": "Native",
-          "effect_ref": "lol_shen_shadow_dash_ai_hint_native"
-        },
-        {
-          "type": "Rush",
-          "speed": 4000,
-          "move_speed_ratio": 100,
-          "range": 10000,
-          "casting_target": "EnemyChampion",
-          "penetrate": true,
-          "applied_effects": [
+          "type": "RangeEffect",
+          "shape": {
+            "Circle": {
+              "radius": 35000
+            }
+          },
+          "target": "EnemyChampion",
+          "apply_type": "AroundCaster",
+          "effects": [
             {
-              "casting_type": "Targeting",
-              "effect": {
-                "type": "Combine",
-                "effects": [
-                  {
-                    "type": "Attack",
-                    "damage": 60,
-                    "attack_ratio": 0
-                  },
-                  {
-                    "type": "Native",
-                    "effect_ref": "lol_shen_shadow_dash_taunt_native"
-                  },
-                  {
-                    "type": "AddBuff",
-                    "buff_state": {
-                      "name": "lol_shen_shadow_dash_taunted",
-                      "duration": {
-                        "Time": {
-                          "tick": 90
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "type": "ViewEffect",
-                    "name": "lol_shen_shadow_dash_impact"
-                  },
-                  {
-                    "type": "TargetSfx",
-                    "name": "lol_shen_attack_hit"
+              "type": "AddBuff",
+              "buff_state": {
+                "name": "lol_shen_spirit_refuge_as_slow",
+                "duration": {
+                  "Time": {
+                    "tick": 120
                   }
-                ]
+                },
+                "attack_speed_mult": -30
               }
+            }
+          ]
+        },
+        {
+          "type": "Delayed",
+          "tick": 12,
+          "effects": [
+            {
+              "type": "Sfx",
+              "name": "lol_shen_w_block"
             }
           ]
         }
@@ -505,6 +337,33 @@
             {
               "type": "CasterViewEffect",
               "name": "lol_shen_stand_united_arrival_visual"
+            },
+            {
+              "type": "RangeEffect",
+              "shape": {
+                "Circle": {
+                  "radius": 35000
+                }
+              },
+              "target": "EnemyChampion",
+              "apply_type": "AroundCaster",
+              "effects": [
+                {
+                  "type": "Taunt",
+                  "duration": 45
+                },
+                {
+                  "type": "AddBuff",
+                  "buff_state": {
+                    "name": "lol_shen_stand_united_arrival_cc",
+                    "duration": {
+                      "Time": {
+                        "tick": 45
+                      }
+                    }
+                  }
+                }
+              ]
             }
           ]
         }
@@ -514,52 +373,20 @@
   "view_projectiles": [
     {
       "type": "Animated",
-      "name": "lol_shen_twilight_assault_blade_anchor",
+      "name": "lol_shen_twilight_assault_projectile",
       "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-      "tag": "anchor",
-      "z": 0,
-      "repeat": true
-    },
-    {
-      "type": "Animated",
-      "name": "lol_shen_twilight_assault_blade_recall",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-      "tag": "recall",
-      "z": 3,
+      "tag": "projectile",
+      "z": 2,
       "repeat": true
     }
   ],
   "view_effects": [
     {
       "type": "Animation",
-      "name": "lol_shen_twilight_assault_empowered_hit",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-      "tag": "empowered_hit",
-      "z": 2,
-      "is_follow": true
-    },
-    {
-      "type": "Animation",
-      "name": "lol_shen_twilight_assault_recall_arrival",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-      "tag": "recall_arrival",
-      "z": 2,
-      "is_follow": true
-    },
-    {
-      "type": "Animation",
-      "name": "lol_shen_shadow_dash_cast_flash",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-      "tag": "dash_start",
-      "z": 3,
-      "is_follow": true
-    },
-    {
-      "type": "Animation",
-      "name": "lol_shen_shadow_dash_impact",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-      "tag": "impact",
-      "z": 2,
+      "name": "lol_shen_spirit_refuge_visual",
+      "anim": "asset/lol_mod/aseprite_resources/effects/shen_w",
+      "tag": "field",
+      "z": -1,
       "is_follow": true
     },
     {
@@ -579,33 +406,5 @@
       "is_follow": false
     }
   ],
-  "view_buffs": [
-    {
-      "type": "ThreePhase",
-      "name": "lol_shen_twilight_assault_empowered_window",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-      "pre_tag": "empower_pre",
-      "loop_tag": "empower_loop",
-      "remove_tag": "empower_remove",
-      "z": 3
-    },
-    {
-      "type": "ThreePhase",
-      "name": "lol_shen_shadow_dash_trail_window",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-      "pre_tag": "trail_pre",
-      "loop_tag": "trail_loop",
-      "remove_tag": "trail_remove",
-      "z": 3
-    },
-    {
-      "type": "ThreePhase",
-      "name": "lol_shen_shadow_dash_taunted",
-      "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-      "pre_tag": "taunt_pre",
-      "loop_tag": "taunt_loop",
-      "remove_tag": "taunt_remove",
-      "z": 3
-    }
-  ]
+  "view_buffs": []
 }

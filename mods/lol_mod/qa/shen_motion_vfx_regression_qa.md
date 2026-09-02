@@ -1,6 +1,6 @@
-# Shen motion and retired-W regression QA
+# Shen motion and restored-W regression QA
 
-This file preserves the accepted run-cycle evidence and records that the former Spirit's Refuge experiment is no longer part of Shen's active Q/E/R payload.
+This file preserves the accepted run-cycle evidence and prevents the retired Shadow Dash experiment from returning to Shen's active Q/W/R payload.
 
 ## Run cycle
 
@@ -12,10 +12,11 @@ This file preserves the accepted run-cycle evidence and records that the former 
 
 The validator requires all nine poses to remain unique, rejects a repeated first/last pose, rejects lower-body detail collapse, and constrains adjacent gait changes.
 
-## Retired Spirit's Refuge experiment
+## Restored Spirit's Refuge
 
-- The old `shen_w` source/effect is historical only. `lol_shen.data_champion` must not reference `shen_w`, `spirit_refuge`, or any `lol_shen_w_*` event.
-- Active `skill2` is Shadow Dash. It uses the independent `shen_e` dash/impact sheet, a 30-tick dash-trail marker, a 90-tick taunt marker, and the native `CCState::Taunt` callback.
-- The validator now rejects any reintroduction of the former caster-centered refuge field into Q, E, or R.
+- Active `skill2` is Spirit's Refuge: a 35,000 caster-centered field using `shen_w`.
+- The field shields allied champions for 150 + 40% AP over 150 ticks and reduces enemy champion attack speed by 30% for 120 ticks.
+- The six-frame `field` animation and independent W icon are generated from the original accepted W sources.
+- The later Shadow Dash icon, VFX, data payload, runtime native effect, and input AI are retired and removed.
 
-The historical W frame geometry is not a release gate because that asset is no longer loaded by the active champion contract.
+The validator rejects any active `lol_shen_shadow_dash` payload and requires Q/W/R to remain independently visible and audible.

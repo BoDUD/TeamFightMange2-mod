@@ -1405,40 +1405,32 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         "steel": (
             attack_effect.get("effect_none"),
             "attack_steel",
-            "lol_yone_attack_steel_swing",
             "attack_azakana",
-            "lol_yone_attack_azakana_swing",
         ),
         "azakana": (
             attack_effect.get("effect_buff"),
             "attack_azakana",
-            "lol_yone_attack_azakana_swing",
             "attack_steel",
-            "lol_yone_attack_steel_swing",
         ),
     }
     attack_report: dict[str, Any] = {}
-    for weapon, (branch, animation, overlay, forbidden_animation, forbidden_overlay) in (
-        attack_branches.items()
-    ):
+    for weapon, (branch, animation, forbidden_animation) in attack_branches.items():
         animations = type_names(branch, "CasterAnimation")
         overlays = type_names(branch, "CasterViewEffect")
         if animations[animation] != 1 or animations[forbidden_animation]:
             _fail(
                 f"Yone {weapon} basic-attack branch must use only {animation!r}"
             )
-        if overlays[overlay] != 1 or overlays[forbidden_overlay]:
-            _fail(
-                f"Yone {weapon} basic-attack branch must use caster overlay {overlay!r}"
-            )
-        attack_report[weapon] = {"animation": animation, "caster_overlay": overlay}
+        if overlays:
+            _fail(f"Yone {weapon} basic-attack branch must not duplicate its actor blade with a caster overlay")
+        attack_report[weapon] = {"animation": animation, "caster_overlay": None}
 
     skill = champion.get("skill")
     q_effect = skill.get("effect") if isinstance(skill, dict) else None
     q_animations = type_names(q_effect, "CasterAnimation")
     q_overlays = type_names(q_effect, "CasterViewEffect")
     expected_q_animations = Counter({"skill_q12": 2, "skill_q3": 1})
-    expected_q_overlays = Counter({"lol_yone_q_blade": 2, "lol_yone_q3_blade": 1})
+    expected_q_overlays: Counter[str] = Counter()
     if q_animations != expected_q_animations or q_overlays != expected_q_overlays:
         _fail(
             "Yone Q must stay steel-active: two Q1/Q2 caster routes and one Q3 route"
@@ -1481,26 +1473,6 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         view_effects[name] = effect
 
     overlay_contract = {
-        "lol_yone_attack_steel_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "steel_hit",
-            3,
-        ),
-        "lol_yone_attack_azakana_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "azakana_hit",
-            3,
-        ),
-        "lol_yone_q_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "hit",
-            3,
-        ),
-        "lol_yone_q3_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "empowered_hit",
-            3,
-        ),
         "lol_yone_w_crescent_cast": (
             "asset/lol_mod/aseprite_resources/effects/yone_w",
             "crescent",

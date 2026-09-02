@@ -2544,84 +2544,6 @@ impl ModEffectType for UrgotRExecuteNativeEffect {
     }
 }
 
-const SHEN_SHADOW_DASH_TAUNT_TICKS: u64 = 90;
-
-#[derive(Clone, Copy, Debug, Default)]
-struct ShenShadowDashAiHintNativeEffect;
-
-impl ModEffectType for ShenShadowDashAiHintNativeEffect {
-    fn apply(&self, _ctx: &mut GameCtx, _rng_seed: u64, _caster_id: usize, _input: InputTarget) {}
-
-    fn expected_cc_time(&self) -> Option<usize> {
-        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default)]
-struct ShenShadowDashTauntNativeEffect;
-
-impl ModEffectType for ShenShadowDashTauntNativeEffect {
-    fn apply(&self, ctx: &mut GameCtx, _rng_seed: u64, caster_id: usize, input: InputTarget) {
-        let InputTarget::Target { target_id } = input else {
-            return;
-        };
-        if !ctx
-            .get_entity(caster_id)
-            .is_some_and(|caster| caster.is_alive())
-            || !ctx
-                .get_entity(target_id)
-                .is_some_and(|target| target.is_alive())
-        {
-            return;
-        }
-
-        ctx.apply_cc(
-            target_id,
-            CCState::Taunt {
-                tick: SHEN_SHADOW_DASH_TAUNT_TICKS,
-                target: caster_id,
-            },
-        );
-    }
-
-    fn expected_cc_time(&self) -> Option<usize> {
-        Some(SHEN_SHADOW_DASH_TAUNT_TICKS as usize)
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-struct ShenShadowDashInputAi;
-
-impl ModPlayerInputAi for ShenShadowDashInputAi {
-    fn clone_box(&self) -> Box<dyn ModPlayerInputAi> {
-        Box::new(self.clone())
-    }
-
-    fn id(&self) -> &str {
-        "lol_shen_shadow_dash_input_ai"
-    }
-
-    fn think(
-        &mut self,
-        ctx: &mut PlayerAiContext<'_, '_, '_>,
-        base_input: Option<Input>,
-    ) -> PlayerInputDecision {
-        if !matches!(ctx.champion_name(), "lol_shen" | "Shen" | "慎") {
-            return PlayerInputDecision::Pass;
-        }
-        let target = match base_input {
-            Some(Input::Skill { target }) | Some(Input::Attack { target }) => target,
-            _ => return PlayerInputDecision::Pass,
-        };
-        let shadow_dash = Input::Skill2 { target };
-        if ctx.is_valid_input(&shadow_dash) {
-            PlayerInputDecision::Replace(shadow_dash)
-        } else {
-            PlayerInputDecision::Pass
-        }
-    }
-}
-
 const YONE_W_RANGE: i128 = 42_000;
 const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;
 // cos(40 degrees)^2: Spirit Cleave is an 80-degree forward cone.
@@ -2826,15 +2748,6 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
     registration.add_native_effect("lol_urgot_r_execute_native", UrgotRExecuteNativeEffect);
-    registration.add_native_effect(
-        "lol_shen_shadow_dash_ai_hint_native",
-        ShenShadowDashAiHintNativeEffect,
-    );
-    registration.add_native_effect(
-        "lol_shen_shadow_dash_taunt_native",
-        ShenShadowDashTauntNativeEffect,
-    );
-    registration.add_player_input_ai(ShenShadowDashInputAi);
     if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV).is_ok_and(|value| value == "1") {
         registration.set_extension(LolModExtension);
         registration.set_server_extension(LolDragonServerExtension {

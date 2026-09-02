@@ -21,9 +21,9 @@
       "sha256": "e2c6e55839bab2c3e018a19f349b56e1b7a879b830af0f89402a84fb16ccf520"
     },
     {
-      "role": "e_icon",
-      "path": "source/imagegen/shen_e_icon_source.png",
-      "sha256": "f065f496a66a226ef44557091ac64a21d75e2310f9a5ab9d07bbe67e73f04d85"
+      "role": "w_icon",
+      "path": "source/imagegen/shen_w_icon_source.png",
+      "sha256": "8fa275f7a73287be450bcf2f71e9fef72e62303fc54100b83ee26da88685df02"
     },
     {
       "role": "r_icon",
@@ -36,9 +36,9 @@
       "sha256": "1215d0b69c2539720acc594da74cc9700c268e186188c093aa40b7bf43eaa348"
     },
     {
-      "role": "e_vfx",
-      "path": "source/imagegen/shen_e_vfx_contact.png",
-      "sha256": "f85411bf22fcb4dffbdecc9e86501ed6dc778f2df97d34fa7d8da69273e648b2"
+      "role": "w_vfx",
+      "path": "source/imagegen/shen_w_vfx_contact.png",
+      "sha256": "7c4a9567740228a95c5876792c295836ac5cf50a90bd628e8c1c6a16ee3232a5"
     },
     {
       "role": "r_vfx",

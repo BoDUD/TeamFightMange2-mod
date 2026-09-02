@@ -662,11 +662,16 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
         output.alpha_composite(subject, (x, y))
         return output
 
+    # The encyclopedia runtime owns an 85x93 source-direct overlay.  Author the
+    # texture at that exact geometry so Xayah is not first compressed into a
+    # narrow 64x64 silhouette and then enlarged by the UI.  The subject keeps
+    # one uniform scale, is horizontally centered, and ends five pixels above
+    # the bottom edge to preserve the complete feet silhouette.
     portrait = render_subject(
         full_body,
-        (64, 64),
-        max_subject=(54, 56),
-        bottom=60,
+        (85, 93),
+        max_subject=(70, 84),
+        bottom=88,
         colors=96,
     )
     portrait_path = FULLBODY_DIR / "dancer.png"
@@ -924,22 +929,59 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
         raise ValueError(f"Xayah enlarged actor lost foot clearance: {min_bottom}px")
 
     portrait_specs = {
-        "encyclopedia": (FULLBODY_DIR / "dancer.png", [64, 64]),
+        "encyclopedia": (FULLBODY_DIR / "dancer.png", [85, 93]),
         "compact": (PORTRAIT_DIR / "dancer_compact.png", [64, 64]),
         "bp_grid": (PORTRAIT_DIR / "dancer_grid.png", [90, 122]),
     }
     portrait_records: dict[str, dict[str, Any]] = {}
     for surface, (path, expected_size) in portrait_specs.items():
         image = Image.open(path).convert("RGBA")
-        bbox = image.getchannel("A").getbbox()
+        alpha = image.getchannel("A")
+        alpha_histogram = alpha.histogram()
+        bbox = alpha.getbbox()
         if list(image.size) != expected_size or bbox is None:
             raise ValueError(f"Xayah {surface} portrait is invalid: size={image.size}, bbox={bbox}")
+        pixels = (
+            image.get_flattened_data()
+            if hasattr(image, "get_flattened_data")
+            else image.getdata()
+        )
+        partial_alpha_pixels = sum(alpha_histogram[1:255])
         portrait_records[surface] = {
             "path": path.relative_to(MOD_ROOT).as_posix(),
             "dimensions": list(image.size),
             "alpha_bbox": list(bbox),
-            "hard_alpha": image.getchannel("A").getextrema() == (0, 255),
+            "hard_alpha": partial_alpha_pixels == 0 and alpha_histogram[255] > 0,
+            "partial_alpha_pixels": partial_alpha_pixels,
+            "opaque_pixels": alpha_histogram[255],
+            "transparent_rgb_clean": all(
+                alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+                for red, green, blue, alpha_value in pixels
+            ),
         }
+    for surface, record in portrait_records.items():
+        if not record["hard_alpha"] or not record["transparent_rgb_clean"]:
+            raise ValueError(f"Xayah {surface} portrait lost clean hard-alpha output: {record}")
+
+    encyclopedia_record = portrait_records["encyclopedia"]
+    encyclopedia_bbox = encyclopedia_record["alpha_bbox"]
+    encyclopedia_width = encyclopedia_bbox[2] - encyclopedia_bbox[0]
+    encyclopedia_height = encyclopedia_bbox[3] - encyclopedia_bbox[1]
+    encyclopedia_left = encyclopedia_bbox[0]
+    encyclopedia_right = 85 - encyclopedia_bbox[2]
+    encyclopedia_coverage = encyclopedia_record["opaque_pixels"] / (85 * 93)
+    if (
+        not 44 <= encyclopedia_width <= 54
+        or not 80 <= encyclopedia_height <= 84
+        or encyclopedia_bbox[3] != 88
+        or encyclopedia_bbox[1] < 4
+        or abs(encyclopedia_left - encyclopedia_right) > 1
+        or not 0.15 <= encyclopedia_coverage <= 0.40
+    ):
+        raise ValueError(
+            "Xayah encyclopedia portrait lost its visible centered 85x93 geometry: "
+            f"bbox={encyclopedia_bbox}, opaque_coverage={encyclopedia_coverage:.4f}"
+        )
     if portrait_records["bp_grid"]["alpha_bbox"][3] > 86:
         raise ValueError("Xayah BP-grid portrait overlaps its bottom name band")
     compact_bbox = portrait_records["compact"]["alpha_bbox"]
@@ -1353,11 +1395,35 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
     if Image.open(SPLASH_DIR / "dancer.png").size != (1420, 860):
         raise ValueError("Xayah BP splash size changed")
     portrait = Image.open(FULLBODY_DIR / "dancer.png").convert("RGBA")
-    if portrait.size != (64, 64):
+    if portrait.size != (85, 93):
         raise ValueError("Xayah encyclopedia portrait size changed")
-    portrait_bbox = portrait.getchannel("A").point(lambda value: 255 if value >= 64 else 0).getbbox()
-    if portrait_bbox is None or portrait_bbox[3] != 60 or portrait_bbox[3] - portrait_bbox[1] > 56:
-        raise ValueError(f"Xayah full-body portrait lost its 4px bottom safety margin: {portrait_bbox}")
+    portrait_alpha = portrait.getchannel("A")
+    portrait_histogram = portrait_alpha.histogram()
+    portrait_bbox = portrait_alpha.getbbox()
+    portrait_pixels = (
+        portrait.get_flattened_data()
+        if hasattr(portrait, "get_flattened_data")
+        else portrait.getdata()
+    )
+    portrait_coverage = portrait_histogram[255] / (85 * 93)
+    if (
+        portrait_bbox is None
+        or not 44 <= portrait_bbox[2] - portrait_bbox[0] <= 54
+        or not 80 <= portrait_bbox[3] - portrait_bbox[1] <= 84
+        or portrait_bbox[3] != 88
+        or portrait_bbox[1] < 4
+        or abs(portrait_bbox[0] - (85 - portrait_bbox[2])) > 1
+        or sum(portrait_histogram[1:255]) != 0
+        or not 0.15 <= portrait_coverage <= 0.40
+        or not all(
+            alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+            for red, green, blue, alpha_value in portrait_pixels
+        )
+    ):
+        raise ValueError(
+            "Xayah encyclopedia portrait lost visible centered hard-alpha geometry: "
+            f"bbox={portrait_bbox}, opaque_coverage={portrait_coverage:.4f}"
+        )
     compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()
     if (

@@ -1,6 +1,6 @@
 # Shen image-gen prompts
 
-The original Shen source set was generated with the built-in `image_gen` path on 2026-07-10. On 2026-07-14 the second active slot was rebuilt from W into E, so the W icon/VFX sources below became inactive provenance and two new E sources replaced them. Every active Shen chroma source uses the installed imagegen background-removal helper before packing.
+The original Shen source set was generated with the built-in `image_gen` path on 2026-07-10. PR11 restores the original Q/W/R kit, so the Spirit's Refuge icon/VFX below are active again and the later Shadow Dash experiment has been retired and deleted. Every active Shen chroma source uses the installed imagegen background-removal helper before packing.
 
 ## Actor model contact sheet
 
@@ -14,15 +14,9 @@ Create a NEW exact 3 columns x 3 rows contact sheet containing NINE UNIQUE seque
 
 Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Twilight Assault: a teal-violet spectral spirit blade pulled through a dark indigo enemy silhouette with a diagonal slash and three energized strike marks. Centered emblem, limited palette, hard pixel clusters, strong outline, readable at 32x32, generous padding, flat `#ff00ff` chroma background. No text, frame, logo, watermark, portrait, 3D rendering, blur, or circular shield motif.
 
-## Superseded W icon (inactive)
+## W icon (active)
 
 Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Spirit's Refuge: a circular teal-violet spirit field in slight top-down perspective protecting two allied silhouettes beneath a segmented dome while enemy weapon strikes stop at the rim. Centered protection emblem, limited palette, hard pixel clusters, strong outline, readable at 32x32, flat `#ff00ff` chroma background. No text, frame, logo, watermark, detailed portrait, sword as main motif, teleport columns, 3D rendering, or blur.
-
-## E icon (active)
-
-- Execution ID: `exec-50b58747-dec1-41d1-9494-f321d174200f`.
-- Imported target: `source/imagegen/shen_e_icon_source.png`; accepted alpha source: `source/processed/shen_e_icon_source_alpha.png`.
-- Prompt contract: a new square hard-edged pixel-art Shadow Dash icon using the accepted Shen model and Q/W/R palette references; the compact masked indigo ninja lunges horizontally with a cyan-violet spectral wake and a sharp taunt-impact ripple. Flat `#ff00ff`; no shield dome, refuge field, text, letters, UI border, duplicate body, logo, or watermark.
 
 ## R icon
 
@@ -32,15 +26,9 @@ Use case: stylized-concept. Square 64x64-style pixel-art UI icon for Stand Unite
 
 Use case: stylized-concept. Exact 4x2 source sheet of eight sequential final-scale pixel-art phases for Twilight Assault: a compact spectral spirit blade/crescent traveling screen-right through materialize, brighten, launch, elongate, pulse, pass-through flare, taper, and dissipate. Teal/cyan/violet/white, crisp hard pixels, dark-violet edge, stable 64x64-cell footprint, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, floor, shadow, generic fireball, realistic sword, huge explosion, or soft transparency.
 
-## Superseded W VFX (inactive)
+## W VFX (active)
 
 Use case: stylized-concept. Exact 3x2 source sheet of six sequential final-scale pixel-art phases for Spirit's Refuge: a slight top-down elliptical ground ring progressing from faint rune to growing ring, locked spectral blade segments, stable field, interception sparks, and fade. Teal/cyan/violet/white, crisp hard pixels, stable 112x64-cell footprint with empty center, flat `#ff00ff` chroma background. No character, text, labels, grid, logo, watermark, opaque dome, teleport columns, generic circle, or soft transparency.
-
-## E Shadow Dash VFX (active)
-
-- Execution ID: `exec-7537fd9a-649e-4628-b972-8cabb7ea6505`.
-- Imported target: `source/imagegen/shen_e_vfx_contact.png`; accepted alpha source: `source/processed/shen_e_vfx_contact_alpha.png`.
-- Prompt contract: exact 3x2 effect-only contact sheet; frames 1-3 build a compact horizontal cyan-violet dash wake and frames 4-6 flash, fracture, then fade a small taunt impact. The six cells keep one scale/baseline and generous padding on flat `#ff00ff`; no actor, shield/refuge field, large ground ring, projectile arrow, labels, grid, logo, or watermark.
 
 ## R VFX
 

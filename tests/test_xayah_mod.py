@@ -521,6 +521,9 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert 'contains("champion_info")' in stable_runtime
     assert '"dancer"' in stable_runtime
     assert '"dual_blader"' in stable_runtime
+    assert '"boomerang_hunter" | "Sivir"' in stable_runtime
+    assert '"dancer" | "Xayah"' in stable_runtime
+    assert '"dual_blader" | "Yone"' in stable_runtime
     assert "lol_mod_fullbody_xayah" in stable_runtime
     assert "lol_mod_fullbody_yone" in stable_runtime
     assert "asset/lol_mod/ui/champion_fullbody/dancer" in stable_runtime
@@ -682,7 +685,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
     assert "crop_top_half_tags" not in builder
     assert Image.open(MOD / "BanPickIllust/dancer.png").size == (1420, 860)
     portrait = Image.open(MOD / "ui/champion_fullbody/dancer.png").convert("RGBA")
-    assert portrait.size == (64, 64) and portrait.getchannel("A").getbbox() is not None
+    assert portrait.size == (85, 93) and portrait.getchannel("A").getbbox() is not None
     compact = Image.open(MOD / "ui/champion_portrait/dancer_compact.png").convert("RGBA")
     grid = Image.open(MOD / "ui/champion_portrait/dancer_grid.png").convert("RGBA")
     assert compact.size == (64, 64)
@@ -696,6 +699,32 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
     assert grid_bbox is not None and grid_bbox[1] <= 8 and grid_bbox[3] <= 86
     assert compact.getchannel("A").getextrema() == (0, 255)
     assert grid.getchannel("A").getextrema() == (0, 255)
+
+
+def test_xayah_encyclopedia_fullbody_has_visible_balanced_hard_alpha_geometry() -> None:
+    portrait = Image.open(MOD / "ui/champion_fullbody/dancer.png").convert("RGBA")
+    alpha = portrait.getchannel("A")
+    histogram = alpha.histogram()
+    bbox = alpha.getbbox()
+
+    assert portrait.size == (85, 93)
+    assert bbox is not None
+    assert 44 <= bbox[2] - bbox[0] <= 54
+    assert 80 <= bbox[3] - bbox[1] <= 84
+    assert bbox[3] == 88
+    assert bbox[1] >= 4
+    assert abs(bbox[0] - (85 - bbox[2])) <= 1
+    assert sum(histogram[1:255]) == 0
+    assert 0.15 <= histogram[255] / (85 * 93) <= 0.40
+    pixels = (
+        portrait.get_flattened_data()
+        if hasattr(portrait, "get_flattened_data")
+        else portrait.getdata()
+    )
+    assert all(
+        alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+        for red, green, blue, alpha_value in pixels
+    )
     assert (MOD / "qa/xayah_portrait_surface_final.png").is_file()
 
     provenance = load_json("qa/xayah_imagegen_sources.json")

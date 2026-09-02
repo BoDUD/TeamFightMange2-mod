@@ -144,17 +144,15 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
     assert find_effect(azakana_branch, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "attack_azakana", "tick": 20}
     ]
-    for branch, swing, cast, hit, toggle_type in (
+    for branch, cast, hit, toggle_type in (
         (
             steel_branch,
-            "lol_yone_attack_steel_swing",
             "lol_yone_attack_steel_cast",
             "lol_yone_attack_steel_hit",
             "AddCasterBuff",
         ),
         (
             azakana_branch,
-            "lol_yone_attack_azakana_swing",
             "lol_yone_attack_azakana_cast",
             "lol_yone_attack_azakana_hit",
             "RemoveCasterBuff",
@@ -162,14 +160,10 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
     ):
         assert [effect["type"] for effect in branch["effects"]] == [
             "CasterAnimation",
-            "CasterViewEffect",
             "Sfx",
             "Delayed",
         ]
-        assert branch["effects"][1:3] == [
-            {"type": "CasterViewEffect", "name": swing},
-            {"type": "Sfx", "name": cast},
-        ]
+        assert branch["effects"][1] == {"type": "Sfx", "name": cast}
         delayed = direct_effects(branch, "Delayed")
         assert len(delayed) == 1 and delayed[0]["tick"] == 13
         assert [effect["type"] for effect in delayed[0]["effects"]] == [
@@ -182,12 +176,8 @@ def test_yone_stats_and_alternating_basic_attacks_match_the_contract() -> None:
         assert delayed[0]["effects"][2]["name"] == hit
         assert not direct_effects(branch, "Attack")
         assert not direct_effects(branch, toggle_type)
-    assert find_effect(steel_branch, "CasterViewEffect") == [
-        {"type": "CasterViewEffect", "name": "lol_yone_attack_steel_swing"}
-    ]
-    assert find_effect(azakana_branch, "CasterViewEffect") == [
-        {"type": "CasterViewEffect", "name": "lol_yone_attack_azakana_swing"}
-    ]
+    assert not find_effect(steel_branch, "CasterViewEffect")
+    assert not find_effect(azakana_branch, "CasterViewEffect")
     assert [
         (hit["damage"], hit["attack_ratio"])
         for hit in find_effect(attack, "Attack")
@@ -614,15 +604,12 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
         assert [effect["type"] for effect in stage["effects"]] == [
             "CasterAnimation",
             "Sfx",
-            "CasterViewEffect",
             "Delayed",
         ]
         assert find_effect(stage, "CasterAnimation") == [
             {"type": "CasterAnimation", "name": "skill_q12", "tick": 30}
         ]
-        assert find_effect(stage, "CasterViewEffect") == [
-            {"type": "CasterViewEffect", "name": "lol_yone_q_blade"}
-        ]
+        assert not find_effect(stage, "CasterViewEffect")
         delayed = direct_effects(stage, "Delayed")
         assert len(delayed) == 1 and delayed[0]["tick"] == 8
         assert [effect["type"] for effect in delayed[0]["effects"]] == [
@@ -726,15 +713,12 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     assert [effect["type"] for effect in q3["effects"]] == [
         "CasterAnimation",
         "Sfx",
-        "CasterViewEffect",
         "Delayed",
     ]
     assert find_effect(q3, "CasterAnimation") == [
         {"type": "CasterAnimation", "name": "skill_q3", "tick": 30}
     ]
-    assert find_effect(q3, "CasterViewEffect") == [
-        {"type": "CasterViewEffect", "name": "lol_yone_q3_blade"}
-    ]
+    assert not find_effect(q3, "CasterViewEffect")
     q3_delayed = direct_effects(q3, "Delayed")
     assert len(q3_delayed) == 1 and q3_delayed[0]["tick"] == 8
     assert [effect["type"] for effect in q3_delayed[0]["effects"]] == [
@@ -854,12 +838,8 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
     }
     views = {view["name"]: view for view in yone["view_effects"]}
     required_views = {
-        "lol_yone_attack_steel_swing",
-        "lol_yone_attack_azakana_swing",
         "lol_yone_attack_steel_hit",
         "lol_yone_attack_azakana_hit",
-        "lol_yone_q_blade",
-        "lol_yone_q3_blade",
         "lol_yone_q_hit",
         "lol_yone_q_empowered_hit",
         "lol_yone_q3_airborne_cue",
@@ -873,46 +853,13 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
         "lol_yone_r_echo",
     }
     assert required_views == set(views)
-    assert not any("lol_yone_e_" in name.lower() for name in views)
     assert {
-        name: (
-            views[name]["anim"],
-            views[name]["tag"],
-            views[name]["z"],
-            views[name]["is_follow"],
-        )
-        for name in (
-            "lol_yone_attack_steel_swing",
-            "lol_yone_attack_azakana_swing",
-            "lol_yone_q_blade",
-            "lol_yone_q3_blade",
-        )
-    } == {
-        "lol_yone_attack_steel_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "steel_hit",
-            3,
-            True,
-        ),
-        "lol_yone_attack_azakana_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "azakana_hit",
-            3,
-            True,
-        ),
-        "lol_yone_q_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "hit",
-            3,
-            True,
-        ),
-        "lol_yone_q3_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "empowered_hit",
-            3,
-            True,
-        ),
-    }
+        "lol_yone_attack_steel_swing",
+        "lol_yone_attack_azakana_swing",
+        "lol_yone_q_blade",
+        "lol_yone_q3_blade",
+    }.isdisjoint(views)
+    assert not any("lol_yone_e_" in name.lower() for name in views)
     assert {
         name: (views[name]["tag"], views[name]["z"])
         for name in (
@@ -1184,10 +1131,18 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
     assert fullbody.size == (85, 93)
     fullbody_bbox = fullbody.getchannel("A").getbbox()
     assert fullbody_bbox is not None
-    assert 40 <= fullbody_bbox[2] - fullbody_bbox[0] <= 70
-    assert 55 <= fullbody_bbox[3] - fullbody_bbox[1] <= 82
-    assert fullbody_bbox[3] <= 86
-    assert fullbody.height - fullbody_bbox[3] >= 7
+    assert 70 <= fullbody_bbox[2] - fullbody_bbox[0] <= 76
+    assert 76 <= fullbody_bbox[3] - fullbody_bbox[1] <= 84
+    assert fullbody_bbox[3] == 88
+    assert fullbody.height - fullbody_bbox[3] == 5
+    assert abs(fullbody_bbox[0] - (fullbody.width - fullbody_bbox[2])) <= 1
+    fullbody_alpha = fullbody.getchannel("A")
+    fullbody_pixels = (
+        fullbody_alpha.get_flattened_data()
+        if hasattr(fullbody_alpha, "get_flattened_data")
+        else fullbody_alpha.getdata()
+    )
+    assert sum(1 for alpha in fullbody_pixels if alpha) >= 2300
 
 
 def test_yone_v7_ui_is_source_direct_and_never_enlarges_battle_frames() -> None:
