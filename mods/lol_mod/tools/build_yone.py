@@ -248,7 +248,7 @@ if _custom_cursor != ACTOR_SHEET_SIZE[0]:
     )
 
 # The official thirteen tags above remain byte-for-byte contract-compatible.
-# These five semantic tags are an additive visual layer selected explicitly by
+# These six semantic tags are an additive visual layer selected explicitly by
 # CasterAnimation; aliases reuse native frames, while the two physical routes
 # occupy the non-overlapping V7 extension.
 CUSTOM_ACTION_CONTRACT: dict[str, dict[str, Any]] = {
@@ -274,6 +274,17 @@ CUSTOM_ACTION_CONTRACT: dict[str, dict[str, Any]] = {
         "durations": NATIVE_CONTRACT["skill2_attack"]["durations"],
         "rects": NATIVE_CONTRACT["skill2_attack"]["rects"],
         "alias_of": "skill2_attack",
+    },
+    # Keep the immutable native `ult` tag at 13x0.05s. This data-selected
+    # timing alias reuses those exact pixels but holds the windup poses until
+    # the real tick-35 RushTime begins, then completes at the skill's tick 60.
+    "ult_fate_sealed": {
+        "durations": [
+            0.08, 0.08, 0.09, 0.09, 0.09, 0.075, 0.075,
+            0.08, 0.08, 0.08, 0.06, 0.06, 0.06,
+        ],
+        "rects": NATIVE_CONTRACT["ult"]["rects"],
+        "alias_of": "ult",
     },
 }
 CUSTOM_PIXEL_ACTIONS = ("attack_azakana", "skill_q3")
@@ -2378,8 +2389,12 @@ def build_effects(actor_sheet_path: Path) -> list[Path]:
             # Fate Sealed reads as one forward lane followed by converging
             # steel/Azakana cuts and an upward pull.  The previous circular
             # vortex and cracked-ground explosion were visually misleading.
-            ("windup", [0, 1, 2, 3, None], (144, 48), 0.065),
-            ("arrival", [5, 6, 7, 8, 9, None], (128, 64), 0.065),
+            ("windup", [0, 1, 2, 3, 4, None], (144, 48), 0.115),
+            # Bottom-row project-owned energy cells were previously packed
+            # only into an unused native slot. Give the actual data skill a
+            # short caster launch and a longer target-following lift column.
+            ("launch", [10, 12, 13, 14, None], (112, 96), 0.055),
+            ("knockup", [10, 11, 12, 13, 14, None], (128, 96), 0.12),
             ("slash_blue", [5, 7, 9, None], (120, 56), 0.055),
             ("slash_red", [6, 8, 9, None], (120, 56), 0.055),
         ],
@@ -2689,7 +2704,8 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_w_hit": ["yone_w", "impact"],
     "lol_yone_w_shield": ["yone_w", "shield"],
     "lol_yone_r_windup": ["yone_r", "windup"],
-    "lol_yone_r_arrival": ["yone_r", "arrival"],
+    "lol_yone_r_launch": ["yone_r", "launch"],
+    "lol_yone_r_knockup": ["yone_r", "knockup"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
     "lol_yone_r_slash_red": ["yone_r", "slash_red"],
 }
@@ -3455,7 +3471,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         "yone_q3_tornado": ["cue"],
         "yone_q3_ready_wind": ["pre", "loop", "remove"],
         "yone_w": ["crescent", "impact", "shield"],
-        "yone_r": ["windup", "arrival", "slash_blue", "slash_red"],
+        "yone_r": ["windup", "launch", "knockup", "slash_blue", "slash_red"],
     }.items():
         anims = json.loads((EFFECT_DIR / f"{effect}#anim.fanim").read_text(encoding="utf-8"))["anims"]
         if list(anims) != required_tags:

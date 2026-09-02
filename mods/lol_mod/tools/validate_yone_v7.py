@@ -141,6 +141,7 @@ V7_EXTENSION_TAGS = (
     "skill_q12",
     "skill_q3",
     "skill_w_azakana",
+    "ult_fate_sealed",
 )
 EXPECTED_TAG_ORDER = NATIVE_TAG_PREFIX + V7_EXTENSION_TAGS
 EXPECTED_WEAPON_CONTRACT = {
@@ -478,7 +479,7 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
     if tag_order != EXPECTED_TAG_ORDER:
         _fail(
             "Yone V7 tag order must retain the immutable 13-tag native prefix "
-            f"then the five dual-sword extensions: {tag_order!r}"
+            f"then the six dual-sword extensions: {tag_order!r}"
         )
 
     rects = {tag: _frame_rects(anims[tag], tag=tag) for tag in EXPECTED_TAG_ORDER}
@@ -488,6 +489,7 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
         "skill_q12": 7,
         "skill_q3": 7,
         "skill_w_azakana": 5,
+        "ult_fate_sealed": 13,
     }
     for tag, count in expected_counts.items():
         if len(rects[tag]) != count:
@@ -497,10 +499,21 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
         "attack_steel": "attack",
         "skill_q12": "skill",
         "skill_w_azakana": "skill2_attack",
+        "ult_fate_sealed": "ult",
     }
     for alias, native in aliases.items():
         if rects[alias] != rects[native]:
             _fail(f"Yone V7 {alias} must alias immutable native tag {native}")
+
+    fate_sealed_durations = [
+        frame.get("duration")
+        for frame in anims["ult_fate_sealed"].get("frames", [])
+        if isinstance(frame, dict)
+    ]
+    if not math.isclose(sum(fate_sealed_durations), 1.0, abs_tol=1e-6):
+        _fail("Yone ult_fate_sealed must span exactly the skill's 60 ticks")
+    if not math.isclose(sum(fate_sealed_durations[:7]), 0.58, abs_tol=1e-6):
+        _fail("Yone ult_fate_sealed windup must meet the tick-35 launch boundary")
 
     distinct = {
         "attack_steel_vs_azakana": rects["attack_steel"] != rects["attack_azakana"],
@@ -1452,15 +1465,43 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
     r_animations = type_names(r_effect, "CasterAnimation")
     r_caster_overlays = type_names(r_effect, "CasterViewEffect")
     r_target_overlays = type_names(r_effect, "ViewEffect")
-    if r_animations != Counter({"ult": 1}):
-        _fail("Yone R must use the dual-sword ult animation route")
-    if r_caster_overlays["lol_yone_r_windup"] != 1:
-        _fail("Yone R must begin with one caster-following dual-sword windup")
+    if r_animations != Counter({"ult_fate_sealed": 1}):
+        _fail("Yone R must use the tick-35-aligned Fate Sealed animation route")
+    if r_caster_overlays != Counter(
+        {"lol_yone_r_windup": 1, "lol_yone_r_launch": 1}
+    ):
+        _fail("Yone R must expose one visible windup and one tick-35 launch cue")
     if (
         r_target_overlays["lol_yone_r_slash_blue"] < 1
         or r_target_overlays["lol_yone_r_slash_red"] < 1
+        or r_target_overlays["lol_yone_r_knockup"] < 1
     ):
-        _fail("Yone R must emit both steel-blue and Azakana-red slash overlays")
+        _fail("Yone R must emit steel/red slashes plus a vertical knockup cue")
+
+    delayed_nodes = [
+        node for node in walk(r_effect) if node.get("type") == "Delayed"
+    ]
+    tick_35 = [node for node in delayed_nodes if node.get("tick") == 35]
+    if len(tick_35) != 1 or type_names(
+        tick_35[0].get("effects"), "CasterViewEffect"
+    ) != Counter({"lol_yone_r_launch": 1}):
+        _fail("Yone R launch cue must start inside the real tick-35 RushTime block")
+    hit_combinations = [
+        node
+        for node in walk(r_effect)
+        if node.get("type") == "Combine"
+        and isinstance(node.get("effects"), list)
+        and any(
+            isinstance(effect, dict)
+            and effect.get("type") == "Airborne"
+            and effect.get("duration") == 45
+            for effect in node["effects"]
+        )
+    ]
+    if len(hit_combinations) != 1 or type_names(
+        hit_combinations[0].get("effects"), "ViewEffect"
+    )["lol_yone_r_knockup"] != 1:
+        _fail("Yone R vertical knockup cue must share the Airborne-45 hit block")
 
     raw_view_effects = champion.get("view_effects")
     if not isinstance(raw_view_effects, list):
@@ -1473,6 +1514,8 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         if name in view_effects:
             _fail(f"Yone view effect is duplicated: {name}")
         view_effects[name] = effect
+    if "lol_yone_r_arrival" in view_effects:
+        _fail("Yone R arrival may remain as audio only, not as an early mixed-color view")
 
     overlay_contract = {
         "lol_yone_q3_airborne_cue": (
@@ -1483,7 +1526,17 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         "lol_yone_r_windup": (
             "asset/lol_mod/aseprite_resources/effects/yone_r",
             "windup",
-            1,
+            3,
+        ),
+        "lol_yone_r_launch": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "launch",
+            3,
+        ),
+        "lol_yone_r_knockup": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "knockup",
+            3,
         ),
         "lol_yone_r_slash_blue": (
             "asset/lol_mod/aseprite_resources/effects/yone_r",
@@ -1528,6 +1581,32 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
             "assets_present": True,
         }
 
+    r_effect_anim_path = (
+        mod_root / "aseprite_resources/effects/yone_r#anim.fanim"
+    )
+    r_effect_sheet_path = (
+        mod_root / "aseprite_resources/effects/yone_r#sheet.png"
+    )
+    r_effect_anims = _read_json(r_effect_anim_path).get("anims")
+    expected_r_effect_tags = (
+        "windup",
+        "launch",
+        "knockup",
+        "slash_blue",
+        "slash_red",
+    )
+    if not isinstance(r_effect_anims, dict) or tuple(r_effect_anims) != expected_r_effect_tags:
+        _fail(
+            "Yone R effect atlas must contain only staged windup/launch/knockup/"
+            "blue/red tags"
+        )
+    with Image.open(r_effect_sheet_path) as r_effect_sheet:
+        if r_effect_sheet.size != (864, 352):
+            _fail(
+                "Yone R effect sheet must exclude the obsolete arrival row: "
+                f"{r_effect_sheet.size}"
+            )
+
     raw_view_projectiles = champion.get("view_projectiles")
     if not isinstance(raw_view_projectiles, list):
         _fail("Yone champion data has no view_projectiles list")
@@ -1567,8 +1646,10 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         },
         "r": {
             "active_weapon": "dual",
-            "animation": "ult",
+            "animation": "ult_fate_sealed",
             "caster_windup": "lol_yone_r_windup",
+            "caster_launch": "lol_yone_r_launch",
+            "target_knockup": "lol_yone_r_knockup",
             "steel_overlay": "lol_yone_r_slash_blue",
             "azakana_overlay": "lol_yone_r_slash_red",
         },
@@ -1641,6 +1722,55 @@ def validate_v7(
                 f"V7 actor atlas must be RGBA {EXPECTED_ATLAS_SIZE}, got "
                 f"{atlas.format} {atlas.mode} {atlas.size}"
             )
+        fate_frames = anim_payload["anims"]["ult_fate_sealed"]["frames"]
+        fate_metrics: list[tuple[int, int, int]] = []
+        for index, frame in enumerate(fate_frames):
+            data = frame["data"]
+            rendered = atlas.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            alpha = rendered.getchannel("A")
+            bbox = alpha.getbbox()
+            if bbox is None:
+                _fail(f"Yone ult_fate_sealed[{index}] is transparent")
+            opaque_pixels = sum(1 for value in _pixels(alpha) if value)
+            fate_metrics.append(
+                (bbox[2] - bbox[0], bbox[3] - bbox[1], opaque_pixels)
+            )
+        if any(height < 34 for _width, height, _opaque in fate_metrics):
+            _fail("Yone ult_fate_sealed contains a shrunken pre-launch silhouette")
+        if any(opaque < 560 for _width, _height, opaque in fate_metrics):
+            _fail("Yone ult_fate_sealed contains a low-area pre-launch silhouette")
+        fate_heights = [height for _width, height, _opaque in fate_metrics]
+        if max(
+            abs(fate_heights[index] - fate_heights[index - 1])
+            for index in range(len(fate_heights))
+        ) > 4:
+            _fail("Yone ult_fate_sealed actor scale jumps between adjacent frames")
+        if not (
+            fate_metrics[5][0] >= 24
+            and fate_metrics[5][1] >= 34
+            and fate_metrics[5][2] >= 560
+            and fate_metrics[6][0] >= 50
+            and fate_metrics[6][1] >= 37
+            and fate_metrics[6][2] >= 850
+        ):
+            _fail("Yone ult_fate_sealed launch frames lost their full-body scale")
+        animation_contract["fate_sealed_scale"] = {
+            "bbox_heights": fate_heights,
+            "minimum_opaque_pixels": min(
+                opaque for _width, _height, opaque in fate_metrics
+            ),
+            "maximum_adjacent_height_delta": max(
+                abs(fate_heights[index] - fate_heights[index - 1])
+                for index in range(len(fate_heights))
+            ),
+        }
     rows = payload.get("frames")
     if not isinstance(rows, list) or len(rows) != EXPECTED_BODY_FRAME_COUNT:
         actual_count = len(rows) if isinstance(rows, list) else None

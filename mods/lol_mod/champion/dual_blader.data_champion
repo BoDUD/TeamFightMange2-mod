@@ -347,7 +347,7 @@
       "effects": [
         {
           "type": "CasterAnimation",
-          "name": "ult",
+          "name": "ult_fate_sealed",
           "tick": 60
         },
         {
@@ -360,6 +360,10 @@
                 {
                   "type": "Sfx",
                   "name": "lol_yone_r_cast"
+                },
+                {
+                  "type": "CasterViewEffect",
+                  "name": "lol_yone_r_launch"
                 },
                 {
                   "type": "RushTime",
@@ -388,15 +392,11 @@
                           },
                           {
                             "type": "ViewEffect",
-                            "name": "lol_yone_r_arrival"
-                          },
-                          {
-                            "type": "ViewEffect",
                             "name": "lol_yone_r_slash_blue"
                           },
                           {
                             "type": "ViewEffect",
-                            "name": "lol_yone_r_slash_red"
+                            "name": "lol_yone_r_knockup"
                           },
                           {
                             "type": "TargetSfx",
@@ -407,8 +407,18 @@
                             "name": "lol_yone_r_slash_steel"
                           },
                           {
-                            "type": "TargetSfx",
-                            "name": "lol_yone_r_slash_azakana"
+                            "type": "Delayed",
+                            "tick": 5,
+                            "effects": [
+                              {
+                                "type": "ViewEffect",
+                                "name": "lol_yone_r_slash_red"
+                              },
+                              {
+                                "type": "TargetSfx",
+                                "name": "lol_yone_r_slash_azakana"
+                              }
+                            ]
                           },
                           {
                             "type": "Delayed",
@@ -418,6 +428,10 @@
                                 "type": "Pull",
                                 "speed": 3000,
                                 "tick": 12
+                              },
+                              {
+                                "type": "TargetSfx",
+                                "name": "lol_yone_r_echo"
                               }
                             ]
                           }
@@ -505,15 +519,23 @@
       "name": "lol_yone_r_windup",
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
       "tag": "windup",
-      "z": 1,
+      "z": 3,
       "is_follow": true
     },
     {
       "type": "Animation",
-      "name": "lol_yone_r_arrival",
+      "name": "lol_yone_r_launch",
       "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
-      "tag": "arrival",
-      "z": 2,
+      "tag": "launch",
+      "z": 3,
+      "is_follow": true
+    },
+    {
+      "type": "Animation",
+      "name": "lol_yone_r_knockup",
+      "anim": "asset/lol_mod/aseprite_resources/effects/yone_r",
+      "tag": "knockup",
+      "z": 3,
       "is_follow": true
     },
     {

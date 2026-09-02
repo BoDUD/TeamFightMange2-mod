@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.8 encyclopedia resolver and reference-grounded Yone rebuild test closure",
+  "purpose": "0.12.9 full-leg encyclopedia framing and articulated Yone presentation test closure",
   "file_count": 468,
-  "total_size": 89594551,
+  "total_size": 90129990,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -90,23 +90,23 @@
     },
     {
       "path": "aseprite_resources/champions/yone#anim.fanim",
-      "size": 19817,
-      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+      "size": 22021,
+      "sha256": "19ce633ca784667a14a73e4157d8758b2c718699aca1663edf8d113746845982"
     },
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59"
+      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
-      "size": 19817,
-      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+      "size": 22021,
+      "sha256": "19ce633ca784667a14a73e4157d8758b2c718699aca1663edf8d113746845982"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59"
+      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -510,13 +510,13 @@
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
-      "size": 3388,
-      "sha256": "39678d3204a021cca6b76145eb16a9bcd8391c2703e90336a449b975621c5e40"
+      "size": 4435,
+      "sha256": "ebd43555fe50d5358d265b63caab3a7e7c4749f8c01fd61e1b60d5ea565343c4"
     },
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",
-      "size": 688470,
-      "sha256": "5c258e8b99ac23c7482b2b121bd980aa4e675d5a8d991fa5a601dc107d23dfe2"
+      "size": 1217022,
+      "sha256": "a2e885f1b3421a2d5b23ced28398e2953a43e7a7c2234b9721594862ce629287"
     },
     {
       "path": "aseprite_resources/effects/yone_w#anim.fanim",
@@ -870,8 +870,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 14390,
-      "sha256": "052f10c19f58b031d79d5123a62a9b8e984a723a18f09c6b86f970da9623cff0"
+      "size": 15153,
+      "sha256": "c5986892d2f79d1c98c9d2a93aef3083756c8d68d93966f8f3f6f029f7c76f1d"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -1015,13 +1015,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 268288,
-      "sha256": "c8019a9c8b1385830e801066bbb4c7588ba3beb51dec1c594273d9a15e4e8cc5"
+      "size": 268800,
+      "sha256": "011f389cbd0076048e51f830c1e7a167f293018a2633301547d7f07f2e285a2c"
     },
     {
       "path": "mod.mod_info",
-      "size": 1042,
-      "sha256": "a7b31665ff67e81793e80bcab17e08931b6419a1d2f6ae70536cb618bd0e3c92"
+      "size": 1199,
+      "sha256": "a537710715279d810edb1cd0aa8e8f20f1108f46ed3d90f17c374bb14dce28b2"
     },
     {
       "path": "mod.override_info",
@@ -1401,7 +1401,7 @@
     {
       "path": "sound/sfx/lol_yone_r_echo.sound_info",
       "size": 70,
-      "sha256": "a4700f8e4fb85a113586c87dfd4f61fc83d732c6cbc422b6704f3de810e172d6"
+      "sha256": "199a7e526782c9f5fad6dee53a283f961520112a428e8734fb3499736a1d8904"
     },
     {
       "path": "sound/sfx/lol_yone_r_echo_clip.wav",

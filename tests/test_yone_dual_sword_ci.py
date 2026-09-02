@@ -322,7 +322,7 @@ def test_v7_actor_owns_active_attack_q_w_and_r_blades_without_duplicate_overlays
         "attack_azakana",
         "skill_q3",
         "skill_w_azakana",
-        "ult",
+        "ult_fate_sealed",
     } <= animation_names
     assert "skill_q12" not in animation_names
 
@@ -342,12 +342,15 @@ def test_v7_actor_owns_active_attack_q_w_and_r_blades_without_duplicate_overlays
         {row["name"] for row in payload["view_effects"]}
     )
     assert "lol_yone_r_windup" in caster_overlay_names
+    assert "lol_yone_r_launch" in caster_overlay_names
     assert "lol_yone_w_crescent_cast" not in caster_overlay_names
 
     view_effects = {row["name"]: row for row in payload["view_effects"]}
     expected_overlays = {
         "lol_yone_q3_airborne_cue": ("cue", 2),
-        "lol_yone_r_windup": ("windup", 1),
+        "lol_yone_r_windup": ("windup", 3),
+        "lol_yone_r_launch": ("launch", 3),
+        "lol_yone_r_knockup": ("knockup", 3),
         "lol_yone_r_slash_blue": ("slash_blue", 2),
         "lol_yone_r_slash_red": ("slash_red", 2),
     }

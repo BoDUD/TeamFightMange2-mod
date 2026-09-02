@@ -6844,7 +6844,7 @@ def validate_native_dll() -> None:
         "use mod_api_stable::",
         "impl StableEffectType for UrgotPassiveNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)",
         "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
@@ -6861,9 +6861,12 @@ def validate_native_dll() -> None:
         "client.ui_set_visible(&native_icon, true)" in encyclopedia_card_sync
         and "client.ui_set_champion_icon(" in encyclopedia_card_sync
         and "client.ui_set_visible(&native_icon, false)" not in encyclopedia_card_sync
-        and "ui_set_properties(&native_icon" not in encyclopedia_card_sync
+        and "let positioned = resolver_bound\n"
+        "        && client.ui_set_properties(&native_icon"
+        in encyclopedia_card_sync
+        and "pivot_y: 1; y: {bottom_y}px;" in encyclopedia_card_sync
         and "client.ui_spawn_source(" not in encyclopedia_card_sync,
-        "stable encyclopedia routing must preserve the stock source and use the game-owned champion-icon resolver",
+        "stable encyclopedia routing must preserve the stock source, use the game-owned champion-icon resolver, and only reposition that native icon",
     )
     check(
         '"source:' not in encyclopedia_card_sync,
@@ -7815,7 +7818,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [45],
             "Yone R must apply one 45-tick knockup per target",
         )
-        pull_delays = find_effect(rush, "Delayed")
+        pull_delays = [
+            effect
+            for effect in find_effect(rush, "Delayed")
+            if effect.get("tick") == 12
+        ]
         check(
             len(pull_delays) == 1
             and pull_delays[0].get("tick") == 12
@@ -8263,7 +8270,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.8", "lol_mod version must be 0.12.8")
+    check(mod_info.get("version") == "0.12.9", "lol_mod version must be 0.12.9")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8311,6 +8318,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "skill_q12": ([0.060000002] * 7, [(1260, 0, 31, 49), (1292, 0, 31, 43), (1324, 0, 31, 55), (1356, 0, 71, 57), (1428, 0, 83, 67), (1512, 0, 85, 77), (1598, 0, 91, 87)]),
         "skill_q3": ([0.060000002] * 7, [(3832, 0, 31, 49), (3864, 0, 31, 43), (3896, 0, 31, 55), (3928, 0, 71, 57), (4000, 0, 83, 67), (4084, 0, 85, 77), (4170, 0, 91, 87)]),
         "skill_w_azakana": ([0.060000002] * 5, [(2046, 0, 31, 43), (2078, 0, 31, 45), (2110, 0, 59, 53), (2170, 0, 59, 55), (2230, 0, 57, 51)]),
+        "ult_fate_sealed": ([0.08, 0.08, 0.09, 0.09, 0.09, 0.075, 0.075, 0.08, 0.08, 0.08, 0.06, 0.06, 0.06], [(2288, 0, 49, 51), (2338, 0, 59, 53), (2398, 0, 59, 57), (2458, 0, 61, 53), (2520, 0, 51, 51), (2572, 0, 59, 47), (2632, 0, 59, 49), (2692, 0, 61, 53), (2754, 0, 55, 57), (2810, 0, 59, 53), (2870, 0, 59, 51), (2930, 0, 61, 49), (2992, 0, 53, 51)]),
     }
     actor_sheet_path = MOD_ROOT / "aseprite_resources/champions/yone_v7#sheet.png"
     actor_anim_path = MOD_ROOT / "aseprite_resources/champions/yone_v7#anim.fanim"
@@ -8335,7 +8343,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     actor_anims = load_json("aseprite_resources/champions/yone_v7#anim.fanim").get("anims", {})
     check(
         list(actor_anims) == list(expected_actor_contract),
-        "Yone actor must preserve the official 13-tag prefix and append five V7 semantic tags",
+        "Yone actor must preserve the official 13-tag prefix and append six V7 semantic tags",
     )
     for tag, (durations, rects) in expected_actor_contract.items():
         frames = actor_anims.get(tag, {}).get("frames", [])
@@ -8683,8 +8691,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "shield": (6, 0.07, True),
         },
         "yone_r": {
-            "windup": (5, 0.065, True),
-            "arrival": (6, 0.065, True),
+            "windup": (6, 0.115, True),
+            "launch": (5, 0.055, True),
+            "knockup": (6, 0.12, True),
             "slash_blue": (4, 0.055, True),
             "slash_red": (4, 0.055, True),
         },
@@ -8698,7 +8707,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_w_hit": ("yone_w", "impact"),
         "lol_yone_w_shield": ("yone_w", "shield"),
         "lol_yone_r_windup": ("yone_r", "windup"),
-        "lol_yone_r_arrival": ("yone_r", "arrival"),
+        "lol_yone_r_launch": ("yone_r", "launch"),
+        "lol_yone_r_knockup": ("yone_r", "knockup"),
         "lol_yone_r_slash_blue": ("yone_r", "slash_blue"),
         "lol_yone_r_slash_red": ("yone_r", "slash_red"),
     }
@@ -9212,7 +9222,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "let native_icon = join_ui_path(&card, \"icon\");",
         "client.ui_runner_name(&native_icon)",
         "client.ui_node_rect(&native_icon)",
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)",
+        "let positioned = resolver_bound\n"
+        "        && client.ui_set_properties(&native_icon",
+        '&format!("pivot_y: 1; y: {bottom_y}px;")',
         "client.ui_set_visible(&native_icon, true)",
     ):
         check(
@@ -9220,7 +9233,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             f"stable encyclopedia resolver is missing: {required}",
         )
     for forbidden in (
-        "ui_set_properties(&native_icon",
         "ui_spawn_source(",
         "ui_set_visible(&native_icon, false)",
         "lol_fullbody_yone",
@@ -9241,8 +9253,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     for required in (
         'client.client_main_tab().as_deref() != Some("GameInfo")',
         "find_encyclopedia_container(client)",
-        'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)',
-        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)',
+        'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0',
+        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0',
         '"stock champion-icon resolver; raw source mutation disabled;',
     ):
         check(
@@ -9358,7 +9370,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_q_cast", "lol_yone_q_hit",
         "lol_yone_w_cast", "lol_yone_w_hit", "lol_yone_w_shield",
         "lol_yone_r_cast", "lol_yone_r_arrival",
-        "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana",
+        "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana", "lol_yone_r_echo",
     }
     used_audio = {
         str(effect.get("name"))
@@ -9591,7 +9603,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(isinstance(clip, str) and bool(clip), f"Yone sound_info has an invalid clip: {local}")
             volume = float(play.get("volume", 0.0))
             if event in r_safe_volume_events:
-                check(abs(volume - 0.55) < 1e-9, f"Yone rapid-R/echo safety volume must be 0.55: {local}")
+                check(abs(volume - 0.55) < 1e-9, f"Yone rapid-R slash safety volume must be 0.55: {local}")
             else:
                 check(volume >= 0.85, f"Yone sound volume must be at least 0.85: {local}")
             if not isinstance(clip, str) or not clip:
@@ -9739,7 +9751,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.8", "lol_mod version must be 0.12.8")
+    check(mod_info.get("version") == "0.12.9", "lol_mod version must be 0.12.9")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

@@ -8,7 +8,7 @@
     "schema_version": 7,
     "route": "dual-sword-v7",
     "manifest": "source/native/yone_v7/frames.json",
-    "manifest_sha256": "264062c1230ef02b84517cd648d199db74107dc9008e0074c4dc3666c07ea78e",
+    "manifest_sha256": "26267b2dd195139a1cb0ca4ef3cd4f6cb17489060f456181b620d2c1c4e92895",
     "atlas_size": [
       4262,
       88
@@ -1551,32 +1551,36 @@
         47
       ],
       "source_alpha_bbox": [
-        16,
-        12,
+        15,
+        1,
         41,
         36
       ],
       "bottom_margin": 11,
       "face_bbox": [
-        29,
-        18,
-        4,
-        4
+        30,
+        10,
+        7,
+        10
       ],
       "eye_pixels": [
         [
-          30,
-          20
+          32,
+          13
+        ],
+        [
+          35,
+          13
         ]
       ],
       "mask_bbox": [
-        23,
-        14,
-        6,
-        5
+        17,
+        5,
+        11,
+        16
       ],
       "foot_zones": [],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1586,50 +1590,50 @@
         "steel": {
           "blade_bbox": [
             16,
-            12,
-            12,
-            13
+            20,
+            11,
+            7
           ],
           "hand_anchor": [
             26,
-            23
+            25
           ],
           "tip": [
-            17,
-            12
+            16,
+            20
           ],
-          "span_px": 14.213,
+          "span_px": 11.18,
           "connectedness": 1.0,
-          "pixel_count": 53,
+          "pixel_count": 25,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            13,
-            13,
-            14
+            25,
+            2,
+            7,
+            6
           ],
           "hand_anchor": [
-            29,
-            25
+            26,
+            6
           ],
           "tip": [
-            38,
-            13
+            31,
+            4
           ],
-          "span_px": 15.0,
+          "span_px": 5.385,
           "connectedness": 1.0,
-          "pixel_count": 58,
+          "pixel_count": 22,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 34,
-      "sha256": "8f8194e00096201054251cf8d0c249a85f82d9ce12eb2691bf4004b08a921195",
+      "opaque_palette_size": 45,
+      "sha256": "ed7cc9d856ee841a82ab6e9e7ded1bfc6e7dd022b2a452b59d40cdd56b92c279",
       "pack_transform": "none"
     },
     "ult[6]": {
@@ -1645,32 +1649,36 @@
         49
       ],
       "source_alpha_bbox": [
-        13,
-        14,
-        50,
+        3,
+        2,
+        58,
         40
       ],
       "bottom_margin": 9,
       "face_bbox": [
-        30,
-        21,
-        5,
-        6
+        32,
+        13,
+        8,
+        9
       ],
       "eye_pixels": [
         [
-          30,
-          25
+          34,
+          17
+        ],
+        [
+          32,
+          16
         ]
       ],
       "mask_bbox": [
-        23,
-        16,
-        8,
-        6
+        18,
+        5,
+        15,
+        18
       ],
       "foot_zones": [],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -1679,51 +1687,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            34,
-            23,
-            16,
-            5
+            45,
+            24,
+            11,
+            4
           ],
           "hand_anchor": [
-            35,
-            26
+            46,
+            25
           ],
           "tip": [
-            49,
-            23
+            55,
+            27
           ],
-          "span_px": 14.318,
+          "span_px": 9.22,
           "connectedness": 1.0,
-          "pixel_count": 34,
-          "crop_ratio": 0.0,
+          "pixel_count": 23,
+          "crop_ratio": 0.0333,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
+            3,
             13,
-            28,
-            9,
-            7
+            15,
+            9
           ],
           "hand_anchor": [
-            20,
-            29
+            17,
+            20
           ],
           "tip": [
-            13,
-            32
+            3,
+            13
           ],
-          "span_px": 7.616,
+          "span_px": 15.652,
           "connectedness": 1.0,
-          "pixel_count": 27,
+          "pixel_count": 37,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 41,
-      "sha256": "4152c442fb9c7959f83797c3b1189c4418935cfb493dfdc10b7d1d9e4273741d",
+      "opaque_palette_size": 48,
+      "sha256": "bc9054ff3a008b2caa5b810168fc58ac4cd042eee3916469617d0a9ace2ff9dc",
       "pack_transform": "none"
     },
     "ult[7]": {
@@ -2323,39 +2331,43 @@
         49
       ],
       "source_alpha_bbox": [
-        2,
+        6,
         1,
-        40,
+        35,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        21,
-        9,
-        6,
-        8
+        19,
+        8,
+        5,
+        10
       ],
       "eye_pixels": [
         [
+          20,
+          11
+        ],
+        [
           23,
-          12
+          11
         ]
       ],
       "mask_bbox": [
-        12,
-        4,
+        10,
+        3,
         9,
-        13
+        10
       ],
       "foot_zones": [
         [
-          2,
+          6,
           32,
-          38,
+          29,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2364,51 +2376,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            23,
-            10,
-            10
+            6,
+            24,
+            8,
+            11
           ],
           "hand_anchor": [
-            10,
-            24
+            12,
+            25
           ],
           "tip": [
-            4,
-            32
+            8,
+            34
           ],
-          "span_px": 10.0,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 40,
+          "pixel_count": 38,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            29,
-            19,
+            26,
+            24,
             9,
-            4
+            10
           ],
           "hand_anchor": [
-            30,
-            20
+            27,
+            25
           ],
           "tip": [
-            37,
-            22
+            33,
+            33
           ],
-          "span_px": 7.28,
+          "span_px": 10.0,
           "connectedness": 1.0,
-          "pixel_count": 19,
-          "crop_ratio": 0.2609,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "1deb646706f74848671672be375262ba79dc77e1e6b524acd1aeb1789139e1de",
+      "opaque_palette_size": 44,
+      "sha256": "7c0502dce406352331d87d54f1371c46ccf814fc351356e5b65c4b6dd83d9520",
       "pack_transform": "none"
     },
     "run[1]": {
@@ -2424,39 +2436,43 @@
         51
       ],
       "source_alpha_bbox": [
-        1,
+        5,
         2,
-        38,
+        34,
         37
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        20,
-        10,
+        18,
+        13,
         6,
-        8
+        5
       ],
       "eye_pixels": [
         [
-          22,
-          13
+          18,
+          15
+        ],
+        [
+          23,
+          15
         ]
       ],
       "mask_bbox": [
-        11,
+        10,
         5,
-        9,
-        13
+        8,
+        9
       ],
       "foot_zones": [
         [
-          1,
+          5,
           33,
-          37,
+          29,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2465,20 +2481,20 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            24,
-            9,
-            10
+            5,
+            25,
+            8,
+            11
           ],
           "hand_anchor": [
-            9,
-            25
+            11,
+            26
           ],
           "tip": [
-            4,
-            33
+            7,
+            35
           ],
-          "span_px": 9.434,
+          "span_px": 9.849,
           "connectedness": 1.0,
           "pixel_count": 38,
           "crop_ratio": 0.0,
@@ -2486,30 +2502,30 @@
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            20,
-            8,
-            4
+            25,
+            25,
+            9,
+            10
           ],
           "hand_anchor": [
-            29,
-            21
+            26,
+            26
           ],
           "tip": [
-            35,
-            23
+            32,
+            34
           ],
-          "span_px": 6.325,
+          "span_px": 10.0,
           "connectedness": 1.0,
-          "pixel_count": 17,
-          "crop_ratio": 0.3478,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "3e7a9a469d72ae4cf1732e0d8e4d8f322728b01f94ac2b67d2f53527cb6db4a4",
+      "opaque_palette_size": 45,
+      "sha256": "eba484168d3ebd8d189bff825d9d4402b4167105105c60e01d4d4240b96d7c51",
       "pack_transform": "none"
     },
     "run[2]": {
@@ -2525,39 +2541,39 @@
         53
       ],
       "source_alpha_bbox": [
-        1,
+        4,
         3,
-        38,
+        37,
         38
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        20,
-        11,
+        18,
+        12,
         6,
-        9
+        7
       ],
       "eye_pixels": [
         [
-          21,
-          14
+          18,
+          16
         ],
         [
-          24,
-          14
+          23,
+          16
         ]
       ],
       "mask_bbox": [
         10,
-        6,
+        5,
         9,
-        10
+        13
       ],
       "foot_zones": [
         [
-          1,
+          4,
           34,
-          37,
+          33,
           4
         ]
       ],
@@ -2570,51 +2586,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
+            4,
             26,
             8,
-            10
+            11
           ],
           "hand_anchor": [
-            8,
+            10,
             27
           ],
           "tip": [
-            4,
-            35
+            6,
+            36
           ],
-          "span_px": 8.944,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 36,
-          "crop_ratio": 0.0526,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            22,
-            8,
-            3
+            26,
+            25,
+            11,
+            9
           ],
           "hand_anchor": [
-            29,
-            23
+            27,
+            26
           ],
           "tip": [
-            35,
-            22
+            36,
+            32
           ],
-          "span_px": 6.083,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 22,
-          "crop_ratio": 0.3846,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "4fc52713530f1da5625b987e27cf5985b7378440b01405d89b547304a8ceadb2",
+      "opaque_palette_size": 44,
+      "sha256": "94abeaa557bfbaa3dd9e417e3d9897446070061dca3f44d86650fb0ee643834e",
       "pack_transform": "none"
     },
     "run[3]": {
@@ -2630,39 +2646,43 @@
         51
       ],
       "source_alpha_bbox": [
-        1,
+        4,
         2,
-        38,
+        37,
         37
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        20,
+        18,
         10,
         6,
         8
       ],
       "eye_pixels": [
         [
-          22,
-          13
+          18,
+          12
+        ],
+        [
+          20,
+          12
         ]
       ],
       "mask_bbox": [
-        11,
-        5,
+        10,
+        4,
         9,
-        13
+        10
       ],
       "foot_zones": [
         [
-          1,
+          4,
           33,
-          37,
+          33,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2671,51 +2691,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
+            4,
             25,
-            9,
-            9
+            8,
+            11
           ],
           "hand_anchor": [
-            9,
+            10,
             26
           ],
           "tip": [
-            4,
-            33
+            6,
+            35
           ],
-          "span_px": 8.602,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 35,
+          "pixel_count": 38,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            20,
-            8,
-            4
+            26,
+            24,
+            11,
+            9
           ],
           "hand_anchor": [
-            29,
-            21
+            27,
+            25
           ],
           "tip": [
-            35,
-            23
+            36,
+            31
           ],
-          "span_px": 6.325,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 17,
-          "crop_ratio": 0.3462,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "6f241c926829d4eca69123190339c71019c8f20a9d9bef9913b1d394ec239a3b",
+      "opaque_palette_size": 45,
+      "sha256": "00b46f93407866d6375c095a2c7e7a1286c8cc5c11b8103a810545845f8d8a97",
       "pack_transform": "none"
     },
     "run[4]": {
@@ -2731,35 +2751,35 @@
         49
       ],
       "source_alpha_bbox": [
-        2,
+        3,
         1,
-        40,
+        39,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        21,
-        9,
-        6,
-        8
+        20,
+        12,
+        5,
+        7
       ],
       "eye_pixels": [
         [
           23,
-          12
+          16
         ]
       ],
       "mask_bbox": [
-        12,
+        11,
         4,
         9,
-        13
+        16
       ],
       "foot_zones": [
         [
-          2,
+          3,
           32,
-          38,
+          36,
           4
         ]
       ],
@@ -2772,51 +2792,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            23,
-            10,
+            3,
+            25,
+            8,
             10
           ],
           "hand_anchor": [
-            10,
-            24
+            9,
+            26
           ],
           "tip": [
-            4,
-            32
+            5,
+            34
           ],
-          "span_px": 10.0,
+          "span_px": 8.944,
           "connectedness": 1.0,
-          "pixel_count": 40,
+          "pixel_count": 36,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            29,
-            19,
-            9,
-            4
+            28,
+            24,
+            11,
+            9
           ],
           "hand_anchor": [
-            30,
-            20
+            29,
+            25
           ],
           "tip": [
-            37,
-            22
+            38,
+            31
           ],
-          "span_px": 7.28,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 19,
-          "crop_ratio": 0.2609,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "1dcee7a282d9907d8d757a5d222e4ae83aa2a76bfba673ad619baf6f265a930a",
+      "sha256": "12539fdcc44799ead0650bf33fbc99a12ecaf6d2cf733f8fba01827cb51a3dbc",
       "pack_transform": "none"
     },
     "run[5]": {
@@ -2832,39 +2852,39 @@
         51
       ],
       "source_alpha_bbox": [
-        1,
+        4,
         2,
-        38,
+        37,
         37
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        20,
-        10,
+        17,
+        9,
         6,
         9
       ],
       "eye_pixels": [
         [
-          21,
-          13
+          17,
+          12
         ],
         [
-          24,
-          13
+          19,
+          12
         ]
       ],
       "mask_bbox": [
-        10,
-        5,
+        8,
+        4,
         9,
         10
       ],
       "foot_zones": [
         [
-          1,
+          4,
           33,
-          37,
+          33,
           4
         ]
       ],
@@ -2877,51 +2897,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
+            4,
             25,
             8,
-            10
+            11
           ],
           "hand_anchor": [
-            8,
+            10,
             26
           ],
           "tip": [
-            4,
-            34
+            6,
+            35
           ],
-          "span_px": 8.944,
+          "span_px": 9.849,
           "connectedness": 1.0,
-          "pixel_count": 36,
-          "crop_ratio": 0.0526,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            21,
-            8,
-            3
+            26,
+            24,
+            11,
+            9
           ],
           "hand_anchor": [
-            29,
-            22
+            27,
+            25
           ],
           "tip": [
-            35,
-            23
+            36,
+            31
           ],
-          "span_px": 6.083,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 22,
-          "crop_ratio": 0.3846,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 47,
-      "sha256": "19da96a02de2967305885648b881a6e8fca98d7383a83bfb6f11a85ee324e5c7",
+      "opaque_palette_size": 45,
+      "sha256": "790cb96b4215c7bf2658ce83dc68cb328f9944eff57381c6d80a19e0f5cc3a77",
       "pack_transform": "none"
     },
     "run[6]": {
@@ -2937,35 +2957,35 @@
         53
       ],
       "source_alpha_bbox": [
-        1,
+        4,
         3,
-        38,
+        37,
         38
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        20,
-        11,
+        17,
+        10,
         6,
-        8
+        9
       ],
       "eye_pixels": [
         [
-          22,
-          14
+          18,
+          13
         ]
       ],
       "mask_bbox": [
-        11,
-        6,
+        8,
+        5,
         9,
         13
       ],
       "foot_zones": [
         [
-          1,
+          4,
           34,
-          37,
+          33,
           4
         ]
       ],
@@ -2978,20 +2998,20 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            25,
-            9,
-            10
+            4,
+            26,
+            8,
+            11
           ],
           "hand_anchor": [
-            9,
-            26
+            10,
+            27
           ],
           "tip": [
-            4,
-            34
+            6,
+            36
           ],
-          "span_px": 9.434,
+          "span_px": 9.849,
           "connectedness": 1.0,
           "pixel_count": 38,
           "crop_ratio": 0.0,
@@ -2999,30 +3019,30 @@
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            21,
-            8,
-            4
+            26,
+            25,
+            11,
+            9
           ],
           "hand_anchor": [
-            29,
-            22
+            27,
+            26
           ],
           "tip": [
-            35,
-            24
+            36,
+            32
           ],
-          "span_px": 6.325,
+          "span_px": 10.817,
           "connectedness": 1.0,
-          "pixel_count": 17,
-          "crop_ratio": 0.3478,
+          "pixel_count": 40,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "3e5ab7d161d38205bb26adb2f024d3eb0d89457e7f56ea3f02e1b22ee7817a3d",
+      "opaque_palette_size": 44,
+      "sha256": "cd0d15c37fe0998639af8928ded459da0a2dc3c077ffcf48deeaf31ae0ad774d",
       "pack_transform": "none"
     },
     "run[7]": {
@@ -3038,39 +3058,43 @@
         51
       ],
       "source_alpha_bbox": [
-        1,
+        5,
         2,
-        38,
+        34,
         37
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        20,
-        10,
+        17,
+        13,
         6,
-        8
+        6
       ],
       "eye_pixels": [
         [
-          22,
-          13
+          21,
+          16
+        ],
+        [
+          17,
+          15
         ]
       ],
       "mask_bbox": [
-        11,
+        8,
         5,
-        9,
-        13
+        8,
+        9
       ],
       "foot_zones": [
         [
-          1,
+          5,
           33,
-          37,
+          29,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -3079,20 +3103,20 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            2,
-            24,
-            9,
-            10
+            5,
+            25,
+            8,
+            11
           ],
           "hand_anchor": [
-            9,
-            25
+            11,
+            26
           ],
           "tip": [
-            4,
-            33
+            7,
+            35
           ],
-          "span_px": 9.434,
+          "span_px": 9.849,
           "connectedness": 1.0,
           "pixel_count": 38,
           "crop_ratio": 0.0,
@@ -3100,30 +3124,30 @@
         },
         "azakana": {
           "blade_bbox": [
-            28,
-            20,
-            8,
-            4
+            25,
+            25,
+            9,
+            10
           ],
           "hand_anchor": [
-            29,
-            21
+            26,
+            26
           ],
           "tip": [
-            35,
-            23
+            32,
+            34
           ],
-          "span_px": 6.325,
+          "span_px": 10.0,
           "connectedness": 1.0,
-          "pixel_count": 17,
-          "crop_ratio": 0.3478,
+          "pixel_count": 39,
+          "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "6af697e8adf6ed0620e3741edcd4acb51a04e1a5f73560733e7471fbcf3d759b",
+      "opaque_palette_size": 44,
+      "sha256": "b22ad34155b8f7e43d175fa30ab9343a1b9273130fc9296ecca9aa1a53ceeace",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
@@ -7259,7 +7283,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59",
+      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6",
       "alpha_bbox": [
         49,
         1,
@@ -7273,8 +7297,8 @@
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
-      "size_bytes": 19817,
-      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+      "size_bytes": 22021,
+      "sha256": "19ce633ca784667a14a73e4157d8758b2c718699aca1663edf8d113746845982"
     },
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
@@ -7283,7 +7307,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59",
+      "sha256": "90523c3efa51690f244c94584dfc3273623090861a7d572cc79815588e6519e6",
       "alpha_bbox": [
         49,
         1,
@@ -7297,8 +7321,8 @@
     },
     {
       "path": "aseprite_resources/champions/yone#anim.fanim",
-      "size_bytes": 19817,
-      "sha256": "59d26e01565537ead876b74eed6beba2b1a4f210e0036cef5ee0eb2d917c5322"
+      "size_bytes": 22021,
+      "sha256": "19ce633ca784667a14a73e4157d8758b2c718699aca1663edf8d113746845982"
     },
     {
       "path": "aseprite_resources/effects/yone_attack#sheet.png",
@@ -7423,16 +7447,16 @@
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",
       "dimensions": [
-        768,
-        224
+        864,
+        352
       ],
-      "size_bytes": 688470,
-      "sha256": "5c258e8b99ac23c7482b2b121bd980aa4e675d5a8d991fa5a601dc107d23dfe2",
+      "size_bytes": 1217022,
+      "sha256": "a2e885f1b3421a2d5b23ced28398e2953a43e7a7c2234b9721594862ce629287",
       "alpha_bbox": [
         2,
         3,
-        638,
-        222
+        718,
+        350
       ],
       "alpha_extrema": [
         0,
@@ -7441,8 +7465,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
-      "size_bytes": 3388,
-      "sha256": "39678d3204a021cca6b76145eb16a9bcd8391c2703e90336a449b975621c5e40"
+      "size_bytes": 4435,
+      "sha256": "ebd43555fe50d5358d265b63caab3a7e7c4749f8c01fd61e1b60d5ea565343c4"
     },
     {
       "path": "icons/yone_skill.png",

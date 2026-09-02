@@ -121,7 +121,7 @@ def test_yone_v7_sources_exist_and_hashes_match_before_visual_validation() -> No
     ).hexdigest()
 
 
-def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> None:
+def test_yone_v7_validator_covers_all_67_frames_and_six_extension_tags() -> None:
     validator = _load_validator()
     report = validator.validate_v7(
         verify_runtime_atlas=True,
@@ -142,6 +142,7 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
         "skill_q12",
         "skill_q3",
         "skill_w_azakana",
+        "ult_fate_sealed",
     ]
     assert all(report["animation_contract"]["distinct_sequences"].values())
     assert report["dual_sword"]["distinct_attack_sequences"] is True
@@ -196,6 +197,7 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
         "skill_q12",
         "skill_q3",
         "skill_w_azakana",
+        "ult_fate_sealed",
     ]
     assert len(anims["dead"]["frames"]) == 9
     for row in payload["frames"]:

@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
-  "version": "0.12.8",
-  "description": "Teamfight Manager 2 base 0.5.8 / stable ABI 8 repair test build. Xayah and Yone encyclopedia cards now use the game's own champion-icon resolver without replacing or hiding the native image source. Yone has a reference-grounded continuous cross-step run cycle, staged wind-up/contact/recovery basic attacks, and a pure-data Q/W/R kit with no active E; retired native names remain no-op saved-season compatibility shims. Shen stays on the already repaired original Q/W/R contract. All nine data_champion definitions, BP chrome and illustrations, Rift map/towers/Nexus, HUD art, announcer audio and BP/match music remain active. A fresh test save is required to embed the current Yone action tree.",
+  "version": "0.12.9",
+  "description": "Teamfight Manager 2 base 0.5.8 / stable ABI 8 repair test build. Xayah and Yone encyclopedia cards use the game's own champion-icon resolver with per-champion full-leg framing above the native level selector. Yone now has a reference-grounded articulated upright cross-step run cycle with alternating arms, legs and both swords, plus a one-second Fate Sealed presentation aligned to the real rush tick with distinct wind-up, launch, knock-up, dual-slash and pull/echo stages. His pure-data Q/W/R kit has no active E; retired native names remain no-op saved-season compatibility shims. Shen stays on the repaired original Q/W/R contract. All nine data_champion definitions, BP chrome and illustrations, Rift map/towers/Nexus, HUD art, announcer audio and BP/match music remain active. A fresh test save is required to embed the current Yone action tree.",
   "last_updated": "2026-09-02",
   "dependencies": [
     {

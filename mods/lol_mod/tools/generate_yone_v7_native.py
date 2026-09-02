@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections import deque
+from collections import Counter, deque
 from pathlib import Path
 from typing import Any
 
@@ -123,11 +123,31 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
         ("attack_q", index) for index in (0, 1, 2, 10, 6, 5)
     ),
     "skill2_dash": (("attack_q", 22),),
-    "ult": tuple(("ult", index) for index in (0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2)),
-    # Eight virtual stride poses are recomposed below from one approved guard
-    # frame.  A shared upper body keeps facing, shoulders, hands and both blade
-    # anchors continuous; only the hips/legs cross and lift through the cycle.
-    "run": tuple(("run_guard", index) for index in range(8)),
+    # Keep the two frames immediately before the real tick-35 rush at full
+    # actor scale. The source ult cells 8/9 are dominated by their long blade
+    # spans; fitting those complete cells into the native boxes shrank Yone's
+    # body to roughly half size exactly where the launch should read. Reuse
+    # two accepted, dual-sword V7 poses instead: a compact crossed crouch for
+    # compression, then the authored forward dash for take-off.
+    "ult": (
+        ("ult", 0),
+        ("ult", 2),
+        ("ult", 5),
+        ("ult", 6),
+        ("ult", 7),
+        ("attack_q", 10),
+        ("attack_q", 22),
+        ("ult", 10),
+        ("ult", 11),
+        ("ult", 12),
+        ("ult", 13),
+        ("ult", 14),
+        ("ult", 2),
+    ),
+    # Eight derived upright guard/recovery poses are assembled below as one
+    # coherent gait.  The source sequence deliberately avoids attack-contact
+    # frames so the hands and both blades stay continuous through the loop.
+    "run": tuple(("run_pose", index) for index in range(8)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
@@ -140,22 +160,38 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "skill_q3": tuple(("attack_q", index) for index in (18, 21, 22, 23, 22, 21, 18)),
 }
 
-# One native eight-frame gait cycle.  The sign identifies which approved leg
-# layer leads after lower-body recomposition; two sign changes inside the loop
-# guarantee a left/right crossover instead of eight variants of the original
-# tucked-knee crouch.  Values avoid zero so every passing pose remains
-# mechanically auditable after reduction to tiny native rectangles.
+# One native eight-frame gait cycle. Negative values close/cross the two feet,
+# positive values open them into the opposite contact pose, and the zero
+# phases are the authored passing steps. The sources form one restrained guard
+# rhythm: one arm leads, both recover, then the opposite guard shifts back.
+# No crouched motion-sheet sprint or attack-contact frame is reused.
 RUN_STRIDE_PHASES: tuple[float, ...] = (
-    -1.0,
-    -0.48,
-    0.34,
-    0.86,
     1.0,
-    0.48,
-    -0.34,
-    -0.86,
+    0.65,
+    0.0,
+    -0.65,
+    -1.0,
+    -0.65,
+    0.0,
+    0.65,
 )
-RUN_GUARD_SOURCE = ("attack_q", 2)
+RUN_POSE_SOURCES: tuple[tuple[str, int], ...] = (
+    ("attack_q", 0),
+    ("attack_q", 0),
+    ("attack_q", 5),
+    ("attack_q", 5),
+    ("attack_q", 11),
+    ("attack_q", 5),
+    ("attack_q", 5),
+    ("attack_q", 0),
+)
+RUN_PASSING_LEG_SIDES: tuple[int, ...] = (1, 1, 1, 1, -1, -1, -1, -1)
+# Palette compatibility only: 0.12.8 sampled these eight derived guard frames
+# when creating the shared 48-color body palette. Replaying that sampling set
+# prevents an animation-only run change from recoloring every unrelated frame.
+PALETTE_COMPAT_STRIDE_PHASES: tuple[float, ...] = (
+    -1.0, -0.48, 0.34, 0.86, 1.0, 0.48, -0.34, -0.86
+)
 RUN_ATTACK_POSE_PHASES: dict[str, tuple[str, ...]] = {
     "attack": ("windup", "windup", "contact", "contact", "recovery", "recovery"),
     "attack_azakana": (
@@ -377,30 +413,36 @@ def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image
     return actor_crop
 
 
-def recompose_run_cross_step_pair(
+def _recompose_stride_pair(
     actor: Image.Image,
     raw_weapon_source: Image.Image,
     frame_index: int,
+    *,
+    stride_phases: tuple[float, ...] = RUN_STRIDE_PHASES,
+    stride_ratio: float = 0.14,
+    neutral_inset_ratio: float = 0.0,
+    torso_sway_phases: tuple[float, ...] | None = None,
+    articulated_cycle: bool = False,
 ) -> tuple[Image.Image, Image.Image]:
-    """Build an eight-frame crossover stride under one upright guard torso.
+    """Articulate two source leg identities without repainting the actor.
 
-    The accepted V7 attack sheet contains a readable right-facing guard with
-    both hands and swords connected.  This deterministic source-space pass
-    keeps every pixel above the hips fixed and repositions only the existing
-    lower-body pixels: the two hip-connected halves move in opposite x
-    directions, the planted leg lengthens slightly and the passing leg lifts.
-    No Workshop pixel and no newly painted limb enters the result.
+    Each frame starts from a distinct accepted V7 pose, so the head, hair,
+    shoulders, hands and two attached swords retain their authored motion.
+    This deterministic source-space pass only strengthens the existing
+    lower-body step by moving the two hip-connected halves in opposite x
+    directions and lifting the passing leg. No Workshop pixel and no newly
+    painted limb enters the result.
 
     ``raw_weapon_source`` receives identical canvas padding/cropping but is not
-    deformed.  Its hand-to-tip vectors therefore remain authored and aligned
-    with the unchanged upper body, while the cleaned actor supplies the new
-    legs.  This is important because native weapon proof is recovered from the
-    raw sheet separately and must never become a duplicated blade silhouette.
+    deformed. Its hand-to-tip vectors therefore remain authored and aligned
+    with that frame's moving upper body, while the cleaned actor supplies the
+    strengthened step. Native weapon proof is recovered from the raw sheet
+    separately and never becomes a duplicated blade silhouette.
     """
 
     if actor.size != raw_weapon_source.size:
-        raise ValueError("Yone run actor/raw pair lost source alignment")
-    if not 0 <= frame_index < len(RUN_STRIDE_PHASES):
+        raise ValueError("Yone articulated run actor/raw pair lost source alignment")
+    if not 0 <= frame_index < len(stride_phases):
         raise ValueError(f"invalid Yone run frame index: {frame_index}")
 
     rgba = actor.convert("RGBA")
@@ -409,16 +451,21 @@ def recompose_run_cross_step_pair(
     body_height = bottom - top
     pelvis_x = core_center_x(rgba)
     hip_y = top + round(body_height * 0.57)
-    phase = RUN_STRIDE_PHASES[frame_index]
+    phase = stride_phases[frame_index]
 
     # Source pixels are roughly five times native size.  These restrained
     # amplitudes become a visible 3-4px step at 1x without changing the native
     # action rectangle or touching the one-pixel transparent frame border.
-    maximum_stride = max(8, round(body_height * 0.105))
+    maximum_stride = max(8, round(body_height * stride_ratio))
+    neutral_inset = round(maximum_stride * neutral_inset_ratio)
     maximum_drop = max(4, round(body_height * 0.045))
     maximum_lift = max(3, round(body_height * 0.035))
+    maximum_torso_sway = max(3, round(body_height * 0.04))
     leg_radius = max(16, round(body_height * 0.24))
-    pad_x = maximum_stride + 3
+    pad_x = round(
+        maximum_stride
+        * (max(abs(value) for value in stride_phases) + neutral_inset_ratio)
+    ) + maximum_torso_sway + 3
     pad_top = 2
     pad_bottom = maximum_drop + 3
     canvas_size = (
@@ -427,9 +474,26 @@ def recompose_run_cross_step_pair(
     )
     recomposed = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
     aligned_raw = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
-    aligned_raw.alpha_composite(raw_rgba, (pad_x, pad_top))
     source_pixels = rgba.load()
+    raw_source_pixels = raw_rgba.load()
     target_pixels = recomposed.load()
+    raw_target_pixels = aligned_raw.load()
+    torso_phase = (
+        torso_sway_phases[frame_index]
+        if torso_sway_phases is not None
+        else 0.0
+    )
+
+    for y in range(raw_rgba.height):
+        upper_progress = min(
+            1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
+        )
+        torso_shift = round(torso_phase * maximum_torso_sway * upper_progress)
+        for x in range(raw_rgba.width):
+            color = raw_source_pixels[x, y]
+            if color[3] == 0:
+                continue
+            raw_target_pixels[x + pad_x + torso_shift, y + pad_top] = color
 
     # The leg crossing nearest the centre is drawn last so the advancing foot
     # reads in front at the two overlap phases, like the measured reference
@@ -442,7 +506,11 @@ def recompose_run_cross_step_pair(
             color = source_pixels[x, y]
             if color[3] == 0:
                 continue
-            target_x = x + pad_x
+            upper_progress = min(
+                1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
+            )
+            torso_shift = round(torso_phase * maximum_torso_sway * upper_progress)
+            target_x = x + pad_x + torso_shift
             target_y = y + pad_top
             inside_leg_core = (
                 y >= hip_y
@@ -453,13 +521,38 @@ def recompose_run_cross_step_pair(
             if inside_leg_core:
                 progress = min(1.0, (y - hip_y) / max(1, bottom - hip_y))
                 leg_side = -1 if x < pelvis_x else 1
-                target_x += round(
-                    leg_side * phase * maximum_stride * progress
-                )
+                # A walking cycle has two wide contact poses (phase +/-1)
+                # and two narrow passing poses (phase 0).  Using the signed
+                # phase directly made only one half of the cycle open while
+                # the other half collapsed past centre.  Keep the two source
+                # leg identities, open them symmetrically at both contacts,
+                # then alternate their draw/lift order from the phase sign so
+                # a different leg visibly passes in front every half-cycle.
+                if articulated_cycle:
+                    phase_magnitude = abs(phase)
+                    stride_position = (
+                        phase_magnitude * maximum_stride
+                        - (1.0 - phase_magnitude) * neutral_inset
+                    )
+                else:
+                    # Retain the historical palette-sampling geometry.  The
+                    # generated run passes opt into the symmetric contact
+                    # cycle below, but changing this compatibility route would
+                    # re-quantize every unrelated Yone action.
+                    stride_position = phase * maximum_stride - neutral_inset
+                target_x += round(leg_side * stride_position * progress)
                 target_y += round(maximum_drop * progress)
-                passing_side = -1 if phase < 0 else 1
+                # The two zero-phase frames are different anatomical passes:
+                # right leg in front during the first half-cycle, left leg in
+                # front during the second.  Basing this only on ``phase < 0``
+                # selected the same leg at both exact zero crossings.
+                passing_side = (
+                    RUN_PASSING_LEG_SIDES[frame_index]
+                    if articulated_cycle
+                    else (-1 if phase < 0 else 1)
+                )
                 if leg_side == passing_side:
-                    passing_lift = (1.0 - abs(phase)) * maximum_lift
+                    passing_lift = max(0.0, 1.0 - abs(phase)) * maximum_lift
                     target_y -= round(passing_lift * progress)
 
             if not (0 <= target_x < recomposed.width and 0 <= target_y < recomposed.height):
@@ -475,7 +568,7 @@ def recompose_run_cross_step_pair(
     actor_box = recomposed.getchannel("A").getbbox()
     raw_box = aligned_raw.getchannel("A").getbbox()
     if actor_box is None or raw_box is None:
-        raise ValueError("Yone crossover stride removed actor or weapon source")
+        raise ValueError("Yone articulated stride removed actor or weapon source")
     union = (
         min(actor_box[0], raw_box[0]),
         min(actor_box[1], raw_box[1]),
@@ -485,8 +578,33 @@ def recompose_run_cross_step_pair(
     actor_result = recomposed.crop(union)
     raw_result = aligned_raw.crop(union)
     if actor_result.size != raw_result.size:
-        raise ValueError("Yone crossover stride crop lost source alignment")
+        raise ValueError("Yone articulated stride crop lost source alignment")
     return actor_result, raw_result
+
+
+def recompose_run_articulated_pair(
+    actor: Image.Image,
+    raw_weapon_source: Image.Image,
+    frame_index: int,
+) -> tuple[Image.Image, Image.Image]:
+    """Build a smooth upright cycle from compatible accepted guard poses.
+
+    The upper-body guard rhythm moves both sword hands without inserting a
+    contact pose. The lower compositor keeps the original left/right pixel
+    groups as identities, closes them at frames 2/6 and alternates which leg
+    renders in front between the two passing steps.
+    """
+
+    return _recompose_stride_pair(
+        actor,
+        raw_weapon_source,
+        frame_index,
+        stride_phases=RUN_STRIDE_PHASES,
+        stride_ratio=0.18,
+        neutral_inset_ratio=1.0,
+        torso_sway_phases=(0.0, 0.8, 1.2, 0.8, 0.0, -0.8, -1.2, -0.8),
+        articulated_cycle=True,
+    )
 
 
 def _source_weapon_candidate(
@@ -1433,9 +1551,10 @@ def motion_pose_metrics(
     if len(foot_xs) < 4 or max(foot_xs) - min(foot_xs) < 2:
         raise ValueError(f"run[{index}] lost its two-foot lower-body span")
 
-    # One-dimensional k-means separates the two visible boot/leg clusters.
-    # The phase labels those pixel clusters by anatomical leg through the
-    # crossover, so tests can prove the x ordering really changes twice.
+    # One-dimensional k-means separates the two visible boot clusters. Do not
+    # invent anatomical left/right identities from the scripted phase: the old
+    # QA did that and could report a crossover even while the pixels stayed
+    # frozen. The actual close/open span is the auditable gait signal here.
     centres = [float(min(foot_xs)), float(max(foot_xs))]
     clusters: list[list[int]] = [[], []]
     for _iteration in range(12):
@@ -1451,21 +1570,18 @@ def motion_pose_metrics(
             break
         centres = updated
     centres.sort()
-    phase = RUN_STRIDE_PHASES[index]
-    if phase < 0:
-        left_leg_x, right_leg_x = centres[1], centres[0]
-    else:
-        left_leg_x, right_leg_x = centres[0], centres[1]
     result.update(
         {
-            "run_stride_phase": phase,
+            "run_stride_phase": RUN_STRIDE_PHASES[index],
             "foot_centers_x": [round(value, 3) for value in centres],
             "foot_separation_px": round(centres[1] - centres[0], 3),
-            "left_leg_center_x": round(left_leg_x, 3),
-            "right_leg_center_x": round(right_leg_x, 3),
-            "leg_x_order": "left-before-right"
-            if left_leg_x < right_leg_x
-            else "right-before-left",
+            "stride_pose": (
+                "crossing"
+                if centres[1] - centres[0] <= 6.0
+                else "extended"
+                if centres[1] - centres[0] >= 10.0
+                else "passing"
+            ),
         }
     )
     return result
@@ -1529,14 +1645,24 @@ def load_subjects() -> tuple[
     for index in range(15):
         key = ("ult", index)
         subjects[key], raw_subjects[key] = split_cell_pair(ult, 5, 3, index)
-    guard_actor = subjects[RUN_GUARD_SOURCE]
-    guard_raw = raw_subjects[RUN_GUARD_SOURCE]
-    for frame_index in range(len(RUN_STRIDE_PHASES)):
-        key = ("run_guard", frame_index)
-        subjects[key], raw_subjects[key] = recompose_run_cross_step_pair(
-            guard_actor, guard_raw, frame_index
+    palette_subjects = dict(subjects)
+    palette_guard_actor = subjects[("attack_q", 2)]
+    palette_guard_raw = raw_subjects[("attack_q", 2)]
+    for frame_index in range(len(PALETTE_COMPAT_STRIDE_PHASES)):
+        palette_key = ("run_guard", frame_index)
+        palette_subjects[palette_key], _palette_raw = _recompose_stride_pair(
+            palette_guard_actor,
+            palette_guard_raw,
+            frame_index,
+            stride_phases=PALETTE_COMPAT_STRIDE_PHASES,
+            stride_ratio=0.105,
         )
-    install_source_palette(subjects)
+    for frame_index, source_key in enumerate(RUN_POSE_SOURCES):
+        key = ("run_pose", frame_index)
+        subjects[key], raw_subjects[key] = recompose_run_articulated_pair(
+            subjects[source_key], raw_subjects[source_key], frame_index
+        )
+    install_source_palette(palette_subjects)
     used_keys = {
         (source_kind, int(cell_index))
         for assignments in ACTION_SOURCES.values()
@@ -1908,16 +2034,6 @@ def main() -> int:
     )
     if len(run_audits) != len(RUN_STRIDE_PHASES):
         failures.append(f"run_motion_audit_count={len(run_audits)}")
-    run_order_signs = [
-        -1
-        if audit["left_leg_center_x"] < audit["right_leg_center_x"]
-        else 1
-        for audit in run_audits
-    ]
-    run_leg_order_flips = sum(
-        first != second
-        for first, second in zip(run_order_signs, run_order_signs[1:])
-    )
     run_ground_offsets = [
         audit["ground_offset_from_rect_center_px"] for audit in run_audits
     ]
@@ -1929,20 +2045,172 @@ def main() -> int:
         audit["upper_minus_mid_centroid_x_px"] for audit in run_audits
     ]
     run_foot_separations = [audit["foot_separation_px"] for audit in run_audits]
+    run_stride_pose_counts = Counter(audit["stride_pose"] for audit in run_audits)
+    run_crossing_frame_indices = [
+        audit["index"] for audit in run_audits if audit["stride_pose"] == "crossing"
+    ]
+    run_extended_frame_indices = [
+        audit["index"] for audit in run_audits if audit["stride_pose"] == "extended"
+    ]
+    run_local_minimum_indices = [
+        index
+        for index, value in enumerate(run_foot_separations)
+        if value < run_foot_separations[index - 1]
+        and value < run_foot_separations[(index + 1) % len(run_foot_separations)]
+    ]
+    run_local_maximum_indices = [
+        index
+        for index, value in enumerate(run_foot_separations)
+        if value > run_foot_separations[index - 1]
+        and value > run_foot_separations[(index + 1) % len(run_foot_separations)]
+    ]
+    run_hand_ranges: dict[str, dict[str, float]] = {}
+    hand_x_paths: dict[str, list[float]] = {}
+    hand_paths: dict[str, list[tuple[float, float]]] = {}
+    for weapon in ("steel", "azakana"):
+        xs = [float(audit[f"{weapon}_hand_anchor"][0]) for audit in run_audits]
+        ys = [float(audit[f"{weapon}_hand_anchor"][1]) for audit in run_audits]
+        hand_x_paths[weapon] = xs
+        hand_paths[weapon] = list(zip(xs, ys, strict=True))
+        run_hand_ranges[weapon] = {
+            "x": round(max(xs) - min(xs), 3),
+            "y": round(max(ys) - min(ys), 3),
+        }
+    run_maximum_adjacent_hand_steps = {
+        weapon: round(
+            max(
+                math.dist(path[index], path[(index + 1) % len(path)])
+                for index in range(len(path))
+            ),
+            3,
+        )
+        for weapon, path in hand_paths.items()
+    }
+    steel_x = hand_x_paths["steel"]
+    azakana_x = hand_x_paths["azakana"]
+    steel_mean = sum(steel_x) / len(steel_x)
+    azakana_mean = sum(azakana_x) / len(azakana_x)
+    covariance = sum(
+        (steel - steel_mean) * (azakana - azakana_mean)
+        for steel, azakana in zip(steel_x, azakana_x, strict=True)
+    )
+    steel_variance = sum((value - steel_mean) ** 2 for value in steel_x)
+    azakana_variance = sum((value - azakana_mean) ** 2 for value in azakana_x)
+    run_hand_x_correlation = covariance / max(
+        0.0001, math.sqrt(steel_variance * azakana_variance)
+    )
     run_blade_angle_ranges: dict[str, float] = {}
+    run_maximum_adjacent_blade_angle_steps: dict[str, float] = {}
+    run_minimum_blade_pixel_ratios: dict[str, float] = {}
+    run_maximum_adjacent_tip_steps: dict[str, float] = {}
+    run_maximum_adjacent_blade_span_ratios: dict[str, float] = {}
+    run_maximum_adjacent_blade_pixel_ratios: dict[str, float] = {}
     for weapon in ("steel", "azakana"):
         angles = []
+        blade_pixel_counts = []
+        blade_spans = []
+        tip_path = []
         for audit in run_audits:
             hand_x, hand_y = audit[f"{weapon}_hand_anchor"]
             tip_x, tip_y = audit[f"{weapon}_tip"]
-            angles.append(math.atan2(tip_y - hand_y, tip_x - hand_x))
-        run_blade_angle_ranges[weapon] = round(max(angles) - min(angles), 3)
-    if run_leg_order_flips < 2:
-        failures.append(f"run_leg_order_flips={run_leg_order_flips}")
-    if run_foot_separations and min(run_foot_separations) < 2.0:
+            tip_path.append((float(tip_x), float(tip_y)))
+            angles.append(
+                math.atan2(tip_y - hand_y, tip_x - hand_x) % (2 * math.pi)
+            )
+            blade_pixel_counts.append(int(audit[f"{weapon}_pixel_count"]))
+            blade_spans.append(float(audit[f"{weapon}_span_px"]))
+        run_maximum_adjacent_tip_steps[weapon] = round(
+            max(
+                math.dist(tip_path[index], tip_path[(index + 1) % len(tip_path)])
+                for index in range(len(tip_path))
+            ),
+            3,
+        )
+        run_maximum_adjacent_blade_angle_steps[weapon] = round(
+            max(
+                abs(
+                    (
+                        angles[(index + 1) % len(angles)]
+                        - angles[index]
+                        + math.pi
+                    )
+                    % (2 * math.pi)
+                    - math.pi
+                )
+                for index in range(len(angles))
+            ),
+            3,
+        )
+        run_minimum_blade_pixel_ratios[weapon] = round(
+            min(blade_pixel_counts) / max(blade_pixel_counts), 3
+        )
+        run_maximum_adjacent_blade_span_ratios[weapon] = round(
+            max(
+                max(
+                    blade_spans[index],
+                    blade_spans[(index + 1) % len(blade_spans)],
+                )
+                / min(
+                    blade_spans[index],
+                    blade_spans[(index + 1) % len(blade_spans)],
+                )
+                for index in range(len(blade_spans))
+            ),
+            3,
+        )
+        run_maximum_adjacent_blade_pixel_ratios[weapon] = round(
+            max(
+                max(
+                    blade_pixel_counts[index],
+                    blade_pixel_counts[(index + 1) % len(blade_pixel_counts)],
+                )
+                / min(
+                    blade_pixel_counts[index],
+                    blade_pixel_counts[(index + 1) % len(blade_pixel_counts)],
+                )
+                for index in range(len(blade_pixel_counts))
+            ),
+            3,
+        )
+        angles = sorted(angles)
+        circular_gaps = [
+            second - first for first, second in zip(angles, angles[1:])
+        ] + [angles[0] + 2 * math.pi - angles[-1]]
+        run_blade_angle_ranges[weapon] = round(
+            2 * math.pi - max(circular_gaps), 3
+        )
+    if run_stride_pose_counts["crossing"] < 2:
+        failures.append(f"run_crossing_pose_count={run_stride_pose_counts['crossing']}")
+    if run_stride_pose_counts["extended"] < 2:
+        failures.append(f"run_extended_pose_count={run_stride_pose_counts['extended']}")
+    if run_foot_separations and min(run_foot_separations) < 1.5:
         failures.append(
             f"run_foot_separation_min={min(run_foot_separations):.3f}"
         )
+    if run_crossing_frame_indices != [2, 6] or run_local_minimum_indices != [2, 6]:
+        failures.append(
+            "run_passing_step_indices="
+            f"{run_crossing_frame_indices}/{run_local_minimum_indices}"
+        )
+    if run_local_maximum_indices != [0, 4]:
+        failures.append(f"run_contact_step_indices={run_local_maximum_indices}")
+    if run_extended_frame_indices != [0, 4]:
+        failures.append(f"run_extended_frame_indices={run_extended_frame_indices}")
+    if any(not 2.0 <= run_foot_separations[index] <= 6.0 for index in (2, 6)):
+        failures.append(f"run_crossing_foot_separations={run_foot_separations}")
+    if any(not 10.0 <= run_foot_separations[index] <= 16.0 for index in (0, 4)):
+        failures.append(f"run_contact_foot_separations={run_foot_separations}")
+    if any(
+        not 6.0 <= run_foot_separations[index] <= 10.0
+        for index in (1, 3, 5, 7)
+    ):
+        failures.append(f"run_transition_foot_separations={run_foot_separations}")
+    if abs(run_foot_separations[0] - run_foot_separations[4]) > 2.0:
+        failures.append(f"run_contact_symmetry={run_foot_separations}")
+    if abs(run_foot_separations[2] - run_foot_separations[6]) > 1.0:
+        failures.append(f"run_crossing_symmetry={run_foot_separations}")
+    if RUN_PASSING_LEG_SIDES[2] != -RUN_PASSING_LEG_SIDES[6]:
+        failures.append(f"run_passing_leg_sides={RUN_PASSING_LEG_SIDES}")
     if run_ground_offsets and max(run_ground_offsets) - min(run_ground_offsets) > 3.0:
         failures.append(
             "run_ground_anchor_range="
@@ -1953,19 +2221,54 @@ def main() -> int:
             "run_torso_height_range="
             f"{max(run_torso_heights) - min(run_torso_heights):.3f}"
         )
-    if run_body_heights and max(run_body_heights) - min(run_body_heights) > 1:
+    if run_body_heights and max(run_body_heights) - min(run_body_heights) > 2:
         failures.append(
             "run_body_height_range="
             f"{max(run_body_heights) - min(run_body_heights)}"
         )
-    if run_torso_leans and max(run_torso_leans) - min(run_torso_leans) > 0.75:
+    if run_torso_leans and not 1.5 <= max(run_torso_leans) - min(run_torso_leans) <= 3.5:
         failures.append(
             "run_upper_guard_lean_range="
             f"{max(run_torso_leans) - min(run_torso_leans):.3f}"
         )
+    if run_hand_ranges["steel"]["x"] < 3.0 or run_hand_ranges["steel"]["y"] < 1.5:
+        failures.append(f"weak_steel_hand_motion={run_hand_ranges['steel']}")
+    if run_hand_ranges["azakana"]["x"] < 2.5 or run_hand_ranges["azakana"]["y"] < 1.0:
+        failures.append(f"weak_azakana_hand_motion={run_hand_ranges['azakana']}")
+    if run_hand_x_correlation > -0.35:
+        failures.append(f"run_hand_x_correlation={run_hand_x_correlation:.3f}")
+    for weapon, adjacent_step in run_maximum_adjacent_hand_steps.items():
+        if adjacent_step > 3.0:
+            failures.append(f"run_{weapon}_hand_step={adjacent_step:.3f}")
     for weapon, angle_range in run_blade_angle_ranges.items():
-        if angle_range > 0.55:
+        if angle_range > 3.0:
             failures.append(f"run_{weapon}_angle_range={angle_range:.3f}")
+        adjacent_angle_step = run_maximum_adjacent_blade_angle_steps[weapon]
+        if adjacent_angle_step > 0.45:
+            failures.append(
+                f"run_{weapon}_adjacent_angle_step={adjacent_angle_step:.3f}"
+            )
+        blade_pixel_ratio = run_minimum_blade_pixel_ratios[weapon]
+        if blade_pixel_ratio < 0.65:
+            failures.append(
+                f"run_{weapon}_minimum_blade_pixel_ratio={blade_pixel_ratio:.3f}"
+            )
+        if run_maximum_adjacent_tip_steps[weapon] > 5.0:
+            failures.append(
+                f"run_{weapon}_tip_step={run_maximum_adjacent_tip_steps[weapon]:.3f}"
+            )
+        if run_maximum_adjacent_blade_span_ratios[weapon] > 1.2:
+            failures.append(
+                "run_"
+                f"{weapon}_adjacent_span_ratio="
+                f"{run_maximum_adjacent_blade_span_ratios[weapon]:.3f}"
+            )
+        if run_maximum_adjacent_blade_pixel_ratios[weapon] > 1.2:
+            failures.append(
+                "run_"
+                f"{weapon}_adjacent_pixel_ratio="
+                f"{run_maximum_adjacent_blade_pixel_ratios[weapon]:.3f}"
+            )
 
     attack_motion_summary: dict[str, Any] = {}
     for attack_action in ("attack", "attack_azakana"):
@@ -2015,11 +2318,18 @@ def main() -> int:
             "attack_durations_seconds": build_yone.NATIVE_CONTRACT["attack"]["durations"],
         },
         "run": {
-            "source": "approved V7 attack_q cell 2 guard; lower-body pixel recomposition only",
-            "upper_guard_source": list(RUN_GUARD_SOURCE),
+            "source": "approved upright V7 guard poses; authored upper-body articulation plus lower-body crossover strengthening",
+            "pose_sources": [list(source) for source in RUN_POSE_SOURCES],
             "stride_phases": list(RUN_STRIDE_PHASES),
-            "leg_x_order_flips": run_leg_order_flips,
+            "passing_leg_sides": list(RUN_PASSING_LEG_SIDES),
+            "foot_separations_px": run_foot_separations,
+            "stride_pose_counts": dict(sorted(run_stride_pose_counts.items())),
+            "crossing_frame_indices": run_crossing_frame_indices,
+            "extended_frame_indices": run_extended_frame_indices,
+            "local_minimum_frame_indices": run_local_minimum_indices,
+            "local_maximum_frame_indices": run_local_maximum_indices,
             "minimum_foot_separation_px": round(min(run_foot_separations), 3),
+            "maximum_foot_separation_px": round(max(run_foot_separations), 3),
             "ground_anchor_range_px": round(
                 max(run_ground_offsets) - min(run_ground_offsets), 3
             ),
@@ -2031,7 +2341,21 @@ def main() -> int:
             "upper_guard_lean_range_px": round(
                 max(run_torso_leans) - min(run_torso_leans), 3
             ),
+            "hand_anchor_ranges_px": run_hand_ranges,
+            "hand_x_correlation": round(run_hand_x_correlation, 3),
+            "maximum_adjacent_hand_step_px": run_maximum_adjacent_hand_steps,
+            "maximum_adjacent_tip_step_px": run_maximum_adjacent_tip_steps,
             "blade_angle_ranges_radians": run_blade_angle_ranges,
+            "maximum_adjacent_blade_angle_step_radians": (
+                run_maximum_adjacent_blade_angle_steps
+            ),
+            "minimum_blade_pixel_ratio": run_minimum_blade_pixel_ratios,
+            "maximum_adjacent_blade_span_ratio": (
+                run_maximum_adjacent_blade_span_ratios
+            ),
+            "maximum_adjacent_blade_pixel_ratio": (
+                run_maximum_adjacent_blade_pixel_ratios
+            ),
             "unique_body_pose_count": len(
                 {audit["body_pose_sha256"] for audit in run_audits}
             ),

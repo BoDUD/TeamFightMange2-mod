@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.8",
+  "release": "0.12.9",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -295,9 +295,9 @@
       "native_state_isolated_by_game_context": true,
       "native_state_isolation": "active Q/W/R are pure data and create no process-global native state",
       "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
-      "new_save_required_for_current_q_w_r": "0.12.8",
-      "new_save_required_for_dual_sword_v7_animation_tree": "0.12.8",
-      "save_boundary": "only a fresh 0.12.8 test save embeds the reference-grounded pure-data Q/W/R action tree; old saves retain their embedded historical tree but load retired names through no-op compatibility",
+      "new_save_required_for_current_q_w_r": "0.12.9",
+      "new_save_required_for_dual_sword_v7_animation_tree": "0.12.9",
+      "save_boundary": "only a fresh 0.12.9 test save embeds the reference-grounded pure-data Q/W/R action tree; old saves retain their embedded historical tree but load retired names through no-op compatibility",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 67,
@@ -434,7 +434,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.8 targets base 0.5.8 / stable ABI 8, routes Xayah and Yone encyclopedia cards through the game-owned champion-icon resolver without source replacement, and keeps BP chrome/side illustrations on bounded additive nodes. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
+      "live_status": "0.12.9 targets base 0.5.8 / stable ABI 8, gives Xayah and Yone full-leg encyclopedia framing through the game-owned champion-icon resolver without source replacement, and aligns Yone's articulated run and staged Fate Sealed presentation with the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
     }
   },
   "packaged_variants": {

@@ -6,6 +6,7 @@ import json
 import re
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
 
@@ -466,7 +467,8 @@ def test_yone_active_vfx_audio_and_icons_are_project_owned_and_fully_referenced(
         "lol_yone_w_hit",
         "lol_yone_w_shield",
         "lol_yone_r_windup",
-        "lol_yone_r_arrival",
+        "lol_yone_r_launch",
+        "lol_yone_r_knockup",
         "lol_yone_r_slash_blue",
         "lol_yone_r_slash_red",
     }
@@ -499,6 +501,7 @@ def test_yone_active_vfx_audio_and_icons_are_project_owned_and_fully_referenced(
         "lol_yone_r_arrival",
         "lol_yone_r_slash_steel",
         "lol_yone_r_slash_azakana",
+        "lol_yone_r_echo",
     }
     assert not any("lol_yone_e_" in name for name in used_audio | used_views)
 
@@ -704,12 +707,14 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
     )[0]
     for required in (
         'let native_icon = join_ui_path(&card, "icon");',
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)",
+        "let positioned = resolver_bound\n"
+        "        && client.ui_set_properties(&native_icon",
+        '&format!("pivot_y: 1; y: {bottom_y}px;")',
         "client.ui_set_visible(&native_icon, true)",
     ):
         assert required in card_sync
     for forbidden in (
-        "ui_set_properties(&native_icon",
         "ui_spawn_source(",
         "ui_set_visible(&native_icon, false)",
         "lol_fullbody_yone",
@@ -721,9 +726,9 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
     batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
         "fn bp_champion_id_from_name", 1
     )[0]
-    assert 'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)' in batch
+    assert 'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0' in batch
     assert (
-        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)'
+        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0'
         in batch
     )
     assert "YoneManagementCardExtension" not in rust
@@ -959,14 +964,21 @@ def test_r_is_delayed_penetrating_line_aoe_with_one_damage_and_pull() -> None:
     ] == [(120, 70)]
     assert not find_effect(r, "FixedAttack")
     assert [view["name"] for view in find_effect(rush, "ViewEffect")] == [
-        "lol_yone_r_arrival",
         "lol_yone_r_slash_blue",
+        "lol_yone_r_knockup",
         "lol_yone_r_slash_red",
     ]
     pull_delays = find_effect(rush, "Delayed")
-    assert len(pull_delays) == 1 and pull_delays[0]["tick"] == 12
-    assert find_effect(pull_delays[0], "Pull") == [
+    assert [delay["tick"] for delay in pull_delays] == [5, 12]
+    pull_delay = next(delay for delay in pull_delays if delay["tick"] == 12)
+    assert find_effect(pull_delay, "Pull") == [
         {"type": "Pull", "speed": 3000, "tick": 12}
+    ]
+    assert find_effect(pull_delay, "TargetSfx") == [
+        {"type": "TargetSfx", "name": "lol_yone_r_echo"}
+    ]
+    assert find_effect(outer_delayed[0], "CasterViewEffect") == [
+        {"type": "CasterViewEffect", "name": "lol_yone_r_launch"}
     ]
     assert not find_effect(r, "Native")
     for forbidden in ("RandomTarget", "AutoTargetProjectile", "RangeEffect"):
@@ -989,7 +1001,6 @@ def _retired_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets(
         "lol_yone_w_hit",
         "lol_yone_w_shield",
         "lol_yone_r_windup",
-        "lol_yone_r_arrival",
         "lol_yone_r_slash_blue",
         "lol_yone_r_slash_red",
     }
@@ -1221,8 +1232,59 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
     ]
     assert list(actor_anim)[13:] == [
         "attack_steel", "attack_azakana", "skill_q12", "skill_q3",
-        "skill_w_azakana",
+        "skill_w_azakana", "ult_fate_sealed",
     ]
+    fate_sealed = actor_anim["ult_fate_sealed"]["frames"]
+    assert sum(frame["duration"] for frame in fate_sealed) == pytest.approx(1.0)
+    assert sum(frame["duration"] for frame in fate_sealed[:7]) == pytest.approx(0.58)
+    fate_sealed_metrics: list[tuple[int, int, int]] = []
+    for frame in fate_sealed:
+        data = frame["data"]
+        rendered = actor_sheet.crop(
+            (
+                data["x"],
+                data["y"],
+                data["x"] + data["w"],
+                data["y"] + data["h"],
+            )
+        )
+        alpha = rendered.getchannel("A")
+        bbox = alpha.getbbox()
+        assert bbox is not None
+        opaque_pixels = sum(1 for value in alpha.get_flattened_data() if value)
+        fate_sealed_metrics.append(
+            (bbox[2] - bbox[0], bbox[3] - bbox[1], opaque_pixels)
+        )
+    assert all(height >= 34 for _width, height, _opaque in fate_sealed_metrics)
+    assert all(opaque >= 560 for _width, _height, opaque in fate_sealed_metrics)
+    fate_heights = [height for _width, height, _opaque in fate_sealed_metrics]
+    assert max(
+        abs(fate_heights[index] - fate_heights[index - 1])
+        for index in range(len(fate_heights))
+    ) <= 4
+    assert fate_sealed_metrics[5][0] >= 24
+    assert fate_sealed_metrics[5][1] >= 34
+    assert fate_sealed_metrics[5][2] >= 560
+    assert fate_sealed_metrics[6][0] >= 50
+    assert fate_sealed_metrics[6][1] >= 37
+    assert fate_sealed_metrics[6][2] >= 850
+
+    r_effect_anim = json.loads(
+        (MOD / "aseprite_resources/effects/yone_r#anim.fanim").read_text(
+            encoding="utf-8"
+        )
+    )["anims"]
+    assert list(r_effect_anim) == [
+        "windup",
+        "launch",
+        "knockup",
+        "slash_blue",
+        "slash_red",
+    ]
+    assert "arrival" not in r_effect_anim
+    assert Image.open(
+        MOD / "aseprite_resources/effects/yone_r#sheet.png"
+    ).size == (864, 352)
     actor_bbox = actor_sheet.getchannel("A").getbbox()
     assert actor_bbox is not None
     assert 0 <= actor_bbox[0] < actor_bbox[2] <= actor_sheet.width
@@ -1775,9 +1837,9 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     generator = (MOD / "tools/generate_yone_v7_native.py").read_text(
         encoding="utf-8"
     )
-    assert '"run": tuple(("run_guard", index) for index in range(8))' in generator
-    assert 'RUN_GUARD_SOURCE = ("attack_q", 2)' in generator
-    assert "recompose_run_cross_step_pair(" in generator
+    assert '"run": tuple(("run_pose", index) for index in range(8))' in generator
+    assert "RUN_POSE_SOURCES" in generator
+    assert "recompose_run_articulated_pair(" in generator
     assert "straighten_run_subject" not in generator
 
 
@@ -1801,15 +1863,39 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     }
 
     run = contract["run"]
-    assert run["upper_guard_source"] == ["attack_q", 2]
-    assert run["leg_x_order_flips"] >= 2
-    assert run["minimum_foot_separation_px"] >= 8
+    assert run["pose_sources"] == [
+        ["attack_q", index] for index in (0, 0, 5, 5, 11, 5, 5, 0)
+    ]
+    assert run["passing_leg_sides"] == [1, 1, 1, 1, -1, -1, -1, -1]
+    assert run["stride_pose_counts"] == {
+        "crossing": 2,
+        "extended": 2,
+        "passing": 4,
+    }
+    assert run["crossing_frame_indices"] == [2, 6]
+    assert run["extended_frame_indices"] == [0, 4]
+    assert run["local_minimum_frame_indices"] == [2, 6]
+    assert run["local_maximum_frame_indices"] == [0, 4]
+    foot_separations = run["foot_separations_px"]
+    assert len(foot_separations) == 8
+    assert all(2 <= foot_separations[index] <= 6 for index in (2, 6))
+    assert all(10 <= foot_separations[index] <= 16 for index in (0, 4))
+    assert all(6 <= foot_separations[index] <= 10 for index in (1, 3, 5, 7))
+    assert abs(foot_separations[0] - foot_separations[4]) <= 2
+    assert abs(foot_separations[2] - foot_separations[6]) <= 1
     assert run["ground_anchor_range_px"] <= 0.5
-    assert run["torso_height_range_px"] <= 0.5
+    assert run["torso_height_range_px"] <= 1
     assert run["body_visible_height_range_px"] == 0
-    assert run["upper_guard_lean_range_px"] <= 0.5
-    assert run["blade_angle_ranges_radians"]["steel"] <= 0.25
-    assert run["blade_angle_ranges_radians"]["azakana"] <= 0.55
+    assert 1.5 <= run["upper_guard_lean_range_px"] <= 3.5
+    assert run["hand_anchor_ranges_px"]["steel"]["x"] >= 3
+    assert run["hand_anchor_ranges_px"]["azakana"]["x"] >= 2.5
+    assert run["hand_x_correlation"] <= -0.5
+    assert max(run["maximum_adjacent_hand_step_px"].values()) <= 3
+    assert max(run["maximum_adjacent_tip_step_px"].values()) <= 5
+    assert max(run["maximum_adjacent_blade_angle_step_radians"].values()) <= 0.45
+    assert min(run["minimum_blade_pixel_ratio"].values()) >= 0.65
+    assert max(run["maximum_adjacent_blade_span_ratio"].values()) <= 1.2
+    assert max(run["maximum_adjacent_blade_pixel_ratio"].values()) <= 1.2
     assert run["unique_body_pose_count"] == 8
 
     run_rows = sorted(
@@ -1817,11 +1903,10 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
         key=lambda row: row["index"],
     )
     assert len(run_rows) == 8
-    assert {row["source"] for row in run_rows} == {"run_guard"}
+    assert {row["source"] for row in run_rows} == {"run_pose"}
     assert {row["body_visible_height_px"] for row in run_rows} == {35}
-    assert min(row["foot_separation_px"] for row in run_rows) >= 8
-    orders = [row["leg_x_order"] for row in run_rows]
-    assert sum(a != b for a, b in zip(orders, orders[1:])) >= 2
+    assert min(row["foot_separation_px"] for row in run_rows) <= 6
+    assert max(row["foot_separation_px"] for row in run_rows) >= 10
 
     attacks = contract["attacks"]
     assert attacks["attack"]["source_cells"] == [0, 1, 3, 10, 11, 5]
@@ -2004,7 +2089,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.8"
+    assert mod_info["version"] == "0.12.9"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -2031,16 +2116,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.8"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.9"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.8"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.9"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.8"
+    assert quality_scope["release"] == "0.12.9"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

@@ -525,11 +525,11 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
     assert (
-        'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)'
+        'client, &container, "dancer", 85.0, 93.0, 1.75, 49.0'
         in stable_runtime
     )
     assert (
-        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)'
+        'client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0'
         in stable_runtime
     )
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
@@ -544,12 +544,17 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
         "fn sync_encyclopedia_portraits", 1
     )[0]
     assert (
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)"
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)"
         in card_sync
     )
+    assert '&format!("pivot_y: 1; y: {bottom_y}px;")' in card_sync
+    assert (
+        "let positioned = resolver_bound\n"
+        "        && client.ui_set_properties(&native_icon"
+    ) in card_sync
     assert "client.ui_set_visible(&native_icon, true)" in card_sync
     assert "client.ui_spawn_source(" not in card_sync
-    assert "ui_set_properties(&native_icon" not in card_sync
+    assert "source:" not in card_sync
     assert "source:" not in card_sync
     assert "ui_set_visible(&native_icon, false)" not in card_sync
     assert "stock champion-icon resolver; raw source mutation disabled" in stable_runtime

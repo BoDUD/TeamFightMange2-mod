@@ -252,6 +252,7 @@ struct EncyclopediaCardSync {
     icon_exists: bool,
     runner: String,
     resolver_bound: bool,
+    positioned: bool,
     visible: bool,
     rect_before: Option<(f32, f32, f32, f32)>,
     rect_after: Option<(f32, f32, f32, f32)>,
@@ -263,6 +264,8 @@ fn sync_encyclopedia_card(
     champion_id: &str,
     width: f32,
     height: f32,
+    scale: f32,
+    bottom_y: f32,
 ) -> EncyclopediaCardSync {
     let card = join_ui_path(container, champion_id);
     let native_icon = join_ui_path(&card, "icon");
@@ -282,7 +285,19 @@ fn sync_encyclopedia_card(
     // database and fit it into the requested box.  If an older host rejects
     // the optional slot, the original icon source is untouched and is merely
     // made visible as the fallback.
-    let resolver_bound = client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0);
+    let resolver_bound =
+        client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale);
+    // The stock tier dropdown occupies card y=70..92 at z=103. Xayah and
+    // Yone use tightly cropped non-64px idle frames, so the game's usual 2x
+    // face-icon camera placed their lower legs behind that control. Keep the
+    // engine-owned resolver, but fit these two cards at the measured 1.75x
+    // scale and bottom-anchor the resolved image above the dropdown. This is
+    // encyclopedia-local and therefore cannot move BP, HUD or sidebar icons.
+    // Only move the icon after the resolver has installed the measured frame.
+    // If the optional resolver slot is unavailable, preserve the stock
+    // fallback's original geometry as well as its original source.
+    let positioned = resolver_bound
+        && client.ui_set_properties(&native_icon, &format!("pivot_y: 1; y: {bottom_y}px;"));
     let visible = client.ui_set_visible(&native_icon, true);
     let rect_after = client.ui_node_rect(&native_icon);
 
@@ -296,6 +311,7 @@ fn sync_encyclopedia_card(
         icon_exists: true,
         runner,
         resolver_bound,
+        positioned,
         visible,
         rect_before,
         rect_after,
@@ -321,8 +337,8 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         *cached = Some(container.clone());
     }
 
-    let xayah = sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0);
-    let yone = sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0);
+    let xayah = sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0, 1.75, 49.0);
+    let yone = sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0, 1.75, 60.0);
     if xayah.icon_exists
         && yone.icon_exists
         && extension
@@ -333,14 +349,16 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         append_encyclopedia_telemetry(
             &container,
             &format!(
-                "stock champion-icon resolver; raw source mutation disabled; xayah runner={} bound={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} visible={} rect_before={:?} rect_after={:?}",
+                "stock champion-icon resolver; raw source mutation disabled; measured full-leg fit scale=1.75 xayah_bottom_y=49 yone_bottom_y=60; xayah runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}",
                 xayah.runner,
                 xayah.resolver_bound,
+                xayah.positioned,
                 xayah.visible,
                 xayah.rect_before,
                 xayah.rect_after,
                 yone.runner,
                 yone.resolver_bound,
+                yone.positioned,
                 yone.visible,
                 yone.rect_before,
                 yone.rect_after,

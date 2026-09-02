@@ -302,7 +302,7 @@ def test_rift_towers_and_league_music_remain_in_the_active_runtime_closure() -> 
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
     manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
     paths = {row["path"] for row in manifest["files"]}
-    assert manifest["purpose"] == "0.12.8 encyclopedia resolver and reference-grounded Yone rebuild test closure"
+    assert manifest["purpose"] == "0.12.9 full-leg encyclopedia framing and articulated Yone presentation test closure"
     assert any(path.startswith("champion/") for path in paths)
     for champion_id in (
         "lol_shen",
