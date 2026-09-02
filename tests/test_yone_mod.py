@@ -693,7 +693,7 @@ def _retired_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
+def test_058_stable_runtime_uses_manifest_owned_fullbody_encyclopedia_nodes() -> None:
     cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
     rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     assert 'path = "src/stable_runtime.rs"' in cargo
@@ -707,19 +707,19 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
     )[0]
     for required in (
         'let native_icon = join_ui_path(&card, "icon");',
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)",
-        "let positioned = resolver_bound\n"
-        "        && client.ui_set_properties(&native_icon",
-        '&format!("pivot_y: 1; y: {bottom_y}px;")',
+        "client.ui_spawn_source(&card, &source)",
+        'overlay_runner.eq_ignore_ascii_case("image")',
+        'source: "{texture}";',
+        "client.ui_set_properties(\n            &overlay,",
+        "client.ui_set_visible(&overlay, true)",
+        "client.ui_set_visible(&native_icon, false)",
+        "client.ui_set_visible(&overlay, false)",
         "client.ui_set_visible(&native_icon, true)",
     ):
         assert required in card_sync
     for forbidden in (
-        "ui_spawn_source(",
-        "ui_set_visible(&native_icon, false)",
-        "lol_fullbody_yone",
+        "ui_set_champion_icon",
         "RenderCommand",
-        '"source:',
     ):
         assert forbidden not in card_sync
 
@@ -729,15 +729,22 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
     for required in (
         '"dancer",',
         '"dual_blader",',
-        "ENCYCLOPEDIA_ICON_WIDTH,",
-        "ENCYCLOPEDIA_ICON_HEIGHT,",
-        "ENCYCLOPEDIA_FINISHED_HERO_SCALE,",
+        '"lol_mod_fullbody_xayah",',
+        '"asset/lol_mod/ui/champion_fullbody/dancer",',
+        '"lol_mod_fullbody_yone",',
+        '"asset/lol_mod/ui/champion_fullbody/dual_blader",',
+        "XAYAH_ENCYCLOPEDIA_WIDTH,",
+        "XAYAH_ENCYCLOPEDIA_HEIGHT,",
+        "YONE_ENCYCLOPEDIA_WIDTH,",
+        "YONE_ENCYCLOPEDIA_HEIGHT,",
         "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,",
     ):
         assert required in batch
-    assert "const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;" in rust
-    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;" in rust
-    assert "1.75" not in batch
+    assert "const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;" in rust
+    assert "const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;" in rust
+    assert "const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;" in rust
+    assert "const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;" in rust
+    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
     assert "YoneManagementCardExtension" not in rust
     assert "YoneSpiritCleaveConeNativeEffect" not in rust
 
@@ -747,7 +754,12 @@ def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
             (MOD / "runtime_manifest.json").read_text(encoding="utf-8")
         )["files"]
     }
-    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
+    assert {
+        path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
+    } == {
+        "ui/champion_fullbody/dancer.png",
+        "ui/champion_fullbody/dual_blader.png",
+    }
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
         for path in runtime_paths
@@ -1888,7 +1900,7 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     assert all(6.5 <= foot_separations[index] <= 8.5 for index in (2, 6))
     assert all(10 <= foot_separations[index] <= 13.5 for index in (0, 4))
     assert all(8.5 <= foot_separations[index] <= 10.5 for index in (1, 3, 5, 7))
-    assert abs(foot_separations[0] - foot_separations[4]) <= 2
+    assert abs(foot_separations[0] - foot_separations[4]) <= 1
     assert abs(foot_separations[2] - foot_separations[6]) <= 1
     assert run["ground_anchor_range_px"] <= 0.5
     assert run["torso_height_range_px"] <= 1
@@ -2096,7 +2108,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.10"
+    assert mod_info["version"] == "0.12.11"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -2123,16 +2135,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.10"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.11"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.10"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.11"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.10"
+    assert quality_scope["release"] == "0.12.11"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

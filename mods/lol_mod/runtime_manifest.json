@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.10 finished-hero encyclopedia scale and restrained Yone gait test closure",
-  "file_count": 468,
-  "total_size": 90130137,
+  "purpose": "0.12.11 source-direct encyclopedia fit and symmetric Yone gait test closure",
+  "file_count": 470,
+  "total_size": 90196396,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa"
+      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa"
+      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1015,13 +1015,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 268800,
-      "sha256": "226666b790490f71b73956fdb41601a317218abcae531be2916f608c414f2c4c"
+      "size": 271360,
+      "sha256": "de8597d4966f762aa03f05671fe07b444addccd9631d2addd2531bb1578acdd6"
     },
     {
       "path": "mod.mod_info",
-      "size": 1346,
-      "sha256": "6330244991cd07685f7b19a7d7b4f258fbac81de7e0d4bc0fb160e9a9765bfdb"
+      "size": 1483,
+      "sha256": "103a106b97c47abdff0a8da52951e88fdef1a3573c8eac9858cdffaf716781d7"
     },
     {
       "path": "mod.override_info",
@@ -2182,6 +2182,16 @@
       "path": "ui/banpick/lol_bp_timer_plate.png",
       "size": 4457,
       "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a"
+    },
+    {
+      "path": "ui/champion_fullbody/dancer.png",
+      "size": 31781,
+      "sha256": "aaccf807d104275ec23a6d63bd616282dd7146f0e9f55e34cdc97562a7fc3ae9"
+    },
+    {
+      "path": "ui/champion_fullbody/dual_blader.png",
+      "size": 31781,
+      "sha256": "858d1382c467149a6e7e32d6e5b81e94cb3276e5a2a2159010689507d38c6015"
     },
     {
       "path": "ui/icons/morgard.svg",

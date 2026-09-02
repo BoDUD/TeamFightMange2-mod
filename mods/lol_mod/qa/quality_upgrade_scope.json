@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.10",
+  "release": "0.12.11",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -434,7 +434,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.10 targets base 0.5.8 / stable ABI 8, gives Xayah and Yone finished-hero 2.0 encyclopedia scale with a shared full-body foot line through the game-owned champion-icon resolver, and replaces the exaggerated Yone crossover with a restrained finished-hero-calibrated gait while keeping staged Fate Sealed presentation aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
+      "live_status": "0.12.11 targets base 0.5.8 / stable ABI 8, gives Xayah and Yone dedicated source-direct encyclopedia full-body nodes calibrated to Briar's finished visible-height class, and reduces Yone's wider second contact step while preserving the accepted upper-body and dual-sword gait. Staged Fate Sealed presentation remains aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
     }
   },
   "packaged_variants": {

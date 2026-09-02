@@ -4902,9 +4902,10 @@ RUNTIME_EXCLUDED_PREFIXES = (
     # Compact/grid/scoreboard replacements belong to the retired classic
     # render-command route.
     "ui/champion_portrait/",
-    # Encyclopedia cards now use the game's own champion-icon resolver.  The
-    # authored full-body PNGs and static shared-template experiment are QA
-    # evidence only and must not enter the active package.
+    # Most authored full-body PNGs and the static shared-template experiment
+    # remain QA-only. Xayah/Yone are explicit exceptions below because their
+    # stable-ABI encyclopedia route now spawns two dedicated source-direct
+    # image nodes instead of abusing the face-crop champion-icon resolver.
     "ui/champion_fullbody/",
     "ui/layout/champion_info_component/",
     # These exact base-0.5.1 templates once crashed the draft scene when used
@@ -4921,6 +4922,11 @@ RUNTIME_EXCLUDED_PATHS = {
     "style/bp_controls.style",
 }
 
+RUNTIME_INCLUDED_PATHS = {
+    "ui/champion_fullbody/dancer.png",
+    "ui/champion_fullbody/dual_blader.png",
+}
+
 RUNTIME_SOFT_BUDGET_BYTES = 96 * 1024 * 1024
 RUNTIME_HARD_BUDGET_BYTES = 128 * 1024 * 1024
 
@@ -4932,10 +4938,13 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     runtime_rows = [
         row
         for row in build_payload.get("files", [])
-        if row.get("path") not in RUNTIME_EXCLUDED_PATHS
-        and not any(
-            str(row.get("path", "")).startswith(prefix)
-            for prefix in RUNTIME_EXCLUDED_PREFIXES
+        if row.get("path") in RUNTIME_INCLUDED_PATHS
+        or (
+            row.get("path") not in RUNTIME_EXCLUDED_PATHS
+            and not any(
+                str(row.get("path", "")).startswith(prefix)
+                for prefix in RUNTIME_EXCLUDED_PREFIXES
+            )
         )
     ]
     total_bytes = sum(int(row["size"]) for row in runtime_rows)
@@ -4948,7 +4957,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.10 finished-hero encyclopedia scale and restrained Yone gait test closure",
+        "purpose": "0.12.11 source-direct encyclopedia fit and symmetric Yone gait test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

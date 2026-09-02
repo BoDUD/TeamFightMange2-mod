@@ -187,7 +187,7 @@
         9.283,
         7.45,
         9.777,
-        12.803,
+        11.784,
         9.814,
         7.36,
         9.284
@@ -214,11 +214,11 @@
         4
       ],
       "minimum_foot_separation_px": 7.36,
-      "maximum_foot_separation_px": 12.803,
+      "maximum_foot_separation_px": 11.784,
       "ground_anchor_range_px": 0.0,
-      "torso_height_range_px": 0.25,
+      "torso_height_range_px": 0.305,
       "body_visible_height_range_px": 0,
-      "upper_guard_lean_range_px": 0.59,
+      "upper_guard_lean_range_px": 0.632,
       "hand_anchor_ranges_px": {
         "steel": {
           "x": 3.0,
@@ -4020,14 +4020,14 @@
       "azakana_pixel_count": 41,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 607,
+      "opaque_pixels": 617,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 20,
-      "body_density": 0.4687,
-      "luminance_contrast_p80": 126.83,
-      "dark_ratio": 0.7265,
-      "bright_ratio": 0.0774,
+      "body_density": 0.4764,
+      "luminance_contrast_p80": 129.29,
+      "dark_ratio": 0.731,
+      "bright_ratio": 0.0762,
       "source_subject_size": [
         183,
         179
@@ -4036,7 +4036,7 @@
         36,
         35
       ],
-      "pelvis_center_x": 82.0,
+      "pelvis_center_x": 83.0,
       "paste_xy": [
         4,
         1
@@ -4090,7 +4090,7 @@
           "source_thickness": 6.223
         }
       },
-      "body_pose_sha256": "27029d09ca731909fe5864c1fc670ea716bfc36c3219eb9ecc9fad2aafe47633",
+      "body_pose_sha256": "354f2758c0959ae7f63163062a2c0e4afcef87e2dc0ceaf96f5db7b8dde9f806",
       "body_alpha_bbox": [
         8,
         1,
@@ -4099,14 +4099,14 @@
       ],
       "body_visible_height_px": 35,
       "ground_offset_from_rect_center_px": 11.5,
-      "torso_height_from_ground_px": 22.328,
-      "upper_minus_mid_centroid_x_px": -1.372,
+      "torso_height_from_ground_px": 22.273,
+      "upper_minus_mid_centroid_x_px": -1.32,
       "run_stride_phase": -1.0,
       "foot_centers_x": [
-        13.5,
-        26.303
+        14.494,
+        26.278
       ],
-      "foot_separation_px": 12.803,
+      "foot_separation_px": 11.784,
       "stride_pose": "extended"
     },
     {

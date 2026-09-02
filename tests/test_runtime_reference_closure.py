@@ -480,7 +480,7 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.10",
+        b"0.12.11",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
@@ -489,7 +489,7 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"lol_shen_shadow_dash_ai_hint_native",
         b"lol_shen_shadow_dash_taunt_native",
         b"lol_bp_runtime_illustration",
-        b"stock champion-icon resolver; raw source mutation disabled",
+        b"source-direct encyclopedia fullbody",
         b"corrupt 5v5 pre-tick guard active",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"

@@ -524,39 +524,29 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert '"boomerang_hunter" | "Sivir"' in stable_runtime
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
-    assert "const ENCYCLOPEDIA_ICON_WIDTH: f32 = 85.0;" in stable_runtime
-    assert "const ENCYCLOPEDIA_ICON_HEIGHT: f32 = 93.0;" in stable_runtime
-    assert "const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;" in stable_runtime
-    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;" in stable_runtime
-    assert "1.75" not in stable_runtime.split("fn sync_encyclopedia_portraits", 1)[1].split(
-        "fn bp_champion_id_from_name", 1
-    )[0]
+    assert "const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;" in stable_runtime
+    assert "const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;" in stable_runtime
+    assert "const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;" in stable_runtime
+    assert "const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in stable_runtime
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
 
-    # Regression: 0.12.6 hid the native icon after an unproven spawned PNG;
-    # 0.12.7 then wrote that same unproven plain-PNG `source:` directly onto
-    # the stock image runner. set_properties() only proved grammar acceptance,
-    # so both versions could leave Xayah/Yone completely blank. Use the 0.5.8
-    # ABI 8 SDK's game-owned resolver (introduced at ABI 4) and never mutate
-    # this runner's source string.
+    # Regression: the game-owned champion-icon helper is a face crop and cannot
+    # produce a finished full-body encyclopedia camera. The dedicated overlay
+    # is safe only because its two PNGs are part of the active runtime closure;
+    # keep the stock icon as a fallback when spawning/positioning fails.
     card_sync = stable_runtime.split("fn sync_encyclopedia_card", 1)[1].split(
         "fn sync_encyclopedia_portraits", 1
     )[0]
-    assert (
-        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale)"
-        in card_sync
-    )
-    assert '&format!("pivot_y: 1; y: {bottom_y}px;")' in card_sync
-    assert (
-        "let positioned = resolver_bound\n"
-        "        && client.ui_set_properties(&native_icon"
-    ) in card_sync
+    assert "client.ui_spawn_source(&card, &source)" in card_sync
+    assert 'overlay_runner.eq_ignore_ascii_case("image")' in card_sync
+    assert 'source: "{texture}";' in card_sync
+    assert "client.ui_set_visible(&overlay, true)" in card_sync
+    assert "client.ui_set_visible(&native_icon, false)" in card_sync
+    assert "client.ui_set_visible(&overlay, false)" in card_sync
     assert "client.ui_set_visible(&native_icon, true)" in card_sync
-    assert "client.ui_spawn_source(" not in card_sync
-    assert "source:" not in card_sync
-    assert "source:" not in card_sync
-    assert "ui_set_visible(&native_icon, false)" not in card_sync
-    assert "stock champion-icon resolver; raw source mutation disabled" in stable_runtime
+    assert "ui_set_champion_icon" not in card_sync
+    assert "source-direct encyclopedia fullbody" in stable_runtime
 
     stable_client = (MOD / "vendor/mod-api-stable/src/client_ctx.rs").read_text(
         encoding="utf-8"
@@ -569,8 +559,14 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     runtime_paths = {
         row["path"] for row in load_json("runtime_manifest.json")["files"]
     }
-    assert "ui/champion_fullbody/dancer.png" not in runtime_paths
-    assert "ui/champion_fullbody/dual_blader.png" not in runtime_paths
+    assert "ui/champion_fullbody/dancer.png" in runtime_paths
+    assert "ui/champion_fullbody/dual_blader.png" in runtime_paths
+    assert {
+        path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
+    } == {
+        "ui/champion_fullbody/dancer.png",
+        "ui/champion_fullbody/dual_blader.png",
+    }
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
         for path in runtime_paths

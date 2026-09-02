@@ -2817,7 +2817,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "e7c8dc3785322f706355afbd6c1b4b49f3c63fbde7d2ac0130e48bf32b66a403",
+      "sha256": "323de7e1992fc7ab1ace5be40f5062e03aefbff7c9b15e00d2ee7114735b71ac",
       "pack_transform": "none"
     },
     "run[5]": {
@@ -7230,7 +7230,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa",
+      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8",
       "alpha_bbox": [
         49,
         1,
@@ -7254,7 +7254,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "56a9eee284780839968c33c81dda979687d120a9fff43f83d98476edcd438daa",
+      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8",
       "alpha_bbox": [
         49,
         1,

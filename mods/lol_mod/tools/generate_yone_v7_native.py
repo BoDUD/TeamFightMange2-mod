@@ -600,12 +600,18 @@ def recompose_run_articulated_pair(
     deformed the tiny native actor during the crossover.
     """
 
+    # Frame 4 uses the authored opposite-hand guard pose that keeps both sword
+    # hands moving through the loop. Its source legs are naturally wider than
+    # frame 0, though, which made the second contact read as a heavy/limping
+    # step at native scale. Reduce only that contact's lower-body stride while
+    # preserving the accepted upper-body pose and all eight native timings.
+    stride_ratio = 0.055 if frame_index == 4 else 0.105
     return _recompose_stride_pair(
         actor,
         raw_weapon_source,
         frame_index,
         stride_phases=RUN_STRIDE_PHASES,
-        stride_ratio=0.105,
+        stride_ratio=stride_ratio,
         neutral_inset_ratio=0.35,
         torso_sway_phases=(0.0, 0.3, 0.5, 0.3, 0.0, -0.3, -0.5, -0.3),
         drop_ratio=0.022,
@@ -2218,7 +2224,10 @@ def main() -> int:
         for index in (1, 3, 5, 7)
     ):
         failures.append(f"run_transition_foot_separations={run_foot_separations}")
-    if abs(run_foot_separations[0] - run_foot_separations[4]) > 2.0:
+    # The user-visible limp came from the second contact being almost 2px wider
+    # at native scale. Keep the two contact beats within one pixel so neither
+    # half-cycle reads as a heavier/longer step.
+    if abs(run_foot_separations[0] - run_foot_separations[4]) > 1.0:
         failures.append(f"run_contact_symmetry={run_foot_separations}")
     if abs(run_foot_separations[2] - run_foot_separations[6]) > 1.0:
         failures.append(f"run_crossing_symmetry={run_foot_separations}")

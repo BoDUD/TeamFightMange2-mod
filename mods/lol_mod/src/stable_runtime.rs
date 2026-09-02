@@ -141,14 +141,19 @@ const BP_RUNTIME_ROOT_PATHS: [&str; 3] = ["main", "top.main", "banpick.main"];
 const BP_RUNTIME_MAX_PICK_SLOTS: usize = 12;
 const BP_RUNTIME_MAX_CHAMPION_CARDS: usize = 256;
 const ENCYCLOPEDIA_RUNTIME_MAX_NODES: usize = 4096;
-// The stock 0.5.8 champion slot is 85x93 and the stable host documents 2.0 as
-// the game's normal champion-icon scale. Full-body replacements share a y=60
-// foot line so they finish ten pixels above the native tier selector at y=70.
-// Keep these values common to Xayah and Yone instead of tuning one-off scales.
-const ENCYCLOPEDIA_ICON_WIDTH: f32 = 85.0;
-const ENCYCLOPEDIA_ICON_HEIGHT: f32 = 93.0;
-const ENCYCLOPEDIA_FINISHED_HERO_SCALE: f32 = 2.0;
-const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 60.0;
+// The stable host's champion-icon helper is explicitly a face crop (idle[0] +
+// champion_view.face), so it cannot be calibrated into a reliable full-body
+// encyclopedia camera. Use the two authored full-body textures on dedicated
+// encyclopedia-only image nodes instead. Briar is the finished-hero baseline:
+// its 64x64 source has a 58px visible body. Xayah's 84px and Yone's 80px
+// source bodies therefore render at 64px and 67px node heights respectively,
+// which gives both a ~58px visible silhouette. Their feet land near y=64.5,
+// safely above the stock tier selector that starts at y=70.
+const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;
+const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;
+const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;
+const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;
+const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;
 const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
     "body.main.top.right.champion_info.data.champions.contents",
     "main.top.right.champion_info.data.champions.contents",
@@ -258,10 +263,11 @@ fn append_encyclopedia_telemetry(container: &str, detail: &str) {
 #[derive(Debug, Default)]
 struct EncyclopediaCardSync {
     icon_exists: bool,
-    runner: String,
-    resolver_bound: bool,
+    overlay_runner: String,
+    spawned: bool,
     positioned: bool,
-    visible: bool,
+    overlay_visible: bool,
+    native_hidden: bool,
     rect_before: Option<(f32, f32, f32, f32)>,
     rect_after: Option<(f32, f32, f32, f32)>,
 }
@@ -270,9 +276,10 @@ fn sync_encyclopedia_card(
     client: &mut StableClient<'_>,
     container: &str,
     champion_id: &str,
+    overlay_id: &str,
+    texture: &str,
     width: f32,
     height: f32,
-    scale: f32,
     bottom_y: f32,
 ) -> EncyclopediaCardSync {
     let card = join_ui_path(container, champion_id);
@@ -281,36 +288,35 @@ fn sync_encyclopedia_card(
         return EncyclopediaCardSync::default();
     }
 
-    let runner = client.ui_runner_name(&native_icon).unwrap_or_default();
     let rect_before = client.ui_node_rect(&native_icon);
+    let overlay = join_ui_path(&card, overlay_id);
+    let source = format!(
+        r#"{overlay_id}:image {{ ignore_event: true; width: {width}px; height: {height}px; y: {bottom_y}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}"; }}"#
+    );
+    let spawned = client.ui_exists(&overlay) || client.ui_spawn_source(&card, &source);
+    let overlay_runner = client.ui_runner_name(&overlay).unwrap_or_default();
+    let overlay_is_image = spawned && overlay_runner.eq_ignore_ascii_case("image");
 
-    // Do not write an arbitrary raw image-source property onto this image node.
-    // `ui_set_properties` reports that the property grammar was accepted; it
-    // does not prove that the texture resolved.  0.12.7 therefore replaced a
-    // valid engine-owned champion sprite with an unresolved plain-PNG source
-    // and left both cards blank.  The 0.5.8 ABI 8 SDK retains the operation
-    // introduced at ABI level 4: resolve a champion's idle/face sprite through the live
-    // database and fit it into the requested box.  If an older host rejects
-    // the optional slot, the original icon source is untouched and is merely
-    // made visible as the fallback.
-    let resolver_bound =
-        client.ui_set_champion_icon(&native_icon, champion_id, width, height, scale);
-    // The stock tier dropdown occupies card y=70..92 at z=103. Xayah and
-    // Yone use tightly cropped non-64px idle frames, so the game's usual 2x
-    // face-icon camera placed their lower legs behind that control. Keep the
-    // engine-owned resolver at the same 2.0 scale used by finished heroes,
-    // then bottom-anchor the resolved image ten pixels above the dropdown.
-    // This is encyclopedia-local and therefore cannot move BP, HUD or sidebar
-    // icons.
-    // Only move the icon after the resolver has installed the measured frame.
-    // If the optional resolver slot is unavailable, preserve the stock
-    // fallback's original geometry as well as its original source.
-    let positioned = resolver_bound
-        && client.ui_set_properties(&native_icon, &format!("pivot_y: 1; y: {bottom_y}px;"));
-    let visible = client.ui_set_visible(&native_icon, true);
-    let rect_after = client.ui_node_rect(&native_icon);
+    // Re-assert only geometry/visibility on later scans. The texture source is
+    // set once when the node is spawned; both PNGs are runtime-manifest owned,
+    // so a successful install proves the referenced asset exists. If any part
+    // of this route fails, leave the stock engine icon visible as the fallback.
+    let positioned = overlay_is_image
+        && client.ui_set_properties(
+            &overlay,
+            &format!(
+                "width: {width}px; height: {height}px; y: {bottom_y}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false;"
+            ),
+        );
+    let overlay_visible = positioned && client.ui_set_visible(&overlay, true);
+    let native_hidden = overlay_visible && client.ui_set_visible(&native_icon, false);
+    if !native_hidden {
+        let _ = client.ui_set_visible(&overlay, false);
+        let _ = client.ui_set_visible(&native_icon, true);
+    }
+    let rect_after = client.ui_node_rect(&overlay);
 
-    // Keep the two role icons above the stock champion image.
+    // Keep the two role icons above the dedicated full-body image.
     for role_icon in ["pos1", "pos2"] {
         let role_icon = join_ui_path(&card, role_icon);
         let _ = client.ui_set_properties(&role_icon, "z: 2;");
@@ -318,10 +324,11 @@ fn sync_encyclopedia_card(
 
     EncyclopediaCardSync {
         icon_exists: true,
-        runner,
-        resolver_bound,
+        overlay_runner,
+        spawned,
         positioned,
-        visible,
+        overlay_visible,
+        native_hidden,
         rect_before,
         rect_after,
     }
@@ -350,18 +357,20 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         client,
         &container,
         "dancer",
-        ENCYCLOPEDIA_ICON_WIDTH,
-        ENCYCLOPEDIA_ICON_HEIGHT,
-        ENCYCLOPEDIA_FINISHED_HERO_SCALE,
+        "lol_mod_fullbody_xayah",
+        "asset/lol_mod/ui/champion_fullbody/dancer",
+        XAYAH_ENCYCLOPEDIA_WIDTH,
+        XAYAH_ENCYCLOPEDIA_HEIGHT,
         ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
     );
     let yone = sync_encyclopedia_card(
         client,
         &container,
         "dual_blader",
-        ENCYCLOPEDIA_ICON_WIDTH,
-        ENCYCLOPEDIA_ICON_HEIGHT,
-        ENCYCLOPEDIA_FINISHED_HERO_SCALE,
+        "lol_mod_fullbody_yone",
+        "asset/lol_mod/ui/champion_fullbody/dual_blader",
+        YONE_ENCYCLOPEDIA_WIDTH,
+        YONE_ENCYCLOPEDIA_HEIGHT,
         ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
     );
     if xayah.icon_exists
@@ -374,17 +383,19 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         append_encyclopedia_telemetry(
             &container,
             &format!(
-                "stock champion-icon resolver; raw source mutation disabled; finished-hero scale=2.0 shared_fullbody_bottom_y=60 tier_y=70; xayah runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}",
-                xayah.runner,
-                xayah.resolver_bound,
+                "source-direct encyclopedia fullbody; Briar-calibrated visible_height~=58px; bottom_y=68 tier_y=70; xayah node=59x64 runner={} spawned={} positioned={} visible={} native_hidden={} rect_before={:?} rect_after={:?}; yone node=62x67 runner={} spawned={} positioned={} visible={} native_hidden={} rect_before={:?} rect_after={:?}",
+                xayah.overlay_runner,
+                xayah.spawned,
                 xayah.positioned,
-                xayah.visible,
+                xayah.overlay_visible,
+                xayah.native_hidden,
                 xayah.rect_before,
                 xayah.rect_after,
-                yone.runner,
-                yone.resolver_bound,
+                yone.overlay_runner,
+                yone.spawned,
                 yone.positioned,
-                yone.visible,
+                yone.overlay_visible,
+                yone.native_hidden,
                 yone.rect_before,
                 yone.rect_after,
             ),

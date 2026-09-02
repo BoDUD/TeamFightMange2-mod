@@ -1248,8 +1248,8 @@
           "bottom_clearance": 13,
           "hard_alpha": true,
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4687,
-          "color_edge24_ratio": 0.6719
+          "bbox_fill_ratio": 0.4764,
+          "color_edge24_ratio": 0.6658
         },
         {
           "frame": 5,
@@ -5494,7 +5494,7 @@
         "hard_alpha": true,
         "transparent_frame_edges": true,
         "opaque_palette_size": 46,
-        "sha256": "e7c8dc3785322f706355afbd6c1b4b49f3c63fbde7d2ac0130e48bf32b66a403",
+        "sha256": "323de7e1992fc7ab1ace5be40f5062e03aefbff7c9b15e00d2ee7114735b71ac",
         "pack_transform": "none"
       },
       "run[5]": {
@@ -9529,7 +9529,7 @@
       },
       "run[4]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "5e2d0c371c951ea5cd86aded41b8e79831b1d93eda28fd237fc1b884af5bc29f"
+        "sha256": "d43b9c26fed1ddb9ac248d0fbfe656dc23b7b287487a531ee655cbea042d7ff4"
       },
       "run[5]": {
         "source_to_atlas_byte_identical": true,
@@ -9906,8 +9906,8 @@
             255
           ],
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4687,
-          "color_edge24_ratio": 0.6719,
+          "bbox_fill_ratio": 0.4764,
+          "color_edge24_ratio": 0.6658,
           "alpha_bbox": [
             3,
             1,
