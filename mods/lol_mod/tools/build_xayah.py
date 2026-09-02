@@ -677,6 +677,21 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
     portrait_path = FULLBODY_DIR / "dancer.png"
     save_png(portrait_path, portrait)
 
+    # Stable ABI render hooks draw sprites at native texture size. Keep a
+    # dedicated 64x64 encyclopedia texture that follows the same finished-hero
+    # contract as Briar: <=54x58 visible subject, feet ending at y=60. The
+    # historical 85x93 card texture remains QA/reference-only and is not reused
+    # as a render-hook source.
+    encyclopedia = render_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+        colors=96,
+    )
+    encyclopedia_path = FULLBODY_DIR / "dancer_encyclopedia.png"
+    save_png(encyclopedia_path, encyclopedia)
+
     # Compact report/scoreboard/HUD portrait: preserve both visible eyes,
     # feather ears, shoulders, and the upper torso while giving the square
     # surface a transparent border for 18/26/34/46px runtime downscales.
@@ -713,7 +728,7 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
     )
     grid_path = PORTRAIT_DIR / "dancer_grid.png"
     save_png(grid_path, grid)
-    return [splash_path, portrait_path, compact_path, grid_path]
+    return [splash_path, portrait_path, encyclopedia_path, compact_path, grid_path]
 
 
 AUDIO_SPECS: tuple[dict[str, Any], ...] = (
@@ -1423,6 +1438,23 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         raise ValueError(
             "Xayah encyclopedia portrait lost visible centered hard-alpha geometry: "
             f"bbox={portrait_bbox}, opaque_coverage={portrait_coverage:.4f}"
+        )
+    encyclopedia = Image.open(FULLBODY_DIR / "dancer_encyclopedia.png").convert("RGBA")
+    encyclopedia_bbox = encyclopedia.getchannel("A").getbbox()
+    if (
+        encyclopedia.size != (64, 64)
+        or encyclopedia_bbox is None
+        or not 28 <= encyclopedia_bbox[2] - encyclopedia_bbox[0] <= 54
+        or not 56 <= encyclopedia_bbox[3] - encyclopedia_bbox[1] <= 58
+        or encyclopedia_bbox[3] > 60
+        or encyclopedia_bbox[0] < 4
+        or 64 - encyclopedia_bbox[2] < 4
+        or encyclopedia_bbox[1] < 2
+        or 64 - encyclopedia_bbox[3] < 4
+    ):
+        raise ValueError(
+            "Xayah render-hook encyclopedia texture lost Briar-class 64x64 fit: "
+            f"bbox={encyclopedia_bbox}"
         )
     compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()

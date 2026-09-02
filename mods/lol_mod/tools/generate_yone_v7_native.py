@@ -425,6 +425,7 @@ def _recompose_stride_pair(
     drop_ratio: float = 0.045,
     lift_ratio: float = 0.035,
     torso_sway_ratio: float = 0.04,
+    canonical_forward_lean_ratio: float = 0.0,
     articulated_cycle: bool = False,
 ) -> tuple[Image.Image, Image.Image]:
     """Articulate two source leg identities without repainting the actor.
@@ -464,11 +465,12 @@ def _recompose_stride_pair(
     maximum_drop = max(2, round(body_height * drop_ratio))
     maximum_lift = max(2, round(body_height * lift_ratio))
     maximum_torso_sway = max(2, round(body_height * torso_sway_ratio))
+    maximum_forward_lean = max(0, round(body_height * canonical_forward_lean_ratio))
     leg_radius = max(16, round(body_height * 0.24))
     pad_x = round(
         maximum_stride
         * (max(abs(value) for value in stride_phases) + neutral_inset_ratio)
-    ) + maximum_torso_sway + 3
+    ) + maximum_torso_sway + maximum_forward_lean + 3
     pad_top = 2
     pad_bottom = maximum_drop + 3
     canvas_size = (
@@ -491,7 +493,13 @@ def _recompose_stride_pair(
         upper_progress = min(
             1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
         )
-        torso_shift = round(torso_phase * maximum_torso_sway * upper_progress)
+        torso_shift = round(
+            (
+                maximum_forward_lean
+                + torso_phase * maximum_torso_sway
+            )
+            * upper_progress
+        )
         for x in range(raw_rgba.width):
             color = raw_source_pixels[x, y]
             if color[3] == 0:
@@ -512,7 +520,13 @@ def _recompose_stride_pair(
             upper_progress = min(
                 1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
             )
-            torso_shift = round(torso_phase * maximum_torso_sway * upper_progress)
+            torso_shift = round(
+                (
+                    maximum_forward_lean
+                    + torso_phase * maximum_torso_sway
+                )
+                * upper_progress
+            )
             target_x = x + pad_x + torso_shift
             target_y = y + pad_top
             inside_leg_core = (
@@ -617,6 +631,13 @@ def recompose_run_articulated_pair(
         drop_ratio=0.022,
         lift_ratio=0.018,
         torso_sway_ratio=0.025,
+        # Finished Shen/Briar run art is authored in a clearly travelling
+        # canonical direction and the game mirrors it with native flip_x.
+        # Yone's accepted source poses are almost frontal, so add only a small
+        # source-space upper-body lean toward canonical screen-right.  The raw
+        # weapon source receives the exact same shear, keeping both hands and
+        # blade vectors continuous while making left/right mirroring readable.
+        canonical_forward_lean_ratio=0.22,
         articulated_cycle=True,
     )
 
@@ -2058,6 +2079,7 @@ def main() -> int:
     run_torso_leans = [
         audit["upper_minus_mid_centroid_x_px"] for audit in run_audits
     ]
+    run_mean_torso_lean = sum(run_torso_leans) / max(1, len(run_torso_leans))
     run_foot_separations = [audit["foot_separation_px"] for audit in run_audits]
     run_stride_pose_counts = Counter(audit["stride_pose"] for audit in run_audits)
     run_crossing_frame_indices = [
@@ -2253,6 +2275,13 @@ def main() -> int:
             "run_upper_guard_lean_range="
             f"{max(run_torso_leans) - min(run_torso_leans):.3f}"
         )
+    # One canonical, visibly right-travelling run is the native contract. The
+    # engine mirrors this art with flip_x when movement changes side. Keeping
+    # the mean upper-body lead positive prevents the frontal silhouette that
+    # made both mirrored directions look identical, while the upper bound
+    # rejects the old over-sheared/deformed look.
+    if not 1.80 <= run_mean_torso_lean <= 2.50:
+        failures.append(f"run_canonical_forward_lean={run_mean_torso_lean:.3f}")
     if run_hand_ranges["steel"]["x"] < 3.0 or run_hand_ranges["steel"]["y"] < 1.5:
         failures.append(f"weak_steel_hand_motion={run_hand_ranges['steel']}")
     if run_hand_ranges["azakana"]["x"] < 2.5 or run_hand_ranges["azakana"]["y"] < 1.0:
@@ -2341,6 +2370,8 @@ def main() -> int:
         },
         "run": {
             "source": "approved upright V7 guard poses; authored upper-body articulation plus moderate finished-hero-calibrated passing-step motion",
+            "canonical_art_direction": "right",
+            "runtime_direction_owner": "native GameView flip_x; one canonical run action",
             "pose_sources": [list(source) for source in RUN_POSE_SOURCES],
             "stride_phases": list(RUN_STRIDE_PHASES),
             "passing_leg_sides": list(RUN_PASSING_LEG_SIDES),
@@ -2363,6 +2394,7 @@ def main() -> int:
             "upper_guard_lean_range_px": round(
                 max(run_torso_leans) - min(run_torso_leans), 3
             ),
+            "mean_upper_guard_forward_lean_px": round(run_mean_torso_lean, 3),
             "hand_anchor_ranges_px": run_hand_ranges,
             "hand_x_correlation": round(run_hand_x_correlation, 3),
             "maximum_adjacent_hand_step_px": run_maximum_adjacent_hand_steps,

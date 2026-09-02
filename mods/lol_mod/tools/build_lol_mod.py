@@ -4923,8 +4923,8 @@ RUNTIME_EXCLUDED_PATHS = {
 }
 
 RUNTIME_INCLUDED_PATHS = {
-    "ui/champion_fullbody/dancer.png",
-    "ui/champion_fullbody/dual_blader.png",
+    "ui/champion_fullbody/dancer_encyclopedia.png",
+    "ui/champion_fullbody/dual_blader_encyclopedia.png",
 }
 
 RUNTIME_SOFT_BUDGET_BYTES = 96 * 1024 * 1024
@@ -4957,7 +4957,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.11 source-direct encyclopedia fit and symmetric Yone gait test closure",
+        "purpose": "0.12.12 render-hook encyclopedia fallback and native-mirrored Yone run test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

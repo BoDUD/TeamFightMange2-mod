@@ -693,7 +693,7 @@ def _retired_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_058_stable_runtime_uses_manifest_owned_fullbody_encyclopedia_nodes() -> None:
+def test_058_stable_runtime_draws_manifest_owned_fullbody_encyclopedia_textures() -> None:
     cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
     rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     assert 'path = "src/stable_runtime.rs"' in cargo
@@ -702,49 +702,52 @@ def test_058_stable_runtime_uses_manifest_owned_fullbody_encyclopedia_nodes() ->
     assert rust.count("registration.set_extension(") == 1
     assert "registration.set_server_extension(" not in rust
 
-    card_sync = rust.split("fn sync_encyclopedia_card", 1)[1].split(
-        "fn sync_encyclopedia_portraits", 1
+    card_draw = rust.split("fn draw_encyclopedia_card", 1)[1].split(
+        "fn draw_encyclopedia_portraits", 1
     )[0]
     for required in (
-        'let native_icon = join_ui_path(&card, "icon");',
-        "client.ui_spawn_source(&card, &source)",
-        'overlay_runner.eq_ignore_ascii_case("image")',
-        'source: "{texture}";',
-        "client.ui_set_properties(\n            &overlay,",
-        "client.ui_set_visible(&overlay, true)",
-        "client.ui_set_visible(&native_icon, false)",
-        "client.ui_set_visible(&overlay, false)",
-        "client.ui_set_visible(&native_icon, true)",
+        "client.ui_node_rect(&native_icon)",
+        "encyclopedia_target_rect_is_drawable",
+        'client.draw_sprite(\n        "UI",',
+        "StableSpriteParams {",
+        "pivot_x: 0.5",
+        "pivot_y: 1.0",
+        "sample_nearest: true",
     ):
-        assert required in card_sync
+        assert required in card_draw
     for forbidden in (
+        "ui_spawn_source",
         "ui_set_champion_icon",
         "RenderCommand",
     ):
-        assert forbidden not in card_sync
+        assert forbidden not in card_draw
 
-    batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
+    visibility = rust.split("fn sync_encyclopedia_native_visibility", 1)[1].split(
+        "fn draw_encyclopedia_card", 1
+    )[0]
+    assert "let drawable = rect.is_some_and(encyclopedia_target_rect_is_drawable);" in visibility
+    assert "let should_hide = drawable && proof & bit != 0;" in visibility
+    assert "set_encyclopedia_native_visible(client, &container, champion_id, !should_hide)" in visibility
+    assert "zero-layout cannot hide native" in visibility
+
+    batch = rust.split("fn draw_encyclopedia_portraits", 1)[1].split(
         "fn bp_champion_id_from_name", 1
     )[0]
     for required in (
         '"dancer",',
         '"dual_blader",',
-        '"lol_mod_fullbody_xayah",',
-        '"asset/lol_mod/ui/champion_fullbody/dancer",',
-        '"lol_mod_fullbody_yone",',
-        '"asset/lol_mod/ui/champion_fullbody/dual_blader",',
-        "XAYAH_ENCYCLOPEDIA_WIDTH,",
-        "XAYAH_ENCYCLOPEDIA_HEIGHT,",
-        "YONE_ENCYCLOPEDIA_WIDTH,",
-        "YONE_ENCYCLOPEDIA_HEIGHT,",
-        "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,",
+        "XAYAH_ENCYCLOPEDIA_TEXTURE",
+        "YONE_ENCYCLOPEDIA_TEXTURE",
+        "ENCYCLOPEDIA_XAYAH_DRAW_PROOF",
+        "ENCYCLOPEDIA_YONE_DRAW_PROOF",
+        "extension.encyclopedia_render_proof.store(proof, Ordering::Relaxed);",
     ):
         assert required in batch
-    assert "const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;" in rust
-    assert "const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;" in rust
-    assert "const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;" in rust
-    assert "const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;" in rust
+    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' in rust
+    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' in rust
     assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
+    assert "const ENCYCLOPEDIA_MIN_TARGET_WIDTH: f32 = 40.0;" in rust
+    assert "const ENCYCLOPEDIA_MIN_TARGET_HEIGHT: f32 = 70.0;" in rust
     assert "YoneManagementCardExtension" not in rust
     assert "YoneSpiritCleaveConeNativeEffect" not in rust
 
@@ -757,8 +760,8 @@ def test_058_stable_runtime_uses_manifest_owned_fullbody_encyclopedia_nodes() ->
     assert {
         path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
     } == {
-        "ui/champion_fullbody/dancer.png",
-        "ui/champion_fullbody/dual_blader.png",
+        "ui/champion_fullbody/dancer_encyclopedia.png",
+        "ui/champion_fullbody/dual_blader_encyclopedia.png",
     }
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
@@ -1906,6 +1909,11 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     assert run["torso_height_range_px"] <= 1
     assert run["body_visible_height_range_px"] == 0
     assert 0.4 <= run["upper_guard_lean_range_px"] <= 1.5
+    assert run["canonical_art_direction"] == "right"
+    assert run["runtime_direction_owner"] == (
+        "native GameView flip_x; one canonical run action"
+    )
+    assert 1.8 <= run["mean_upper_guard_forward_lean_px"] <= 2.5
     assert run["hand_anchor_ranges_px"]["steel"]["x"] >= 3
     assert run["hand_anchor_ranges_px"]["azakana"]["x"] >= 2.5
     assert run["hand_x_correlation"] <= -0.15
@@ -2108,7 +2116,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.11"
+    assert mod_info["version"] == "0.12.12"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -2135,16 +2143,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.11"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.12"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.11"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.12"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.11"
+    assert quality_scope["release"] == "0.12.12"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

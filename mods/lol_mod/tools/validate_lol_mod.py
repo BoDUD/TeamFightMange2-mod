@@ -6844,7 +6844,7 @@ def validate_native_dll() -> None:
         "use mod_api_stable::",
         "impl StableEffectType for UrgotPassiveNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
-        "client.ui_spawn_source(&card, &source)",
+        "client.draw_sprite(",
         "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
@@ -6852,24 +6852,31 @@ def validate_native_dll() -> None:
         "YoneSpiritCleaveConeNativeEffect" not in stable_runtime,
         "retired native Yone W cone implementation must stay removed",
     )
-    encyclopedia_card_sync = ""
-    if "fn sync_encyclopedia_card" in stable_runtime:
-        encyclopedia_card_sync = stable_runtime.split(
-            "fn sync_encyclopedia_card", 1
-        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
+    encyclopedia_card_draw = ""
+    if "fn draw_encyclopedia_card" in stable_runtime:
+        encyclopedia_card_draw = stable_runtime.split(
+            "fn draw_encyclopedia_card", 1
+        )[1].split("fn draw_encyclopedia_portraits", 1)[0]
     check(
-        "client.ui_set_visible(&native_icon, true)" in encyclopedia_card_sync
-        and "client.ui_spawn_source(&card, &source)" in encyclopedia_card_sync
-        and "client.ui_set_visible(&overlay, true)" in encyclopedia_card_sync
-        and "client.ui_set_visible(&native_icon, false)" in encyclopedia_card_sync
-        and "client.ui_set_visible(&overlay, false)" in encyclopedia_card_sync
-        and 'source: "{texture}";' in encyclopedia_card_sync
-        and "client.ui_set_champion_icon(" not in encyclopedia_card_sync,
-        "stable encyclopedia routing must use the manifest-owned source-direct full-body overlay with a stock-icon fallback",
+        "client.ui_node_rect(&native_icon)" in encyclopedia_card_draw
+        and "encyclopedia_target_rect_is_drawable" in encyclopedia_card_draw
+        and 'client.draw_sprite(\n        "UI",' in encyclopedia_card_draw
+        and "StableSpriteParams" in encyclopedia_card_draw
+        and "client.ui_spawn_source" not in encyclopedia_card_draw
+        and "client.ui_set_champion_icon(" not in encyclopedia_card_draw,
+        "stable encyclopedia routing must draw the final-size manifest texture over a proven native icon rect",
     )
+    encyclopedia_visibility = ""
+    if "fn sync_encyclopedia_native_visibility" in stable_runtime:
+        encyclopedia_visibility = stable_runtime.split(
+            "fn sync_encyclopedia_native_visibility", 1
+        )[1].split("fn draw_encyclopedia_card", 1)[0]
     check(
-        "ui_set_properties(&native_icon" not in encyclopedia_card_sync,
-        "stable encyclopedia card sync must not mutate the stock icon source or geometry",
+        "let should_hide = drawable && proof & bit != 0;" in encyclopedia_visibility
+        and "set_encyclopedia_native_visible(client, &container, champion_id, !should_hide)"
+        in encyclopedia_visibility
+        and "client.ui_spawn_source" not in encyclopedia_visibility,
+        "stable encyclopedia fallback must never hide a native icon without a nonzero target and prior render proof",
     )
     check(
         b"version=0.10.19;root=" not in payload
@@ -8269,7 +8276,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.11", "lol_mod version must be 0.12.11")
+    check(mod_info.get("version") == "0.12.12", "lol_mod version must be 0.12.12")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8288,11 +8295,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.8", "stable ABI 8", "repair test", "source-direct full-body",
-                "no active E", "data_champion", "BP/match music",
+                "0.5.8", "stable ABI 8", "repair test", "drawn directly in post_render",
+                "native flip_x", "no active E", "data_champion", "BP/match music",
             )
         ),
-        "mod metadata must disclose the source-direct encyclopedia route and active test scope",
+        "mod metadata must disclose the render-hook encyclopedia route, native mirrored run, and active test scope",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8856,6 +8863,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "ui/champion_portrait/dual_blader_scoreboard.png": (48, 64),
         "ui/champion_portrait/dual_blader_grid.png": (90, 122),
         "ui/champion_fullbody/dual_blader.png": (85, 93),
+        "ui/champion_fullbody/dual_blader_encyclopedia.png": (64, 64),
         "BanPickIllust/dual_blader.png": (1420, 860),
     }
     portrait_paths = [MOD_ROOT / relative for relative in portrait_specs]
@@ -8888,6 +8896,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 recorded_quality = ui_source_contract.get("surfaces", {}).get(
                     {
                         "ui/champion_fullbody/dual_blader.png": "fullbody",
+                        "ui/champion_fullbody/dual_blader_encyclopedia.png": "encyclopedia",
                         "ui/champion_portrait/dual_blader_compact.png": "compact",
                         "ui/champion_portrait/dual_blader_scoreboard.png": "scoreboard",
                         "ui/champion_portrait/dual_blader_grid.png": "grid",
@@ -9212,68 +9221,77 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "width: 85px;" in icon_node and "height: 93px;" in icon_node,
         "Yone management-card route must derive from the real 85x93 champion_slot #icon geometry",
     )
-    encyclopedia_card_sync = ""
-    if "fn sync_encyclopedia_card" in rust:
-        encyclopedia_card_sync = rust.split(
-            "fn sync_encyclopedia_card", 1
-        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
+    encyclopedia_card_draw = ""
+    if "fn draw_encyclopedia_card" in rust:
+        encyclopedia_card_draw = rust.split(
+            "fn draw_encyclopedia_card", 1
+        )[1].split("fn draw_encyclopedia_portraits", 1)[0]
     for required in (
-        "let native_icon = join_ui_path(&card, \"icon\");",
         "client.ui_node_rect(&native_icon)",
-        "client.ui_spawn_source(&card, &source)",
-        'overlay_runner.eq_ignore_ascii_case("image")',
-        'source: "{texture}";',
-        "client.ui_set_properties(\n            &overlay,",
-        "client.ui_set_visible(&overlay, true)",
-        "client.ui_set_visible(&native_icon, false)",
-        "client.ui_set_visible(&overlay, false)",
-        "client.ui_set_visible(&native_icon, true)",
+        "encyclopedia_target_rect_is_drawable",
+        'client.draw_sprite(\n        "UI",',
+        "StableSpriteParams {",
+        "pivot_x: 0.5",
+        "pivot_y: 1.0",
+        "sample_nearest: true",
     ):
         check(
-            required in encyclopedia_card_sync,
-            f"stable encyclopedia full-body route is missing: {required}",
+            required in encyclopedia_card_draw,
+            f"stable encyclopedia direct-render route is missing: {required}",
         )
     for forbidden in (
+        "ui_spawn_source",
         "ui_set_champion_icon",
         "RenderCommand",
     ):
         check(
-            forbidden not in encyclopedia_card_sync,
-            f"stable encyclopedia full-body route retains an obsolete path: {forbidden}",
+            forbidden not in encyclopedia_card_draw,
+            f"stable encyclopedia direct-render route retains an obsolete path: {forbidden}",
+        )
+
+    encyclopedia_visibility = ""
+    if "fn sync_encyclopedia_native_visibility" in rust:
+        encyclopedia_visibility = rust.split(
+            "fn sync_encyclopedia_native_visibility", 1
+        )[1].split("fn draw_encyclopedia_card", 1)[0]
+    for required in (
+        "let drawable = rect.is_some_and(encyclopedia_target_rect_is_drawable);",
+        "let should_hide = drawable && proof & bit != 0;",
+        "set_encyclopedia_native_visible(client, &container, champion_id, !should_hide)",
+        "zero-layout cannot hide native",
+    ):
+        check(
+            required in encyclopedia_visibility,
+            f"encyclopedia zero-layout fallback is missing: {required}",
         )
 
     encyclopedia_batch = ""
-    if "fn sync_encyclopedia_portraits" in rust:
+    if "fn draw_encyclopedia_portraits" in rust:
         encyclopedia_batch = rust.split(
-            "fn sync_encyclopedia_portraits", 1
+            "fn draw_encyclopedia_portraits", 1
         )[1].split("fn bp_champion_id_from_name", 1)[0]
     for required in (
         'client.client_main_tab().as_deref() != Some("GameInfo")',
-        "find_encyclopedia_container(client)",
+        "resolve_encyclopedia_container(extension, client)",
         '"dancer",',
         '"dual_blader",',
-        '"lol_mod_fullbody_xayah",',
-        '"asset/lol_mod/ui/champion_fullbody/dancer",',
-        '"lol_mod_fullbody_yone",',
-        '"asset/lol_mod/ui/champion_fullbody/dual_blader",',
-        "XAYAH_ENCYCLOPEDIA_WIDTH,",
-        "XAYAH_ENCYCLOPEDIA_HEIGHT,",
-        "YONE_ENCYCLOPEDIA_WIDTH,",
-        "YONE_ENCYCLOPEDIA_HEIGHT,",
-        "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,",
-        '"source-direct encyclopedia fullbody;',
+        "XAYAH_ENCYCLOPEDIA_TEXTURE",
+        "YONE_ENCYCLOPEDIA_TEXTURE",
+        "ENCYCLOPEDIA_XAYAH_DRAW_PROOF",
+        "ENCYCLOPEDIA_YONE_DRAW_PROOF",
+        "extension.encyclopedia_render_proof.store(proof, Ordering::Relaxed);",
     ):
         check(
             required in encyclopedia_batch,
-            f"Xayah/Yone encyclopedia full-body batch is missing: {required}",
+            f"Xayah/Yone encyclopedia direct-render batch is missing: {required}",
         )
     check(
-        "const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;" in rust
-        and "const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;" in rust
-        and "const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;" in rust
-        and "const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;" in rust
-        and "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust,
-        "Xayah/Yone encyclopedia cards must keep the Briar-calibrated full-body geometry",
+        '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' in rust
+        and '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' in rust
+        and "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
+        and "const ENCYCLOPEDIA_MIN_TARGET_WIDTH: f32 = 40.0;" in rust
+        and "const ENCYCLOPEDIA_MIN_TARGET_HEIGHT: f32 = 70.0;" in rust,
+        "Xayah/Yone encyclopedia direct-render geometry or final-size textures changed",
     )
 
     runtime_paths = {
@@ -9287,23 +9305,27 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     check(
         runtime_fullbody_paths
         == {
-            "ui/champion_fullbody/dancer.png",
-            "ui/champion_fullbody/dual_blader.png",
+            "ui/champion_fullbody/dancer_encyclopedia.png",
+            "ui/champion_fullbody/dual_blader_encyclopedia.png",
         },
-        "runtime closure must contain exactly the Xayah/Yone encyclopedia full-body textures",
+        "runtime closure must contain exactly the Xayah/Yone final-size encyclopedia textures",
     )
     briar_fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/berserker.png").convert("RGBA")
-    xayah_fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").convert("RGBA")
-    yone_fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/dual_blader.png").convert("RGBA")
+    xayah_fullbody = Image.open(
+        MOD_ROOT / "ui/champion_fullbody/dancer_encyclopedia.png"
+    ).convert("RGBA")
+    yone_fullbody = Image.open(
+        MOD_ROOT / "ui/champion_fullbody/dual_blader_encyclopedia.png"
+    ).convert("RGBA")
     briar_bbox = briar_fullbody.getchannel("A").getbbox()
     xayah_bbox = xayah_fullbody.getchannel("A").getbbox()
     yone_bbox = yone_fullbody.getchannel("A").getbbox()
     if briar_bbox and xayah_bbox and yone_bbox:
         briar_visible_height = briar_bbox[3] - briar_bbox[1]
-        xayah_visible_height = (xayah_bbox[3] - xayah_bbox[1]) * 64.0 / 93.0
-        yone_visible_height = (yone_bbox[3] - yone_bbox[1]) * 67.0 / 93.0
-        xayah_foot_y = 68.0 - (93 - xayah_bbox[3]) * 64.0 / 93.0
-        yone_foot_y = 68.0 - (93 - yone_bbox[3]) * 67.0 / 93.0
+        xayah_visible_height = xayah_bbox[3] - xayah_bbox[1]
+        yone_visible_height = yone_bbox[3] - yone_bbox[1]
+        xayah_foot_y = 68.0 - (64 - xayah_bbox[3])
+        yone_foot_y = 68.0 - (64 - yone_bbox[3])
         check(
             abs(xayah_visible_height - briar_visible_height) <= 1.0
             and abs(yone_visible_height - briar_visible_height) <= 1.0,
@@ -9328,9 +9350,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         )[1].split("const XAYAH_FEATHER_STATE_TTL_TICKS", 1)[0]
     check(
         stable_extension.count("fn post_update(") == 1
+        and stable_extension.count("fn post_render(") == 1
         and "sync_bp_runtime_ui(client);" in stable_extension
-        and "sync_encyclopedia_portraits(self, client);" in stable_extension,
-        "stable UI extension must refresh BP decoration and encyclopedia cards together",
+        and "sync_encyclopedia_native_visibility(self, client);" in stable_extension
+        and "draw_encyclopedia_portraits(self, client);" in stable_extension,
+        "stable UI extension must update encyclopedia fallback visibility and draw portraits from the render hook",
     )
     check(
         "registration.set_extension(QualityBpExtension::default());" in rust,
@@ -9804,7 +9828,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.11", "lol_mod version must be 0.12.11")
+    check(mod_info.get("version") == "0.12.12", "lol_mod version must be 0.12.12")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

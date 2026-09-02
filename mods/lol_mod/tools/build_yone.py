@@ -2637,6 +2637,18 @@ def build_splash_and_portraits() -> list[Path]:
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
 
+    # post_render draws at the texture's native size, so the encyclopedia gets
+    # its own final 64x64 surface. Match the finished Briar portrait contract
+    # instead of trying to lay out an 85x93 child UI node at runtime.
+    encyclopedia = render_source_direct_ui_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+    )
+    encyclopedia_path = FULLBODY_DIR / "dual_blader_encyclopedia.png"
+    save_png(encyclopedia_path, encyclopedia)
+
     # Compact rows need the face, mask and shoulders, not a shrunken full body.
     compact_focus = crop_yone_v7_ui_focus(
         full_body,
@@ -2679,7 +2691,14 @@ def build_splash_and_portraits() -> list[Path]:
     # This is the actual destination route: the 85x93 texture is pasted 1:1
     # into the 141x138 card, with no second resize and no battle-atlas input.
     save_png(YONE_V7_UI_CARD_PREVIEW, render_yone_v7_ui_card_preview(fullbody))
-    return [splash_path, fullbody_path, compact_path, scoreboard_path, grid_path]
+    return [
+        splash_path,
+        fullbody_path,
+        encyclopedia_path,
+        compact_path,
+        scoreboard_path,
+        grid_path,
+    ]
 
 
 def image_record(path: Path) -> dict[str, Any]:
@@ -2854,6 +2873,9 @@ def build_qa(
         label: yone_ui_surface_quality(image)
         for label, image in ui_images.items()
     }
+    ui_source_direct_quality["encyclopedia"] = yone_ui_surface_quality(
+        Image.open(FULLBODY_DIR / "dual_blader_encyclopedia.png").convert("RGBA")
+    )
     style = json.loads(
         (MOD_ROOT / "style/champion_view.champion_view").read_text(encoding="utf-8")
     )["entries"]["dual_blader"]
@@ -2989,8 +3011,9 @@ def build_qa(
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
-                "default_runtime": "four independent source-direct V7 UI textures; no battle-atlas portrait input",
+                "default_runtime": "five independent source-direct V7 UI textures plus the BP splash; no battle-atlas portrait input",
                 "fullbody": "85x93 exact champion_slot destination, <=70x82 subject, alpha bottom y<=86",
+                "encyclopedia": "64x64 final-size Briar-class full body for stable post_render; <=54x58 subject, feet at y<=60",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 source-direct upper-body crop, <=40x54 subject, alpha bottom y<=60",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
@@ -3511,6 +3534,35 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         raise ValueError(
             "Yone encyclopedia fullbody is too small, off-center, or clipped: "
             f"bbox={fullbody_bbox}, opaque={fullbody_opaque}"
+        )
+    encyclopedia = Image.open(
+        FULLBODY_DIR / "dual_blader_encyclopedia.png"
+    ).convert("RGBA")
+    encyclopedia_bbox = encyclopedia.getchannel("A").getbbox()
+    if (
+        encyclopedia.size != (64, 64)
+        or encyclopedia_bbox is None
+        or not 28 <= encyclopedia_bbox[2] - encyclopedia_bbox[0] <= 54
+        or not 56 <= encyclopedia_bbox[3] - encyclopedia_bbox[1] <= 58
+        or encyclopedia_bbox[3] > 60
+        or encyclopedia_bbox[0] < 4
+        or 64 - encyclopedia_bbox[2] < 4
+        or encyclopedia_bbox[1] < 2
+        or 64 - encyclopedia_bbox[3] < 4
+    ):
+        raise ValueError(
+            "Yone render-hook encyclopedia texture lost Briar-class 64x64 fit: "
+            f"bbox={encyclopedia_bbox}"
+        )
+    encyclopedia_quality = yone_ui_surface_quality(encyclopedia)
+    if (
+        not encyclopedia_quality["hard_alpha"]
+        or not encyclopedia_quality["transparent_rgb_clear"]
+        or encyclopedia_quality["opaque_palette_size"] < 32
+    ):
+        raise ValueError(
+            "Yone render-hook encyclopedia texture lost source-direct quality: "
+            f"{encyclopedia_quality}"
         )
     compact = Image.open(PORTRAIT_DIR / "dual_blader_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()

@@ -16,6 +16,7 @@ use mod_api_stable::{
     declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1, InputTargetV1,
     InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient, StableEffectType,
     StableExtension, StableHost, StableMatchHook, StableMod, StablePlayerAi, StableSim,
+    StableSpriteParams,
 };
 
 const MOD_ID: &str = "lol_mod";
@@ -141,19 +142,21 @@ const BP_RUNTIME_ROOT_PATHS: [&str; 3] = ["main", "top.main", "banpick.main"];
 const BP_RUNTIME_MAX_PICK_SLOTS: usize = 12;
 const BP_RUNTIME_MAX_CHAMPION_CARDS: usize = 256;
 const ENCYCLOPEDIA_RUNTIME_MAX_NODES: usize = 4096;
-// The stable host's champion-icon helper is explicitly a face crop (idle[0] +
-// champion_view.face), so it cannot be calibrated into a reliable full-body
-// encyclopedia camera. Use the two authored full-body textures on dedicated
-// encyclopedia-only image nodes instead. Briar is the finished-hero baseline:
-// its 64x64 source has a 58px visible body. Xayah's 84px and Yone's 80px
-// source bodies therefore render at 64px and 67px node heights respectively,
-// which gives both a ~58px visible silhouette. Their feet land near y=64.5,
-// safely above the stock tier selector that starts at y=70.
+// The stock champion-icon helper is a face crop, but spawning a replacement
+// child image under the 0.5.8 encyclopedia card is also unsafe: live telemetry
+// proved those source-created children can report a permanent 0x0 layout. Draw
+// two final-size 64x64 encyclopedia textures directly over the real native icon
+// rect during post_render instead. The stock icon is hidden only after a prior
+// render frame proved both a nonzero native target and a successful draw call.
 const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;
-const XAYAH_ENCYCLOPEDIA_WIDTH: f32 = 59.0;
-const XAYAH_ENCYCLOPEDIA_HEIGHT: f32 = 64.0;
-const YONE_ENCYCLOPEDIA_WIDTH: f32 = 62.0;
-const YONE_ENCYCLOPEDIA_HEIGHT: f32 = 67.0;
+const ENCYCLOPEDIA_MIN_TARGET_WIDTH: f32 = 40.0;
+const ENCYCLOPEDIA_MIN_TARGET_HEIGHT: f32 = 70.0;
+const ENCYCLOPEDIA_XAYAH_DRAW_PROOF: u64 = 1 << 0;
+const ENCYCLOPEDIA_YONE_DRAW_PROOF: u64 = 1 << 1;
+const XAYAH_ENCYCLOPEDIA_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia";
+const YONE_ENCYCLOPEDIA_TEXTURE: &str =
+    "asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia";
 const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
     "body.main.top.right.champion_info.data.champions.contents",
     "main.top.right.champion_info.data.champions.contents",
@@ -167,6 +170,7 @@ const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
 struct QualityBpExtension {
     elapsed_micros: AtomicU64,
     encyclopedia_container: Mutex<Option<String>>,
+    encyclopedia_render_proof: AtomicU64,
     encyclopedia_telemetry_written: AtomicU64,
 }
 
@@ -231,6 +235,26 @@ fn find_encyclopedia_container(client: &StableClient<'_>) -> Option<String> {
     None
 }
 
+fn resolve_encyclopedia_container(
+    extension: &QualityBpExtension,
+    client: &StableClient<'_>,
+) -> Option<String> {
+    let cached = extension
+        .encyclopedia_container
+        .lock()
+        .ok()
+        .and_then(|guard| guard.clone());
+    let container = cached
+        .filter(|path| is_encyclopedia_container(client, path))
+        .or_else(|| find_encyclopedia_container(client));
+    if let Some(container) = &container {
+        if let Ok(mut cached) = extension.encyclopedia_container.lock() {
+            *cached = Some(container.clone());
+        }
+    }
+    container
+}
+
 fn append_encyclopedia_telemetry(container: &str, detail: &str) {
     let Some(path) = app_data_telemetry_path(ENCYCLOPEDIA_TELEMETRY_FILE) else {
         return;
@@ -260,121 +284,99 @@ fn append_encyclopedia_telemetry(container: &str, detail: &str) {
     );
 }
 
-#[derive(Debug, Default)]
-struct EncyclopediaCardSync {
-    icon_exists: bool,
-    overlay_runner: String,
-    spawned: bool,
-    positioned: bool,
-    overlay_visible: bool,
-    native_hidden: bool,
-    rect_before: Option<(f32, f32, f32, f32)>,
-    rect_after: Option<(f32, f32, f32, f32)>,
+fn encyclopedia_target_rect_is_drawable(rect: (f32, f32, f32, f32)) -> bool {
+    let (x, y, width, height) = rect;
+    x.is_finite()
+        && y.is_finite()
+        && width.is_finite()
+        && height.is_finite()
+        && width >= ENCYCLOPEDIA_MIN_TARGET_WIDTH
+        && height >= ENCYCLOPEDIA_MIN_TARGET_HEIGHT
+        && ENCYCLOPEDIA_FULLBODY_BOTTOM_Y < height
 }
 
-fn sync_encyclopedia_card(
+fn encyclopedia_native_icon_path(container: &str, champion_id: &str) -> String {
+    join_ui_path(&join_ui_path(container, champion_id), "icon")
+}
+
+fn set_encyclopedia_native_visible(
     client: &mut StableClient<'_>,
     container: &str,
     champion_id: &str,
-    overlay_id: &str,
-    texture: &str,
-    width: f32,
-    height: f32,
-    bottom_y: f32,
-) -> EncyclopediaCardSync {
+    visible: bool,
+) -> bool {
     let card = join_ui_path(container, champion_id);
     let native_icon = join_ui_path(&card, "icon");
     if !client.ui_exists(&native_icon) {
-        return EncyclopediaCardSync::default();
+        return false;
     }
-
-    let rect_before = client.ui_node_rect(&native_icon);
-    let overlay = join_ui_path(&card, overlay_id);
-    let source = format!(
-        r#"{overlay_id}:image {{ ignore_event: true; width: {width}px; height: {height}px; y: {bottom_y}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}"; }}"#
-    );
-    let spawned = client.ui_exists(&overlay) || client.ui_spawn_source(&card, &source);
-    let overlay_runner = client.ui_runner_name(&overlay).unwrap_or_default();
-    let overlay_is_image = spawned && overlay_runner.eq_ignore_ascii_case("image");
-
-    // Re-assert only geometry/visibility on later scans. The texture source is
-    // set once when the node is spawned; both PNGs are runtime-manifest owned,
-    // so a successful install proves the referenced asset exists. If any part
-    // of this route fails, leave the stock engine icon visible as the fallback.
-    let positioned = overlay_is_image
-        && client.ui_set_properties(
-            &overlay,
-            &format!(
-                "width: {width}px; height: {height}px; y: {bottom_y}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false;"
-            ),
-        );
-    let overlay_visible = positioned && client.ui_set_visible(&overlay, true);
-    let native_hidden = overlay_visible && client.ui_set_visible(&native_icon, false);
-    if !native_hidden {
-        let _ = client.ui_set_visible(&overlay, false);
-        let _ = client.ui_set_visible(&native_icon, true);
+    // Hide any child left behind by a pre-0.12.12 in-process UI tree. Fresh
+    // starts never contain these nodes, but this keeps hot reload fail-safe.
+    let retired_overlay = match champion_id {
+        "dancer" => "lol_mod_fullbody_xayah",
+        "dual_blader" => "lol_mod_fullbody_yone",
+        _ => "",
+    };
+    if !retired_overlay.is_empty() {
+        let retired_overlay = join_ui_path(&card, retired_overlay);
+        if client.ui_exists(&retired_overlay) {
+            let _ = client.ui_set_visible(&retired_overlay, false);
+        }
     }
-    let rect_after = client.ui_node_rect(&overlay);
-
-    // Keep the two role icons above the dedicated full-body image.
     for role_icon in ["pos1", "pos2"] {
         let role_icon = join_ui_path(&card, role_icon);
         let _ = client.ui_set_properties(&role_icon, "z: 2;");
     }
-
-    EncyclopediaCardSync {
-        icon_exists: true,
-        overlay_runner,
-        spawned,
-        positioned,
-        overlay_visible,
-        native_hidden,
-        rect_before,
-        rect_after,
-    }
+    client.ui_set_visible(&native_icon, visible)
 }
 
-fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
+fn sync_encyclopedia_native_visibility(
+    extension: &QualityBpExtension,
+    client: &mut StableClient<'_>,
+) {
     if client.client_main_tab().as_deref() != Some("GameInfo") {
+        extension.encyclopedia_render_proof.store(0, Ordering::Relaxed);
+        extension
+            .encyclopedia_telemetry_written
+            .store(0, Ordering::Relaxed);
+        if let Some(container) = extension
+            .encyclopedia_container
+            .lock()
+            .ok()
+            .and_then(|guard| guard.clone())
+        {
+            let _ = set_encyclopedia_native_visible(client, &container, "dancer", true);
+            let _ =
+                set_encyclopedia_native_visible(client, &container, "dual_blader", true);
+        }
         return;
-    }
-    let cached = extension
-        .encyclopedia_container
-        .lock()
-        .ok()
-        .and_then(|guard| guard.clone());
-    let container = cached
-        .filter(|path| is_encyclopedia_container(client, path))
-        .or_else(|| find_encyclopedia_container(client));
-    let Some(container) = container else {
-        return;
-    };
-    if let Ok(mut cached) = extension.encyclopedia_container.lock() {
-        *cached = Some(container.clone());
     }
 
-    let xayah = sync_encyclopedia_card(
-        client,
-        &container,
-        "dancer",
-        "lol_mod_fullbody_xayah",
-        "asset/lol_mod/ui/champion_fullbody/dancer",
-        XAYAH_ENCYCLOPEDIA_WIDTH,
-        XAYAH_ENCYCLOPEDIA_HEIGHT,
-        ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
-    );
-    let yone = sync_encyclopedia_card(
-        client,
-        &container,
-        "dual_blader",
-        "lol_mod_fullbody_yone",
-        "asset/lol_mod/ui/champion_fullbody/dual_blader",
-        YONE_ENCYCLOPEDIA_WIDTH,
-        YONE_ENCYCLOPEDIA_HEIGHT,
-        ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
-    );
-    if xayah.icon_exists
-        && yone.icon_exists
+    let Some(container) = resolve_encyclopedia_container(extension, client) else {
+        extension.encyclopedia_render_proof.store(0, Ordering::Relaxed);
+        return;
+    };
+    let proof = extension.encyclopedia_render_proof.load(Ordering::Relaxed);
+    let mut telemetry = Vec::new();
+    for (champion_id, bit) in [
+        ("dancer", ENCYCLOPEDIA_XAYAH_DRAW_PROOF),
+        ("dual_blader", ENCYCLOPEDIA_YONE_DRAW_PROOF),
+    ] {
+        let native_icon = encyclopedia_native_icon_path(&container, champion_id);
+        let rect = client.ui_node_rect(&native_icon);
+        let drawable = rect.is_some_and(encyclopedia_target_rect_is_drawable);
+        // Critical fallback invariant: a missing/zero/undersized target can
+        // never hide the engine-owned icon, even if an older proof bit exists.
+        let should_hide = drawable && proof & bit != 0;
+        let visibility_updated =
+            set_encyclopedia_native_visible(client, &container, champion_id, !should_hide);
+        telemetry.push(format!(
+            "{champion_id} target={rect:?} drawable={drawable} draw_proof={} native_hidden={} visibility_updated={visibility_updated}",
+            proof & bit != 0,
+            should_hide && visibility_updated,
+        ));
+    }
+    if proof != 0
         && extension
             .encyclopedia_telemetry_written
             .compare_exchange(0, 1, Ordering::Relaxed, Ordering::Relaxed)
@@ -383,24 +385,70 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         append_encyclopedia_telemetry(
             &container,
             &format!(
-                "source-direct encyclopedia fullbody; Briar-calibrated visible_height~=58px; bottom_y=68 tier_y=70; xayah node=59x64 runner={} spawned={} positioned={} visible={} native_hidden={} rect_before={:?} rect_after={:?}; yone node=62x67 runner={} spawned={} positioned={} visible={} native_hidden={} rect_before={:?} rect_after={:?}",
-                xayah.overlay_runner,
-                xayah.spawned,
-                xayah.positioned,
-                xayah.overlay_visible,
-                xayah.native_hidden,
-                xayah.rect_before,
-                xayah.rect_after,
-                yone.overlay_runner,
-                yone.spawned,
-                yone.positioned,
-                yone.overlay_visible,
-                yone.native_hidden,
-                yone.rect_before,
-                yone.rect_after,
+                "post-render direct encyclopedia sprites; 64x64 Briar-class final textures; zero-layout cannot hide native; bottom_y=68 tier_y=70; {}",
+                telemetry.join("; ")
             ),
         );
     }
+}
+
+fn draw_encyclopedia_card(
+    client: &mut StableClient<'_>,
+    container: &str,
+    champion_id: &str,
+    texture: &str,
+) -> bool {
+    let native_icon = encyclopedia_native_icon_path(container, champion_id);
+    let Some((x, y, width, height)) = client.ui_node_rect(&native_icon) else {
+        return false;
+    };
+    if !encyclopedia_target_rect_is_drawable((x, y, width, height)) {
+        return false;
+    }
+    client.draw_sprite(
+        "UI",
+        texture,
+        &StableSpriteParams {
+            x: x + width * 0.5,
+            y: y + ENCYCLOPEDIA_FULLBODY_BOTTOM_Y,
+            z: 1,
+            pivot_x: 0.5,
+            pivot_y: 1.0,
+            sample_nearest: true,
+            ..StableSpriteParams::default()
+        },
+    )
+}
+
+fn draw_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
+    if client.client_main_tab().as_deref() != Some("GameInfo") {
+        extension.encyclopedia_render_proof.store(0, Ordering::Relaxed);
+        return;
+    }
+    let Some(container) = resolve_encyclopedia_container(extension, client) else {
+        extension.encyclopedia_render_proof.store(0, Ordering::Relaxed);
+        return;
+    };
+    let mut proof = 0;
+    if draw_encyclopedia_card(
+        client,
+        &container,
+        "dancer",
+        XAYAH_ENCYCLOPEDIA_TEXTURE,
+    ) {
+        proof |= ENCYCLOPEDIA_XAYAH_DRAW_PROOF;
+    }
+    if draw_encyclopedia_card(
+        client,
+        &container,
+        "dual_blader",
+        YONE_ENCYCLOPEDIA_TEXTURE,
+    ) {
+        proof |= ENCYCLOPEDIA_YONE_DRAW_PROOF;
+    }
+    // Replace, never accumulate: one failed render frame removes its proof bit
+    // so the very next post_update restores that champion's native fallback.
+    extension.encyclopedia_render_proof.store(proof, Ordering::Relaxed);
 }
 
 fn bp_champion_id_from_name(name: &str) -> Option<&'static str> {
@@ -599,6 +647,10 @@ fn sync_bp_runtime_ui(client: &mut StableClient<'_>) {
 
 impl StableExtension for QualityBpExtension {
     fn post_update(&self, client: &mut StableClient<'_>, dt_micros: u64) {
+        // Encyclopedia fallback visibility follows the render proof every
+        // update; BP discovery can stay on its cheaper 250 ms scan cadence.
+        sync_encyclopedia_native_visibility(self, client);
+
         let previous = self.elapsed_micros.fetch_add(dt_micros, Ordering::Relaxed);
         if previous.saturating_add(dt_micros) < BP_RUNTIME_SCAN_INTERVAL_MICROS {
             return;
@@ -606,7 +658,10 @@ impl StableExtension for QualityBpExtension {
         self.elapsed_micros.store(0, Ordering::Relaxed);
 
         sync_bp_runtime_ui(client);
-        sync_encyclopedia_portraits(self, client);
+    }
+
+    fn post_render(&self, client: &mut StableClient<'_>) {
+        draw_encyclopedia_portraits(self, client);
     }
 }
 

@@ -8,7 +8,7 @@
     "schema_version": 7,
     "route": "dual-sword-v7",
     "manifest": "source/native/yone_v7/frames.json",
-    "manifest_sha256": "c24cdac815371be768dd4f2118c687f607e6aa9df19bf5742c230ae550cc755b",
+    "manifest_sha256": "9090e082c47387c51d8e411c6901fb956984ab61645c7ef0ba85f00094f169cc",
     "atlas_size": [
       4262,
       88
@@ -2337,24 +2337,9 @@
         36
       ],
       "bottom_margin": 13,
-      "face_bbox": [
-        19,
-        9,
-        5,
-        6
-      ],
-      "eye_pixels": [
-        [
-          20,
-          12
-        ]
-      ],
-      "mask_bbox": [
-        10,
-        3,
-        9,
-        10
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
           6,
@@ -2363,7 +2348,7 @@
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2415,8 +2400,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "ccc8b1ba8cf047100b6622d7cf26511d174d18ac4d313b1568d19580f83bb453",
+      "opaque_palette_size": 43,
+      "sha256": "844e99160b27678ae38034dc82032ebe383bad44ce84cb2281c0bb6cac6f0fab",
       "pack_transform": "none"
     },
     "run[1]": {
@@ -2438,9 +2423,28 @@
         37
       ],
       "bottom_margin": 14,
-      "face_bbox": null,
-      "eye_pixels": [],
-      "mask_bbox": null,
+      "face_bbox": [
+        21,
+        10,
+        7,
+        6
+      ],
+      "eye_pixels": [
+        [
+          22,
+          13
+        ],
+        [
+          27,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        13,
+        5,
+        10,
+        9
+      ],
       "foot_zones": [
         [
           5,
@@ -2449,7 +2453,7 @@
           4
         ]
       ],
-      "face_visibility": "hidden",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2501,8 +2505,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "6c667e554d5d9d8d86526103f59fb71d611b3a1940a908780f7f00242e62c7cc",
+      "opaque_palette_size": 45,
+      "sha256": "65e0b657dfbfde55e427207d69d4834f3e2d2ef7b0071479901227612f69c90b",
       "pack_transform": "none"
     },
     "run[2]": {
@@ -2525,26 +2529,26 @@
       ],
       "bottom_margin": 15,
       "face_bbox": [
-        17,
+        20,
         11,
-        6,
-        9
+        8,
+        6
       ],
       "eye_pixels": [
         [
-          19,
+          22,
           14
         ],
         [
-          17,
+          20,
           13
         ]
       ],
       "mask_bbox": [
-        9,
-        5,
-        9,
-        14
+        13,
+        7,
+        6,
+        8
       ],
       "foot_zones": [
         [
@@ -2607,7 +2611,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "fae9afa827f2577985f00ce23b784b9d6b36f9b3d9c4ede1d99504e9a4ac26d4",
+      "sha256": "82e1d1f42089ac9f44913a1af5d621f3660a829218701d5b78ac2b6309aea043",
       "pack_transform": "none"
     },
     "run[3]": {
@@ -2630,26 +2634,26 @@
       ],
       "bottom_margin": 14,
       "face_bbox": [
-        17,
+        20,
         10,
-        6,
+        8,
         6
       ],
       "eye_pixels": [
         [
-          19,
+          22,
           13
         ],
         [
-          17,
+          20,
           12
         ]
       ],
       "mask_bbox": [
+        13,
+        5,
         9,
-        4,
-        9,
-        10
+        9
       ],
       "foot_zones": [
         [
@@ -2660,197 +2664,6 @@
         ]
       ],
       "face_visibility": "front",
-      "active_weapon": "dual",
-      "weapons_present": [
-        "steel",
-        "azakana"
-      ],
-      "weapon_geometry": {
-        "steel": {
-          "blade_bbox": [
-            3,
-            26,
-            8,
-            11
-          ],
-          "hand_anchor": [
-            9,
-            27
-          ],
-          "tip": [
-            5,
-            36
-          ],
-          "span_px": 9.849,
-          "connectedness": 1.0,
-          "pixel_count": 38,
-          "crop_ratio": 0.0,
-          "source_tip_survived": true
-        },
-        "azakana": {
-          "blade_bbox": [
-            26,
-            24,
-            11,
-            10
-          ],
-          "hand_anchor": [
-            27,
-            25
-          ],
-          "tip": [
-            36,
-            32
-          ],
-          "span_px": 11.402,
-          "connectedness": 1.0,
-          "pixel_count": 43,
-          "crop_ratio": 0.0,
-          "source_tip_survived": true
-        }
-      },
-      "hard_alpha": true,
-      "transparent_frame_edges": true,
-      "opaque_palette_size": 42,
-      "sha256": "1df4a2c8c5daad553304246d3f65c7607ff8cc4eeccbd7b90d4234ecb99cf0a5",
-      "pack_transform": "none"
-    },
-    "run[4]": {
-      "source": "source/native/yone_v7/frames/run_04.png",
-      "native_rect": [
-        382,
-        0,
-        41,
-        49
-      ],
-      "source_size": [
-        41,
-        49
-      ],
-      "source_alpha_bbox": [
-        3,
-        1,
-        40,
-        36
-      ],
-      "bottom_margin": 13,
-      "face_bbox": [
-        20,
-        9,
-        6,
-        7
-      ],
-      "eye_pixels": [
-        [
-          22,
-          12
-        ],
-        [
-          25,
-          12
-        ]
-      ],
-      "mask_bbox": [
-        11,
-        4,
-        9,
-        12
-      ],
-      "foot_zones": [
-        [
-          3,
-          32,
-          37,
-          4
-        ]
-      ],
-      "face_visibility": "front",
-      "active_weapon": "dual",
-      "weapons_present": [
-        "steel",
-        "azakana"
-      ],
-      "weapon_geometry": {
-        "steel": {
-          "blade_bbox": [
-            3,
-            25,
-            9,
-            11
-          ],
-          "hand_anchor": [
-            10,
-            26
-          ],
-          "tip": [
-            5,
-            35
-          ],
-          "span_px": 10.296,
-          "connectedness": 1.0,
-          "pixel_count": 39,
-          "crop_ratio": 0.0,
-          "source_tip_survived": true
-        },
-        "azakana": {
-          "blade_bbox": [
-            29,
-            24,
-            10,
-            10
-          ],
-          "hand_anchor": [
-            30,
-            25
-          ],
-          "tip": [
-            38,
-            32
-          ],
-          "span_px": 10.63,
-          "connectedness": 1.0,
-          "pixel_count": 41,
-          "crop_ratio": 0.0,
-          "source_tip_survived": true
-        }
-      },
-      "hard_alpha": true,
-      "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "323de7e1992fc7ab1ace5be40f5062e03aefbff7c9b15e00d2ee7114735b71ac",
-      "pack_transform": "none"
-    },
-    "run[5]": {
-      "source": "source/native/yone_v7/frames/run_05.png",
-      "native_rect": [
-        424,
-        0,
-        39,
-        51
-      ],
-      "source_size": [
-        39,
-        51
-      ],
-      "source_alpha_bbox": [
-        3,
-        2,
-        37,
-        37
-      ],
-      "bottom_margin": 14,
-      "face_bbox": null,
-      "eye_pixels": [],
-      "mask_bbox": null,
-      "foot_zones": [
-        [
-          3,
-          33,
-          34,
-          4
-        ]
-      ],
-      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2903,7 +2716,217 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 44,
-      "sha256": "6a7e6753631a4d5accf8cb04ae0a3607db101384c379dfb26ea9648c3ad71734",
+      "sha256": "50c0d2cd6efd58ffba866a118e5d13b3e23af816de146ef1a2003721e64c6770",
+      "pack_transform": "none"
+    },
+    "run[4]": {
+      "source": "source/native/yone_v7/frames/run_04.png",
+      "native_rect": [
+        382,
+        0,
+        41,
+        49
+      ],
+      "source_size": [
+        41,
+        49
+      ],
+      "source_alpha_bbox": [
+        2,
+        1,
+        39,
+        36
+      ],
+      "bottom_margin": 13,
+      "face_bbox": [
+        21,
+        9,
+        7,
+        7
+      ],
+      "eye_pixels": [
+        [
+          21,
+          12
+        ],
+        [
+          24,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        14,
+        5,
+        6,
+        8
+      ],
+      "foot_zones": [
+        [
+          2,
+          32,
+          37,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            2,
+            25,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            8,
+            26
+          ],
+          "tip": [
+            4,
+            35
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            28,
+            24,
+            11,
+            10
+          ],
+          "hand_anchor": [
+            29,
+            25
+          ],
+          "tip": [
+            38,
+            32
+          ],
+          "span_px": 11.402,
+          "connectedness": 1.0,
+          "pixel_count": 43,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 43,
+      "sha256": "226ceccbe6da3af3a06cdc348acbff9a2247e142e3e237e930037787ba3a2f9e",
+      "pack_transform": "none"
+    },
+    "run[5]": {
+      "source": "source/native/yone_v7/frames/run_05.png",
+      "native_rect": [
+        424,
+        0,
+        39,
+        51
+      ],
+      "source_size": [
+        39,
+        51
+      ],
+      "source_alpha_bbox": [
+        3,
+        2,
+        37,
+        37
+      ],
+      "bottom_margin": 14,
+      "face_bbox": [
+        20,
+        10,
+        7,
+        6
+      ],
+      "eye_pixels": [
+        [
+          20,
+          12
+        ],
+        [
+          22,
+          12
+        ]
+      ],
+      "mask_bbox": [
+        13,
+        5,
+        9,
+        9
+      ],
+      "foot_zones": [
+        [
+          3,
+          33,
+          34,
+          4
+        ]
+      ],
+      "face_visibility": "front",
+      "active_weapon": "dual",
+      "weapons_present": [
+        "steel",
+        "azakana"
+      ],
+      "weapon_geometry": {
+        "steel": {
+          "blade_bbox": [
+            3,
+            26,
+            8,
+            11
+          ],
+          "hand_anchor": [
+            9,
+            27
+          ],
+          "tip": [
+            5,
+            36
+          ],
+          "span_px": 9.849,
+          "connectedness": 1.0,
+          "pixel_count": 38,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        },
+        "azakana": {
+          "blade_bbox": [
+            26,
+            24,
+            11,
+            10
+          ],
+          "hand_anchor": [
+            27,
+            25
+          ],
+          "tip": [
+            36,
+            32
+          ],
+          "span_px": 11.402,
+          "connectedness": 1.0,
+          "pixel_count": 43,
+          "crop_ratio": 0.0,
+          "source_tip_survived": true
+        }
+      },
+      "hard_alpha": true,
+      "transparent_frame_edges": true,
+      "opaque_palette_size": 43,
+      "sha256": "c1d0bd4bc0d15ce36e7a9b9ce1afcf7b96285b42e0e44e74a8449be2f9cc5c26",
       "pack_transform": "none"
     },
     "run[6]": {
@@ -2919,24 +2942,43 @@
         53
       ],
       "source_alpha_bbox": [
-        4,
+        3,
         3,
         37,
         38
       ],
       "bottom_margin": 15,
-      "face_bbox": null,
-      "eye_pixels": [],
-      "mask_bbox": null,
+      "face_bbox": [
+        20,
+        11,
+        7,
+        6
+      ],
+      "eye_pixels": [
+        [
+          26,
+          14
+        ],
+        [
+          20,
+          13
+        ]
+      ],
+      "mask_bbox": [
+        13,
+        6,
+        9,
+        9
+      ],
       "foot_zones": [
         [
-          4,
+          3,
           34,
-          33,
+          34,
           4
         ]
       ],
-      "face_visibility": "hidden",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2945,17 +2987,17 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            4,
+            3,
             27,
             8,
             11
           ],
           "hand_anchor": [
-            10,
+            9,
             28
           ],
           "tip": [
-            6,
+            5,
             37
           ],
           "span_px": 9.849,
@@ -2966,30 +3008,30 @@
         },
         "azakana": {
           "blade_bbox": [
-            27,
+            26,
             25,
-            10,
+            11,
             10
           ],
           "hand_anchor": [
-            28,
+            27,
             26
           ],
           "tip": [
             36,
             33
           ],
-          "span_px": 10.63,
+          "span_px": 11.402,
           "connectedness": 1.0,
-          "pixel_count": 41,
+          "pixel_count": 43,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "de468533f9de9c16724477910100b7a58c9533463b93de96fd1cf3c1d46369e6",
+      "opaque_palette_size": 43,
+      "sha256": "9e8eb3c0187ad25af0f7a32e058765478247a4ec4e8a389e91cd7adb0fde4c88",
       "pack_transform": "none"
     },
     "run[7]": {
@@ -3011,28 +3053,9 @@
         37
       ],
       "bottom_margin": 14,
-      "face_bbox": [
-        18,
-        10,
-        5,
-        6
-      ],
-      "eye_pixels": [
-        [
-          19,
-          13
-        ],
-        [
-          22,
-          12
-        ]
-      ],
-      "mask_bbox": [
-        9,
-        4,
-        9,
-        10
-      ],
+      "face_bbox": null,
+      "eye_pixels": [],
+      "mask_bbox": null,
       "foot_zones": [
         [
           5,
@@ -3041,7 +3064,7 @@
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "hidden",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -3094,7 +3117,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 44,
-      "sha256": "8c202e33b6e2565af961bd7bb9f2d3433bac3800ddda0ed7a5c0649dd2a64a79",
+      "sha256": "f935a87b9c573adc69ab9224a4b6334dc3b8b62904ec268c9439f46ede193359",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
@@ -7230,7 +7253,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8",
+      "sha256": "26454219bab50be9ce0bd48dc53a6c8c00e3cf6be78b1ea6f4b7d7551f491bd0",
       "alpha_bbox": [
         49,
         1,
@@ -7254,7 +7277,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "0f2d650b3bc48baed1431067028be7de12f9a0f040ab379a5f383558e864fda8",
+      "sha256": "26454219bab50be9ce0bd48dc53a6c8c00e3cf6be78b1ea6f4b7d7551f491bd0",
       "alpha_bbox": [
         49,
         1,
@@ -7504,6 +7527,25 @@
         8,
         79,
         88
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "ui/champion_fullbody/dual_blader_encyclopedia.png",
+      "dimensions": [
+        64,
+        64
+      ],
+      "size_bytes": 16516,
+      "sha256": "f67be969a10c9e68928739b20f0e64409ab095df6f6c0475708fd2092f242692",
+      "alpha_bbox": [
+        5,
+        2,
+        58,
+        60
       ],
       "alpha_extrema": [
         0,

@@ -836,6 +836,11 @@
       "sha256": "aaccf807d104275ec23a6d63bd616282dd7146f0e9f55e34cdc97562a7fc3ae9"
     },
     {
+      "path": "ui/champion_fullbody/dancer_encyclopedia.png",
+      "size_bytes": 16516,
+      "sha256": "1b253e2b3c403843397a49c5e8b51d672af5d1b4e238c13729f6e1a355faa261"
+    },
+    {
       "path": "ui/champion_portrait/dancer_compact.png",
       "size_bytes": 16516,
       "sha256": "d07604367500dd6c31c2bc8d477f9a53bffe09adfe437f2512315466e8f78e50"
