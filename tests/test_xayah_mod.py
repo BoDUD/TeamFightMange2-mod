@@ -524,34 +524,49 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert '"boomerang_hunter" | "Sivir"' in stable_runtime
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
-    assert "asset/lol_mod/ui/champion_fullbody/dancer" in stable_runtime
-    assert "asset/lol_mod/ui/champion_fullbody/dual_blader" in stable_runtime
-    assert "width: {width}px; height: {height}px; y: {bottom}px; z: 1" in stable_runtime
-    assert stable_runtime.count("85.0,\n        93.0,\n        93.0,") == 2
+    assert (
+        'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)'
+        in stable_runtime
+    )
+    assert (
+        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)'
+        in stable_runtime
+    )
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
 
-    # Regression: 0.12.6 used ui_spawn_source(), treated a parsed overlay as
-    # proof that its PNG was drawable, and then hid the stock icon.  On the
-    # 0.5.7 host both Xayah and Yone therefore became completely blank.  The
-    # runtime must rebind the already-measured stock image runner and retain a
-    # visible fallback on every failure path; a second unproven image node is
-    # never allowed to gate native-icon visibility again.
+    # Regression: 0.12.6 hid the native icon after an unproven spawned PNG;
+    # 0.12.7 then wrote that same unproven plain-PNG `source:` directly onto
+    # the stock image runner. set_properties() only proved grammar acceptance,
+    # so both versions could leave Xayah/Yone completely blank. Use the 0.5.8
+    # ABI 8 SDK's game-owned resolver (introduced at ABI 4) and never mutate
+    # this runner's source string.
     card_sync = stable_runtime.split("fn sync_encyclopedia_card", 1)[1].split(
         "fn sync_encyclopedia_portraits", 1
     )[0]
-    assert "client.ui_set_properties(&native_icon, &source)" in card_sync
+    assert (
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)"
+        in card_sync
+    )
     assert "client.ui_set_visible(&native_icon, true)" in card_sync
     assert "client.ui_spawn_source(" not in card_sync
+    assert "ui_set_properties(&native_icon" not in card_sync
+    assert "source:" not in card_sync
     assert "ui_set_visible(&native_icon, false)" not in card_sync
-    assert "native icons remain visible on every failure path" in stable_runtime
+    assert "stock champion-icon resolver; raw source mutation disabled" in stable_runtime
+
+    stable_client = (MOD / "vendor/mod-api-stable/src/client_ctx.rs").read_text(
+        encoding="utf-8"
+    )
+    assert "pub fn ui_set_champion_icon(" in stable_client
+    assert "using\n    /// the game's own icon math" in stable_client
 
     override = load_json("mod.override_info")
     assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
     runtime_paths = {
         row["path"] for row in load_json("runtime_manifest.json")["files"]
     }
-    assert "ui/champion_fullbody/dancer.png" in runtime_paths
-    assert "ui/champion_fullbody/dual_blader.png" in runtime_paths
+    assert "ui/champion_fullbody/dancer.png" not in runtime_paths
+    assert "ui/champion_fullbody/dual_blader.png" not in runtime_paths
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
         for path in runtime_paths

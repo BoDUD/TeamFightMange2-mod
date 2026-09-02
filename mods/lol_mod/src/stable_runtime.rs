@@ -1,4 +1,4 @@
-//! Stable-ABI runtime for Teamfight Manager 2 0.5.7 and later.
+//! Stable-ABI runtime for Teamfight Manager 2 0.5.8 and later.
 //!
 //! `src/lib.rs` is retained as the classic Mod API 0.8 migration reference,
 //! but Cargo deliberately builds only this file. Only the frozen `*V1` value
@@ -128,7 +128,7 @@ impl StableMatchHook for CorruptMobaMatchGuard {
 
         if invalid_moba_structure(sim).is_some() {
             let seed = sim.seed();
-            // A broken generated match would otherwise enter the base 0.5.7
+            // A broken generated match would otherwise enter the base 0.5.8
             // plan_legacy AI and panic on its first unwrap. Resolve only that
             // structurally invalid match, deterministically, before tick one.
             sim.force_end(seed & 1 == 0);
@@ -247,46 +247,59 @@ fn append_encyclopedia_telemetry(container: &str, detail: &str) {
     );
 }
 
+#[derive(Debug, Default)]
+struct EncyclopediaCardSync {
+    icon_exists: bool,
+    runner: String,
+    resolver_bound: bool,
+    visible: bool,
+    rect_before: Option<(f32, f32, f32, f32)>,
+    rect_after: Option<(f32, f32, f32, f32)>,
+}
+
 fn sync_encyclopedia_card(
     client: &mut StableClient<'_>,
     container: &str,
     champion_id: &str,
-    texture: &str,
     width: f32,
     height: f32,
-    bottom: f32,
-) -> bool {
+) -> EncyclopediaCardSync {
     let card = join_ui_path(container, champion_id);
     let native_icon = join_ui_path(&card, "icon");
     if !client.ui_exists(&native_icon) {
-        return false;
+        return EncyclopediaCardSync::default();
     }
-    // Rebind the card's existing image runner instead of spawning a second
-    // image and hiding the first one.  `ui_spawn_source` only proves that a
-    // node was parsed; it does not prove that the node resolved and painted
-    // its texture.  Hiding `icon` after that weak check produced a completely
-    // empty Xayah/Yone card on 0.5.7.  The existing image runner is already
-    // part of the stock card's measured/clipped layout, and set_properties
-    // reports failure atomically.  On every failure path we explicitly keep
-    // it visible, so a missing custom texture can never turn into a blank
-    // encyclopedia card again.
-    let source = format!(
-        r#"width: {width}px; height: {height}px; y: {bottom}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}";"#
-    );
-    if !client.ui_set_properties(&native_icon, &source) {
-        let _ = client.ui_set_visible(&native_icon, true);
-        return false;
-    }
-    if !client.ui_set_visible(&native_icon, true) {
-        return false;
-    }
-    // Keep the two role icons above the rebound portrait just as they are
-    // above the stock champion icon.
+
+    let runner = client.ui_runner_name(&native_icon).unwrap_or_default();
+    let rect_before = client.ui_node_rect(&native_icon);
+
+    // Do not write an arbitrary raw image-source property onto this image node.
+    // `ui_set_properties` reports that the property grammar was accepted; it
+    // does not prove that the texture resolved.  0.12.7 therefore replaced a
+    // valid engine-owned champion sprite with an unresolved plain-PNG source
+    // and left both cards blank.  The 0.5.8 ABI 8 SDK retains the operation
+    // introduced at ABI level 4: resolve a champion's idle/face sprite through the live
+    // database and fit it into the requested box.  If an older host rejects
+    // the optional slot, the original icon source is untouched and is merely
+    // made visible as the fallback.
+    let resolver_bound = client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0);
+    let visible = client.ui_set_visible(&native_icon, true);
+    let rect_after = client.ui_node_rect(&native_icon);
+
+    // Keep the two role icons above the stock champion image.
     for role_icon in ["pos1", "pos2"] {
         let role_icon = join_ui_path(&card, role_icon);
         let _ = client.ui_set_properties(&role_icon, "z: 2;");
     }
-    true
+
+    EncyclopediaCardSync {
+        icon_exists: true,
+        runner,
+        resolver_bound,
+        visible,
+        rect_before,
+        rect_after,
+    }
 }
 
 fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
@@ -308,26 +321,10 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         *cached = Some(container.clone());
     }
 
-    let xayah = sync_encyclopedia_card(
-        client,
-        &container,
-        "dancer",
-        "asset/lol_mod/ui/champion_fullbody/dancer",
-        85.0,
-        93.0,
-        93.0,
-    );
-    let yone = sync_encyclopedia_card(
-        client,
-        &container,
-        "dual_blader",
-        "asset/lol_mod/ui/champion_fullbody/dual_blader",
-        85.0,
-        93.0,
-        93.0,
-    );
-    if xayah
-        && yone
+    let xayah = sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0);
+    let yone = sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0);
+    if xayah.icon_exists
+        && yone.icon_exists
         && extension
             .encyclopedia_telemetry_written
             .compare_exchange(0, 1, Ordering::Relaxed, Ordering::Relaxed)
@@ -335,7 +332,19 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
     {
         append_encyclopedia_telemetry(
             &container,
-            "source-direct Xayah and Yone portraits rebound onto the stock image nodes; native icons remain visible on every failure path; 85x93 card geometry restored",
+            &format!(
+                "stock champion-icon resolver; raw source mutation disabled; xayah runner={} bound={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} visible={} rect_before={:?} rect_after={:?}",
+                xayah.runner,
+                xayah.resolver_bound,
+                xayah.visible,
+                xayah.rect_before,
+                xayah.rect_after,
+                yone.runner,
+                yone.resolver_bound,
+                yone.visible,
+                yone.rect_before,
+                yone.rect_after,
+            ),
         );
     }
 }
@@ -933,121 +942,6 @@ impl StableEffectType for UrgotRExecuteNativeEffect {
     }
 }
 
-const YONE_W_RANGE: i128 = 42_000;
-const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;
-const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;
-const YONE_W_FLAT_DAMAGE: usize = 35;
-const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;
-const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;
-const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;
-
-#[derive(Clone, Copy, Debug, Default)]
-struct YoneSpiritCleaveConeNativeEffect;
-
-impl StableEffectType for YoneSpiritCleaveConeNativeEffect {
-    fn apply(
-        &self,
-        sim: &mut StableSim<'_>,
-        _rng_seed: u64,
-        caster_id: usize,
-        input: InputTargetV1,
-    ) {
-        let Some((caster_pos, caster_team, caster_attack, true)) =
-            sim.get_entity(caster_id).map(|caster| {
-                (
-                    caster.pos(),
-                    caster.team(),
-                    caster.stat().attack,
-                    caster.is_alive(),
-                )
-            })
-        else {
-            return;
-        };
-        let (dir_x, dir_y) = match InputTargetKindV1::from_code(input.kind) {
-            Some(InputTargetKindV1::Dir) => (i128::from(input.dir_x), i128::from(input.dir_y)),
-            Some(InputTargetKindV1::Pos) => (
-                i128::from(input.x) - i128::from(caster_pos.0),
-                i128::from(input.y) - i128::from(caster_pos.1),
-            ),
-            Some(InputTargetKindV1::Target) => {
-                let Some(target_pos) = sim.get_entity(input.target_id).map(|target| target.pos())
-                else {
-                    return;
-                };
-                (
-                    i128::from(target_pos.0) - i128::from(caster_pos.0),
-                    i128::from(target_pos.1) - i128::from(caster_pos.1),
-                )
-            }
-            _ => return,
-        };
-        if dir_x == 0 && dir_y == 0 {
-            return;
-        }
-
-        let dir_sq = dir_x * dir_x + dir_y * dir_y;
-        let mut hits: Vec<(usize, usize)> = Vec::new();
-        let mut champion_hits = 0usize;
-        for index in 0..sim.entity_count() {
-            let Some(target) = sim.entity_at(index) else {
-                continue;
-            };
-            let target_id = target.id();
-            if target_id == caster_id
-                || target.team() == caster_team
-                || !target.is_alive()
-                || !target.is_targetable()
-                || target.is_tower()
-            {
-                continue;
-            }
-
-            let target_pos = target.pos();
-            let dx = i128::from(target_pos.0) - i128::from(caster_pos.0);
-            let dy = i128::from(target_pos.1) - i128::from(caster_pos.1);
-            let distance_sq = dx * dx + dy * dy;
-            let hit_range = YONE_W_RANGE + target.radius() as i128;
-            if distance_sq > hit_range * hit_range {
-                continue;
-            }
-
-            let dot = dx * dir_x + dy * dir_y;
-            if dot <= 0
-                || dot * dot * YONE_W_COS_SQ_SCALE < distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE
-            {
-                continue;
-            }
-
-            let target_max_hp = target.hp().1;
-            let damage = YONE_W_FLAT_DAMAGE
-                .saturating_add(caster_attack.saturating_mul(YONE_W_ATTACK_RATIO_PERCENT) / 100)
-                .saturating_add(target_max_hp.saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT) / 100);
-            champion_hits += usize::from(target.is_champion());
-            hits.push((target_id, damage));
-        }
-        if hits.is_empty() {
-            return;
-        }
-
-        for (target_id, damage) in hits {
-            sim.deal_damage(caster_id, target_id, damage, 0, AttackTypeV1::Skill);
-        }
-        if !sim
-            .get_entity(caster_id)
-            .is_some_and(|caster| caster.is_alive())
-        {
-            return;
-        }
-
-        let shield_tier = champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS);
-        sim.add_buff(
-            caster_id,
-            &BuffV1::timed(&format!("lol_yone_w_shield_tier_{shield_tier}"), 3),
-        );
-    }
-}
-
 #[derive(Clone, Copy, Debug, Default)]
 struct LegacySavedNativeCompatibilityEffect;
 
@@ -1101,8 +995,8 @@ fn init(host: &StableHost) -> StableMod {
             change: XayahFeatherStateChange::Clear,
         },
     );
-    registration.add_native_effect("lol_yone_w_cone_native", YoneSpiritCleaveConeNativeEffect);
     for retired_name in [
+        "lol_yone_w_cone_native",
         "lol_yone_w_begin_native",
         "lol_yone_w_collect_hit_native",
         "lol_yone_w_settle_native",
@@ -1136,4 +1030,4 @@ fn init(host: &StableHost) -> StableMod {
     registration
 }
 
-declare_stable_mod!(init);
+declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);

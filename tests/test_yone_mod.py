@@ -27,6 +27,7 @@ LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
     "lol_yone_w_begin_native",
     "lol_yone_w_collect_hit_native",
     "lol_yone_w_settle_native",
+    "lol_yone_w_cone_native",
 }
 
 
@@ -221,7 +222,9 @@ def test_soul_unbound_is_absent_from_active_data_resources_and_manifest() -> Non
             for path in (MOD / runtime_root).rglob("*")
         )
 
-    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
+    cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
+    assert 'path = "src/stable_runtime.rs"' in cargo
+    rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     for retired_runtime in (
         "YONE_SOUL_UNBOUND",
         "YoneSoulUnboundStartNativeEffect",
@@ -248,46 +251,278 @@ def test_soul_unbound_is_absent_from_active_data_resources_and_manifest() -> Non
 
 
 def test_legacy_saved_native_compatibility_allowlist_is_exact_and_noop() -> None:
-    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    discovered_names = set(
+    cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
+    assert 'path = "src/stable_runtime.rs"' in cargo
+    rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    loop = re.search(
+        r"for retired_name in \[(?P<body>.*?)\]\s*\{",
+        rust,
+        flags=re.DOTALL,
+    )
+    assert loop is not None
+    loop_names = set(re.findall(r'"([^"]+)"', loop.group("body")))
+    direct_names = set(
         re.findall(
             r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
             r"LegacySavedNativeCompatibilityEffect,\s*\);",
             rust,
         )
     )
+    discovered_names = loop_names | direct_names
     assert discovered_names == LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
     assert all(rust.count(f'"{name}"') == 1 for name in discovered_names)
 
-    registrations = dict(
-        re.findall(
-            r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
-            r"([A-Za-z0-9_]+),\s*\);",
-            rust,
-        )
-    )
-    assert {
-        name: registrations.get(name)
-        for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
-    } == {
-        name: "LegacySavedNativeCompatibilityEffect"
-        for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES
-    }
-
     compatibility_impl = rust.split(
-        "impl ModEffectType for LegacySavedNativeCompatibilityEffect", 1
+        "impl StableEffectType for LegacySavedNativeCompatibilityEffect", 1
     )[1].split("\nfn init", 1)[0]
     assert re.search(
-        r"fn apply\([^)]*\) \{\}",
+        r"fn apply\([^)]*\)\s*\{\s*\}",
         compatibility_impl,
+        flags=re.DOTALL,
     )
     assert not any(
         token in compatibility_impl
-        for token in ("ctx.", "add_buff", "Attack", "Shield", "Rush", "Teleport")
+        for token in ("sim.", "add_buff", "Attack", "Shield", "Rush", "Teleport")
     )
 
 
-def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> None:
+def test_yone_q_w_r_match_the_silverbear_pure_data_contract() -> None:
+    yone = load_yone()
+
+    q = yone["skill"]
+    assert (
+        q["action_name"],
+        q["duration"],
+        q["cooltime"],
+        q["start_timing"],
+        q["range"],
+        q["casting_type"],
+        q["casting_target"],
+    ) == (
+        "skill",
+        20,
+        300,
+        6,
+        25000,
+        "Direction",
+        "EnemyWithoutTower",
+    )
+    assert find_effect(q, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "skill_q3", "tick": 20}
+    ]
+    q_rushes = find_effect(q, "RushTime")
+    assert len(q_rushes) == 1
+    q_rush = q_rushes[0]
+    assert (
+        q_rush["speed"],
+        q_rush["tick"],
+        q_rush["range"],
+        q_rush["casting_target"],
+        q_rush["penetrate"],
+    ) == (3600, 20, 25000, "EnemyWithoutTower", True)
+    assert [
+        (hit["damage"], hit["attack_ratio"], hit["hp_ratio"], hit["target_hp_ratio"])
+        for hit in find_effect(q_rush, "Attack")
+    ] == [(75, 80, 0, 0)]
+    assert [cc["duration"] for cc in find_effect(q_rush, "Airborne")] == [45]
+    assert find_effect(q_rush, "Heal") == [
+        {
+            "type": "Heal",
+            "amount": 0,
+            "attack_ratio": 5,
+            "ap_ratio": 0,
+            "heal_type": "Caster",
+        }
+    ]
+
+    w = yone["skill2"]
+    assert (
+        w["action_name"],
+        w["duration"],
+        w["cooltime"],
+        w["start_timing"],
+        w["range"],
+        w["casting_type"],
+        w["casting_target"],
+    ) == (
+        "skill2",
+        30,
+        480,
+        0,
+        35000,
+        "Direction",
+        "EnemyWithoutTower",
+    )
+    assert find_effect(w, "CasterAnimation") == [
+        {"type": "CasterAnimation", "name": "skill_w_azakana", "tick": 30}
+    ]
+    w_projectiles = find_effect(
+        w, "LinearProjectile", name="lol_yone_w_sweep_projectile"
+    )
+    assert len(w_projectiles) == 1
+    projectile = w_projectiles[0]
+    assert (
+        projectile["speed"],
+        projectile["range"],
+        projectile["penetrate"],
+        projectile["shape"],
+        projectile["applied_target"],
+    ) == (
+        4500,
+        35000,
+        True,
+        {"Rect": {"width": 40000, "height": 30000}},
+        "EnemyWithoutTower",
+    )
+    assert [
+        (hit["damage"], hit["attack_ratio"], hit["hp_ratio"], hit["target_hp_ratio"])
+        for hit in find_effect(projectile, "Attack")
+    ] == [(80, 80, 0, 0)]
+    assert find_effect(projectile, "Knockback") == [
+        {"type": "Knockback", "speed": 2000, "tick": 12}
+    ]
+    assert find_effect(projectile, "RangeEffect") == [
+        {
+            "type": "RangeEffect",
+            "shape": {"Circle": {"radius": 10000}},
+            "target": "AllyOnlySelf",
+            "apply_type": "AroundCaster",
+            "effects": [
+                {
+                    "type": "Shield",
+                    "amount": 20,
+                    "attack_ratio": 20,
+                    "ap_ratio": 0,
+                    "tick": 180,
+                },
+                {"type": "ViewEffect", "name": "lol_yone_w_shield"},
+                {"type": "TargetSfx", "name": "lol_yone_w_shield"},
+            ],
+        }
+    ]
+
+    r = yone["ult"]
+    assert (
+        r["duration"],
+        r["cooltime"],
+        r["range"],
+        r["casting_type"],
+        r["casting_target"],
+    ) == (60, 3000, 55000, "Direction", "EnemyWithoutTower")
+    outer_delays = direct_effects(r["effect"], "Delayed")
+    assert len(outer_delays) == 1 and outer_delays[0]["tick"] == 35
+    r_rushes = find_effect(outer_delays[0], "RushTime")
+    assert len(r_rushes) == 1
+    r_rush = r_rushes[0]
+    assert (
+        r_rush["speed"],
+        r_rush["tick"],
+        r_rush["range"],
+        r_rush["casting_target"],
+        r_rush["penetrate"],
+    ) == (4000, 30, 20000, "EnemyWithoutTower", True)
+    assert [
+        (hit["damage"], hit["attack_ratio"])
+        for hit in find_effect(r_rush, "Attack")
+    ] == [(120, 70)]
+    assert [cc["duration"] for cc in find_effect(r_rush, "Airborne")] == [45]
+    assert find_effect(r_rush, "Pull") == [
+        {"type": "Pull", "speed": 3000, "tick": 12}
+    ]
+
+
+def test_yone_active_skill_tree_has_no_staged_q_native_w_or_soul_unbound() -> None:
+    yone = load_yone()
+    active = {slot: yone[slot] for slot in ("skill", "skill2", "ult")}
+    serialized = json.dumps(active, ensure_ascii=False)
+    assert not find_effect(active, "Native")
+    assert "lol_yone_mortal_steel_stack" not in serialized
+    assert "lol_yone_w_shield_tier" not in serialized
+    assert "lol_yone_w_cone_native" not in serialized
+    assert "lol_yone_e_" not in serialized
+    assert "Soul Unbound" not in serialized
+    assert "view_buffs" not in yone
+
+
+def test_yone_active_vfx_audio_and_icons_are_project_owned_and_fully_referenced() -> None:
+    yone = load_yone()
+    projectiles = {view["name"]: view for view in yone["view_projectiles"]}
+    assert projectiles == {
+        "lol_yone_w_sweep_projectile": {
+            "type": "Animated",
+            "name": "lol_yone_w_sweep_projectile",
+            "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+            "tag": "crescent",
+            "z": 3,
+            "repeat": True,
+        }
+    }
+    views = {view["name"]: view for view in yone["view_effects"]}
+    assert set(views) == {
+        "lol_yone_attack_steel_hit",
+        "lol_yone_attack_azakana_hit",
+        "lol_yone_q_hit",
+        "lol_yone_q3_airborne_cue",
+        "lol_yone_w_hit",
+        "lol_yone_w_shield",
+        "lol_yone_r_windup",
+        "lol_yone_r_arrival",
+        "lol_yone_r_slash_blue",
+        "lol_yone_r_slash_red",
+    }
+    used_views = {
+        effect["name"]
+        for slot in ("attack", "skill", "skill2", "ult")
+        for effect in walk_effects(yone[slot])
+        if effect.get("type")
+        in {"ViewEffect", "CasterViewEffect", "LinearProjectile"}
+    }
+    assert used_views == set(projectiles) | set(views)
+
+    used_audio = {
+        effect["name"]
+        for slot in ("attack", "skill", "skill2", "ult")
+        for effect in walk_effects(yone[slot])
+        if effect.get("type") in {"Sfx", "TargetSfx"}
+    }
+    assert used_audio == {
+        "lol_yone_attack_steel_cast",
+        "lol_yone_attack_azakana_cast",
+        "lol_yone_attack_steel_hit",
+        "lol_yone_attack_azakana_hit",
+        "lol_yone_q_cast",
+        "lol_yone_q_hit",
+        "lol_yone_w_cast",
+        "lol_yone_w_hit",
+        "lol_yone_w_shield",
+        "lol_yone_r_cast",
+        "lol_yone_r_arrival",
+        "lol_yone_r_slash_steel",
+        "lol_yone_r_slash_azakana",
+    }
+    assert not any("lol_yone_e_" in name for name in used_audio | used_views)
+
+    icon_paths = [MOD / f"icons/{Path(icon).name}.png" for icon in yone["skill_icons"]]
+    assert all(path.is_file() for path in icon_paths)
+    assert all(Image.open(path).size == (64, 64) for path in icon_paths)
+    icon_hashes = {hashlib.sha256(path.read_bytes()).hexdigest() for path in icon_paths}
+    assert len(icon_hashes) == 3
+
+    reference_icon_dir = Path(
+        r"D:\steam\steamapps\workshop\content\3009300\3774304166\icons"
+    )
+    reference_paths = [
+        reference_icon_dir / name
+        for name in ("yone_skill.png", "yone_skill2.png", "yone_ult.png")
+    ]
+    if all(path.is_file() for path in reference_paths):
+        reference_hashes = {
+            hashlib.sha256(path.read_bytes()).hexdigest() for path in reference_paths
+        }
+        assert icon_hashes.isdisjoint(reference_hashes)
+
+
+def _retired_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> None:
     w = load_yone()["skill2"]
     assert (
         w["cooltime"],
@@ -392,7 +627,7 @@ def test_w_uses_one_stateless_native_cone_snapshot_and_one_tiered_shield() -> No
         assert proof in rust
 
 
-def test_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
+def _retired_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
     rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     runtime = rust.split("const YONE_W_RANGE", 1)[1].split(
         "// Saved seasons embed their champion definitions.", 1
@@ -455,129 +690,61 @@ def test_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
-    rust = (MOD / "src/lib.rs").read_text(encoding="utf-8")
-    assert "const LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV: &str =" in rust
-    init = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1].split(
-        "declare_mod!(init);", 1
-    )[0]
-    guard = re.search(
-        r"if\s+std::env::var\(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV\)"
-        r"\s*\.is_ok_and\(\|value\| value == \"1\"\)\s*\{"
-        r"(?P<body>.*?)\n    \}",
-        init,
-        flags=re.DOTALL,
-    )
-    assert guard is not None
-    guard_body = guard.group("body")
-    assert "registration.set_extension(LolModExtension);" in guard_body
-    assert "registration.set_server_extension(LolDragonServerExtension" in guard_body
-    assert "registration.set_extension(YoneManagementCardExtension);" not in guard_body
-    assert "} else {" in init
-    assert "registration.set_extension(YoneManagementCardExtension);" in init
-    assert init.count("registration.set_extension(") == 2
-    assert init.count("registration.set_server_extension(") == 1
+def test_058_stable_runtime_uses_stock_encyclopedia_resolver() -> None:
+    cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
+    rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    assert 'path = "src/stable_runtime.rs"' in cargo
+    assert "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);" in rust
+    assert "registration.set_extension(QualityBpExtension::default());" in rust
+    assert rust.count("registration.set_extension(") == 1
+    assert "registration.set_server_extension(" not in rust
 
-    minimal_impl = rust.split(
-        "impl ModExtension for YoneManagementCardExtension", 1
-    )[1].split("impl ModExtension for LolModExtension", 1)[0]
-    assert minimal_impl.count("fn post_update(") == 1
-    assert "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_impl
-    assert minimal_impl.count("fn post_render(") == 1
-    assert "let context = detect_yone_portrait_ui_context(ui);" in minimal_impl
-    assert "trace_yone_render_commands(ui, assets, state, context);" in minimal_impl
-    assert "rewrite_yone_management_card_render_commands(state);" in minimal_impl
-    assert "rewrite_yone_portrait_render_commands(state, context);" in minimal_impl
-    assert minimal_impl.count("rewrite_") == 2
-    assert minimal_impl.index(
-        "let context = detect_yone_portrait_ui_context(ui);"
-    ) < minimal_impl.index(
-        "trace_yone_render_commands(ui, assets, state, context);"
-    ) < minimal_impl.index(
-        "rewrite_yone_management_card_render_commands(state);"
-    ) < minimal_impl.index("rewrite_yone_portrait_render_commands(state, context);")
+    card_sync = rust.split("fn sync_encyclopedia_card", 1)[1].split(
+        "fn sync_encyclopedia_portraits", 1
+    )[0]
+    for required in (
+        'let native_icon = join_ui_path(&card, "icon");',
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "client.ui_set_visible(&native_icon, true)",
+    ):
+        assert required in card_sync
     for forbidden in (
-        "match_ui_database",
-        "MatchUIRunner",
-        "ClientDatabase",
+        "ui_set_properties(&native_icon",
+        "ui_spawn_source(",
+        "ui_set_visible(&native_icon, false)",
+        "lol_fullbody_yone",
         "RenderCommand",
-        "sync_deterministic_dragon",
-        "rewrite_bp_render_commands",
-        "rewrite_dragon_render_commands",
-        "rewrite_kled_portrait_render_commands",
-        "rewrite_xayah_portrait_render_commands",
-        "ChampionInfoUIRunner",
+        '"source:',
     ):
-        assert forbidden not in minimal_impl
+        assert forbidden not in card_sync
 
-    assert "get_mut::<ChampionInfoUIRunner>" not in rust
-    assert "get::<ChampionInfoUIRunner>" not in rust
-    assert "fn is_ban_pick_render_pass" not in rust
-    slot_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
-        "fn is_yone_management_slot", 1
+    batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
+        "fn bp_champion_id_from_name", 1
     )[0]
-    for required in (
-        'root.id == "champion_slot"',
-        "is_yone_management_slot(root)",
-        'root.query_mut("icon")',
-        'root.query_mut("lol_fullbody_yone")',
-        "icon.visible = false;",
-        "portrait.visible = true;",
-        "for child in &mut root.child",
-        "sync_yone_encyclopedia_portrait(child);",
-    ):
-        assert required in slot_sync
-    slot_identity = rust.split("fn is_yone_management_slot", 1)[1].split(
-        "enum BpRenderSide", 1
-    )[0]
-    for required in (
-        "runner_as::<LabelRunner>()",
-        'matches!(text, "永恩" | "Yone")',
-        'text.contains("dual_blader")',
-        "runner_as::<ImageRunner>()",
-        "runner.style.normal.source.as_str()",
-        'source.contains("dual_blader")',
-        'source.contains("/champions/yone")',
-        "by_name || by_source",
-    ):
-        assert required in slot_identity
-    slot_ui = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
-        encoding="utf-8"
+    assert 'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)' in batch
+    assert (
+        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)'
+        in batch
     )
-    icon_node = slot_ui.split("#icon:image", 1)[1].split("}", 1)[0]
-    assert "width: 85px;" in icon_node
-    assert "height: 93px;" in icon_node
-    management_geometry = rust.split(
-        "fn is_yone_management_card_geometry", 1
-    )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
-    assert "(width - 85.0).abs() <= 1.0" in management_geometry
-    assert "(height - 93.0).abs() <= 1.0" in management_geometry
-    management_rewrite = rust.split(
-        "fn rewrite_yone_management_card_render_commands", 1
-    )[1].split("fn rewrite_yone_portrait_render_commands", 1)[0]
-    assert "RenderCommand::NinePatch" in management_rewrite
-    assert "RenderCommand::Sprite" not in management_rewrite
-    assert "is_yone_management_card_geometry(*w, *h)" in management_rewrite
-    assert "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE" in management_rewrite
-    for preserved_axis in ("*x =", "*y =", "*w =", "*h ="):
-        assert preserved_axis not in management_rewrite
-    for required in (
-        "texture_rect.x = 0.0;",
-        "texture_rect.y = 0.0;",
-        "texture_rect.w = 1.0;",
-        "texture_rect.h = 1.0;",
-        "*left = 0.0;",
-        "*right = 0.0;",
-        "*top = 0.0;",
-        "*bottom = 0.0;",
-        "*sample_nearest = true;",
-        '"yone_management_card_render_hook"',
-        "version=0.10.20",
-    ):
-        assert required in management_rewrite
+    assert "YoneManagementCardExtension" not in rust
+    assert "YoneSpiritCleaveConeNativeEffect" not in rust
+
+    runtime_paths = {
+        row["path"]
+        for row in json.loads(
+            (MOD / "runtime_manifest.json").read_text(encoding="utf-8")
+        )["files"]
+    }
+    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
+    assert not any(
+        path.startswith("ui/layout/champion_info_component/")
+        for path in runtime_paths
+    )
+    assert not any(path.startswith("ui/champion_portrait/") for path in runtime_paths)
 
 
-def test_q_is_hit_gated_three_stage_and_q3_is_one_real_dash_hit() -> None:
+
+def _retired_q_is_hit_gated_three_stage_and_q3_is_one_real_dash_hit() -> None:
     q = load_yone()["skill"]
     assert (
         q["action_name"],
@@ -806,7 +973,7 @@ def test_r_is_delayed_penetrating_line_aoe_with_one_damage_and_pull() -> None:
         assert not find_effect(r, forbidden)
 
 
-def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() -> None:
+def _retired_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() -> None:
     yone = load_yone()
 
     projectiles = {view["name"]: view for view in yone["view_projectiles"]}
@@ -938,7 +1105,7 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
     assert "lol_yone_e_" not in extractor
 
 
-def test_w_runtime_visuals_are_compact_and_have_separate_shield_tag() -> None:
+def _retired_w_runtime_visuals_are_compact_and_have_separate_shield_tag() -> None:
     yone = load_yone()
     projectiles = {row["name"]: row for row in yone["view_projectiles"]}
     effects = {row["name"]: row for row in yone["view_effects"]}
@@ -1144,18 +1311,27 @@ def test_yone_v7_ui_is_source_direct_and_never_enlarges_battle_frames() -> None:
     assert card_preview.getchannel("A").getextrema() == (255, 255)
 
 
-def test_localized_copy_describes_w_and_removes_soul_unbound() -> None:
+def test_localized_copy_matches_reference_q_w_r_and_removes_soul_unbound() -> None:
     payload = json.loads(
         (MOD / "text/champion.i18n").read_text(encoding="utf-8")
     )
     for locale in ("en", "zh-hans", "zh-hant", "ja", "ko"):
-        skill2 = payload[locale]["description"]["dual_blader"]["skill2"]
+        description = payload[locale]["description"]["dual_blader"]
+        skill = description["skill"]
+        skill2 = description["skill2"]
+        ult = description["ult"]
+        assert skill.startswith("Q")
         assert skill2.startswith("W")
         assert "E—" not in skill2 and "E —" not in skill2
         assert "Soul Unbound" not in skill2
         assert "灵体" not in skill2 and "靈體" not in skill2
-        for disclosed_value in ("80", "6%", "1.5", "0.5", "8"):
+        assert not any(stage in skill for stage in ("Q1", "Q2", "Q3"))
+        for disclosed_value in ("25000", "75", "80", "0.75", "5%", "5"):
+            assert disclosed_value in skill
+        for disclosed_value in ("35000", "80", "20", "3", "8"):
             assert disclosed_value in skill2
+        for disclosed_value in ("120", "70", "0.75", "50"):
+            assert disclosed_value in ult
 
 
 def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
@@ -1515,7 +1691,7 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     } == {"scale": 2.2, "resampling": "nearest", "stage_height": 117}
     run_frames = live_run["frames"]
     assert set(run_frames) == {f"run[{index}]" for index in range(8)}
-    expected_run_bottom_clearances = [13, 18, 21, 18, 13, 17, 21, 17]
+    expected_run_bottom_clearances = [13, 14, 15, 14, 13, 14, 15, 14]
     visible_run_eye_cues = 0
     for index, (frame_name, row) in enumerate(run_frames.items()):
         source_size = row["source_size"]
@@ -1599,9 +1775,110 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     generator = (MOD / "tools/generate_yone_v7_native.py").read_text(
         encoding="utf-8"
     )
-    assert '"run": tuple(("motion", index) for index in range(5, 13))' in generator
-    assert "straighten_run_subject(subjects[key])" in generator
-    assert "straighten_run_subject(raw_subjects[key])" in generator
+    assert '"run": tuple(("run_guard", index) for index in range(8))' in generator
+    assert 'RUN_GUARD_SOURCE = ("attack_q", 2)' in generator
+    assert "recompose_run_cross_step_pair(" in generator
+    assert "straighten_run_subject" not in generator
+
+
+def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
+    qa = json.loads(
+        (MOD / "source/native/yone_v7/generation_qa.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert qa["failures"] == []
+    contract = qa["motion_attack_contract"]
+    assert contract["reference"]["workshop_item"] == "3774304166"
+    assert contract["reference"]["usage"] == (
+        "measurement-only; zero reference pixels copied"
+    )
+    assert contract["native_contract_preserved"] == {
+        "run_frames": 8,
+        "run_durations_seconds": [0.080000006] * 8,
+        "attack_frames": 6,
+        "attack_durations_seconds": [0.060000002] * 6,
+    }
+
+    run = contract["run"]
+    assert run["upper_guard_source"] == ["attack_q", 2]
+    assert run["leg_x_order_flips"] >= 2
+    assert run["minimum_foot_separation_px"] >= 8
+    assert run["ground_anchor_range_px"] <= 0.5
+    assert run["torso_height_range_px"] <= 0.5
+    assert run["body_visible_height_range_px"] == 0
+    assert run["upper_guard_lean_range_px"] <= 0.5
+    assert run["blade_angle_ranges_radians"]["steel"] <= 0.25
+    assert run["blade_angle_ranges_radians"]["azakana"] <= 0.55
+    assert run["unique_body_pose_count"] == 8
+
+    run_rows = sorted(
+        (row for row in qa["frames"] if row["action"] == "run"),
+        key=lambda row: row["index"],
+    )
+    assert len(run_rows) == 8
+    assert {row["source"] for row in run_rows} == {"run_guard"}
+    assert {row["body_visible_height_px"] for row in run_rows} == {35}
+    assert min(row["foot_separation_px"] for row in run_rows) >= 8
+    orders = [row["leg_x_order"] for row in run_rows]
+    assert sum(a != b for a, b in zip(orders, orders[1:])) >= 2
+
+    attacks = contract["attacks"]
+    assert attacks["attack"]["source_cells"] == [0, 1, 3, 10, 11, 5]
+    assert attacks["attack_azakana"]["source_cells"] == [0, 1, 2, 10, 6, 5]
+    for action in ("attack", "attack_azakana"):
+        row = attacks[action]
+        assert row["pose_phases"] == [
+            "windup",
+            "windup",
+            "contact",
+            "contact",
+            "recovery",
+            "recovery",
+        ]
+        assert row["unique_body_pose_count"] == 6
+        assert row["body_turn_span_px"] >= 1.25
+        assert row["phase_unique_pose_counts"] == {
+            "windup": 2,
+            "contact": 2,
+            "recovery": 2,
+        }
+        assert not ({12, 13, 14, 15, 16, 17} & set(row["source_cells"]))
+
+    preview = Image.open(MOD / "qa/yone_motion_attack_qa.png").convert("RGBA")
+    assert preview.size == (2080, 705)
+
+    generator = (MOD / "tools/generate_yone_v7_native.py").read_text(
+        encoding="utf-8"
+    )
+    assert "workshop\\content" not in generator.casefold()
+    assert "workshop/content" not in generator.casefold()
+
+    anims = json.loads(YONE_ACTIVE_ANIM.read_text(encoding="utf-8"))["anims"]
+    runtime_sheet = Image.open(YONE_ACTIVE_SHEET).convert("RGBA")
+    for action, count, duration in (
+        ("run", 8, 0.080000006),
+        ("attack", 6, 0.060000002),
+        ("attack_azakana", 6, 0.060000002),
+    ):
+        runtime_frames = anims[action]["frames"]
+        assert len(runtime_frames) == count
+        assert [frame["duration"] for frame in runtime_frames] == [duration] * count
+        for index, frame in enumerate(runtime_frames):
+            data = frame["data"]
+            runtime = runtime_sheet.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            source = Image.open(
+                MOD / f"source/native/yone_v7/frames/{action}_{index:02d}.png"
+            ).convert("RGBA")
+            assert runtime.size == source.size
+            assert runtime.tobytes() == source.tobytes()
 
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:
@@ -1727,14 +2004,14 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.7"
+    assert mod_info["version"] == "0.12.8"
     assert all(
         token in mod_info["description"]
         for token in (
-            "repair test",
-            "source-direct portrait",
-            "data_champion",
-            "pre-tick 5v5 structure guard",
+            "reference-grounded",
+            "pure-data Q/W/R",
+            "no active E",
+            "no-op saved-season compatibility shims",
         )
     )
     assert "E-only Soul Unbound" not in mod_info["description"]
@@ -1754,16 +2031,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.7"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.8"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.7"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.8"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.7"
+    assert quality_scope["release"] == "0.12.8"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

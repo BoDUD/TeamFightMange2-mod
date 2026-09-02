@@ -24,7 +24,7 @@ from PIL import Image
 
 MOD_ROOT = Path(__file__).resolve().parents[1]
 ERRORS: list[str] = []
-EXPECTED_STABLE_ABI_LEVEL = 1
+EXPECTED_STABLE_ABI_LEVEL = 8
 
 def validate_shen_sdk_data_champion() -> None:
     """Ask the exact installed SDK type to deserialize Shen's generated file."""
@@ -78,6 +78,7 @@ LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
     "lol_yone_w_begin_native",
     "lol_yone_w_collect_hit_native",
     "lol_yone_w_settle_native",
+    "lol_yone_w_cone_native",
 }
 LEGACY_BASE_050_BP_OVERRIDES = (
     "asset/base/ui/layout/banpick/blue_pick_slot",
@@ -6842,12 +6843,15 @@ def validate_native_dll() -> None:
     for required in (
         "use mod_api_stable::",
         "impl StableEffectType for UrgotPassiveNativeEffect",
-        "impl StableEffectType for YoneSpiritCleaveConeNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
-        "client.ui_set_properties(&native_icon, &source)",
-        "declare_stable_mod!(init);",
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
+    check(
+        "YoneSpiritCleaveConeNativeEffect" not in stable_runtime,
+        "retired native Yone W cone implementation must stay removed",
+    )
     encyclopedia_card_sync = ""
     if "fn sync_encyclopedia_card" in stable_runtime:
         encyclopedia_card_sync = stable_runtime.split(
@@ -6855,9 +6859,15 @@ def validate_native_dll() -> None:
         )[1].split("fn sync_encyclopedia_portraits", 1)[0]
     check(
         "client.ui_set_visible(&native_icon, true)" in encyclopedia_card_sync
+        and "client.ui_set_champion_icon(" in encyclopedia_card_sync
         and "client.ui_set_visible(&native_icon, false)" not in encyclopedia_card_sync
+        and "ui_set_properties(&native_icon" not in encyclopedia_card_sync
         and "client.ui_spawn_source(" not in encyclopedia_card_sync,
-        "stable encyclopedia routing may hide a stock icon before a custom texture is drawable",
+        "stable encyclopedia routing must preserve the stock source and use the game-owned champion-icon resolver",
+    )
+    check(
+        '"source:' not in encyclopedia_card_sync,
+        "stable encyclopedia card sync must never write an unverified raw texture source",
     )
     check(
         b"version=0.10.19;root=" not in payload
@@ -7712,117 +7722,18 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             q.get("action_name"), q.get("cooltime"), q.get("duration"), q.get("start_timing"),
             q.get("range"), q.get("casting_type"), q.get("casting_target"),
         )
-        == ("skill", 240, 30, 0, 35000, "Targeting", "EnemyChampion"),
-        "Yone Q timing, range, or targeting changed",
+        == ("skill", 300, 20, 6, 25000, "Direction", "EnemyWithoutTower"),
+        "Yone Q must match the reference pure-data timing/range/direction contract",
     )
-    q_stack2 = q.get("effect", {})
+    q_top_effects = q.get("effect", {}).get("effects", [])
     check(
-        (q_stack2.get("type"), q_stack2.get("buff_name"))
-        == ("SwitchByBuff", "lol_yone_mortal_steel_stack_2"),
-        "Yone Q outer switch must select Q3 through named stack 2",
+        [effect.get("type") for effect in q_top_effects]
+        == ["CasterAnimation", "RushTime", "CasterViewEffect", "Sfx"]
+        and q_top_effects[0] == {"type": "CasterAnimation", "name": "skill_q3", "tick": 20},
+        "Yone Q must use one actor animation followed by one pure-data rush",
     )
-    q_stack1 = q_stack2.get("effect_none", {})
-    check(
-        (q_stack1.get("type"), q_stack1.get("buff_name"))
-        == ("SwitchByBuff", "lol_yone_mortal_steel_stack_1"),
-        "Yone Q inner switch must select Q2 through named stack 1",
-    )
-    q1 = q_stack1.get("effect_none", {})
-    q2 = q_stack1.get("effect_buff", {})
-    for label, stage in (("Q1", q1), ("Q2", q2)):
-        projectiles = find_effect(stage, "LinearProjectile", name="lol_yone_q_projectile")
-        check(len(projectiles) == 1, f"Yone {label} must contain exactly one normal thrust projectile")
-        if not projectiles:
-            continue
-        projectile = projectiles[0]
-        check(
-            (
-                projectile.get("penetrate"), projectile.get("speed"), projectile.get("range"),
-                projectile.get("shape"), projectile.get("applied_target"),
-            )
-            == (True, 10000, 30000, {"Circle": {"radius": 6000}}, "EnemyWithoutTower"),
-            f"Yone {label} projectile contract changed",
-        )
-        check(
-            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
-            == [(35, 95)],
-            f"Yone {label} must deal 35 + 95% Attack exactly once",
-        )
-        check(not find_effect(projectile, "Airborne"), f"Yone {label} must not knock up")
-        check(
-            not [effect for effect in stage.get("effects", []) if effect.get("type") == "AddCasterBuff"],
-            f"Yone {label} must not advance its stack at cast time",
-        )
-    check(
-        find_effect(q1, "SwitchByBuff", buff_name="lol_yone_mortal_steel_stack_1")
-        == [
-            {
-                "type": "SwitchByBuff",
-                "buff_name": "lol_yone_mortal_steel_stack_1",
-                "effect_none": {
-                    "type": "AddCasterBuff",
-                    "buff_state": {
-                        "name": "lol_yone_mortal_steel_stack_1",
-                        "duration": {"Time": {"tick": 360}},
-                    },
-                },
-                "effect_buff": {"type": "Combine", "effects": []},
-            }
-        ],
-        "Yone Q1 penetrating hit payload must guard named stack 1 against repeated targets",
-    )
-    check(not find_effect(q1, "RemoveCasterBuff"), "Yone Q1 must not remove another Q stage")
-    check(
-        find_effect(q2, "SwitchByBuff", buff_name="lol_yone_mortal_steel_stack_2")
-        == [
-            {
-                "type": "SwitchByBuff",
-                "buff_name": "lol_yone_mortal_steel_stack_2",
-                "effect_none": {
-                    "type": "Combine",
-                    "effects": [
-                        {"type": "RemoveCasterBuff", "name": "lol_yone_mortal_steel_stack_1"},
-                        {
-                            "type": "AddCasterBuff",
-                            "buff_state": {
-                                "name": "lol_yone_mortal_steel_stack_2",
-                                "duration": {"Time": {"tick": 360}},
-                            },
-                        },
-                    ],
-                },
-                "effect_buff": {"type": "Combine", "effects": []},
-            }
-        ],
-        "Yone Q2 penetrating hit payload must transition to stack 2 only for its first target",
-    )
-    ready_wind_views = {str(view.get("name")): view for view in champion.get("view_buffs", [])}
-    ready_wind = ready_wind_views.get("lol_yone_mortal_steel_stack_2", {})
-    check(
-        ready_wind.get("type") == "ThreePhase"
-        and str(ready_wind.get("anim", "")).endswith("/yone_q3_ready_wind")
-        and {"type", "name", "anim", "pre_tag", "loop_tag", "remove_tag", "z"}.issubset(ready_wind),
-        "Yone Q2 hit-earned stack must own the persistent Q3-ready wind view",
-    )
-    q3 = q_stack2.get("effect_buff", {})
-    for label, stage, animation in (
-        ("Q1", q1, "skill_q12"),
-        ("Q2", q2, "skill_q12"),
-        ("Q3", q3, "skill_q3"),
-    ):
-        effects = stage.get("effects", [])
-        check(
-            [effect.get("type") for effect in effects] == ["CasterAnimation", "Sfx", "Delayed"]
-            and effects[0] == {"type": "CasterAnimation", "name": animation, "tick": 30}
-            and effects[2].get("tick") == 8,
-            f"Yone {label} must let the actor own the physical blade and delay gameplay to tick 8",
-        )
-    check(
-        len(find_effect(q3, "RemoveCasterBuff", name="lol_yone_mortal_steel_stack_2")) == 1,
-        "Yone Q3 must consume named stack 2 once in its tick-8 gameplay payload",
-    )
-    q_rushes = find_effect(q3, "RushTime")
-    check(len(q_rushes) == 1, "Yone Q3 must contain exactly one damaging RushTime")
+    q_rushes = find_effect(q, "RushTime")
+    check(len(q_rushes) == 1, "Yone Q must contain exactly one penetrating RushTime")
     if q_rushes:
         rush = q_rushes[0]
         check(
@@ -7830,28 +7741,40 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 rush.get("speed"), rush.get("tick"), rush.get("range"),
                 rush.get("casting_target"), rush.get("penetrate"),
             )
-            == (5000, 12, 30000, "EnemyWithoutTower", True),
-            "Yone Q3 penetrating lunge contract changed",
+            == (3600, 20, 25000, "EnemyWithoutTower", True),
+            "Yone Q reference dash contract changed",
         )
         check(
-            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
-            == [(35, 95)],
-            "Yone Q3 lunge must deal 35 + 95% Attack exactly once per target",
+            [
+                (
+                    effect.get("damage"), effect.get("attack_ratio"),
+                    effect.get("hp_ratio"), effect.get("target_hp_ratio"),
+                )
+                for effect in find_effect(rush, "Attack")
+            ]
+            == [(75, 80, 0, 0)],
+            "Yone Q must deal 75 + 80% Attack once per target",
         )
         check(
             [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [45],
-            "Yone Q3 must knock up for 45 ticks exactly once",
+            "Yone Q must apply one 45-tick airborne per target",
         )
         check(
-            find_effect(rush, "ViewEffect", name="lol_yone_q3_airborne_cue")
-            == [{"type": "ViewEffect", "name": "lol_yone_q3_airborne_cue"}],
-            "Yone Q3 must show one dedicated vertical airborne cue",
+            find_effect(rush, "Heal")
+            == [
+                {
+                    "type": "Heal",
+                    "amount": 0,
+                    "attack_ratio": 5,
+                    "ap_ratio": 0,
+                    "heal_type": "Caster",
+                }
+            ],
+            "Yone Q must heal the caster for 5% Attack per hit",
         )
-    check(not find_effect(q3, "LinearProjectile"), "Yone Q3 must not double-hit through a second wind-lane projectile")
-    check(
-        sorted(effect.get("tick") for effect in find_effect(q, "Delayed")) == [8, 8, 8],
-        "Yone Q1/Q2/Q3 must each own exactly one tick-8 gameplay delay",
-    )
+    for retired_q_type in ("SwitchByBuff", "LinearProjectile", "Native"):
+        check(not find_effect(q, retired_q_type), f"Yone Q retains retired staged data: {retired_q_type}")
+    check(not find_effect(q, "Delayed"), "Yone Q must not retain the old tick-8 staged payload")
 
     ult = champion.get("ult", {})
     check(
@@ -7906,7 +7829,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(not find_effect(ult, forbidden_type), f"Yone R must not contain {forbidden_type}")
 
     serialized = json.dumps(champion, ensure_ascii=False)
-    rust = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
+    cargo = (MOD_ROOT / "Cargo.toml").read_text(encoding="utf-8")
+    rust = (MOD_ROOT / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    check(
+        'path = "src/stable_runtime.rs"' in cargo,
+        "Yone compatibility checks must inspect the runtime Cargo actually compiles",
+    )
     check("lol_yone_e_" not in serialized, "Yone active champion data retains retired E native refs")
     for retired in (
         "YoneSoulUnbound",
@@ -7918,13 +7846,24 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         check(retired not in serialized, f"Yone champion data retains retired contract: {retired}")
         check(retired not in rust, f"Yone native runtime retains retired contract: {retired}")
 
-    discovered_legacy_names = set(
+    compatibility_loop = re.search(
+        r"for retired_name in \[(?P<body>.*?)\]\s*\{",
+        rust,
+        flags=re.DOTALL,
+    )
+    loop_legacy_names = (
+        set(re.findall(r'"([^"]+)"', compatibility_loop.group("body")))
+        if compatibility_loop
+        else set()
+    )
+    direct_legacy_names = set(
         re.findall(
             r'registration\.add_native_effect\(\s*"([^"]+)",\s*'
             r"LegacySavedNativeCompatibilityEffect,\s*\);",
             rust,
         )
     )
+    discovered_legacy_names = loop_legacy_names | direct_legacy_names
     check(
         discovered_legacy_names == LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES,
         "saved-season native compatibility allowlist changed: "
@@ -7932,35 +7871,26 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
     for name in LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES:
         check(rust.count(f'"{name}"') == 1, f"saved-season native name must occur once: {name}")
-        registration = re.search(
-            rf'registration\.add_native_effect\(\s*"{re.escape(name)}",\s*'
-            r"LegacySavedNativeCompatibilityEffect,\s*\);",
-            rust,
+        check(
+            name in discovered_legacy_names,
+            f"saved-season native name is not bound to the no-op shim: {name}",
         )
-        check(registration is not None, f"saved-season native name is not bound to the no-op shim: {name}")
     compatibility_impl = rust.split(
-        "impl ModEffectType for LegacySavedNativeCompatibilityEffect", 1
+        "impl StableEffectType for LegacySavedNativeCompatibilityEffect", 1
     )[-1].split("\nfn init", 1)[0]
     check(
-        bool(re.search(r"fn apply\([^)]*\) \{\}", compatibility_impl)),
+        bool(re.search(r"fn apply\([^)]*\)\s*\{\s*\}", compatibility_impl, flags=re.DOTALL)),
         "LegacySavedNativeCompatibilityEffect must remain an empty no-op",
     )
-    for forbidden in ("ctx.", "add_buff", "Attack", "Shield", "Rush", "Teleport"):
+    for forbidden in ("sim.", "add_buff", "Attack", "Shield", "Rush", "Teleport"):
         check(
             forbidden not in compatibility_impl,
             f"saved-season compatibility shim gained behavior: {forbidden}",
         )
 
-    native_refs = [
-        effect.get("effect_ref")
-        for effect in find_effect(champion, "Native")
-    ]
-    expected_native_refs = {"lol_yone_w_cone_native"}
-    check(
-        set(native_refs) == expected_native_refs
-        and all(native_refs.count(name) == 1 for name in expected_native_refs),
-        f"Yone W must call one stateless cone native exactly once, got {native_refs}",
-    )
+    native_refs = [effect.get("effect_ref") for effect in find_effect(champion, "Native")]
+    check(not native_refs, f"Yone active Q/W/R must be pure data without Native refs, got {native_refs}")
+    check(not champion.get("view_buffs"), "Yone must not retain the retired Q-ready or E spirit buff views")
 
     skill2 = champion.get("skill2", {})
     check(
@@ -7978,145 +7908,81 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             480,
             30,
             0,
-            42000,
+            35000,
             "Direction",
             "EnemyWithoutTower",
         ),
-        "Yone W timing/range/AI target contract changed",
-    )
-    check(
-        not any(find_effect(skill2, effect_type) for effect_type in (
-            "RushTime",
-            "RushMoveToBack",
-            "Airborne",
-            "LinearProjectile",
-            "BackToCasterLinearProjectile",
-        )),
-        "Yone W must remain a planted slash without E movement/return or knockup",
+        "Yone W must match the reference pure-data timing/range/direction contract",
     )
 
     top_effects = skill2.get("effect", {}).get("effects", [])
     check(
         [effect.get("type") for effect in top_effects]
-        == [
-            "CasterAnimation",
-            "Sfx",
-            "CasterViewEffect",
-            "Delayed",
-        ],
-        "Yone W must start body/cast feedback at tick 0 and keep one delayed gameplay payload",
+        == ["CasterAnimation", "LinearProjectile", "Sfx"]
+        and top_effects[0]
+        == {"type": "CasterAnimation", "name": "skill_w_azakana", "tick": 30}
+        and top_effects[2] == {"type": "Sfx", "name": "lol_yone_w_cast"},
+        "Yone W must use one actor swing, one wide projectile and one cast SFX",
     )
-    if len(top_effects) >= 4:
+    projectiles = find_effect(skill2, "LinearProjectile", name="lol_yone_w_sweep_projectile")
+    check(len(projectiles) == 1, "Yone W must contain exactly one wide blade projectile")
+    if projectiles:
+        projectile = projectiles[0]
         check(
-            top_effects[0]
-            == {"type": "CasterAnimation", "name": "skill_w_azakana", "tick": 30},
-            "Yone W must use the five-frame Azakana-led semantic body tag",
+            (
+                projectile.get("speed"), projectile.get("range"), projectile.get("penetrate"),
+                projectile.get("shape"), projectile.get("applied_target"),
+            )
+            == (4500, 35000, True, {"Rect": {"width": 40000, "height": 30000}}, "EnemyWithoutTower"),
+            "Yone W projectile geometry changed",
         )
         check(
-            top_effects[1] == {"type": "Sfx", "name": "lol_yone_w_cast"}
-            and top_effects[2]
-            == {"type": "CasterViewEffect", "name": "lol_yone_w_crescent_cast"},
-            "Yone W cast feedback changed",
-        )
-        check(top_effects[3].get("tick") == 8, "Yone W gameplay payload must remain at tick 8")
-    delayed_payload = top_effects[3].get("effects", []) if len(top_effects) == 4 else []
-    check(
-        bool(delayed_payload)
-        and delayed_payload[0] == {"type": "Native", "effect_ref": "lol_yone_w_cone_native"},
-        "Yone W delayed payload must resolve through the one GameCtx cone callback first",
-    )
-    for forbidden_type in ("LineRangeProjectile", "RangeProjectile", "Attack"):
-        check(
-            not find_effect(skill2, forbidden_type),
-            f"Yone W must not retain the retired rectangular/data payload: {forbidden_type}",
-        )
-
-    expected_tiers = [
-        (0, 50, 20),
-        (1, 100, 40),
-        (2, 125, 50),
-        (3, 150, 60),
-        (4, 175, 70),
-        (5, 200, 80),
-    ]
-    switches = delayed_payload[1:]
-    check(len(switches) == 6, "Yone W must expose mutually exclusive tiers 0..5")
-    for switch, (tier, amount, attack_ratio) in zip(switches, expected_tiers):
-        marker = f"lol_yone_w_shield_tier_{tier}"
-        check(
-            switch.get("type") == "SwitchByBuff"
-            and switch.get("buff_name") == marker,
-            f"Yone W shield tier {tier} marker changed",
+            [
+                (
+                    effect.get("damage"), effect.get("attack_ratio"),
+                    effect.get("hp_ratio"), effect.get("target_hp_ratio"),
+                )
+                for effect in find_effect(projectile, "Attack")
+            ]
+            == [(80, 80, 0, 0)],
+            "Yone W must deal 80 + 80% Attack once per target",
         )
         check(
-            switch.get("effect_none") == {"type": "Combine", "effects": []},
-            f"Yone W shield tier {tier} miss branch must be empty",
+            find_effect(projectile, "Knockback")
+            == [{"type": "Knockback", "speed": 2000, "tick": 12}],
+            "Yone W must apply the reference 2000/12 knockback",
         )
-        branch = switch.get("effect_buff", {}).get("effects", [])
         check(
-            [effect.get("type") for effect in branch]
+            find_effect(projectile, "RangeEffect")
             == [
-                "WithSelf",
-                "RemoveCasterBuff",
-                "CasterViewEffect",
-                "CasterViewEffect",
-                "Sfx",
-                "Sfx",
+                {
+                    "type": "RangeEffect",
+                    "shape": {"Circle": {"radius": 10000}},
+                    "target": "AllyOnlySelf",
+                    "apply_type": "AroundCaster",
+                    "effects": [
+                        {
+                            "type": "Shield",
+                            "amount": 20,
+                            "attack_ratio": 20,
+                            "ap_ratio": 0,
+                            "tick": 180,
+                        },
+                        {"type": "ViewEffect", "name": "lol_yone_w_shield"},
+                        {"type": "TargetSfx", "name": "lol_yone_w_shield"},
+                    ],
+                }
             ],
-            f"Yone W shield tier {tier} must apply once, clear, then play hit/shield feedback",
+            "Yone W must grant the reference 20 + 20% Attack shield for 180 ticks per hit",
         )
-        if len(branch) == 6:
-            shield = branch[0].get("effects", [])
-            check(
-                shield
-                == [
-                    {
-                        "type": "Shield",
-                        "amount": amount,
-                        "attack_ratio": attack_ratio,
-                        "ap_ratio": 0,
-                        "tick": 90,
-                    }
-                ],
-                f"Yone W shield tier {tier} formula changed",
-            )
-            check(
-                branch[1] == {"type": "RemoveCasterBuff", "name": marker},
-                f"Yone W shield tier {tier} must consume its own marker",
-            )
-            check(
-                branch[2]
-                == {"type": "CasterViewEffect", "name": "lol_yone_w_hit"}
-                and branch[3]
-                == {"type": "CasterViewEffect", "name": "lol_yone_w_shield"}
-                and branch[4] == {"type": "Sfx", "name": "lol_yone_w_hit"}
-                and branch[5] == {"type": "Sfx", "name": "lol_yone_w_shield"},
-                f"Yone W shield tier {tier} feedback changed",
-            )
-    check(len(find_effect(skill2, "Shield")) == 6, "Yone W data must contain six mutually exclusive Shield tiers")
-
-    for marker in (
-        "struct YoneSpiritCleaveConeNativeEffect;",
-        "const YONE_W_RANGE: i128 = 42_000;",
-        "const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;",
-        "const YONE_W_FLAT_DAMAGE: usize = 35;",
-        "const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;",
-        "const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;",
-        "YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5",
-        "for index in 0..ctx.entity_count()",
-        "hits.push((target_id, damage));",
-        "for (target_id, damage) in hits",
-        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
-        "champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS)",
-        '"lol_yone_w_cone_native"',
-    ):
-        check(marker in rust, f"Yone W stateless cone proof is missing: {marker}")
+    for retired_w_type in ("Native", "SwitchByBuff", "RushTime", "RushMoveToBack", "BackToCasterLinearProjectile"):
+        check(not find_effect(skill2, retired_w_type), f"Yone W retains retired native/E behavior: {retired_w_type}")
+    check(len(find_effect(skill2, "Shield")) == 1, "Yone W data must contain exactly one shield formula")
 
     view_effects = {
         row.get("name"): row for row in champion.get("view_effects", [])
     }
     expected_views = {
-        "lol_yone_w_crescent_cast": ("crescent", 3, True),
         "lol_yone_w_hit": ("impact", 2, True),
         "lol_yone_w_shield": ("shield", 2, True),
     }
@@ -8134,6 +8000,19 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
 
     visual = load_json("qa/yone_visual_contract.json")
     runtime_map = visual.get("runtime_effect_map", {})
+    projectiles_by_name = {row.get("name"): row for row in champion.get("view_projectiles", [])}
+    check(
+        projectiles_by_name.get("lol_yone_w_sweep_projectile")
+        == {
+            "type": "Animated",
+            "name": "lol_yone_w_sweep_projectile",
+            "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+            "tag": "crescent",
+            "z": 3,
+            "repeat": True,
+        },
+        "Yone W projectile must use the project-owned crescent animation",
+    )
     for name, (tag, _, _) in expected_views.items():
         check(runtime_map.get(name) == ["yone_w", tag], f"Yone W visual map changed: {name}")
     face_readability = visual.get("face_readability", {})
@@ -8384,10 +8263,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.7", "lol_mod version must be 0.12.7")
+    check(mod_info.get("version") == "0.12.8", "lol_mod version must be 0.12.8")
     check(
-        mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.7"}],
-        "lol_mod must declare base >=0.5.7",
+        mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
+        "lol_mod must declare base >=0.5.8",
     )
     build_script = (MOD_ROOT / "tools/build_native_dll.ps1").read_text(encoding="utf-8")
     check(
@@ -8403,11 +8282,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.7", "repair test", "source-direct portrait",
-                "pre-tick 5v5 structure guard", "data_champion", "BP/match music",
+                "0.5.8", "stable ABI 8", "repair test", "champion-icon resolver",
+                "no active E", "data_champion", "BP/match music",
             )
         ),
-        "mod metadata must disclose the source-direct encyclopedia route and narrow simulation guard",
+        "mod metadata must disclose the stock encyclopedia resolver and active test scope",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8665,7 +8544,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "frame_count": 5,
             "qa_contact_tag": "skill2_attack",
             "animation_start_tick": 0,
-            "payload_tick": 8,
+            "effect_dispatch": "one top-level penetrating LinearProjectile; no Native callback",
         },
         "Yone runtime must use skill_w_azakana while QA audits the five physical W frames",
     )
@@ -8676,13 +8555,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "action_duration_ticks": 30,
             "cooldown_ticks": 480,
             "movement": "none",
-            "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
-            "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
-            "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
-            "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
-            "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
+            "shape": "one penetrating 4500-speed, 35000-range Rect 40000x30000 LinearProjectile using the project-owned yone_w/crescent animation",
+            "damage": "80 + 80% Attack physical damage and 2000-speed/12-tick knockback once per struck target",
+            "shield": "each projectile hit runs the reference AroundCaster/AllyOnlySelf payload for one 180-tick 20 + 20% Attack shield",
+            "state": "pure data; no Native callback, process-global hit ledger, champion-count probe, shield tier, Q stack, or E return state",
+            "attack_speed_limitation": "the reference pure-data contract uses fixed 30/480-tick action and cooldown values",
         },
-        "Yone generated QA must record the stateless native cone W contract",
+        "Yone generated QA must record the reference pure-data W contract",
     )
     if actor_sheet_path.is_file() and actor_anims:
         actor_sheet = Image.open(actor_sheet_path).convert("RGBA")
@@ -8813,11 +8692,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     expected_all_views = {
         "lol_yone_attack_steel_hit": ("yone_attack", "steel_hit"),
         "lol_yone_attack_azakana_hit": ("yone_attack", "azakana_hit"),
-        "lol_yone_q_projectile": ("yone_q", "projectile"),
         "lol_yone_q_hit": ("yone_q", "hit"),
-        "lol_yone_q_empowered_hit": ("yone_q", "empowered_hit"),
         "lol_yone_q3_airborne_cue": ("yone_q3_tornado", "cue"),
-        "lol_yone_w_crescent_cast": ("yone_w", "crescent"),
+        "lol_yone_w_sweep_projectile": ("yone_w", "crescent"),
         "lol_yone_w_hit": ("yone_w", "impact"),
         "lol_yone_w_shield": ("yone_w", "shield"),
         "lol_yone_r_windup": ("yone_r", "windup"),
@@ -8851,9 +8728,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         for view in champion.get("view_buffs", [])
     }
     check(
-        declared_buffs
-        == {"lol_yone_mortal_steel_stack_2": ("yone_q3_ready_wind", "pre", "loop", "remove", 1)},
-        "Yone must register only the Q3-ready wind buff view",
+        not declared_buffs,
+        "Yone must not register a retired Q-ready or E spirit buff view",
     )
     used_views = {
         str(effect.get("name"))
@@ -8862,8 +8738,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }
     check(used_views == set(expected_all_views), "Yone Q/W/R data must use every declared projectile/effect visual")
     expected_runtime_map = {
-        **{name: [anim, tag] for name, (anim, tag) in expected_all_views.items()},
-        "lol_yone_mortal_steel_stack_2": ["yone_q3_ready_wind", "loop"],
+        name: [anim, tag] for name, (anim, tag) in expected_all_views.items()
     }
     check(runtime_map == expected_runtime_map, "Yone runtime-effect provenance map must cover only active Q/W/R visuals")
     for effect_name, tag_specs in expected_vfx.items():
@@ -9232,7 +9107,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(bool(description.get(slot)), f"Yone {locale} localization is missing {slot}")
         check("lol_yone" not in text.get(locale, {}).get("description", {}), f"{locale} must not register additive lol_yone text")
     yone_en = text.get("en", {}).get("description", {}).get("dual_blader", {})
-    check("Q1 and Q2" in yone_en.get("skill", "") and "Q3" in yone_en.get("skill", ""), "English Yone Q text must disclose all three stages")
+    check(
+        all(value in yone_en.get("skill", "") for value in ("25000", "75", "80%", "0.75", "5%", "5 seconds"))
+        and not any(stage in yone_en.get("skill", "") for stage in ("Q1", "Q2", "Q3")),
+        "English Yone Q text must disclose the single reference dash and remove staged-Q wording",
+    )
     yone_zh = text.get("zh-hans", {}).get("description", {}).get("dual_blader", {})
     check("击飞" in yone_zh.get("skill", "") and "0.75秒" in yone_zh.get("skill", ""), "Simplified-Chinese Yone Q text must disclose Q3 knockup")
     internal_terms = (
@@ -9242,11 +9121,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "公開データ", "標準ai", "データ版", "근사", "데이터 api", "기본 ai",
     )
     w_terms = {
-        "en": ("spirit cleave", "shield", "1.5"),
-        "zh-hans": ("W", "护盾", "1.5"),
-        "zh-hant": ("W", "護盾", "1.5"),
-        "ja": ("W", "シールド", "1.5"),
-        "ko": ("W", "보호막", "1.5"),
+        "en": ("spirit cleave", "shield", "3-second"),
+        "zh-hans": ("W", "护盾", "3秒"),
+        "zh-hant": ("W", "護盾", "3秒"),
+        "ja": ("W", "シールド", "3秒"),
+        "ko": ("W", "보호막", "3초"),
     }
     retired_e_terms = (
         "soul unbound", "e-only", "spirit form", "body anchor", "return phase",
@@ -9274,11 +9153,11 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         folded_w = w_copy.casefold()
         check(
             all(term.casefold() in folded_w for term in w_terms[locale]),
-            f"Yone {locale} second-slot copy must disclose W, its 1.5-second shield and active name",
+            f"Yone {locale} second-slot copy must disclose W, its 3-second shield and active name",
         )
         check(
-            all(value in w_copy for value in ("80", "6%", "0.5", "8")),
-            f"Yone {locale} W copy must disclose cone, max-HP damage and fixed timing",
+            all(value in w_copy for value in ("35000", "80", "20", "3", "8")),
+            f"Yone {locale} W copy must disclose the reference range, damage, shield and cooldown",
         )
         check(
             not any(term.casefold() in folded_w for term in retired_e_terms),
@@ -9290,11 +9169,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     if skill_qa_path.is_file():
         skill_qa = skill_qa_path.read_text(encoding="utf-8")
         for marker in (
-            "skill=Q", "skill2=W", "ult=R", "W-only", "Q1 → Q2 → Q3", "360 tick",
-            "RushTime", "45 tick `Airborne`",
-            "lol_yone_w_cone_native", "80°", "42000", "EnemyWithoutTower",
-            "35 + 45% Attack + 6%", "GameCtx", "进程级命中账本",
-            "lol_yone_w_shield_tier_0..5", "0.10.5", "0.10.11", "0.10.12", "0.10.13", "0.10.14", "0.10.15", "0.10.16", "0.10.17", "0.10.18", "0.10.19", "0.10.20",
+            "skill=Q", "skill2=W", "ult=R", "W-only", "SilverBear", "只取实现结构",
+            "range=25000", "speed=3600/tick=20", "75 + 80% AD", "5% AD",
+            "range=35000", "speed=4500", "Rect 40000×30000", "80 + 80% AD",
+            "20 + 20% AD", "180 tick", "speed=2000/tick=12",
+            "35 tick", "120 + 70% AD", "45 tick", "Pull",
+            "LegacySavedNativeCompatibilityEffect", "新建存档",
+            "0.10.11", "0.10.12", "0.10.13", "0.10.14", "0.10.15", "0.10.16", "0.10.17", "0.10.18", "0.10.19", "0.10.20",
             "V5 已记录为失败路线", "source-direct", "V3/V4/V5",
             "2026-07-22", "不等于实机视觉验收",
             "lol_yone_e_*", "YoneSoulUnbound", "yone_spirit", "yone_e_icon_source",
@@ -9302,9 +9183,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             check(marker in skill_qa, f"Yone skill QA is missing: {marker}")
         for retired in (
             "E+W", "lol_yone_w_champion_shield_probe", "lol_yone_w_shield_lock",
-            "lol_yone_e_start_native", "lol_yone_e_begin_return_native",
-            "lol_yone_e_damage_pre_native", "lol_yone_e_damage_post_native",
-            "lol_yone_e_settle_native", "BackToCasterLinearProjectile",
+            "BackToCasterLinearProjectile",
         ):
             check(retired not in skill_qa, f"Yone skill QA retains retired E/composite contract: {retired}")
 
@@ -9324,476 +9203,125 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "width: 85px;" in icon_node and "height: 93px;" in icon_node,
         "Yone management-card route must derive from the real 85x93 champion_slot #icon geometry",
     )
-    check('("dual_blader", "asset/lol_mod/BanPickIllust/dual_blader")' in rust, "Yone BP splash runtime route is missing")
-    check('("dual_blader", "lol_fullbody_yone")' in rust, "Yone encyclopedia full-body runtime route is missing")
-    check(
-        "impl ModExtension for YoneManagementCardExtension" in rust,
-        "Yone management-card extension is missing",
-    )
-    minimal_extension = ""
-    if "impl ModExtension for YoneManagementCardExtension" in rust:
-        minimal_extension = rust.split(
-            "impl ModExtension for YoneManagementCardExtension", 1
-        )[1].split("impl ModExtension for LolModExtension", 1)[0]
-    check(
-        minimal_extension.count("fn post_update(") == 1
-        and "sync_yone_encyclopedia_portrait(&mut ui.root);" in minimal_extension,
-        "Yone management-card extension must contain exactly one post-update portrait toggle",
-    )
-    check(
-        minimal_extension.count("fn post_render(") == 1
-        and "let context = detect_yone_portrait_ui_context(ui);" in minimal_extension
-        and "trace_yone_render_commands(ui, assets, state, context);" in minimal_extension
-        and minimal_extension.count("rewrite_") == 2
-        and "rewrite_yone_management_card_render_commands(state);" in minimal_extension
-        and "rewrite_yone_portrait_render_commands(state, context);" in minimal_extension
-        and minimal_extension.index("let context = detect_yone_portrait_ui_context(ui);")
-        < minimal_extension.index("trace_yone_render_commands(ui, assets, state, context);")
-        < minimal_extension.index("rewrite_yone_management_card_render_commands(state);")
-        < minimal_extension.index("rewrite_yone_portrait_render_commands(state, context);"),
-        "Yone default extension must run trace, management and independent BP-grid portrait rewrite in order",
-    )
+    encyclopedia_card_sync = ""
+    if "fn sync_encyclopedia_card" in rust:
+        encyclopedia_card_sync = rust.split(
+            "fn sync_encyclopedia_card", 1
+        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
+    for required in (
+        "let native_icon = join_ui_path(&card, \"icon\");",
+        "client.ui_runner_name(&native_icon)",
+        "client.ui_node_rect(&native_icon)",
+        "client.ui_set_champion_icon(&native_icon, champion_id, width, height, 2.0)",
+        "client.ui_set_visible(&native_icon, true)",
+    ):
+        check(
+            required in encyclopedia_card_sync,
+            f"stable encyclopedia resolver is missing: {required}",
+        )
     for forbidden in (
-        "match_ui_database",
-        "MatchUIRunner",
-        "ClientDatabase",
+        "ui_set_properties(&native_icon",
+        "ui_spawn_source(",
+        "ui_set_visible(&native_icon, false)",
+        "lol_fullbody_yone",
+        "lol_fullbody_xayah",
         "RenderCommand",
-        "sync_deterministic_dragon",
-        "rewrite_bp_render_commands",
-        "rewrite_dragon_render_commands",
-        "rewrite_kled_portrait_render_commands",
-        "rewrite_xayah_portrait_render_commands",
-        "ChampionInfoUIRunner",
+        '"source:',
     ):
         check(
-            forbidden not in minimal_extension,
-            f"Yone management-card extension must not use legacy runtime internals: {forbidden}",
+            forbidden not in encyclopedia_card_sync,
+            f"stable encyclopedia resolver must preserve the stock icon source: {forbidden}",
         )
-    check(
-        "get_mut::<ChampionInfoUIRunner>" not in rust
-        and "get::<ChampionInfoUIRunner>" not in rust,
-        "Yone management-card route must not depend on the unreachable ChampionInfoUIRunner gate",
-    )
-    slot_sync = ""
-    if "fn sync_yone_encyclopedia_portrait" in rust:
-        slot_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
-            "fn is_yone_management_slot", 1
-        )[0]
-    for required in (
-        'root.id == "champion_slot"',
-        "is_yone_management_slot(root)",
-        'root.query_mut("icon")',
-        'root.query_mut("lol_fullbody_yone")',
-        "icon.visible = false;",
-        "portrait.visible = true;",
-        "for child in &mut root.child",
-        "sync_yone_encyclopedia_portrait(child);",
-    ):
-        check(required in slot_sync, f"Yone cloned-slot traversal is missing: {required}")
-    slot_identity = ""
-    if "fn is_yone_management_slot" in rust:
-        slot_identity = rust.split("fn is_yone_management_slot", 1)[1].split(
-            "enum BpRenderSide", 1
-        )[0]
-    for required in (
-        "runner_as::<LabelRunner>()",
-        'matches!(text, "永恩" | "Yone")',
-        'text.contains("dual_blader")',
-        "runner_as::<ImageRunner>()",
-        "runner.style.normal.source.as_str()",
-        'source.contains("dual_blader")',
-        'source.contains("/champions/yone")',
-        "by_name || by_source",
-    ):
-        check(required in slot_identity, f"Yone cloned-slot identity check is missing: {required}")
-    management_geometry = ""
-    if "fn is_yone_management_card_geometry" in rust:
-        management_geometry = rust.split(
-            "fn is_yone_management_card_geometry", 1
-        )[1].split("fn rewrite_yone_management_card_render_commands", 1)[0]
-    check(
-        "(width - 85.0).abs() <= 1.0" in management_geometry
-        and "(height - 93.0).abs() <= 1.0" in management_geometry,
-        "Yone management-card geometry must match the logical 85x93 command within one pixel",
-    )
-    logical_management_gate = lambda width, height: (
-        abs(width - 85.0) <= 1.0 and abs(height - 93.0) <= 1.0
-    )
-    check(
-        all(
-            logical_management_gate(width, height)
-            for width, height in (
-                (85.0, 93.0),
-                (84.0, 92.0),
-                (84.0, 94.0),
-                (86.0, 92.0),
-                (86.0, 94.0),
-            )
-        ),
-        "Yone logical management-card gate must accept 85x93 and one-pixel layout rounding",
-    )
-    check(
-        not logical_management_gate(90.0, 122.0)
-        and not logical_management_gate(95.0, 112.0),
-        "Yone logical management-card gate must reject BP 90x122 and old scaled screenshot geometry",
-    )
-    check(
-        "fn is_ban_pick_render_pass" not in rust,
-        "Yone management-card routing must use logical geometry instead of unreliable pass-name gating",
-    )
-    yone_portrait_rewrite = ""
-    if "fn rewrite_yone_management_card_render_commands" in rust:
-        yone_portrait_rewrite = rust.split(
-            "fn rewrite_yone_management_card_render_commands", 1
-        )[1].split("fn rewrite_yone_portrait_render_commands", 1)[0]
-    for required in (
-        "RenderCommand::NinePatch",
-        "is_yone_actor_sheet_texture(texture.as_str())",
-        "for (pass, commands) in &mut state.commands",
-        "is_yone_management_card_geometry(*w, *h)",
-        "YONE_MANAGEMENT_CARD_PORTRAIT_TEXTURE",
-        "texture_rect.x = 0.0;",
-        "texture_rect.y = 0.0;",
-        "texture_rect.w = 1.0;",
-        "texture_rect.h = 1.0;",
-        "*left = 0.0;",
-        "*right = 0.0;",
-        "*top = 0.0;",
-        "*bottom = 0.0;",
-        "*sample_nearest = true;",
-        '"yone_management_card_render_hook"',
-        '"version=0.10.20;logical_contract=85x93"',
-        '"version=0.10.20;from_size=',
-    ):
-        check(required in yone_portrait_rewrite, f"Yone portrait rewrite is missing: {required}")
-    for forbidden in (
-        "RenderCommand::Sprite",
-        "*x =",
-        "*y =",
-        "*w =",
-        "*h =",
-        "MatchUIRunner",
-        "ClientDatabase",
-    ):
-        check(
-            forbidden not in yone_portrait_rewrite,
-            f"Yone portrait rewrite must preserve x/y/w/h and ignore battle state: {forbidden}",
-        )
-    trace_yone = ""
-    if "fn trace_yone_render_commands" in rust:
-        trace_yone = rust.split("fn trace_yone_render_commands", 1)[1].split(
-            "fn rewrite_yone_management_card_render_commands", 1
-        )[0]
-    for required in (
-        '"yone_ui_render_hook"',
-        '"version=0.10.20;management_contract=85x93;shared_bp_source=95x88;bp_grid_output=source_geometry;bp_grid_sample=top88of122;assignment_sample=top88of122;assignment_y_offset=-9;root={};surface={};swap_visible={};swap_phase_label_visible={};champion_grid_visible={}"',
-        "RenderCommand::NinePatch",
-        "RenderCommand::Sprite",
-        '"yone_ui_render_command"',
-        "kind=NinePatch",
-        "kind=Sprite",
-        'pass.to_string() == "Game"',
-        '"yone_game_sprite_atlas"',
-        '"yone_game_sprite_sample"',
-        '"yone_game_sprite_v7_frame"',
-        "get::<Box<dyn ImageHandle>>(texture)",
-        "expected_atlas=4262x88",
-        "atlas_missing={}",
-        "normalized_texture_rect_to_pixels(",
-        "source_px={},{},{},{}",
-        "inferred_action={}",
-        "tag_candidates={}",
-        "game_tick=unavailable",
-        '"player_assignment"',
-        '"bp_grid"',
-        '"bp_side_card"',
-        "central_position={central_position}",
-        "root={}",
-        "route={route}",
-        "geometry={:.0},{:.0},{:.0},{:.0}",
-        "uv={:.4},{:.4},{:.4},{:.4}",
-    ):
-        check(required in trace_yone, f"Yone bounded render diagnostic is missing: {required}")
-    frame_diagnostic = rust.split("struct YoneV7FrameSignature", 1)[-1].split(
-        "fn is_yone_scoreboard_portrait_geometry", 1
-    )[0]
-    for required in (
-        "const YONE_V7_DIAGNOSTIC_FRAMES: [YoneV7FrameSignature; 18]",
-        'tag_candidates: "attack_azakana"',
-        'tag_candidates: "skill_q3"',
-        'tag_candidates: "skill_w_azakana|skill2_attack"',
-        '"asset/lol_mod/aseprite_resources/champions/yone_v7#sheet" => "active_yone_v7"',
-        '"asset/lol_mod/aseprite_resources/champions/yone#sheet" => "legacy_saved_data_alias"',
-        "fn infer_yone_v7_frame(",
-    ):
-        check(required in frame_diagnostic, f"Yone V7 frame diagnostic contract is missing: {required}")
-    for forbidden in (
-        "iter_mut()",
-        "values_mut()",
-        "command_index",
-        "texture_rect.x =",
-        "texture_rect.y =",
-        "*texture =",
-    ):
-        check(
-            forbidden not in trace_yone,
-            f"Yone render diagnostic must use a stable read-only signature: {forbidden}",
-        )
-    telemetry_writer = ""
-    if "fn write_bp_render_telemetry_once" in rust:
-        telemetry_writer = rust.split("fn write_bp_render_telemetry_once", 1)[1].split(
-            "fn set_visible", 1
-        )[0]
-    check(
-        "const YONE_GAME_TELEMETRY_ROW_LIMIT: usize = 96;" in rust,
-        "Yone Game Sprite telemetry must keep its independent 96-row budget",
-    )
-    for required in (
-        'event.starts_with("yone_game_sprite_")',
-        "YONE_GAME_TELEMETRY_SEEN",
-        "YONE_GAME_TELEMETRY_ROW_LIMIT",
-        'event.ends_with("_replace")',
-        "BP_TELEMETRY_CRITICAL_ROW_LIMIT",
-        "BP_TELEMETRY_ROW_LIMIT",
-        "seen.len() >= row_limit",
-    ):
-        check(required in telemetry_writer, f"Yone critical telemetry quota is missing: {required}")
-    init_body = ""
-    if "fn init(_ctx: &GameCtx) -> ModRegistration" in rust:
-        init_body = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[1].split(
-            "declare_mod!(init);", 1
-        )[0]
-    check(
-        "} else {" in init_body
-        and "registration.set_extension(YoneManagementCardExtension);" in init_body,
-        "Yone management-card extension must be reachable on the default base-0.5.1 path",
-    )
-    check(
-        init_body.count("registration.set_server_extension(") == 1
-        and "registration.set_extension(LolModExtension);" in init_body,
-        "Legacy client/server extensions must remain isolated behind their opt-in guard",
-    )
-    yone_sync = ""
-    if "fn sync_yone_encyclopedia_portrait" in rust:
-        yone_sync = rust.split("fn sync_yone_encyclopedia_portrait", 1)[1].split(
-            "enum BpRenderSide", 1
-        )[0]
-    check(
-        "dual_blader" in yone_sync
-        and "lol_fullbody_yone" in yone_sync
-        and "lol_fullbody_shen" not in yone_sync,
-        "Default management-card synchronization must be Yone-only",
-    )
-    check(
-        re.search(
-            r"if let Some\(database\) = match_ui_database\(ui\)\s*\{"
-            r"\s*remember_database\(database\);\s*\}\s*"
-            r"sync_encyclopedia_portraits\(&mut ui\.root\);",
-            rust,
-        )
-        is not None,
-        "Yone full-body card sync must run independently of MatchUIRunner/database discovery",
-    )
-    check(
-        re.search(
-            r"if let Some\(database\) = match_ui_database\(ui\).*?"
-            r"\}\s*else\s*\{\s*sync_encyclopedia_portraits",
-            rust,
-            re.DOTALL,
-        )
-        is None,
-        "Yone full-body card sync regressed into the MatchUIRunner-none branch",
-    )
-    check('"yone" | "dual_blader" => Some("dual_blader")' in rust, "Yone splash alias route is missing")
-    check(
-        "rewrite_yone_portrait_render_commands(state, context);" in rust,
-        "Yone context-aware portrait rewrite is missing",
-    )
-    for token in (
-        'const YONE_COMPACT_PORTRAIT_TEXTURE: &str =',
-        'const YONE_SCOREBOARD_PORTRAIT_TEXTURE: &str =',
-        'const YONE_BP_GRID_PORTRAIT_TEXTURE: &str =',
-        "const YONE_BP_PORTRAIT_SOURCE_HEIGHT: f32 = 122.0;",
-        "const YONE_BP_GRID_SAMPLE_HEIGHT: f32 = 88.0;",
-        "const YONE_ASSIGNMENT_Y_OFFSET: f32 = -9.0;",
-        "const YONE_BP_GRID_VIEWPORT_LEFT: f32 = 335.0;",
-        "const YONE_BP_GRID_VIEWPORT_RIGHT: f32 = 1585.0;",
-        "const YONE_BP_GRID_VIEWPORT_TOP: f32 = 145.0;",
-        "const YONE_BP_GRID_VIEWPORT_BOTTOM: f32 = 522.0;",
-        "fn is_yone_scoreboard_portrait_geometry(width: f32, height: f32) -> bool {",
-        "if !(14.0..=38.0).contains(&width) || !(14.0..=40.0).contains(&height) {",
-        "width >= 14.0 && height / width >= 1.15 && height / width <= 1.50",
-        "fn is_yone_compact_portrait_geometry(width: f32, height: f32) -> bool {",
-        "(14.0..=52.0).contains(&width)",
-        "&& (width - height).abs() <= 2.0",
-        "fn is_yone_bp_grid_geometry(width: f32, height: f32) -> bool {",
-        "(92.0..=98.0).contains(&width)",
-        "(86.0..=90.0).contains(&height)",
-    ):
-        check(token in rust, f"Yone compact/scoreboard portrait runtime helper is missing: {token}")
 
-    context_detector = ""
-    if "fn detect_yone_portrait_ui_context" in rust:
-        context_detector = rust.split("fn detect_yone_portrait_ui_context", 1)[1].split(
-            "impl ModExtension for YoneManagementCardExtension", 1
-        )[0]
-    for token in (
-        'yone_ui_node_is_visible(ui, &["swap", "main.swap"])',
-        '&["header.swap_phase", "main.header.swap_phase"]',
-        'yone_ui_node_is_visible(ui, &["champions", "main.champions"])',
-        "let surface = if swap_visible {",
-        "YonePortraitSurface::PlayerChampionAssignment",
-        "else if champion_grid_visible",
-        "YonePortraitSurface::CentralBpGrid",
-        "swap_phase_visible,",
+    encyclopedia_batch = ""
+    if "fn sync_encyclopedia_portraits" in rust:
+        encyclopedia_batch = rust.split(
+            "fn sync_encyclopedia_portraits", 1
+        )[1].split("fn bp_champion_id_from_name", 1)[0]
+    for required in (
+        'client.client_main_tab().as_deref() != Some("GameInfo")',
+        "find_encyclopedia_container(client)",
+        'sync_encyclopedia_card(client, &container, "dancer", 85.0, 93.0)',
+        'sync_encyclopedia_card(client, &container, "dual_blader", 85.0, 93.0)',
+        '"stock champion-icon resolver; raw source mutation disabled;',
     ):
-        check(token in context_detector, f"Yone portrait UI context gate is missing: {token}")
+        check(
+            required in encyclopedia_batch,
+            f"Xayah/Yone encyclopedia batch resolver is missing: {required}",
+        )
+    for required in (
+        "ENCYCLOPEDIA_CONTAINER_CANDIDATES",
+        "ENCYCLOPEDIA_RUNTIME_MAX_NODES",
+        "ui_runner_name(&path)",
+        'matches!(child.as_str(), "dancer" | "dual_blader")',
+    ):
+        check(required in rust, f"encyclopedia container discovery is missing: {required}")
+
+    stable_extension = ""
+    if "impl StableExtension for QualityBpExtension" in rust:
+        stable_extension = rust.split(
+            "impl StableExtension for QualityBpExtension", 1
+        )[1].split("const XAYAH_FEATHER_STATE_TTL_TICKS", 1)[0]
     check(
-        "if swap_phase_visible" not in context_detector,
-        "header.swap_phase must remain diagnostic-only; the root swap container is the real assignment gate",
+        stable_extension.count("fn post_update(") == 1
+        and "sync_bp_runtime_ui(client);" in stable_extension
+        and "sync_encyclopedia_portraits(self, client);" in stable_extension,
+        "stable UI extension must refresh BP decoration and encyclopedia cards together",
+    )
+    check(
+        "registration.set_extension(QualityBpExtension::default());" in rust,
+        "stable UI extension is not registered",
     )
 
-    central_position_helper = ""
-    if "fn is_yone_central_bp_grid_position" in rust:
-        central_position_helper = rust.split(
-            "fn is_yone_central_bp_grid_position", 1
-        )[1].split("fn is_yone_management_card_geometry", 1)[0]
-    for token in (
-        "let center_x = x + width * 0.5;",
-        "let center_y = y + height * 0.5;",
-        "YONE_BP_GRID_VIEWPORT_LEFT..=YONE_BP_GRID_VIEWPORT_RIGHT",
-        "YONE_BP_GRID_VIEWPORT_TOP..=YONE_BP_GRID_VIEWPORT_BOTTOM",
-        ".contains(&center_x)",
-        ".contains(&center_y)",
-    ):
-        check(token in central_position_helper, f"Yone central BP viewport gate is missing: {token}")
+    stable_client_path = MOD_ROOT / "vendor/mod-api-stable/src/client_ctx.rs"
+    stable_client = (
+        stable_client_path.read_text(encoding="utf-8")
+        if stable_client_path.is_file()
+        else ""
+    )
+    check(
+        "pub fn ui_set_champion_icon(" in stable_client,
+        "vendored stable ABI is missing the game-owned champion-icon resolver",
+    )
+    check(
+        "YoneManagementCardExtension" not in rust
+        and "rewrite_yone_management_card_render_commands" not in rust
+        and "rewrite_yone_portrait_render_commands" not in rust,
+        "retired raw render-command portrait rewrites must stay out of the compiled runtime",
+    )
 
-    shared_portrait_rewrite = ""
-    if "fn rewrite_yone_portrait_render_commands" in rust:
-        shared_portrait_rewrite = rust.split(
-            "fn rewrite_yone_portrait_render_commands", 1
-        )[1].split("fn match_ui_database", 1)[0]
-    for token in (
-        "let is_scoreboard = is_yone_scoreboard_portrait_geometry(*w, *h);",
-        "let is_compact = is_yone_compact_portrait_geometry(*w, *h);",
-        'pass.to_string() == "UI" && is_yone_bp_grid_geometry(*w, *h);',
-        "let central_position = is_yone_central_bp_grid_position(*x, *y, *w, *h);",
-        "let is_bp_grid = is_shared_bp_geometry",
-        "&& !context.swap_visible",
-        "&& context.champion_grid_visible",
-        "&& central_position;",
-        "let is_assignment = is_shared_bp_geometry && context.swap_visible;",
-        "let is_side_card = is_shared_bp_geometry",
-        "&& !central_position;",
-        "let replacement = if is_scoreboard {",
-        "YONE_SCOREBOARD_PORTRAIT_TEXTURE",
-        "YONE_COMPACT_PORTRAIT_TEXTURE",
-        "YONE_BP_GRID_PORTRAIT_TEXTURE",
-        "YONE_BP_GRID_SAMPLE_HEIGHT / YONE_BP_PORTRAIT_SOURCE_HEIGHT",
-        '"top_88_of_122"',
-        "texture_rect.h = 1.0;",
-        "if is_assignment || is_side_card",
-        "*y += YONE_ASSIGNMENT_Y_OFFSET;",
-        '"yone_bp_grid_replace"',
-        '"yone_assignment_replace"',
-        '"yone_bp_side_card_replace"',
-        "from_geometry={:.0},{:.0},{:.0},{:.0}",
-        "to_geometry={:.0},{:.0},{:.0},{:.0}",
-        "size_mode=preserved",
-        "baseline_offset={baseline_offset:.0}",
-        "sample_mode={sample_mode}",
-        "*sample_nearest = true;",
+    bp_alias = ""
+    if "fn bp_champion_id_from_name" in rust:
+        bp_alias = rust.split("fn bp_champion_id_from_name", 1)[1].split(
+            "fn ensure_ui_child", 1
+        )[0]
+    check(
+        '"dual_blader" | "Yone"' in bp_alias
+        and 'Some("dual_blader")' in bp_alias,
+        "Yone BP illustration alias route is missing",
+    )
+    check(
+        "champion_illustration/{champion_id}_{side}" in rust
+        and "client.ui_set_visible(&illustration, true)" in rust,
+        "Yone BP splash must remain available through the stable BP illustration route",
+    )
+
+    # The old full-body overlay nodes remain dormant compatibility assets.  They
+    # must never cover or replace the engine-owned encyclopedia icon.
+    for node_name, expected_source in (
+        ("lol_fullbody_xayah", "asset/lol_mod/ui/champion_fullbody/dancer"),
+        ("lol_fullbody_yone", "asset/lol_mod/ui/champion_fullbody/dual_blader"),
     ):
-        check(token in shared_portrait_rewrite, f"Yone shared portrait rewrite is missing: {token}")
-    for forbidden in (
-        "*x =",
-        "*w =",
-        "*h =",
-        "*y =",
-        "*w = side;",
-        "*h = side;",
-        "let center_x = *x + *w * 0.5;",
-        '"center_x_and_top_y_preserved"',
-        "context.swap_phase_visible",
-    ):
+        marker = f"#{node_name}:image"
+        node = ui.split(marker, 1)[1].split("}", 1)[0] if marker in ui else ""
+        check(node != "", f"dormant encyclopedia asset node is missing: {node_name}")
         check(
-            forbidden not in shared_portrait_rewrite,
-            f"Yone shared portrait route regressed geometry or stage isolation: {forbidden}",
+            f'source: "{expected_source}";' in node
+            and "width: 85px;" in node
+            and "height: 93px;" in node
+            and "visible: false;" in node,
+            f"dormant encyclopedia asset node must stay hidden and bounded: {node_name}",
         )
-    check(
-        shared_portrait_rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1,
-        "Yone assignment/edge cards must apply exactly one -9 baseline correction",
-    )
-    check(
-        abs(88.0 / 122.0 - 44.0 / 61.0) < 1e-12,
-        "Yone shared BP crop must sample exactly the top 88 of 122 source rows",
-    )
-    grid_gate = lambda width, height: (
-        92.0 <= width <= 98.0
-        and 86.0 <= height <= 90.0
-    )
-    check(
-        all(
-            grid_gate(width, height)
-            for width, height in (
-                (95.0, 88.0),
-                (94.0, 88.0),
-                (96.0, 89.0),
-            )
-        )
-        and all(
-            not grid_gate(width, height)
-            for width, height in (
-                (85.0, 93.0),
-                (90.0, 122.0),
-                (95.0, 112.0),
-                (95.0, 117.0),
-                (95.0, 121.0),
-                (114.4, 134.1),
-                (129.0, 165.0),
-            )
-        ),
-        "Yone BP-grid gate must accept the measured 95x88 UI command and reject screenshot/management/side geometry",
-    )
-    transition_constants = {
-        "BP_DUAL_BLADER_TRANSITION_MIN_WIDTH": "112.0",
-        "BP_DUAL_BLADER_TRANSITION_MAX_WIDTH": "132.0",
-        "BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT": "132.0",
-        "BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT": "168.0",
-    }
-    for constant, value in transition_constants.items():
-        check(f"const {constant}: f32 = {value};" in rust, f"Yone Dual Blader BP transition threshold changed: {constant}")
-    for field, constant in (
-        ("min_width", "BP_DUAL_BLADER_TRANSITION_MIN_WIDTH"),
-        ("max_width", "BP_DUAL_BLADER_TRANSITION_MAX_WIDTH"),
-        ("min_height", "BP_DUAL_BLADER_TRANSITION_MIN_HEIGHT"),
-        ("max_height", "BP_DUAL_BLADER_TRANSITION_MAX_HEIGHT"),
-    ):
-        check(f"{field}: {constant}," in rust, f"Yone Dual Blader BP actor contract does not use {constant}")
-    yone_fullbody_nodes = re.findall(
-        r"(?ms)^\s*#lol_fullbody_yone:image\s*\{(.*?)^\s*\}",
-        ui,
-    )
-    check(
-        len(yone_fullbody_nodes) == 1,
-        f"champion_slot.ui must declare exactly one Yone fullbody node: {len(yone_fullbody_nodes)}",
-    )
-    if len(yone_fullbody_nodes) == 1:
-        yone_fullbody_node = yone_fullbody_nodes[0]
-        for field, expected_value in {
-            "width": "85px",
-            "height": "93px",
-            "source": '"asset/lol_mod/ui/champion_fullbody/dual_blader"',
-            "sample_linear": "false",
-        }.items():
-            values = re.findall(
-                rf"(?m)^\s*{re.escape(field)}:\s*([^;]+);\s*$",
-                yone_fullbody_node,
-            )
-            check(
-                values == [expected_value],
-                f"Yone champion_slot.ui {field} route changed: {values}",
-            )
 
     for source, remapping in {
         "asset/base/aseprite_resources/champions/dual_blader#sheet": "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
@@ -9801,109 +9329,21 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     }.items():
         check(override.get(source) == {"remapping": remapping, "type": "override"}, f"Yone actor override is missing: {source}")
 
-    check("const YONE_W_RANGE: i128 = 42_000;" in rust, "Yone W cone runtime is missing")
-    yone_w_runtime = rust.split("const YONE_W_RANGE", 1)[-1].split(
-        "// Saved seasons embed their champion definitions.", 1
+    init_source = rust.split("fn init(host: &StableHost) -> StableMod", 1)[-1].split(
+        "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);", 1
     )[0]
-    for forbidden in (
-        "query_service",
-        "register_service",
-        "ModService",
-        "c_void",
-        "context_token",
-        "OnceLock",
-        "Mutex",
-        "static YONE_",
-        "started_tick",
-        "max_by_key",
-        "EntityHandle",
-        "YoneSpiritCleaveRegistry",
-        "YoneSpiritCleaveState",
-        "YONE_W_STATE_TTL_TICKS",
-        "YONE_W_MAX_STATES",
-    ):
-        check(forbidden not in yone_w_runtime, f"Yone W retains cross-context mutable state: {forbidden}")
-    for marker in (
-        "const YONE_W_COS_SQ_SCALE: i128 = 1_000_000;",
-        "const YONE_W_COS_SQ_HALF_ANGLE: i128 = 586_824;",
-        "const YONE_W_FLAT_DAMAGE: usize = 35;",
-        "const YONE_W_ATTACK_RATIO_PERCENT: usize = 45;",
-        "const YONE_W_TARGET_MAX_HP_PERCENT: usize = 6;",
-        "const YONE_W_MAX_ENEMY_CHAMPIONS: usize = 5;",
-        "InputTarget::Dir { dir_x, dir_y }",
-        "InputTarget::Pos { x, y }",
-        "InputTarget::Target { target_id }",
-        "for index in 0..ctx.entity_count()",
-        "target.team() == caster_team",
-        "!target.is_targetable()",
-        "target.is_tower()",
-        "dot * dot * YONE_W_COS_SQ_SCALE",
-        "distance_sq * dir_sq * YONE_W_COS_SQ_HALF_ANGLE",
-        ".saturating_mul(YONE_W_TARGET_MAX_HP_PERCENT)",
-        "champion_hits += usize::from(target.is_champion());",
-        "hits.push((target_id, damage));",
-        "for (target_id, damage) in hits",
-        "ctx.deal_damage(caster_id, target_id, damage, 0, AttackType::Skill);",
-        "champion_hits.min(YONE_W_MAX_ENEMY_CHAMPIONS)",
-        'format!("lol_yone_w_shield_tier_{shield_tier}")',
-        "marker.duration = BuffType::Time { tick: 3 };",
-        "ctx.add_buff(caster_id, marker);",
-    ):
-        check(marker in yone_w_runtime, f"Yone stateless cone proof is missing: {marker}")
     check(
-        yone_w_runtime.find("hits.push((target_id, damage));")
-        < yone_w_runtime.find("for (target_id, damage) in hits"),
-        "Yone W must finish its immutable cone scan before combat mutation",
+        "let mut registration = StableMod::new(MOD_ID);" in init_source
+        and "registration.set_match_hook(CorruptMobaMatchGuard);" in init_source
+        and "registration.set_extension(QualityBpExtension::default());" in init_source
+        and init_source.count("registration.set_extension(") == 1,
+        "compiled stable runtime must register exactly one bounded UI extension",
     )
     check(
-        yone_w_runtime.count("ctx.add_buff(caster_id, marker);") == 1,
-        "Yone W must emit exactly one shield-tier marker",
-    )
-    check(
-        bool(
-            re.search(
-                r'registration\.add_native_effect\(\s*"lol_yone_w_cone_native",\s*'
-                r"YoneSpiritCleaveConeNativeEffect,\s*\);",
-                rust,
-            )
-        ),
-        "Yone active cone native registration is missing",
-    )
-    for legacy_w_name in (
-        "lol_yone_w_begin_native",
-        "lol_yone_w_collect_hit_native",
-        "lol_yone_w_settle_native",
-    ):
-        check(
-            bool(
-                re.search(
-                    rf'registration\.add_native_effect\(\s*"{legacy_w_name}",\s*'
-                    r"LegacySavedNativeCompatibilityEffect,\s*\);",
-                    rust,
-                )
-            ),
-            f"Yone 0.10.4 save alias is not a no-op shim: {legacy_w_name}",
-        )
-
-    init_source = rust.split("fn init(_ctx: &GameCtx) -> ModRegistration", 1)[-1].split(
-        "declare_mod!(init);", 1
-    )[0]
-    extension_guard = re.search(
-        r"if\s+std::env::var\(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV\)"
-        r"\s*\.is_ok_and\(\|value\| value == \"1\"\)\s*\{"
-        r"(?P<body>.*?)\n    \}",
-        init_source,
-        flags=re.DOTALL,
-    )
-    check(extension_guard is not None, "broad legacy extensions must require env=1")
-    extension_body = extension_guard.group("body") if extension_guard else ""
-    check(
-        "registration.set_extension(LolModExtension);" in extension_body
-        and "registration.set_server_extension(LolDragonServerExtension" in extension_body
-        and "registration.set_extension(YoneManagementCardExtension);" not in extension_body
-        and init_source.count("registration.set_extension(") == 2
-        and init_source.count("registration.set_server_extension(") == 1,
-        "client/server legacy extensions escaped their env=1 guard",
+        "LolModExtension" not in init_source
+        and "LolDragonServerExtension" not in init_source
+        and "YoneManagementCardExtension" not in init_source,
+        "classic internal extensions must stay outside the compiled stable runtime",
     )
     for retired_token in (
         "struct YoneWInputGate", "impl ModPlayerInputAi for YoneWInputGate",
@@ -9916,7 +9356,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_attack_steel_cast", "lol_yone_attack_steel_hit",
         "lol_yone_attack_azakana_cast", "lol_yone_attack_azakana_hit",
         "lol_yone_q_cast", "lol_yone_q_hit",
-        "lol_yone_q_empowered_cast", "lol_yone_q_empowered_hit",
         "lol_yone_w_cast", "lol_yone_w_hit", "lol_yone_w_shield",
         "lol_yone_r_cast", "lol_yone_r_arrival",
         "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana",
@@ -10300,7 +9739,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.7", "lol_mod version must be 0.12.7")
+    check(mod_info.get("version") == "0.12.8", "lol_mod version must be 0.12.8")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

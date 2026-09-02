@@ -1316,7 +1316,8 @@ def _validate_dual_sword_cues(
     active_semantics = {
         "steel_basic_attack": ["attack"],
         "azakana_basic_attack": ["attack_azakana"],
-        "steel_q": ["skill", "skill_q3"],
+        "steel_inactive_q12_atlas_alias": ["skill"],
+        "steel_q": ["skill_q3"],
         "azakana_w": ["skill2", "skill2_attack"],
         "dual_r": ["ult"],
     }
@@ -1351,7 +1352,7 @@ def _validate_dual_sword_cues(
     if sequence_digests["attack"] == sequence_digests["attack_azakana"]:
         _fail("steel and Azakana basic attacks resolve to identical source pixels")
     if sequence_digests["skill"] == sequence_digests["skill_q3"]:
-        _fail("Q1/Q2 and Q3 resolve to identical source pixels")
+        _fail("inactive Q12 atlas alias and active Q resolve to identical source pixels")
 
     return {
         "actions": action_reports,
@@ -1365,7 +1366,7 @@ def _validate_dual_sword_cues(
         "minimum_tip_separation_px": 3,
         "sequence_sha256": sequence_digests,
         "distinct_attack_sequences": True,
-        "distinct_q_sequences": True,
+        "distinct_inactive_q12_and_active_q_sequences": True,
     }
 
 
@@ -1429,21 +1430,22 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
     q_effect = skill.get("effect") if isinstance(skill, dict) else None
     q_animations = type_names(q_effect, "CasterAnimation")
     q_overlays = type_names(q_effect, "CasterViewEffect")
-    expected_q_animations = Counter({"skill_q12": 2, "skill_q3": 1})
-    expected_q_overlays: Counter[str] = Counter()
+    expected_q_animations = Counter({"skill_q3": 1})
+    expected_q_overlays: Counter[str] = Counter({"lol_yone_q3_airborne_cue": 1})
     if q_animations != expected_q_animations or q_overlays != expected_q_overlays:
         _fail(
-            "Yone Q must stay steel-active: two Q1/Q2 caster routes and one Q3 route"
+            "Yone Q must use one steel-active skill_q3 body route and one airborne cue"
         )
 
     skill2 = champion.get("skill2")
     w_effect = skill2.get("effect") if isinstance(skill2, dict) else None
     w_animations = type_names(w_effect, "CasterAnimation")
     w_overlays = type_names(w_effect, "CasterViewEffect")
+    w_projectiles = type_names(w_effect, "LinearProjectile")
     if w_animations != Counter({"skill_w_azakana": 1}):
         _fail("Yone W must use the Azakana-active skill_w_azakana animation")
-    if w_overlays["lol_yone_w_crescent_cast"] != 1:
-        _fail("Yone W must cast exactly one caster-following Azakana crescent")
+    if w_overlays or w_projectiles != Counter({"lol_yone_w_sweep_projectile": 1}):
+        _fail("Yone W must use exactly one pure-data Azakana blade projectile")
 
     ultimate = champion.get("ult")
     r_effect = ultimate.get("effect") if isinstance(ultimate, dict) else None
@@ -1473,10 +1475,10 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         view_effects[name] = effect
 
     overlay_contract = {
-        "lol_yone_w_crescent_cast": (
-            "asset/lol_mod/aseprite_resources/effects/yone_w",
-            "crescent",
-            3,
+        "lol_yone_q3_airborne_cue": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q3_tornado",
+            "cue",
+            2,
         ),
         "lol_yone_r_windup": (
             "asset/lol_mod/aseprite_resources/effects/yone_r",
@@ -1526,6 +1528,31 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
             "assets_present": True,
         }
 
+    raw_view_projectiles = champion.get("view_projectiles")
+    if not isinstance(raw_view_projectiles, list):
+        _fail("Yone champion data has no view_projectiles list")
+    w_projectile_view = next(
+        (
+            row
+            for row in raw_view_projectiles
+            if isinstance(row, dict)
+            and row.get("name") == "lol_yone_w_sweep_projectile"
+        ),
+        None,
+    )
+    expected_w_projectile_view = {
+        "type": "Animated",
+        "name": "lol_yone_w_sweep_projectile",
+        "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+        "tag": "crescent",
+        "z": 3,
+        "repeat": True,
+    }
+    if w_projectile_view != expected_w_projectile_view:
+        _fail(
+            "Yone W projectile view must use the project-owned crescent contract"
+        )
+
     return {
         "basic_attack": attack_report,
         "q": {
@@ -1536,7 +1563,7 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         "w": {
             "active_weapon": "azakana",
             "animation": "skill_w_azakana",
-            "caster_overlay": "lol_yone_w_crescent_cast",
+            "projectile": "lol_yone_w_sweep_projectile",
         },
         "r": {
             "active_weapon": "dual",

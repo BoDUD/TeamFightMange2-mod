@@ -77,6 +77,7 @@ pub fn contract_dump() -> String {
         ("ManagementEventKindV1", ManagementEventKindV1::VARIANTS),
         ("ClientSceneKindV1", ClientSceneKindV1::VARIANTS),
         ("InputEventKindV1", InputEventKindV1::VARIANTS),
+        ("SimOriginKindV1", SimOriginKindV1::VARIANTS),
     ] {
         for (variant, code) in variants {
             out.push_str(&format!("enumcode {}.{} = {}\n", name, variant, code));
@@ -155,6 +156,8 @@ pub fn contract_dump() -> String {
         name_buf: [u8; BUFF_NAME_CAP],
         name_len: usize,
     });
+
+    dump_struct!(out, SimOriginV1 { size: usize, kind: u32, match_id: u64, replay_id: u64, set_index: u64 });
 
     dump_struct!(out, InputTargetV1 {
         kind: u32,
@@ -381,6 +384,16 @@ pub fn contract_dump() -> String {
         entity_attack_interval: Option<unsafe extern "C" fn(*const std::ffi::c_void, EntityHandleV1) -> usize>,
         entity_attack_speed_mult: Option<unsafe extern "C" fn(*const std::ffi::c_void, EntityHandleV1) -> usize>,
         deal_damage_raw: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, usize, usize, usize, u32)>,
+        play_view_effect: Option<unsafe extern "C" fn(*mut std::ffi::c_void, *const u8, usize, usize, *const InputTargetV1, u64, u64, u64) -> bool>,
+        play_sfx: Option<unsafe extern "C" fn(*mut std::ffi::c_void, *const u8, usize, usize, *const InputTargetV1) -> bool>,
+        entity_set_invisible: Option<unsafe extern "C" fn(*mut std::ffi::c_void, EntityHandleV1, usize) -> bool>,
+        entity_banish: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, EntityHandleV1, usize, *const u8, usize, *const u8, usize) -> bool>,
+        deal_damage_typed: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, usize, usize, u32, u32) -> bool>,
+        sim_origin: Option<unsafe extern "C" fn(*const std::ffi::c_void, *mut SimOriginV1) -> bool>,
+        entity_knockback: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, EntityHandleV1, usize, usize) -> bool>,
+        entity_grab: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, EntityHandleV1, usize, usize) -> bool>,
+        entity_pull: Option<unsafe extern "C" fn(*mut std::ffi::c_void, usize, EntityHandleV1, usize, usize) -> bool>,
+        entity_stack_buff: Option<unsafe extern "C" fn(*mut std::ffi::c_void, EntityHandleV1, *const BuffV1, usize, u32) -> usize>,
     });
 
     dump_struct!(out, UnitAttackV1 {
@@ -509,6 +522,8 @@ pub fn contract_dump() -> String {
         champion_brief: Option<unsafe extern "C" fn(*const std::ffi::c_void, *const u8, usize, *mut ChampionBriefV1) -> bool>,
         client_scene_kind: Option<unsafe extern "C" fn(*const std::ffi::c_void) -> u32>,
         client_main_tab_name: Option<unsafe extern "C" fn(*const std::ffi::c_void, *mut u8, usize, *mut usize) -> bool>,
+        native_effect_count: Option<unsafe extern "C" fn(*const std::ffi::c_void) -> usize>,
+        native_effect_name_at: Option<unsafe extern "C" fn(*const std::ffi::c_void, usize, *mut u8, usize, *mut usize) -> bool>,
     });
 
     dump_struct!(out, UiVtableV1 {

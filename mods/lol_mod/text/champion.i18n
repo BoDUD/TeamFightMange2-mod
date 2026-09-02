@@ -60,8 +60,8 @@
       "dual_blader": {
         "name": "Yone",
         "attack": "Way of the Hunter: Basic attacks alternate between the steel blade and Azakana blade, each dealing 100% Attack physical damage.",
-        "skill": "Q — Mortal Steel: Q1 and Q2 make a short forward thrust for 35 + 95% Attack physical damage. After both hit, Q3 dashes through enemies, deals the same damage once, and knocks them airborne for 0.75 seconds.",
-        "skill2": "W — Spirit Cleave: An 80° cone deals 35 + 45% Attack + 6% target max HP physical damage. Hit: gain a 1.5s, 50 + 20% Attack shield, increased by 1–5 champions hit. No attack-speed scaling; cast/cooldown: 0.5/8s.",
+        "skill": "Q — Mortal Steel: Rush 25000 units in the chosen direction, dealing 75 + 80% Attack physical damage, knocking enemies airborne for 0.75 seconds, and healing for 5% Attack per enemy hit. Cooldown: 5 seconds.",
+        "skill2": "W — Spirit Cleave: Send a wide blade wave 35000 units forward, dealing 80 + 80% Attack physical damage and knocking enemies back. Each enemy hit grants a 3-second, 20 + 20% Attack shield. Cooldown: 8 seconds.",
         "ult": "R — Fate Sealed: After a brief wind-up, dash through every enemy in a line for 120 + 70% Attack physical damage, knock them airborne for 0.75 seconds, then pull them together. Cooldown: 50 seconds."
       }
     }
@@ -127,8 +127,8 @@
       "dual_blader": {
         "name": "永恩",
         "attack": "狩人之道：普攻在钢剑与亚扎卡纳之剑间交替，每次造成100%攻击力的物理伤害。",
-        "skill": "Q—错玉切：短距离向前突刺，造成35+95%攻击力的物理伤害。连续命中两次后，下一次贯穿前方敌人，仅结算一次同等伤害并击飞0.75秒。",
-        "skill2": "W—凛神斩：前方80°锥形造成35+45%攻击力+目标最大生命值6%物理伤害。命中敌人获得1.5秒50+20%攻击力护盾；英雄命中按1至5人提高。攻速缩放未实现，施法/冷却固定0.5/8秒。",
+        "skill": "Q—错玉切：朝指定方向突进25000距离，对沿途敌人造成75+80%攻击力物理伤害并击飞0.75秒；每命中1名敌人回复5%攻击力的生命值。冷却5秒。",
+        "skill2": "W—凛神斩：向前释放35000距离的宽幅剑气，造成80+80%攻击力物理伤害并击退敌人；每命中1名敌人获得持续3秒的20+20%攻击力护盾。冷却8秒。",
         "ult": "R—封尘绝念斩：短暂蓄力后贯穿直线上的所有敌人，造成120+70%攻击力物理伤害并击飞0.75秒，随后将其拉拢。冷却50秒。"
       }
     }
@@ -194,8 +194,8 @@
       "dual_blader": {
         "name": "犽凝",
         "attack": "狩人之道：普攻在鋼劍與亞扎卡納之劍間交替，每次造成100%攻擊力的物理傷害。",
-        "skill": "Q—錯玉切：短距離向前突刺，造成35+95%攻擊力的物理傷害。連續命中兩次後，下一次貫穿前方敵人，只結算一次同等傷害並擊飛0.75秒。",
-        "skill2": "W—凜神斬：前方80°錐形造成35+45%攻擊力+目標最大生命值6%物理傷害。命中敵人獲得1.5秒50+20%攻擊力護盾；英雄命中按1至5人提高。攻速縮放未實現，施法/冷卻固定0.5/8秒。",
+        "skill": "Q—錯玉切：朝指定方向突進25000距離，對沿途敵人造成75+80%攻擊力物理傷害並擊飛0.75秒；每命中1名敵人回復5%攻擊力的生命值。冷卻5秒。",
+        "skill2": "W—凜神斬：向前釋放35000距離的寬幅劍氣，造成80+80%攻擊力物理傷害並擊退敵人；每命中1名敵人獲得持續3秒的20+20%攻擊力護盾。冷卻8秒。",
         "ult": "R—封塵絕念斬：短暫蓄力後貫穿直線上的所有敵人，造成120+70%攻擊力物理傷害並擊飛0.75秒，隨後將其拉攏。冷卻50秒。"
       }
     }
@@ -254,8 +254,8 @@
       "dual_blader": {
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は鋼の剣とアザカナの剣を交互に使い、攻撃力100%の物理ダメージを与える。",
-        "skill": "Q—斬命刀：短く前方を突き、35 + 攻撃力95%の物理ダメージを与える。2回命中すると、次は敵をすり抜けて同じダメージを1回だけ与え、0.75秒ノックアップする。",
-        "skill2": "W—霊断刀：前方80°扇形に35+攻撃力45%+対象最大体力6%の物理ダメージ。命中時1.5秒、攻撃力50+20%のシールドを得て、英雄1～5体で増加。攻速比例は未実装、詠唱/クールダウンは0.5/8秒固定。",
+        "skill": "Q—斬命刀：指定方向へ25000突進し、敵に75+攻撃力80%の物理ダメージと0.75秒のノックアップを与える。命中した敵1体につき攻撃力5%分を回復する。クールダウン5秒。",
+        "skill2": "W—霊断刀：前方へ35000の幅広い刃の波を放ち、80+攻撃力80%の物理ダメージとノックバックを与える。敵1体に命中するたび、3秒間20+攻撃力20%のシールドを得る。クールダウン8秒。",
         "ult": "R—運命の封印：短い溜めの後、直線上の全敵をすり抜けて120+攻撃力70%の物理ダメージを与え、0.75秒ノックアップしてから一か所へ引き寄せる。クールダウン50秒。"
       }
     }
@@ -314,8 +314,8 @@
       "dual_blader": {
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 강철검과 아자카나 검을 번갈아 사용하며 공격력의 100%만큼 물리 피해를 줍니다.",
-        "skill": "Q—필멸의 검: 짧게 전방을 찔러 35 + 공격력의 95%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 적을 관통해 같은 피해를 한 번만 주고 0.75초 띄웁니다.",
-        "skill2": "W—영혼 가르기: 전방 80° 부채꼴에 35+공격력 45%+대상 최대 체력 6% 물리 피해. 적중 시 1.5초 동안 공격력 50+20% 보호막을 얻고 영웅 1~5명에 따라 증가합니다. 공속 비례는 미구현이며 시전/쿨다운은 0.5/8초 고정입니다.",
+        "skill": "Q—필멸의 검: 지정한 방향으로 25000만큼 돌진해 적에게 75+공격력 80%의 물리 피해를 주고 0.75초 띄웁니다. 적 한 명에게 적중할 때마다 공격력 5%만큼 회복합니다. 재사용 대기시간은 5초입니다.",
+        "skill2": "W—영혼 가르기: 전방으로 35000 거리의 넓은 칼날 파동을 보내 80+공격력 80%의 물리 피해를 주고 밀쳐냅니다. 적 한 명에게 적중할 때마다 3초 동안 20+공격력 20%의 보호막을 얻습니다. 재사용 대기시간은 8초입니다.",
         "ult": "R—운명봉인: 짧게 준비한 뒤 직선상의 모든 적을 관통해 120+공격력 70%의 물리 피해를 주고 0.75초 띄운 다음 한곳으로 끌어모읍니다. 재사용 대기시간은 50초입니다."
       }
     }

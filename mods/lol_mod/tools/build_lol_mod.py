@@ -2271,7 +2271,7 @@ def build_shen_q() -> dict[str, object]:
         "start_timing": 14,
         "cancelable": True,
         "range": 60000,
-        # Refined AI in game 0.5.7 requires a concrete first-skill target.
+        # Refined AI inherited by game 0.5.8 requires a concrete first-skill target.
         # The selected champion still supplies the direction for the same
         # penetrating line projectile; only the unsafe targetless cast is gone.
         "casting_type": "Targeting",
@@ -4902,12 +4902,13 @@ RUNTIME_EXCLUDED_PREFIXES = (
     # Compact/grid/scoreboard replacements belong to the retired classic
     # render-command route.
     "ui/champion_portrait/",
-    # The stable extension injects the two requested source-direct portraits
-    # into the live cards, so their PNGs stay in the runtime. The retired
-    # static shared-template experiment remains build evidence only.
+    # Encyclopedia cards now use the game's own champion-icon resolver.  The
+    # authored full-body PNGs and static shared-template experiment are QA
+    # evidence only and must not enter the active package.
+    "ui/champion_fullbody/",
     "ui/layout/champion_info_component/",
     # These exact base-0.5.1 templates once crashed the draft scene when used
-    # as full overrides. Base 0.5.7 receives additive stable-ABI decorations
+    # as full overrides. Base 0.5.8 receives additive stable-ABI decorations
     # instead, so the historical layout baselines stay out of the game folder.
     "ui/layout/banpick/",
 )
@@ -4947,7 +4948,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.7 encyclopedia visibility, Yone motion/skill, and saved-skill compatibility test closure",
+        "purpose": "0.12.8 encyclopedia resolver and reference-grounded Yone rebuild test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

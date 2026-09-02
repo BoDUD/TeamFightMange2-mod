@@ -370,6 +370,93 @@ pub struct SimVtableV1 {
             attack_type: u32,
         ),
     >,
+    // ---- ABI level 6 ----
+    /// Plays a named view effect (the game's `ViewEffect`) at `input` —
+    /// `Target` follows an entity, `Pos` is a map position. `range`/`radius`/
+    /// `time` fill `EffectApplyedInfo` the way `.data_champion` `ViewEffect`
+    /// does; pass 0 when the effect ignores them. Gameplay-free.
+    pub play_view_effect: Option<
+        unsafe extern "C" fn(
+            state: *mut c_void,
+            name: *const u8,
+            name_len: usize,
+            caster_id: usize,
+            input: *const crate::InputTargetV1,
+            range: u64,
+            radius: u64,
+            time: u64,
+        ) -> bool,
+    >,
+    /// Plays a named sound at `input` (entity or position) inside the match.
+    pub play_sfx: Option<
+        unsafe extern "C" fn(
+            state: *mut c_void,
+            name: *const u8,
+            name_len: usize,
+            caster_id: usize,
+            input: *const crate::InputTargetV1,
+        ) -> bool,
+    >,
+    /// Hides the entity for `ticks` (the game's invisible flag: enemies lose
+    /// vision and targeting). Same primitive as `.data_champion` `Invisible`.
+    pub entity_set_invisible: Option<
+        unsafe extern "C" fn(state: *mut c_void, handle: EntityHandleV1, ticks: usize) -> bool,
+    >,
+    /// Banishes the target for `ticks`: untargetable, invisible, input-locked,
+    /// with the lock/end view effects named (empty names = no visuals). Same
+    /// composite as `.data_champion` `Banish`; respects cc_immune.
+    pub entity_banish: Option<
+        unsafe extern "C" fn(
+            state: *mut c_void,
+            caster_id: usize,
+            target: EntityHandleV1,
+            ticks: usize,
+            lock_effect_name: *const u8,
+            lock_effect_name_len: usize,
+            end_effect_name: *const u8,
+            end_effect_name_len: usize,
+        ) -> bool,
+    >,
+    /// Damage with an explicit [`crate::DamageTypeV1`] code — `Fixed` is true
+    /// damage (no armor/MR mitigation) that still flows through the game's
+    /// attack pipeline (statistics, kill credit, procs, damage numbers).
+    /// `attack_type` carries an [`crate::AttackTypeV1`] code.
+    pub deal_damage_typed: Option<
+        unsafe extern "C" fn(
+            state: *mut c_void,
+            attacker: usize,
+            target: usize,
+            amount: usize,
+            damage_type: u32,
+            attack_type: u32,
+        ) -> bool,
+    >,
+    /// Where this simulation runs (server pre-sim vs the match on screen vs
+    /// a replay) and which match/replay/set it belongs to. Fills `out`
+    /// (prefix-read by `size`); false when `out` is null.
+    pub sim_origin: Option<
+        unsafe extern "C" fn(state: *const c_void, out: *mut crate::SimOriginV1) -> bool,
+    >,
+    /// Knocks `target` away from `caster` for `ticks` at `speed` — the
+    /// caster-relative displacement `.data_champion` `Knockback` gives. Respects cc_immune.
+    pub entity_knockback: Option<
+        unsafe extern "C" fn(state: *mut c_void, caster_id: usize, target: EntityHandleV1, speed: usize, ticks: usize) -> bool,
+    >,
+    /// Grabs `target` toward `caster` at `speed`; `ticks == 0` grabs until reached. Respects cc_immune.
+    pub entity_grab: Option<
+        unsafe extern "C" fn(state: *mut c_void, caster_id: usize, target: EntityHandleV1, speed: usize, ticks: usize) -> bool,
+    >,
+    /// Pulls `target` toward `caster` for `ticks` at `speed`. Respects cc_immune.
+    pub entity_pull: Option<
+        unsafe extern "C" fn(state: *mut c_void, caster_id: usize, target: EntityHandleV1, speed: usize, ticks: usize) -> bool,
+    >,
+    /// Stacks a named buff: same-name stat buffs count as stacks. When
+    /// `refresh != 0` the existing stacks' remaining duration is rewritten to
+    /// `buff`'s, then one more copy is appended unless `max_stacks` (0 =
+    /// unlimited) is already reached. Returns the resulting stack count.
+    pub entity_stack_buff: Option<
+        unsafe extern "C" fn(state: *mut c_void, target: EntityHandleV1, buff: *const BuffV1, max_stacks: usize, refresh: u32) -> usize,
+    >,
 }
 
 /// Frame/debug drawing during a running match.
@@ -680,6 +767,22 @@ pub struct DataVtableV1 {
     pub client_main_tab_name: Option<
         unsafe extern "C" fn(
             state: *const c_void,
+            buf: *mut u8,
+            buf_cap: usize,
+            out_len: *mut usize,
+        ) -> bool,
+    >,
+    // ---- ABI level 6 ----
+    /// Number of registered native effects (built-in champion natives plus
+    /// every mod's `NativeEffectRegV1`). These are the names accepted by
+    /// `.data_champion` `Native { effect_ref }` and `SimVtableV1.queue_effect`.
+    pub native_effect_count: Option<unsafe extern "C" fn(state: *const c_void) -> usize>,
+    /// Name of the `index`-th registered native effect, sorted (two-call
+    /// string output).
+    pub native_effect_name_at: Option<
+        unsafe extern "C" fn(
+            state: *const c_void,
+            index: usize,
             buf: *mut u8,
             buf_cap: usize,
             out_len: *mut usize,

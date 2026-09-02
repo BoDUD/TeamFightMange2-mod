@@ -300,7 +300,7 @@ def test_v7_weapon_palette_roles_are_exclusive_from_body_mask_and_source_roles()
     )
 
 
-def test_v7_actor_owns_attack_and_q_blades_without_duplicate_overlays() -> None:
+def test_v7_actor_owns_active_attack_q_w_and_r_blades_without_duplicate_overlays() -> None:
     payload = json.loads(DATA_CHAMPION.read_text(encoding="utf-8"))
     effects = list(
         _walk_effects(
@@ -320,11 +320,11 @@ def test_v7_actor_owns_attack_and_q_blades_without_duplicate_overlays() -> None:
     assert {
         "attack_steel",
         "attack_azakana",
-        "skill_q12",
         "skill_q3",
         "skill_w_azakana",
         "ult",
     } <= animation_names
+    assert "skill_q12" not in animation_names
 
     caster_overlay_names = {
         effect["name"]
@@ -341,18 +341,17 @@ def test_v7_actor_owns_attack_and_q_blades_without_duplicate_overlays() -> None:
     assert duplicate_blade_overlays.isdisjoint(
         {row["name"] for row in payload["view_effects"]}
     )
-    assert {
-        "lol_yone_w_crescent_cast",
-        "lol_yone_r_windup",
-    } <= caster_overlay_names
+    assert "lol_yone_r_windup" in caster_overlay_names
+    assert "lol_yone_w_crescent_cast" not in caster_overlay_names
 
     view_effects = {row["name"]: row for row in payload["view_effects"]}
     expected_overlays = {
-        "lol_yone_w_crescent_cast": ("crescent", 3),
+        "lol_yone_q3_airborne_cue": ("cue", 2),
         "lol_yone_r_windup": ("windup", 1),
         "lol_yone_r_slash_blue": ("slash_blue", 2),
         "lol_yone_r_slash_red": ("slash_red", 2),
     }
+    assert "lol_yone_w_crescent_cast" not in view_effects
     for name, (tag, z) in expected_overlays.items():
         assert view_effects[name]["tag"] == tag
         assert view_effects[name]["z"] == z

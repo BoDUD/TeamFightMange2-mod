@@ -71,8 +71,8 @@ public static class LolModApiVersionProbe
 Add-Type -TypeDefinition $probeSource
 $requiredAbiLevel = [LolModApiVersionProbe]::GetRequiredAbiLevel()
 $nullHostResult = [LolModApiVersionProbe]::StableEntry([System.IntPtr]::Zero)
-if ($requiredAbiLevel -ne 1 -or $nullHostResult -ne [System.IntPtr]::Zero) {
-    throw "Source lol_mod.dll must export the baseline Teamfight Manager 2 stable ABI entry points"
+if ($requiredAbiLevel -ne 8 -or $nullHostResult -ne [System.IntPtr]::Zero) {
+    throw "Source lol_mod.dll must export the Teamfight Manager 2 stable ABI level 8 entry points"
 }
 
 New-Item -ItemType Directory -Force -Path $modsRoot | Out-Null

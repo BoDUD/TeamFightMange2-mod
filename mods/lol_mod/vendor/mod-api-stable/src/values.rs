@@ -156,6 +156,48 @@ stable_code_enum!(
 );
 
 stable_code_enum!(
+    /// Where a simulation runs (ABI level 6). Lets a mod tell the match the
+    /// player is watching from server pre-simulation of the same fixture.
+    SimOriginKindV1 {
+        Unknown = 0,
+        ServerPresim = 1,
+        ClientMatchView = 2,
+        ClientSpectate = 3,
+        ClientReplay = 4,
+        Tool = 5,
+    }
+);
+
+/// Origin of the running simulation (ABI level 6). `u64::MAX` marks an
+/// unknown id / set. Frozen value type; read through `size`.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct SimOriginV1 {
+    pub size: usize,
+    /// [`SimOriginKindV1`] code.
+    pub kind: u32,
+    pub match_id: u64,
+    pub replay_id: u64,
+    pub set_index: u64,
+}
+
+impl SimOriginV1 {
+    pub const NONE: u64 = u64::MAX;
+}
+
+impl Default for SimOriginV1 {
+    fn default() -> Self {
+        Self {
+            size: core::mem::size_of::<Self>(),
+            kind: 0,
+            match_id: Self::NONE,
+            replay_id: Self::NONE,
+            set_index: Self::NONE,
+        }
+    }
+}
+
+stable_code_enum!(
     /// Mirror of game-core `CastingType`.
     CastingTypeV1 {
         Targeting = 0,
@@ -432,6 +474,13 @@ stable_code_enum!(
         TutorialMorgad = 9,
         TutorialSerpen = 10,
         Tutorial5v5 = 11,
+        // Added at ABI level 2. Mods built against level 1 never receive this
+        // code; mods built against level 2 must still tolerate hosts that do
+        // not produce it.
+        ChampionshipCelebration = 12,
+        // Added at ABI level 3 (league season awards ceremony scene). Same
+        // tolerance rule as above: mods must skip unknown codes.
+        AwardsCeremony = 13,
     }
 );
 

@@ -752,6 +752,27 @@ impl StableClient<'_> {
             .collect()
     }
 
+    /// Names of every registered native effect — base game and loaded mods
+    /// alike. These are exactly the names `StableSim::queue_effect` and a
+    /// `.data_champion` `DataEffectDef::Native { effect_ref }` accept.
+    /// Empty on hosts without the discovery slots.
+    pub fn native_effect_names(&self) -> Vec<String> {
+        let Some(count_slot) = slot!(self.data_table(), DataVtableV1, native_effect_count) else {
+            return Vec::new();
+        };
+        let Some(name_slot) = slot!(self.data_table(), DataVtableV1, native_effect_name_at) else {
+            return Vec::new();
+        };
+        let count = unsafe { count_slot(self.state()) };
+        (0..count)
+            .filter_map(|index| {
+                read_two_call_string(|buf, cap, out_len| unsafe {
+                    name_slot(self.state(), index, buf, cap, out_len)
+                })
+            })
+            .collect()
+    }
+
     /// Current in-client screen (InGame only; None elsewhere or on codes
     /// newer than this crate).
     pub fn client_scene_kind(&self) -> Option<crate::ClientSceneKindV1> {

@@ -27,6 +27,7 @@ PALETTE_PATH = V7_ROOT / "palette.json"
 QA_PATH = V7_ROOT / "generation_qa.json"
 BODY_PREVIEW = PREVIEW_ROOT / "yone_v7_actor_card.png"
 CONTACT_PREVIEW = PREVIEW_ROOT / "yone_v7_native_contact.png"
+MOTION_ATTACK_PREVIEW = MOD_ROOT / "qa/yone_motion_attack_qa.png"
 
 EXPECTED_SOURCE_SHA256 = {
     "motion": "548fd4b85265b6a00ca0f6c7e1c2368a77af261f2ac9a7002f68f63a86b9349b",
@@ -106,15 +107,27 @@ MASK_COLORS: set[tuple[int, int, int, int]] = set()
 ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "skill2": (("w", 5),),
     "hit": (("motion", 4),),
-    "attack": tuple(("attack_q", index) for index in (12, 14, 15, 16, 15, 12)),
-    "attack_azakana": tuple(("attack_q", index) for index in (6, 2, 18, 21, 22, 23)),
+    # A complete steel-sword basic attack assembled only from the accepted
+    # Yone model: upright guard, weight transfer, steel extension, crossed
+    # contact, counter-rotation and recovery.  Cells 12..17 are deliberately
+    # excluded because that entire source row is one near-identical low thrust
+    # and therefore reads as a frozen actor with a blade overlay at native 1x.
+    "attack": tuple(
+        ("attack_q", index) for index in (0, 1, 3, 10, 11, 5)
+    ),
+    # The source's intermediate red-sword-only cells 7..9 hide the steel
+    # blade, so use six distinct approved dual-sword poses for a readable
+    # ready -> red extension -> torso turn -> crossed follow-through -> recover
+    # sequence without inventing or overlaying a second weapon.
+    "attack_azakana": tuple(
+        ("attack_q", index) for index in (0, 1, 2, 10, 6, 5)
+    ),
     "skill2_dash": (("attack_q", 22),),
     "ult": tuple(("ult", index) for index in (0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2)),
-    # Keep the native eight-frame run contract and use the authored directional
-    # stride cells.  These are straightened below with one source-space shear:
-    # every retained pixel moves together, so the step, arms, mask and both
-    # hand-held swords remain authored rather than becoming code-drawn limbs.
-    "run": tuple(("motion", index) for index in range(5, 13)),
+    # Eight virtual stride poses are recomposed below from one approved guard
+    # frame.  A shared upper body keeps facing, shoulders, hands and both blade
+    # anchors continuous; only the hips/legs cross and lift through the cycle.
+    "run": tuple(("run_guard", index) for index in range(8)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
@@ -127,6 +140,56 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "skill_q3": tuple(("attack_q", index) for index in (18, 21, 22, 23, 22, 21, 18)),
 }
 
+# One native eight-frame gait cycle.  The sign identifies which approved leg
+# layer leads after lower-body recomposition; two sign changes inside the loop
+# guarantee a left/right crossover instead of eight variants of the original
+# tucked-knee crouch.  Values avoid zero so every passing pose remains
+# mechanically auditable after reduction to tiny native rectangles.
+RUN_STRIDE_PHASES: tuple[float, ...] = (
+    -1.0,
+    -0.48,
+    0.34,
+    0.86,
+    1.0,
+    0.48,
+    -0.34,
+    -0.86,
+)
+RUN_GUARD_SOURCE = ("attack_q", 2)
+RUN_ATTACK_POSE_PHASES: dict[str, tuple[str, ...]] = {
+    "attack": ("windup", "windup", "contact", "contact", "recovery", "recovery"),
+    "attack_azakana": (
+        "windup",
+        "windup",
+        "contact",
+        "contact",
+        "recovery",
+        "recovery",
+    ),
+}
+
+# Alpha geometry measured from the installed SilverBear Workshop package
+# (item 3774304166).  This is a timing/pivot/pose-structure reference only;
+# those source pixels are never opened by the build and never copied into V7.
+WORKSHOP_YONE_MOTION_MEASUREMENTS: dict[str, Any] = {
+    "workshop_item": "3774304166",
+    "usage": "measurement-only; zero reference pixels copied",
+    "run": {
+        "frame_count": 5,
+        "durations_seconds": [0.1] * 5,
+        "ground_offset_from_rect_center_px": [9.5, 9.0, 9.5, 10.0, 9.5],
+        "ground_offset_range_px": 1.0,
+        "upper_minus_mid_centroid_x_px": [-0.67, -1.06, 0.34, 0.06, -1.74],
+    },
+    "attack": {
+        "frame_count": 5,
+        "durations_seconds": [0.1] * 5,
+        "alpha_bottom_margin_px": [20] * 5,
+        "upper_minus_mid_centroid_x_px": [-2.97, -4.86, 0.07, 1.2, -1.86],
+        "pose_structure": ["windup", "body_turn", "contact", "follow_through", "recovery"],
+    },
+}
+
 X_SHIFTS: dict[str, tuple[int, ...]] = {
     "skill2": (0,),
     "hit": (-1,),
@@ -134,7 +197,9 @@ X_SHIFTS: dict[str, tuple[int, ...]] = {
     "attack_azakana": (-1, 0, 1, 1, 0, -1),
     "skill2_dash": (0,),
     "ult": (-1, 0, 1, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1),
-    "run": (-1, 0, 1, 0, -1, 0, 1, 0),
+    # A stable torso/weapon pivot is more important than generic whole-actor
+    # sway here.  The lower-body compositor already supplies locomotion.
+    "run": (0, 0, 0, 0, 0, 0, 0, 0),
     "skill2_attack": (-1, 0, 1, 0, -1),
     "idle": (0, 0, 1, 0),
     "dead": (-1, 0, 1, 1, 0, -1, 0, 1),
@@ -312,49 +377,116 @@ def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image
     return actor_crop
 
 
-def straighten_run_subject(image: Image.Image) -> Image.Image:
-    """Reduce the source sprint's deep forward hunch without repainting it.
+def recompose_run_cross_step_pair(
+    actor: Image.Image,
+    raw_weapon_source: Image.Image,
+    frame_index: int,
+) -> tuple[Image.Image, Image.Image]:
+    """Build an eight-frame crossover stride under one upright guard torso.
 
-    The accepted motion sheet contains eight real right-facing stride poses,
-    but their heads sit too far ahead of their hips for TFM2's tiny run boxes.
-    A smooth row-wise shear moves the upper body back over the pelvis while
-    leaving the authored leg stride and foot placement untouched.  Applying
-    the same transform to the clean actor and raw weapon source keeps both
-    sword traces attached to their original hands.
+    The accepted V7 attack sheet contains a readable right-facing guard with
+    both hands and swords connected.  This deterministic source-space pass
+    keeps every pixel above the hips fixed and repositions only the existing
+    lower-body pixels: the two hip-connected halves move in opposite x
+    directions, the planted leg lengthens slightly and the passing leg lifts.
+    No Workshop pixel and no newly painted limb enters the result.
+
+    ``raw_weapon_source`` receives identical canvas padding/cropping but is not
+    deformed.  Its hand-to-tip vectors therefore remain authored and aligned
+    with the unchanged upper body, while the cleaned actor supplies the new
+    legs.  This is important because native weapon proof is recovered from the
+    raw sheet separately and must never become a duplicated blade silhouette.
     """
 
-    rgba = image.convert("RGBA")
+    if actor.size != raw_weapon_source.size:
+        raise ValueError("Yone run actor/raw pair lost source alignment")
+    if not 0 <= frame_index < len(RUN_STRIDE_PHASES):
+        raise ValueError(f"invalid Yone run frame index: {frame_index}")
+
+    rgba = actor.convert("RGBA")
+    raw_rgba = raw_weapon_source.convert("RGBA")
     left, top, right, bottom = alpha_bbox(rgba)
-    height = bottom - top
-    pivot_y = top + round(height * 0.72)
-    maximum_shift = max(4, round(height * 0.18))
-    maximum_raise = max(3, round(height * 0.15))
-    padding = maximum_shift + 2
-    top_padding = maximum_raise + 2
-    output = Image.new(
-        "RGBA",
-        (rgba.width + padding * 2, rgba.height + top_padding),
-        (0, 0, 0, 0),
+    body_height = bottom - top
+    pelvis_x = core_center_x(rgba)
+    hip_y = top + round(body_height * 0.57)
+    phase = RUN_STRIDE_PHASES[frame_index]
+
+    # Source pixels are roughly five times native size.  These restrained
+    # amplitudes become a visible 3-4px step at 1x without changing the native
+    # action rectangle or touching the one-pixel transparent frame border.
+    maximum_stride = max(8, round(body_height * 0.105))
+    maximum_drop = max(4, round(body_height * 0.045))
+    maximum_lift = max(3, round(body_height * 0.035))
+    leg_radius = max(16, round(body_height * 0.24))
+    pad_x = maximum_stride + 3
+    pad_top = 2
+    pad_bottom = maximum_drop + 3
+    canvas_size = (
+        rgba.width + pad_x * 2,
+        rgba.height + pad_top + pad_bottom,
     )
+    recomposed = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
+    aligned_raw = Image.new("RGBA", canvas_size, (0, 0, 0, 0))
+    aligned_raw.alpha_composite(raw_rgba, (pad_x, pad_top))
     source_pixels = rgba.load()
-    output_pixels = output.load()
+    target_pixels = recomposed.load()
+
+    # The leg crossing nearest the centre is drawn last so the advancing foot
+    # reads in front at the two overlap phases, like the measured reference
+    # gait, while still retaining both separated boot clusters at native 1x.
+    x_order = tuple(range(rgba.width))
+    if phase < 0:
+        x_order = tuple(reversed(x_order))
     for y in range(rgba.height):
-        if y >= pivot_y:
-            shift = 0
-            raise_by = 0
-        else:
-            progress = (pivot_y - y) / max(1, pivot_y - top)
-            shift = -round(maximum_shift * progress)
-            raise_by = round(maximum_raise * progress)
-        for x in range(rgba.width):
+        for x in x_order:
             color = source_pixels[x, y]
             if color[3] == 0:
                 continue
-            output_pixels[x + padding + shift, y + top_padding - raise_by] = color
-    cropped = output.crop(alpha_bbox(output))
-    if cropped.getchannel("A").getbbox() is None:
-        raise ValueError("Yone run straightening removed the actor")
-    return cropped
+            target_x = x + pad_x
+            target_y = y + pad_top
+            inside_leg_core = (
+                y >= hip_y
+                and abs(x - pelvis_x) <= leg_radius
+                and not _source_weapon_candidate(color, "steel")
+                and not _source_weapon_candidate(color, "azakana")
+            )
+            if inside_leg_core:
+                progress = min(1.0, (y - hip_y) / max(1, bottom - hip_y))
+                leg_side = -1 if x < pelvis_x else 1
+                target_x += round(
+                    leg_side * phase * maximum_stride * progress
+                )
+                target_y += round(maximum_drop * progress)
+                passing_side = -1 if phase < 0 else 1
+                if leg_side == passing_side:
+                    passing_lift = (1.0 - abs(phase)) * maximum_lift
+                    target_y -= round(passing_lift * progress)
+
+            if not (0 <= target_x < recomposed.width and 0 <= target_y < recomposed.height):
+                raise ValueError("Yone crossover stride escaped its padded canvas")
+            target_pixels[target_x, target_y] = color
+            # Vertical lengthening can skip a source row.  Reusing the same
+            # approved pixel once fills that sub-native gap; hard-alpha and
+            # palette validation below still prove that no new color appeared.
+            if inside_leg_core and target_y > 0:
+                if target_pixels[target_x, target_y - 1][3] == 0:
+                    target_pixels[target_x, target_y - 1] = color
+
+    actor_box = recomposed.getchannel("A").getbbox()
+    raw_box = aligned_raw.getchannel("A").getbbox()
+    if actor_box is None or raw_box is None:
+        raise ValueError("Yone crossover stride removed actor or weapon source")
+    union = (
+        min(actor_box[0], raw_box[0]),
+        min(actor_box[1], raw_box[1]),
+        max(actor_box[2], raw_box[2]),
+        max(actor_box[3], raw_box[3]),
+    )
+    actor_result = recomposed.crop(union)
+    raw_result = aligned_raw.crop(union)
+    if actor_result.size != raw_result.size:
+        raise ValueError("Yone crossover stride crop lost source alignment")
+    return actor_result, raw_result
 
 
 def _source_weapon_candidate(
@@ -1239,6 +1371,106 @@ def frame_quality(image: Image.Image) -> dict[str, float | int]:
     }
 
 
+def motion_pose_metrics(
+    image: Image.Image,
+    action: str,
+    index: int,
+) -> dict[str, Any]:
+    """Return pixel-derived gait and full-body attack semantics at native 1x."""
+
+    body_only = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    body_pixels = body_only.load()
+    body_points: list[tuple[int, int]] = []
+    for y in range(image.height):
+        for x in range(image.width):
+            color = image.getpixel((x, y))
+            if color[3] == 0 or color in WEAPON_COLOR_SET:
+                continue
+            body_pixels[x, y] = color
+            body_points.append((x, y))
+    if not body_points:
+        raise ValueError(f"{action}[{index}] has no body pixels for motion QA")
+
+    left = min(x for x, _y in body_points)
+    top = min(y for _x, y in body_points)
+    right = max(x for x, _y in body_points) + 1
+    bottom = max(y for _x, y in body_points) + 1
+    body_height = bottom - top
+    upper_bottom = top + max(1, round(body_height * 0.40))
+    mid_bottom = top + max(2, round(body_height * 0.68))
+    upper = [(x, y) for x, y in body_points if y < upper_bottom]
+    mid = [(x, y) for x, y in body_points if upper_bottom <= y < mid_bottom]
+    if not upper or not mid:
+        raise ValueError(f"{action}[{index}] has incomplete torso geometry")
+    upper_x = sum(x for x, _y in upper) / len(upper)
+    mid_x = sum(x for x, _y in mid) / len(mid)
+    torso_y = sum(y for _x, y in (*upper, *mid)) / (len(upper) + len(mid))
+
+    result: dict[str, Any] = {
+        "body_pose_sha256": pixel_sha256(body_only),
+        "body_alpha_bbox": [left, top, right, bottom],
+        "body_visible_height_px": body_height,
+        "ground_offset_from_rect_center_px": round(bottom - image.height / 2, 3),
+        "torso_height_from_ground_px": round(bottom - torso_y, 3),
+        "upper_minus_mid_centroid_x_px": round(upper_x - mid_x, 3),
+    }
+    if action in RUN_ATTACK_POSE_PHASES:
+        result["attack_pose_phase"] = RUN_ATTACK_POSE_PHASES[action][index]
+
+    if action != "run":
+        return result
+
+    lower_start = top + round(body_height * 0.66)
+    pelvis_x = sum(x for x, y in body_points if y < lower_start) / max(
+        1, sum(1 for _x, y in body_points if y < lower_start)
+    )
+    foot_points = [
+        (x, y)
+        for x, y in body_points
+        if y >= lower_start and abs(x - pelvis_x) <= body_height * 0.46
+    ]
+    foot_xs = [x for x, _y in foot_points]
+    if len(foot_xs) < 4 or max(foot_xs) - min(foot_xs) < 2:
+        raise ValueError(f"run[{index}] lost its two-foot lower-body span")
+
+    # One-dimensional k-means separates the two visible boot/leg clusters.
+    # The phase labels those pixel clusters by anatomical leg through the
+    # crossover, so tests can prove the x ordering really changes twice.
+    centres = [float(min(foot_xs)), float(max(foot_xs))]
+    clusters: list[list[int]] = [[], []]
+    for _iteration in range(12):
+        clusters = [[], []]
+        for x in foot_xs:
+            group = 0 if abs(x - centres[0]) <= abs(x - centres[1]) else 1
+            clusters[group].append(x)
+        if not all(clusters):
+            raise ValueError(f"run[{index}] collapsed to one foot cluster")
+        updated = [sum(group) / len(group) for group in clusters]
+        if all(abs(updated[i] - centres[i]) < 0.001 for i in (0, 1)):
+            centres = updated
+            break
+        centres = updated
+    centres.sort()
+    phase = RUN_STRIDE_PHASES[index]
+    if phase < 0:
+        left_leg_x, right_leg_x = centres[1], centres[0]
+    else:
+        left_leg_x, right_leg_x = centres[0], centres[1]
+    result.update(
+        {
+            "run_stride_phase": phase,
+            "foot_centers_x": [round(value, 3) for value in centres],
+            "foot_separation_px": round(centres[1] - centres[0], 3),
+            "left_leg_center_x": round(left_leg_x, 3),
+            "right_leg_center_x": round(right_leg_x, 3),
+            "leg_x_order": "left-before-right"
+            if left_leg_x < right_leg_x
+            else "right-before-left",
+        }
+    )
+    return result
+
+
 def frame_rects() -> dict[tuple[str, int], tuple[int, int, int, int]]:
     result: dict[tuple[str, int], tuple[int, int, int, int]] = {}
     for action in build_yone.GENERATED_BODY_ACTIONS:
@@ -1288,9 +1520,6 @@ def load_subjects() -> tuple[
             index,
             preserve_detached=13 <= index <= 19,
         )
-        if 5 <= index <= 12:
-            subjects[key] = straighten_run_subject(subjects[key])
-            raw_subjects[key] = straighten_run_subject(raw_subjects[key])
     for index in range(24):
         key = ("attack_q", index)
         subjects[key], raw_subjects[key] = split_cell_pair(attack, 6, 4, index)
@@ -1300,6 +1529,13 @@ def load_subjects() -> tuple[
     for index in range(15):
         key = ("ult", index)
         subjects[key], raw_subjects[key] = split_cell_pair(ult, 5, 3, index)
+    guard_actor = subjects[RUN_GUARD_SOURCE]
+    guard_raw = raw_subjects[RUN_GUARD_SOURCE]
+    for frame_index in range(len(RUN_STRIDE_PHASES)):
+        key = ("run_guard", frame_index)
+        subjects[key], raw_subjects[key] = recompose_run_cross_step_pair(
+            guard_actor, guard_raw, frame_index
+        )
     install_source_palette(subjects)
     used_keys = {
         (source_kind, int(cell_index))
@@ -1383,6 +1619,7 @@ def build_frames() -> tuple[
                 raise ValueError(f"{action}[{index}] alpha is not hard")
 
             face, eyes, mask, visibility = annotations_for_frame(image, action, index)
+            motion_metrics = motion_pose_metrics(image, action, index)
 
             relative = f"frames/{action}_{index:02d}.png"
             path = V7_ROOT / relative
@@ -1424,6 +1661,7 @@ def build_frames() -> tuple[
                     **weapon_geometry,
                     **quality,
                     **fit_audit,
+                    **motion_metrics,
                 }
             )
 
@@ -1514,20 +1752,75 @@ def build_contact_preview(
     return preview
 
 
+def build_motion_attack_preview(
+    frames: dict[tuple[str, int], Image.Image],
+) -> Image.Image:
+    """Render run and both basic attacks large enough for semantic review."""
+
+    scale = 4
+    columns = 8
+    cell_width = 260
+    cell_height = 235
+    rows = (
+        ("RUN crossover", "run", 8),
+        ("STEEL windup > contact > recovery", "attack", 6),
+        ("AZAKANA windup > contact > recovery", "attack_azakana", 6),
+    )
+    preview = Image.new(
+        "RGBA", (columns * cell_width, len(rows) * cell_height), (8, 13, 23, 255)
+    )
+    draw = ImageDraw.Draw(preview)
+    for row_index, (title, action, count) in enumerate(rows):
+        row_top = row_index * cell_height
+        baseline = row_top + 205
+        draw.text((8, row_top + 5), title, fill=(226, 231, 240, 255))
+        draw.line((0, baseline, preview.width, baseline), fill=(54, 71, 91, 255))
+        for index in range(count):
+            frame = frames[(action, index)]
+            rendered = frame.resize(
+                (frame.width * scale, frame.height * scale),
+                Image.Resampling.NEAREST,
+            )
+            cell_left = index * cell_width
+            x = cell_left + (cell_width - rendered.width) // 2
+            y = baseline - rendered.height
+            preview.alpha_composite(rendered, (x, y))
+            phase = (
+                f"stride {RUN_STRIDE_PHASES[index]:+.2f}"
+                if action == "run"
+                else RUN_ATTACK_POSE_PHASES[action][index]
+            )
+            draw.text(
+                (cell_left + 8, row_top + 24),
+                f"{index}: {phase}",
+                fill=(177, 204, 224, 255),
+            )
+    return preview
+
+
 def main() -> int:
     FRAME_ROOT.mkdir(parents=True, exist_ok=True)
     PREVIEW_ROOT.mkdir(parents=True, exist_ok=True)
     for path in FRAME_ROOT.glob("*.png"):
         path.unlink()
-    for path in (BODY_PREVIEW, CONTACT_PREVIEW, FRAME_MANIFEST, PALETTE_PATH, QA_PATH):
+    for path in (
+        BODY_PREVIEW,
+        CONTACT_PREVIEW,
+        MOTION_ATTACK_PREVIEW,
+        FRAME_MANIFEST,
+        PALETTE_PATH,
+        QA_PATH,
+    ):
         if path.exists():
             path.unlink()
 
     rows, frames, audits, source_hashes = build_frames()
     card_preview = build_card_preview(frames[("idle", 0)])
     contact_preview = build_contact_preview(rows, frames)
+    motion_attack_preview = build_motion_attack_preview(frames)
     save_png(BODY_PREVIEW, card_preview)
     save_png(CONTACT_PREVIEW, contact_preview)
+    save_png(MOTION_ATTACK_PREVIEW, motion_attack_preview)
     write_json(
         PALETTE_PATH,
         {
@@ -1608,6 +1901,143 @@ def main() -> int:
         )
         if warm_pixels < 8:
             failures.append(f"weak_warm_face:{label}")
+
+    run_audits = sorted(
+        (audit for audit in audits if audit["action"] == "run"),
+        key=lambda audit: audit["index"],
+    )
+    if len(run_audits) != len(RUN_STRIDE_PHASES):
+        failures.append(f"run_motion_audit_count={len(run_audits)}")
+    run_order_signs = [
+        -1
+        if audit["left_leg_center_x"] < audit["right_leg_center_x"]
+        else 1
+        for audit in run_audits
+    ]
+    run_leg_order_flips = sum(
+        first != second
+        for first, second in zip(run_order_signs, run_order_signs[1:])
+    )
+    run_ground_offsets = [
+        audit["ground_offset_from_rect_center_px"] for audit in run_audits
+    ]
+    run_torso_heights = [
+        audit["torso_height_from_ground_px"] for audit in run_audits
+    ]
+    run_body_heights = [audit["body_visible_height_px"] for audit in run_audits]
+    run_torso_leans = [
+        audit["upper_minus_mid_centroid_x_px"] for audit in run_audits
+    ]
+    run_foot_separations = [audit["foot_separation_px"] for audit in run_audits]
+    run_blade_angle_ranges: dict[str, float] = {}
+    for weapon in ("steel", "azakana"):
+        angles = []
+        for audit in run_audits:
+            hand_x, hand_y = audit[f"{weapon}_hand_anchor"]
+            tip_x, tip_y = audit[f"{weapon}_tip"]
+            angles.append(math.atan2(tip_y - hand_y, tip_x - hand_x))
+        run_blade_angle_ranges[weapon] = round(max(angles) - min(angles), 3)
+    if run_leg_order_flips < 2:
+        failures.append(f"run_leg_order_flips={run_leg_order_flips}")
+    if run_foot_separations and min(run_foot_separations) < 2.0:
+        failures.append(
+            f"run_foot_separation_min={min(run_foot_separations):.3f}"
+        )
+    if run_ground_offsets and max(run_ground_offsets) - min(run_ground_offsets) > 3.0:
+        failures.append(
+            "run_ground_anchor_range="
+            f"{max(run_ground_offsets) - min(run_ground_offsets):.3f}"
+        )
+    if run_torso_heights and max(run_torso_heights) - min(run_torso_heights) > 5.0:
+        failures.append(
+            "run_torso_height_range="
+            f"{max(run_torso_heights) - min(run_torso_heights):.3f}"
+        )
+    if run_body_heights and max(run_body_heights) - min(run_body_heights) > 1:
+        failures.append(
+            "run_body_height_range="
+            f"{max(run_body_heights) - min(run_body_heights)}"
+        )
+    if run_torso_leans and max(run_torso_leans) - min(run_torso_leans) > 0.75:
+        failures.append(
+            "run_upper_guard_lean_range="
+            f"{max(run_torso_leans) - min(run_torso_leans):.3f}"
+        )
+    for weapon, angle_range in run_blade_angle_ranges.items():
+        if angle_range > 0.55:
+            failures.append(f"run_{weapon}_angle_range={angle_range:.3f}")
+
+    attack_motion_summary: dict[str, Any] = {}
+    for attack_action in ("attack", "attack_azakana"):
+        action_audits = sorted(
+            (audit for audit in audits if audit["action"] == attack_action),
+            key=lambda audit: audit["index"],
+        )
+        phase_hashes = {
+            phase: {
+                audit["body_pose_sha256"]
+                for audit in action_audits
+                if audit["attack_pose_phase"] == phase
+            }
+            for phase in ("windup", "contact", "recovery")
+        }
+        pose_hashes = {audit["body_pose_sha256"] for audit in action_audits}
+        torso_leans = [
+            audit["upper_minus_mid_centroid_x_px"] for audit in action_audits
+        ]
+        if any(not values for values in phase_hashes.values()):
+            failures.append(f"missing_attack_pose_phase:{attack_action}")
+        if len(pose_hashes) < 5:
+            failures.append(
+                f"repeated_attack_body_pose:{attack_action}:{len(pose_hashes)}"
+            )
+        if torso_leans and max(torso_leans) - min(torso_leans) < 1.25:
+            failures.append(f"weak_attack_body_turn:{attack_action}")
+        attack_motion_summary[attack_action] = {
+            "source_cells": [
+                int(cell) for source, cell in ACTION_SOURCES[attack_action]
+                if source == "attack_q" and cell is not None
+            ],
+            "pose_phases": list(RUN_ATTACK_POSE_PHASES[attack_action]),
+            "unique_body_pose_count": len(pose_hashes),
+            "body_turn_span_px": round(max(torso_leans) - min(torso_leans), 3),
+            "phase_unique_pose_counts": {
+                phase: len(values) for phase, values in phase_hashes.items()
+            },
+        }
+
+    motion_attack_contract = {
+        "reference": WORKSHOP_YONE_MOTION_MEASUREMENTS,
+        "native_contract_preserved": {
+            "run_frames": len(build_yone.NATIVE_CONTRACT["run"]["rects"]),
+            "run_durations_seconds": build_yone.NATIVE_CONTRACT["run"]["durations"],
+            "attack_frames": len(build_yone.NATIVE_CONTRACT["attack"]["rects"]),
+            "attack_durations_seconds": build_yone.NATIVE_CONTRACT["attack"]["durations"],
+        },
+        "run": {
+            "source": "approved V7 attack_q cell 2 guard; lower-body pixel recomposition only",
+            "upper_guard_source": list(RUN_GUARD_SOURCE),
+            "stride_phases": list(RUN_STRIDE_PHASES),
+            "leg_x_order_flips": run_leg_order_flips,
+            "minimum_foot_separation_px": round(min(run_foot_separations), 3),
+            "ground_anchor_range_px": round(
+                max(run_ground_offsets) - min(run_ground_offsets), 3
+            ),
+            "torso_height_range_px": round(
+                max(run_torso_heights) - min(run_torso_heights), 3
+            ),
+            "body_visible_height_range_px": max(run_body_heights)
+            - min(run_body_heights),
+            "upper_guard_lean_range_px": round(
+                max(run_torso_leans) - min(run_torso_leans), 3
+            ),
+            "blade_angle_ranges_radians": run_blade_angle_ranges,
+            "unique_body_pose_count": len(
+                {audit["body_pose_sha256"] for audit in run_audits}
+            ),
+        },
+        "attacks": attack_motion_summary,
+    }
     write_json(
         QA_PATH,
         {
@@ -1615,6 +2045,7 @@ def main() -> int:
             "route": "dual-sword-v7",
             "frame_count": len(rows),
             "contact_preview": "preview/yone_v7_native_contact.png",
+            "motion_attack_preview": "../../../qa/yone_motion_attack_qa.png",
             "source_hashes": source_hashes,
             "source_layouts": {
                 "motion": [5, 4],
@@ -1628,6 +2059,7 @@ def main() -> int:
             "face_visibility_values": ["front", "profile", "hidden"],
             "idle0_pixel_sha256": pixel_sha256(frames[("idle", 0)]),
             "card_alpha_bbox": list(alpha_bbox(card_preview)),
+            "motion_attack_contract": motion_attack_contract,
             "failures": failures,
             "frames": audits,
         },

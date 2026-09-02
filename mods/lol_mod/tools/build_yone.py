@@ -284,7 +284,9 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     # the same terrain/name-plate clearance used by Lucian and Orianna instead
     # of lowering Yone's longer generated legs into the foreground mask.
     "idle": [38, 37, 36, 37],
-    "run": [35, 32, 31, 32, 35, 33, 31, 33],
+    # One upright guard model at one height.  Locomotion is carried by the
+    # alternating legs, not by swapping between crouched/tall body classes.
+    "run": [35, 35, 35, 35, 35, 35, 35, 35],
     "attack": [36, 36, 34, 35, 35, 36],
     "attack_azakana": [36, 36, 34, 35, 35, 36],
     "hit": [37],
@@ -301,7 +303,7 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
 # shorter than upright idle and must remain authored at their native 1x size.
 NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
     "idle": [36, 36, 36, 36],
-    "run": [31, 32, 32, 33, 32, 32, 32, 33],
+    "run": [35, 35, 35, 35, 35, 35, 35, 35],
     "attack": [35, 33, 33, 31, 33, 34],
     # The heavy Azakana sequence deliberately crouches/squashes while keeping
     # the same head/body pixel scale and native foot baseline.
@@ -316,12 +318,13 @@ NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
 }
 
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
-    # Bundle-derived official Dual Blader baselines for the common movement
-    # states. These are the frames used by battle, cards and face crops.
-    # idle[0] and the remaining native V6 frames preserve their source-authored
-    # bottom clearances exactly; the builder never derives them from a UI crop.
+    # The frame rectangles remain the immutable native Dual Blader contract.
+    # Run clearances keep the planted foot at the same +11.5px offset from
+    # each differently-sized native frame centre, matching the stable-pivot
+    # structure measured from the local Workshop Yone without copying pixels.
+    # Attack uses that same constant-centre pivot through its native rects.
     "idle": [15, 15, 14, 15],
-    "run": [13, 18, 20, 17, 13, 17, 20, 17],
+    "run": [13, 14, 15, 14, 13, 14, 15, 14],
     "attack": [14, 14, 12, 13, 13, 14],
     "attack_azakana": [14, 14, 12, 13, 13, 14],
     "hit": [15],
@@ -2680,12 +2683,9 @@ def image_record(path: Path) -> dict[str, Any]:
 RUNTIME_EFFECT_MAP = {
     "lol_yone_attack_steel_hit": ["yone_attack", "steel_hit"],
     "lol_yone_attack_azakana_hit": ["yone_attack", "azakana_hit"],
-    "lol_yone_q_projectile": ["yone_q", "projectile"],
     "lol_yone_q_hit": ["yone_q", "hit"],
-    "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
     "lol_yone_q3_airborne_cue": ["yone_q3_tornado", "cue"],
-    "lol_yone_mortal_steel_stack_2": ["yone_q3_ready_wind", "loop"],
-    "lol_yone_w_crescent_cast": ["yone_w", "crescent"],
+    "lol_yone_w_sweep_projectile": ["yone_w", "crescent"],
     "lol_yone_w_hit": ["yone_w", "impact"],
     "lol_yone_w_shield": ["yone_w", "shield"],
     "lol_yone_r_windup": ["yone_r", "windup"],
@@ -2901,29 +2901,30 @@ def build_qa(
                     "payload_tick": 13,
                 },
                 "skill": {
-                    "q12_animation_tag": "skill_q12",
-                    "q3_animation_tag": "skill_q3",
-                    "frame_count_each": 7,
+                    "animation_tag": "skill_q3",
+                    "frame_count": 7,
                     "animation_start_tick": 0,
-                    "payload_tick": 8,
+                    "action_duration_ticks": 20,
+                    "action_start_timing": 6,
+                    "effect_dispatch": "one penetrating 3600-speed, 25000-range RushTime; no Q stacks or second hitbox",
                 },
                 "skill2": {
                     "animation_tag": "skill_w_azakana",
                     "frame_count": 5,
                     "qa_contact_tag": "skill2_attack",
                     "animation_start_tick": 0,
-                    "payload_tick": 8,
+                    "effect_dispatch": "one top-level penetrating LinearProjectile; no Native callback",
                 }
             },
             "runtime_w_resolution": {
                 "action_duration_ticks": 30,
                 "cooldown_ticks": 480,
                 "movement": "none",
-                "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
-                "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
-                "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
-                "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
-                "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
+                "shape": "one penetrating 4500-speed, 35000-range Rect 40000x30000 LinearProjectile using the project-owned yone_w/crescent animation",
+                "damage": "80 + 80% Attack physical damage and 2000-speed/12-tick knockback once per struck target",
+                "shield": "each projectile hit runs the reference AroundCaster/AllyOnlySelf payload for one 180-tick 20 + 20% Attack shield",
+                "state": "pure data; no Native callback, process-global hit ledger, champion-count probe, shield tier, Q stack, or E return state",
+                "attack_speed_limitation": "the reference pure-data contract uses fixed 30/480-tick action and cooldown values",
             },
             "face_readability": {
                 "policy": "from-zero dual-sword V7 body model; all final 1x frames are generated once, palette-audited, then copied byte-for-byte with no pack-time resize or repaint",
@@ -3045,14 +3046,14 @@ def build_qa(
         "- [x] The fixed palette declares six mutually exclusive roles: steel dark/mid/highlight and Azakana dark/red/highlight; body colors cannot satisfy any weapon role.\n"
         "- [x] Every frame records both hand anchors, both tips, both blade boxes, spans, connectedness, pixel counts, crop ratios, and source-tip survival; CI recomputes those 16 fields from the final PNG instead of trusting the manifest.\n"
         "- [x] Negative tests delete a blade, inject fake red pixels, disconnect a handle/tip, share hands/tips, shorten a blade, or move it to the crop edge, and each corruption is rejected.\n"
-        "- [x] CI enforces per-frame neutral dual-sword visibility plus active-blade reach for alternating steel/Azakana attacks, Q/Q3, W, and R; eight long caster-follow overlays extend active weapons without replacing the actor body.\n"
-        "- [x] Q1/Q2 use `skill_q12`, Q3 uses a separate lowered `skill_q3`, W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
+        "- [x] CI enforces per-frame neutral dual-sword visibility plus active-blade reach for alternating steel/Azakana attacks, the active single-stage Q, W, and R; visual effects never replace the actor body.\n"
+        "- [x] The current reference-grounded Q uses only the lowered `skill_q3` body route. `skill_q12` remains an inactive atlas ABI alias; W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
-        "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
-        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names and three pre-cone W names remain registered only as no-op saved-season compatibility aliases; no retired Shen dash native remains.\n"
-        "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five V7 Azakana-led sweep poses; no code-drawn body is added during packing.\n"
-        "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
+        "- [x] The active Q uses one project-owned vertical blue-white airborne cue; no Q1/Q2 stack state or ready-wind buff remains in champion data.\n"
+        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names and four retired W names remain registered only as no-op saved-season compatibility aliases; no retired Shen dash native remains.\n"
+        "- [x] W is pure data: one penetrating 35000-range `Rect 40000x30000` blade projectile deals one hit and one knockback to each target; no native callback or process-global ledger runs.\n"
+        "- [x] W keeps Yone planted, uses five V7 Azakana-led sweep poses, and renders the projectile from the project-owned `yone_w/crescent` tag; no code-drawn body is added during packing.\n"
+        "- [x] Each W projectile hit grants the reference 180-tick `20 + 20% Attack` shield; there is no champion-count tier marker.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
         "- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V7 UI source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no battle frame is enlarged.\n"
@@ -3301,7 +3302,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
     native_core_bottoms = {
         "idle": [15, 15, 14, 15],
-        "run": [13, 18, 20, 17, 13, 17, 20, 17],
+        "run": [13, 14, 15, 14, 13, 14, 15, 14],
         "attack": [14, 14, 12, 13, 13, 14],
         "hit": [15],
     }

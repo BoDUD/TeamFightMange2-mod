@@ -145,7 +145,12 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
     ]
     assert all(report["animation_contract"]["distinct_sequences"].values())
     assert report["dual_sword"]["distinct_attack_sequences"] is True
-    assert report["dual_sword"]["distinct_q_sequences"] is True
+    assert (
+        report["dual_sword"][
+            "distinct_inactive_q12_and_active_q_sequences"
+        ]
+        is True
+    )
     assert report["weapon_contract"] == validator.EXPECTED_WEAPON_CONTRACT
     for frame_name, row in report["frames"].items():
         assert row["source_to_atlas_byte_identical"] is True, frame_name

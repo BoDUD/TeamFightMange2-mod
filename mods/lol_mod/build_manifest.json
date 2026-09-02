@@ -90,7 +90,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5"
+      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -100,7 +100,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5"
+      "sha256": "3995400b151892df0496c3f6fb6cc2e5b92ddd62c2e956e7b0df6c9b476ffb59"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -919,8 +919,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 26712,
-      "sha256": "00c4dc1d91c23bee93c61d0d47b0bad47e9bd40c7a90ef96289b6f8c7510182c"
+      "size": 14390,
+      "sha256": "052f10c19f58b031d79d5123a62a9b8e984a723a18f09c6b86f970da9623cff0"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -1064,13 +1064,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 267264,
-      "sha256": "2efbe659a6df505eec46cebe93d1e68832ae651c68e6d1c2b36cd370e96f38a7"
+      "size": 268288,
+      "sha256": "c8019a9c8b1385830e801066bbb4c7588ba3beb51dec1c594273d9a15e4e8cc5"
     },
     {
       "path": "mod.mod_info",
-      "size": 1066,
-      "sha256": "977173d610e098badf596b3eadc8efd17b10619cd331e2cd729f5a25c359eba8"
+      "size": 1042,
+      "sha256": "a7b31665ff67e81793e80bcab17e08931b6419a1d2f6ae70536cb618bd0e3c92"
     },
     {
       "path": "mod.override_info",
@@ -1104,8 +1104,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 146268,
-      "sha256": "0c22ecc7d5d5a0d132c0311207c07cbaa472c9f51c06c5735c45b45a3138e9b3"
+      "size": 145992,
+      "sha256": "1f9e90075ecfd40d732cf7af93be301923c4d86f58510490c79abfc56ed8bcbb"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1114,18 +1114,18 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 14740,
-      "sha256": "e97503940f5ea16d3ddd755b1ca90ef5d28024ec2a3652d78287704d8ce41640"
+      "size": 15307,
+      "sha256": "07da3fe318a5bb3d1a71b83f2b54494d67d59c1bd5755af3bdf8b2d4e39d9846"
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 312261,
-      "sha256": "99104a8a1cd2eb22f4d6bbe4fb4c1296cd3ab60a46e1305c10cbadcc71c8162a"
+      "size": 311442,
+      "sha256": "ae0cc6f983721f506020c17e01b1579f7eceb92211a81f7e2ab087c96ff1978f"
     },
     {
       "path": "qa/yone_visual_qa.md",
-      "size": 5161,
-      "sha256": "debabd220a19ddc2bade8c5334057a9de7b57cbf6c117fa4f8edef0c86dd92d8"
+      "size": 5213,
+      "sha256": "e3a298c44fa8841c4bd20c4e4da056abb4b110f87e0bdb83ee33b2c3fdcef0d6"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -2124,8 +2124,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 53138,
-      "sha256": "8ea6f516695d37aa2c30c0ad1efab8938c1c239600eb50222168150973f4c867"
+      "size": 53084,
+      "sha256": "fe77b56d6acc1da3cce7360b0a547df56c15f757257d4e75c76ba38fa1833a3c"
     },
     {
       "path": "text/item.i18n",
