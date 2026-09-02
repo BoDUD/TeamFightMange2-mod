@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
-  "version": "0.12.6",
-  "description": "Teamfight Manager 2 base 0.5.7 repair test build. Xayah and Yone encyclopedia cards use a complete source-direct portrait at the native 85x93 geometry, with role icons kept above the art. The five replaced champions whose first skills were direction-only now select a concrete enemy target, preventing refined plan_legacy line, jungle and battle planners from repeatedly unwrapping a missing active-skill target. All nine League data_champion definitions, BP chrome and illustrations, Rift map/towers/Nexus, HUD art, announcer audio and BP/match music remain active. The deterministic pre-tick 5v5 structure guard still resolves only malformed matches.",
+  "version": "0.12.7",
+  "description": "Teamfight Manager 2 base 0.5.7 repair test build. Xayah and Yone source-direct portraits now rebind the stock image node and never hide its fallback. Yone uses an eight-pose corrected run cycle, one-hit Q3 dash, line-AOE Fate Sealed and no active E; Shen restores the original Q/W/R while retired Shen/Yone native names resolve only through no-op saved-season shims. Refined planners receive concrete first-skill targets. All nine data_champion definitions, BP chrome and illustrations, Rift map/towers/Nexus, HUD art, announcer audio and BP/match music remain active. The deterministic pre-tick 5v5 structure guard still resolves only malformed matches. A fresh test save is required to embed the current action trees.",
   "last_updated": "2026-09-02",
   "dependencies": [
     {

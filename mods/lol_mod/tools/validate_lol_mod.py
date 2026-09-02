@@ -68,6 +68,8 @@ def validate_shen_sdk_data_champion() -> None:
     )
 
 LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
+    "lol_shen_shadow_dash_ai_hint_native",
+    "lol_shen_shadow_dash_taunt_native",
     "lol_yone_e_start_native",
     "lol_yone_e_begin_return_native",
     "lol_yone_e_damage_pre_native",
@@ -1052,9 +1054,38 @@ def validate_data_contract(champion: dict[str, Any]) -> None:
 
     runtime = (MOD_ROOT / "src/lib.rs").read_text(encoding="utf-8")
     stable_runtime = (MOD_ROOT / "src/stable_runtime.rs").read_text(encoding="utf-8")
-    for retired in ("ShenShadowDash", "lol_shen_shadow_dash", "shen_shadow_dash"):
-        check(retired not in runtime, f"retired Shen E runtime remains in src/lib.rs: {retired}")
-        check(retired not in stable_runtime, f"retired Shen E runtime remains in stable_runtime.rs: {retired}")
+    legacy_shen_native_names = {
+        "lol_shen_shadow_dash_ai_hint_native",
+        "lol_shen_shadow_dash_taunt_native",
+    }
+    for source_name, source in (
+        ("src/lib.rs", runtime),
+        ("src/stable_runtime.rs", stable_runtime),
+    ):
+        for retired_impl in (
+            "ShenShadowDash",
+            "SHEN_SHADOW_DASH_TAUNT_TICKS",
+            "lol_shen_shadow_dash_input_ai",
+        ):
+            check(
+                retired_impl not in source,
+                f"retired Shen E implementation remains in {source_name}: {retired_impl}",
+            )
+        for legacy_name in legacy_shen_native_names:
+            check(
+                source.count(f'"{legacy_name}"') == 1,
+                f"{source_name} must contain one load-only Shen alias: {legacy_name}",
+            )
+            check(
+                bool(
+                    re.search(
+                        rf'registration\.add_native_effect\(\s*"{re.escape(legacy_name)}",\s*'
+                        r"LegacySavedNativeCompatibilityEffect,\s*\);",
+                        source,
+                    )
+                ),
+                f"{source_name} Shen legacy alias is not bound to the no-op shim: {legacy_name}",
+            )
 
 
 
@@ -6813,9 +6844,21 @@ def validate_native_dll() -> None:
         "impl StableEffectType for UrgotPassiveNativeEffect",
         "impl StableEffectType for YoneSpiritCleaveConeNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
+        "client.ui_set_properties(&native_icon, &source)",
         "declare_stable_mod!(init);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
+    encyclopedia_card_sync = ""
+    if "fn sync_encyclopedia_card" in stable_runtime:
+        encyclopedia_card_sync = stable_runtime.split(
+            "fn sync_encyclopedia_card", 1
+        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
+    check(
+        "client.ui_set_visible(&native_icon, true)" in encyclopedia_card_sync
+        and "client.ui_set_visible(&native_icon, false)" not in encyclopedia_card_sync
+        and "client.ui_spawn_source(" not in encyclopedia_card_sync,
+        "stable encyclopedia routing may hide a stock icon before a custom texture is drawable",
+    )
     check(
         b"version=0.10.19;root=" not in payload
         and b"version=0.10.19;from_size=" not in payload
@@ -7669,7 +7712,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             q.get("action_name"), q.get("cooltime"), q.get("duration"), q.get("start_timing"),
             q.get("range"), q.get("casting_type"), q.get("casting_target"),
         )
-        == ("skill", 240, 30, 0, 65000, "Targeting", "EnemyChampion"),
+        == ("skill", 240, 30, 0, 35000, "Targeting", "EnemyChampion"),
         "Yone Q timing, range, or targeting changed",
     )
     q_stack2 = q.get("effect", {})
@@ -7697,13 +7740,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 projectile.get("penetrate"), projectile.get("speed"), projectile.get("range"),
                 projectile.get("shape"), projectile.get("applied_target"),
             )
-            == (True, 8000, 60000, {"Circle": {"radius": 8000}}, "EnemyWithoutTower"),
+            == (True, 10000, 30000, {"Circle": {"radius": 6000}}, "EnemyWithoutTower"),
             f"Yone {label} projectile contract changed",
         )
         check(
             [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
-            == [(25, 80)],
-            f"Yone {label} must deal 25 + 80% Attack exactly once",
+            == [(35, 95)],
+            f"Yone {label} must deal 35 + 95% Attack exactly once",
         )
         check(not find_effect(projectile, "Airborne"), f"Yone {label} must not knock up")
         check(
@@ -7779,43 +7822,32 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone Q3 must consume named stack 2 once in its tick-8 gameplay payload",
     )
     q_rushes = find_effect(q3, "RushTime")
-    check(len(q_rushes) == 1, "Yone Q3 must contain exactly one damage-free RushTime")
+    check(len(q_rushes) == 1, "Yone Q3 must contain exactly one damaging RushTime")
     if q_rushes:
-        check(
-            q_rushes[0]
-            == {
-                "type": "RushTime", "speed": 4000, "tick": 8, "range": 0,
-                "casting_target": "None", "penetrate": True, "applied_effects": [],
-            },
-            "Yone Q3 damage-free lunge contract changed",
-        )
-        check(not find_effect(q_rushes[0], "Attack"), "Yone Q3 lunge itself must not deal damage")
-    empowered_projectiles = find_effect(q3, "LinearProjectile", name="lol_yone_q_empowered_projectile")
-    check(len(empowered_projectiles) == 1, "Yone Q3 must contain exactly one wind-lane projectile")
-    if empowered_projectiles:
-        projectile = empowered_projectiles[0]
+        rush = q_rushes[0]
         check(
             (
-                projectile.get("penetrate"), projectile.get("speed"), projectile.get("range"),
-                projectile.get("shape"), projectile.get("applied_target"),
+                rush.get("speed"), rush.get("tick"), rush.get("range"),
+                rush.get("casting_target"), rush.get("penetrate"),
             )
-            == (True, 8000, 65000, {"Circle": {"radius": 9000}}, "EnemyWithoutTower"),
-            "Yone Q3 wind-lane projectile contract changed",
+            == (5000, 12, 30000, "EnemyWithoutTower", True),
+            "Yone Q3 penetrating lunge contract changed",
         )
         check(
-            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(projectile, "Attack")]
-            == [(25, 80)],
-            "Yone Q3 projectile must deal 25 + 80% Attack exactly once",
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
+            == [(35, 95)],
+            "Yone Q3 lunge must deal 35 + 95% Attack exactly once per target",
         )
         check(
-            [effect.get("duration") for effect in find_effect(projectile, "Airborne")] == [45],
+            [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [45],
             "Yone Q3 must knock up for 45 ticks exactly once",
         )
         check(
-            find_effect(projectile, "ViewEffect", name="lol_yone_q3_airborne_cue")
+            find_effect(rush, "ViewEffect", name="lol_yone_q3_airborne_cue")
             == [{"type": "ViewEffect", "name": "lol_yone_q3_airborne_cue"}],
             "Yone Q3 must show one dedicated vertical airborne cue",
         )
+    check(not find_effect(q3, "LinearProjectile"), "Yone Q3 must not double-hit through a second wind-lane projectile")
     check(
         sorted(effect.get("tick") for effect in find_effect(q, "Delayed")) == [8, 8, 8],
         "Yone Q1/Q2/Q3 must each own exactly one tick-8 gameplay delay",
@@ -7827,42 +7859,49 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             ult.get("action_name"), ult.get("cooltime"), ult.get("duration"), ult.get("start_timing"),
             ult.get("range"), ult.get("casting_type"), ult.get("casting_target"),
         )
-        == ("ult", 3000, 96, 4, 40000, "Targeting", "EnemyChampion"),
-        "Yone R timing, range, or target lock changed",
+        == ("ult", 3000, 60, 0, 55000, "Direction", "EnemyWithoutTower"),
+        "Yone R timing, range, or directional targeting changed",
     )
-    r_rushes = find_effect(ult, "RushMoveToBack")
-    check(len(r_rushes) == 1, "Yone R must contain exactly one RushMoveToBack")
+    check(not find_effect(ult, "RushMoveToBack"), "Yone R must not retain the old single-target RushMoveToBack")
+    outer_delays = [
+        effect for effect in ult.get("effect", {}).get("effects", [])
+        if effect.get("type") == "Delayed"
+    ]
+    check(
+        len(outer_delays) == 1 and outer_delays[0].get("tick") == 35,
+        "Yone R must wind up for 35 ticks before its line dash",
+    )
+    r_rushes = find_effect(outer_delays[0], "RushTime") if outer_delays else []
+    check(len(r_rushes) == 1, "Yone R must contain exactly one penetrating RushTime")
     if r_rushes:
         rush = r_rushes[0]
-        check(rush.get("speed") == 5000, "Yone R RushMoveToBack speed must be 5000")
         check(
-            [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [60],
-            "Yone R must apply one 60-tick knockup, not one per slash",
+            (
+                rush.get("speed"), rush.get("tick"), rush.get("range"),
+                rush.get("casting_target"), rush.get("penetrate"),
+            )
+            == (4000, 30, 20000, "EnemyWithoutTower", True),
+            "Yone R line-dash contract changed",
         )
-        delayed_hits = [effect for effect in rush.get("applied_effects", []) if effect.get("type") == "Delayed"]
-        check([effect.get("tick") for effect in delayed_hits] == [8, 16, 24, 32, 40, 48, 60], "Yone R delayed cadence changed")
-        for index, effect in enumerate(delayed_hits[:6]):
-            check(
-                [(hit.get("damage"), hit.get("attack_ratio")) for hit in find_effect(effect, "Attack")]
-                == [(12, 16)],
-                f"Yone R slash {index + 1} must deal 12 + 16% Attack exactly once",
-            )
-            check(not find_effect(effect, "FixedAttack"), f"Yone R slash {index + 1} must remain physical Attack")
-        if len(delayed_hits) == 7:
-            check(not find_effect(delayed_hits[-1], "Attack"), "Yone R echo must not add a seventh normal Attack")
-            check(
-                [(hit.get("damage"), hit.get("attack_ratio")) for hit in find_effect(delayed_hits[-1], "FixedAttack")]
-                == [(30, 25)],
-                "Yone R final echo must be one 30 + 25% Attack FixedAttack",
-            )
-        max_travel = (int(ult.get("range", 0)) + int(rush.get("speed", 1)) - 1) // int(rush.get("speed", 1))
-        max_delay = max((int(effect.get("tick", 0)) for effect in delayed_hits), default=0)
         check(
-            int(ult.get("start_timing", 0)) + max_travel + max_delay < int(ult.get("duration", 0)),
-            "Yone R duration must outlive start + worst travel + delayed echo",
+            [(effect.get("damage"), effect.get("attack_ratio")) for effect in find_effect(rush, "Attack")]
+            == [(120, 70)],
+            "Yone R must deal 120 + 70% Attack exactly once per target",
         )
-    check(len(find_effect(ult, "Attack")) == 6, "Yone R must contain exactly six physical slash hits")
-    check(len(find_effect(ult, "FixedAttack")) == 1, "Yone R must contain exactly one final fixed echo")
+        check(
+            [effect.get("duration") for effect in find_effect(rush, "Airborne")] == [45],
+            "Yone R must apply one 45-tick knockup per target",
+        )
+        pull_delays = find_effect(rush, "Delayed")
+        check(
+            len(pull_delays) == 1
+            and pull_delays[0].get("tick") == 12
+            and find_effect(pull_delays[0], "Pull")
+            == [{"type": "Pull", "speed": 3000, "tick": 12}],
+            "Yone R must pull each struck target after 12 ticks",
+        )
+    check(len(find_effect(ult, "Attack")) == 1, "Yone R must contain exactly one line-hit damage payload")
+    check(not find_effect(ult, "FixedAttack"), "Yone R must not retain the old fixed-damage echo")
     for forbidden_type in ("Stun", "RandomTarget", "AutoTargetProjectile", "RangeEffect"):
         check(not find_effect(ult, forbidden_type), f"Yone R must not contain {forbidden_type}")
 
@@ -8345,7 +8384,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.6", "lol_mod version must be 0.12.6")
+    check(mod_info.get("version") == "0.12.7", "lol_mod version must be 0.12.7")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.7"}],
         "lol_mod must declare base >=0.5.7",
@@ -8752,7 +8791,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "empowered_hit": (5, 0.06, True),
         },
         "yone_q3_tornado": {
-            "tornado": (6, 0.06, True),
             "cue": (6, 0.055, True),
         },
         "yone_q3_ready_wind": {
@@ -8770,14 +8808,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             "arrival": (6, 0.065, True),
             "slash_blue": (4, 0.055, True),
             "slash_red": (4, 0.055, True),
-            "echo": (6, 0.065, True),
         },
     }
     expected_all_views = {
         "lol_yone_attack_steel_hit": ("yone_attack", "steel_hit"),
         "lol_yone_attack_azakana_hit": ("yone_attack", "azakana_hit"),
         "lol_yone_q_projectile": ("yone_q", "projectile"),
-        "lol_yone_q_empowered_projectile": ("yone_q3_tornado", "tornado"),
         "lol_yone_q_hit": ("yone_q", "hit"),
         "lol_yone_q_empowered_hit": ("yone_q", "empowered_hit"),
         "lol_yone_q3_airborne_cue": ("yone_q3_tornado", "cue"),
@@ -8788,7 +8824,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_r_arrival": ("yone_r", "arrival"),
         "lol_yone_r_slash_blue": ("yone_r", "slash_blue"),
         "lol_yone_r_slash_red": ("yone_r", "slash_red"),
-        "lol_yone_r_echo": ("yone_r", "echo"),
     }
     declared_views: dict[str, tuple[str, str]] = {}
     for view in [*champion.get("view_projectiles", []), *champion.get("view_effects", [])]:
@@ -9884,7 +9919,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "lol_yone_q_empowered_cast", "lol_yone_q_empowered_hit",
         "lol_yone_w_cast", "lol_yone_w_hit", "lol_yone_w_shield",
         "lol_yone_r_cast", "lol_yone_r_arrival",
-        "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana", "lol_yone_r_echo",
+        "lol_yone_r_slash_steel", "lol_yone_r_slash_azakana",
     }
     used_audio = {
         str(effect.get("name"))
@@ -9908,13 +9943,16 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         for row in audio_audit.get("outputs", [])
         if isinstance(row, dict)
     }
-    check(set(audit_outputs) == required_audio, "Yone official-audio audit must cover exactly every active gameplay SFX")
+    check(
+        required_audio.issubset(audit_outputs)
+        and all("yone_e" not in name.casefold() for name in audit_outputs),
+        "Yone official-audio audit must cover every active gameplay SFX without retired E audio",
+    )
     r_slash_events = {"lol_yone_r_slash_steel", "lol_yone_r_slash_azakana"}
-    r_safe_volume_events = r_slash_events | {"lol_yone_r_echo"}
+    r_safe_volume_events = r_slash_events
     expected_r_wav_hashes = {
         "lol_yone_r_slash_steel": "4db973f0465e87a756b4946d36e1d2b1c445d5c848e1ef980fe247c68465ea40",
         "lol_yone_r_slash_azakana": "af55b445d6c640c825e3fb1c0ae811d4d3037072cb9e5ee760c849f8c84552d0",
-        "lol_yone_r_echo": "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9",
     }
     expected_w_media_ids = {
         "lol_yone_w_cast": 1_031_367_120,
@@ -10199,22 +10237,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         and len(runtime_wav_durations) == len(required_audio),
         "Yone validator must inspect every active runtime WAV output",
     )
-    check(runtime_media_ids.get("lol_yone_r_echo") == 862_736_579, "Yone R echo must use independent official media 862736579")
     for event, media_id in expected_w_media_ids.items():
         check(runtime_media_ids.get(event) == media_id, f"Yone W official media id changed: {event}")
     check(
         len({runtime_wav_hashes.get(event) for event in expected_w_media_ids}) == len(expected_w_media_ids),
         "Yone W cast/hit/shield WAVs must remain byte-distinct",
     )
-    check(
-        runtime_wav_hashes.get("lol_yone_r_echo")
-        not in {
-            runtime_wav_hashes.get("lol_yone_r_slash_steel"),
-            runtime_wav_hashes.get("lol_yone_r_slash_azakana"),
-        },
-        "Yone R echo WAV must be byte-distinct from both rapid slash WAVs",
-    )
-    check(runtime_wav_durations.get("lol_yone_r_echo", 0.0) > 2.7, "Yone R echo must retain the full official terminal tail")
 
     native_events = {"dual_blader_attack", "dual_blader_skill", "dual_blader_skill2", "dual_blader_ult"}
     native_clips = {
@@ -10272,7 +10300,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.6", "lol_mod version must be 0.12.6")
+    check(mod_info.get("version") == "0.12.7", "lol_mod version must be 0.12.7")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

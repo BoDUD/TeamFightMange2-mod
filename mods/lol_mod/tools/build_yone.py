@@ -2350,7 +2350,6 @@ def build_effects(actor_sheet_path: Path) -> list[Path]:
     outputs += build_effect_sheet(
         "yone_q3_tornado", Q3_VFX_ALPHA, (5, 2),
         [
-            ("tornado", [0, 1, 2, 3, 4, None], (112, 72), 0.06),
             ("cue", [5, 6, 7, 8, 9, None], (56, 80), 0.055),
         ],
     )
@@ -2380,7 +2379,6 @@ def build_effects(actor_sheet_path: Path) -> list[Path]:
             ("arrival", [5, 6, 7, 8, 9, None], (128, 64), 0.065),
             ("slash_blue", [5, 7, 9, None], (120, 56), 0.055),
             ("slash_red", [6, 8, 9, None], (120, 56), 0.055),
-            ("echo", [10, 11, 12, 13, 14, None], (120, 72), 0.065),
         ],
     )
     return outputs
@@ -2683,7 +2681,6 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_attack_steel_hit": ["yone_attack", "steel_hit"],
     "lol_yone_attack_azakana_hit": ["yone_attack", "azakana_hit"],
     "lol_yone_q_projectile": ["yone_q", "projectile"],
-    "lol_yone_q_empowered_projectile": ["yone_q3_tornado", "tornado"],
     "lol_yone_q_hit": ["yone_q", "hit"],
     "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
     "lol_yone_q3_airborne_cue": ["yone_q3_tornado", "cue"],
@@ -2695,7 +2692,6 @@ RUNTIME_EFFECT_MAP = {
     "lol_yone_r_arrival": ["yone_r", "arrival"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
     "lol_yone_r_slash_red": ["yone_r", "slash_red"],
-    "lol_yone_r_echo": ["yone_r", "echo"],
 }
 
 
@@ -3455,10 +3451,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     for effect, required_tags in {
         "yone_attack": ["steel_hit", "azakana_hit"],
         "yone_q": ["projectile", "hit", "empowered_hit"],
-        "yone_q3_tornado": ["tornado", "cue"],
+        "yone_q3_tornado": ["cue"],
         "yone_q3_ready_wind": ["pre", "loop", "remove"],
         "yone_w": ["crescent", "impact", "shield"],
-        "yone_r": ["windup", "arrival", "slash_blue", "slash_red", "echo"],
+        "yone_r": ["windup", "arrival", "slash_blue", "slash_red"],
     }.items():
         anims = json.loads((EFFECT_DIR / f"{effect}#anim.fanim").read_text(encoding="utf-8"))["anims"]
         if list(anims) != required_tags:

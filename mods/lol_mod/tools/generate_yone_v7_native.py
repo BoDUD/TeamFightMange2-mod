@@ -110,10 +110,11 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "attack_azakana": tuple(("attack_q", index) for index in (6, 2, 18, 21, 22, 23)),
     "skill2_dash": (("attack_q", 22),),
     "ult": tuple(("ult", index) for index in (0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2)),
-    # Keep the native eight-frame run contract, but derive it from the upright
-    # motion poses.  The previous 5-8 route used crouched combat poses and made
-    # Yone look permanently hunched while moving.
-    "run": tuple(("motion", index) for index in (0, 1, 2, 3, 2, 1, 0, 1)),
+    # Keep the native eight-frame run contract and use the authored directional
+    # stride cells.  These are straightened below with one source-space shear:
+    # every retained pixel moves together, so the step, arms, mask and both
+    # hand-held swords remain authored rather than becoming code-drawn limbs.
+    "run": tuple(("motion", index) for index in range(5, 13)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
@@ -309,6 +310,51 @@ def split_cell_pair(
 def split_cell(sheet: Image.Image, columns: int, rows: int, index: int) -> Image.Image:
     actor_crop, _raw_crop = split_cell_pair(sheet, columns, rows, index)
     return actor_crop
+
+
+def straighten_run_subject(image: Image.Image) -> Image.Image:
+    """Reduce the source sprint's deep forward hunch without repainting it.
+
+    The accepted motion sheet contains eight real right-facing stride poses,
+    but their heads sit too far ahead of their hips for TFM2's tiny run boxes.
+    A smooth row-wise shear moves the upper body back over the pelvis while
+    leaving the authored leg stride and foot placement untouched.  Applying
+    the same transform to the clean actor and raw weapon source keeps both
+    sword traces attached to their original hands.
+    """
+
+    rgba = image.convert("RGBA")
+    left, top, right, bottom = alpha_bbox(rgba)
+    height = bottom - top
+    pivot_y = top + round(height * 0.72)
+    maximum_shift = max(4, round(height * 0.18))
+    maximum_raise = max(3, round(height * 0.15))
+    padding = maximum_shift + 2
+    top_padding = maximum_raise + 2
+    output = Image.new(
+        "RGBA",
+        (rgba.width + padding * 2, rgba.height + top_padding),
+        (0, 0, 0, 0),
+    )
+    source_pixels = rgba.load()
+    output_pixels = output.load()
+    for y in range(rgba.height):
+        if y >= pivot_y:
+            shift = 0
+            raise_by = 0
+        else:
+            progress = (pivot_y - y) / max(1, pivot_y - top)
+            shift = -round(maximum_shift * progress)
+            raise_by = round(maximum_raise * progress)
+        for x in range(rgba.width):
+            color = source_pixels[x, y]
+            if color[3] == 0:
+                continue
+            output_pixels[x + padding + shift, y + top_padding - raise_by] = color
+    cropped = output.crop(alpha_bbox(output))
+    if cropped.getchannel("A").getbbox() is None:
+        raise ValueError("Yone run straightening removed the actor")
+    return cropped
 
 
 def _source_weapon_candidate(
@@ -1242,6 +1288,9 @@ def load_subjects() -> tuple[
             index,
             preserve_detached=13 <= index <= 19,
         )
+        if 5 <= index <= 12:
+            subjects[key] = straighten_run_subject(subjects[key])
+            raw_subjects[key] = straighten_run_subject(raw_subjects[key])
     for index in range(24):
         key = ("attack_q", index)
         subjects[key], raw_subjects[key] = split_cell_pair(attack, 6, 4, index)

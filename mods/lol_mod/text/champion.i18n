@@ -60,9 +60,9 @@
       "dual_blader": {
         "name": "Yone",
         "attack": "Way of the Hunter: Basic attacks alternate between the steel blade and Azakana blade, each dealing 100% Attack physical damage.",
-        "skill": "Q — Mortal Steel: Q1 and Q2 thrust forward for 25 + 80% Attack physical damage. After both hit, Q3 dashes forward, launches a tornado, and knocks enemies airborne for 0.75 seconds.",
+        "skill": "Q — Mortal Steel: Q1 and Q2 make a short forward thrust for 35 + 95% Attack physical damage. After both hit, Q3 dashes through enemies, deals the same damage once, and knocks them airborne for 0.75 seconds.",
         "skill2": "W — Spirit Cleave: An 80° cone deals 35 + 45% Attack + 6% target max HP physical damage. Hit: gain a 1.5s, 50 + 20% Attack shield, increased by 1–5 champions hit. No attack-speed scaling; cast/cooldown: 0.5/8s.",
-        "ult": "R — Fate Sealed: Strikes seven times while moving behind the target, deals physical and fixed damage, and knocks the target airborne once. Cooldown: 50 seconds."
+        "ult": "R — Fate Sealed: After a brief wind-up, dash through every enemy in a line for 120 + 70% Attack physical damage, knock them airborne for 0.75 seconds, then pull them together. Cooldown: 50 seconds."
       }
     }
   },
@@ -127,9 +127,9 @@
       "dual_blader": {
         "name": "永恩",
         "attack": "狩人之道：普攻在钢剑与亚扎卡纳之剑间交替，每次造成100%攻击力的物理伤害。",
-        "skill": "Q—错玉切：向前突刺，造成25 + 80%攻击力的物理伤害。连续命中两次后，下一次向前突进并释放旋风，将敌人击飞0.75秒。",
+        "skill": "Q—错玉切：短距离向前突刺，造成35+95%攻击力的物理伤害。连续命中两次后，下一次贯穿前方敌人，仅结算一次同等伤害并击飞0.75秒。",
         "skill2": "W—凛神斩：前方80°锥形造成35+45%攻击力+目标最大生命值6%物理伤害。命中敌人获得1.5秒50+20%攻击力护盾；英雄命中按1至5人提高。攻速缩放未实现，施法/冷却固定0.5/8秒。",
-        "ult": "R—封尘绝念斩：突进至目标身后并连续斩击七次，造成物理与固定伤害，并将目标击飞一次。冷却50秒。"
+        "ult": "R—封尘绝念斩：短暂蓄力后贯穿直线上的所有敌人，造成120+70%攻击力物理伤害并击飞0.75秒，随后将其拉拢。冷却50秒。"
       }
     }
   },
@@ -194,9 +194,9 @@
       "dual_blader": {
         "name": "犽凝",
         "attack": "狩人之道：普攻在鋼劍與亞扎卡納之劍間交替，每次造成100%攻擊力的物理傷害。",
-        "skill": "Q—錯玉切：向前突刺，造成25 + 80%攻擊力的物理傷害。連續命中兩次後，下一次向前突進並釋放旋風，將敵人擊飛0.75秒。",
+        "skill": "Q—錯玉切：短距離向前突刺，造成35+95%攻擊力的物理傷害。連續命中兩次後，下一次貫穿前方敵人，只結算一次同等傷害並擊飛0.75秒。",
         "skill2": "W—凜神斬：前方80°錐形造成35+45%攻擊力+目標最大生命值6%物理傷害。命中敵人獲得1.5秒50+20%攻擊力護盾；英雄命中按1至5人提高。攻速縮放未實現，施法/冷卻固定0.5/8秒。",
-        "ult": "R—封塵絕念斬：突進至目標身後並連續斬擊七次，造成物理與固定傷害，並將目標擊飛一次。冷卻50秒。"
+        "ult": "R—封塵絕念斬：短暫蓄力後貫穿直線上的所有敵人，造成120+70%攻擊力物理傷害並擊飛0.75秒，隨後將其拉攏。冷卻50秒。"
       }
     }
   },
@@ -254,9 +254,9 @@
       "dual_blader": {
         "name": "ヨネ",
         "attack": "狩人の道：通常攻撃は鋼の剣とアザカナの剣を交互に使い、攻撃力100%の物理ダメージを与える。",
-        "skill": "Q—斬命刀：前方を突き、25 + 攻撃力80%の物理ダメージを与える。2回命中すると、次は前進して旋風を放ち、敵を0.75秒ノックアップする。",
+        "skill": "Q—斬命刀：短く前方を突き、35 + 攻撃力95%の物理ダメージを与える。2回命中すると、次は敵をすり抜けて同じダメージを1回だけ与え、0.75秒ノックアップする。",
         "skill2": "W—霊断刀：前方80°扇形に35+攻撃力45%+対象最大体力6%の物理ダメージ。命中時1.5秒、攻撃力50+20%のシールドを得て、英雄1～5体で増加。攻速比例は未実装、詠唱/クールダウンは0.5/8秒固定。",
-        "ult": "R—運命の封印：対象の背後へ移動しながら7回斬り、物理・固定ダメージを与えて一度ノックアップする。クールダウン50秒。"
+        "ult": "R—運命の封印：短い溜めの後、直線上の全敵をすり抜けて120+攻撃力70%の物理ダメージを与え、0.75秒ノックアップしてから一か所へ引き寄せる。クールダウン50秒。"
       }
     }
   },
@@ -314,9 +314,9 @@
       "dual_blader": {
         "name": "요네",
         "attack": "사냥꾼의 길: 기본 공격은 강철검과 아자카나 검을 번갈아 사용하며 공격력의 100%만큼 물리 피해를 줍니다.",
-        "skill": "Q—필멸의 검: 전방을 찔러 25 + 공격력의 80%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 전진하며 회오리를 날려 적을 0.75초 띄웁니다.",
+        "skill": "Q—필멸의 검: 짧게 전방을 찔러 35 + 공격력의 95%만큼 물리 피해를 줍니다. 두 번 적중하면 다음 사용 시 적을 관통해 같은 피해를 한 번만 주고 0.75초 띄웁니다.",
         "skill2": "W—영혼 가르기: 전방 80° 부채꼴에 35+공격력 45%+대상 최대 체력 6% 물리 피해. 적중 시 1.5초 동안 공격력 50+20% 보호막을 얻고 영웅 1~5명에 따라 증가합니다. 공속 비례는 미구현이며 시전/쿨다운은 0.5/8초 고정입니다.",
-        "ult": "R—운명봉인: 대상 뒤로 이동하며 일곱 번 베어 물리 및 고정 피해를 주고 한 번 공중에 띄웁니다. 재사용 대기시간은 50초입니다."
+        "ult": "R—운명봉인: 짧게 준비한 뒤 직선상의 모든 적을 관통해 120+공격력 70%의 물리 피해를 주고 0.75초 띄운 다음 한곳으로 끌어모읍니다. 재사용 대기시간은 50초입니다."
       }
     }
   }

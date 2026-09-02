@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.6",
+  "release": "0.12.7",
   "runtime_compatibility": {
     "active_base_version": "0.5.7",
     "native_runtime": "stable_abi_level_1",

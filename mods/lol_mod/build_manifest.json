@@ -90,7 +90,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246"
+      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -100,7 +100,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246"
+      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -504,23 +504,23 @@
     },
     {
       "path": "aseprite_resources/effects/yone_q3_tornado#anim.fanim",
-      "size": 2095,
-      "sha256": "dafc3e7666edf457a00d6e72b5ad58b16eb517d4ee95eabc252a6ba9b5a0413b"
+      "size": 1052,
+      "sha256": "8b086979c6476e6ee130f4ecfa8d88fcd2abf64a0bbbd5375c7bbde9ef444d24"
     },
     {
       "path": "aseprite_resources/effects/yone_q3_tornado#sheet.png",
-      "size": 408826,
-      "sha256": "e7d4c567b4867c9b75afab0034dac4c3a6c33812605ba33e93a4270061f24ac5"
+      "size": 107673,
+      "sha256": "0513d060684d8d49750217170aa3bfab1123518ff7741a251ee952275b6ed758"
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
-      "size": 4440,
-      "sha256": "3be794ca5d91f9a3d4f740e6a708cd9f5ab9a6bdf7b40bfe7052415e3639ac50"
+      "size": 3388,
+      "sha256": "39678d3204a021cca6b76145eb16a9bcd8391c2703e90336a449b975621c5e40"
     },
     {
       "path": "aseprite_resources/effects/yone_r#sheet.png",
-      "size": 909741,
-      "sha256": "2866eceb1f60a609feb728957367c6e211b31c8617e4f29acf705524bb938c36"
+      "size": 688470,
+      "sha256": "5c258e8b99ac23c7482b2b121bd980aa4e675d5a8d991fa5a601dc107d23dfe2"
     },
     {
       "path": "aseprite_resources/effects/yone_w#anim.fanim",
@@ -919,8 +919,8 @@
     },
     {
       "path": "champion/dual_blader.data_champion",
-      "size": 29511,
-      "sha256": "dff08f3d550a435cde35bdf3c2c7b62cce3a94426a5a7d078837a94177f2bfd6"
+      "size": 26712,
+      "sha256": "00c4dc1d91c23bee93c61d0d47b0bad47e9bd40c7a90ef96289b6f8c7510182c"
     },
     {
       "path": "champion/lol_shen.data_champion",
@@ -1064,13 +1064,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 268288,
-      "sha256": "23f1cd09ba7e994335ad372e7bac18332ce93111ca73788e51706812d2af7159"
+      "size": 267264,
+      "sha256": "2efbe659a6df505eec46cebe93d1e68832ae651c68e6d1c2b36cd370e96f38a7"
     },
     {
       "path": "mod.mod_info",
-      "size": 999,
-      "sha256": "25ce6ec6ed35c6db74f21db17973707d451381ba6b1feab2e685401082e4554f"
+      "size": 1066,
+      "sha256": "977173d610e098badf596b3eadc8efd17b10619cd331e2cd729f5a25c359eba8"
     },
     {
       "path": "mod.override_info",
@@ -1104,8 +1104,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 146019,
-      "sha256": "b24ca1e01d969a7b8895ca125498b9963f48647105a3b7b92d5ed20a183b928e"
+      "size": 146268,
+      "sha256": "0c22ecc7d5d5a0d132c0311207c07cbaa472c9f51c06c5735c45b45a3138e9b3"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1114,13 +1114,13 @@
     },
     {
       "path": "qa/yone_skill_contract_qa.md",
-      "size": 13307,
-      "sha256": "69735c0999afff6f9b2a7c9bf82b098fc65603c533fff63c3c5d5904b62d32ae"
+      "size": 14740,
+      "sha256": "e97503940f5ea16d3ddd755b1ca90ef5d28024ec2a3652d78287704d8ce41640"
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 311837,
-      "sha256": "7d2b753843b2a7756dde5c72f0324f8e82ada5cd8db5581e75433696cdb551dc"
+      "size": 312261,
+      "sha256": "99104a8a1cd2eb22f4d6bbe4fb4c1296cd3ab60a46e1305c10cbadcc71c8162a"
     },
     {
       "path": "qa/yone_visual_qa.md",
@@ -2124,8 +2124,8 @@
     },
     {
       "path": "text/champion.i18n",
-      "size": 52849,
-      "sha256": "f90b81a099e0830b217a93144c7d67e0b8df958faff5e158b29c56cc994ceb00"
+      "size": 53138,
+      "sha256": "8ea6f516695d37aa2c30c0ad1efab8938c1c239600eb50222168150973f4c867"
     },
     {
       "path": "text/item.i18n",

@@ -79,7 +79,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.12.6"
+    assert mod_info["version"] == "0.12.7"
     assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.7"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
@@ -283,9 +283,25 @@ def test_shen_restored_q_w_r_contract_and_retired_e_are_exact() -> None:
 
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
-    for retired in ("ShenShadowDash", "lol_shen_shadow_dash", "shen_shadow_dash"):
-        assert retired not in runtime
-        assert retired not in stable_runtime
+    # Old seasons may embed the two retired E callback names. They stay
+    # loadable only as inert aliases; none of the Shadow Dash implementation
+    # or AI rewrite may return to the active Q/W/R kit.
+    for source in (runtime, stable_runtime):
+        for retired_impl in (
+            "ShenShadowDash",
+            "SHEN_SHADOW_DASH_TAUNT_TICKS",
+            "lol_shen_shadow_dash_input_ai",
+        ):
+            assert retired_impl not in source
+        for legacy_name in (
+            "lol_shen_shadow_dash_ai_hint_native",
+            "lol_shen_shadow_dash_taunt_native",
+        ):
+            assert source.count(f'"{legacy_name}"') == 1
+            assert (
+                f'"{legacy_name}",\n        LegacySavedNativeCompatibilityEffect'
+                in source
+            )
 
     text = json.loads((MOD / "text/champion.i18n").read_text(encoding="utf-8"))
     en = text["en"]["description"]["lol_shen"]

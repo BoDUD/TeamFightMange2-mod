@@ -524,16 +524,26 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert '"boomerang_hunter" | "Sivir"' in stable_runtime
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
-    assert "lol_mod_fullbody_xayah" in stable_runtime
-    assert "lol_mod_fullbody_yone" in stable_runtime
     assert "asset/lol_mod/ui/champion_fullbody/dancer" in stable_runtime
     assert "asset/lol_mod/ui/champion_fullbody/dual_blader" in stable_runtime
     assert "width: {width}px; height: {height}px; y: {bottom}px; z: 1" in stable_runtime
     assert stable_runtime.count("85.0,\n        93.0,\n        93.0,") == 2
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
-    show_overlay = stable_runtime.index("client.ui_set_visible(&overlay, true)")
-    hide_native = stable_runtime.index("client.ui_set_visible(&native_icon, false)")
-    assert show_overlay < hide_native
+
+    # Regression: 0.12.6 used ui_spawn_source(), treated a parsed overlay as
+    # proof that its PNG was drawable, and then hid the stock icon.  On the
+    # 0.5.7 host both Xayah and Yone therefore became completely blank.  The
+    # runtime must rebind the already-measured stock image runner and retain a
+    # visible fallback on every failure path; a second unproven image node is
+    # never allowed to gate native-icon visibility again.
+    card_sync = stable_runtime.split("fn sync_encyclopedia_card", 1)[1].split(
+        "fn sync_encyclopedia_portraits", 1
+    )[0]
+    assert "client.ui_set_properties(&native_icon, &source)" in card_sync
+    assert "client.ui_set_visible(&native_icon, true)" in card_sync
+    assert "client.ui_spawn_source(" not in card_sync
+    assert "ui_set_visible(&native_icon, false)" not in card_sync
+    assert "native icons remain visible on every failure path" in stable_runtime
 
     override = load_json("mod.override_info")
     assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override

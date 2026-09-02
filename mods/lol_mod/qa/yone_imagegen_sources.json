@@ -8,7 +8,7 @@
     "schema_version": 7,
     "route": "dual-sword-v7",
     "manifest": "source/native/yone_v7/frames.json",
-    "manifest_sha256": "48f3656a55f90e44d034aa82ffda2e1e01b3003ecd9148889787bda28a060b87",
+    "manifest_sha256": "e2e183af8b6a0c01d5abbe33132296810608bcd2ebb0609d960be12a78270860",
     "atlas_size": [
       4262,
       88
@@ -58,17 +58,17 @@
         "source_05",
         "source_06",
         "source_07",
-        "source_08",
         "mask_02",
         "mask_03",
+        "source_08",
         "source_09",
         "source_10",
         "source_11",
         "source_12",
         "source_13",
-        "source_14",
         "mask_04",
         "mask_05",
+        "source_14",
         "source_15",
         "source_16",
         "source_17",
@@ -114,11 +114,11 @@
           ]
         }
       },
-      "sha256": "98d8c94d0587d6344e7c56c71b494872624f203a5f19f10000991dc618000a23"
+      "sha256": "1be1a13279cb39403d94f775c9e77f6fb1bad8854aec12252b876ebedc7ad0a2"
     },
     "body_preview": "source/native/yone_v7/preview/yone_v7_actor_card.png",
     "body_preview_kind": "complete opaque 141x138 runtime-card proof",
-    "body_preview_sha256": "686a4e53459ede51d00a0891a7915749da02533c10eae413cd388893d1d88890",
+    "body_preview_sha256": "6b7cc5a47710b980b8ebfda4de8a1deba410ddc7456cc95b4f4d391b90a22b37",
     "contact_preview": "source/native/yone_v7/preview/yone_v7_native_contact.png",
     "body_processing": "none; exact final 1x RGBA byte copy"
   },
@@ -146,7 +146,7 @@
         12,
         17,
         6,
-        6
+        10
       ],
       "eye_pixels": [
         [
@@ -162,7 +162,7 @@
         2,
         11,
         10,
-        10
+        15
       ],
       "foot_zones": [
         [
@@ -225,7 +225,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "dae80b1c550493b9d8423942b16dfa25dd3023379d394f2e744d5ad34a52f275",
+      "sha256": "a59613fa63364a50ef8c131702938cabfd55091e908f7c91cdb3a848b914d68c",
       "pack_transform": "none"
     },
     "hit[0]": {
@@ -326,7 +326,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "ccc2405d81ef9d4449a3cfe4f7423167e945343438d59300170f8780d5dfc3c9",
+      "sha256": "58f67e8c5c265df2c8ff2369886d2173e40e18c31d07a08b65627adfa39459dd",
       "pack_transform": "none"
     },
     "attack[0]": {
@@ -431,7 +431,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "429e67d0197bf93d7ba07af559b4ec9ab807dfd5789c64d7e3b09e1f961d361d",
+      "sha256": "a001d5a318a1fb0c13287966386f941396f6a185fbff3283d7308815ad6600e2",
       "pack_transform": "none"
     },
     "attack[1]": {
@@ -536,7 +536,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "709ef96dc31f26b1b2de6cbed26a465719a7d22a786b187631846797b1bf0202",
+      "sha256": "d6d76b7cbc8d47e43e2da3d90a620f923b62683e888de47eecb030fe4c82c17d",
       "pack_transform": "none"
     },
     "attack[2]": {
@@ -637,7 +637,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "790b8857e2fe4092c75b6dfd8074f6bd6550f482c6b1f28267f6a3aee6c998b6",
+      "sha256": "c742a954290d460a3caaa4bf875adb761bb1671d357b56526778fbde652b00b2",
       "pack_transform": "none"
     },
     "attack[3]": {
@@ -742,7 +742,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "37b861595fbc051e2afccf3667bddf84dfc462bf5571cb2a69431f2417a77405",
+      "sha256": "5d68917a1862dbc4ddfa286c1272ae2b2648ac8d05c65c1dc256c3d7270465cd",
       "pack_transform": "none"
     },
     "attack[4]": {
@@ -847,7 +847,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "8066a06815838e82e3135ec22e56d1caeaeae078cd27bfeb204ecfe520f63b07",
+      "sha256": "d855275febc23a2611fcbb46424f348b0a9e08c9b3bdc94e477d6ed270eda7a8",
       "pack_transform": "none"
     },
     "attack[5]": {
@@ -952,7 +952,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "8785ec6b89c9ab89a94c7f5006d0d6a42cd31e9ecb3e3cd872d56fc58c220fc5",
+      "sha256": "1623dc80c1441cee25895261d9f5bd7c1dd08b8a871bf91b9bc799a851c2b0e5",
       "pack_transform": "none"
     },
     "skill2_dash[0]": {
@@ -977,7 +977,7 @@
       "face_bbox": [
         26,
         13,
-        7,
+        8,
         9
       ],
       "eye_pixels": [
@@ -1057,7 +1057,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "81665c0a2672fd4c57eca74a09d29dcccce945a4948c39c06d9bd6875e318d4b",
+      "sha256": "864b6a6d024fca913030615d2ae3a1bce61459423b0d475287303f612544d6e9",
       "pack_transform": "none"
     },
     "ult[0]": {
@@ -1155,7 +1155,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "a753cf3d616ba45bef3e9434848b907112c9555a7671dc3c59a344b400715ece",
+      "sha256": "1aa292883c88ab332f8d000fd6a5d90e6d7552195c35931089298f7aa71deb79",
       "pack_transform": "none"
     },
     "ult[1]": {
@@ -1249,7 +1249,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "00ada83dd93ba7f9d0281aaf923da7e8fc581df15e8c366ac93f49f660a902ae",
+      "sha256": "0f6610d3d3aa3791d1e60dc3f1c2777ac592df9e3548c843fc070062deaa6c09",
       "pack_transform": "none"
     },
     "ult[2]": {
@@ -1347,7 +1347,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "7c82e0eeb939d5e2553a454535393800aaa2e4701b12897f4fedc00961a71810",
+      "sha256": "ace744c27b7012c4b775c05d49722620863130161b8969a9da83194e3345bcee",
       "pack_transform": "none"
     },
     "ult[3]": {
@@ -1441,7 +1441,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "731cc5933c80fa600aff3236da541de89735f027c32fb58eaab3a28bfa90ea1f",
+      "sha256": "c5ae26e70df85fe5fb431e41dfb002f952c5b30179782b7a0488ce3d8c665804",
       "pack_transform": "none"
     },
     "ult[4]": {
@@ -1539,7 +1539,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "e968fd10e3f6c43571d42282094a714845a7502fde6fc06043f6d061d246ee4c",
+      "sha256": "b175dc8d4787871f0757b76a1cda53d9249ba721614f0d3597d42f7bcf7b0573",
       "pack_transform": "none"
     },
     "ult[5]": {
@@ -1633,7 +1633,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 36,
-      "sha256": "7a2a2baf25dfa3e5c772a0d05367befa0bcb94eda21c359e476da0b9c8035298",
+      "sha256": "982f3b196e54de92dc3b709043b9047d91e1bbe6ea899d7e0c1d8892a931efbf",
       "pack_transform": "none"
     },
     "ult[6]": {
@@ -1727,7 +1727,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 41,
-      "sha256": "05dcb89f9bf68d79e6095e324a75e00ab8df87f030db1a113154542e4eafa9e9",
+      "sha256": "2458f01a624c1b47aad463ebce181f06b8e7f777f8566bd8b1384e5132380bb2",
       "pack_transform": "none"
     },
     "ult[7]": {
@@ -1825,7 +1825,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "c223538d4c8adfafd7aad28bfa8f6d23e49f4d6c7e58ecafa8f1769a7c9e46d3",
+      "sha256": "36335b9d7d8592a0052868117350dd46dcecc8e831ad44b33a74c6d1c1451546",
       "pack_transform": "none"
     },
     "ult[8]": {
@@ -1919,7 +1919,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "d3aaad3c5597e81803368efe2cdf507d4e43064416e79ba362bd21d996e50233",
+      "sha256": "6ced965eedfdf4c75d4b3b74e34ad2dc0ec9e2b788435d42f69769c0b8f47579",
       "pack_transform": "none"
     },
     "ult[9]": {
@@ -2017,7 +2017,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "5d397080c8d015ea9c77ded5891f128b37d492215c69da29b2aacb3e28e69722",
+      "sha256": "d651ef81c84a2bf7ef03c82719697b17210b7332f5dd9707dc4447d4847409ab",
       "pack_transform": "none"
     },
     "ult[10]": {
@@ -2115,7 +2115,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "f28625987b13e7e1c9fdd631dc97dfbbff5e7cb50b059c929a824cf6fc5f7f56",
+      "sha256": "6bc8bcb69bda34b280091c187104af2d3fc76710a8e731b5d326a58cd2065b70",
       "pack_transform": "none"
     },
     "ult[11]": {
@@ -2213,7 +2213,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "59e3ef5a29daf468dc1436f3f97d5579548e659454f6b68b4d70fc472021dab1",
+      "sha256": "6fed29361855e7be2527867059abc8cdbaf524024880d771826215401c5414c0",
       "pack_transform": "none"
     },
     "ult[12]": {
@@ -2311,7 +2311,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "e7daa9028eab272e6f65ec9fdfc868b8ad7e8870bf7854756c712b4d57204ab5",
+      "sha256": "a155156e84d7c360748a6b3a9d92414e7392f5dcdde3b24ee20be7a950ba67da",
       "pack_transform": "none"
     },
     "run[0]": {
@@ -2327,39 +2327,39 @@
         49
       ],
       "source_alpha_bbox": [
-        4,
+        2,
         1,
-        36,
+        38,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        19,
-        8,
+        21,
+        10,
         6,
-        7
+        10
       ],
       "eye_pixels": [
         [
-          20,
-          11
+          23,
+          14
         ],
         [
-          23,
-          11
+          21,
+          13
         ]
       ],
       "mask_bbox": [
-        9,
-        3,
-        10,
-        10
+        8,
+        4,
+        12,
+        17
       ],
       "foot_zones": [
         [
-          4,
+          2,
           32,
-          32,
+          36,
           4
         ]
       ],
@@ -2372,51 +2372,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            4,
-            25,
-            8,
-            11
+            2,
+            26,
+            6,
+            6
           ],
           "hand_anchor": [
-            10,
-            26
+            6,
+            27
           ],
           "tip": [
-            6,
-            35
+            2,
+            29
           ],
-          "span_px": 9.849,
+          "span_px": 4.472,
           "connectedness": 1.0,
-          "pixel_count": 38,
+          "pixel_count": 20,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            27,
-            24,
+            29,
+            26,
             9,
-            12
+            10
           ],
           "hand_anchor": [
-            28,
-            25
+            30,
+            27
           ],
           "tip": [
-            34,
+            36,
             35
           ],
-          "span_px": 11.662,
+          "span_px": 10.0,
           "connectedness": 1.0,
-          "pixel_count": 45,
+          "pixel_count": 39,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "e4552fc0e351b9a14e9cbf5e74861478424af5f5262f0e97627ef02c793ed94c",
+      "opaque_palette_size": 45,
+      "sha256": "9226120d8cca9aa6b6372d0fedd03eca65613ecf81cb6a175c9618ae30fa8bbe",
       "pack_transform": "none"
     },
     "run[1]": {
@@ -2432,24 +2432,43 @@
         51
       ],
       "source_alpha_bbox": [
-        5,
+        2,
         1,
-        34,
+        38,
         33
       ],
       "bottom_margin": 18,
-      "face_bbox": null,
-      "eye_pixels": [],
-      "mask_bbox": null,
+      "face_bbox": [
+        21,
+        9,
+        5,
+        9
+      ],
+      "eye_pixels": [
+        [
+          21,
+          10
+        ],
+        [
+          25,
+          9
+        ]
+      ],
+      "mask_bbox": [
+        12,
+        4,
+        8,
+        9
+      ],
       "foot_zones": [
         [
-          5,
+          2,
           29,
-          29,
+          36,
           4
         ]
       ],
-      "face_visibility": "hidden",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2458,51 +2477,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            5,
+            2,
             23,
             8,
-            10
+            7
           ],
           "hand_anchor": [
-            11,
+            8,
             24
           ],
           "tip": [
-            7,
-            32
+            2,
+            27
           ],
-          "span_px": 8.944,
+          "span_px": 6.708,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 26,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            26,
+            31,
             23,
-            8,
-            10
+            6,
+            7
           ],
           "hand_anchor": [
-            27,
+            32,
             24
           ],
           "tip": [
-            32,
-            32
+            35,
+            29
           ],
-          "span_px": 9.434,
+          "span_px": 5.831,
           "connectedness": 1.0,
-          "pixel_count": 37,
-          "crop_ratio": 0.0,
+          "pixel_count": 23,
+          "crop_ratio": 0.1667,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 42,
-      "sha256": "31cc9f221f99668c599122be0b0350d423339440de34200ece08c81e115ab9a2",
+      "opaque_palette_size": 45,
+      "sha256": "05f8b6e4aff8153041d2e4e54a44b79ef04a1e5a337c3f22728b9b9e6adf41de",
       "pack_transform": "none"
     },
     "run[2]": {
@@ -2518,39 +2537,39 @@
         53
       ],
       "source_alpha_bbox": [
-        5,
+        4,
         1,
-        35,
+        38,
         33
       ],
       "bottom_margin": 20,
       "face_bbox": [
-        19,
-        8,
+        23,
+        9,
         5,
-        6
+        8
       ],
       "eye_pixels": [
         [
-          20,
-          11
-        ],
-        [
           23,
           10
+        ],
+        [
+          27,
+          9
         ]
       ],
       "mask_bbox": [
-        10,
-        3,
-        9,
+        14,
+        4,
+        8,
         9
       ],
       "foot_zones": [
         [
-          5,
+          4,
           29,
-          30,
+          34,
           4
         ]
       ],
@@ -2563,51 +2582,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            5,
+            4,
             23,
-            8,
-            10
+            7,
+            7
           ],
           "hand_anchor": [
-            11,
+            9,
             24
           ],
           "tip": [
-            7,
-            32
+            4,
+            27
           ],
-          "span_px": 8.944,
+          "span_px": 5.831,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 25,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            26,
-            23,
-            9,
-            10
+            32,
+            24,
+            5,
+            6
           ],
           "hand_anchor": [
-            27,
+            33,
             24
           ],
           "tip": [
-            33,
-            32
+            36,
+            29
           ],
-          "span_px": 10.0,
+          "span_px": 5.831,
           "connectedness": 1.0,
-          "pixel_count": 39,
-          "crop_ratio": 0.0,
+          "pixel_count": 18,
+          "crop_ratio": 0.4667,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 43,
-      "sha256": "daa7018c077c667bcfee7d447dad0044580878651038d69af1215c3da3f1cd9a",
+      "opaque_palette_size": 45,
+      "sha256": "0b73542e5ecfd192a4f9005761ed4742144d638f538a39cd20048b6f7a83c94c",
       "pack_transform": "none"
     },
     "run[3]": {
@@ -2623,39 +2642,43 @@
         51
       ],
       "source_alpha_bbox": [
-        4,
+        3,
         1,
-        34,
+        38,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        18,
-        8,
+        23,
+        9,
         5,
-        9
+        10
       ],
       "eye_pixels": [
         [
-          19,
-          11
+          24,
+          13
+        ],
+        [
+          27,
+          13
         ]
       ],
       "mask_bbox": [
-        9,
-        3,
-        9,
-        9
+        14,
+        4,
+        10,
+        16
       ],
       "foot_zones": [
         [
-          4,
+          3,
           30,
-          30,
+          35,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2664,51 +2687,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            4,
+            3,
             24,
-            8,
-            10
+            7,
+            7
           ],
           "hand_anchor": [
-            10,
+            8,
             25
           ],
           "tip": [
-            6,
-            33
+            3,
+            28
           ],
-          "span_px": 8.944,
+          "span_px": 5.831,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 25,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
+            31,
             25,
-            23,
-            9,
-            11
+            6,
+            7
           ],
           "hand_anchor": [
-            26,
-            24
+            32,
+            25
           ],
           "tip": [
-            32,
-            33
+            36,
+            31
           ],
-          "span_px": 10.817,
+          "span_px": 7.211,
           "connectedness": 1.0,
-          "pixel_count": 40,
-          "crop_ratio": 0.0,
+          "pixel_count": 18,
+          "crop_ratio": 0.2941,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 44,
-      "sha256": "f5f0e12d02ce2c4a522098c30ec95d7934020069d2c5fc5e08258567096aea19",
+      "opaque_palette_size": 46,
+      "sha256": "3b38941e28a1f7fb5dc1d3a6c01ee7f0c44a65cb614bdad931e1e9730fe04f73",
       "pack_transform": "none"
     },
     "run[4]": {
@@ -2724,39 +2747,39 @@
         49
       ],
       "source_alpha_bbox": [
-        3,
+        2,
         1,
-        35,
+        40,
         36
       ],
       "bottom_margin": 13,
       "face_bbox": [
-        18,
-        8,
+        23,
+        10,
         5,
-        7
+        11
       ],
       "eye_pixels": [
         [
-          19,
-          11
+          24,
+          14
         ],
         [
-          22,
-          11
+          27,
+          13
         ]
       ],
       "mask_bbox": [
-        9,
-        3,
-        9,
-        10
+        13,
+        4,
+        11,
+        18
       ],
       "foot_zones": [
         [
-          3,
+          2,
           32,
-          32,
+          38,
           4
         ]
       ],
@@ -2769,51 +2792,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            3,
-            25,
+            2,
+            26,
             8,
-            11
+            6
           ],
           "hand_anchor": [
-            9,
-            26
+            8,
+            27
           ],
           "tip": [
-            5,
-            35
+            2,
+            29
           ],
-          "span_px": 9.849,
+          "span_px": 6.325,
           "connectedness": 1.0,
-          "pixel_count": 38,
+          "pixel_count": 24,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
+            31,
             26,
-            25,
-            9,
-            11
+            8,
+            10
           ],
           "hand_anchor": [
-            27,
-            26
+            32,
+            27
           ],
           "tip": [
-            33,
+            37,
             35
           ],
-          "span_px": 10.817,
+          "span_px": 9.434,
           "connectedness": 1.0,
-          "pixel_count": 40,
-          "crop_ratio": 0.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.2727,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 45,
-      "sha256": "d6e185c51b0054d4c86576b775a92bd7469f83c6a550ca5b55f3516729d67b79",
+      "opaque_palette_size": 47,
+      "sha256": "eb40ca8cd2e061524731bdaa3972f9ea6b0b34f46e173fc5b4007b91f24b69a4",
       "pack_transform": "none"
     },
     "run[5]": {
@@ -2829,43 +2852,39 @@
         51
       ],
       "source_alpha_bbox": [
-        5,
+        2,
         1,
-        34,
+        38,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        18,
-        12,
-        6,
-        6
+        22,
+        9,
+        5,
+        8
       ],
       "eye_pixels": [
         [
-          22,
-          15
-        ],
-        [
-          18,
-          16
+          23,
+          12
         ]
       ],
       "mask_bbox": [
-        10,
+        12,
         4,
-        7,
-        8
+        9,
+        14
       ],
       "foot_zones": [
         [
-          5,
+          2,
           30,
-          29,
+          36,
           4
         ]
       ],
-      "face_visibility": "front",
+      "face_visibility": "profile",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2874,51 +2893,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            5,
+            2,
             24,
             8,
-            10
+            8
           ],
           "hand_anchor": [
-            11,
+            8,
             25
           ],
           "tip": [
-            7,
-            33
+            2,
+            29
           ],
-          "span_px": 8.944,
+          "span_px": 7.211,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 30,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            26,
-            23,
+            29,
+            24,
             8,
-            11
+            10
           ],
           "hand_anchor": [
-            27,
-            24
+            30,
+            25
           ],
           "tip": [
-            32,
+            35,
             33
           ],
-          "span_px": 10.296,
+          "span_px": 9.434,
           "connectedness": 1.0,
-          "pixel_count": 39,
-          "crop_ratio": 0.0,
+          "pixel_count": 37,
+          "crop_ratio": 0.0476,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 42,
-      "sha256": "2a002476a4bdfdf2c12223b9d900a7b2536b290930026d980a80e605523334ee",
+      "opaque_palette_size": 46,
+      "sha256": "0494b2ba2ba90ea43282d3265af067c6f45054f0a3445ca78075885b41cb706b",
       "pack_transform": "none"
     },
     "run[6]": {
@@ -2934,39 +2953,43 @@
         53
       ],
       "source_alpha_bbox": [
-        6,
+        3,
         1,
-        35,
+        38,
         33
       ],
       "bottom_margin": 20,
       "face_bbox": [
-        19,
-        8,
-        6,
-        6
+        22,
+        9,
+        5,
+        9
       ],
       "eye_pixels": [
         [
-          19,
-          10
+          23,
+          12
+        ],
+        [
+          26,
+          12
         ]
       ],
       "mask_bbox": [
-        11,
-        3,
         10,
-        12
+        4,
+        11,
+        14
       ],
       "foot_zones": [
         [
-          6,
+          3,
           29,
-          29,
+          35,
           4
         ]
       ],
-      "face_visibility": "profile",
+      "face_visibility": "front",
       "active_weapon": "dual",
       "weapons_present": [
         "steel",
@@ -2975,51 +2998,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            6,
+            3,
             23,
-            8,
-            10
+            7,
+            7
           ],
           "hand_anchor": [
-            12,
+            8,
             24
           ],
           "tip": [
-            8,
-            32
+            3,
+            27
           ],
-          "span_px": 8.944,
+          "span_px": 5.831,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 25,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            26,
-            22,
-            9,
-            11
+            30,
+            23,
+            7,
+            9
           ],
           "hand_anchor": [
-            27,
-            23
+            31,
+            24
           ],
           "tip": [
-            33,
-            32
+            35,
+            31
           ],
-          "span_px": 10.817,
+          "span_px": 8.062,
           "connectedness": 1.0,
-          "pixel_count": 40,
-          "crop_ratio": 0.0,
+          "pixel_count": 32,
+          "crop_ratio": 0.1176,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 42,
-      "sha256": "fa660572cc03110bf24c013f50c5de88758cc3d65b5c756dc3ca163ee05f6e52",
+      "opaque_palette_size": 46,
+      "sha256": "14ec4eea20099802aac153b989fbf030e25a5ed82751a5a322fecbf7b5f88c9e",
       "pack_transform": "none"
     },
     "run[7]": {
@@ -3035,39 +3058,39 @@
         51
       ],
       "source_alpha_bbox": [
-        5,
+        2,
         1,
-        34,
+        38,
         34
       ],
       "bottom_margin": 17,
       "face_bbox": [
-        18,
-        12,
-        6,
-        6
+        22,
+        9,
+        5,
+        8
       ],
       "eye_pixels": [
         [
-          22,
-          15
+          23,
+          12
         ],
         [
-          18,
-          16
+          26,
+          12
         ]
       ],
       "mask_bbox": [
-        10,
-        4,
-        7,
-        8
+        12,
+        3,
+        8,
+        11
       ],
       "foot_zones": [
         [
-          5,
+          2,
           30,
-          29,
+          36,
           4
         ]
       ],
@@ -3080,51 +3103,51 @@
       "weapon_geometry": {
         "steel": {
           "blade_bbox": [
-            5,
+            2,
             24,
             8,
-            10
+            7
           ],
           "hand_anchor": [
-            11,
+            8,
             25
           ],
           "tip": [
-            7,
-            33
+            2,
+            28
           ],
-          "span_px": 8.944,
+          "span_px": 6.708,
           "connectedness": 1.0,
-          "pixel_count": 36,
+          "pixel_count": 26,
           "crop_ratio": 0.0,
           "source_tip_survived": true
         },
         "azakana": {
           "blade_bbox": [
-            26,
-            23,
-            8,
-            11
+            30,
+            24,
+            7,
+            9
           ],
           "hand_anchor": [
-            27,
-            24
+            31,
+            25
           ],
           "tip": [
-            32,
-            33
+            35,
+            32
           ],
-          "span_px": 10.296,
+          "span_px": 8.062,
           "connectedness": 1.0,
-          "pixel_count": 39,
-          "crop_ratio": 0.0,
+          "pixel_count": 32,
+          "crop_ratio": 0.1875,
           "source_tip_survived": true
         }
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 42,
-      "sha256": "2a002476a4bdfdf2c12223b9d900a7b2536b290930026d980a80e605523334ee",
+      "opaque_palette_size": 46,
+      "sha256": "71775969d33e7d8dc38a6b3bc7ade6d425c6e583f3ed922aeca75901718e6465",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
@@ -3229,7 +3252,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "27e6cd681af9e1e327771ea602b96b887c256e3ac910a70994abc37641643279",
+      "sha256": "c1c7c446272547bb0ec5568c7835d70aafab3ceea773c6a1122188f78936a814",
       "pack_transform": "none"
     },
     "skill2_attack[1]": {
@@ -3252,15 +3275,15 @@
       ],
       "bottom_margin": 4,
       "face_bbox": [
-        14,
+        13,
         12,
-        6,
-        7
+        7,
+        10
       ],
       "eye_pixels": [
         [
-          14,
-          15
+          13,
+          16
         ],
         [
           16,
@@ -3270,8 +3293,8 @@
       "mask_bbox": [
         5,
         6,
-        11,
-        14
+        10,
+        17
       ],
       "foot_zones": [
         [
@@ -3334,7 +3357,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 44,
-      "sha256": "cae0e1d7797742f0505be677eedf3ff4c43d25d9b167dec35ea963e54b63085f",
+      "sha256": "6012512d4287cb8cc01b4119435019b8762a9da679f1053df58580e29e4ed3e4",
       "pack_transform": "none"
     },
     "skill2_attack[2]": {
@@ -3439,7 +3462,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 44,
-      "sha256": "ca0a4ddc82e03da390b21b8d8daf3a376fbc2d2aec26ff7c33da7154580e3971",
+      "sha256": "28338fafc9102587f0d1f624f3a5f430abece9af9f656388c6885ece4ed26ab0",
       "pack_transform": "none"
     },
     "skill2_attack[3]": {
@@ -3544,7 +3567,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "5c36f0c3e578c778df73f0f55cd7d81b3977b8137775247abe2568253202266c",
+      "sha256": "1d5f91af5493769fd0cc7c5aa358ae45d06dc0faf80ffc2b982e203082c57a76",
       "pack_transform": "none"
     },
     "skill2_attack[4]": {
@@ -3649,7 +3672,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "8ecb0836f4036cfd3ab250822d8f6d9167c67c77e9932947f5b30de05fc1ab51",
+      "sha256": "d137ebea234628eaecbf281e1ee1d9ae94d429859de15a8426fc8e1976813cdc",
       "pack_transform": "none"
     },
     "idle[0]": {
@@ -3754,7 +3777,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "3dc56b174c35397f28f52929bce4e1823445d88630f4910290e9deb4ed57da6b",
+      "sha256": "d7002f9453e1ca885a1b8abeeca5b9da428effb5765524fb67875617e311f4c7",
       "pack_transform": "none"
     },
     "idle[1]": {
@@ -3858,8 +3881,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "c9a3ffbea80230755533710eca92413ecd8c8c0cb3691edefe27249e43ae325b",
+      "opaque_palette_size": 45,
+      "sha256": "c6b92e3b665eb81a00ff23eb9291a7ab375ca71f9f5c914f801e23dd556d57bf",
       "pack_transform": "none"
     },
     "idle[2]": {
@@ -3960,7 +3983,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "84922c29ebd06a73263ab41b7d04bd4a315835088e1f19062460f814f31a252e",
+      "sha256": "bc455f3343e7195f77cf66b03867976deee4483b5f75b12dffc84d3473eb1b7a",
       "pack_transform": "none"
     },
     "idle[3]": {
@@ -4064,8 +4087,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 46,
-      "sha256": "c9a3ffbea80230755533710eca92413ecd8c8c0cb3691edefe27249e43ae325b",
+      "opaque_palette_size": 45,
+      "sha256": "c6b92e3b665eb81a00ff23eb9291a7ab375ca71f9f5c914f801e23dd556d57bf",
       "pack_transform": "none"
     },
     "dead[0]": {
@@ -4159,7 +4182,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "ea39f31951a76e02b8d237d0238b350c1c569780f02b060e70ba96e6bad6b4c3",
+      "sha256": "c97cad76f5d64343e85a0513000bf54216972991e4cce1f5757ee55d4d8be425",
       "pack_transform": "none"
     },
     "dead[1]": {
@@ -4257,7 +4280,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 43,
-      "sha256": "55aee541506a95a45151e1373affe1ee902ef9eb37b0d658bf68bd680b1acab5",
+      "sha256": "b2220a28ba29a188da9964aba2baeecf2aa312939a10f95aea50e3a64eb48f39",
       "pack_transform": "none"
     },
     "dead[2]": {
@@ -4351,7 +4374,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 42,
-      "sha256": "0b15828e90bf9c0763c73523d437a80ca8e44d8cbcbadfb09e568e07bf04351a",
+      "sha256": "11ac04eb2282aa9db4e68d4a2bccf51ed9759745896a04137fd2b700e80d8683",
       "pack_transform": "none"
     },
     "dead[3]": {
@@ -4429,8 +4452,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 25,
-      "sha256": "0b89974b457fef8e6283a461bd6e42dfbbae5c4e5afbc47fde211bff4129be9f",
+      "opaque_palette_size": 23,
+      "sha256": "385da1a911f19a40b86fa70a1d257e69b1887b9964b13248a205ae4f9227742c",
       "pack_transform": "none"
     },
     "dead[4]": {
@@ -4509,7 +4532,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 25,
-      "sha256": "c5a61984ad5ecd11359e5bd43e919908ac01913fa29ac50bb2a15f7474ae81b0",
+      "sha256": "335bdb862645db0fadba283dfff7c8533cd383fd2508ebe124b4a844c52ce709",
       "pack_transform": "none"
     },
     "dead[5]": {
@@ -4587,8 +4610,8 @@
       },
       "hard_alpha": true,
       "transparent_frame_edges": true,
-      "opaque_palette_size": 29,
-      "sha256": "ba0514bbf6d320f3c440293a8ba7e99ee3010353a817ada7a1874d52e37c0782",
+      "opaque_palette_size": 30,
+      "sha256": "1b0b4c984f69c9b80176fd8d51cbd97ed858020075b3e8e5a46769aeb553866f",
       "pack_transform": "none"
     },
     "dead[6]": {
@@ -4667,7 +4690,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 32,
-      "sha256": "5fc5abd31c2728904ec9d3ee03fcb2be063a0a641c97a42cfa6ac0445bb8103e",
+      "sha256": "d4b774c5deff96bd02af991a0a138177eb1cd86a8627637e4787daff76eb15b1",
       "pack_transform": "none"
     },
     "dead[7]": {
@@ -4746,7 +4769,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 32,
-      "sha256": "346551d8c9c1295c822855be165ce7b1fc5a6921a82657cb7766164104448a21",
+      "sha256": "3e6d3cef221b60825273ccbcb30fd4d0958580cd1712d0cd1a55eba47436adb9",
       "pack_transform": "none"
     },
     "skill[0]": {
@@ -4851,7 +4874,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "9b067c2609951a10d7c8ef319cb75b22083cc134aae8b2de5b02a989808f1c3b",
+      "sha256": "9bad709dd00d242275e5633230590987531217582ef0586bd66cf67a7fb0c6a8",
       "pack_transform": "none"
     },
     "skill[1]": {
@@ -4956,7 +4979,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "2d9b763b003b2f9421bb12ed82653c561ce6a04233dc5adf8dda894417af5b79",
+      "sha256": "a2b146208fc267f67f859acd103def7292e2cdfea2c7cb8c5fc9fae2955f2f4e",
       "pack_transform": "none"
     },
     "skill[2]": {
@@ -5061,7 +5084,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "66a63fd17d7614783fc122968511916ccbce795fdfc762c17c55b0eeb421be81",
+      "sha256": "812532b23a6d43d92422d4bc8e388e79deba83bb9d68b3f9cd031bf35231151f",
       "pack_transform": "none"
     },
     "skill[3]": {
@@ -5166,7 +5189,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "d56c3852315755f3a892c3d8929dfbb9699b3e2742313fee046672cd3d38e8cb",
+      "sha256": "033bdb8453997dbef0201014610626eaf53c0b9b22529503fd52f7c3405a8a29",
       "pack_transform": "none"
     },
     "skill[4]": {
@@ -5271,7 +5294,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "2571ea118edac03c6af72b34d2181d5f1cf80ccd35b5da257f41b1286e52a938",
+      "sha256": "8a42a94b3e8b190db0ce0691d3332bf356a5ac696bed4402b127afc270c21877",
       "pack_transform": "none"
     },
     "skill[5]": {
@@ -5376,7 +5399,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "d7bece2572b468a4757fc2f356cac84cdb1d066c6419d5e7b32f18933a157990",
+      "sha256": "ab13a205f485c73af11f0846269674038d9e7cda7e75cddb41f936e7f1c41794",
       "pack_transform": "none"
     },
     "skill[6]": {
@@ -5402,7 +5425,7 @@
         47,
         50,
         8,
-        9
+        10
       ],
       "eye_pixels": [
         [
@@ -5417,8 +5440,8 @@
       "mask_bbox": [
         35,
         43,
-        14,
-        17
+        12,
+        18
       ],
       "foot_zones": [
         [
@@ -5481,7 +5504,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "c2fc78d5393345721bd8ad36d070aa6580c86224caee40cc470800d793f0018a",
+      "sha256": "f4f8bb4f6f9fa63b08d25ec88a155878d81c6c6ce9dbf525d361075af4ea6c38",
       "pack_transform": "none"
     },
     "attack_azakana[0]": {
@@ -5586,7 +5609,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "22b8e65babbaf1923223ea72e77911db1179eeb95d72a5f9f202c104fa743bed",
+      "sha256": "baf776939a04849a5dc9af4f11e4100a45f6865254ddbd676cd6aff4c81dca43",
       "pack_transform": "none"
     },
     "attack_azakana[1]": {
@@ -5687,7 +5710,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "50b46cc11c1f6ca0a24dd042c3840d4a7cca8ce666f14697d766934a92cfed18",
+      "sha256": "83b0ad42ea71ce96efa0e6757b02fdfe469103c0d2860f9f3d41152f86c60652",
       "pack_transform": "none"
     },
     "attack_azakana[2]": {
@@ -5792,7 +5815,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "0623157038f35805fa4e32eb0da6f48b6ed47e172fe53332ccf1d9561e7e982b",
+      "sha256": "e9882d82713415dca6a8ee55bf4b6e0a0fc3f38254378819e2b31bf54321693a",
       "pack_transform": "none"
     },
     "attack_azakana[3]": {
@@ -5897,7 +5920,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "44ea9faf8ebec9754b71f2b43d7913d0c9c69df17aefbae7797357e3dba50e00",
+      "sha256": "5382c721b24a8689b95be5f6e25dc55edb94779592d286d96e6800829ea36443",
       "pack_transform": "none"
     },
     "attack_azakana[4]": {
@@ -5939,7 +5962,7 @@
         21,
         4,
         14,
-        16
+        15
       ],
       "foot_zones": [
         [
@@ -6002,7 +6025,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "a1f56c4f0dec6b57ffdb47eddfe1a7bdcd0ef28d2152f34dbc0a5894d2dddba5",
+      "sha256": "2c104b6c6950ab467c8dd16ab60a5a0d32924a4fc2b64cdd8946d9522f01a132",
       "pack_transform": "none"
     },
     "attack_azakana[5]": {
@@ -6107,7 +6130,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 48,
-      "sha256": "1b237f2945ed10d752b6c6bbfd8a62935ed46a6f56f3fc8701ce6e6ad047f29a",
+      "sha256": "938d206651a29d9a55312061d7d58174627aab37811d6585a44d1cf01f1c3cd6",
       "pack_transform": "none"
     },
     "skill_q3[0]": {
@@ -6212,7 +6235,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "756d03dfceeac43fb0a85d74051ce5315e87ee8fb728ca2cc3c36f9bc4a09b7a",
+      "sha256": "c4a4a51b8c86de82b2b53679284defe9c13a2bd3f2e046dd4fab938168759819",
       "pack_transform": "none"
     },
     "skill_q3[1]": {
@@ -6317,7 +6340,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "6ab6ec7671aa38e70b3ae5dcea4840d89908d63f40125c9735521be50f76113e",
+      "sha256": "9987da324291522dd9555b230cbd170cacb7605f5660667c38e48a4f2b7942bf",
       "pack_transform": "none"
     },
     "skill_q3[2]": {
@@ -6422,7 +6445,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "42110224e3bd467d6b8687aad4175a53794d6d634a4be2a92cac042e80677271",
+      "sha256": "406d943fc6d44d192f028c9b83cfd97e89fafb4129a034b4d569891e8da563aa",
       "pack_transform": "none"
     },
     "skill_q3[3]": {
@@ -6527,7 +6550,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "50c6ba614453c3f719f6958e5c1293c04260790d6d7973168e9940168e55de6d",
+      "sha256": "138e698dc2f1967a70a3ee8d59975ea24be462883718634d72880cc93626808b",
       "pack_transform": "none"
     },
     "skill_q3[4]": {
@@ -6632,7 +6655,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "a061219cdeb426ffd1d2550497457f07ac725bfd60ffbb44ce01be85260510b6",
+      "sha256": "9361b15162e147af7bf7cdd074bc254534a892f4cfc1a306f817e2de6e5f75a6",
       "pack_transform": "none"
     },
     "skill_q3[5]": {
@@ -6737,7 +6760,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "5d86c8e7966997d1ba1d5b764c69004f8df8b1c7b95d6183695245deed22a254",
+      "sha256": "68cbfc3a18cc1b78f67099c965bfbc5d975302f72355d4fbe41b7e501c124ae2",
       "pack_transform": "none"
     },
     "skill_q3[6]": {
@@ -6842,7 +6865,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "ea4828e8e6cd6e9e6412aa8394dd7fc518c8abb4078afd7e7be1c20da2c6814c",
+      "sha256": "efb040d02a35432ac53fb670a7500c6962baf96d597a4a40a5ac51111daadb5f",
       "pack_transform": "none"
     }
   },
@@ -7260,7 +7283,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246",
+      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5",
       "alpha_bbox": [
         49,
         1,
@@ -7284,7 +7307,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "21b0679382c2ef70492b4824a0b0cf7b9ce10816c6483044c70e143a00302246",
+      "sha256": "bc1b448213a2721abedfdd3797507e5ee4d7bc3efdc3720fc429eba37a6727d5",
       "alpha_bbox": [
         49,
         1,
@@ -7352,16 +7375,16 @@
     {
       "path": "aseprite_resources/effects/yone_q3_tornado#sheet.png",
       "dimensions": [
-        672,
-        152
+        336,
+        80
       ],
-      "size_bytes": 408826,
-      "sha256": "e7d4c567b4867c9b75afab0034dac4c3a6c33812605ba33e93a4270061f24ac5",
+      "size_bytes": 107673,
+      "sha256": "0513d060684d8d49750217170aa3bfab1123518ff7741a251ee952275b6ed758",
       "alpha_bbox": [
+        7,
         2,
-        2,
-        558,
-        150
+        266,
+        78
       ],
       "alpha_extrema": [
         0,
@@ -7370,8 +7393,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_q3_tornado#anim.fanim",
-      "size_bytes": 2095,
-      "sha256": "dafc3e7666edf457a00d6e72b5ad58b16eb517d4ee95eabc252a6ba9b5a0413b"
+      "size_bytes": 1052,
+      "sha256": "8b086979c6476e6ee130f4ecfa8d88fcd2abf64a0bbbd5375c7bbde9ef444d24"
     },
     {
       "path": "aseprite_resources/effects/yone_q3_ready_wind#sheet.png",
@@ -7425,15 +7448,15 @@
       "path": "aseprite_resources/effects/yone_r#sheet.png",
       "dimensions": [
         768,
-        296
+        224
       ],
-      "size_bytes": 909741,
-      "sha256": "2866eceb1f60a609feb728957367c6e211b31c8617e4f29acf705524bb938c36",
+      "size_bytes": 688470,
+      "sha256": "5c258e8b99ac23c7482b2b121bd980aa4e675d5a8d991fa5a601dc107d23dfe2",
       "alpha_bbox": [
         2,
         3,
         638,
-        294
+        222
       ],
       "alpha_extrema": [
         0,
@@ -7442,8 +7465,8 @@
     },
     {
       "path": "aseprite_resources/effects/yone_r#anim.fanim",
-      "size_bytes": 4440,
-      "sha256": "3be794ca5d91f9a3d4f740e6a708cd9f5ab9a6bdf7b40bfe7052415e3639ac50"
+      "size_bytes": 3388,
+      "sha256": "39678d3204a021cca6b76145eb16a9bcd8391c2703e90336a449b975621c5e40"
     },
     {
       "path": "icons/yone_skill.png",

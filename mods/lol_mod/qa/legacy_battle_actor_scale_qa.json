@@ -6,7 +6,7 @@
   "stability_contact": "qa/legacy_battle_actor_state_stability_contact.png",
   "stability_contact_sha256": "9bc4b310dd1a5a8262abd1ae29450269a6739e92a3205487efc9d6d8a602fcb0",
   "reference_scale_contact": "qa/legacy_battle_actor_reference_scale_contact.png",
-  "reference_scale_contact_sha256": "fcf18224dcb300ab2612797fd4774c21a8966bdec6a633163dff7ccac3ccc722",
+  "reference_scale_contact_sha256": "09adce060b2a4f991c0241ec9f1839496b3bc60b8f9b10c28ad51d9d4a720775",
   "reference_idle_height_envelope_px": [
     36,
     46
@@ -69,57 +69,57 @@
           "frame_count": 8,
           "alpha_bboxes": [
             [
-              4,
+              2,
               1,
-              36,
+              38,
               36
             ],
             [
-              5,
+              2,
               1,
-              34,
-              33
-            ],
-            [
-              5,
-              1,
-              35,
+              38,
               33
             ],
             [
               4,
               1,
-              34,
+              38,
+              33
+            ],
+            [
+              3,
+              1,
+              38,
+              34
+            ],
+            [
+              2,
+              1,
+              40,
+              36
+            ],
+            [
+              2,
+              1,
+              38,
               34
             ],
             [
               3,
               1,
-              35,
-              36
-            ],
-            [
-              5,
-              1,
-              34,
-              34
-            ],
-            [
-              6,
-              1,
-              35,
+              38,
               33
             ],
             [
-              5,
+              2,
               1,
-              34,
+              38,
               34
             ]
           ],
           "visible_width_range": [
-            29,
-            32
+            34,
+            38
           ],
           "visible_height_range": [
             32,

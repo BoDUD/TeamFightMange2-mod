@@ -13,10 +13,9 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use mod_api_stable::{
-    declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1,
-    InputTargetV1, InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient,
-    StableEffectType, StableExtension, StableHost, StableMatchHook, StableMod, StablePlayerAi,
-    StableSim,
+    declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1, InputTargetV1,
+    InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient, StableEffectType,
+    StableExtension, StableHost, StableMatchHook, StableMod, StablePlayerAi, StableSim,
 };
 
 const MOD_ID: &str = "lol_mod";
@@ -252,7 +251,6 @@ fn sync_encyclopedia_card(
     client: &mut StableClient<'_>,
     container: &str,
     champion_id: &str,
-    overlay_id: &str,
     texture: &str,
     width: f32,
     height: f32,
@@ -263,25 +261,32 @@ fn sync_encyclopedia_card(
     if !client.ui_exists(&native_icon) {
         return false;
     }
-    let overlay = join_ui_path(&card, overlay_id);
+    // Rebind the card's existing image runner instead of spawning a second
+    // image and hiding the first one.  `ui_spawn_source` only proves that a
+    // node was parsed; it does not prove that the node resolved and painted
+    // its texture.  Hiding `icon` after that weak check produced a completely
+    // empty Xayah/Yone card on 0.5.7.  The existing image runner is already
+    // part of the stock card's measured/clipped layout, and set_properties
+    // reports failure atomically.  On every failure path we explicitly keep
+    // it visible, so a missing custom texture can never turn into a blank
+    // encyclopedia card again.
     let source = format!(
-        r#"{overlay_id}:image {{ ignore_event: true; width: {width}px; height: {height}px; y: {bottom}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}"; }}"#
+        r#"width: {width}px; height: {height}px; y: {bottom}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false; visible: true; source: "{texture}";"#
     );
-    if !client.ui_exists(&overlay) && !client.ui_spawn_source(&card, &source) {
+    if !client.ui_set_properties(&native_icon, &source) {
         let _ = client.ui_set_visible(&native_icon, true);
         return false;
     }
-    if !client.ui_set_visible(&overlay, true) {
-        let _ = client.ui_set_visible(&native_icon, true);
+    if !client.ui_set_visible(&native_icon, true) {
         return false;
     }
-    // The source-direct portrait is spawned after the stock card children.
-    // Keep the two role icons above it just as they are above the native icon.
+    // Keep the two role icons above the rebound portrait just as they are
+    // above the stock champion icon.
     for role_icon in ["pos1", "pos2"] {
         let role_icon = join_ui_path(&card, role_icon);
         let _ = client.ui_set_properties(&role_icon, "z: 2;");
     }
-    client.ui_set_visible(&native_icon, false)
+    true
 }
 
 fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
@@ -307,7 +312,6 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         client,
         &container,
         "dancer",
-        "lol_mod_fullbody_xayah",
         "asset/lol_mod/ui/champion_fullbody/dancer",
         85.0,
         93.0,
@@ -317,7 +321,6 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
         client,
         &container,
         "dual_blader",
-        "lol_mod_fullbody_yone",
         "asset/lol_mod/ui/champion_fullbody/dual_blader",
         85.0,
         93.0,
@@ -332,7 +335,7 @@ fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut Stab
     {
         append_encyclopedia_telemetry(
             &container,
-            "source-direct Xayah and Yone portraits active; native 85x93 card geometry restored; role icons raised above portraits",
+            "source-direct Xayah and Yone portraits rebound onto the stock image nodes; native icons remain visible on every failure path; 85x93 card geometry restored",
         );
     }
 }
@@ -1111,6 +1114,19 @@ fn init(host: &StableHost) -> StableMod {
     ] {
         registration.add_native_effect(retired_name, LegacySavedNativeCompatibilityEffect);
     }
+    // Pre-0.12.6 saves/custom databases can still embed the retired Shadow
+    // Dash data tree even though the active lol_shen data now exposes Q/W/R.
+    // Keep only the two referenced native names loadable.  Binding them to
+    // the same empty compatibility effect deliberately does not restore the
+    // old input rewrite, dash hint, damage, or taunt implementation.
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_ai_hint_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_taunt_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
     registration.add_player_input_ai(XayahFeatherInputGate);
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);

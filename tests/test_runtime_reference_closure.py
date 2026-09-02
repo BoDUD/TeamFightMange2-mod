@@ -386,6 +386,8 @@ def test_all_registered_native_effects_are_referenced_by_combat_data() -> None:
         )
     )
     assert compatibility == {
+        "lol_shen_shadow_dash_ai_hint_native",
+        "lol_shen_shadow_dash_taunt_native",
         "lol_yone_e_start_native",
         "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
@@ -467,15 +469,18 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.6",
+        b"0.12.7",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
         b"lol_yone_e_damage_post_native",
         b"lol_yone_e_settle_native",
+        b"lol_shen_shadow_dash_ai_hint_native",
+        b"lol_shen_shadow_dash_taunt_native",
         b"lol_bp_runtime_illustration",
-        b"lol_mod_fullbody_xayah",
-        b"lol_mod_fullbody_yone",
+        b"asset/lol_mod/ui/champion_fullbody/dancer",
+        b"asset/lol_mod/ui/champion_fullbody/dual_blader",
+        b"native icons remain visible on every failure path",
         b"corrupt 5v5 pre-tick guard active",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"

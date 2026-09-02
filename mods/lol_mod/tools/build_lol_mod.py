@@ -4947,7 +4947,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.6 native encyclopedia scale and refined-AI target repair test closure",
+        "purpose": "0.12.7 encyclopedia visibility, Yone motion/skill, and saved-skill compatibility test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

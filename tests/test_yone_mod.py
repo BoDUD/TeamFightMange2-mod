@@ -17,6 +17,8 @@ YONE_LEGACY_ANIM = MOD / "aseprite_resources/champions/yone#anim.fanim"
 YONE_LEGACY_SHEET = MOD / "aseprite_resources/champions/yone#sheet.png"
 
 LEGACY_SAVED_NATIVE_COMPATIBILITY_NAMES = {
+    "lol_shen_shadow_dash_ai_hint_native",
+    "lol_shen_shadow_dash_taunt_native",
     "lol_yone_e_start_native",
     "lol_yone_e_begin_return_native",
     "lol_yone_e_damage_pre_native",
@@ -575,7 +577,7 @@ def test_broad_legacy_extensions_require_an_explicit_env_value_of_one() -> None:
         assert required in management_rewrite
 
 
-def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
+def test_q_is_hit_gated_three_stage_and_q3_is_one_real_dash_hit() -> None:
     q = load_yone()["skill"]
     assert (
         q["action_name"],
@@ -585,7 +587,7 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
         q["range"],
         q["casting_type"],
         q["casting_target"],
-    ) == ("skill", 240, 30, 0, 65000, "Targeting", "EnemyChampion")
+    ) == ("skill", 240, 30, 0, 35000, "Targeting", "EnemyChampion")
 
     stack2_switch = q["effect"]
     assert (stack2_switch["type"], stack2_switch["buff_name"]) == (
@@ -629,15 +631,15 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
             projectile["applied_target"],
         ) == (
             True,
-            8000,
-            60000,
-            {"Circle": {"radius": 8000}},
+            10000,
+            30000,
+            {"Circle": {"radius": 6000}},
             "EnemyWithoutTower",
         )
         assert [
             (hit["damage"], hit["attack_ratio"])
             for hit in find_effect(projectile, "Attack")
-        ] == [(25, 80)]
+        ] == [(35, 95)]
         assert not find_effect(stage, "Airborne")
 
     q1_hit_guards = find_effect(
@@ -724,7 +726,6 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     assert [effect["type"] for effect in q3_delayed[0]["effects"]] == [
         "RemoveCasterBuff",
         "RushTime",
-        "LinearProjectile",
     ]
     assert q3_delayed[0]["effects"][0] == {
         "type": "RemoveCasterBuff",
@@ -733,47 +734,33 @@ def test_q_is_hit_gated_three_stage_and_q3_cannot_double_damage() -> None:
     assert not direct_effects(q3, "RemoveCasterBuff")
     assert not direct_effects(q3, "RushTime")
     assert not direct_effects(q3, "LinearProjectile")
-    assert find_effect(q3, "RushTime") == [
-        {
-            "type": "RushTime",
-            "speed": 4000,
-            "tick": 8,
-            "range": 0,
-            "casting_target": "None",
-            "penetrate": True,
-            "applied_effects": [],
-        }
-    ]
-    projectiles = find_effect(
-        q3, "LinearProjectile", name="lol_yone_q_empowered_projectile"
-    )
-    assert len(projectiles) == 1
-    empowered_projectile = projectiles[0]
+    rushes = find_effect(q3, "RushTime")
+    assert len(rushes) == 1
+    rush = rushes[0]
     assert (
-        empowered_projectile["penetrate"],
-        empowered_projectile["range"],
-        empowered_projectile["shape"],
-    ) == (True, 65000, {"Circle": {"radius": 9000}})
+        rush["penetrate"],
+        rush["speed"],
+        rush["tick"],
+        rush["range"],
+        rush["casting_target"],
+    ) == (True, 5000, 12, 30000, "EnemyWithoutTower")
+    assert not find_effect(q3, "LinearProjectile")
     assert [
         (hit["damage"], hit["attack_ratio"])
         for hit in find_effect(q3, "Attack")
-    ] == [(25, 80)]
+    ] == [(35, 95)]
     assert [cc["duration"] for cc in find_effect(q3, "Airborne")] == [45]
     projectile_views = {
         view["name"]: view for view in load_yone()["view_projectiles"]
     }
-    normal_wind = projectile_views["lol_yone_q_projectile"]
-    q3_tornado = projectile_views["lol_yone_q_empowered_projectile"]
-    assert q3_tornado["anim"].endswith("/yone_q3_tornado")
-    assert q3_tornado["anim"] != normal_wind["anim"]
-    assert q3_tornado["tag"] == "tornado"
+    assert set(projectile_views) == {"lol_yone_q_projectile"}
     assert find_effect(q3, "ViewEffect", name="lol_yone_q3_airborne_cue") == [
         {"type": "ViewEffect", "name": "lol_yone_q3_airborne_cue"}
     ]
     assert [effect["tick"] for effect in find_effect(q, "Delayed")] == [8, 8, 8]
 
 
-def test_r_has_one_knockup_six_physical_slashes_and_one_fixed_echo() -> None:
+def test_r_is_delayed_penetrating_line_aoe_with_one_damage_and_pull() -> None:
     r = load_yone()["ult"]
     assert (
         r["action_name"],
@@ -783,59 +770,47 @@ def test_r_has_one_knockup_six_physical_slashes_and_one_fixed_echo() -> None:
         r["range"],
         r["casting_type"],
         r["casting_target"],
-    ) == ("ult", 3000, 96, 4, 40000, "Targeting", "EnemyChampion")
-    rushes = find_effect(r, "RushMoveToBack")
+    ) == ("ult", 3000, 60, 0, 55000, "Direction", "EnemyWithoutTower")
+    assert not find_effect(r, "RushMoveToBack")
+    outer_delayed = direct_effects(r["effect"], "Delayed")
+    assert len(outer_delayed) == 1 and outer_delayed[0]["tick"] == 35
+    rushes = find_effect(outer_delayed[0], "RushTime")
     assert len(rushes) == 1
     rush = rushes[0]
-    assert rush["speed"] == 5000
-    assert [cc["duration"] for cc in find_effect(rush, "Airborne")] == [60]
+    assert (
+        rush["speed"],
+        rush["tick"],
+        rush["range"],
+        rush["casting_target"],
+        rush["penetrate"],
+    ) == (4000, 30, 20000, "EnemyWithoutTower", True)
+    assert [cc["duration"] for cc in find_effect(rush, "Airborne")] == [45]
     assert not find_effect(rush, "Stun")
-
-    delayed = [
-        effect
-        for effect in rush["applied_effects"]
-        if effect.get("type") == "Delayed"
-    ]
-    assert [effect["tick"] for effect in delayed] == [8, 16, 24, 32, 40, 48, 60]
-    for index, effect in enumerate(delayed[:6]):
-        assert [
-            (hit["damage"], hit["attack_ratio"])
-            for hit in find_effect(effect, "Attack")
-        ] == [(12, 16)]
-        assert not find_effect(effect, "FixedAttack")
-        expected_view = (
-            "lol_yone_r_slash_blue" if index % 2 == 0 else "lol_yone_r_slash_red"
-        )
-        assert [
-            view["name"] for view in find_effect(effect, "ViewEffect")
-        ] == [expected_view]
-    assert not find_effect(delayed[-1], "Attack")
     assert [
         (hit["damage"], hit["attack_ratio"])
-        for hit in find_effect(delayed[-1], "FixedAttack")
-    ] == [(30, 25)]
-    assert len(find_effect(r, "Attack")) == 6
-    assert len(find_effect(r, "FixedAttack")) == 1
+        for hit in find_effect(rush, "Attack")
+    ] == [(120, 70)]
+    assert not find_effect(r, "FixedAttack")
+    assert [view["name"] for view in find_effect(rush, "ViewEffect")] == [
+        "lol_yone_r_arrival",
+        "lol_yone_r_slash_blue",
+        "lol_yone_r_slash_red",
+    ]
+    pull_delays = find_effect(rush, "Delayed")
+    assert len(pull_delays) == 1 and pull_delays[0]["tick"] == 12
+    assert find_effect(pull_delays[0], "Pull") == [
+        {"type": "Pull", "speed": 3000, "tick": 12}
+    ]
     assert not find_effect(r, "Native")
     for forbidden in ("RandomTarget", "AutoTargetProjectile", "RangeEffect"):
         assert not find_effect(r, forbidden)
-    max_travel = (r["range"] + rush["speed"] - 1) // rush["speed"]
-    assert (
-        r["start_timing"]
-        + max_travel
-        + max(effect["tick"] for effect in delayed)
-        < r["duration"]
-    )
 
 
 def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() -> None:
     yone = load_yone()
 
     projectiles = {view["name"]: view for view in yone["view_projectiles"]}
-    assert set(projectiles) == {
-        "lol_yone_q_projectile",
-        "lol_yone_q_empowered_projectile",
-    }
+    assert set(projectiles) == {"lol_yone_q_projectile"}
     views = {view["name"]: view for view in yone["view_effects"]}
     required_views = {
         "lol_yone_attack_steel_hit",
@@ -850,7 +825,6 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
         "lol_yone_r_arrival",
         "lol_yone_r_slash_blue",
         "lol_yone_r_slash_red",
-        "lol_yone_r_echo",
     }
     assert required_views == set(views)
     assert {
@@ -927,7 +901,6 @@ def test_yone_effect_and_audio_names_cover_active_w_and_contain_no_e_assets() ->
         "lol_yone_r_arrival",
         "lol_yone_r_slash_steel",
         "lol_yone_r_slash_azakana",
-        "lol_yone_r_echo",
     }
     assert used_audio == required_audio
     assert {
@@ -1610,6 +1583,26 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
         )
     assert visible_run_eye_cues == len(run_frames)
 
+    generated_run_poses = []
+    for index in range(8):
+        frame = Image.open(
+            MOD / f"source/native/yone_v7/frames/run_{index:02d}.png"
+        ).convert("RGBA")
+        normalized = Image.new("RGBA", (61, 55), (0, 0, 0, 0))
+        normalized.alpha_composite(
+            frame,
+            ((normalized.width - frame.width) // 2, normalized.height - frame.height),
+        )
+        generated_run_poses.append(hashlib.sha256(normalized.tobytes()).hexdigest())
+    assert len(set(generated_run_poses)) == 8
+
+    generator = (MOD / "tools/generate_yone_v7_native.py").read_text(
+        encoding="utf-8"
+    )
+    assert '"run": tuple(("motion", index) for index in range(5, 13))' in generator
+    assert "straighten_run_subject(subjects[key])" in generator
+    assert "straighten_run_subject(raw_subjects[key])" in generator
+
 
 def test_generated_qa_contact_labels_second_slot_as_w() -> None:
     source = (MOD / "tools/build_yone.py").read_text(encoding="utf-8")
@@ -1734,7 +1727,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.6"
+    assert mod_info["version"] == "0.12.7"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -1761,16 +1754,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.6"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.7"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.6"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.7"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.6"
+    assert quality_scope["release"] == "0.12.7"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

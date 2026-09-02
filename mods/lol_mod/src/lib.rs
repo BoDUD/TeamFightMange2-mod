@@ -2744,6 +2744,17 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         "lol_yone_e_settle_native",
         LegacySavedNativeCompatibilityEffect,
     );
+    // Load-only compatibility for custom databases/saves that embedded the
+    // retired Shen E data tree. These aliases are intentionally inert: the
+    // current champion data remains Q/W/R and no Shadow Dash AI is restored.
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_ai_hint_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
+    registration.add_native_effect(
+        "lol_shen_shadow_dash_taunt_native",
+        LegacySavedNativeCompatibilityEffect,
+    );
     registration.add_player_input_ai(XayahFeatherInputGate);
     registration.add_native_effect("lol_urgot_passive_native", UrgotPassiveNativeEffect);
     registration.add_native_effect("lol_urgot_r_check_native", UrgotRCheckNativeEffect);
