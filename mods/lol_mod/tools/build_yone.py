@@ -2637,9 +2637,9 @@ def build_splash_and_portraits() -> list[Path]:
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
 
-    # post_render draws at the texture's native size, so the encyclopedia gets
-    # its own final 64x64 surface. Match the finished Briar portrait contract
-    # instead of trying to lay out an 85x93 child UI node at runtime.
+    # Keep a final 64x64 Briar-class surface as offline encyclopedia size/leg QA
+    # evidence. The 0.5.8 runtime uses the engine resolver on the stock icon;
+    # this PNG is deliberately excluded from the installed closure.
     encyclopedia = render_source_direct_ui_subject(
         full_body,
         (64, 64),
@@ -3013,7 +3013,7 @@ def build_qa(
             "portrait_policy": {
                 "default_runtime": "five independent source-direct V7 UI textures plus the BP splash; no battle-atlas portrait input",
                 "fullbody": "85x93 exact champion_slot destination, <=70x82 subject, alpha bottom y<=86",
-                "encyclopedia": "64x64 final-size Briar-class full body for stable post_render; <=54x58 subject, feet at y<=60",
+                "encyclopedia": "64x64 offline Briar-class full-body target; runtime uses the engine resolver on the stock 64x64 ImageRunner, <=54x58 subject, feet at y<=60",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 source-direct upper-body crop, <=40x54 subject, alpha bottom y<=60",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
@@ -3551,7 +3551,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         or 64 - encyclopedia_bbox[3] < 4
     ):
         raise ValueError(
-            "Yone render-hook encyclopedia texture lost Briar-class 64x64 fit: "
+            "Yone offline encyclopedia target lost Briar-class 64x64 fit: "
             f"bbox={encyclopedia_bbox}"
         )
     encyclopedia_quality = yone_ui_surface_quality(encyclopedia)
@@ -3561,7 +3561,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
         or encyclopedia_quality["opaque_palette_size"] < 32
     ):
         raise ValueError(
-            "Yone render-hook encyclopedia texture lost source-direct quality: "
+            "Yone offline encyclopedia target lost source-direct quality: "
             f"{encyclopedia_quality}"
         )
     compact = Image.open(PORTRAIT_DIR / "dual_blader_compact.png").convert("RGBA")

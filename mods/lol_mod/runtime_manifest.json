@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.12 render-hook encyclopedia fallback and native-mirrored Yone run test closure",
-  "file_count": 470,
-  "total_size": 90163418,
+  "purpose": "0.12.13 engine-resolved encyclopedia ImageRunner and intact authored Yone run test closure",
+  "file_count": 468,
+  "total_size": 90131952,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "26454219bab50be9ce0bd48dc53a6c8c00e3cf6be78b1ea6f4b7d7551f491bd0"
+      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "26454219bab50be9ce0bd48dc53a6c8c00e3cf6be78b1ea6f4b7d7551f491bd0"
+      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1015,13 +1015,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 268800,
-      "sha256": "d45e34f25a9f16b9d5b1e4d632fede7a7b2a8cd958f2652561ae273099613933"
+      "size": 270336,
+      "sha256": "eef5cec548657ad2bea0c569c031f4fcc1d4bccef593b192894f0e59acffba68"
     },
     {
       "path": "mod.mod_info",
-      "size": 1595,
-      "sha256": "d34e16df3ca30dbf53310def26df20f0e19c3720335a8a428085cabc533c7f01"
+      "size": 1625,
+      "sha256": "a7b3c4ae4a15e0923e8a0a21bffa2c6c399892c56367495ed67451bff9e2e37c"
     },
     {
       "path": "mod.override_info",
@@ -2182,16 +2182,6 @@
       "path": "ui/banpick/lol_bp_timer_plate.png",
       "size": 4457,
       "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a"
-    },
-    {
-      "path": "ui/champion_fullbody/dancer_encyclopedia.png",
-      "size": 16516,
-      "sha256": "1b253e2b3c403843397a49c5e8b51d672af5d1b4e238c13729f6e1a355faa261"
-    },
-    {
-      "path": "ui/champion_fullbody/dual_blader_encyclopedia.png",
-      "size": 16516,
-      "sha256": "f67be969a10c9e68928739b20f0e64409ab095df6f6c0475708fd2092f242692"
     },
     {
       "path": "ui/icons/morgard.svg",

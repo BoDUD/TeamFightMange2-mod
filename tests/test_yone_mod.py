@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import importlib.util
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -76,6 +78,22 @@ def _python_function_source(source: str, name: str) -> str:
     body = ast.get_source_segment(source, function)
     assert body is not None
     return body
+
+
+def _load_yone_v7_generator():
+    tool_dir = MOD / "tools"
+    module_path = tool_dir / "generate_yone_v7_native.py"
+    sys.path.insert(0, str(tool_dir))
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "test_generate_yone_v7_native", module_path
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        sys.path.pop(0)
 
 
 def test_yone_replaces_official_dual_blader_and_uses_q_w_r_slots() -> None:
@@ -693,7 +711,7 @@ def _retired_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_058_stable_runtime_draws_manifest_owned_fullbody_encyclopedia_textures() -> None:
+def test_058_stable_runtime_uses_engine_resolver_for_encyclopedia_image_runners() -> None:
     cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
     rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     assert 'path = "src/stable_runtime.rs"' in cargo
@@ -702,52 +720,51 @@ def test_058_stable_runtime_draws_manifest_owned_fullbody_encyclopedia_textures(
     assert rust.count("registration.set_extension(") == 1
     assert "registration.set_server_extension(" not in rust
 
-    card_draw = rust.split("fn draw_encyclopedia_card", 1)[1].split(
-        "fn draw_encyclopedia_portraits", 1
+    card_sync = rust.split("fn sync_encyclopedia_card", 1)[1].split(
+        "fn sync_encyclopedia_portraits", 1
     )[0]
     for required in (
         "client.ui_node_rect(&native_icon)",
-        "encyclopedia_target_rect_is_drawable",
-        'client.draw_sprite(\n        "UI",',
-        "StableSpriteParams {",
-        "pivot_x: 0.5",
-        "pivot_y: 1.0",
-        "sample_nearest: true",
+        "let runner = client.ui_runner_name(&native_icon).unwrap_or_default();",
+        'runner.eq_ignore_ascii_case("image")',
+        "resolver_bound",
+        "positioned",
+        "client.ui_set_champion_icon(",
+        "ENCYCLOPEDIA_ICON_SIZE",
+        "ENCYCLOPEDIA_FULLBODY_SCALE",
+        "client.ui_set_visible(&native_icon, true)",
+        'client.ui_set_properties(&role_icon, "z: 2;")',
     ):
-        assert required in card_draw
+        assert required in card_sync
     for forbidden in (
         "ui_spawn_source",
-        "ui_set_champion_icon",
+        "draw_sprite",
         "RenderCommand",
+        "ui_set_visible(&native_icon, false)",
+        "encyclopedia_render_proof",
+        'source: \\"',
     ):
-        assert forbidden not in card_draw
+        assert forbidden not in card_sync
 
-    visibility = rust.split("fn sync_encyclopedia_native_visibility", 1)[1].split(
-        "fn draw_encyclopedia_card", 1
-    )[0]
-    assert "let drawable = rect.is_some_and(encyclopedia_target_rect_is_drawable);" in visibility
-    assert "let should_hide = drawable && proof & bit != 0;" in visibility
-    assert "set_encyclopedia_native_visible(client, &container, champion_id, !should_hide)" in visibility
-    assert "zero-layout cannot hide native" in visibility
-
-    batch = rust.split("fn draw_encyclopedia_portraits", 1)[1].split(
+    batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
         "fn bp_champion_id_from_name", 1
     )[0]
     for required in (
-        '"dancer",',
-        '"dual_blader",',
-        "XAYAH_ENCYCLOPEDIA_TEXTURE",
-        "YONE_ENCYCLOPEDIA_TEXTURE",
-        "ENCYCLOPEDIA_XAYAH_DRAW_PROOF",
-        "ENCYCLOPEDIA_YONE_DRAW_PROOF",
-        "extension.encyclopedia_render_proof.store(proof, Ordering::Relaxed);",
+        '"dancer"',
+        '"dual_blader"',
+        "engine champion-icon resolver on existing 64x64 ImageRunner",
+        "raw source mutation disabled",
     ):
         assert required in batch
-    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' in rust
-    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' in rust
+    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' not in rust
+    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' not in rust
     assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
-    assert "const ENCYCLOPEDIA_MIN_TARGET_WIDTH: f32 = 40.0;" in rust
-    assert "const ENCYCLOPEDIA_MIN_TARGET_HEIGHT: f32 = 70.0;" in rust
+    assert "const ENCYCLOPEDIA_ICON_SIZE: f32 = 64.0;" in rust
+    assert "const ENCYCLOPEDIA_FULLBODY_SCALE: f32 = 1.65;" in rust
+    assert "fn post_render" not in rust
+    assert "draw_encyclopedia" not in rust
+    assert "encyclopedia_render_proof" not in rust
+    assert "draw_sprite(" not in rust
     assert "YoneManagementCardExtension" not in rust
     assert "YoneSpiritCleaveConeNativeEffect" not in rust
 
@@ -757,11 +774,8 @@ def test_058_stable_runtime_draws_manifest_owned_fullbody_encyclopedia_textures(
             (MOD / "runtime_manifest.json").read_text(encoding="utf-8")
         )["files"]
     }
-    assert {
+    assert not {
         path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
-    } == {
-        "ui/champion_fullbody/dancer_encyclopedia.png",
-        "ui/champion_fullbody/dual_blader_encyclopedia.png",
     }
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
@@ -1859,10 +1873,53 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     generator = (MOD / "tools/generate_yone_v7_native.py").read_text(
         encoding="utf-8"
     )
-    assert '"run": tuple(("run_pose", index) for index in range(8))' in generator
-    assert "RUN_POSE_SOURCES" in generator
-    assert "recompose_run_articulated_pair(" in generator
+    assert '"run": tuple(("motion", index) for index in range(5, 13))' in generator
+    assert '"run_pose"' not in generator
+    assert "RUN_POSE_SOURCES" not in generator
+    assert "recompose_run_articulated_pair" not in generator
+    assert "canonical_forward_lean_ratio" not in generator
+    assert 'preserve_authored_weapon_geometry=action == "run"' in generator
+    assert '"authored_transformed_mask_only"' in generator
     assert "straighten_run_subject" not in generator
+
+
+@pytest.mark.parametrize("weapon", ["steel", "azakana"])
+def test_yone_run_weapon_recolour_cannot_add_afterimage_pixels(weapon: str) -> None:
+    generator = _load_yone_v7_generator()
+    image = Image.new("RGBA", (9, 9), (0, 0, 0, 0))
+    image.putpixel((1, 1), (33, 44, 55, 255))
+    mask = Image.new("L", image.size, 0)
+    mask_points = {(3, 6), (4, 5), (5, 4), (6, 3)}
+    for point in mask_points:
+        mask.putpixel(point, 255)
+        image.putpixel(point, (123, 111, 99, 255))
+
+    before_alpha = image.getchannel("A").tobytes()
+    before_outside = {
+        (x, y): image.getpixel((x, y))
+        for y in range(image.height)
+        for x in range(image.width)
+        if (x, y) not in mask_points
+    }
+    generator._paint_native_weapon(
+        image,
+        weapon,
+        mask,
+        hand=(3, 6),
+        tip=(6, 3),
+        preserve_authored_geometry=True,
+    )
+
+    assert image.getchannel("A").tobytes() == before_alpha
+    assert {
+        (x, y): image.getpixel((x, y))
+        for y in range(image.height)
+        for x in range(image.width)
+        if (x, y) not in mask_points
+    } == before_outside
+    assert {
+        image.getpixel(point) for point in mask_points
+    } <= set(generator.WEAPON_COLORS[weapon])
 
 
 def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
@@ -1886,54 +1943,80 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
 
     run = contract["run"]
     assert run["pose_sources"] == [
-        ["attack_q", index] for index in (0, 0, 5, 5, 11, 5, 5, 0)
+        ["motion", index] for index in range(5, 13)
     ]
-    assert run["passing_leg_sides"] == [1, 1, 1, 1, -1, -1, -1, -1]
-    assert run["stride_pose_counts"] == {
-        "crossing": 2,
-        "extended": 2,
-        "passing": 4,
-    }
-    assert run["crossing_frame_indices"] == [2, 6]
-    assert run["extended_frame_indices"] == [0, 4]
-    assert run["local_minimum_frame_indices"] == [2, 6]
-    assert run["local_maximum_frame_indices"] == [0, 4]
+    assert sum(run["stride_pose_counts"].values()) == 8
+    assert run["crossing_frame_indices"] == []
+    assert len(run["extended_frame_indices"]) >= 7
     foot_separations = run["foot_separations_px"]
     assert len(foot_separations) == 8
-    assert all(6.5 <= foot_separations[index] <= 8.5 for index in (2, 6))
-    assert all(10 <= foot_separations[index] <= 13.5 for index in (0, 4))
-    assert all(8.5 <= foot_separations[index] <= 10.5 for index in (1, 3, 5, 7))
-    assert abs(foot_separations[0] - foot_separations[4]) <= 1
-    assert abs(foot_separations[2] - foot_separations[6]) <= 1
-    assert run["ground_anchor_range_px"] <= 0.5
+    assert min(foot_separations) >= 8.5
+    assert max(foot_separations) <= 13.5
+    assert run["maximum_adjacent_foot_step_px"] <= 2.5
+    assert run["ground_anchor_range_px"] <= 1
     assert run["torso_height_range_px"] <= 1
-    assert run["body_visible_height_range_px"] == 0
-    assert 0.4 <= run["upper_guard_lean_range_px"] <= 1.5
+    assert run["body_visible_height_range_px"] <= 2
+    assert run["upper_guard_lean_range_px"] <= 1.5
     assert run["canonical_art_direction"] == "right"
     assert run["runtime_direction_owner"] == (
         "native GameView flip_x; one canonical run action"
     )
-    assert 1.8 <= run["mean_upper_guard_forward_lean_px"] <= 2.5
-    assert run["hand_anchor_ranges_px"]["steel"]["x"] >= 3
-    assert run["hand_anchor_ranges_px"]["azakana"]["x"] >= 2.5
-    assert run["hand_x_correlation"] <= -0.15
-    assert max(run["maximum_adjacent_hand_step_px"].values()) <= 3
-    assert max(run["maximum_adjacent_tip_step_px"].values()) <= 5
+    assert 1 <= run["mean_authored_forward_lean_px"] <= 2.5
+    assert "mean_upper_guard_forward_lean_px" not in run
+    assert run["hand_anchor_ranges_px"]["steel"]["x"] >= 2.5
+    assert run["hand_anchor_ranges_px"]["steel"]["y"] >= 1.5
+    assert run["hand_anchor_ranges_px"]["azakana"]["x"] >= 1.5
+    assert run["hand_anchor_ranges_px"]["azakana"]["y"] >= 1
+    assert max(run["maximum_adjacent_hand_step_px"].values()) <= 4
+    assert max(run["maximum_adjacent_tip_step_px"].values()) <= 8
     assert max(run["maximum_adjacent_blade_angle_step_radians"].values()) <= 0.45
-    assert min(run["minimum_blade_pixel_ratio"].values()) >= 0.65
-    assert max(run["maximum_adjacent_blade_span_ratio"].values()) <= 1.2
-    assert max(run["maximum_adjacent_blade_pixel_ratio"].values()) <= 1.2
+    assert min(run["minimum_blade_pixel_ratio"].values()) >= 0.4
+    assert max(run["maximum_adjacent_blade_span_ratio"].values()) <= 2
+    assert max(run["maximum_adjacent_blade_pixel_ratio"].values()) <= 1.9
     assert run["unique_body_pose_count"] == 8
+    assert run["weapon_render_route"] == "authored_transformed_mask_only"
+    assert run["authored_weapon_mask_identity"] == {
+        "steel": True,
+        "azakana": True,
+    }
+    assert run["authored_alpha_mask_unchanged"] is True
+    assert "complete authored V7 motion cells 5..12" in run["source"]
+    assert "no leg split, frame blend, torso shear, hand-to-tip redraw, or afterimage" in run["source"]
 
     run_rows = sorted(
         (row for row in qa["frames"] if row["action"] == "run"),
         key=lambda row: row["index"],
     )
     assert len(run_rows) == 8
-    assert {row["source"] for row in run_rows} == {"run_pose"}
+    assert [row["source"] for row in run_rows] == ["motion"] * 8
+    assert [row["cell"] for row in run_rows] == list(range(5, 13))
     assert {row["body_visible_height_px"] for row in run_rows} == {35}
-    assert 6.5 <= min(row["foot_separation_px"] for row in run_rows) <= 8.5
-    assert 10 <= max(row["foot_separation_px"] for row in run_rows) <= 13.5
+    assert {row["weapon_render_route"] for row in run_rows} == {
+        "authored_transformed_mask_only"
+    }
+    assert all(
+        row["authored_weapon_mask_identity"]
+        == {"steel": True, "azakana": True}
+        for row in run_rows
+    )
+    assert all(row["authored_alpha_mask_unchanged"] is True for row in run_rows)
+    assert {
+        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(
+            (MOD / "source/native/yone_v7/frames").glob("run_*.png")
+        )
+    } == {
+        "run_00.png": "fdba09eabdf1e18c5f423f7830507aaf5d3e55c3a8c49f796b20225484a21cb8",
+        "run_01.png": "62aeebdc0c4a7b9927ee0ce7f25a9dca10364c84f2967ca300c817a1e472356c",
+        "run_02.png": "b55470ff0eeda05c04ef0be444fdc4cc676734892034c2e7e6261a8576aa3d3a",
+        "run_03.png": "86676ff6ca4049417d4bde5d69e42a04eb68b2aaf7e10768b28530050a71f4b7",
+        "run_04.png": "88d7495fd2e84ac0ceda7ced2a706d1102c4302ac756dd2ff5ecc5953419506c",
+        "run_05.png": "17c638efccff2639ee481698ec8a4ba3b3527ce5eedf0d11149e69896cc8678f",
+        "run_06.png": "726e82cd341f7622156af9c66967131aba58f9bedded8b3811a4eec7221e2c01",
+        "run_07.png": "2250942c656c7fcef435973dd471b30c2e79ed6c8a084255df1969c977308ea7",
+    }
+    assert min(row["foot_separation_px"] for row in run_rows) >= 8.5
+    assert max(row["foot_separation_px"] for row in run_rows) <= 13.5
 
     attacks = contract["attacks"]
     assert attacks["attack"]["source_cells"] == [0, 1, 3, 10, 11, 5]
@@ -2116,7 +2199,7 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.12"
+    assert mod_info["version"] == "0.12.13"
     assert all(
         token in mod_info["description"]
         for token in (
@@ -2143,16 +2226,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.12"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.13"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.12"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.13"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.12"
+    assert quality_scope["release"] == "0.12.13"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

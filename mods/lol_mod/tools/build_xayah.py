@@ -662,11 +662,9 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
         output.alpha_composite(subject, (x, y))
         return output
 
-    # The encyclopedia runtime owns an 85x93 source-direct overlay.  Author the
-    # texture at that exact geometry so Xayah is not first compressed into a
-    # narrow 64x64 silhouette and then enlarged by the UI.  The subject keeps
-    # one uniform scale, is horizontally centered, and ends five pixels above
-    # the bottom edge to preserve the complete feet silhouette.
+    # Keep the historical 85x93 full-body render as offline comparison evidence.
+    # The 0.5.8 runtime uses the engine champion resolver on the stock icon node;
+    # it cannot safely bind a raw PNG source.
     portrait = render_subject(
         full_body,
         (85, 93),
@@ -677,11 +675,8 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
     portrait_path = FULLBODY_DIR / "dancer.png"
     save_png(portrait_path, portrait)
 
-    # Stable ABI render hooks draw sprites at native texture size. Keep a
-    # dedicated 64x64 encyclopedia texture that follows the same finished-hero
-    # contract as Briar: <=54x58 visible subject, feet ending at y=60. The
-    # historical 85x93 card texture remains QA/reference-only and is not reused
-    # as a render-hook source.
+    # Keep a 64x64 Briar-class full-body target as offline size/leg QA evidence.
+    # Both full-body PNGs are excluded from the installed runtime closure.
     encyclopedia = render_subject(
         full_body,
         (64, 64),
@@ -1453,7 +1448,7 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         or 64 - encyclopedia_bbox[3] < 4
     ):
         raise ValueError(
-            "Xayah render-hook encyclopedia texture lost Briar-class 64x64 fit: "
+            "Xayah card-local encyclopedia texture lost Briar-class 64x64 fit: "
             f"bbox={encyclopedia_bbox}"
         )
     compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")

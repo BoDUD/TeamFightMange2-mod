@@ -144,10 +144,10 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
         ("ult", 14),
         ("ult", 2),
     ),
-    # Eight derived upright guard/recovery poses are assembled below as one
-    # coherent gait.  The source sequence deliberately avoids attack-contact
-    # frames so the hands and both blades stay continuous through the loop.
-    "run": tuple(("run_pose", index) for index in range(8)),
+    # Use eight complete authored locomotion poses. Never split the legs or
+    # shear the torso: each frame keeps the accepted Yone model's exact body
+    # proportions, while the game's native flip_x owns left/right facing.
+    "run": tuple(("motion", index) for index in range(5, 13)),
     # The first two official W boxes are only 31px wide. Start from the two
     # compact dual-sword poses, then use the wider boxes for the heavy sweep.
     "skill2_attack": tuple(("w", index) for index in (5, 0, 1, 2, 3)),
@@ -160,11 +160,8 @@ ACTION_SOURCES: dict[str, tuple[tuple[str, int | None], ...]] = {
     "skill_q3": tuple(("attack_q", index) for index in (18, 21, 22, 23, 22, 21, 18)),
 }
 
-# One native eight-frame gait cycle. Negative values close/cross the two feet,
-# positive values open them into the opposite contact pose, and the zero
-# phases are the authored passing steps. The sources form one restrained guard
-# rhythm: one arm leads, both recover, then the opposite guard shifts back.
-# No crouched motion-sheet sprint or attack-contact frame is reused.
+# Semantic labels for the authored eight-frame locomotion cycle. These values
+# are QA/preview metadata only; they never move or repaint source pixels.
 RUN_STRIDE_PHASES: tuple[float, ...] = (
     1.0,
     0.65,
@@ -175,17 +172,6 @@ RUN_STRIDE_PHASES: tuple[float, ...] = (
     0.0,
     0.65,
 )
-RUN_POSE_SOURCES: tuple[tuple[str, int], ...] = (
-    ("attack_q", 0),
-    ("attack_q", 0),
-    ("attack_q", 5),
-    ("attack_q", 5),
-    ("attack_q", 11),
-    ("attack_q", 5),
-    ("attack_q", 5),
-    ("attack_q", 0),
-)
-RUN_PASSING_LEG_SIDES: tuple[int, ...] = (1, 1, 1, 1, -1, -1, -1, -1)
 # Palette compatibility only: 0.12.8 sampled these eight derived guard frames
 # when creating the shared 48-color body palette. Replaying that sampling set
 # prevents an animation-only run change from recoloring every unrelated frame.
@@ -425,7 +411,6 @@ def _recompose_stride_pair(
     drop_ratio: float = 0.045,
     lift_ratio: float = 0.035,
     torso_sway_ratio: float = 0.04,
-    canonical_forward_lean_ratio: float = 0.0,
     articulated_cycle: bool = False,
 ) -> tuple[Image.Image, Image.Image]:
     """Articulate two source leg identities without repainting the actor.
@@ -465,12 +450,11 @@ def _recompose_stride_pair(
     maximum_drop = max(2, round(body_height * drop_ratio))
     maximum_lift = max(2, round(body_height * lift_ratio))
     maximum_torso_sway = max(2, round(body_height * torso_sway_ratio))
-    maximum_forward_lean = max(0, round(body_height * canonical_forward_lean_ratio))
     leg_radius = max(16, round(body_height * 0.24))
     pad_x = round(
         maximum_stride
         * (max(abs(value) for value in stride_phases) + neutral_inset_ratio)
-    ) + maximum_torso_sway + maximum_forward_lean + 3
+    ) + maximum_torso_sway + 3
     pad_top = 2
     pad_bottom = maximum_drop + 3
     canvas_size = (
@@ -494,11 +478,7 @@ def _recompose_stride_pair(
             1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
         )
         torso_shift = round(
-            (
-                maximum_forward_lean
-                + torso_phase * maximum_torso_sway
-            )
-            * upper_progress
+            torso_phase * maximum_torso_sway * upper_progress
         )
         for x in range(raw_rgba.width):
             color = raw_source_pixels[x, y]
@@ -521,11 +501,7 @@ def _recompose_stride_pair(
                 1.0, max(0.0, (hip_y - y) / max(1, hip_y - top))
             )
             torso_shift = round(
-                (
-                    maximum_forward_lean
-                    + torso_phase * maximum_torso_sway
-                )
-                * upper_progress
+                torso_phase * maximum_torso_sway * upper_progress
             )
             target_x = x + pad_x + torso_shift
             target_y = y + pad_top
@@ -563,11 +539,7 @@ def _recompose_stride_pair(
                 # right leg in front during the first half-cycle, left leg in
                 # front during the second.  Basing this only on ``phase < 0``
                 # selected the same leg at both exact zero crossings.
-                passing_side = (
-                    RUN_PASSING_LEG_SIDES[frame_index]
-                    if articulated_cycle
-                    else (-1 if phase < 0 else 1)
-                )
+                passing_side = -1 if phase < 0 else 1
                 if leg_side == passing_side:
                     passing_lift = max(0.0, 1.0 - abs(phase)) * maximum_lift
                     target_y -= round(passing_lift * progress)
@@ -597,49 +569,6 @@ def _recompose_stride_pair(
     if actor_result.size != raw_result.size:
         raise ValueError("Yone articulated stride crop lost source alignment")
     return actor_result, raw_result
-
-
-def recompose_run_articulated_pair(
-    actor: Image.Image,
-    raw_weapon_source: Image.Image,
-    frame_index: int,
-) -> tuple[Image.Image, Image.Image]:
-    """Build a smooth upright cycle from compatible accepted guard poses.
-
-    The upper-body guard rhythm moves both sword hands without inserting a
-    contact pose. The lower compositor keeps the original left/right pixel
-    groups as identities, closes them at frames 2/6 and alternates which leg
-    renders in front between the two passing steps. Keep source-space offsets
-    modest: the previous 0.18/1.0 pass over-separated the legs and visibly
-    deformed the tiny native actor during the crossover.
-    """
-
-    # Frame 4 uses the authored opposite-hand guard pose that keeps both sword
-    # hands moving through the loop. Its source legs are naturally wider than
-    # frame 0, though, which made the second contact read as a heavy/limping
-    # step at native scale. Reduce only that contact's lower-body stride while
-    # preserving the accepted upper-body pose and all eight native timings.
-    stride_ratio = 0.055 if frame_index == 4 else 0.105
-    return _recompose_stride_pair(
-        actor,
-        raw_weapon_source,
-        frame_index,
-        stride_phases=RUN_STRIDE_PHASES,
-        stride_ratio=stride_ratio,
-        neutral_inset_ratio=0.35,
-        torso_sway_phases=(0.0, 0.3, 0.5, 0.3, 0.0, -0.3, -0.5, -0.3),
-        drop_ratio=0.022,
-        lift_ratio=0.018,
-        torso_sway_ratio=0.025,
-        # Finished Shen/Briar run art is authored in a clearly travelling
-        # canonical direction and the game mirrors it with native flip_x.
-        # Yone's accepted source poses are almost frontal, so add only a small
-        # source-space upper-body lean toward canonical screen-right.  The raw
-        # weapon source receives the exact same shear, keeping both hands and
-        # blade vectors continuous while making left/right mirroring readable.
-        canonical_forward_lean_ratio=0.22,
-        articulated_cycle=True,
-    )
 
 
 def _source_weapon_candidate(
@@ -1103,14 +1032,50 @@ def _resolve_weapon_geometry(
 def _paint_native_weapon(
     image: Image.Image,
     weapon: str,
-    _transformed_mask: Image.Image,
+    transformed_mask: Image.Image,
     hand: tuple[int, int],
     tip: tuple[int, int],
+    *,
+    preserve_authored_geometry: bool = False,
 ) -> None:
     """Rebuild one continuous blade at final 1x using exclusive colors."""
 
     dark, mid, highlight = WEAPON_COLORS[weapon]
     image_pixels = image.load()
+    if preserve_authored_geometry:
+        # Running frames already contain two complete authored swords. Drawing
+        # another hand-to-tip line over those pixels creates a parallel second
+        # edge that reads as a blade afterimage at 1x. Recolour only the exact
+        # source mask produced by the same whole-frame resize; never add,
+        # extend, shift or duplicate a weapon pixel in the run cycle.
+        mask_pixels = transformed_mask.load()
+        points = [
+            (x, y)
+            for y in range(transformed_mask.height)
+            for x in range(transformed_mask.width)
+            if mask_pixels[x, y]
+        ]
+        if not points:
+            raise ValueError(f"empty transformed {weapon} mask")
+        vector_x = tip[0] - hand[0]
+        vector_y = tip[1] - hand[1]
+        if vector_x == 0 and vector_y == 0:
+            vector_x = 1
+        ranked = sorted(
+            points,
+            key=lambda point: (
+                (point[0] - hand[0]) * vector_x
+                + (point[1] - hand[1]) * vector_y,
+                point[1],
+                point[0],
+            ),
+        )
+        for point in points:
+            image_pixels[point] = mid
+        image_pixels[ranked[0]] = dark
+        image_pixels[ranked[-1]] = highlight
+        return
+
     draw = ImageDraw.Draw(image)
     draw.line((hand, tip), fill=dark, width=3)
     draw.line((hand, tip), fill=mid, width=2)
@@ -1150,6 +1115,7 @@ def fit_pose(
     x_shift: int,
     weapon_traces: dict[str, dict[str, Any]],
     active_weapon: str,
+    preserve_authored_weapon_geometry: bool = False,
 ) -> tuple[Image.Image, dict[str, Any], dict[str, Any]]:
     """Smoothly reduce one high-resolution pose into its native frame."""
 
@@ -1286,9 +1252,50 @@ def fit_pose(
     if active_weapon in {"steel", "azakana"}:
         order.remove(active_weapon)
         order.append(active_weapon)
+    authored_mask_points: dict[str, set[tuple[int, int]]] = {}
+    authored_alpha_before = (
+        output.getchannel("A").tobytes()
+        if preserve_authored_weapon_geometry
+        else b""
+    )
+    if preserve_authored_weapon_geometry:
+        for weapon in order:
+            mask = transformed_masks[weapon]
+            authored_mask_points[weapon] = {
+                (x, y)
+                for y in range(mask.height)
+                for x in range(mask.width)
+                if mask.getpixel((x, y))
+            }
+        if authored_mask_points["steel"] & authored_mask_points["azakana"]:
+            raise ValueError("authored run weapon masks overlap")
     for weapon in order:
         hand, tip = projected[weapon]
-        _paint_native_weapon(output, weapon, transformed_masks[weapon], hand, tip)
+        _paint_native_weapon(
+            output,
+            weapon,
+            transformed_masks[weapon],
+            hand,
+            tip,
+            preserve_authored_geometry=preserve_authored_weapon_geometry,
+        )
+
+    authored_mask_identity: dict[str, bool] = {}
+    authored_alpha_mask_unchanged = False
+    if preserve_authored_weapon_geometry:
+        authored_mask_identity = {
+            weapon: _weapon_points(output, weapon) == authored_mask_points[weapon]
+            for weapon in order
+        }
+        authored_alpha_mask_unchanged = (
+            output.getchannel("A").tobytes() == authored_alpha_before
+        )
+        if not all(authored_mask_identity.values()):
+            raise ValueError(
+                f"authored run weapon-mask identity changed: {authored_mask_identity}"
+            )
+        if not authored_alpha_mask_unchanged:
+            raise ValueError("authored run weapon recolour changed the alpha silhouette")
 
     weapon_geometry: dict[str, Any] = {}
     for weapon in ("steel", "azakana"):
@@ -1310,6 +1317,13 @@ def fit_pose(
         "horizontal_crop_ratio": round(
             (source_left + fitted.width - source_right) / max(1, fitted.width), 4
         ),
+        "weapon_render_route": (
+            "authored_transformed_mask_only"
+            if preserve_authored_weapon_geometry
+            else "semantic_hand_to_tip_rebuild"
+        ),
+        "authored_weapon_mask_identity": authored_mask_identity,
+        "authored_alpha_mask_unchanged": authored_alpha_mask_unchanged,
         "alpha_bbox": list(bbox),
         "source_weapon_traces": {
             weapon: {
@@ -1692,11 +1706,6 @@ def load_subjects() -> tuple[
             stride_phases=PALETTE_COMPAT_STRIDE_PHASES,
             stride_ratio=0.105,
         )
-    for frame_index, source_key in enumerate(RUN_POSE_SOURCES):
-        key = ("run_pose", frame_index)
-        subjects[key], raw_subjects[key] = recompose_run_articulated_pair(
-            subjects[source_key], raw_subjects[source_key], frame_index
-        )
     install_source_palette(palette_subjects)
     used_keys = {
         (source_kind, int(cell_index))
@@ -1761,6 +1770,7 @@ def build_frames() -> tuple[
                 x_shift=x_shift,
                 weapon_traces=source_weapon_traces[subject_key],
                 active_weapon=active_weapon,
+                preserve_authored_weapon_geometry=action == "run",
             )
 
             bbox = alpha_bbox(image)
@@ -1923,7 +1933,7 @@ def build_motion_attack_preview(
     cell_width = 260
     cell_height = 235
     rows = (
-        ("RUN crossover", "run", 8),
+        ("RUN intact authored motion", "run", 8),
         ("STEEL windup > contact > recovery", "attack", 6),
         ("AZAKANA windup > contact > recovery", "attack_azakana", 6),
     )
@@ -1947,7 +1957,7 @@ def build_motion_attack_preview(
             y = baseline - rendered.height
             preview.alpha_composite(rendered, (x, y))
             phase = (
-                f"stride {RUN_STRIDE_PHASES[index]:+.2f}"
+                f"motion[{ACTION_SOURCES['run'][index][1]}] intact"
                 if action == "run"
                 else RUN_ATTACK_POSE_PHASES[action][index]
             )
@@ -2215,52 +2225,42 @@ def main() -> int:
         run_blade_angle_ranges[weapon] = round(
             2 * math.pi - max(circular_gaps), 3
         )
-    if run_stride_pose_counts["crossing"] < 2:
-        failures.append(f"run_crossing_pose_count={run_stride_pose_counts['crossing']}")
-    if run_stride_pose_counts["extended"] < 2:
-        failures.append(f"run_extended_pose_count={run_stride_pose_counts['extended']}")
-    # Calibrate the gait against finished combined-mod actors instead of
-    # forcing an artificial deep crossover.  Measured with this same lower-
-    # body clustering pass, Briar spans about 5.4..14.3px and Orianna about
-    # 7.7..12.0px. Yone should stay near the latter: a readable narrow passing
-    # step at frames 2/6, moderate contacts at 0/4, and no 15px+ split.
-    if run_foot_separations and min(run_foot_separations) < 6.0:
-        failures.append(
-            f"run_foot_separation_min={min(run_foot_separations):.3f}"
-        )
-    if run_crossing_frame_indices != [2, 6] or run_local_minimum_indices != [2, 6]:
-        failures.append(
-            "run_passing_step_indices="
-            f"{run_crossing_frame_indices}/{run_local_minimum_indices}"
-        )
-    if run_local_maximum_indices != [0, 4]:
-        failures.append(f"run_contact_step_indices={run_local_maximum_indices}")
-    if run_extended_frame_indices != [0, 4]:
-        failures.append(f"run_extended_frame_indices={run_extended_frame_indices}")
-    if any(not 6.5 <= run_foot_separations[index] <= 8.5 for index in (2, 6)):
-        failures.append(f"run_crossing_foot_separations={run_foot_separations}")
-    if any(not 10.0 <= run_foot_separations[index] <= 13.5 for index in (0, 4)):
-        failures.append(f"run_contact_foot_separations={run_foot_separations}")
+    # The source sheet already contains a coherent eight-pose locomotion
+    # sequence. Reject the old synthetic crossover route: all run bodies must
+    # be untouched motion cells 5..12, with bounded natural stride changes.
+    expected_run_sources = [("motion", index) for index in range(5, 13)]
+    actual_run_sources = [(audit["source"], audit["cell"]) for audit in run_audits]
+    if actual_run_sources != expected_run_sources:
+        failures.append(f"run_source_sequence={actual_run_sources}")
+    if len({audit["body_pose_sha256"] for audit in run_audits}) != 8:
+        failures.append("run_authored_pose_count")
     if any(
-        not 8.5 <= run_foot_separations[index] <= 10.5
-        for index in (1, 3, 5, 7)
+        audit.get("weapon_render_route") != "authored_transformed_mask_only"
+        or audit.get("authored_weapon_mask_identity")
+        != {"steel": True, "azakana": True}
+        or audit.get("authored_alpha_mask_unchanged") is not True
+        for audit in run_audits
     ):
-        failures.append(f"run_transition_foot_separations={run_foot_separations}")
-    # The user-visible limp came from the second contact being almost 2px wider
-    # at native scale. Keep the two contact beats within one pixel so neither
-    # half-cycle reads as a heavier/longer step.
-    if abs(run_foot_separations[0] - run_foot_separations[4]) > 1.0:
-        failures.append(f"run_contact_symmetry={run_foot_separations}")
-    if abs(run_foot_separations[2] - run_foot_separations[6]) > 1.0:
-        failures.append(f"run_crossing_symmetry={run_foot_separations}")
-    if RUN_PASSING_LEG_SIDES[2] != -RUN_PASSING_LEG_SIDES[6]:
-        failures.append(f"run_passing_leg_sides={RUN_PASSING_LEG_SIDES}")
-    if run_ground_offsets and max(run_ground_offsets) - min(run_ground_offsets) > 3.0:
+        failures.append("run_weapon_afterimage_route")
+    if run_foot_separations and not (
+        8.5 <= min(run_foot_separations)
+        and max(run_foot_separations) <= 13.5
+    ):
+        failures.append(f"run_natural_foot_range={run_foot_separations}")
+    run_maximum_adjacent_foot_step = max(
+        abs(run_foot_separations[index] - run_foot_separations[(index + 1) % 8])
+        for index in range(8)
+    )
+    if run_maximum_adjacent_foot_step > 2.5:
+        failures.append(
+            f"run_adjacent_foot_step={run_maximum_adjacent_foot_step:.3f}"
+        )
+    if run_ground_offsets and max(run_ground_offsets) - min(run_ground_offsets) > 1.0:
         failures.append(
             "run_ground_anchor_range="
             f"{max(run_ground_offsets) - min(run_ground_offsets):.3f}"
         )
-    if run_torso_heights and max(run_torso_heights) - min(run_torso_heights) > 5.0:
+    if run_torso_heights and max(run_torso_heights) - min(run_torso_heights) > 1.0:
         failures.append(
             "run_torso_height_range="
             f"{max(run_torso_heights) - min(run_torso_heights):.3f}"
@@ -2270,26 +2270,19 @@ def main() -> int:
             "run_body_height_range="
             f"{max(run_body_heights) - min(run_body_heights)}"
         )
-    if run_torso_leans and not 0.4 <= max(run_torso_leans) - min(run_torso_leans) <= 1.5:
+    if run_torso_leans and max(run_torso_leans) - min(run_torso_leans) > 1.5:
         failures.append(
-            "run_upper_guard_lean_range="
+            "run_authored_torso_lean_range="
             f"{max(run_torso_leans) - min(run_torso_leans):.3f}"
         )
-    # One canonical, visibly right-travelling run is the native contract. The
-    # engine mirrors this art with flip_x when movement changes side. Keeping
-    # the mean upper-body lead positive prevents the frontal silhouette that
-    # made both mirrored directions look identical, while the upper bound
-    # rejects the old over-sheared/deformed look.
-    if not 1.80 <= run_mean_torso_lean <= 2.50:
-        failures.append(f"run_canonical_forward_lean={run_mean_torso_lean:.3f}")
-    if run_hand_ranges["steel"]["x"] < 3.0 or run_hand_ranges["steel"]["y"] < 1.5:
+    if not 1.0 <= run_mean_torso_lean <= 2.5:
+        failures.append(f"run_authored_forward_lean={run_mean_torso_lean:.3f}")
+    if run_hand_ranges["steel"]["x"] < 2.5 or run_hand_ranges["steel"]["y"] < 1.5:
         failures.append(f"weak_steel_hand_motion={run_hand_ranges['steel']}")
-    if run_hand_ranges["azakana"]["x"] < 2.5 or run_hand_ranges["azakana"]["y"] < 1.0:
+    if run_hand_ranges["azakana"]["x"] < 1.5 or run_hand_ranges["azakana"]["y"] < 1.0:
         failures.append(f"weak_azakana_hand_motion={run_hand_ranges['azakana']}")
-    if run_hand_x_correlation > -0.15:
-        failures.append(f"run_hand_x_correlation={run_hand_x_correlation:.3f}")
     for weapon, adjacent_step in run_maximum_adjacent_hand_steps.items():
-        if adjacent_step > 3.0:
+        if adjacent_step > 4.0:
             failures.append(f"run_{weapon}_hand_step={adjacent_step:.3f}")
     for weapon, angle_range in run_blade_angle_ranges.items():
         if angle_range > 3.0:
@@ -2300,21 +2293,24 @@ def main() -> int:
                 f"run_{weapon}_adjacent_angle_step={adjacent_angle_step:.3f}"
             )
         blade_pixel_ratio = run_minimum_blade_pixel_ratios[weapon]
-        if blade_pixel_ratio < 0.65:
+        # Authored side-running poses foreshorten each sword as the shoulders
+        # rotate. Keep every blade present, but do not normalize perspective by
+        # duplicating or stretching pixels (the rejected route's ghosting bug).
+        if blade_pixel_ratio < 0.40:
             failures.append(
                 f"run_{weapon}_minimum_blade_pixel_ratio={blade_pixel_ratio:.3f}"
             )
-        if run_maximum_adjacent_tip_steps[weapon] > 5.0:
+        if run_maximum_adjacent_tip_steps[weapon] > 8.0:
             failures.append(
                 f"run_{weapon}_tip_step={run_maximum_adjacent_tip_steps[weapon]:.3f}"
             )
-        if run_maximum_adjacent_blade_span_ratios[weapon] > 1.2:
+        if run_maximum_adjacent_blade_span_ratios[weapon] > 2.0:
             failures.append(
                 "run_"
                 f"{weapon}_adjacent_span_ratio="
                 f"{run_maximum_adjacent_blade_span_ratios[weapon]:.3f}"
             )
-        if run_maximum_adjacent_blade_pixel_ratios[weapon] > 1.2:
+        if run_maximum_adjacent_blade_pixel_ratios[weapon] > 1.90:
             failures.append(
                 "run_"
                 f"{weapon}_adjacent_pixel_ratio="
@@ -2369,13 +2365,18 @@ def main() -> int:
             "attack_durations_seconds": build_yone.NATIVE_CONTRACT["attack"]["durations"],
         },
         "run": {
-            "source": "approved upright V7 guard poses; authored upper-body articulation plus moderate finished-hero-calibrated passing-step motion",
+            "source": "eight complete authored V7 motion cells 5..12; whole-pose proportional fit and transformed source weapon masks only, with no leg split, frame blend, torso shear, hand-to-tip redraw, or afterimage",
             "canonical_art_direction": "right",
             "runtime_direction_owner": "native GameView flip_x; one canonical run action",
-            "pose_sources": [list(source) for source in RUN_POSE_SOURCES],
+            "weapon_render_route": "authored_transformed_mask_only",
+            "authored_weapon_mask_identity": {"steel": True, "azakana": True},
+            "authored_alpha_mask_unchanged": True,
+            "pose_sources": [list(source) for source in ACTION_SOURCES["run"]],
             "stride_phases": list(RUN_STRIDE_PHASES),
-            "passing_leg_sides": list(RUN_PASSING_LEG_SIDES),
             "foot_separations_px": run_foot_separations,
+            "maximum_adjacent_foot_step_px": round(
+                run_maximum_adjacent_foot_step, 3
+            ),
             "stride_pose_counts": dict(sorted(run_stride_pose_counts.items())),
             "crossing_frame_indices": run_crossing_frame_indices,
             "extended_frame_indices": run_extended_frame_indices,
@@ -2394,7 +2395,7 @@ def main() -> int:
             "upper_guard_lean_range_px": round(
                 max(run_torso_leans) - min(run_torso_leans), 3
             ),
-            "mean_upper_guard_forward_lean_px": round(run_mean_torso_lean, 3),
+            "mean_authored_forward_lean_px": round(run_mean_torso_lean, 3),
             "hand_anchor_ranges_px": run_hand_ranges,
             "hand_x_correlation": round(run_hand_x_correlation, 3),
             "maximum_adjacent_hand_step_px": run_maximum_adjacent_hand_steps,

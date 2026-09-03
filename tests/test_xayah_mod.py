@@ -516,37 +516,43 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
 
     stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     assert "find_encyclopedia_container" in stable_runtime
-    assert "draw_encyclopedia_card" in stable_runtime
-    assert "draw_encyclopedia_portraits" in stable_runtime
+    assert "sync_encyclopedia_card" in stable_runtime
+    assert "sync_encyclopedia_portraits" in stable_runtime
     assert 'contains("champion_info")' in stable_runtime
     assert '"dancer"' in stable_runtime
     assert '"dual_blader"' in stable_runtime
     assert '"boomerang_hunter" | "Sivir"' in stable_runtime
     assert '"dancer" | "Xayah"' in stable_runtime
     assert '"dual_blader" | "Yone"' in stable_runtime
-    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' in stable_runtime
-    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' in stable_runtime
+    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' not in stable_runtime
+    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' not in stable_runtime
     assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_ICON_SIZE: f32 = 64.0;" in stable_runtime
+    assert "const ENCYCLOPEDIA_FULLBODY_SCALE: f32 = 1.65;" in stable_runtime
     assert 'client.ui_set_properties(&role_icon, "z: 2;")' in stable_runtime
 
-    # Regression: source-created child image nodes were live-proven to remain
-    # at 0x0 layout while the native icon was hidden. Render final-size sprites
-    # directly over a real computed icon rect and never hide the stock fallback
-    # unless a prior render frame produced a successful draw proof.
-    card_draw = stable_runtime.split("fn draw_encyclopedia_card", 1)[1].split(
-        "fn draw_encyclopedia_portraits", 1
+    # Regression: source-created child nodes had 0x0 layout, post-render drawing
+    # escaped the card, and raw source mutation can return true with an empty
+    # texture. The engine resolver owns the existing native ImageRunner and its
+    # failure path must keep the original icon visible.
+    card_sync = stable_runtime.split("fn sync_encyclopedia_card", 1)[1].split(
+        "fn sync_encyclopedia_portraits", 1
     )[0]
-    assert "client.ui_node_rect(&native_icon)" in card_draw
-    assert "encyclopedia_target_rect_is_drawable" in card_draw
-    assert "client.draw_sprite(" in card_draw
-    assert "ui_spawn_source" not in card_draw
-    assert "ui_set_champion_icon" not in card_draw
-    visibility = stable_runtime.split("fn sync_encyclopedia_native_visibility", 1)[1].split(
-        "fn draw_encyclopedia_card", 1
-    )[0]
-    assert "let should_hide = drawable && proof & bit != 0;" in visibility
-    assert "zero-layout cannot hide native" in visibility
-    assert "post-render direct encyclopedia sprites" in stable_runtime
+    assert "client.ui_node_rect(&native_icon)" in card_sync
+    assert "let runner = client.ui_runner_name(&native_icon).unwrap_or_default();" in card_sync
+    assert 'runner.eq_ignore_ascii_case("image")' in card_sync
+    assert "resolver_bound" in card_sync
+    assert "positioned" in card_sync
+    assert "client.ui_set_champion_icon(" in card_sync
+    assert "ENCYCLOPEDIA_ICON_SIZE" in card_sync
+    assert "ENCYCLOPEDIA_FULLBODY_SCALE" in card_sync
+    assert "client.ui_set_visible(&native_icon, true)" in card_sync
+    assert 'source: \\"' not in card_sync
+    assert "ui_spawn_source" not in card_sync
+    assert "draw_sprite" not in stable_runtime
+    assert "fn post_render" not in stable_runtime
+    assert "encyclopedia_render_proof" not in stable_runtime
+    assert "ui_set_visible(&native_icon, false)" not in card_sync
 
     stable_client = (MOD / "vendor/mod-api-stable/src/client_ctx.rs").read_text(
         encoding="utf-8"
@@ -559,13 +565,8 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     runtime_paths = {
         row["path"] for row in load_json("runtime_manifest.json")["files"]
     }
-    assert "ui/champion_fullbody/dancer_encyclopedia.png" in runtime_paths
-    assert "ui/champion_fullbody/dual_blader_encyclopedia.png" in runtime_paths
-    assert {
+    assert not {
         path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
-    } == {
-        "ui/champion_fullbody/dancer_encyclopedia.png",
-        "ui/champion_fullbody/dual_blader_encyclopedia.png",
     }
     assert not any(
         path.startswith("ui/layout/champion_info_component/")

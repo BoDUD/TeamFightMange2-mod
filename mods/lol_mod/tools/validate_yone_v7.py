@@ -61,6 +61,16 @@ EXPECTED_SOURCE_HASHES = {
     "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
     "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
 }
+EXPECTED_RUN_FRAME_HASHES = {
+    "run_00.png": "fdba09eabdf1e18c5f423f7830507aaf5d3e55c3a8c49f796b20225484a21cb8",
+    "run_01.png": "62aeebdc0c4a7b9927ee0ce7f25a9dca10364c84f2967ca300c817a1e472356c",
+    "run_02.png": "b55470ff0eeda05c04ef0be444fdc4cc676734892034c2e7e6261a8576aa3d3a",
+    "run_03.png": "86676ff6ca4049417d4bde5d69e42a04eb68b2aaf7e10768b28530050a71f4b7",
+    "run_04.png": "88d7495fd2e84ac0ceda7ced2a706d1102c4302ac756dd2ff5ecc5953419506c",
+    "run_05.png": "17c638efccff2639ee481698ec8a4ba3b3527ce5eedf0d11149e69896cc8678f",
+    "run_06.png": "726e82cd341f7622156af9c66967131aba58f9bedded8b3811a4eec7221e2c01",
+    "run_07.png": "2250942c656c7fcef435973dd471b30c2e79ed6c8a084255df1969c977308ea7",
+}
 SOURCE_PATHS = {
     "motion": MOD_ROOT / "source/imagegen/yone_v7_motion_contact.png",
     "attack_q": MOD_ROOT / "source/imagegen/yone_v7_attack_q_contact.png",
@@ -286,6 +296,39 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         _fail("V7 source-to-native route must declare LANCZOS resampling")
     if payload.get("opaque_palette_size") not in range(1, MAX_OPAQUE_PALETTE_COLORS + 1):
         _fail("generation_qa.json opaque_palette_size is outside 1..48")
+    run_contract = payload.get("motion_attack_contract", {}).get("run", {})
+    expected_mask_identity = {"steel": True, "azakana": True}
+    if (
+        run_contract.get("pose_sources")
+        != [["motion", index] for index in range(5, 13)]
+        or run_contract.get("weapon_render_route")
+        != "authored_transformed_mask_only"
+        or run_contract.get("authored_weapon_mask_identity")
+        != expected_mask_identity
+        or run_contract.get("authored_alpha_mask_unchanged") is not True
+        or "hand-to-tip redraw" not in str(run_contract.get("source", ""))
+        or "afterimage" not in str(run_contract.get("source", ""))
+    ):
+        _fail("V7 run must preserve eight authored source frames and weapon masks without redraw")
+    run_rows = sorted(
+        (
+            row
+            for row in payload.get("frames", [])
+            if isinstance(row, dict) and row.get("action") == "run"
+        ),
+        key=lambda row: int(row.get("index", -1)),
+    )
+    if (
+        [(row.get("source"), row.get("cell")) for row in run_rows]
+        != [("motion", index) for index in range(5, 13)]
+        or any(
+            row.get("weapon_render_route") != "authored_transformed_mask_only"
+            or row.get("authored_weapon_mask_identity") != expected_mask_identity
+            or row.get("authored_alpha_mask_unchanged") is not True
+            for row in run_rows
+        )
+    ):
+        _fail("V7 run frame audit contains a synthetic weapon redraw or stale source cell")
     actual_hashes: dict[str, str] = {}
     for label, canonical_path in SOURCE_PATHS.items():
         path = mod_root / canonical_path.relative_to(MOD_ROOT)
@@ -294,11 +337,27 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         actual_hashes[label] = _sha256(path)
     if actual_hashes != EXPECTED_SOURCE_HASHES:
         _fail(f"hash-locked V7 source changed: {actual_hashes}")
+    run_frame_root = (
+        mod_root / "source" / "native" / "yone_v7" / "frames"
+    )
+    actual_run_frame_hashes = {
+        name: _sha256(run_frame_root / name)
+        for name in EXPECTED_RUN_FRAME_HASHES
+    }
+    if actual_run_frame_hashes != EXPECTED_RUN_FRAME_HASHES:
+        _fail(
+            "accepted intact Yone run frames changed: "
+            f"{actual_run_frame_hashes}"
+        )
     return {
         "schema_version": EXPECTED_SCHEMA_VERSION,
         "source_hashes": actual_hashes,
         "source_to_native_resampling": "LANCZOS",
         "opaque_palette_size": payload["opaque_palette_size"],
+        "run_weapon_render_route": "authored_transformed_mask_only",
+        "run_authored_weapon_mask_identity": expected_mask_identity,
+        "run_authored_alpha_mask_unchanged": True,
+        "run_frame_hashes": actual_run_frame_hashes,
         "quality_failures": [],
     }
 
@@ -1176,14 +1235,22 @@ def _validate_dual_sword_cues(
                 }
                 if not points:
                     _fail(f"{label} has no exclusive {weapon} pixels")
+                # The fixed native run rectangles are only 39-41px wide. The
+                # intact authored dual-sword poses retain one transparent
+                # border pixel; requiring two would force the rejected shorter
+                # synthetic hand-to-tip redraw. Other actions keep 2px.
+                edge_margin = 1 if action == "run" else 2
                 unsafe = sorted(
                     (x, y)
                     for x, y in points
-                    if x < 2 or y < 2 or x >= image.width - 2 or y >= image.height - 2
+                    if x < edge_margin
+                    or y < edge_margin
+                    or x >= image.width - edge_margin
+                    or y >= image.height - edge_margin
                 )
                 if unsafe:
                     _fail(
-                        f"{label} {weapon} violates 2px edge margin at {unsafe[:4]}"
+                        f"{label} {weapon} violates {edge_margin}px edge margin at {unsafe[:4]}"
                     )
                 all_points[weapon] = points
 

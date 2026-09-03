@@ -4902,10 +4902,9 @@ RUNTIME_EXCLUDED_PREFIXES = (
     # Compact/grid/scoreboard replacements belong to the retired classic
     # render-command route.
     "ui/champion_portrait/",
-    # Most authored full-body PNGs and the static shared-template experiment
-    # remain QA-only. Xayah/Yone are explicit exceptions below because their
-    # stable-ABI encyclopedia route now spawns two dedicated source-direct
-    # image nodes instead of abusing the face-crop champion-icon resolver.
+    # Authored full-body PNGs and the static shared-template experiment remain
+    # QA-only. On 0.5.8 the only nonblank, scroll-aware encyclopedia route is
+    # the existing native ImageRunner filled by the engine champion resolver.
     "ui/champion_fullbody/",
     "ui/layout/champion_info_component/",
     # These exact base-0.5.1 templates once crashed the draft scene when used
@@ -4922,10 +4921,7 @@ RUNTIME_EXCLUDED_PATHS = {
     "style/bp_controls.style",
 }
 
-RUNTIME_INCLUDED_PATHS = {
-    "ui/champion_fullbody/dancer_encyclopedia.png",
-    "ui/champion_fullbody/dual_blader_encyclopedia.png",
-}
+RUNTIME_INCLUDED_PATHS: set[str] = set()
 
 RUNTIME_SOFT_BUDGET_BYTES = 96 * 1024 * 1024
 RUNTIME_HARD_BUDGET_BYTES = 128 * 1024 * 1024
@@ -4957,7 +4953,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.12 render-hook encyclopedia fallback and native-mirrored Yone run test closure",
+        "purpose": "0.12.13 engine-resolved encyclopedia ImageRunner and intact authored Yone run test closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,
