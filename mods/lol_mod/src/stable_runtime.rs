@@ -4,13 +4,8 @@
 //! but Cargo deliberately builds only this file. Only the frozen `*V1` value
 //! types and size-guarded stable host tables cross the DLL boundary.
 
-use std::collections::{HashSet, VecDeque};
-use std::fs::{self, OpenOptions};
-use std::io::Write;
-use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use mod_api_stable::{
     declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1, InputTargetV1,
@@ -20,23 +15,9 @@ use mod_api_stable::{
 
 const MOD_ID: &str = "lol_mod";
 
-const ENCYCLOPEDIA_TELEMETRY_FILE: &str = "lol_mod_encyclopedia_ui.tsv";
 const MOBA_MIN_TOWER_COUNT: usize = 6;
 const MOBA_EXPECTED_PLAYER_COUNT: usize = 10;
 const MOBA_EXPECTED_LANE_MASK: u8 = 0b1_1111;
-
-static UI_TELEMETRY_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-
-fn app_data_telemetry_path(file_name: &str) -> Option<PathBuf> {
-    let app_data = std::env::var_os("APPDATA")?;
-    Some(
-        PathBuf::from(app_data)
-            .join("TeamSamoyed")
-            .join("TeamfightManager2")
-            .join("data")
-            .join(file_name),
-    )
-}
 
 #[derive(Clone, Copy, Debug, Default)]
 struct CorruptMobaMatchGuard;
@@ -140,32 +121,10 @@ const BP_RUNTIME_SCAN_INTERVAL_MICROS: u64 = 250_000;
 const BP_RUNTIME_ROOT_PATHS: [&str; 3] = ["main", "top.main", "banpick.main"];
 const BP_RUNTIME_MAX_PICK_SLOTS: usize = 12;
 const BP_RUNTIME_MAX_CHAMPION_CARDS: usize = 256;
-const ENCYCLOPEDIA_RUNTIME_MAX_NODES: usize = 4096;
-// The stock card ImageRunner is the only encyclopedia surface whose 0.5.8
-// scroll transform, clipping and local z-order are proven. A spawned child
-// permanently reported a 0x0 layout, post_render drawing escaped the card, and
-// writing a raw PNG `source` onto an existing runner can silently resolve to an
-// empty texture even though ui_set_properties returns true. Keep the engine's
-// champion resolver as the single source owner. A 64x64 box at 1.65x fits the
-// complete Xayah/Yone idle silhouettes above the tier control while retaining
-// the same finished-hero scale used by the accepted encyclopedia cards.
-const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;
-const ENCYCLOPEDIA_ICON_SIZE: f32 = 64.0;
-const ENCYCLOPEDIA_FULLBODY_SCALE: f32 = 1.65;
-const ENCYCLOPEDIA_CONTAINER_CANDIDATES: [&str; 6] = [
-    "body.main.top.right.champion_info.data.champions.contents",
-    "main.top.right.champion_info.data.champions.contents",
-    "body.top.right.champion_info.data.champions.contents",
-    "top.right.champion_info.data.champions.contents",
-    "body.main.right.champion_info.data.champions.contents",
-    "main.right.champion_info.data.champions.contents",
-];
 
 #[derive(Debug, Default)]
 struct QualityBpExtension {
     elapsed_micros: AtomicU64,
-    encyclopedia_container: Mutex<Option<String>>,
-    encyclopedia_telemetry_written: AtomicU64,
 }
 
 fn join_ui_path(parent: &str, child: &str) -> String {
@@ -173,228 +132,6 @@ fn join_ui_path(parent: &str, child: &str) -> String {
         child.to_string()
     } else {
         format!("{parent}.{child}")
-    }
-}
-
-fn is_encyclopedia_container(client: &StableClient<'_>, path: &str) -> bool {
-    client.ui_exists(path) && client.ui_child_count(path).is_some()
-}
-
-fn has_known_encyclopedia_card(client: &StableClient<'_>, path: &str) -> bool {
-    ["dancer", "dual_blader"].iter().any(|champion_id| {
-        let card = join_ui_path(path, champion_id);
-        client.ui_exists(&join_ui_path(&card, "icon"))
-            && client.ui_exists(&join_ui_path(&card, "name"))
-    })
-}
-
-fn find_encyclopedia_container(client: &StableClient<'_>) -> Option<String> {
-    for candidate in ENCYCLOPEDIA_CONTAINER_CANDIDATES {
-        if is_encyclopedia_container(client, candidate) {
-            return Some(candidate.to_string());
-        }
-    }
-
-    // The stable UI path API exposes the champion-id keys assigned by
-    // ChampionInfoUIRunner. Walk from the real root instead of assuming that
-    // a localized main-screen layout keeps one fixed prefix forever.
-    let mut queue = VecDeque::new();
-    let mut visited = HashSet::new();
-    queue.push_back(String::new());
-    while let Some(path) = queue.pop_front() {
-        if !visited.insert(path.clone()) || visited.len() > ENCYCLOPEDIA_RUNTIME_MAX_NODES {
-            continue;
-        }
-        if client
-            .ui_runner_name(&path)
-            .is_some_and(|runner| runner.to_ascii_lowercase().contains("champion_info"))
-        {
-            let contents = join_ui_path(&path, "data.champions.contents");
-            if is_encyclopedia_container(client, &contents) {
-                return Some(contents);
-            }
-        }
-        let children = client.ui_child_names(&path);
-        if children
-            .iter()
-            .any(|child| matches!(child.as_str(), "dancer" | "dual_blader"))
-            && has_known_encyclopedia_card(client, &path)
-        {
-            return Some(path);
-        }
-        for child in children {
-            queue.push_back(join_ui_path(&path, &child));
-        }
-    }
-    None
-}
-
-fn resolve_encyclopedia_container(
-    extension: &QualityBpExtension,
-    client: &StableClient<'_>,
-) -> Option<String> {
-    let cached = extension
-        .encyclopedia_container
-        .lock()
-        .ok()
-        .and_then(|guard| guard.clone());
-    let container = cached
-        .filter(|path| is_encyclopedia_container(client, path))
-        .or_else(|| find_encyclopedia_container(client));
-    if let Some(container) = &container {
-        if let Ok(mut cached) = extension.encyclopedia_container.lock() {
-            *cached = Some(container.clone());
-        }
-    }
-    container
-}
-
-fn append_encyclopedia_telemetry(container: &str, detail: &str) {
-    let Some(path) = app_data_telemetry_path(ENCYCLOPEDIA_TELEMETRY_FILE) else {
-        return;
-    };
-    let lock = UI_TELEMETRY_LOCK.get_or_init(|| Mutex::new(()));
-    let Ok(_guard) = lock.lock() else {
-        return;
-    };
-    if let Some(parent) = path.parent() {
-        let _ = fs::create_dir_all(parent);
-    }
-    let new_file = !path.exists();
-    let Ok(mut file) = OpenOptions::new().create(true).append(true).open(path) else {
-        return;
-    };
-    if new_file {
-        let _ = writeln!(file, "unix_ms\tmod_version\tcontainer\tdetail");
-    }
-    let unix_ms = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_or(0, |duration| duration.as_millis());
-    let detail = detail.replace(['\t', '\r', '\n'], " ");
-    let _ = writeln!(
-        file,
-        "{unix_ms}\t{}\t{container}\t{detail}",
-        env!("CARGO_PKG_VERSION")
-    );
-}
-
-fn encyclopedia_native_icon_path(container: &str, champion_id: &str) -> String {
-    join_ui_path(&join_ui_path(container, champion_id), "icon")
-}
-
-#[derive(Debug, Default)]
-struct EncyclopediaCardSync {
-    icon_exists: bool,
-    runner: String,
-    resolver_bound: bool,
-    positioned: bool,
-    visible: bool,
-    rect_before: Option<(f32, f32, f32, f32)>,
-    rect_after: Option<(f32, f32, f32, f32)>,
-}
-
-fn sync_encyclopedia_card(
-    client: &mut StableClient<'_>,
-    container: &str,
-    champion_id: &str,
-) -> EncyclopediaCardSync {
-    let card = join_ui_path(container, champion_id);
-    let native_icon = encyclopedia_native_icon_path(container, champion_id);
-    if !client.ui_exists(&native_icon) {
-        return EncyclopediaCardSync::default();
-    }
-    let runner = client.ui_runner_name(&native_icon).unwrap_or_default();
-    let rect_before = client.ui_node_rect(&native_icon);
-
-    // Hide any child left behind by the rejected 0.12.11 route. Fresh starts
-    // never contain these nodes, but hot reload must not stack two portraits.
-    let retired_overlay = match champion_id {
-        "dancer" => "lol_mod_fullbody_xayah",
-        "dual_blader" => "lol_mod_fullbody_yone",
-        _ => "",
-    };
-    if !retired_overlay.is_empty() {
-        let retired_overlay = join_ui_path(&card, retired_overlay);
-        if client.ui_exists(&retired_overlay) {
-            let _ = client.ui_set_visible(&retired_overlay, false);
-        }
-    }
-
-    // This call verifies both the ImageRunner and the champion animation
-    // source. Unlike raw set_properties(source), false is a real failure and
-    // leaves the stock image untouched. Only reposition a successfully
-    // resolved image; the failure path remains a visible native fallback.
-    let resolver_bound = runner.eq_ignore_ascii_case("image")
-        && client.ui_set_champion_icon(
-            &native_icon,
-            champion_id,
-            ENCYCLOPEDIA_ICON_SIZE,
-            ENCYCLOPEDIA_ICON_SIZE,
-            ENCYCLOPEDIA_FULLBODY_SCALE,
-        );
-    let positioned = resolver_bound
-        && client.ui_set_properties(
-            &native_icon,
-            &format!(
-                "width: {ENCYCLOPEDIA_ICON_SIZE}px; height: {ENCYCLOPEDIA_ICON_SIZE}px; y: {ENCYCLOPEDIA_FULLBODY_BOTTOM_Y}px; z: 1; anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; sample_linear: false;"
-            ),
-        );
-    let visible = client.ui_set_visible(&native_icon, true);
-
-    for role_icon in ["pos1", "pos2"] {
-        let role_icon = join_ui_path(&card, role_icon);
-        let _ = client.ui_set_properties(&role_icon, "z: 2;");
-    }
-    let rect_after = client.ui_node_rect(&native_icon);
-    EncyclopediaCardSync {
-        icon_exists: true,
-        runner,
-        resolver_bound,
-        positioned,
-        visible,
-        rect_before,
-        rect_after,
-    }
-}
-
-fn sync_encyclopedia_portraits(extension: &QualityBpExtension, client: &mut StableClient<'_>) {
-    if client.client_main_tab().as_deref() != Some("GameInfo") {
-        extension
-            .encyclopedia_telemetry_written
-            .store(0, Ordering::Relaxed);
-        return;
-    }
-
-    let Some(container) = resolve_encyclopedia_container(extension, client) else {
-        return;
-    };
-    let xayah = sync_encyclopedia_card(client, &container, "dancer");
-    let yone = sync_encyclopedia_card(client, &container, "dual_blader");
-    if xayah.icon_exists
-        && yone.icon_exists
-        && extension
-            .encyclopedia_telemetry_written
-            .compare_exchange(0, 1, Ordering::Relaxed, Ordering::Relaxed)
-            .is_ok()
-    {
-        append_encyclopedia_telemetry(
-            &container,
-            &format!(
-                "engine champion-icon resolver on existing 64x64 ImageRunner; raw source mutation disabled; card-local scroll/clipping inherited; native icon always visible; scale=1.65 bottom_y=68 tier_y=70; xayah runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}; yone runner={} bound={} positioned={} visible={} rect_before={:?} rect_after={:?}",
-                xayah.runner,
-                xayah.resolver_bound,
-                xayah.positioned,
-                xayah.visible,
-                xayah.rect_before,
-                xayah.rect_after,
-                yone.runner,
-                yone.resolver_bound,
-                yone.positioned,
-                yone.visible,
-                yone.rect_before,
-                yone.rect_after,
-            ),
-        );
     }
 }
 
@@ -601,7 +338,6 @@ impl StableExtension for QualityBpExtension {
         self.elapsed_micros.store(0, Ordering::Relaxed);
 
         sync_bp_runtime_ui(client);
-        sync_encyclopedia_portraits(self, client);
     }
 }
 

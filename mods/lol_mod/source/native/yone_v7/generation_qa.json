@@ -127,7 +127,7 @@
       ]
     },
     "run": {
-      "source": "eight complete authored V7 motion cells 5..12; whole-pose proportional fit and transformed source weapon masks only, with no leg split, frame blend, torso shear, hand-to-tip redraw, or afterimage",
+      "source": "eight authored V7 upper-body/weapon poses from motion cells 5..12 plus four complete authored lower-body phases and their whole-patch half-cycle mirrors; no drawn leg, resize, shear, hand-to-tip redraw, or afterimage",
       "canonical_art_direction": "right",
       "runtime_direction_owner": "native GameView flip_x; one canonical run action",
       "weapon_render_route": "authored_transformed_mask_only",
@@ -136,6 +136,87 @@
         "azakana": true
       },
       "authored_alpha_mask_unchanged": true,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_indices": [
+        4,
+        5,
+        6,
+        7,
+        4,
+        5,
+        6,
+        7
+      ],
+      "lower_body_mirrored": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0,
+      "half_cycle_pair_mirror_match": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "support_leg_sequence": [
+        "right",
+        "right",
+        "right",
+        "right",
+        "left",
+        "left",
+        "left",
+        "left"
+      ],
+      "left_contact_y": [
+        33,
+        35,
+        32,
+        32,
+        35,
+        36,
+        37,
+        36
+      ],
+      "right_contact_y": [
+        35,
+        36,
+        37,
+        36,
+        31,
+        33,
+        32,
+        32
+      ],
+      "ground_y": [
+        35,
+        36,
+        37,
+        36,
+        35,
+        36,
+        37,
+        36
+      ],
+      "swing_clearance_px": [
+        2,
+        1,
+        5,
+        4,
+        4,
+        3,
+        5,
+        4
+      ],
       "pose_sources": [
         [
           "motion",
@@ -181,23 +262,22 @@
         0.65
       ],
       "foot_separations_px": [
-        11.64,
-        12.442,
-        11.67,
-        11.404,
-        10.406,
-        11.045,
-        11.797,
-        11.534
+        4.905,
+        5.018,
+        12.44,
+        10.204,
+        7.622,
+        7.864,
+        12.657,
+        10.86
       ],
-      "maximum_adjacent_foot_step_px": 0.998,
+      "maximum_adjacent_foot_step_px": 7.422,
       "stride_pose_counts": {
-        "extended": 8
+        "extended": 6,
+        "passing": 2
       },
       "crossing_frame_indices": [],
       "extended_frame_indices": [
-        0,
-        1,
         2,
         3,
         4,
@@ -206,15 +286,15 @@
         7
       ],
       "local_minimum_frame_indices": [
-        4,
-        7
+        0,
+        4
       ],
       "local_maximum_frame_indices": [
-        1,
+        2,
         6
       ],
-      "minimum_foot_separation_px": 10.406,
-      "maximum_foot_separation_px": 12.442,
+      "minimum_foot_separation_px": 4.905,
+      "maximum_foot_separation_px": 12.657,
       "ground_anchor_range_px": 0.0,
       "torso_height_range_px": 0.261,
       "body_visible_height_range_px": 0,
@@ -3503,14 +3583,14 @@
       "azakana_pixel_count": 20,
       "azakana_crop_ratio": 0.0,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 606,
+      "opaque_pixels": 641,
       "bbox_width": 38,
       "bbox_height": 35,
       "core_width_p50": 23,
-      "body_density": 0.4556,
+      "body_density": 0.482,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7162,
-      "bright_ratio": 0.0776,
+      "dark_ratio": 0.7192,
+      "bright_ratio": 0.0733,
       "source_subject_size": [
         173,
         152
@@ -3579,7 +3659,7 @@
           "source_thickness": 7.172
         }
       },
-      "body_pose_sha256": "5a62012610dc08338938dfe3b01e9f2c6abd6eacbc97d278e0bed545559bfa16",
+      "body_pose_sha256": "9a05e89ee0eeed445d22ed503758727dfe030262140433293c3489bc56d6880c",
       "body_alpha_bbox": [
         2,
         1,
@@ -3590,13 +3670,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.388,
       "upper_minus_mid_centroid_x_px": 2.048,
-      "run_stride_phase": 1.0,
-      "foot_centers_x": [
-        13.333,
-        24.974
+      "ground_y": 35,
+      "pelvis_x": 19,
+      "lower_body_search_box": [
+        8,
+        25,
+        31,
+        36
       ],
-      "foot_separation_px": 11.64,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        13,
+        31,
+        7,
+        3
+      ],
+      "left_contact_y": 33,
+      "left_grounded": false,
+      "right_foot_bbox": [
+        20,
+        33,
+        4,
+        3
+      ],
+      "right_contact_y": 35,
+      "right_grounded": true,
+      "foot_zones": [
+        [
+          13,
+          31,
+          7,
+          3
+        ],
+        [
+          20,
+          33,
+          4,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        16.429,
+        21.333
+      ],
+      "foot_separation_px": 4.905,
+      "support_leg": "right",
+      "swing_clearance_px": 2,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "passing",
+      "run_stride_phase": 1.0,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 4,
+      "lower_body_mirrored": false,
+      "lower_body_target_pelvis_x": 20,
+      "lower_body_donor_pelvis_x": 20,
+      "lower_body_edit_roi": [
+        9,
+        26,
+        32,
+        36
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -3655,14 +3791,14 @@
       "azakana_pixel_count": 12,
       "azakana_crop_ratio": 0.4545,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 648,
+      "opaque_pixels": 661,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 25,
-      "body_density": 0.5004,
+      "body_density": 0.5104,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7361,
-      "bright_ratio": 0.0756,
+      "dark_ratio": 0.7368,
+      "bright_ratio": 0.0741,
       "source_subject_size": [
         196,
         147
@@ -3731,7 +3867,7 @@
           "source_thickness": 5.668
         }
       },
-      "body_pose_sha256": "52b5a3bb6c76d5ed295ef2f45ed50db75b4f03b809dc42db410d21ac6e7032fb",
+      "body_pose_sha256": "b5ee798e23d14d2d4cb8d659db4b7d38f39c0b76245d76d2e4c6bb07845ec0db",
       "body_alpha_bbox": [
         1,
         2,
@@ -3742,13 +3878,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.383,
       "upper_minus_mid_centroid_x_px": 1.378,
-      "run_stride_phase": 0.65,
-      "foot_centers_x": [
-        11.38,
-        23.822
+      "ground_y": 36,
+      "pelvis_x": 18,
+      "lower_body_search_box": [
+        7,
+        26,
+        30,
+        37
       ],
-      "foot_separation_px": 12.442,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        11,
+        33,
+        8,
+        3
+      ],
+      "left_contact_y": 35,
+      "left_grounded": false,
+      "right_foot_bbox": [
+        19,
+        34,
+        3,
+        3
+      ],
+      "right_contact_y": 36,
+      "right_grounded": true,
+      "foot_zones": [
+        [
+          11,
+          33,
+          8,
+          3
+        ],
+        [
+          19,
+          34,
+          3,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        14.857,
+        19.875
+      ],
+      "foot_separation_px": 5.018,
+      "support_leg": "right",
+      "swing_clearance_px": 1,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "passing",
+      "run_stride_phase": 0.65,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 5,
+      "lower_body_mirrored": false,
+      "lower_body_target_pelvis_x": 18,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        7,
+        27,
+        30,
+        37
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -3807,14 +3999,14 @@
       "azakana_pixel_count": 9,
       "azakana_crop_ratio": 0.625,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 648,
+      "opaque_pixels": 645,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 25,
-      "body_density": 0.5004,
+      "body_density": 0.4981,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7454,
-      "bright_ratio": 0.0787,
+      "dark_ratio": 0.7457,
+      "bright_ratio": 0.0791,
       "source_subject_size": [
         196,
         146
@@ -3883,7 +4075,7 @@
           "source_thickness": 5.76
         }
       },
-      "body_pose_sha256": "c37853585b59ebf0dc660de75b216ae3d27a4ec380bf5c60ccc504c03393e1c3",
+      "body_pose_sha256": "e5a3805ed35531554fbfe74cc5a6614593c8ed85887e086ccfe6b44fe0988ee5",
       "body_alpha_bbox": [
         2,
         3,
@@ -3894,13 +4086,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.382,
       "upper_minus_mid_centroid_x_px": 1.586,
-      "run_stride_phase": 0.0,
-      "foot_centers_x": [
-        11.378,
-        23.048
+      "ground_y": 37,
+      "pelvis_x": 18,
+      "lower_body_search_box": [
+        7,
+        27,
+        30,
+        38
       ],
-      "foot_separation_px": 11.67,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        7,
+        30,
+        12,
+        3
+      ],
+      "left_contact_y": 32,
+      "left_grounded": false,
+      "right_foot_bbox": [
+        23,
+        35,
+        5,
+        3
+      ],
+      "right_contact_y": 37,
+      "right_grounded": true,
+      "foot_zones": [
+        [
+          7,
+          30,
+          12,
+          3
+        ],
+        [
+          23,
+          35,
+          5,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        12.143,
+        24.583
+      ],
+      "foot_separation_px": 12.44,
+      "support_leg": "right",
+      "swing_clearance_px": 5,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": 0.0,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 6,
+      "lower_body_mirrored": false,
+      "lower_body_target_pelvis_x": 18,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        7,
+        28,
+        30,
+        38
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -3959,14 +4207,14 @@
       "azakana_pixel_count": 13,
       "azakana_crop_ratio": 0.5,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 646,
+      "opaque_pixels": 645,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 24,
-      "body_density": 0.4988,
+      "body_density": 0.4981,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.726,
-      "bright_ratio": 0.0805,
+      "dark_ratio": 0.7302,
+      "bright_ratio": 0.0806,
       "source_subject_size": [
         191,
         147
@@ -4035,7 +4283,7 @@
           "source_thickness": 7.141
         }
       },
-      "body_pose_sha256": "ed642e5e08e5a8c3bff505333ec51ebd2a9fc794f6da470a80d91413cb19f6ac",
+      "body_pose_sha256": "1fe28d77dea859adc5e8c0edaf857feb70b20cec89da971399ecab0dfa0ec415",
       "body_alpha_bbox": [
         2,
         2,
@@ -4046,13 +4294,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.579,
       "upper_minus_mid_centroid_x_px": 1.448,
-      "run_stride_phase": -0.65,
-      "foot_centers_x": [
-        11.738,
-        23.141
+      "ground_y": 36,
+      "pelvis_x": 19,
+      "lower_body_search_box": [
+        8,
+        26,
+        31,
+        37
       ],
-      "foot_separation_px": 11.404,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        8,
+        30,
+        12,
+        3
+      ],
+      "left_contact_y": 32,
+      "left_grounded": false,
+      "right_foot_bbox": [
+        21,
+        34,
+        7,
+        3
+      ],
+      "right_contact_y": 36,
+      "right_grounded": true,
+      "foot_zones": [
+        [
+          8,
+          30,
+          12,
+          3
+        ],
+        [
+          21,
+          34,
+          7,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        13.421,
+        23.625
+      ],
+      "foot_separation_px": 10.204,
+      "support_leg": "right",
+      "swing_clearance_px": 4,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": -0.65,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 7,
+      "lower_body_mirrored": false,
+      "lower_body_target_pelvis_x": 19,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        8,
+        27,
+        31,
+        37
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -4111,14 +4415,14 @@
       "azakana_pixel_count": 16,
       "azakana_crop_ratio": 0.4074,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 644,
+      "opaque_pixels": 649,
       "bbox_width": 39,
       "bbox_height": 35,
       "core_width_p50": 25,
-      "body_density": 0.4718,
+      "body_density": 0.4755,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7252,
-      "bright_ratio": 0.0792,
+      "dark_ratio": 0.7273,
+      "bright_ratio": 0.0786,
       "source_subject_size": [
         192,
         145
@@ -4187,7 +4491,7 @@
           "source_thickness": 6.332
         }
       },
-      "body_pose_sha256": "93bfcdade0030109f71540b55a0ac1b686e64e7b585c4fefdce98c97562c8ea7",
+      "body_pose_sha256": "d5330afe28c0bfc442059d831f4bb6de75508a73a0b80e2d34cfb718c29984f8",
       "body_alpha_bbox": [
         6,
         1,
@@ -4198,13 +4502,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.348,
       "upper_minus_mid_centroid_x_px": 1.59,
-      "run_stride_phase": -1.0,
-      "foot_centers_x": [
-        12.923,
-        23.329
+      "ground_y": 35,
+      "pelvis_x": 21,
+      "lower_body_search_box": [
+        10,
+        25,
+        33,
+        36
       ],
-      "foot_separation_px": 10.406,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        17,
+        33,
+        5,
+        3
+      ],
+      "left_contact_y": 35,
+      "left_grounded": true,
+      "right_foot_bbox": [
+        22,
+        29,
+        10,
+        3
+      ],
+      "right_contact_y": 31,
+      "right_grounded": false,
+      "foot_zones": [
+        [
+          17,
+          33,
+          5,
+          3
+        ],
+        [
+          22,
+          29,
+          10,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        18.9,
+        26.522
+      ],
+      "foot_separation_px": 7.622,
+      "support_leg": "left",
+      "swing_clearance_px": 4,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": -1.0,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 4,
+      "lower_body_mirrored": true,
+      "lower_body_target_pelvis_x": 20,
+      "lower_body_donor_pelvis_x": 20,
+      "lower_body_edit_roi": [
+        9,
+        26,
+        32,
+        36
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -4263,14 +4623,14 @@
       "azakana_pixel_count": 17,
       "azakana_crop_ratio": 0.32,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 667,
+      "opaque_pixels": 669,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 24,
-      "body_density": 0.5151,
+      "body_density": 0.5166,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7346,
-      "bright_ratio": 0.0795,
+      "dark_ratio": 0.7354,
+      "bright_ratio": 0.0792,
       "source_subject_size": [
         182,
         141
@@ -4339,7 +4699,7 @@
           "source_thickness": 7.288
         }
       },
-      "body_pose_sha256": "bdcc943cf4d69eefc6e9492145fc442723c31677e406d4f4e87bc1582614ce87",
+      "body_pose_sha256": "5626c1934dffda7763c997516ee9fb5b41c87dcbb9f8f6cac98d3ecb0d691272",
       "body_alpha_bbox": [
         1,
         2,
@@ -4350,13 +4710,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.492,
       "upper_minus_mid_centroid_x_px": 1.793,
-      "run_stride_phase": -0.65,
-      "foot_centers_x": [
-        11.988,
-        23.033
+      "ground_y": 36,
+      "pelvis_x": 20,
+      "lower_body_search_box": [
+        9,
+        26,
+        32,
+        37
       ],
-      "foot_separation_px": 11.045,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        16,
+        34,
+        4,
+        3
+      ],
+      "left_contact_y": 36,
+      "left_grounded": true,
+      "right_foot_bbox": [
+        21,
+        31,
+        10,
+        3
+      ],
+      "right_contact_y": 33,
+      "right_grounded": false,
+      "foot_zones": [
+        [
+          16,
+          34,
+          4,
+          3
+        ],
+        [
+          21,
+          31,
+          10,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        17.5,
+        25.364
+      ],
+      "foot_separation_px": 7.864,
+      "support_leg": "left",
+      "swing_clearance_px": 3,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": -0.65,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 5,
+      "lower_body_mirrored": true,
+      "lower_body_target_pelvis_x": 19,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        8,
+        27,
+        31,
+        37
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -4415,14 +4831,14 @@
       "azakana_pixel_count": 15,
       "azakana_crop_ratio": 0.4231,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 636,
+      "opaque_pixels": 640,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 24,
-      "body_density": 0.4911,
+      "body_density": 0.4942,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7358,
-      "bright_ratio": 0.0708,
+      "dark_ratio": 0.7375,
+      "bright_ratio": 0.0703,
       "source_subject_size": [
         190,
         146
@@ -4491,7 +4907,7 @@
           "source_thickness": 7.131
         }
       },
-      "body_pose_sha256": "c4c935f60f549ee0e6492b272e45687b1068e27ccca0b36bf1eacd71b5934a67",
+      "body_pose_sha256": "d11f6ef097622918ea6d1139acf322ef648f5b8c8c66c10caae9e9e58bd97ff3",
       "body_alpha_bbox": [
         1,
         3,
@@ -4502,13 +4918,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.49,
       "upper_minus_mid_centroid_x_px": 1.335,
-      "run_stride_phase": 0.0,
-      "foot_centers_x": [
-        12.541,
-        24.337
+      "ground_y": 37,
+      "pelvis_x": 19,
+      "lower_body_search_box": [
+        8,
+        27,
+        31,
+        38
       ],
-      "foot_separation_px": 11.797,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        10,
+        35,
+        5,
+        3
+      ],
+      "left_contact_y": 37,
+      "left_grounded": true,
+      "right_foot_bbox": [
+        20,
+        30,
+        11,
+        3
+      ],
+      "right_contact_y": 32,
+      "right_grounded": false,
+      "foot_zones": [
+        [
+          10,
+          35,
+          5,
+          3
+        ],
+        [
+          20,
+          30,
+          11,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        12.417,
+        25.074
+      ],
+      "foot_separation_px": 12.657,
+      "support_leg": "left",
+      "swing_clearance_px": 5,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": 0.0,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 6,
+      "lower_body_mirrored": true,
+      "lower_body_target_pelvis_x": 19,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        8,
+        28,
+        31,
+        38
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "run",
@@ -4567,14 +5039,14 @@
       "azakana_pixel_count": 14,
       "azakana_crop_ratio": 0.4167,
       "azakana_source_tip_survived": true,
-      "opaque_pixels": 636,
+      "opaque_pixels": 641,
       "bbox_width": 37,
       "bbox_height": 35,
       "core_width_p50": 24,
-      "body_density": 0.4911,
+      "body_density": 0.495,
       "luminance_contrast_p80": 129.29,
-      "dark_ratio": 0.7374,
-      "bright_ratio": 0.0818,
+      "dark_ratio": 0.7395,
+      "bright_ratio": 0.0811,
       "source_subject_size": [
         187,
         147
@@ -4643,7 +5115,7 @@
           "source_thickness": 5.604
         }
       },
-      "body_pose_sha256": "f6e3a3c861d684b4ae194955fb368b62a4e1a15ae126c3967e57edbec0849248",
+      "body_pose_sha256": "580ca096d94bce4dd2bca5d5afac122dac8b39d1a6eb53ff2379224422d5d70e",
       "body_alpha_bbox": [
         3,
         2,
@@ -4654,13 +5126,69 @@
       "ground_offset_from_rect_center_px": 11.5,
       "torso_height_from_ground_px": 22.609,
       "upper_minus_mid_centroid_x_px": 1.767,
-      "run_stride_phase": 0.65,
-      "foot_centers_x": [
-        11.824,
-        23.359
+      "ground_y": 36,
+      "pelvis_x": 19,
+      "lower_body_search_box": [
+        8,
+        26,
+        31,
+        37
       ],
-      "foot_separation_px": 11.534,
-      "stride_pose": "extended"
+      "left_foot_bbox": [
+        11,
+        34,
+        7,
+        3
+      ],
+      "left_contact_y": 36,
+      "left_grounded": true,
+      "right_foot_bbox": [
+        21,
+        30,
+        10,
+        3
+      ],
+      "right_contact_y": 32,
+      "right_grounded": false,
+      "foot_zones": [
+        [
+          11,
+          34,
+          7,
+          3
+        ],
+        [
+          21,
+          30,
+          10,
+          3
+        ]
+      ],
+      "foot_centers_x": [
+        14.375,
+        25.235
+      ],
+      "foot_separation_px": 10.86,
+      "support_leg": "left",
+      "swing_clearance_px": 4,
+      "support_ground_clearance_px": 0,
+      "stride_pose": "extended",
+      "run_stride_phase": 0.65,
+      "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+      "lower_body_donor_index": 7,
+      "lower_body_mirrored": true,
+      "lower_body_target_pelvis_x": 19,
+      "lower_body_donor_pelvis_x": 19,
+      "lower_body_edit_roi": [
+        8,
+        27,
+        31,
+        37
+      ],
+      "outside_lower_body_roi_rgba_unchanged": true,
+      "authored_weapon_pixels_unchanged_after_lower_body_edit": true,
+      "source_pixel_only": true,
+      "new_rgba_pixel_count": 0
     },
     {
       "action": "skill2_attack",

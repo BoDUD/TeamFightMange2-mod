@@ -4902,9 +4902,9 @@ RUNTIME_EXCLUDED_PREFIXES = (
     # Compact/grid/scoreboard replacements belong to the retired classic
     # render-command route.
     "ui/champion_portrait/",
-    # Authored full-body PNGs and the static shared-template experiment remain
-    # QA-only. On 0.5.8 the only nonblank, scroll-aware encyclopedia route is
-    # the existing native ImageRunner filled by the engine champion resolver.
+    # Authored full-body PNGs and experimental encyclopedia templates stay
+    # QA-only. Finished mods on 0.5.8 use the stock ChampionInfoUIRunner with
+    # each champion's sprite/idle frame and champion_view camera.
     "ui/champion_fullbody/",
     "ui/layout/champion_info_component/",
     # These exact base-0.5.1 templates once crashed the draft scene when used
@@ -4953,7 +4953,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.13 engine-resolved encyclopedia ImageRunner and intact authored Yone run test closure",
+        "purpose": "0.12.14 native encyclopedia resolver and authored mirrored Yone run closure",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

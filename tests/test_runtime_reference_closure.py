@@ -480,7 +480,7 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.13",
+        b"0.12.14",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
@@ -489,12 +489,15 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"lol_shen_shadow_dash_ai_hint_native",
         b"lol_shen_shadow_dash_taunt_native",
         b"lol_bp_runtime_illustration",
-        b"engine champion-icon resolver on existing 64x64 ImageRunner",
         b"corrupt 5v5 pre-tick guard active",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"
     assert b"tfm2_mod_api_version" not in dll
     for retired in (
+        b"static card-local 64x64 full-body nodes",
+        b"lol_mod_encyclopedia_ui.tsv",
+        b"lol_fullbody_yone",
+        b"lol_fullbody_xayah",
         b"yone_soul_unbound_context",
         b"Yone E damage mark was just inserted",
         b"Xayah state was just inserted",

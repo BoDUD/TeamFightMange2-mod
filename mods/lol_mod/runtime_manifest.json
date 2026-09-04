@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.13 engine-resolved encyclopedia ImageRunner and intact authored Yone run test closure",
+  "purpose": "0.12.14 native encyclopedia resolver and authored mirrored Yone run closure",
   "file_count": 468,
-  "total_size": 90131952,
+  "total_size": 90050303,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1015,13 +1015,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 270336,
-      "sha256": "eef5cec548657ad2bea0c569c031f4fcc1d4bccef593b192894f0e59acffba68"
+      "size": 188416,
+      "sha256": "5e9998a7c307c8061059620d54748645e5c48a9678217afd959fbdc319044824"
     },
     {
       "path": "mod.mod_info",
-      "size": 1625,
-      "sha256": "a7b3c4ae4a15e0923e8a0a21bffa2c6c399892c56367495ed67451bff9e2e37c"
+      "size": 1896,
+      "sha256": "567570e0136a44991926e98098041c4e38b52a3ae61f41d8e932d8b381044b40"
     },
     {
       "path": "mod.override_info",

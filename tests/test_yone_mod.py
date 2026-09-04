@@ -96,6 +96,153 @@ def _load_yone_v7_generator():
         sys.path.pop(0)
 
 
+def _component_sizes_8(points: set[tuple[int, int]]) -> list[int]:
+    remaining = set(points)
+    sizes: list[int] = []
+    while remaining:
+        stack = [remaining.pop()]
+        size = 0
+        while stack:
+            x, y = stack.pop()
+            size += 1
+            for delta_y in (-1, 0, 1):
+                for delta_x in (-1, 0, 1):
+                    if delta_x == 0 and delta_y == 0:
+                        continue
+                    neighbor = (x + delta_x, y + delta_y)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        stack.append(neighbor)
+        sizes.append(size)
+    return sorted(sizes, reverse=True)
+
+
+def _assert_yone_run_final_png_contract() -> dict:
+    native_root = MOD / "source/native/yone_v7"
+    manifest = json.loads((native_root / "frames.json").read_text(encoding="utf-8"))
+    palette = json.loads((native_root / "palette.json").read_text(encoding="utf-8"))
+    by_role = {
+        row["role"]: tuple(row["rgba"])
+        for row in palette["colors"]
+    }
+    weapon_roles = {
+        "steel": ("steel_dark", "steel_mid", "steel_highlight"),
+        "azakana": ("azakana_dark", "azakana_red", "azakana_highlight"),
+    }
+    weapon_colors = {
+        weapon: {by_role[role] for role in roles}
+        for weapon, roles in weapon_roles.items()
+    }
+    all_weapon_colors = set().union(*weapon_colors.values())
+    rows = {
+        row["index"]: row
+        for row in manifest["frames"]
+        if row["action"] == "run"
+    }
+    assert set(rows) == set(range(8))
+    frames = [
+        Image.open(native_root / rows[index]["file"]).convert("RGBA")
+        for index in range(8)
+    ]
+
+    weapon_components = []
+    for index, frame in enumerate(frames):
+        report = {"index": index}
+        for weapon in ("steel", "azakana"):
+            points = {
+                (x, y)
+                for y in range(frame.height)
+                for x in range(frame.width)
+                if frame.getpixel((x, y)) in weapon_colors[weapon]
+            }
+            sizes = _component_sizes_8(points)
+            assert len(sizes) == 1, (index, weapon, sizes)
+            report[weapon] = sizes
+        weapon_components.append(report)
+
+    pair_reports = []
+    for source_index in range(4):
+        mirrored_index = source_index + 4
+        source = frames[source_index]
+        mirrored = frames[mirrored_index]
+        assert source.size == mirrored.size
+        source_ground = (
+            source.height - rows[source_index]["bottom_margin"] - 1
+        )
+        mirrored_ground = (
+            mirrored.height - rows[mirrored_index]["bottom_margin"] - 1
+        )
+        source_center = (source.width - 1) // 2
+        mirrored_center = (mirrored.width - 1) // 2
+        candidates = []
+        for source_pelvis in range(source_center - 4, source_center + 5):
+            for mirrored_pelvis in range(
+                mirrored_center - 4, mirrored_center + 5
+            ):
+                checked = 0
+                mismatches = 0
+                for source_y in range(source_ground - 8, source_ground + 1):
+                    for source_x in range(
+                        max(1, source_pelvis - 11),
+                        min(source.width - 1, source_pelvis + 12),
+                    ):
+                        target_x = mirrored_pelvis - (source_x - source_pelvis)
+                        target_y = mirrored_ground - (source_ground - source_y)
+                        if not (
+                            1 <= target_x < mirrored.width - 1
+                            and 1 <= target_y < mirrored.height - 1
+                        ):
+                            continue
+                        source_color = source.getpixel((source_x, source_y))
+                        target_color = mirrored.getpixel((target_x, target_y))
+                        if (
+                            source_color in all_weapon_colors
+                            or target_color in all_weapon_colors
+                        ):
+                            continue
+                        if source_color[3] or target_color[3]:
+                            checked += 1
+                            mismatches += source_color != target_color
+                candidates.append(
+                    (
+                        mismatches,
+                        -checked,
+                        abs(source_pelvis - source_center)
+                        + abs(mirrored_pelvis - mirrored_center),
+                        source_pelvis,
+                        mirrored_pelvis,
+                    )
+                )
+        best = min(candidates)
+        assert best[0] == 0 and -best[1] >= 64, (
+            source_index,
+            mirrored_index,
+            best,
+        )
+        pair_reports.append(
+            {
+                "source_index": source_index,
+                "mirrored_index": mirrored_index,
+                "match": True,
+                "checked_pixels": -best[1],
+                "source_pelvis": best[3],
+                "mirrored_pelvis": best[4],
+            }
+        )
+
+    frame_hashes = {
+        f"run_{index:02d}.png": hashlib.sha256(frames[index].tobytes()).hexdigest()
+        for index in range(8)
+    }
+    assert len(set(frame_hashes.values())) == 8
+    return {
+        "weapon_components": weapon_components,
+        "pair_matches": [row["match"] for row in pair_reports],
+        "pair_reports": pair_reports,
+        "unlocked_frame_pixel_hashes": frame_hashes,
+    }
+
+
 def test_yone_replaces_official_dual_blader_and_uses_q_w_r_slots() -> None:
     champions = [
         (path.name, json.loads(path.read_text(encoding="utf-8")))
@@ -711,7 +858,7 @@ def _retired_w_runtime_is_stateless_and_cannot_cross_game_contexts() -> None:
         assert registrations[legacy_name] == "LegacySavedNativeCompatibilityEffect"
 
 
-def test_058_stable_runtime_uses_engine_resolver_for_encyclopedia_image_runners() -> None:
+def test_058_stable_runtime_leaves_encyclopedia_to_the_stock_runner() -> None:
     cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
     rust = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
     assert 'path = "src/stable_runtime.rs"' in cargo
@@ -719,48 +866,15 @@ def test_058_stable_runtime_uses_engine_resolver_for_encyclopedia_image_runners(
     assert "registration.set_extension(QualityBpExtension::default());" in rust
     assert rust.count("registration.set_extension(") == 1
     assert "registration.set_server_extension(" not in rust
-
-    card_sync = rust.split("fn sync_encyclopedia_card", 1)[1].split(
-        "fn sync_encyclopedia_portraits", 1
-    )[0]
-    for required in (
-        "client.ui_node_rect(&native_icon)",
-        "let runner = client.ui_runner_name(&native_icon).unwrap_or_default();",
-        'runner.eq_ignore_ascii_case("image")',
-        "resolver_bound",
-        "positioned",
-        "client.ui_set_champion_icon(",
-        "ENCYCLOPEDIA_ICON_SIZE",
-        "ENCYCLOPEDIA_FULLBODY_SCALE",
-        "client.ui_set_visible(&native_icon, true)",
-        'client.ui_set_properties(&role_icon, "z: 2;")',
-    ):
-        assert required in card_sync
     for forbidden in (
-        "ui_spawn_source",
-        "draw_sprite",
-        "RenderCommand",
-        "ui_set_visible(&native_icon, false)",
-        "encyclopedia_render_proof",
-        'source: \\"',
+        "sync_encyclopedia",
+        "find_encyclopedia_container",
+        "ui_set_champion_icon",
+        "encyclopedia_native_icon",
+        "lol_fullbody_xayah",
+        "lol_fullbody_yone",
     ):
-        assert forbidden not in card_sync
-
-    batch = rust.split("fn sync_encyclopedia_portraits", 1)[1].split(
-        "fn bp_champion_id_from_name", 1
-    )[0]
-    for required in (
-        '"dancer"',
-        '"dual_blader"',
-        "engine champion-icon resolver on existing 64x64 ImageRunner",
-        "raw source mutation disabled",
-    ):
-        assert required in batch
-    assert '"asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia"' not in rust
-    assert '"asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia"' not in rust
-    assert "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
-    assert "const ENCYCLOPEDIA_ICON_SIZE: f32 = 64.0;" in rust
-    assert "const ENCYCLOPEDIA_FULLBODY_SCALE: f32 = 1.65;" in rust
+        assert forbidden not in rust
     assert "fn post_render" not in rust
     assert "draw_encyclopedia" not in rust
     assert "encyclopedia_render_proof" not in rust
@@ -774,14 +888,25 @@ def test_058_stable_runtime_uses_engine_resolver_for_encyclopedia_image_runners(
             (MOD / "runtime_manifest.json").read_text(encoding="utf-8")
         )["files"]
     }
-    assert not {
-        path for path in runtime_paths if path.startswith("ui/champion_fullbody/")
-    }
+    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
     assert not any(
         path.startswith("ui/layout/champion_info_component/")
         for path in runtime_paths
     )
     assert not any(path.startswith("ui/champion_portrait/") for path in runtime_paths)
+
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    champion = load_yone()
+    assert champion["sprite"] == "asset/lol_mod/aseprite_resources/champions/yone_v7"
+    assert override["asset/base/aseprite_resources/champions/dual_blader#sheet"] == {
+        "remapping": "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
+        "type": "override",
+    }
+    assert override["asset/base/aseprite_resources/champions/dual_blader#anim"] == {
+        "remapping": "asset/lol_mod/aseprite_resources/champions/yone_v7#anim",
+        "type": "override",
+    }
 
 
 
@@ -1686,20 +1811,17 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     assert fullbody_card["source_red_mask_pixels"] >= 20
     assert_bbox(fullbody_card["source_red_mask_bbox"], fullbody_card["source_size"])
 
-    layout = (
-        MOD / "ui/layout/champion_info_component/champion_slot.ui"
-    ).read_text(encoding="utf-8")
-    node_match = re.search(
-        r"#lol_fullbody_yone:image\s*\{(?P<body>.*?)\n\s*\}",
-        layout,
-        re.DOTALL,
+    # These full-body images are offline art audits, not runtime card overlays.
+    # The stock ChampionInfoUIRunner exclusively resolves the actor idle frame.
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    runtime_manifest = json.loads(
+        (MOD / "runtime_manifest.json").read_text(encoding="utf-8")
     )
-    assert node_match is not None
-    node = node_match.group("body")
-    assert "width: 85px;" in node
-    assert "height: 93px;" in node
-    assert 'source: "asset/lol_mod/ui/champion_fullbody/dual_blader";' in node
-    assert "sample_linear: false;" in node
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    assert not any(
+        row["path"].startswith(("ui/champion_fullbody/", "ui/layout/champion_info_component/"))
+        for row in runtime_manifest["files"]
+    )
 
     live_card = face_contract["live_idle_card"]
     assert {
@@ -1881,6 +2003,25 @@ def _retired_v3_visual_qa_records_the_stateless_cone_contract() -> None:
     assert 'preserve_authored_weapon_geometry=action == "run"' in generator
     assert '"authored_transformed_mask_only"' in generator
     assert "straighten_run_subject" not in generator
+    for required in (
+        "RUN_LOWER_BODY_DONORS",
+        "RUN_LOWER_BODY_MIRRORED",
+        "RUN_SUPPORT_LEGS",
+        "compose_authored_run_lower_body",
+        "authored_run_pair_mirror_match",
+        '"authored_lower_body_half_cycle_mirror"',
+        "authored_weapon_pixels_unchanged_after_lower_body_edit",
+        "source_pixel_only",
+    ):
+        assert required in generator
+    for forbidden in (
+        "RUN_FOOT_TARGETS",
+        "repair_run_lower_body",
+        "_draw_native_run_leg",
+        "draw.line(path",
+        '"final_native_roi_two_leg_cycle"',
+    ):
+        assert forbidden not in generator
 
 
 @pytest.mark.parametrize("weapon", ["steel", "azakana"])
@@ -1922,6 +2063,79 @@ def test_yone_run_weapon_recolour_cannot_add_afterimage_pixels(weapon: str) -> N
     } <= set(generator.WEAPON_COLORS[weapon])
 
 
+def _yone_run_validator_inputs():
+    module_path = MOD / "tools/validate_yone_v7.py"
+    spec = importlib.util.spec_from_file_location("test_validate_yone_v7", module_path)
+    assert spec is not None and spec.loader is not None
+    validator = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = validator
+    spec.loader.exec_module(validator)
+    native_root = MOD / "source/native/yone_v7"
+    manifest = json.loads((native_root / "frames.json").read_text(encoding="utf-8"))
+    rows = {
+        (row["action"], row["index"]): row
+        for row in manifest["frames"]
+        if row["action"] == "run"
+    }
+    frames = {
+        key: Image.open(native_root / row["file"]).convert("RGBA")
+        for key, row in rows.items()
+    }
+    palette = validator.load_palette(native_root / "palette.json")
+    return validator, frames, palette, rows
+
+
+def test_yone_run_final_pngs_have_grounded_even_support_and_moving_legs() -> None:
+    validator, frames, palette, rows = _yone_run_validator_inputs()
+    report = validator._validate_run_png_gait(frames, palette, rows)
+    assert report["source"] == "final native PNG pixels; generator audit not consulted"
+    assert report["support_leg_sequence"] == ["right"] * 4 + ["left"] * 4
+    assert report["lower_body_unique_poses_per_half"] == [4, 4]
+    for row in report["lower_body_reports"]:
+        assert row["ground_clearance_px"][row["support_leg"]] == 0
+        assert min(row["leg_pixel_counts"].values()) >= 24
+
+
+def test_yone_run_final_png_gate_rejects_floating_but_still_mirrored_legs() -> None:
+    validator, frames, palette, rows = _yone_run_validator_inputs()
+    report = validator._validate_run_png_gait(frames, palette, rows)
+    anchors = {
+        index: pair[field]
+        for pair in report["pair_reports"]
+        for index, field in (
+            (pair["source_index"], "source_pelvis"),
+            (pair["mirrored_index"], "mirrored_pelvis"),
+        )
+    }
+    weapon_colors = frozenset(
+        color
+        for ramp in validator.EXPECTED_WEAPON_PALETTE_ROLES.values()
+        for role_names in ramp.values()
+        for role in role_names
+        for color in palette.exact_role(role)
+    )
+    for key, original in frames.items():
+        index = key[1]
+        pelvis = anchors[index]
+        ground = original.height - rows[key]["bottom_margin"] - 1
+        moved = original.copy()
+        points = {
+            (x, y): original.getpixel((x, y))
+            for y in range(ground - 8, ground + 1)
+            for x in range(max(1, pelvis - 11), min(original.width - 1, pelvis + 12))
+            if original.getpixel((x, y))[3]
+            and original.getpixel((x, y)) not in weapon_colors
+        }
+        for point in points:
+            moved.putpixel(point, (0, 0, 0, 0))
+        for (x, y), color in points.items():
+            if original.getpixel((x, y - 1)) not in weapon_colors:
+                moved.putpixel((x, y - 1), color)
+        frames[key] = moved
+    with pytest.raises(validator.V7ValidationError, match="ungrounded support"):
+        validator._validate_run_png_gait(frames, palette, rows)
+
+
 def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
     qa = json.loads(
         (MOD / "source/native/yone_v7/generation_qa.json").read_text(
@@ -1946,14 +2160,9 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
         ["motion", index] for index in range(5, 13)
     ]
     assert sum(run["stride_pose_counts"].values()) == 8
-    assert run["crossing_frame_indices"] == []
-    assert len(run["extended_frame_indices"]) >= 7
     foot_separations = run["foot_separations_px"]
     assert len(foot_separations) == 8
-    assert min(foot_separations) >= 8.5
-    assert max(foot_separations) <= 13.5
-    assert run["maximum_adjacent_foot_step_px"] <= 2.5
-    assert run["ground_anchor_range_px"] <= 1
+    assert run["ground_anchor_range_px"] == 0
     assert run["torso_height_range_px"] <= 1
     assert run["body_visible_height_range_px"] <= 2
     assert run["upper_guard_lean_range_px"] <= 1.5
@@ -1980,8 +2189,23 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
         "azakana": True,
     }
     assert run["authored_alpha_mask_unchanged"] is True
-    assert "complete authored V7 motion cells 5..12" in run["source"]
-    assert "no leg split, frame blend, torso shear, hand-to-tip redraw, or afterimage" in run["source"]
+    assert run["leg_edit_route"] == "authored_lower_body_half_cycle_mirror"
+    assert run["lower_body_donor_indices"] == [4, 5, 6, 7, 4, 5, 6, 7]
+    assert run["lower_body_mirrored"] == [
+        False, False, False, False, True, True, True, True
+    ]
+    assert run["outside_lower_body_roi_rgba_unchanged"] is True
+    assert run[
+        "authored_weapon_pixels_unchanged_after_lower_body_edit"
+    ] is True
+    assert run["source_pixel_only"] is True
+    assert run["new_rgba_pixel_count"] == 0
+    assert run["half_cycle_pair_mirror_match"] == [True, True, True, True]
+    assert run["support_leg_sequence"] == [
+        "right", "right", "right", "right", "left", "left", "left", "left"
+    ]
+    assert "four complete authored lower-body phases" in run["source"]
+    assert "no drawn leg, resize, shear, hand-to-tip redraw, or afterimage" in run["source"]
 
     run_rows = sorted(
         (row for row in qa["frames"] if row["action"] == "run"),
@@ -2000,23 +2224,26 @@ def test_yone_run_guard_and_basic_attacks_have_pixel_semantic_motion() -> None:
         for row in run_rows
     )
     assert all(row["authored_alpha_mask_unchanged"] is True for row in run_rows)
-    assert {
-        path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(
-            (MOD / "source/native/yone_v7/frames").glob("run_*.png")
-        )
-    } == {
-        "run_00.png": "fdba09eabdf1e18c5f423f7830507aaf5d3e55c3a8c49f796b20225484a21cb8",
-        "run_01.png": "62aeebdc0c4a7b9927ee0ce7f25a9dca10364c84f2967ca300c817a1e472356c",
-        "run_02.png": "b55470ff0eeda05c04ef0be444fdc4cc676734892034c2e7e6261a8576aa3d3a",
-        "run_03.png": "86676ff6ca4049417d4bde5d69e42a04eb68b2aaf7e10768b28530050a71f4b7",
-        "run_04.png": "88d7495fd2e84ac0ceda7ced2a706d1102c4302ac756dd2ff5ecc5953419506c",
-        "run_05.png": "17c638efccff2639ee481698ec8a4ba3b3527ce5eedf0d11149e69896cc8678f",
-        "run_06.png": "726e82cd341f7622156af9c66967131aba58f9bedded8b3811a4eec7221e2c01",
-        "run_07.png": "2250942c656c7fcef435973dd471b30c2e79ed6c8a084255df1969c977308ea7",
-    }
-    assert min(row["foot_separation_px"] for row in run_rows) >= 8.5
-    assert max(row["foot_separation_px"] for row in run_rows) <= 13.5
+    assert [row["lower_body_donor_index"] for row in run_rows] == [
+        4, 5, 6, 7, 4, 5, 6, 7
+    ]
+    assert [row["lower_body_mirrored"] for row in run_rows] == [
+        False, False, False, False, True, True, True, True
+    ]
+    assert all(
+        row["leg_edit_route"] == "authored_lower_body_half_cycle_mirror"
+        and row["outside_lower_body_roi_rgba_unchanged"] is True
+        and row[
+            "authored_weapon_pixels_unchanged_after_lower_body_edit"
+        ] is True
+        and row["source_pixel_only"] is True
+        and row["new_rgba_pixel_count"] == 0
+        and len(row["foot_zones"]) == 2
+        for row in run_rows
+    )
+    assert [row["support_leg"] for row in run_rows] == run["support_leg_sequence"]
+    png_contract = _assert_yone_run_final_png_contract()
+    assert png_contract["pair_matches"] == [True, True, True, True]
 
     attacks = contract["attacks"]
     assert attacks["attack"]["source_cells"] == [0, 1, 3, 10, 11, 5]
@@ -2199,11 +2426,11 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.13"
+    assert mod_info["version"] == "0.12.14"
     assert all(
         token in mod_info["description"]
         for token in (
-            "reference-grounded",
+            "grounded authored lower-body phases",
             "pure-data Q/W/R",
             "no active E",
             "no-op saved-season compatibility shims",
@@ -2226,16 +2453,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.13"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.14"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.13"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.14"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.13"
+    assert quality_scope["release"] == "0.12.14"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

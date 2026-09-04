@@ -17,145 +17,35 @@ champion_slot:color_icon_button {
     ignore_event: true;
   }
 
-  #lol_fullbody_shen:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/lol_shen";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_lucian:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/archer";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_orianna:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/barrier_magician";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_briar:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/berserker";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_sivir:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/boomerang_hunter";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_kled:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/cavalry_knight";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
   #lol_fullbody_xayah:image {
-    width: 85px;
-    height: 93px;
+    width: 64px;
+    height: 64px;
 
     pivot_y: 1;
-    y: 93px;
+    y: 68px;
 
     anchor_x: 0.5;
     pivot_x: 0.5;
+    z: 1;
 
-    source: "asset/lol_mod/ui/champion_fullbody/dancer";
-    sample_linear: false;
-    visible: false;
-    ignore_event: true;
-  }
-
-  #lol_fullbody_urgot:image {
-    width: 85px;
-    height: 93px;
-
-    pivot_y: 1;
-    y: 93px;
-
-    anchor_x: 0.5;
-    pivot_x: 0.5;
-
-    source: "asset/lol_mod/ui/champion_fullbody/demon";
+    source: "asset/lol_mod/ui/champion_fullbody/dancer_encyclopedia";
     sample_linear: false;
     visible: false;
     ignore_event: true;
   }
 
   #lol_fullbody_yone:image {
-    width: 85px;
-    height: 93px;
+    width: 64px;
+    height: 64px;
 
     pivot_y: 1;
-    y: 93px;
+    y: 68px;
 
     anchor_x: 0.5;
     pivot_x: 0.5;
+    z: 1;
 
-    source: "asset/lol_mod/ui/champion_fullbody/dual_blader";
+    source: "asset/lol_mod/ui/champion_fullbody/dual_blader_encyclopedia";
     sample_linear: false;
     visible: false;
     ignore_event: true;

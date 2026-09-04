@@ -20,6 +20,8 @@ FRAME_MANIFEST = MOD / "source/native/yone_v7/frames.json"
 FRAME_SCHEMA = MOD / "qa/yone_v7_frames.schema.json"
 PALETTE_SCHEMA = MOD / "qa/yone_v7_palette.schema.json"
 GENERATION_QA = MOD / "source/native/yone_v7/generation_qa.json"
+# The old ABI implementation remains an archived reference for compact-portrait
+# geometry. Only stable_runtime.rs is compiled for the active 0.5.8 mod.
 RUNTIME = MOD / "src/lib.rs"
 ACTOR_ANIM = MOD / "aseprite_resources/champions/yone_v7#anim.fanim"
 ACTOR_SHEET = MOD / "aseprite_resources/champions/yone_v7#sheet.png"
@@ -564,7 +566,33 @@ def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
     assert rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1
 
 
-def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
+def test_active_yone_encyclopedia_uses_native_sprite_resolution_without_overlay() -> None:
+    source = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    for retired in (
+        "sync_encyclopedia",
+        "sync_yone_encyclopedia_portrait",
+        "ui_set_champion_icon",
+        "lol_fullbody_",
+        "encyclopedia_native_icon",
+    ):
+        assert retired not in source
+    overrides = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in overrides
+    runtime_paths = {
+        row["path"]
+        for row in json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))["files"]
+    }
+    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in runtime_paths)
+    champion = json.loads((MOD / "champion/dual_blader.data_champion").read_text(encoding="utf-8"))
+    assert champion["sprite"] == "asset/lol_mod/aseprite_resources/champions/yone_v7"
+    for suffix in ("sheet", "anim"):
+        assert overrides[f"asset/base/aseprite_resources/champions/dual_blader#{suffix}"]["remapping"] == (
+            f"asset/lol_mod/aseprite_resources/champions/yone_v7#{suffix}"
+        )
+
+
+def test_archived_yone_fullbody_card_geometry_reference_remains_consistent() -> None:
     source = RUNTIME.read_text(encoding="utf-8")
     minimal_impl = source.split(
         "impl ModExtension for YoneManagementCardExtension", 1
@@ -628,13 +656,6 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "by_name || by_source",
     ):
         assert required in slot_identity
-
-    slot_ui = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
-        encoding="utf-8"
-    )
-    icon_node = slot_ui.split("#icon:image", 1)[1].split("}", 1)[0]
-    assert "width: 85px;" in icon_node
-    assert "height: 93px;" in icon_node
 
     management_geometry = _function_body(
         source, "is_yone_management_card_geometry"

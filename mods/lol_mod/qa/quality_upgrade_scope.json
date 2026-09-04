@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.13",
+  "release": "0.12.14",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -411,21 +411,21 @@
       ]
     },
     "encyclopedia_fullbody_runtime": {
-      "current_0_12_13_route": "the stable-ABI 8 client walks from the actual UI root to the ChampionInfo contents, then asks the game's own champion-icon resolver to fill dancer and dual_blader on their existing 64x64 native ImageRunner nodes at scale 1.65 and bottom y=68; it never writes a raw source, hides the icon, spawns an overlay, or draws outside the card",
+      "current_0_12_14_route": "finished-mod parity: the stock base-0.5.8 ChampionInfoUIRunner owns every card icon and reads each replacement champion's data_champion sprite, idle frame and champion_view camera; no champion_slot override, custom overlay, resolver rebind, resize or native-icon visibility mutation enters the runtime package",
       "runner_id_disassembly_correction": "0.5.7 ChampionInfoUIRunner::init_champion_list writes the champion id into each cloned card root; the earlier claim that every root remained champion_slot was incorrect",
-      "yone_default_hook": "bounded stable-ABI UI traversal refreshes both Xayah and Yone through the stock champion-icon resolver; the classic raw RenderCommand and full-body overlay routes remain migration history and are not compiled",
+      "yone_default_hook": "none: the compiled stable-ABI extension does not touch the encyclopedia; the stock ChampionInfoUIRunner is the sole owner, matching the installed Silver and Touhou finished mods",
       "yone_0_10_11_route": "failed in that release; its static path was not proven live, and later 0.5.7 disassembly established that cloned roots are in fact renamed to champion ids",
       "yone_0_10_12_route": "failed: the ChampionInfoUIRunner positive gate was not discoverable in the live management card, so no yone_management_card_replace telemetry was emitted and the native battle idle remained visible",
       "yone_0_10_13_route": "failed: the route treated the post-SetImageScale screenshot size of approximately 93-96x110-123 as RenderCommand geometry, while the actual champion_slot #icon NinePatch remains a logical 85x93, so the replacement gate never matched",
       "yone_0_10_14_route": "failed for the reported surface: it corrected only the 85x93 management-card route, while the user screenshot came from a different BP actor route later measured as UI NinePatch 95x88; the existing Yone portrait helper was still reachable only through the opt-in broad extension",
       "yone_0_10_15_route": "failed: bounded live telemetry proved the central BP actor command is UI NinePatch 95x88, while the release gate expected 84-96x108-130 and therefore never emitted yone_bp_grid_replace",
       "yone_0_10_16_route": "failed: it correctly matched the shared UI NinePatch at 95x88 but expanded every matching command to the portrait source canvas at 90x122 while preserving top y; the post-pick player-assignment page reused the same geometry, so Yone alone became enlarged and bottom-heavy",
-      "yone_texture": "the encyclopedia uses the engine-resolved dual_blader idle frame in a 64x64 native node at scale 1.65; authored full-body PNGs remain offline QA evidence and are excluded from the installed runtime closure",
+      "yone_texture": "the encyclopedia uses dual_blader's native yone_v7 sprite and idle frame through ChampionInfoUIRunner; dedicated full-body PNGs remain excluded QA artifacts",
       "bp_grid_texture": "the existing source-direct 90x122 dual_blader_grid PNG is sampled only through normalized UV 0,0,1,88/122 inside the measured Yone UI NinePatch source geometry 95x88 (92-98x86-90 rounding allowance); central-grid x/y/w/h remain unchanged and the transparent source tail is not added to the command layout",
       "shared_bp_surface_routing": "the root-level swap container identifies PlayerChampionAssignment; otherwise the visible champions viewport plus a command center inside x=335..1585 and y=145..522 identifies CentralBpGrid, while same-geometry commands outside that viewport are edge picked-side cards",
       "assignment_and_edge_baseline": "player-assignment and edge picked-side 95x88 commands use the same top-88-of-122 UV and preserve x/w/h, but move y upward by 9 logical pixels to restore bottom clearance; central-grid y is unchanged",
-      "surface_exclusion": "the compiled 0.5.8 runtime contains no raw RenderCommand portrait rewrite, raw ImageRunner source mutation, spawned encyclopedia child or post_render sprite; it fills only the two existing stock encyclopedia ImageRunners through the engine resolver, while BP side illustrations remain a separate bounded stable-UI route",
-      "portrait_telemetry": "one bounded row records the resolved encyclopedia container plus Xayah/Yone runner, engine resolver result, 64x64 positioning result, visibility and pre/post native-node rectangles",
+      "surface_exclusion": "the compiled 0.5.8 runtime contains no encyclopedia traversal, champion-icon resolver call, native-icon hide, raw RenderCommand portrait rewrite, raw ImageRunner source mutation, spawned child or post_render sprite; BP side illustrations remain a separate bounded stable-UI route",
+      "portrait_telemetry": "disabled because observing the native card does not require mutating it",
       "legacy_match_ui_database_render_and_server_work": "not compiled into the stable-ABI production DLL",
       "sdk_provenance": {
         "source": "game-bundled mod-sdk-stable vendored at vendor/mod-api-stable",
@@ -434,7 +434,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.13 targets base 0.5.8 / stable ABI 8. Xayah and Yone encyclopedia presentation fills each stock card's existing 64x64 ImageRunner through the engine champion resolver at scale 1.65 and bottom y=68, so the image inherits the card's actual scroll transform, clipping and local layer; the native node is never hidden, raw source mutation is absent, and unused encyclopedia PNGs do not enter the installed closure. Yone's single native run action uses eight intact authored motion frames with proportional fit and exact transformed source weapon masks only—no split legs, frame blending, body shear, hand-to-tip sword redraw or alpha afterimage—and native GameView flip_x remains the sole left/right mirror. Staged Fate Sealed presentation remains aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
+      "live_status": "0.12.14 targets base 0.5.8 / stable ABI 8. Xayah and Yone encyclopedia presentation is returned completely to the stock ChampionInfoUIRunner, with no custom template or runtime icon mutation. Yone's single native run action preserves all eight authored upper-body and dual-sword poses; four complete grounded authored lower-body phases and their whole-patch mirrors alternate right support for four frames and left support for four frames without drawn legs, resize, shear, duplicate pixels or alpha afterimage. Native GameView flip_x remains the sole world-direction mirror. Staged Fate Sealed presentation remains aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
     }
   },
   "packaged_variants": {

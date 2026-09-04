@@ -172,6 +172,21 @@ RUN_STRIDE_PHASES: tuple[float, ...] = (
     0.0,
     0.65,
 )
+# The accepted source contains four grounded authored lower-body phases in
+# motion cells 9..12 (raw run frames 4..7). Use each complete patch once on the first
+# half-cycle and its exact whole-patch horizontal mirror on the second.
+# This alternates the visible/support leg without inventing stick legs or
+# deforming the model.  Pairing only equal native frame boxes keeps the paste
+# integer-aligned: 0<->4, 1<->5, 2<->6, 3<->7.
+RUN_LOWER_BODY_DONORS: tuple[int, ...] = (4, 5, 6, 7, 4, 5, 6, 7)
+RUN_LOWER_BODY_MIRRORED: tuple[bool, ...] = (
+    False, False, False, False, True, True, True, True
+)
+RUN_SUPPORT_LEGS: tuple[str, ...] = (
+    "right", "right", "right", "right", "left", "left", "left", "left"
+)
+RUN_LOWER_BODY_DEPTH = 10
+RUN_LOWER_BODY_HALF_WIDTH = 11
 # Palette compatibility only: 0.12.8 sampled these eight derived guard frames
 # when creating the shared 48-color body palette. Replaying that sampling set
 # prevents an animation-only run change from recoloring every unrelated frame.
@@ -1496,9 +1511,273 @@ def annotations_for_frame(
     )
 
 
-def foot_zones(image: Image.Image, action: str) -> list[list[int]]:
+def _run_ground_y(image: Image.Image, index: int) -> int:
+    return image.height - build_yone.BODY_BOTTOM_MARGINS["run"][index] - 1
+
+
+def run_foot_geometry(image: Image.Image, index: int) -> dict[str, Any]:
+    """Measure the final authored lower body without relying on paint colors."""
+
+    ground_y = _run_ground_y(image, index)
+    pelvis_x = round(core_center_x(image))
+    search = (
+        max(1, pelvis_x - RUN_LOWER_BODY_HALF_WIDTH),
+        max(1, ground_y - RUN_LOWER_BODY_DEPTH),
+        min(image.width - 1, pelvis_x + RUN_LOWER_BODY_HALF_WIDTH + 1),
+        min(image.height - 1, ground_y + 1),
+    )
+    body_points = [
+        (x, y)
+        for y in range(search[1], search[3])
+        for x in range(search[0], search[2])
+        if image.getpixel((x, y))[3]
+        and image.getpixel((x, y)) not in WEAPON_COLOR_SET
+    ]
+    if not body_points:
+        raise ValueError(f"run[{index}] lost its authored lower body")
+
+    geometry: dict[str, Any] = {
+        "ground_y": ground_y,
+        "pelvis_x": pelvis_x,
+        "lower_body_search_box": list(search),
+    }
+    centres: list[float] = []
+    contact_y: dict[str, int] = {}
+    foot_zones: list[list[int]] = []
+    for leg in ("left", "right"):
+        points = [
+            point
+            for point in body_points
+            if (point[0] <= pelvis_x if leg == "left" else point[0] > pelvis_x)
+        ]
+        if not points:
+            raise ValueError(f"run[{index}] lost its authored {leg} lower-body half")
+        lowest = max(y for _x, y in points)
+        bottom_points = [(x, y) for x, y in points if y >= lowest - 2]
+        left = min(x for x, _y in bottom_points)
+        top = min(y for _x, y in bottom_points)
+        right = max(x for x, _y in bottom_points) + 1
+        bottom = max(y for _x, y in bottom_points) + 1
+        centre_x = sum(x for x, _y in bottom_points) / len(bottom_points)
+        centres.append(centre_x)
+        contact_y[leg] = lowest
+        zone = [left, top, right - left, bottom - top]
+        foot_zones.append(zone)
+        geometry[f"{leg}_foot_bbox"] = zone
+        geometry[f"{leg}_contact_y"] = lowest
+        geometry[f"{leg}_grounded"] = lowest == ground_y
+
+    separation = abs(centres[1] - centres[0])
+    support_leg = max(contact_y, key=contact_y.get)
+    geometry.update(
+        {
+            "foot_zones": foot_zones,
+            "foot_centers_x": [round(value, 3) for value in centres],
+            "foot_separation_px": round(separation, 3),
+            "support_leg": support_leg,
+            "swing_clearance_px": abs(
+                contact_y["right"] - contact_y["left"]
+            ),
+            "support_ground_clearance_px": ground_y - max(contact_y.values()),
+            "stride_pose": (
+                "crossing"
+                if separation <= 4.0
+                else "extended"
+                if separation >= 6.1
+                else "passing"
+            ),
+        }
+    )
+    return geometry
+
+
+def compose_authored_run_lower_body(
+    image: Image.Image,
+    donor: Image.Image,
+    index: int,
+    donor_index: int,
+    *,
+    mirror: bool,
+) -> tuple[Image.Image, dict[str, Any]]:
+    """Compose one full authored lower-body patch; never draw or deform legs."""
+
+    original = image.convert("RGBA")
+    donor = donor.convert("RGBA")
+    result = original.copy()
+    target_pelvis_x = round(core_center_x(original))
+    donor_pelvis_x = round(core_center_x(donor))
+    target_ground_y = _run_ground_y(original, index)
+    donor_ground_y = _run_ground_y(donor, donor_index)
+    target_seam_y = target_ground_y - RUN_LOWER_BODY_DEPTH
+    donor_seam_y = donor_ground_y - RUN_LOWER_BODY_DEPTH
+    roi = (
+        max(1, target_pelvis_x - RUN_LOWER_BODY_HALF_WIDTH),
+        target_seam_y + 1,
+        min(
+            original.width - 1,
+            target_pelvis_x + RUN_LOWER_BODY_HALF_WIDTH + 1,
+        ),
+        target_ground_y + 1,
+    )
+    original_pixels = original.load()
+    result_pixels = result.load()
+    if donor_index != index or mirror:
+        # The seam row remains the target frame's authored waist.  Starting at
+        # seam+2, one donor owns the complete lower body so no old/new leg
+        # overlap can create a ghost limb.
+        for y in range(target_seam_y + 2, target_ground_y + 1):
+            for x in range(roi[0], roi[2]):
+                if original_pixels[x, y] not in WEAPON_COLOR_SET:
+                    result_pixels[x, y] = (0, 0, 0, 0)
+
+        for donor_y in range(donor_seam_y + 1, donor_ground_y + 1):
+            for donor_x in range(
+                max(1, donor_pelvis_x - RUN_LOWER_BODY_HALF_WIDTH),
+                min(
+                    donor.width - 1,
+                    donor_pelvis_x + RUN_LOWER_BODY_HALF_WIDTH + 1,
+                ),
+            ):
+                color = donor.getpixel((donor_x, donor_y))
+                if color[3] == 0 or color in WEAPON_COLOR_SET:
+                    continue
+                relative_x = donor_x - donor_pelvis_x
+                output_x = target_pelvis_x + (-relative_x if mirror else relative_x)
+                output_y = target_ground_y - (donor_ground_y - donor_y)
+                if not (
+                    roi[0] <= output_x < roi[2]
+                    and roi[1] <= output_y < roi[3]
+                ):
+                    continue
+                if original_pixels[output_x, output_y] in WEAPON_COLOR_SET:
+                    continue
+                if (
+                    output_y == target_seam_y + 1
+                    and result_pixels[output_x, output_y][3]
+                ):
+                    continue
+                result_pixels[output_x, output_y] = color
+
+    # Even if a future ROI reaches a blade highlight, restore every target
+    # weapon-exclusive pixel exactly and reject any movement or duplication.
+    for y in range(original.height):
+        for x in range(original.width):
+            if original_pixels[x, y] in WEAPON_COLOR_SET:
+                result_pixels[x, y] = original_pixels[x, y]
+
+    outside_unchanged = all(
+        result.getpixel((x, y)) == original.getpixel((x, y))
+        for y in range(original.height)
+        for x in range(original.width)
+        if not (roi[0] <= x < roi[2] and roi[1] <= y < roi[3])
+    )
+    weapon_unchanged = all(
+        result.getpixel((x, y)) == original.getpixel((x, y))
+        for y in range(original.height)
+        for x in range(original.width)
+        if original.getpixel((x, y)) in WEAPON_COLOR_SET
+    )
+    if not outside_unchanged or not weapon_unchanged:
+        raise ValueError(
+            f"run[{index}] authored lower-body compose escaped ROI or changed a weapon"
+        )
+    geometry = run_foot_geometry(result, index)
+    if geometry["support_leg"] != RUN_SUPPORT_LEGS[index]:
+        raise ValueError(
+            f"run[{index}] support leg {geometry['support_leg']} != "
+            f"{RUN_SUPPORT_LEGS[index]}"
+        )
+
+    changed_nontransparent = {
+        result.getpixel((x, y))
+        for y in range(roi[1], roi[3])
+        for x in range(roi[0], roi[2])
+        if result.getpixel((x, y))[3]
+        and result.getpixel((x, y)) != original.getpixel((x, y))
+        and result.getpixel((x, y)) not in WEAPON_COLOR_SET
+    }
+    donor_body_colors = {
+        donor.getpixel((x, y))
+        for y in range(donor_seam_y + 1, donor_ground_y + 1)
+        for x in range(
+            max(1, donor_pelvis_x - RUN_LOWER_BODY_HALF_WIDTH),
+            min(
+                donor.width - 1,
+                donor_pelvis_x + RUN_LOWER_BODY_HALF_WIDTH + 1,
+            ),
+        )
+        if donor.getpixel((x, y))[3]
+        and donor.getpixel((x, y)) not in WEAPON_COLOR_SET
+    }
+    new_rgba_pixel_count = len(changed_nontransparent - donor_body_colors)
+    if new_rgba_pixel_count:
+        raise ValueError(
+            f"run[{index}] authored compose invented {new_rgba_pixel_count} RGBA colors"
+        )
+    return result, {
+        "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+        "lower_body_donor_index": donor_index,
+        "lower_body_mirrored": mirror,
+        "lower_body_target_pelvis_x": target_pelvis_x,
+        "lower_body_donor_pelvis_x": donor_pelvis_x,
+        "lower_body_edit_roi": list(roi),
+        "outside_lower_body_roi_rgba_unchanged": outside_unchanged,
+        "authored_weapon_pixels_unchanged_after_lower_body_edit": weapon_unchanged,
+        "source_pixel_only": True,
+        "new_rgba_pixel_count": new_rgba_pixel_count,
+        **geometry,
+    }
+
+
+def authored_run_pair_mirror_match(
+    source: Image.Image,
+    mirrored: Image.Image,
+    source_index: int,
+    mirrored_index: int,
+    source_pelvis: int,
+    mirrored_pelvis: int,
+) -> bool:
+    """Prove the second half contains the first half's mirrored source pixels."""
+
+    source_ground = _run_ground_y(source, source_index)
+    mirrored_ground = _run_ground_y(mirrored, mirrored_index)
+    checked = 0
+    for source_y in range(
+        source_ground - RUN_LOWER_BODY_DEPTH + 2,
+        source_ground + 1,
+    ):
+        for source_x in range(
+            max(1, source_pelvis - RUN_LOWER_BODY_HALF_WIDTH),
+            min(
+                source.width - 1,
+                source_pelvis + RUN_LOWER_BODY_HALF_WIDTH + 1,
+            ),
+        ):
+            color = source.getpixel((source_x, source_y))
+            if color[3] == 0 or color in WEAPON_COLOR_SET:
+                continue
+            target_x = mirrored_pelvis - (source_x - source_pelvis)
+            target_y = mirrored_ground - (source_ground - source_y)
+            if not (
+                1 <= target_x < mirrored.width - 1
+                and 1 <= target_y < mirrored.height - 1
+            ):
+                continue
+            # The target frame keeps its own authored swords; a blade may
+            # legitimately cover one donor trouser pixel at final 1x.
+            if mirrored.getpixel((target_x, target_y)) in WEAPON_COLOR_SET:
+                continue
+            checked += 1
+            if mirrored.getpixel((target_x, target_y)) != color:
+                return False
+    return checked >= 20
+
+
+def foot_zones(image: Image.Image, action: str, index: int) -> list[list[int]]:
     if action in {"dead", "ult"}:
         return []
+    if action == "run":
+        return run_foot_geometry(image, index)["foot_zones"]
     left, _top, right, bottom = alpha_bbox(image)
     zone_top = max(image.height // 2, bottom - 4)
     return [[left, zone_top, right - left, bottom - zone_top]]
@@ -1587,51 +1866,19 @@ def motion_pose_metrics(
     if action != "run":
         return result
 
-    lower_start = top + round(body_height * 0.66)
-    pelvis_x = sum(x for x, y in body_points if y < lower_start) / max(
-        1, sum(1 for _x, y in body_points if y < lower_start)
+    feet = run_foot_geometry(image, index)
+    result.update(feet)
+    result["run_stride_phase"] = RUN_STRIDE_PHASES[index]
+    # The common ground line, not a sword tip or whole-alpha bbox, owns the
+    # run anchor. All eight differently-sized native rectangles therefore
+    # resolve to the same world-space foot height.
+    result["ground_offset_from_rect_center_px"] = round(
+        feet["ground_y"] + 1 - image.height / 2,
+        3,
     )
-    foot_points = [
-        (x, y)
-        for x, y in body_points
-        if y >= lower_start and abs(x - pelvis_x) <= body_height * 0.46
-    ]
-    foot_xs = [x for x, _y in foot_points]
-    if len(foot_xs) < 4 or max(foot_xs) - min(foot_xs) < 2:
-        raise ValueError(f"run[{index}] lost its two-foot lower-body span")
-
-    # One-dimensional k-means separates the two visible boot clusters. Do not
-    # invent anatomical left/right identities from the scripted phase: the old
-    # QA did that and could report a crossover even while the pixels stayed
-    # frozen. The actual close/open span is the auditable gait signal here.
-    centres = [float(min(foot_xs)), float(max(foot_xs))]
-    clusters: list[list[int]] = [[], []]
-    for _iteration in range(12):
-        clusters = [[], []]
-        for x in foot_xs:
-            group = 0 if abs(x - centres[0]) <= abs(x - centres[1]) else 1
-            clusters[group].append(x)
-        if not all(clusters):
-            raise ValueError(f"run[{index}] collapsed to one foot cluster")
-        updated = [sum(group) / len(group) for group in clusters]
-        if all(abs(updated[i] - centres[i]) < 0.001 for i in (0, 1)):
-            centres = updated
-            break
-        centres = updated
-    centres.sort()
-    result.update(
-        {
-            "run_stride_phase": RUN_STRIDE_PHASES[index],
-            "foot_centers_x": [round(value, 3) for value in centres],
-            "foot_separation_px": round(centres[1] - centres[0], 3),
-            "stride_pose": (
-                "crossing"
-                if centres[1] - centres[0] <= 8.0
-                else "extended"
-                if centres[1] - centres[0] >= 10.0
-                else "passing"
-            ),
-        }
+    result["torso_height_from_ground_px"] = round(
+        feet["ground_y"] + 1 - torso_y,
+        3,
     )
     return result
 
@@ -1736,6 +1983,36 @@ def build_frames() -> tuple[
     rows: list[dict[str, Any]] = []
     frames: dict[tuple[str, int], Image.Image] = {}
     audits: list[dict[str, Any]] = []
+    run_raw_frames: dict[
+        int, tuple[Image.Image, dict[str, Any], dict[str, Any]]
+    ] = {}
+
+    def render_raw_run_frame(
+        run_index: int,
+    ) -> tuple[Image.Image, dict[str, Any], dict[str, Any]]:
+        _x, _y, width, height = rects[("run", run_index)]
+        target_height = max(
+            build_yone.BODY_TARGET_HEIGHTS["run"][run_index],
+            build_yone.NATIVE_MIN_VISIBLE_HEIGHTS["run"][run_index],
+        )
+        bottom_margin = min(
+            build_yone.BODY_BOTTOM_MARGINS["run"][run_index],
+            height
+            - build_yone.NATIVE_MIN_VISIBLE_HEIGHTS["run"][run_index]
+            - 1,
+        )
+        source_kind, cell_index = ACTION_SOURCES["run"][run_index]
+        subject_key = (source_kind, int(cell_index))
+        return fit_pose(
+            subjects[subject_key],
+            (width, height),
+            visible_height=target_height,
+            bottom_margin=bottom_margin,
+            x_shift=X_SHIFTS["run"][run_index],
+            weapon_traces=source_weapon_traces[subject_key],
+            active_weapon=build_yone.V7_FRAME_ACTIVE_WEAPON["run"],
+            preserve_authored_weapon_geometry=True,
+        )
 
     for action in build_yone.GENERATED_BODY_ACTIONS:
         assignments = ACTION_SOURCES[action]
@@ -1762,16 +2039,34 @@ def build_frames() -> tuple[
             subject_key = (source_kind, int(cell_index))
             subject = subjects[subject_key]
             active_weapon = build_yone.V7_FRAME_ACTIVE_WEAPON[action]
-            image, fit_audit, weapon_geometry = fit_pose(
-                subject,
-                (width, height),
-                visible_height=target_height,
-                bottom_margin=bottom_margin,
-                x_shift=x_shift,
-                weapon_traces=source_weapon_traces[subject_key],
-                active_weapon=active_weapon,
-                preserve_authored_weapon_geometry=action == "run",
-            )
+            if action == "run":
+                if index not in run_raw_frames:
+                    run_raw_frames[index] = render_raw_run_frame(index)
+                image, fit_audit, weapon_geometry = run_raw_frames[index]
+            else:
+                image, fit_audit, weapon_geometry = fit_pose(
+                    subject,
+                    (width, height),
+                    visible_height=target_height,
+                    bottom_margin=bottom_margin,
+                    x_shift=x_shift,
+                    weapon_traces=source_weapon_traces[subject_key],
+                    active_weapon=active_weapon,
+                    preserve_authored_weapon_geometry=False,
+                )
+            run_leg_audit: dict[str, Any] = {}
+            if action == "run":
+                donor_index = RUN_LOWER_BODY_DONORS[index]
+                if donor_index not in run_raw_frames:
+                    run_raw_frames[donor_index] = render_raw_run_frame(donor_index)
+                donor = run_raw_frames[donor_index][0]
+                image, run_leg_audit = compose_authored_run_lower_body(
+                    image,
+                    donor,
+                    index,
+                    donor_index,
+                    mirror=RUN_LOWER_BODY_MIRRORED[index],
+                )
 
             bbox = alpha_bbox(image)
             if any(
@@ -1804,7 +2099,7 @@ def build_frames() -> tuple[
                 "face_bbox": face,
                 "eye_pixels": eyes,
                 "mask_bbox": mask,
-                "foot_zones": foot_zones(image, action),
+                "foot_zones": foot_zones(image, action, index),
                 "face_visibility": visibility,
                 "active_weapon": active_weapon,
                 "weapons_present": build_yone.V7_FRAME_WEAPONS_PRESENT[action],
@@ -1833,6 +2128,7 @@ def build_frames() -> tuple[
                     **quality,
                     **fit_audit,
                     **motion_metrics,
+                    **run_leg_audit,
                 }
             )
 
@@ -1933,7 +2229,7 @@ def build_motion_attack_preview(
     cell_width = 260
     cell_height = 235
     rows = (
-        ("RUN intact authored motion", "run", 8),
+        ("RUN alternating two-leg contact", "run", 8),
         ("STEEL windup > contact > recovery", "attack", 6),
         ("AZAKANA windup > contact > recovery", "attack_azakana", 6),
     )
@@ -1957,7 +2253,9 @@ def build_motion_attack_preview(
             y = baseline - rendered.height
             preview.alpha_composite(rendered, (x, y))
             phase = (
-                f"motion[{ACTION_SOURCES['run'][index][1]}] intact"
+                f"{RUN_SUPPORT_LEGS[index]} authored support; "
+                f"donor {RUN_LOWER_BODY_DONORS[index]}; "
+                f"mirror={RUN_LOWER_BODY_MIRRORED[index]}"
                 if action == "run"
                 else RUN_ATTACK_POSE_PHASES[action][index]
             )
@@ -2098,6 +2396,19 @@ def main() -> int:
     run_extended_frame_indices = [
         audit["index"] for audit in run_audits if audit["stride_pose"] == "extended"
     ]
+    run_pair_mirror_matches = [
+        authored_run_pair_mirror_match(
+            frames[("run", index)],
+            frames[("run", index + 4)],
+            index,
+            index + 4,
+            int(run_audits[index]["lower_body_target_pelvis_x"]),
+            int(run_audits[index + 4]["lower_body_target_pelvis_x"]),
+        )
+        for index in range(4)
+    ]
+    if run_pair_mirror_matches != [True, True, True, True]:
+        failures.append(f"run_pair_mirror_matches={run_pair_mirror_matches}")
     run_local_minimum_indices = [
         index
         for index, value in enumerate(run_foot_separations)
@@ -2225,9 +2536,9 @@ def main() -> int:
         run_blade_angle_ranges[weapon] = round(
             2 * math.pi - max(circular_gaps), 3
         )
-    # The source sheet already contains a coherent eight-pose locomotion
-    # sequence. Reject the old synthetic crossover route: all run bodies must
-    # be untouched motion cells 5..12, with bounded natural stride changes.
+    # Motion cells 5..12 retain eight distinct upper-body and weapon poses.
+    # Four complete authored lower-body phases own the first half-cycle; their
+    # whole-patch mirrors own the second. No geometric substitute leg exists.
     expected_run_sources = [("motion", index) for index in range(5, 13)]
     actual_run_sources = [(audit["source"], audit["cell"]) for audit in run_audits]
     if actual_run_sources != expected_run_sources:
@@ -2242,19 +2553,29 @@ def main() -> int:
         for audit in run_audits
     ):
         failures.append("run_weapon_afterimage_route")
-    if run_foot_separations and not (
-        8.5 <= min(run_foot_separations)
-        and max(run_foot_separations) <= 13.5
+    actual_support_legs = [audit.get("support_leg") for audit in run_audits]
+    if actual_support_legs != list(RUN_SUPPORT_LEGS):
+        failures.append(f"run_support_sequence={actual_support_legs}")
+    if any(
+        audit.get("leg_edit_route")
+        != "authored_lower_body_half_cycle_mirror"
+        or audit.get("lower_body_donor_index") != RUN_LOWER_BODY_DONORS[audit["index"]]
+        or audit.get("lower_body_mirrored")
+        is not RUN_LOWER_BODY_MIRRORED[audit["index"]]
+        or audit.get("outside_lower_body_roi_rgba_unchanged") is not True
+        or audit.get("authored_weapon_pixels_unchanged_after_lower_body_edit")
+        is not True
+        or audit.get("source_pixel_only") is not True
+        or audit.get("new_rgba_pixel_count") != 0
+        or audit.get("support_ground_clearance_px", 99) > 2
+        or len(audit.get("foot_zones", [])) != 2
+        for audit in run_audits
     ):
-        failures.append(f"run_natural_foot_range={run_foot_separations}")
+        failures.append("run_authored_lower_body_contract")
     run_maximum_adjacent_foot_step = max(
         abs(run_foot_separations[index] - run_foot_separations[(index + 1) % 8])
         for index in range(8)
     )
-    if run_maximum_adjacent_foot_step > 2.5:
-        failures.append(
-            f"run_adjacent_foot_step={run_maximum_adjacent_foot_step:.3f}"
-        )
     if run_ground_offsets and max(run_ground_offsets) - min(run_ground_offsets) > 1.0:
         failures.append(
             "run_ground_anchor_range="
@@ -2365,12 +2686,33 @@ def main() -> int:
             "attack_durations_seconds": build_yone.NATIVE_CONTRACT["attack"]["durations"],
         },
         "run": {
-            "source": "eight complete authored V7 motion cells 5..12; whole-pose proportional fit and transformed source weapon masks only, with no leg split, frame blend, torso shear, hand-to-tip redraw, or afterimage",
+            "source": "eight authored V7 upper-body/weapon poses from motion cells 5..12 plus four complete authored lower-body phases and their whole-patch half-cycle mirrors; no drawn leg, resize, shear, hand-to-tip redraw, or afterimage",
             "canonical_art_direction": "right",
             "runtime_direction_owner": "native GameView flip_x; one canonical run action",
             "weapon_render_route": "authored_transformed_mask_only",
             "authored_weapon_mask_identity": {"steel": True, "azakana": True},
             "authored_alpha_mask_unchanged": True,
+            "leg_edit_route": "authored_lower_body_half_cycle_mirror",
+            "lower_body_donor_indices": list(RUN_LOWER_BODY_DONORS),
+            "lower_body_mirrored": list(RUN_LOWER_BODY_MIRRORED),
+            "outside_lower_body_roi_rgba_unchanged": True,
+            "authored_weapon_pixels_unchanged_after_lower_body_edit": True,
+            "source_pixel_only": True,
+            "new_rgba_pixel_count": 0,
+            "half_cycle_pair_mirror_match": run_pair_mirror_matches,
+            "support_leg_sequence": [
+                audit["support_leg"] for audit in run_audits
+            ],
+            "left_contact_y": [
+                audit["left_contact_y"] for audit in run_audits
+            ],
+            "right_contact_y": [
+                audit["right_contact_y"] for audit in run_audits
+            ],
+            "ground_y": [audit["ground_y"] for audit in run_audits],
+            "swing_clearance_px": [
+                audit["swing_clearance_px"] for audit in run_audits
+            ],
             "pose_sources": [list(source) for source in ACTION_SOURCES["run"]],
             "stride_phases": list(RUN_STRIDE_PHASES),
             "foot_separations_px": run_foot_separations,

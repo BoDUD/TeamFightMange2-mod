@@ -90,7 +90,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -100,7 +100,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45"
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1064,13 +1064,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 270336,
-      "sha256": "eef5cec548657ad2bea0c569c031f4fcc1d4bccef593b192894f0e59acffba68"
+      "size": 188416,
+      "sha256": "5e9998a7c307c8061059620d54748645e5c48a9678217afd959fbdc319044824"
     },
     {
       "path": "mod.mod_info",
-      "size": 1625,
-      "sha256": "a7b3c4ae4a15e0923e8a0a21bffa2c6c399892c56367495ed67451bff9e2e37c"
+      "size": 1896,
+      "sha256": "567570e0136a44991926e98098041c4e38b52a3ae61f41d8e932d8b381044b40"
     },
     {
       "path": "mod.override_info",
@@ -1104,8 +1104,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 146692,
-      "sha256": "0e7bc6f03ccb5b856d677e016833a9c6a47ce165d4863b77d8b3efc1a5814f04"
+      "size": 147288,
+      "sha256": "6d87868a36ef03b95e1d0def607a231f3b0e4f5741ad9c0fa0a44421889803eb"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1119,8 +1119,8 @@
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 314215,
-      "sha256": "4f3f54ea12803c860270f8066bb858a8a24b387d0ef2e2db7f5ba0ec9831c4b7"
+      "size": 315607,
+      "sha256": "2938380bd6b2a191d47c21ae9fcfd4965c9becda01ab9158510a0b3051c92fe1"
     },
     {
       "path": "qa/yone_visual_qa.md",
@@ -2604,8 +2604,8 @@
     },
     {
       "path": "ui/layout/champion_info_component/champion_slot.ui",
-      "size": 4106,
-      "sha256": "a63b18b5e10bc18c05d532d577d83fc90b0917f6e404062858467b28ee64f801"
+      "size": 2257,
+      "sha256": "4c3087f02f0c3566ce160dd01c848a73ad4bd2a4691bf89678efc9a3a30e627f"
     },
     {
       "path": "ui/layout/ingame_component/camera_info.ui",

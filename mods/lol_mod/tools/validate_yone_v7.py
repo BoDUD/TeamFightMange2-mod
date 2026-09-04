@@ -61,16 +61,28 @@ EXPECTED_SOURCE_HASHES = {
     "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
     "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
 }
-EXPECTED_RUN_FRAME_HASHES = {
-    "run_00.png": "fdba09eabdf1e18c5f423f7830507aaf5d3e55c3a8c49f796b20225484a21cb8",
-    "run_01.png": "62aeebdc0c4a7b9927ee0ce7f25a9dca10364c84f2967ca300c817a1e472356c",
-    "run_02.png": "b55470ff0eeda05c04ef0be444fdc4cc676734892034c2e7e6261a8576aa3d3a",
-    "run_03.png": "86676ff6ca4049417d4bde5d69e42a04eb68b2aaf7e10768b28530050a71f4b7",
-    "run_04.png": "88d7495fd2e84ac0ceda7ced2a706d1102c4302ac756dd2ff5ecc5953419506c",
-    "run_05.png": "17c638efccff2639ee481698ec8a4ba3b3527ce5eedf0d11149e69896cc8678f",
-    "run_06.png": "726e82cd341f7622156af9c66967131aba58f9bedded8b3811a4eec7221e2c01",
-    "run_07.png": "2250942c656c7fcef435973dd471b30c2e79ed6c8a084255df1969c977308ea7",
-}
+EXPECTED_RUN_FRAME_NAMES = tuple(f"run_{index:02d}.png" for index in range(8))
+EXPECTED_RUN_LOWER_BODY_DONORS = [4, 5, 6, 7, 4, 5, 6, 7]
+EXPECTED_RUN_LOWER_BODY_MIRRORED = [
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    True,
+    True,
+]
+EXPECTED_RUN_SUPPORT_LEGS = [
+    "right",
+    "right",
+    "right",
+    "right",
+    "left",
+    "left",
+    "left",
+    "left",
+]
 SOURCE_PATHS = {
     "motion": MOD_ROOT / "source/imagegen/yone_v7_motion_contact.png",
     "attack_q": MOD_ROOT / "source/imagegen/yone_v7_attack_q_contact.png",
@@ -306,10 +318,32 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         or run_contract.get("authored_weapon_mask_identity")
         != expected_mask_identity
         or run_contract.get("authored_alpha_mask_unchanged") is not True
+        or run_contract.get("leg_edit_route")
+        != "authored_lower_body_half_cycle_mirror"
+        or run_contract.get("lower_body_donor_indices")
+        != EXPECTED_RUN_LOWER_BODY_DONORS
+        or run_contract.get("lower_body_mirrored")
+        != EXPECTED_RUN_LOWER_BODY_MIRRORED
+        or run_contract.get("outside_lower_body_roi_rgba_unchanged") is not True
+        or run_contract.get(
+            "authored_weapon_pixels_unchanged_after_lower_body_edit"
+        )
+        is not True
+        or run_contract.get("source_pixel_only") is not True
+        or run_contract.get("new_rgba_pixel_count") != 0
+        or run_contract.get("half_cycle_pair_mirror_match")
+        != [True, True, True, True]
+        or run_contract.get("support_leg_sequence")
+        != EXPECTED_RUN_SUPPORT_LEGS
+        or run_contract.get("ground_anchor_range_px") != 0.0
+        or "no drawn leg" not in str(run_contract.get("source", ""))
         or "hand-to-tip redraw" not in str(run_contract.get("source", ""))
         or "afterimage" not in str(run_contract.get("source", ""))
     ):
-        _fail("V7 run must preserve eight authored source frames and weapon masks without redraw")
+        _fail(
+            "V7 run must preserve authored upper-body/weapon pixels and use the "
+            "accepted source-pixel half-cycle lower-body mirror"
+        )
     run_rows = sorted(
         (
             row
@@ -321,14 +355,33 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
     if (
         [(row.get("source"), row.get("cell")) for row in run_rows]
         != [("motion", index) for index in range(5, 13)]
+        or [row.get("lower_body_donor_index") for row in run_rows]
+        != EXPECTED_RUN_LOWER_BODY_DONORS
+        or [row.get("lower_body_mirrored") for row in run_rows]
+        != EXPECTED_RUN_LOWER_BODY_MIRRORED
         or any(
             row.get("weapon_render_route") != "authored_transformed_mask_only"
             or row.get("authored_weapon_mask_identity") != expected_mask_identity
             or row.get("authored_alpha_mask_unchanged") is not True
+            or row.get("leg_edit_route")
+            != "authored_lower_body_half_cycle_mirror"
+            or row.get("outside_lower_body_roi_rgba_unchanged") is not True
+            or row.get(
+                "authored_weapon_pixels_unchanged_after_lower_body_edit"
+            )
+            is not True
+            or row.get("source_pixel_only") is not True
+            or row.get("new_rgba_pixel_count") != 0
+            or len(row.get("foot_zones", [])) != 2
             for row in run_rows
         )
+        or [row.get("support_leg") for row in run_rows]
+        != EXPECTED_RUN_SUPPORT_LEGS
     ):
-        _fail("V7 run frame audit contains a synthetic weapon redraw or stale source cell")
+        _fail(
+            "V7 run frame audit lost source identity, weapon preservation, or "
+            "source-pixel half-cycle mirror metadata"
+        )
     actual_hashes: dict[str, str] = {}
     for label, canonical_path in SOURCE_PATHS.items():
         path = mod_root / canonical_path.relative_to(MOD_ROOT)
@@ -342,13 +395,10 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
     )
     actual_run_frame_hashes = {
         name: _sha256(run_frame_root / name)
-        for name in EXPECTED_RUN_FRAME_HASHES
+        for name in EXPECTED_RUN_FRAME_NAMES
     }
-    if actual_run_frame_hashes != EXPECTED_RUN_FRAME_HASHES:
-        _fail(
-            "accepted intact Yone run frames changed: "
-            f"{actual_run_frame_hashes}"
-        )
+    if len(set(actual_run_frame_hashes.values())) != len(EXPECTED_RUN_FRAME_NAMES):
+        _fail("Yone run cycle must retain eight distinct final PNG files")
     return {
         "schema_version": EXPECTED_SCHEMA_VERSION,
         "source_hashes": actual_hashes,
@@ -357,6 +407,15 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         "run_weapon_render_route": "authored_transformed_mask_only",
         "run_authored_weapon_mask_identity": expected_mask_identity,
         "run_authored_alpha_mask_unchanged": True,
+        "run_leg_edit_route": "authored_lower_body_half_cycle_mirror",
+        "run_lower_body_donor_indices": EXPECTED_RUN_LOWER_BODY_DONORS,
+        "run_lower_body_mirrored": EXPECTED_RUN_LOWER_BODY_MIRRORED,
+        "run_source_pixel_only": True,
+        "run_new_rgba_pixel_count": 0,
+        "run_half_cycle_pair_mirror_match": [True, True, True, True],
+        "run_support_leg_sequence": EXPECTED_RUN_SUPPORT_LEGS,
+        # Deliberately reported but not pinned: review the rendered run before
+        # promoting these content hashes into a release lock.
         "run_frame_hashes": actual_run_frame_hashes,
         "quality_failures": [],
     }
@@ -753,6 +812,247 @@ def _largest_connected_component(
     xs = [point[0] for point in largest]
     ys = [point[1] for point in largest]
     return len(largest), (min(xs), min(ys), max(xs) + 1, max(ys) + 1)
+
+
+def _connected_component_sizes_8(
+    points: set[tuple[int, int]],
+) -> list[int]:
+    """Return exact 8-connected component sizes for native hard-alpha pixels."""
+
+    remaining = set(points)
+    sizes: list[int] = []
+    while remaining:
+        start = remaining.pop()
+        component = {start}
+        queue: deque[tuple[int, int]] = deque([start])
+        while queue:
+            x, y = queue.popleft()
+            for delta_y in (-1, 0, 1):
+                for delta_x in (-1, 0, 1):
+                    if delta_x == 0 and delta_y == 0:
+                        continue
+                    neighbor = (x + delta_x, y + delta_y)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        component.add(neighbor)
+                        queue.append(neighbor)
+        sizes.append(len(component))
+    return sorted(sizes, reverse=True)
+
+
+def _validate_run_png_gait(
+    sources: dict[tuple[str, int], Image.Image],
+    palette: Palette,
+    rows_by_key: dict[tuple[str, int], dict[str, Any]],
+) -> dict[str, Any]:
+    """Independently prove the run mirror and both swords from final PNGs.
+
+    This intentionally does not import the generator or trust its gait audit.
+    The lower-body comparison searches only a narrow native-centre anchor
+    window, then requires exact mirrored RGBA equality below the retained seam.
+    """
+
+    run_frames = [sources.get(("run", index)) for index in range(8)]
+    run_rows = [rows_by_key.get(("run", index)) for index in range(8)]
+    if any(frame is None for frame in run_frames) or any(
+        row is None for row in run_rows
+    ):
+        _fail("final PNG gait validation requires all eight run frames")
+    frames = [frame for frame in run_frames if frame is not None]
+    rows = [row for row in run_rows if row is not None]
+
+    weapon_colors: dict[str, frozenset[tuple[int, int, int, int]]] = {}
+    weapon_components: list[dict[str, Any]] = []
+    for weapon, ramp in EXPECTED_WEAPON_PALETTE_ROLES.items():
+        roles = [role for role_names in ramp.values() for role in role_names]
+        colors = frozenset(
+            color for role in roles for color in palette.exact_role(role)
+        )
+        if len(colors) != len(roles):
+            _fail(f"run PNG gait validation is missing {weapon} palette roles")
+        weapon_colors[weapon] = colors
+    all_weapon_colors = frozenset().union(*weapon_colors.values())
+
+    for index, frame in enumerate(frames):
+        frame_report: dict[str, Any] = {"index": index}
+        for weapon in ("steel", "azakana"):
+            points = {
+                (x, y)
+                for y in range(frame.height)
+                for x in range(frame.width)
+                if frame.getpixel((x, y)) in weapon_colors[weapon]
+            }
+            sizes = _connected_component_sizes_8(points)
+            if len(sizes) != 1:
+                _fail(
+                    f"run[{index}] final PNG {weapon} must be exactly one "
+                    f"8-connected component, got {sizes}"
+                )
+            frame_report[f"{weapon}_component_sizes"] = sizes
+        weapon_components.append(frame_report)
+
+    pair_reports: list[dict[str, Any]] = []
+    for source_index in range(4):
+        mirrored_index = source_index + 4
+        source = frames[source_index]
+        mirrored = frames[mirrored_index]
+        if source.size != mirrored.size:
+            _fail(
+                f"run[{source_index}] and run[{mirrored_index}] must retain "
+                "equal native boxes for integer-aligned mirroring"
+            )
+        source_ground = source.height - int(rows[source_index]["bottom_margin"]) - 1
+        mirrored_ground = (
+            mirrored.height - int(rows[mirrored_index]["bottom_margin"]) - 1
+        )
+        source_center = (source.width - 1) // 2
+        mirrored_center = (mirrored.width - 1) // 2
+        candidates: list[dict[str, int]] = []
+        for source_pelvis in range(source_center - 4, source_center + 5):
+            for mirrored_pelvis in range(
+                mirrored_center - 4, mirrored_center + 5
+            ):
+                checked = 0
+                mismatches = 0
+                for source_y in range(source_ground - 8, source_ground + 1):
+                    for source_x in range(
+                        max(1, source_pelvis - 11),
+                        min(source.width - 1, source_pelvis + 12),
+                    ):
+                        target_x = mirrored_pelvis - (source_x - source_pelvis)
+                        target_y = mirrored_ground - (source_ground - source_y)
+                        if not (
+                            1 <= target_x < mirrored.width - 1
+                            and 1 <= target_y < mirrored.height - 1
+                        ):
+                            continue
+                        source_color = source.getpixel((source_x, source_y))
+                        target_color = mirrored.getpixel((target_x, target_y))
+                        # Each half keeps its own authored swords. Ignore only
+                        # coordinates occupied by an exclusive blade color;
+                        # every remaining body/transparent pixel must match.
+                        if (
+                            source_color in all_weapon_colors
+                            or target_color in all_weapon_colors
+                        ):
+                            continue
+                        if source_color[3] or target_color[3]:
+                            checked += 1
+                            mismatches += source_color != target_color
+                candidates.append(
+                    {
+                        "source_pelvis": source_pelvis,
+                        "mirrored_pelvis": mirrored_pelvis,
+                        "checked_pixels": checked,
+                        "mismatches": mismatches,
+                    }
+                )
+        best = min(
+            candidates,
+            key=lambda row: (
+                row["mismatches"],
+                -row["checked_pixels"],
+                abs(row["source_pelvis"] - source_center)
+                + abs(row["mirrored_pelvis"] - mirrored_center),
+            ),
+        )
+        if best["mismatches"] != 0 or best["checked_pixels"] < 64:
+            _fail(
+                f"run[{source_index}] -> run[{mirrored_index}] final PNG "
+                f"lower body is not an exact half-cycle mirror: {best}"
+            )
+        pair_reports.append(
+            {
+                "source_index": source_index,
+                "mirrored_index": mirrored_index,
+                "match": True,
+                **best,
+            }
+        )
+
+    # Mirroring alone can also pass for a static or floating lower body.  Derive
+    # contact from the final non-weapon pixels at the native ground line and
+    # require both legs to retain authored density and four changing phases.
+    pelvis_by_index = {
+        index: report[field]
+        for report in pair_reports
+        for index, field in (
+            (report["source_index"], "source_pelvis"),
+            (report["mirrored_index"], "mirrored_pelvis"),
+        )
+    }
+    lower_body_reports: list[dict[str, Any]] = []
+    lower_body_signatures: list[tuple[Any, ...]] = []
+    observed_support_legs: list[str] = []
+    for index, frame in enumerate(frames):
+        pelvis = pelvis_by_index[index]
+        ground = frame.height - int(rows[index]["bottom_margin"]) - 1
+        body_points = {
+            (x, y): frame.getpixel((x, y))
+            for y in range(ground - 8, ground + 1)
+            for x in range(max(1, pelvis - 11), min(frame.width - 1, pelvis + 12))
+            if frame.getpixel((x, y))[3]
+            and frame.getpixel((x, y)) not in all_weapon_colors
+        }
+        side_points = {
+            "left": [point for point in body_points if point[0] < pelvis],
+            "right": [point for point in body_points if point[0] > pelvis],
+        }
+        if any(len(points) < 24 for points in side_points.values()):
+            _fail(f"run[{index}] final PNG lost one leg's lower-body pixel density")
+        clearance = {
+            side: ground - max(y for _x, y in points)
+            for side, points in side_points.items()
+        }
+        support = min(clearance, key=clearance.get)
+        if clearance[support] != 0:
+            _fail(f"run[{index}] final PNG has ungrounded support: {clearance}")
+        other = "left" if support == "right" else "right"
+        if clearance[other] <= clearance[support]:
+            _fail(f"run[{index}] final PNG lost its distinct swing leg: {clearance}")
+        observed_support_legs.append(support)
+        lower_body_signatures.append(
+            tuple(sorted((x - pelvis, y - ground, color) for (x, y), color in body_points.items()))
+        )
+        lower_body_reports.append(
+            {
+                "index": index,
+                "leg_pixel_counts": {side: len(points) for side, points in side_points.items()},
+                "ground_clearance_px": clearance,
+                "support_leg": support,
+            }
+        )
+    if observed_support_legs != EXPECTED_RUN_SUPPORT_LEGS:
+        _fail(f"final PNG run support must alternate evenly across both halves: {observed_support_legs}")
+    half_cycle_pose_counts = [
+        len(set(lower_body_signatures[start:start + 4])) for start in (0, 4)
+    ]
+    if half_cycle_pose_counts != [4, 4]:
+        _fail(f"final PNG run lower body is static within a half cycle: {half_cycle_pose_counts}")
+
+    frame_hashes = {
+        EXPECTED_RUN_FRAME_NAMES[index]: hashlib.sha256(
+            frames[index].tobytes()
+        ).hexdigest()
+        for index in range(8)
+    }
+    if len(set(frame_hashes.values())) != 8:
+        _fail("final PNG run cycle must retain eight distinct pixel payloads")
+    return {
+        "source": "final native PNG pixels; generator audit not consulted",
+        "weapon_single_component": True,
+        "weapon_components": weapon_components,
+        "half_cycle_pair_mirror_match": [
+            report["match"] for report in pair_reports
+        ],
+        "pair_reports": pair_reports,
+        "support_leg_sequence": observed_support_legs,
+        "lower_body_reports": lower_body_reports,
+        "lower_body_unique_poses_per_half": half_cycle_pose_counts,
+        # Content hashes remain observational until visual review approves a
+        # new release lock.
+        "unlocked_frame_pixel_hashes": frame_hashes,
+    }
 
 
 def validate_frame_annotations(
@@ -1987,6 +2287,7 @@ def validate_v7(
         palette,
     )
     generation_report = _validate_generation_qa(mod_root)
+    run_png_gait_report = _validate_run_png_gait(sources, palette, rows_by_key)
     dual_sword_report = _validate_dual_sword_cues(sources, palette, rows_by_key)
     runtime_weapon_report = _validate_runtime_weapon_routes(mod_root)
     if verify_retired_paths:
@@ -2014,6 +2315,7 @@ def validate_v7(
         "frames": reports,
         "body_preview": preview_report,
         "generation_qa": generation_report,
+        "run_png_gait": run_png_gait_report,
         "animation_contract": animation_contract,
         "weapon_contract": payload["weapon_contract"],
         "dual_sword": dual_sword_report,

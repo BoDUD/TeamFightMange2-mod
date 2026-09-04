@@ -302,9 +302,12 @@ def test_rift_towers_and_league_music_remain_in_the_active_runtime_closure() -> 
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
     manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
     paths = {row["path"] for row in manifest["files"]}
-    assert manifest["purpose"].startswith("0.12.13 ")
-    assert "engine-resolved encyclopedia ImageRunner" in manifest["purpose"]
-    assert "authored Yone run" in manifest["purpose"]
+    assert manifest["purpose"].startswith("0.12.14 ")
+    assert "native encyclopedia resolver" in manifest["purpose"]
+    assert "authored mirrored Yone run" in manifest["purpose"]
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    assert not any(path.startswith("ui/champion_fullbody/") for path in paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in paths)
     assert "render-hook" not in manifest["purpose"]
     assert any(path.startswith("champion/") for path in paths)
     for champion_id in (

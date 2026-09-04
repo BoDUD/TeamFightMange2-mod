@@ -3013,7 +3013,7 @@ def build_qa(
             "portrait_policy": {
                 "default_runtime": "five independent source-direct V7 UI textures plus the BP splash; no battle-atlas portrait input",
                 "fullbody": "85x93 exact champion_slot destination, <=70x82 subject, alpha bottom y<=86",
-                "encyclopedia": "64x64 offline Briar-class full-body target; runtime uses the engine resolver on the stock 64x64 ImageRunner, <=54x58 subject, feet at y<=60",
+                "encyclopedia": "stock 0.5.8 ChampionInfoUIRunner uses the yone_v7 sprite idle frame and champion_view camera; dedicated 64x64 image remains an excluded offline QA artifact",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 source-direct upper-body crop, <=40x54 subject, alpha bottom y<=60",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",

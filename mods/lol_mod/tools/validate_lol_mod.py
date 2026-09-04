@@ -4191,24 +4191,17 @@ def validate_kled_localization_style_and_surfaces() -> None:
         "Kled must be registered in CHAMPION_FULLBODY_SHEETS",
     )
 
-    slot_path = MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui"
-    slot = slot_path.read_text(encoding="utf-8") if slot_path.is_file() else ""
-    check("#lol_fullbody_kled:image" in slot, "Kled encyclopedia full-body node is missing")
     check(
-        'source: "asset/lol_mod/ui/champion_fullbody/cavalry_knight";' in slot,
-        "Kled encyclopedia node must use the stable cavalry_knight portrait asset",
+        "asset/base/ui/layout/champion_info_component/champion_slot"
+        not in load_json("mod.override_info"),
+        "all encyclopedia cards must retain the stock 0.5.8 champion-slot template",
     )
 
     rust_path = MOD_ROOT / "src/lib.rs"
     rust = rust_path.read_text(encoding="utf-8") if rust_path.is_file() else ""
-    rust_compact = " ".join(rust.split())
     check(
         '"asset/lol_mod/BanPickIllust/cavalry_knight"' in rust,
         "Kled BP splash is missing from the runtime splash list",
-    )
-    check(
-        '("cavalry_knight", "lol_fullbody_kled")' in rust_compact,
-        "Kled is missing from runtime encyclopedia portrait synchronization",
     )
     check(
         '"kled" | "cavalry_knight" => Some("cavalry_knight")' in rust,
@@ -6844,7 +6837,6 @@ def validate_native_dll() -> None:
         "use mod_api_stable::",
         "impl StableEffectType for UrgotPassiveNativeEffect",
         "impl StablePlayerAi for XayahFeatherInputGate",
-        "client.ui_set_champion_icon(",
         "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);",
     ):
         check(required in stable_runtime, f"stable runtime contract is missing: {required}")
@@ -6852,25 +6844,15 @@ def validate_native_dll() -> None:
         "YoneSpiritCleaveConeNativeEffect" not in stable_runtime,
         "retired native Yone W cone implementation must stay removed",
     )
-    encyclopedia_card_sync = ""
-    if "fn sync_encyclopedia_card" in stable_runtime:
-        encyclopedia_card_sync = stable_runtime.split(
-            "fn sync_encyclopedia_card", 1
-        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
-    check(
-        'runner.eq_ignore_ascii_case("image")' in encyclopedia_card_sync
-        and "client.ui_set_champion_icon(" in encyclopedia_card_sync
-        and "ENCYCLOPEDIA_ICON_SIZE" in encyclopedia_card_sync
-        and "ENCYCLOPEDIA_FULLBODY_SCALE" in encyclopedia_card_sync
-        and "resolver_bound" in encyclopedia_card_sync
-        and "positioned" in encyclopedia_card_sync
-        and "client.ui_set_visible(&native_icon, true)" in encyclopedia_card_sync
-        and "client.ui_spawn_source" not in encyclopedia_card_sync
-        and "draw_sprite" not in encyclopedia_card_sync
-        and 'source: \\"' not in encyclopedia_card_sync
-        and "ui_set_visible(&native_icon, false)" not in encyclopedia_card_sync,
-        "stable encyclopedia routing must use the engine resolver on the existing 64x64 ImageRunner and retain a visible native fallback",
-    )
+    for forbidden in (
+        "sync_encyclopedia", "resolve_encyclopedia_container",
+        "ENCYCLOPEDIA_", "client.ui_set_champion_icon(",
+        "lol_fullbody_", "ui/champion_fullbody/", "&native_icon",
+    ):
+        check(
+            forbidden not in stable_runtime,
+            f"stable runtime must leave encyclopedia image resolution to the stock runner: {forbidden}",
+        )
     check(
         b"version=0.10.19;root=" not in payload
         and b"version=0.10.19;from_size=" not in payload
@@ -7227,7 +7209,7 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
     fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").convert("RGBA")
     fullbody_quality = source_direct_ui_quality(fullbody)
     fullbody_bbox = fullbody_quality.get("alpha_bbox")
-    check(fullbody.size == (85, 93), "Xayah encyclopedia portrait must match the runtime 85x93 overlay")
+    check(fullbody.size == (85, 93), "Xayah offline full-body preview must keep its 85x93 QA canvas")
     check(fullbody_bbox is not None, "Xayah encyclopedia portrait must be visible")
     if fullbody_bbox is not None:
         fullbody_width = fullbody_bbox[2] - fullbody_bbox[0]
@@ -8282,7 +8264,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.13", "lol_mod version must be 0.12.13")
+    check(mod_info.get("version") == "0.12.14", "lol_mod version must be 0.12.14")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8301,12 +8283,13 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         all(
             token in description
             for token in (
-                "0.5.8", "stable ABI 8", "repair test", "engine-owned champion resolver",
-                "intact authored run frames", "alpha afterimage", "native flip_x", "no active E",
+                "0.5.8", "stable ABI 8", "repair test", "stock 0.5.8 ChampionInfoUIRunner",
+                "grounded authored lower-body phases", "without drawn legs",
+                "alpha afterimage", "native flip_x", "no active E",
                 "data_champion", "BP/match music",
             )
         ),
-        "mod metadata must disclose the card-local encyclopedia route, intact native-mirrored run, and active test scope",
+        "mod metadata must disclose the native encyclopedia resolver, authored mirrored lower-body run, and active test scope",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8519,10 +8502,22 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
     )
     for required_run_symbol in (
         '"run": tuple(("motion", index) for index in range(5, 13))',
-        'preserve_authored_weapon_geometry=action == "run"',
+        "def render_raw_run_frame(",
+        "preserve_authored_weapon_geometry=True",
+        "run_raw_frames[index] = render_raw_run_frame(index)",
         '"authored_transformed_mask_only"',
         "authored_weapon_mask_identity",
         "authored_alpha_mask_unchanged",
+        "RUN_LOWER_BODY_DONORS",
+        "RUN_LOWER_BODY_MIRRORED",
+        "RUN_SUPPORT_LEGS",
+        "compose_authored_run_lower_body",
+        '"authored_lower_body_half_cycle_mirror"',
+        "outside_lower_body_roi_rgba_unchanged",
+        "authored_weapon_pixels_unchanged_after_lower_body_edit",
+        '"source_pixel_only": True',
+        "new_rgba_pixel_count",
+        "half_cycle_pair_mirror_match",
     ):
         check(
             required_run_symbol in yone_generator_source,
@@ -8533,6 +8528,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "RUN_POSE_SOURCES",
         "recompose_run_articulated_pair",
         "canonical_forward_lean_ratio",
+        "RUN_FOOT_TARGETS",
+        "repair_run_lower_body",
+        "_draw_native_run_leg",
     ):
         check(
             forbidden_run_symbol not in yone_generator_source,
@@ -9246,117 +9244,67 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         },
         "Yone champion_view must keep the audited face/card/BP cameras",
     )
-    ui = (MOD_ROOT / "ui/layout/champion_info_component/champion_slot.ui").read_text(encoding="utf-8")
-    icon_node = ui.split("#icon:image", 1)[1].split("}", 1)[0] if "#icon:image" in ui else ""
-    check(
-        "width: 85px;" in icon_node and "height: 93px;" in icon_node,
-        "Yone management-card route must derive from the real 85x93 champion_slot #icon geometry",
-    )
-    encyclopedia_card_sync = ""
-    if "fn sync_encyclopedia_card" in rust:
-        encyclopedia_card_sync = rust.split(
-            "fn sync_encyclopedia_card", 1
-        )[1].split("fn sync_encyclopedia_portraits", 1)[0]
-    for required in (
-        'runner.eq_ignore_ascii_case("image")',
-        "client.ui_set_visible(&native_icon, true)",
-        "client.ui_set_champion_icon(",
-        "client.ui_node_rect(&native_icon)",
-        "ENCYCLOPEDIA_ICON_SIZE",
-        "ENCYCLOPEDIA_FULLBODY_SCALE",
-        "ENCYCLOPEDIA_FULLBODY_BOTTOM_Y",
-        "resolver_bound",
-        "positioned",
-    ):
-        check(
-            required in encyclopedia_card_sync,
-            f"stable encyclopedia engine-resolver route is missing: {required}",
-        )
+    # Match finished champion mods: ChampionInfoUIRunner resolves the active
+    # data_champion sprite and idle frame. No extension may rebind or hide it.
     for forbidden in (
-        "ui_spawn_source",
-        "draw_sprite",
-        "ui_set_visible(&native_icon, false)",
-        'source: \\"',
-        "StableSpriteParams",
-        "RenderCommand",
+        "sync_encyclopedia", "resolve_encyclopedia_container",
+        "ENCYCLOPEDIA_", "client.ui_set_champion_icon(",
+        "lol_fullbody_", "ui/champion_fullbody/", "&native_icon",
+        "YoneManagementCardExtension", "rewrite_yone_management_card_render_commands",
+        "rewrite_yone_portrait_render_commands",
     ):
         check(
-            forbidden not in encyclopedia_card_sync,
-            f"stable encyclopedia engine-resolver route retains an obsolete path: {forbidden}",
+            forbidden not in rust,
+            f"compiled runtime must not mutate the stock encyclopedia card image: {forbidden}",
         )
-
-    encyclopedia_batch = ""
-    if "fn sync_encyclopedia_portraits" in rust:
-        encyclopedia_batch = rust.split(
-            "fn sync_encyclopedia_portraits", 1
-        )[1].split("fn bp_champion_id_from_name", 1)[0]
-    for required in (
-        'client.client_main_tab().as_deref() != Some("GameInfo")',
-        "resolve_encyclopedia_container(extension, client)",
-        '"dancer"',
-        '"dual_blader"',
-        "engine champion-icon resolver on existing 64x64 ImageRunner",
-        "raw source mutation disabled",
-        "card-local scroll/clipping inherited",
-        "native icon always visible",
-    ):
-        check(
-            required in encyclopedia_batch,
-            f"Xayah/Yone encyclopedia ImageRunner sync batch is missing: {required}",
-        )
+    runtime_manifest = load_json("runtime_manifest.json")
     check(
-        "const ENCYCLOPEDIA_FULLBODY_BOTTOM_Y: f32 = 68.0;" in rust
-        and "const ENCYCLOPEDIA_ICON_SIZE: f32 = 64.0;" in rust
-        and "const ENCYCLOPEDIA_FULLBODY_SCALE: f32 = 1.65;" in rust
-        and "XAYAH_ENCYCLOPEDIA_TEXTURE" not in rust
-        and "YONE_ENCYCLOPEDIA_TEXTURE" not in rust,
-        "Xayah/Yone engine-resolved encyclopedia geometry changed or a raw texture route returned",
+        "native encyclopedia resolver" in runtime_manifest.get("purpose", ""),
+        "runtime manifest must identify the native encyclopedia image route",
     )
-
-    runtime_paths = {
-        row.get("path") for row in load_json("runtime_manifest.json").get("files", [])
-    }
-    runtime_fullbody_paths = {
+    runtime_paths = {row.get("path") for row in runtime_manifest.get("files", [])}
+    runtime_encyclopedia_paths = {
         path
         for path in runtime_paths
-        if isinstance(path, str) and path.startswith("ui/champion_fullbody/")
+        if isinstance(path, str) and path.startswith(
+            ("ui/champion_fullbody/", "ui/layout/champion_info_component/")
+        )
     }
     check(
-        not runtime_fullbody_paths,
-        "QA-only encyclopedia full-body PNGs must not enter the engine-resolved runtime closure",
+        not runtime_encyclopedia_paths,
+        f"runtime closure must not include obsolete encyclopedia PNGs or templates: {sorted(runtime_encyclopedia_paths)}",
     )
-    briar_fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/berserker.png").convert("RGBA")
-    xayah_fullbody = Image.open(
-        MOD_ROOT / "ui/champion_fullbody/dancer_encyclopedia.png"
-    ).convert("RGBA")
-    yone_fullbody = Image.open(
-        MOD_ROOT / "ui/champion_fullbody/dual_blader_encyclopedia.png"
-    ).convert("RGBA")
-    briar_bbox = briar_fullbody.getchannel("A").getbbox()
-    xayah_bbox = xayah_fullbody.getchannel("A").getbbox()
-    yone_bbox = yone_fullbody.getchannel("A").getbbox()
-    if briar_bbox and xayah_bbox and yone_bbox:
-        briar_visible_height = briar_bbox[3] - briar_bbox[1]
-        xayah_visible_height = xayah_bbox[3] - xayah_bbox[1]
-        yone_visible_height = yone_bbox[3] - yone_bbox[1]
-        xayah_foot_y = 68.0 - (64 - xayah_bbox[3])
-        yone_foot_y = 68.0 - (64 - yone_bbox[3])
+    check(
+        "asset/base/ui/layout/champion_info_component/champion_slot" not in override,
+        "encyclopedia must retain the game's stock 0.5.8 champion_slot template",
+    )
+    view_entries = load_json("style/champion_view.champion_view").get("entries", {})
+    for champion_id, sprite_name in (("dual_blader", "yone_v7"), ("dancer", "xayah")):
+        actor_root = f"aseprite_resources/champions/{sprite_name}"
+        data_path = f"champion/{champion_id}.data_champion"
+        champion_data = load_json(data_path)
         check(
-            abs(xayah_visible_height - briar_visible_height) <= 1.0
-            and abs(yone_visible_height - briar_visible_height) <= 1.0,
-            "Xayah/Yone encyclopedia visible height must stay within 1px of finished Briar",
+            champion_data.get("sprite") == f"asset/lol_mod/{actor_root}"
+            and champion_data.get("anim_prefix") == "",
+            f"{champion_id} must resolve its exact local actor through data_champion",
         )
+        for suffix, extension in (("sheet", ".png"), ("anim", ".fanim")):
+            source = f"asset/base/aseprite_resources/champions/{champion_id}#{suffix}"
+            check(
+                override.get(source) == {
+                    "remapping": f"asset/lol_mod/{actor_root}#{suffix}", "type": "override"
+                },
+                f"{champion_id} native actor {suffix} compatibility mapping is missing",
+            )
+            check(
+                f"{actor_root}#{suffix}{extension}" in runtime_paths,
+                f"{champion_id} actor {suffix} is absent from the runtime package",
+            )
+        check(data_path in runtime_paths, f"{champion_id} definition is absent from runtime package")
         check(
-            xayah_foot_y < 70.0 and yone_foot_y < 70.0,
-            "Xayah/Yone encyclopedia feet must remain above the tier selector",
+            all(key in view_entries.get(champion_id, {}) for key in ("face", "center")),
+            f"{champion_id} must retain independently audited champion_view cameras",
         )
-    for required in (
-        "ENCYCLOPEDIA_CONTAINER_CANDIDATES",
-        "ENCYCLOPEDIA_RUNTIME_MAX_NODES",
-        "ui_runner_name(&path)",
-        'matches!(child.as_str(), "dancer" | "dual_blader")',
-    ):
-        check(required in rust, f"encyclopedia container discovery is missing: {required}")
 
     stable_extension = ""
     if "impl StableExtension for QualityBpExtension" in rust:
@@ -9367,10 +9315,10 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         stable_extension.count("fn post_update(") == 1
         and stable_extension.count("fn post_render(") == 0
         and "sync_bp_runtime_ui(client);" in stable_extension
-        and "sync_encyclopedia_portraits(self, client);" in stable_extension
+        and "sync_encyclopedia_portraits" not in stable_extension
         and "sync_encyclopedia_native_visibility" not in stable_extension
         and "draw_encyclopedia_portraits" not in stable_extension,
-        "stable UI extension must resolve encyclopedia ImageRunners during the update hook only",
+        "stable UI extension must update BP without changing any encyclopedia ImageRunner",
     )
     check(
         "registration.set_extension(QualityBpExtension::default());" in rust,
@@ -9409,24 +9357,6 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         and "client.ui_set_visible(&illustration, true)" in rust,
         "Yone BP splash must remain available through the stable BP illustration route",
     )
-
-    # The historical full-template nodes remain hidden because the 0.5.8
-    # runtime creates its two bounded overlays additively through the stable UI
-    # API. The whole legacy champion_slot template itself stays out of runtime.
-    for node_name, expected_source in (
-        ("lol_fullbody_xayah", "asset/lol_mod/ui/champion_fullbody/dancer"),
-        ("lol_fullbody_yone", "asset/lol_mod/ui/champion_fullbody/dual_blader"),
-    ):
-        marker = f"#{node_name}:image"
-        node = ui.split(marker, 1)[1].split("}", 1)[0] if marker in ui else ""
-        check(node != "", f"dormant encyclopedia asset node is missing: {node_name}")
-        check(
-            f'source: "{expected_source}";' in node
-            and "width: 85px;" in node
-            and "height: 93px;" in node
-            and "visible: false;" in node,
-            f"dormant encyclopedia asset node must stay hidden and bounded: {node_name}",
-        )
 
     for source, remapping in {
         "asset/base/aseprite_resources/champions/dual_blader#sheet": "asset/lol_mod/aseprite_resources/champions/yone_v7#sheet",
@@ -9844,7 +9774,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.13", "lol_mod version must be 0.12.13")
+    check(mod_info.get("version") == "0.12.14", "lol_mod version must be 0.12.14")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

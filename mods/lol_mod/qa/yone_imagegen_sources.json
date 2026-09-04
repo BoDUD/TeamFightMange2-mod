@@ -8,7 +8,7 @@
     "schema_version": 7,
     "route": "dual-sword-v7",
     "manifest": "source/native/yone_v7/frames.json",
-    "manifest_sha256": "41624b52df0b489c529012596507cd275425171a0e581fbeb909897b0ea27f48",
+    "manifest_sha256": "a8b46584bf2d790b8a12434fc108a08fe107129113e2d25641f4167c699dd033",
     "atlas_size": [
       4262,
       88
@@ -2361,10 +2361,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          32,
-          38,
-          4
+          13,
+          31,
+          7,
+          3
+        ],
+        [
+          20,
+          33,
+          4,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2420,7 +2426,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "fdba09eabdf1e18c5f423f7830507aaf5d3e55c3a8c49f796b20225484a21cb8",
+      "sha256": "e887b37f01e049b0bd9feac20aaa2d9eecdb38f3af60367082602a393f7a85c1",
       "pack_transform": "none"
     },
     "run[1]": {
@@ -2466,10 +2472,16 @@
       ],
       "foot_zones": [
         [
-          1,
+          11,
           33,
-          37,
-          4
+          8,
+          3
+        ],
+        [
+          19,
+          34,
+          3,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2525,7 +2537,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "62aeebdc0c4a7b9927ee0ce7f25a9dca10364c84f2967ca300c817a1e472356c",
+      "sha256": "e8b13ffa3a44da50666a19b72315da0139621a8a6fa084bd15fc4a50db957ebf",
       "pack_transform": "none"
     },
     "run[2]": {
@@ -2571,10 +2583,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          34,
-          37,
-          4
+          7,
+          30,
+          12,
+          3
+        ],
+        [
+          23,
+          35,
+          5,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2630,7 +2648,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
-      "sha256": "b55470ff0eeda05c04ef0be444fdc4cc676734892034c2e7e6261a8576aa3d3a",
+      "sha256": "53bb23e40b977367abd9d34e6f83b228bded825d3f69175f70539d9462dcacc9",
       "pack_transform": "none"
     },
     "run[3]": {
@@ -2676,10 +2694,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          33,
-          37,
-          4
+          8,
+          30,
+          12,
+          3
+        ],
+        [
+          21,
+          34,
+          7,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2735,7 +2759,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "86676ff6ca4049417d4bde5d69e42a04eb68b2aaf7e10768b28530050a71f4b7",
+      "sha256": "38cc554fc127a9143b02e41116f3caea50e136ff7ee43c7c025fe923b23f41c6",
       "pack_transform": "none"
     },
     "run[4]": {
@@ -2781,10 +2805,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          32,
-          39,
-          4
+          17,
+          33,
+          5,
+          3
+        ],
+        [
+          22,
+          29,
+          10,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2840,7 +2870,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "88d7495fd2e84ac0ceda7ced2a706d1102c4302ac756dd2ff5ecc5953419506c",
+      "sha256": "f6550f680bca8d95f85b04b9bf36292307c3b0a522303672e05c642a8cf32c3f",
       "pack_transform": "none"
     },
     "run[5]": {
@@ -2886,10 +2916,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          33,
-          37,
-          4
+          16,
+          34,
+          4,
+          3
+        ],
+        [
+          21,
+          31,
+          10,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -2945,7 +2981,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "17c638efccff2639ee481698ec8a4ba3b3527ce5eedf0d11149e69896cc8678f",
+      "sha256": "5ca9310d85e31d57f7a14b1d8b7c9ab13a7b17c3d01373b698a783c94ed87276",
       "pack_transform": "none"
     },
     "run[6]": {
@@ -2987,10 +3023,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          34,
-          37,
-          4
+          10,
+          35,
+          5,
+          3
+        ],
+        [
+          20,
+          30,
+          11,
+          3
         ]
       ],
       "face_visibility": "profile",
@@ -3046,7 +3088,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
-      "sha256": "726e82cd341f7622156af9c66967131aba58f9bedded8b3811a4eec7221e2c01",
+      "sha256": "08fcd392e582bd2eb6ad260f240b02e124e9be16b0b3c4c1bc5125c27a7b6881",
       "pack_transform": "none"
     },
     "run[7]": {
@@ -3092,10 +3134,16 @@
       ],
       "foot_zones": [
         [
-          1,
-          33,
-          37,
-          4
+          11,
+          34,
+          7,
+          3
+        ],
+        [
+          21,
+          30,
+          10,
+          3
         ]
       ],
       "face_visibility": "front",
@@ -3151,7 +3199,7 @@
       "hard_alpha": true,
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
-      "sha256": "2250942c656c7fcef435973dd471b30c2e79ed6c8a084255df1969c977308ea7",
+      "sha256": "a039d1eb0108f9777631267e96e1837808ffc6e7558e2312f510be6bea7e9224",
       "pack_transform": "none"
     },
     "skill2_attack[0]": {
@@ -7287,7 +7335,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45",
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c",
       "alpha_bbox": [
         49,
         1,
@@ -7311,7 +7359,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "24d87af4ee4309aa9aab45e0a76042edb02bc2b74dc2bd4a7d60933767cd2a45",
+      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c",
       "alpha_bbox": [
         49,
         1,
