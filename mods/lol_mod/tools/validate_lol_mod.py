@@ -7202,7 +7202,7 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
             check(str(description.get(key, "")).startswith(letter), f"{locale} Xayah {key} must be labeled {letter}")
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("dancer", {})
     check(
-        style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}},
+        style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": 0}},
         "Xayah compact face camera or centered battle camera changed",
     )
     check(Image.open(MOD_ROOT / "BanPickIllust/dancer.png").size == (1420, 860), "Xayah BP splash must be 1420x860")
@@ -8264,7 +8264,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.14", "lol_mod version must be 0.12.14")
+    check(mod_info.get("version") == "0.12.15", "lol_mod version must be 0.12.15")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -9239,7 +9239,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         style
         == {
             "face": {"x": 2, "y": -32},
-            "center": {"x": 0, "y": -16},
+            "center": {"x": 0, "y": -3},
             "banpick_center": {"x": 0, "y": -16},
         },
         "Yone champion_view must keep the audited face/card/BP cameras",
@@ -9318,7 +9318,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         and "sync_encyclopedia_portraits" not in stable_extension
         and "sync_encyclopedia_native_visibility" not in stable_extension
         and "draw_encyclopedia_portraits" not in stable_extension,
-        "stable UI extension must update BP without changing any encyclopedia ImageRunner",
+        "stable UI extension must retain native encyclopedia texture/UV ownership",
     )
     check(
         "registration.set_extension(QualityBpExtension::default());" in rust,
@@ -9774,7 +9774,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.14", "lol_mod version must be 0.12.14")
+    check(mod_info.get("version") == "0.12.15", "lol_mod version must be 0.12.15")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

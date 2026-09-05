@@ -505,7 +505,7 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
         assert "lol_xayah" not in text[locale]["description"]
 
     style = load_json("style/champion_view.champion_view")["entries"]["dancer"]
-    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}
+    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": 0}}
     assert style["face"] != style["center"]
 
     stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")

@@ -1064,13 +1064,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 188416,
-      "sha256": "5e9998a7c307c8061059620d54748645e5c48a9678217afd959fbdc319044824"
+      "size": 214016,
+      "sha256": "550417ed2984a9215a8704319f361ca7698df2c99bce64d74f18518621bbe7ba"
     },
     {
       "path": "mod.mod_info",
-      "size": 1896,
-      "sha256": "567570e0136a44991926e98098041c4e38b52a3ae61f41d8e932d8b381044b40"
+      "size": 1370,
+      "sha256": "9dd7764ff75d48b3cfac7e258ee7d305776321d874c3df19038388a06d45a495"
     },
     {
       "path": "mod.override_info",
@@ -2119,8 +2119,8 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 1387,
-      "sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f"
+      "size": 1384,
+      "sha256": "556659e61adff64bedd88744ae0a1ca437d7f0e798eff17650340b7203a24722"
     },
     {
       "path": "text/champion.i18n",

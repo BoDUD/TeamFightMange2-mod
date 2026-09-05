@@ -329,8 +329,48 @@ fn sync_bp_runtime_ui(client: &mut StableClient<'_>) {
     }
 }
 
+// ChampionInfoUIRunner owns the texture AND its UV rectangle. The public
+// champion-icon API helper uses the FACE camera, so it must not be called
+// here. Only scale the already-resolved image layout, preserving its source,
+// UVs, clipping, visibility, and parent scroll transform.
+//
+// Stock 0.5.8: set_champion_icon_center(85, 93, 2). Yone's fitted node is
+// 85x93, Xayah's is 54x93. A uniform 0.75 layout factor gives 1.5x pixels:
+// 57 / 58.5 px full-body heights. The source cameras are independently
+// checked by qa_encyclopedia_geometry.py. Do not multiply the current rect:
+// this runs every frame, including after search/filter rebuilds.
+fn fit_encyclopedia_native_layout(client: &mut StableClient<'_>) {
+    if client.client_main_tab().as_deref() != Some("GameInfo") {
+        return;
+    }
+    for container in [
+        "main.top.right.champion_info.data.champions.contents",
+        "body.main.top.right.champion_info.data.champions.contents",
+        "body.top.right.champion_info.data.champions.contents",
+        "top.right.champion_info.data.champions.contents",
+        "body.main.right.champion_info.data.champions.contents",
+        "main.right.champion_info.data.champions.contents",
+    ] {
+        if !client.ui_exists(container) {
+            continue;
+        }
+        for (champion, width) in [("dual_blader", 63.75_f32), ("dancer", 40.5_f32)] {
+            let icon = join_ui_path(&join_ui_path(container, champion), "icon");
+            if client.ui_runner_name(&icon).as_deref() != Some("image") {
+                continue;
+            }
+            let _ = client.ui_set_properties(
+                &icon,
+                &format!("width: {width}px; height: 69.75px; y: 76px;"),
+            );
+        }
+        break;
+    }
+}
+
 impl StableExtension for QualityBpExtension {
     fn post_update(&self, client: &mut StableClient<'_>, dt_micros: u64) {
+        fit_encyclopedia_native_layout(client);
         let previous = self.elapsed_micros.fetch_add(dt_micros, Ordering::Relaxed);
         if previous.saturating_add(dt_micros) < BP_RUNTIME_SCAN_INTERVAL_MICROS {
             return;

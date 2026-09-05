@@ -20668,8 +20668,8 @@
     "file_count": 21,
     "files": {
       "style/champion_view.champion_view": {
-        "before_sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
-        "after_sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
+        "before_sha256": "556659e61adff64bedd88744ae0a1ca437d7f0e798eff17650340b7203a24722",
+        "after_sha256": "556659e61adff64bedd88744ae0a1ca437d7f0e798eff17650340b7203a24722",
         "unchanged": true
       },
       "ui/champion_fullbody/lol_shen.png": {

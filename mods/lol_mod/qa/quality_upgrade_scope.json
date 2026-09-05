@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.14",
+  "release": "0.12.15",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -37,7 +37,8 @@
       "transition_actor_sprite_removed": false,
       "one_overlay_per_side_slot": true,
       "card_detection": "main.blue_picks/main.red_picks child traversal, capped at twelve slots per side",
-      "static_splash_nodes": true
+      "static_splash_nodes": true,
+      "diagnosis_2026_09_05": "Confirmed mismatch: done.name is the athlete label, but bp_champion_id_from_name expects a champion. Illustrations remain hidden for ordinary athlete names. Resource packaging alone is not a display pass; no BP repair applied in this diagnosis."
     },
     "banpick_skin": {
       "imagegen_background": "ui/banpick/lol_bp_background.png",
@@ -311,7 +312,8 @@
       },
       "native_dual_blader_animation_contract_preserved": true,
       "native_contract_preservation_boundary": "the official 13-tag/54-frame contract is preserved as an immutable atlas and animation prefix; five semantic tags and 13 physical frames are append-only V7 extensions",
-      "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json"
+      "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json",
+      "live_status": "0.12.15 encyclopedia-only candidate: native UV math reproduced and layout-only 1.5x body fit tested offline; live result pending. Battle frames unchanged; natural gait acceptance revoked after user report. ImageGen failed HTTP404, so no replacement run art was installed. BP illustration athlete-name lookup defect diagnosed, not fixed."
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -434,7 +436,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.14 targets base 0.5.8 / stable ABI 8. Xayah and Yone encyclopedia presentation is returned completely to the stock ChampionInfoUIRunner, with no custom template or runtime icon mutation. Yone's single native run action preserves all eight authored upper-body and dual-sword poses; four complete grounded authored lower-body phases and their whole-patch mirrors alternate right support for four frames and left support for four frames without drawn legs, resize, shear, duplicate pixels or alpha afterimage. Native GameView flip_x remains the sole world-direction mirror. Staged Fate Sealed presentation remains aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
+      "live_status": "0.12.15 targets base 0.5.8 / stable ABI 8. Xayah and Yone encyclopedia presentation is returned completely to the stock ChampionInfoUIRunner, with no custom template or runtime icon mutation. Yone's single native run action preserves all eight authored upper-body and dual-sword poses; four complete grounded authored lower-body phases and their whole-patch mirrors alternate right support for four frames and left support for four frames without drawn legs, resize, shear, duplicate pixels or alpha afterimage. Native GameView flip_x remains the sole world-direction mirror. Staged Fate Sealed presentation remains aligned to the actual gameplay ticks. Exact-size 284x172 BP cards, the exact runtime manifest and 22.05 kHz PCM16 BGM reduce detailed-match load pressure; user manual 0.5.8 verification remains required."
     }
   },
   "packaged_variants": {

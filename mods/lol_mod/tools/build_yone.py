@@ -2882,7 +2882,7 @@ def build_qa(
     live_idle_card = yone_live_idle_card_contract(
         sheet,
         anims,
-        center_y=style["center"]["y"],
+        center_y=style["banpick_center"]["y"],
     )
     live_run_profile = yone_live_run_profile_contract(sheet, anims)
     fullbody_card = yone_fullbody_card_contract(fullbody)
@@ -3414,6 +3414,8 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"{annotation_count}/{GENERATED_BODY_FRAME_COUNT} frames"
         )
 
+    # Historical BP-stage model only; NOT an encyclopedia visibility proof.
+    # The actual stock encyclopedia UV math lives in qa_encyclopedia_geometry.
     # Replay the measured renderer route from the user's screenshots.  Every
     # idle rectangle is scaled uniformly by about 2.2x, then centered on the
     # tallest idle stage.  The rejected screenshot exactly matched idle[0], so proving
@@ -3423,7 +3425,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     )["entries"]["dual_blader"]
     expected_style = {
         "face": {"x": 2, "y": -32},
-        "center": {"x": 0, "y": -16},
+        "center": {"x": 0, "y": -3},
         "banpick_center": {"x": 0, "y": -16},
     }
     if style != expected_style:
@@ -3431,7 +3433,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     live_idle_card = yone_live_idle_card_contract(
         sheet,
         payload,
-        center_y=style["center"]["y"],
+        center_y=style["banpick_center"]["y"],
     )
     if set(live_idle_card["frames"]) != {
         "idle[0]",

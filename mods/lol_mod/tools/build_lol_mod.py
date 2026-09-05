@@ -4953,7 +4953,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.14 native encyclopedia resolver and authored mirrored Yone run closure",
+        "purpose": "0.12.15 native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

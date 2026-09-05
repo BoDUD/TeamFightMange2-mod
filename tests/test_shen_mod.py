@@ -79,7 +79,7 @@ def test_lucian_replaces_native_archer_002_and_is_localized() -> None:
     ]
     assert not (MOD / "champion" / "lol_lucian.data_champion").exists()
     assert mod_info["mod_id"] == "lol_mod"
-    assert mod_info["version"] == "0.12.14"
+    assert mod_info["version"] == "0.12.15"
     assert mod_info["dependencies"] == [{"mod_id": "base", "version": ">=0.5.8"}]
     assert text["zh-hans"]["description"]["archer"]["name"] == "卢锡安"
     assert text["zh-hant"]["description"]["archer"]["name"] == "路西恩"
@@ -688,7 +688,7 @@ def test_bp_overlay_supports_xayahs_tight_native_dancer_rect_without_touching_gr
     style = json.loads(
         (MOD / "style/champion_view.champion_view").read_text(encoding="utf-8")
     )["entries"]["dancer"]
-    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}
+    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": 0}}
 
 
 def test_override_metadata_uses_registered_sprite_sheet_extension() -> None:
