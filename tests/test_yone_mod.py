@@ -2444,11 +2444,11 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.18"
+    assert mod_info["version"] == "0.12.20"
     assert all(
         token in mod_info["description"]
         for token in (
-            "grounded authored lower-body phases",
+            "imagegen anatomical trouser/boot redraws",
             "pure-data Q/W/R",
             "no active E",
             "no-op saved-season compatibility shims",
@@ -2471,16 +2471,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.18"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.20"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.18"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.20"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.18"
+    assert quality_scope["release"] == "0.12.20"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

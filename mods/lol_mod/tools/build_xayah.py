@@ -326,6 +326,7 @@ def fit_actor(
     *,
     target_height: int,
     bottom_margin: int,
+    fixed_scale: float | None = None,
 ) -> Image.Image:
     """Uniformly fit one final-scale pose onto the native 007 body anchor.
 
@@ -345,7 +346,9 @@ def fit_actor(
     # scale QA instead of being horizontally compressed.
     max_width = max(1, frame_size[0])
     max_height = max(1, frame_size[1] - bottom_margin - 1)
-    scale = min(target_height / subject.height, max_width / subject.width, max_height / subject.height)
+    scale = fixed_scale if fixed_scale is not None else min(target_height / subject.height, max_width / subject.width, max_height / subject.height)
+    if round(subject.width * scale) > max_width or round(subject.height * scale) > max_height:
+        raise ValueError("Xayah pose exceeds the shared body scale contract; repaint the source instead of shrinking this frame")
     width = max(1, round(subject.width * scale))
     height = max(1, round(subject.height * scale))
     resized = subject.resize((width, height), Image.Resampling.NEAREST)
@@ -361,6 +364,22 @@ def fit_actor(
         )
     output.alpha_composite(resized, (x, y))
     return output
+
+
+def run_body_geometry(sources: list[Image.Image]) -> tuple[float, list[int]]:
+    """One source-pixel scale and a fixed world-space sole for the full run.
+
+    The previous per-frame 30..36px target made the head pulse with the cape.
+    Frame heights differ, so equal bottom margins would also bob the actor.
+    Preserve the native rectangles while anchoring soles relative to center.
+    """
+    rects = NATIVE_CONTRACT["run"]["rects"]
+    subjects = [remove_small_border_fragments(hard_alpha(source)) for source in sources]
+    sizes = [(b[2]-b[0], b[3]-b[1]) for b in map(alpha_bbox, subjects)]
+    bottoms = [h - (h // 2 + 12) for _, _, _, h in rects]
+    scale = min(min(36 / sh, w / sw, (h - bottom - 1) / sh)
+                for (_, _, w, h), (sw, sh), bottom in zip(rects, sizes, bottoms, strict=True))
+    return scale, bottoms
 
 
 def fit_effect(source: Image.Image, frame_size: tuple[int, int], *, padding: int = 2) -> Image.Image:
@@ -426,11 +445,12 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         # independent xayah_q/xayah_e/xayah_r sheets.
         "ult": r_body_cells,
     }
+    run_scale, run_bottoms = run_body_geometry(run_cells)
     for tag in ("ult", "idle", "run", "hit", "attack", "skill1", "skill2"):
         sources = sequences[tag]
         rects = NATIVE_CONTRACT[tag]["rects"]
         heights = BODY_TARGET_HEIGHTS[tag]
-        bottoms = BODY_BOTTOM_MARGINS[tag]
+        bottoms = run_bottoms if tag == "run" else BODY_BOTTOM_MARGINS[tag]
         if not (len(sources) == len(rects) == len(heights) == len(bottoms)):
             raise ValueError(f"{tag}: {len(sources)} sources for {len(rects)} native frames")
         for rect, source, target_height, bottom_margin in zip(
@@ -441,6 +461,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
                 (rect[2], rect[3]),
                 target_height=target_height,
                 bottom_margin=bottom_margin,
+                fixed_scale=run_scale if tag == "run" else None,
             )
             _paste_unique(sheet, placements, rect, frame)
             representative.append(frame)

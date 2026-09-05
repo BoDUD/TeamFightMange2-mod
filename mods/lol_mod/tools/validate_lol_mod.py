@@ -7213,8 +7213,8 @@ def validate_xayah_release(champion: dict[str, Any], override: dict[str, Any]) -
             check(str(description.get(key, "")).startswith(letter), f"{locale} Xayah {key} must be labeled {letter}")
     style = load_json("style/champion_view.champion_view").get("entries", {}).get("dancer", {})
     check(
-        style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": 0}},
-        "Xayah compact face camera or centered battle camera changed",
+        style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": 0}, "banpick_center": {"x": 0, "y": -16}},
+        "Xayah independent compact/encyclopedia/BP camera contract changed",
     )
     check(Image.open(MOD_ROOT / "BanPickIllust/dancer.png").size == (1420, 860), "Xayah BP splash must be 1420x860")
     fullbody = Image.open(MOD_ROOT / "ui/champion_fullbody/dancer.png").convert("RGBA")
@@ -8275,7 +8275,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.18", "lol_mod version must be 0.12.18")
+    check(mod_info.get("version") == "0.12.20", "lol_mod version must be 0.12.20")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8295,12 +8295,12 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             token in description
             for token in (
                 "0.5.8", "stable ABI 8", "repair test", "stock 0.5.8 ChampionInfoUIRunner",
-                "grounded authored lower-body phases", "without drawn legs",
-                "alpha afterimage", "native flip_x", "no active E",
+                "imagegen anatomical trouser/boot redraws", "connected swords",
+                "native run boxes", "native flip_x", "no active E",
                 "data_champion", "BP/match music",
             )
         ),
-        "mod metadata must disclose the native encyclopedia resolver, authored mirrored lower-body run, and active test scope",
+        "mod metadata must disclose the native encyclopedia resolver, anatomical run source, and active test scope",
     )
 
     # Preserve the complete official-009 actor contract. The rebuilt native
@@ -8459,7 +8459,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and source_row.get("native_rect") == native_rect
             and source_row.get("source_size") == native_rect[2:]
             and source_row.get("pack_transform") == (
-                "user-authorized final-scale leg pixel edit" if frame_name.startswith("run[") else "none"
+                "authored anatomical leg source byte copy" if frame_name.startswith("run[") else "none"
             )
             and source_row.get("hard_alpha") is True
             and int(source_row.get("opaque_palette_size", 99)) <= 48
@@ -9785,7 +9785,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.18", "lol_mod version must be 0.12.18")
+    check(mod_info.get("version") == "0.12.20", "lol_mod version must be 0.12.20")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

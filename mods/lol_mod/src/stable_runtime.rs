@@ -8,6 +8,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 mod bp_illustrations;
+mod bp_full_cards;
+#[cfg(feature = "qa-bp-ui")]
+mod bp_ui_probe;
 
 use mod_api_stable::{
     declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1, InputTargetV1,
@@ -321,6 +324,8 @@ fn fit_encyclopedia_native_layout(client: &mut StableClient<'_>) {
 
 impl StableExtension for QualityBpExtension {
     fn post_update(&self, client: &mut StableClient<'_>, dt_micros: u64) {
+        #[cfg(feature = "qa-bp-ui")]
+        bp_ui_probe::observe(client, dt_micros);
         fit_encyclopedia_native_layout(client);
         // Identity/visibility must update every frame, not on the chrome's
         // 250 ms timer: unpick, swap, and scene changes must clear old art.
@@ -328,7 +333,9 @@ impl StableExtension for QualityBpExtension {
             if client.ui_exists(&join_ui_path(root, "blue_picks"))
                 && client.ui_exists(&join_ui_path(root, "red_picks"))
             {
-                bp_illustrations::sync(client, root);
+                if !bp_full_cards::sync(client, root) {
+                    bp_illustrations::sync(client, root);
+                }
             }
         }
         let previous = self.elapsed_micros.fetch_add(dt_micros, Ordering::Relaxed);

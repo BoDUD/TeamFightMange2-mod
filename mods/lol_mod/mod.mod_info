@@ -3,8 +3,8 @@
   "mod_id": "lol_mod",
   "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
-  "version": "0.12.18",
-  "description": "Teamfight Manager 2 base 0.5.8 / stable ABI 8 repair test presentation follow-up. User screenshots confirm BP illustrations restored and encyclopedia legs visible in 0.12.16. The stock 0.5.8 ChampionInfoUIRunner retains source ownership. Yone/Xayah encyclopedia nodes now move down 12px to match native head alignment, with the same source UV and 57/58.5px body sizes; native controls may overlap shoes. Selected mod BP cards now show only the full illustration, covering names, mastery, icons and divider without an extra dark tint. Empty slots, non-mod cards and swap retain native fallback. New presentation awaits live confirmation. Battle frames, pure-data Q/W/R, no active E and no-op saved-season compatibility shims are unchanged. Prior grounded authored lower-body phases and native flip_x remain without drawn legs or alpha afterimage, but natural-gait acceptance is revoked; no new generated motion was installed. Nine data_champion files and BP/match music remain packaged. Existing saves are not modified.",
+  "version": "0.12.21",
+  "description": "BP-only repair candidate for base 0.5.8 / stable ABI 8. Native champion assignment owns all side-card textures through selection and swaps. Three-region atlases provide full blue/red illustration cards plus a separate native preview; heroes without artwork retain pixel portraits on transparent cards. No size-based hero classification. Installed encyclopedia positions, Yone/Xayah actor assets, skills and saves are unchanged by this incremental update. In-game verification is explicitly delegated to the user; no live visual acceptance is claimed. Yone leg redraw remains open.",
   "last_updated": "2026-09-05",
   "dependencies": [
     {

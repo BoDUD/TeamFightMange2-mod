@@ -68,6 +68,10 @@
       "center": {
         "x": 0,
         "y": 0
+      },
+      "banpick_center": {
+        "x": 0,
+        "y": -16
       }
     },
     "demon": {

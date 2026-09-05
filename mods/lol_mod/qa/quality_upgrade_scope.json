@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.18",
+  "release": "0.12.20",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -315,7 +315,7 @@
       "native_dual_blader_animation_contract_preserved": true,
       "native_contract_preservation_boundary": "the official 13-tag/54-frame contract is preserved as an immutable atlas and animation prefix; five semantic tags and 13 physical frames are append-only V7 extensions",
       "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json",
-      "live_status": "0.12.18: user confirmed encyclopedia positioning fixed; locked unchanged. User explicitly authorized Yone leg-only pixel repaint. Eight run frames now use separately authored near/far leg clusters with original upper body and swords preserved. Offline packed-pixel checks only; live gait acceptance pending. Xayah BP offset/action scale and swap-stage illustration fallback remain separate open issues."
+      "live_status": "0.12.20: rejected thin and widened scanline patches are no longer used. Eight imagegen anatomical leg layers are composed with the immutable original upper body and connected swords. Native frame boxes, duration and all other action pixels are unchanged. Offline source checks only; live gait acceptance pending. Encyclopedia remains locked. Xayah BP offset/action scale and swap-stage illustration fallback remain open."
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -438,7 +438,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.18 / base 0.5.8 / stable ABI 8: encyclopedia position confirmed and unchanged. Authorized Yone run leg-only pixel repaint implemented; live visual acceptance pending. Swap still uses native actors and is an open user-reported bug. Xayah BP alignment, gait/scale and skill fidelity remain open; this isolated patch does not claim to fix them."
+      "live_status": "0.12.20 / base 0.5.8 / stable ABI 8: encyclopedia position confirmed and unchanged. Eight authored anatomical Yone run sources replace the rejected 0.12.18 and 0.12.19 scanline patches. Live visual acceptance pending. Swap, Xayah BP alignment, gait/scale and skill fidelity remain open; this isolated patch does not claim to fix them."
     }
   },
   "packaged_variants": {

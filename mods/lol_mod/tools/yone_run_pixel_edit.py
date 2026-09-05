@@ -1,4 +1,4 @@
-"""User-authorized, final-resolution leg repaint on the approved Yone model.
+"""REJECTED 0.12.18/0.12.19 experiment; never import in the active build.
 
 Each row is an explicitly authored pixel cluster, not a bone/line renderer or a
 mirrored half-cycle. Coordinates are relative to the original pelvis and floor.
@@ -26,29 +26,32 @@ PALETTE = {
     't': (48, 37, 43, 255), 'u': (92, 48, 29, 255),
     'v': (115, 75, 33, 255),
 }
-FAR_PALETTE = {**PALETTE, 'b': PALETTE['a'], 'c': PALETTE['b'], 'v': PALETTE['u']}
+FAR_PALETTE = {**PALETTE, 'c': (48,57,79,255), 'v': PALETTE['u']}
 
-# Ten scanlines, from below the waist through the floor. Missing final rows
-# are actual swing-foot clearance, not alpha-stacked copies of another limb.
+# Ten scanlines, from below the waist through the floor. Revision 2 restores
+# the original baggy-trouser volume: 7-8px near thigh / 6-7px far thigh, rounded
+# knee folds, a 5px boot shaft and a 6px toe. The rejected revision used 4-5px
+# straight strips with only 2-3px of visible cloth between outlines.
+# Missing final rows are actual swing-foot clearance, not stacked old limbs.
 NEAR = (
-    ((-3,'oabco'),(-2,'obcco'),(-1,'obcco'),(0,'oabco'),(1,'oabco'),(2,'obbo'),(2,'otuo'),(3,'otvo'),(3,'otvto'),(3,'ottto')),
-    ((-3,'oabco'),(-3,'obcco'),(-2,'obcco'),(-2,'oabco'),(-1,'oabco'),(0,'obbo'),(0,'otuo'),(1,'otvo'),(1,'otvto'),(1,'ottto')),
-    ((-3,'oabco'),(-3,'obcco'),(-3,'obcco'),(-3,'oabco'),(-3,'oabco'),(-2,'obbo'),(-2,'otuo'),(-1,'otvo'),(-1,'otvto'),(-1,'ottto')),
-    ((-3,'oabco'),(-3,'obcco'),(-4,'obcco'),(-4,'oabco'),(-5,'oabco'),(-5,'obbo'),(-4,'otuo'),(-3,'otvo'),(-3,'otvto'),(-3,'ottto')),
-    ((-3,'oabco'),(-4,'obcco'),(-5,'obcco'),(-6,'oabco'),(-7,'obbo'),(-7,'otuo'),(-6,'otvto'),(-5,'ottto')),
-    ((-3,'oabco'),(-4,'obcco'),(-4,'obcco'),(-4,'oabco'),(-5,'otuo'),(-5,'otvto'),(-4,'ottto')),
-    ((-3,'oabco'),(-2,'obcco'),(-1,'obcco'),(0,'oabco'),(1,'obbo'),(1,'otuo'),(0,'otvto'),(0,'ottto')),
-    ((-3,'oabco'),(-2,'obcco'),(-1,'obcco'),(0,'oabco'),(1,'oabco'),(2,'obbo'),(3,'otuo'),(3,'otvto'),(3,'ottto')),
+    ((-4,'oaabbbo'),(-4,'oabbccao'),(-3,'oabcbbco'),(-2,'obcccbao'),(-1,'oabbcao'),(0,'oaabba'),(1,'ottuo'),(2,'otvuo'),(3,'otuvto'),(3,'otttto')),
+    ((-4,'oaabbbo'),(-4,'oabbccao'),(-4,'oabcbbco'),(-3,'obcccbao'),(-3,'oabbcao'),(-2,'oaabba'),(-1,'ottuo'),(0,'otvuo'),(1,'otuvto'),(1,'otttto')),
+    ((-4,'oaabbbo'),(-5,'oabbccao'),(-5,'oabcbbco'),(-5,'obcccbao'),(-4,'oabbcao'),(-3,'oaabba'),(-2,'ottuo'),(-1,'otvuo'),(-1,'otuvto'),(-1,'otttto')),
+    ((-4,'oaabbbo'),(-5,'oabbccao'),(-6,'oabcbbco'),(-6,'obcccbao'),(-6,'oabbcao'),(-5,'oaabba'),(-4,'ottuo'),(-3,'otvuo'),(-3,'otuvto'),(-3,'otttto')),
+    ((-4,'oaabbbo'),(-5,'oabbccao'),(-6,'oabcbbco'),(-7,'obcccbao'),(-7,'oabbcao'),(-7,'ottuo'),(-6,'otuvto'),(-5,'otttto')),
+    ((-4,'oaabbbo'),(-5,'oabbccao'),(-6,'oabcbbco'),(-6,'obcccbao'),(-6,'oaabao'),(-5,'otuvto'),(-4,'otttto')),
+    ((-4,'oaabbbo'),(-3,'oabbccao'),(-2,'oabcbbco'),(-1,'obcccbao'),(0,'oaabao'),(0,'ottuo'),(0,'otuvto'),(0,'otttto')),
+    ((-4,'oaabbbo'),(-4,'oabbccao'),(-3,'oabcbbco'),(-2,'obcccbao'),(-1,'oabbcao'),(0,'oaabba'),(2,'ottuo'),(3,'otuvto'),(3,'otttto')),
 )
 FAR = (
-    ((1,'oabo'),(0,'obco'),(-1,'obco'),(-2,'oabo'),(-3,'obbo'),(-4,'otuo'),(-5,'otvto'),(-5,'ottto')),
-    ((1,'oabo'),(0,'obco'),(-1,'obco'),(-2,'oabo'),(-3,'otuo'),(-4,'otvto'),(-4,'ottto')),
-    ((1,'oabo'),(1,'obco'),(2,'obco'),(3,'oabo'),(3,'obbo'),(2,'otuo'),(0,'otvto'),(0,'ottto')),
-    ((1,'oabo'),(2,'obco'),(3,'obco'),(4,'oabo'),(4,'oabo'),(4,'obbo'),(4,'otuo'),(4,'otvto'),(4,'ottto')),
-    ((1,'oabo'),(2,'obco'),(3,'obco'),(4,'oabo'),(4,'oabo'),(4,'obbo'),(4,'otuo'),(4,'otvo'),(4,'otvto'),(4,'ottto')),
-    ((1,'oabo'),(1,'obco'),(2,'obco'),(2,'oabo'),(2,'oabo'),(2,'obbo'),(2,'otuo'),(2,'otvo'),(2,'otvto'),(2,'ottto')),
-    ((1,'oabo'),(1,'obco'),(1,'obco'),(0,'oabo'),(0,'oabo'),(0,'obbo'),(0,'otuo'),(0,'otvo'),(0,'otvto'),(0,'ottto')),
-    ((1,'oabo'),(0,'obco'),(-1,'obco'),(-2,'oabo'),(-3,'oabo'),(-3,'obbo'),(-3,'otuo'),(-2,'otvo'),(-2,'otvto'),(-2,'ottto')),
+    ((0,'oaabao'),(-1,'oabbcao'),(-2,'obcbcbo'),(-3,'oabbbao'),(-4,'oaabao'),(-5,'ottuo'),(-5,'otuvto'),(-5,'otttto')),
+    ((0,'oaabao'),(-1,'oabbcao'),(-2,'obcbcbo'),(-3,'oabbbao'),(-4,'oaabao'),(-4,'otuvto'),(-4,'otttto')),
+    ((0,'oaabao'),(0,'oabbcao'),(1,'obcbcbo'),(2,'oabbbao'),(2,'oaabao'),(1,'ottuo'),(0,'otuvto'),(0,'otttto')),
+    ((0,'oaabao'),(1,'oabbcao'),(2,'obcbcbo'),(3,'oabbbao'),(3,'oaabao'),(3,'oabbao'),(4,'ottuo'),(4,'otuvto'),(4,'otttto')),
+    ((0,'oaabao'),(1,'oabbcao'),(2,'obcbcbo'),(3,'oabbbao'),(3,'oaabao'),(3,'oabbao'),(4,'ottuo'),(4,'otvuo'),(4,'otuvto'),(4,'otttto')),
+    ((0,'oaabao'),(0,'oabbcao'),(1,'obcbcbo'),(1,'oabbbao'),(1,'oaabao'),(1,'oabbao'),(2,'ottuo'),(2,'otvuo'),(2,'otuvto'),(2,'otttto')),
+    ((0,'oaabao'),(0,'oabbcao'),(0,'obcbcbo'),(-1,'oabbbao'),(-1,'oaabao'),(-1,'oabbao'),(0,'ottuo'),(0,'otvuo'),(0,'otuvto'),(0,'otttto')),
+    ((0,'oaabao'),(-1,'oabbcao'),(-2,'obcbcbo'),(-3,'oabbbao'),(-4,'oaabao'),(-4,'oabbao'),(-3,'ottuo'),(-2,'otvuo'),(-2,'otuvto'),(-2,'otttto')),
 )
 
 def repaint(original, index, pelvis_x, ground_y, weapon_colors):
@@ -77,7 +80,9 @@ def repaint(original, index, pelvis_x, ground_y, weapon_colors):
     # Blades are not reconstructed from endpoints: every original pixel stays.
     for y in range(original.height):
         for x in range(original.width):
-            if original.getpixel((x,y)) in weapon_colors:
+            # Retain the two original waist/thigh fold rows verbatim. They
+            # carry the trousers' volume and leather trim, not a narrow stem.
+            if y < top+2 or original.getpixel((x,y)) in weapon_colors:
                 result.putpixel((x,y),original.getpixel((x,y)))
     return result, layers, roi
 
@@ -120,6 +125,9 @@ def apply_to_frames(frames, audits, weapon_colors):
                      source_alpha_bbox=list(result.getbbox()),
                      packed_rgba_sha256=hashlib.sha256(result.tobytes()).hexdigest())
         report.append({'index':i,'pelvis_x':pelvis,'floor_y':ground,'roi':list(roi),
+                       'revision':2, 'original_upper_thigh_rows_preserved':2,
+                       'minimum_authored_thigh_width':min(len(c) for rows in (NEAR[i],FAR[i]) for _,c in rows[:4]),
+                       'minimum_boot_shaft_width':min(len(c) for rows in (NEAR[i],FAR[i]) for _,c in rows if 't' in c),
                        'feet':feet,'support_anatomical_leg':'near' if i<4 else 'far',
                        'outside_roi_unchanged':outside,'weapons_unchanged':weapons,
                        'base_rgba_sha256':hashlib.sha256(original.tobytes()).hexdigest(),

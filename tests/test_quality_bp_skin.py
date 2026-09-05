@@ -305,7 +305,7 @@ def test_rift_towers_and_league_music_remain_in_the_active_runtime_closure() -> 
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
     manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
     paths = {row["path"] for row in manifest["files"]}
-    assert manifest["purpose"].startswith("0.12.18 ")
+    assert manifest["purpose"].startswith("0.12.20 ")
     assert "native encyclopedia resolver" in manifest["purpose"]
     assert "Yone leg-only pixel edit" in manifest["purpose"]
     assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override

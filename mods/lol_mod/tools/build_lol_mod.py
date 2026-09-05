@@ -20,6 +20,7 @@ from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
 from build_yone import build_all as build_yone_assets
 from build_bp_pick_cards import build as build_bp_pick_cards
+from build_bp_full_cards import build as build_bp_full_cards
 from qa_legacy_battle_actor_scale import (
     build_all as build_legacy_battle_actor_scale_qa,
 )
@@ -281,10 +282,10 @@ def save_png(path: Path, image: Image.Image) -> None:
 def build_runtime_bp_illustrations() -> list[Path]:
     """Downsample authored BP splashes to their exact on-screen card size.
 
-    The 1420x860 images remain build/QA sources. Shipping a 5x copy for every
-    champion makes detailed match transitions scale poorly, so the stable UI
-    route reads these 284x172 blue/red assets instead. Red cards are mirrored
-    ahead of time because the stable UI image runner does not expose flip_x.
+    Keep legacy fixed overlays as the incomplete-package fallback, then pack
+    native-owned three-region atlases for the full roster. Only their outer
+    284x172 regions are used by side cards; the middle is the native preview.
+    Flatten splash alpha so native player text cannot show through it.
     """
 
     RUNTIME_BP_ILLUSTRATION_DIR.mkdir(parents=True, exist_ok=True)
@@ -297,12 +298,14 @@ def build_runtime_bp_illustrations() -> list[Path]:
                 f"{source_path.relative_to(MOD_ROOT)} must remain 1420x860, got {source.size}"
             )
         blue = source.resize(RUNTIME_BP_ILLUSTRATION_SIZE, Image.Resampling.LANCZOS)
+        blue = Image.alpha_composite(Image.new("RGBA", blue.size, "#07080bff"), blue)
         red = blue.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         for side, image in (("blue", blue), ("red", red)):
             output = RUNTIME_BP_ILLUSTRATION_DIR / f"{champion_id}_{side}.png"
             save_png(output, image)
             outputs.append(output)
-    return outputs
+    native_outputs, _ = build_bp_full_cards(MOD_ROOT)
+    return outputs + native_outputs
 
 
 def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]:
@@ -4803,6 +4806,7 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
         MOD_ROOT / "BanPickIllust",
+        MOD_ROOT / "banpick_illustrations",
         MOD_ROOT / "ui",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
@@ -4848,6 +4852,7 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
             "sound/sfx/yone_native_silence_clip.wav",
             "ui/banpick/champion_illustration/dual_blader_blue.png",
             "ui/banpick/champion_illustration/dual_blader_red.png",
+            "banpick_illustrations/dual_blader.png",
         }
     )
     yone_audio_audit = json.loads(
@@ -4954,7 +4959,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.18 user-authorized Yone leg-only pixel edit; original upper body, weapons, action timing and native encyclopedia resolver positioning preserved; live gait acceptance pending",
+        "purpose": "0.12.20 Yone leg-only pixel edit replaced by eight imagegen anatomical sources; original upper body, connected swords, action timing and native encyclopedia resolver positioning preserved; live gait acceptance pending",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

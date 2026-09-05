@@ -1,252 +1,292 @@
 {
-  "route": "user-authorized anatomical near/far leg pixel edit",
+  "route": "hand-authored original-model leg pixels",
   "frames": [
     {
       "index": 0,
-      "pelvis_x": 19,
-      "floor_y": 35,
-      "roi": [
-        10,
-        26,
-        31,
+      "file": "frames/run_00.png",
+      "protected_mask": "protected/run_00.png",
+      "pose": "near forward contact, far toe-off",
+      "size": [
+        41,
+        49
+      ],
+      "original_upper_body_rows": 24,
+      "base_rgba_sha256": "63b4f679b99c70867260a22efe283bcc53980ce8316677160b65d1aee67f24e6",
+      "rgba_sha256": "f3394c6fe5f7444b9c5ad3e0bf44993a7db08474b58dcf9e34ce66599cd5739a",
+      "protected_sha256": "25e06e8953e146cf5e5bd9ea056f7e5fd37037f8957afb366054b81549c8be91",
+      "feet": [
+        [
+          13,
+          33,
+          5,
+          3
+        ],
+        [
+          22,
+          33,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        1,
+        39,
         36
       ],
-      "feet": {
-        "far": {
-          "x": 16.0,
-          "y": 33,
-          "clearance": 2,
-          "pixel_count": 34
-        },
-        "near": {
-          "x": 24.0,
-          "y": 35,
-          "clearance": 0,
-          "pixel_count": 47
-        }
-      },
-      "support_anatomical_leg": "near",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "63b4f679b99c70867260a22efe283bcc53980ce8316677160b65d1aee67f24e6",
-      "edited_rgba_sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01",
+      "original_floor": 35,
       "packed_bytes_verified": true
     },
     {
       "index": 1,
-      "pelvis_x": 18,
-      "floor_y": 36,
-      "roi": [
-        9,
-        27,
-        30,
+      "file": "frames/run_01.png",
+      "protected_mask": "protected/run_01.png",
+      "pose": "near support, far heel recovers",
+      "size": [
+        39,
+        51
+      ],
+      "original_upper_body_rows": 25,
+      "base_rgba_sha256": "5c18bccbaf0ba57d197f3a722707c4f020ca6e73c36e4479dadaea39de2216a9",
+      "rgba_sha256": "6c32b2cc802e6cf0268d91baf71ae6b96dcb9a9e13531c14c5130cab1bf5e261",
+      "protected_sha256": "25e80b9aee64a0e0605acf8ff702d272e61ca8136b1e42fd11b6dcaecfa160cf",
+      "feet": [
+        [
+          11,
+          32,
+          5,
+          3
+        ],
+        [
+          19,
+          34,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        2,
+        38,
         37
       ],
-      "feet": {
-        "far": {
-          "x": 16.0,
-          "y": 33,
-          "clearance": 3,
-          "pixel_count": 30
-        },
-        "near": {
-          "x": 21.0,
-          "y": 36,
-          "clearance": 0,
-          "pixel_count": 47
-        }
-      },
-      "support_anatomical_leg": "near",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "5c18bccbaf0ba57d197f3a722707c4f020ca6e73c36e4479dadaea39de2216a9",
-      "edited_rgba_sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd",
+      "original_floor": 36,
       "packed_bytes_verified": true
     },
     {
       "index": 2,
-      "pelvis_x": 18,
-      "floor_y": 37,
-      "roi": [
-        9,
-        28,
-        30,
+      "file": "frames/run_02.png",
+      "protected_mask": "protected/run_02.png",
+      "pose": "far knee passes beneath hips, near late support",
+      "size": [
+        39,
+        53
+      ],
+      "original_upper_body_rows": 26,
+      "base_rgba_sha256": "ca197d0ba14697964a13b3dd85303519994026f8d69a145c822321bcb15c60ae",
+      "rgba_sha256": "824e8070d7b79582ed4f42c2ae9a87f279c8414b69f00361c8f581804bd49ee1",
+      "protected_sha256": "968d499b7222fb59dee26399d74b788822ccbd92d88be4e3746f1d7c49d3ca75",
+      "feet": [
+        [
+          15,
+          32,
+          5,
+          3
+        ],
+        [
+          19,
+          35,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        3,
+        38,
         38
       ],
-      "feet": {
-        "far": {
-          "x": 20.0,
-          "y": 35,
-          "clearance": 2,
-          "pixel_count": 34
-        },
-        "near": {
-          "x": 19.0,
-          "y": 37,
-          "clearance": 0,
-          "pixel_count": 47
-        }
-      },
-      "support_anatomical_leg": "near",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "ca197d0ba14697964a13b3dd85303519994026f8d69a145c822321bcb15c60ae",
-      "edited_rgba_sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e",
+      "original_floor": 37,
       "packed_bytes_verified": true
     },
     {
       "index": 3,
-      "pelvis_x": 19,
-      "floor_y": 36,
-      "roi": [
-        10,
-        27,
-        31,
+      "file": "frames/run_03.png",
+      "protected_mask": "protected/run_03.png",
+      "pose": "near toe-off behind, far reaches forward",
+      "size": [
+        39,
+        51
+      ],
+      "original_upper_body_rows": 25,
+      "base_rgba_sha256": "c63f10d66435ea14511db78897b5a17f0f16aa576c0ed7baea985f70e22a4fdc",
+      "rgba_sha256": "69d82060ab4f142279d265b0839d6e5ec63e3d74ecda913d20acc1c85c1e4a95",
+      "protected_sha256": "c53592aa7600ee009d93805e60a3645a0460c2f1ff4aada6541a6bab79dd1c88",
+      "feet": [
+        [
+          15,
+          34,
+          5,
+          3
+        ],
+        [
+          22,
+          33,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        2,
+        38,
         37
       ],
-      "feet": {
-        "far": {
-          "x": 25.0,
-          "y": 35,
-          "clearance": 1,
-          "pixel_count": 38
-        },
-        "near": {
-          "x": 18.0,
-          "y": 36,
-          "clearance": 0,
-          "pixel_count": 47
-        }
-      },
-      "support_anatomical_leg": "near",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "c63f10d66435ea14511db78897b5a17f0f16aa576c0ed7baea985f70e22a4fdc",
-      "edited_rgba_sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb",
+      "original_floor": 36,
       "packed_bytes_verified": true
     },
     {
       "index": 4,
-      "pelvis_x": 21,
-      "floor_y": 35,
-      "roi": [
-        12,
-        26,
-        33,
+      "file": "frames/run_04.png",
+      "protected_mask": "protected/run_04.png",
+      "pose": "near rear toe-off crosses foreground, far forward contact",
+      "size": [
+        41,
+        49
+      ],
+      "original_upper_body_rows": 24,
+      "base_rgba_sha256": "e9a3bb775f034cb80ab6e34c318fec4b7bfee9a6934dd850469b9944c2a05ac7",
+      "rgba_sha256": "94cd7be39e180789a388bebf13644967cf10075070bcd075682d92ddaccb40ef",
+      "protected_sha256": "866a1b1b21bacf0a63de1dc9d183e5ae1e6e4fb206d2aede4ca7b0a05ee49af5",
+      "feet": [
+        [
+          15,
+          33,
+          6,
+          3
+        ],
+        [
+          24,
+          33,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        1,
+        40,
         36
       ],
-      "feet": {
-        "far": {
-          "x": 27.0,
-          "y": 35,
-          "clearance": 0,
-          "pixel_count": 42
-        },
-        "near": {
-          "x": 17.5,
-          "y": 33,
-          "clearance": 2,
-          "pixel_count": 38
-        }
-      },
-      "support_anatomical_leg": "far",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "e9a3bb775f034cb80ab6e34c318fec4b7bfee9a6934dd850469b9944c2a05ac7",
-      "edited_rgba_sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864",
+      "original_floor": 35,
       "packed_bytes_verified": true
     },
     {
       "index": 5,
-      "pelvis_x": 20,
-      "floor_y": 36,
-      "roi": [
-        11,
-        27,
-        32,
+      "file": "frames/run_05.png",
+      "protected_mask": "protected/run_05.png",
+      "pose": "near heel recovers behind, far support",
+      "size": [
+        39,
+        51
+      ],
+      "original_upper_body_rows": 25,
+      "base_rgba_sha256": "34c00653623a00aedbec54de71fc516c307a7d17feea8496537d2e93c37e4b89",
+      "rgba_sha256": "55c4e658107fa2b5e87cd7a53900275cc84750518e54979da39f32c03ba7b5d8",
+      "protected_sha256": "8dcb1a7c717198f5dd7a7e990e14482bd0ddd6d05f2c0368fc0271e8c700b4ed",
+      "feet": [
+        [
+          13,
+          32,
+          6,
+          3
+        ],
+        [
+          21,
+          34,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        2,
+        38,
         37
       ],
-      "feet": {
-        "far": {
-          "x": 24.0,
-          "y": 36,
-          "clearance": 0,
-          "pixel_count": 42
-        },
-        "near": {
-          "x": 17.5,
-          "y": 33,
-          "clearance": 3,
-          "pixel_count": 34
-        }
-      },
-      "support_anatomical_leg": "far",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "34c00653623a00aedbec54de71fc516c307a7d17feea8496537d2e93c37e4b89",
-      "edited_rgba_sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f",
+      "original_floor": 36,
       "packed_bytes_verified": true
     },
     {
       "index": 6,
-      "pelvis_x": 19,
-      "floor_y": 37,
-      "roi": [
-        10,
-        28,
-        31,
+      "file": "frames/run_06.png",
+      "protected_mask": "protected/run_06.png",
+      "pose": "near knee passes in foreground, far late support",
+      "size": [
+        39,
+        53
+      ],
+      "original_upper_body_rows": 26,
+      "base_rgba_sha256": "91a58b0211d0a5cd9bc2d544e4cabe5a2668bcbd91fd56d896d712e79f6e6a66",
+      "rgba_sha256": "1e18b4a55414a70252dee550d4a22eb8817a26479a4a4ba60a43f0b0aad60557",
+      "protected_sha256": "16af2b4e7eb5d22d796ad7b7d8b442d3610357969d13ce34b9cd165af3af5265",
+      "feet": [
+        [
+          20,
+          33,
+          5,
+          3
+        ],
+        [
+          17,
+          35,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        3,
+        38,
         38
       ],
-      "feet": {
-        "far": {
-          "x": 21.0,
-          "y": 37,
-          "clearance": 0,
-          "pixel_count": 42
-        },
-        "near": {
-          "x": 21.0,
-          "y": 35,
-          "clearance": 2,
-          "pixel_count": 38
-        }
-      },
-      "support_anatomical_leg": "far",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "91a58b0211d0a5cd9bc2d544e4cabe5a2668bcbd91fd56d896d712e79f6e6a66",
-      "edited_rgba_sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0",
+      "original_floor": 37,
       "packed_bytes_verified": true
     },
     {
       "index": 7,
-      "pelvis_x": 19,
-      "floor_y": 36,
-      "roi": [
-        10,
-        27,
-        31,
+      "file": "frames/run_07.png",
+      "protected_mask": "protected/run_07.png",
+      "pose": "near reaches forward, far toe-off behind",
+      "size": [
+        39,
+        51
+      ],
+      "original_upper_body_rows": 25,
+      "base_rgba_sha256": "0db2cb43be4cd9088d40377610dcf55b77922e40e8f6520bd632ce005eaa9f01",
+      "rgba_sha256": "a2ce7ce21f3b76579d7edf37a55aadef67eb42f2d43ae24f3fd08f8ddb60f621",
+      "protected_sha256": "7f2bf883c295864e67fffbe16b91f476f9fa95b84fb782ac0ab693d29cc3cc17",
+      "feet": [
+        [
+          15,
+          34,
+          5,
+          3
+        ],
+        [
+          22,
+          33,
+          6,
+          3
+        ]
+      ],
+      "alpha_bbox": [
+        1,
+        2,
+        38,
         37
       ],
-      "feet": {
-        "far": {
-          "x": 19.0,
-          "y": 36,
-          "clearance": 0,
-          "pixel_count": 42
-        },
-        "near": {
-          "x": 24.0,
-          "y": 35,
-          "clearance": 1,
-          "pixel_count": 43
-        }
-      },
-      "support_anatomical_leg": "far",
-      "outside_roi_unchanged": true,
-      "weapons_unchanged": true,
-      "base_rgba_sha256": "0db2cb43be4cd9088d40377610dcf55b77922e40e8f6520bd632ce005eaa9f01",
-      "edited_rgba_sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe",
+      "original_floor": 36,
       "packed_bytes_verified": true
     }
   ],

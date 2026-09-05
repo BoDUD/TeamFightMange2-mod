@@ -3,6 +3,51 @@
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
   "files": [
     {
+      "path": "BanPickIllust/archer.png",
+      "size": 2932996,
+      "sha256": "faf74bff3129e3afd5019c7939fe973a54b2dd3a167aca41445978131dccad84"
+    },
+    {
+      "path": "BanPickIllust/barrier_magician.png",
+      "size": 3302521,
+      "sha256": "93ee86a0c3f3588157216675702e562c0b80ba845420cf99d8c58dea26de171e"
+    },
+    {
+      "path": "BanPickIllust/berserker.png",
+      "size": 2769095,
+      "sha256": "30a6aa3eb4e842d49bb7e149e4275ae0f44563955212ab0fb0f1d7ca6bc0c408"
+    },
+    {
+      "path": "BanPickIllust/boomerang_hunter.png",
+      "size": 3232858,
+      "sha256": "8f2890914892aeb1f446a28fa5d4e6e71738907533e72df4c62515db9c38b431"
+    },
+    {
+      "path": "BanPickIllust/cavalry_knight.png",
+      "size": 4886098,
+      "sha256": "ba9fea18f25c5ca4a0b20d63995070b60cddda44a85ea9cbf511405e46bca6ef"
+    },
+    {
+      "path": "BanPickIllust/dancer.png",
+      "size": 4886098,
+      "sha256": "9d403f69cb0b00f278cd4d4f78a12afebf608ed70e5a510e1d278ed0cd659159"
+    },
+    {
+      "path": "BanPickIllust/demon.png",
+      "size": 4886098,
+      "sha256": "78ae7b5dbc75e2ccf8e8d6de09e450428c631b4fb8f539c70dbc6528599fa2a1"
+    },
+    {
+      "path": "BanPickIllust/dual_blader.png",
+      "size": 4886098,
+      "sha256": "e20d5b3c8590ff756745d5b7cd0fecd06305699c9a0a69517b91c4f6188b4de5"
+    },
+    {
+      "path": "BanPickIllust/lol_shen.png",
+      "size": 2742594,
+      "sha256": "a2c3893a42b3c3f2af3772a7267b19966f22cf1f2a2842dabbf4cb97ded89a35"
+    },
+    {
       "path": "aseprite_resources/champions/briar#anim.fanim",
       "size": 18653,
       "sha256": "ebf73e93841103c66b32faa811a5009c654c89067948e1db65fd20796df898b3"
@@ -90,7 +135,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
+      "sha256": "c26bc718fc5445ba72ac4cf1ada6a40147f72171bc0fe3bc12f818f92c7dbc6f"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -100,7 +145,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
+      "sha256": "c26bc718fc5445ba72ac4cf1ada6a40147f72171bc0fe3bc12f818f92c7dbc6f"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -838,49 +883,309 @@
       "sha256": "488fc1f708cf967e60546837e94136301c589917c910c4b0b0925221df94d3f5"
     },
     {
-      "path": "BanPickIllust/archer.png",
-      "size": 2932996,
-      "sha256": "faf74bff3129e3afd5019c7939fe973a54b2dd3a167aca41445978131dccad84"
+      "path": "banpick_illustrations/android.png",
+      "size": 3403,
+      "sha256": "e8fef6e39c3ebe9e573bb882e3aceb360031295155d9ce6a4418ec5c2996590d"
     },
     {
-      "path": "BanPickIllust/barrier_magician.png",
-      "size": 3302521,
-      "sha256": "93ee86a0c3f3588157216675702e562c0b80ba845420cf99d8c58dea26de171e"
+      "path": "banpick_illustrations/archer.png",
+      "size": 326971,
+      "sha256": "adb2e60125ed6ae40251c0a2d5a8bc63b4dace489aff1df4277a2b562af7aa0a"
     },
     {
-      "path": "BanPickIllust/berserker.png",
-      "size": 2769095,
-      "sha256": "30a6aa3eb4e842d49bb7e149e4275ae0f44563955212ab0fb0f1d7ca6bc0c408"
+      "path": "banpick_illustrations/bard.png",
+      "size": 3804,
+      "sha256": "dcc57c136fa0a20a2e3ed58c28afc0d8367805634fb1b453e72493845f3dbb81"
     },
     {
-      "path": "BanPickIllust/boomerang_hunter.png",
-      "size": 3232858,
-      "sha256": "8f2890914892aeb1f446a28fa5d4e6e71738907533e72df4c62515db9c38b431"
+      "path": "banpick_illustrations/barrier_magician.png",
+      "size": 377206,
+      "sha256": "9dffd32bf78ac2c5c440fda15b357263095a76e5c793abcdfc74855916b89711"
     },
     {
-      "path": "BanPickIllust/cavalry_knight.png",
-      "size": 4886098,
-      "sha256": "ba9fea18f25c5ca4a0b20d63995070b60cddda44a85ea9cbf511405e46bca6ef"
+      "path": "banpick_illustrations/berserker.png",
+      "size": 326843,
+      "sha256": "a2b27f544b5d1ad1e3eec7cd712d2aea3ffb861b94aab225221dcfbb35a4fd3d"
     },
     {
-      "path": "BanPickIllust/dancer.png",
-      "size": 4886098,
-      "sha256": "9d403f69cb0b00f278cd4d4f78a12afebf608ed70e5a510e1d278ed0cd659159"
+      "path": "banpick_illustrations/bomber.png",
+      "size": 3513,
+      "sha256": "583019b3046e47e623b3ceba121eae26bd810d84f229afad50dc53ff40d02c30"
     },
     {
-      "path": "BanPickIllust/demon.png",
-      "size": 4886098,
-      "sha256": "78ae7b5dbc75e2ccf8e8d6de09e450428c631b4fb8f539c70dbc6528599fa2a1"
+      "path": "banpick_illustrations/boomerang_hunter.png",
+      "size": 344202,
+      "sha256": "d5060b5bd96897ce32a73b05b043c144c0dcfc4c671636cf4c45684f255e1c4f"
     },
     {
-      "path": "BanPickIllust/dual_blader.png",
-      "size": 4886098,
-      "sha256": "e20d5b3c8590ff756745d5b7cd0fecd06305699c9a0a69517b91c4f6188b4de5"
+      "path": "banpick_illustrations/cavalry_knight.png",
+      "size": 322795,
+      "sha256": "06c3fc1990212d98cee927fc91bb357ea5b6e17bdf17193c721971ca5b9c6ce4"
     },
     {
-      "path": "BanPickIllust/lol_shen.png",
-      "size": 2742594,
-      "sha256": "a2c3893a42b3c3f2af3772a7267b19966f22cf1f2a2842dabbf4cb97ded89a35"
+      "path": "banpick_illustrations/chef.png",
+      "size": 3324,
+      "sha256": "0deeab574cdfdef051461f8f9237d0c858567f78db3311d61579732473dcee46"
+    },
+    {
+      "path": "banpick_illustrations/circus_blade.png",
+      "size": 3530,
+      "sha256": "aed033fd7dd81bf1e50afeb488cbab9553d8e31b1534f56738d97c7503584870"
+    },
+    {
+      "path": "banpick_illustrations/clown.png",
+      "size": 3852,
+      "sha256": "8af18990ceaf1fe648d17b6675e15dddbd21ce640737cfe3870e6c64758bb886"
+    },
+    {
+      "path": "banpick_illustrations/dancer.png",
+      "size": 359343,
+      "sha256": "507b52574a215f849319aaf9858284cc73825d8760f60d34da94c3e6f444f29f"
+    },
+    {
+      "path": "banpick_illustrations/dark_mage.png",
+      "size": 3265,
+      "sha256": "44bf08be3f1aa1a307d07e82843c0f7c5fe5f22b9e1e796e6bcb29a9ac9da1ca"
+    },
+    {
+      "path": "banpick_illustrations/demon.png",
+      "size": 340664,
+      "sha256": "f2ffb63b413c7d927207567315fb9742fe5a85157f20c5436fec727fb34c9a36"
+    },
+    {
+      "path": "banpick_illustrations/dokkaebi.png",
+      "size": 4988,
+      "sha256": "f78fa6d2653797ce5414eace60543596947d2a6341bb4e3ef9967b8ca3c472a1"
+    },
+    {
+      "path": "banpick_illustrations/druid.png",
+      "size": 4328,
+      "sha256": "0ebcf77938bd007a82fdbeb76e1efe2cdbb81a1d49ce262b2f9b12b6fd5c50d2"
+    },
+    {
+      "path": "banpick_illustrations/dual_blader.png",
+      "size": 346957,
+      "sha256": "0bab84ef45452bb311baa3677586d0982487cbb0bb1edc93fc3686fc267fa3a7"
+    },
+    {
+      "path": "banpick_illustrations/enchanter.png",
+      "size": 4126,
+      "sha256": "93573baf93add736cee8084a24da49d1e12b316c74f4f6c1091f6b58bf85a14c"
+    },
+    {
+      "path": "banpick_illustrations/executioner.png",
+      "size": 3249,
+      "sha256": "f20893e07423ca663ba37a917015bcc1bb67313b5f8c5dab6e930d4c55e43100"
+    },
+    {
+      "path": "banpick_illustrations/exorcist.png",
+      "size": 3124,
+      "sha256": "a91427a63fd59a91c34c4d4f54ff151f6c54d03f6592f470f311abb573022c9e"
+    },
+    {
+      "path": "banpick_illustrations/fighter.png",
+      "size": 2988,
+      "sha256": "9ea45b5e06fdbc08dabdcb1388babd7c3e421875b627b4966a9851b4a25f4f12"
+    },
+    {
+      "path": "banpick_illustrations/gambler.png",
+      "size": 3557,
+      "sha256": "59dca13c845b2b8d0508427046c2485995fb8d2bb96d2835afbfeb74f503228d"
+    },
+    {
+      "path": "banpick_illustrations/ghost.png",
+      "size": 2269,
+      "sha256": "858eda456d8d0ab5945ffa70bbd1bbfa340842c6518ad004df7809b42031791b"
+    },
+    {
+      "path": "banpick_illustrations/guardian_spirit.png",
+      "size": 4521,
+      "sha256": "8d74a135fa59ed52986b15c64b4ab25e2c05ae1c50dff3418b23f3dee0da1dac"
+    },
+    {
+      "path": "banpick_illustrations/gunner.png",
+      "size": 3781,
+      "sha256": "0e9adc2f3a3848e8595717ac50783f8ce123d3f4472295665b7c35fbb5eb4a76"
+    },
+    {
+      "path": "banpick_illustrations/hammerer.png",
+      "size": 5136,
+      "sha256": "f34237a282100a970678216bdc54fd8b18c9b50c5ba038a4073ace0eafb8b0a7"
+    },
+    {
+      "path": "banpick_illustrations/hitman.png",
+      "size": 3185,
+      "sha256": "4a8571e675429ff7bf1b01a686a49cdc792af146b3c97a907d5d4e44821223e3"
+    },
+    {
+      "path": "banpick_illustrations/hunter.png",
+      "size": 3371,
+      "sha256": "a8a8bdd6ceaaf2245ff4b33e3e3f77fc9c580b07d5d0f13942cef74ef6646174"
+    },
+    {
+      "path": "banpick_illustrations/ice_mage.png",
+      "size": 3617,
+      "sha256": "bc30d2dac00f8c4e6962d652d5642045d05c5c6d01653b80ac5fb403fbf107c0"
+    },
+    {
+      "path": "banpick_illustrations/illusionist.png",
+      "size": 3553,
+      "sha256": "49a13debb6a312640657332272e524849e043bc2a08d9a2c8a28419a5db57610"
+    },
+    {
+      "path": "banpick_illustrations/inquisitor.png",
+      "size": 3312,
+      "sha256": "820d8724ea4ec3962f111d26bb216d4184015b60945ad2dacff2be3d59a76ba8"
+    },
+    {
+      "path": "banpick_illustrations/jiangshi.png",
+      "size": 3143,
+      "sha256": "a6a65e89014b56bf9ddd42691cce89a45c36c52c888282ad97b6ab04e63f193c"
+    },
+    {
+      "path": "banpick_illustrations/knight.png",
+      "size": 4356,
+      "sha256": "103a7f24fd75cc8f610b400410cceb914d18e452d44ad354f3527978fc83c718"
+    },
+    {
+      "path": "banpick_illustrations/lancer.png",
+      "size": 3709,
+      "sha256": "da4f6125e5a705dfd751712b0c425e5ebb89e10ef8bd0eeefb509c0ce6fae40a"
+    },
+    {
+      "path": "banpick_illustrations/lightning_mage.png",
+      "size": 3631,
+      "sha256": "2ff92330935c5009f85483449f922497e56b706b16b713aa5f35935133d8fa1f"
+    },
+    {
+      "path": "banpick_illustrations/lol_shen.png",
+      "size": 311230,
+      "sha256": "e364a054aaba20e660b4aea5a274497bc34f3efdfb36414096d996a05828555a"
+    },
+    {
+      "path": "banpick_illustrations/magic_knight.png",
+      "size": 3795,
+      "sha256": "0105fe32d862fc5d765651c976100ebd81675582bf475436261f761415d5f63e"
+    },
+    {
+      "path": "banpick_illustrations/monk.png",
+      "size": 3435,
+      "sha256": "34d3115e3fd36fe43a03f665e45e57209b756ec7d209164c2b5bd1070c0b05c9"
+    },
+    {
+      "path": "banpick_illustrations/necromancer.png",
+      "size": 3441,
+      "sha256": "02637d446f58aadbdccc0ec0c4bd90f7df77abf8d41a722e47d2054882d4194e"
+    },
+    {
+      "path": "banpick_illustrations/ninja.png",
+      "size": 3338,
+      "sha256": "911a1f90429f58e77626b468d4a5cb2157c810e3cf5988bae0b0a245632d571a"
+    },
+    {
+      "path": "banpick_illustrations/ogre.png",
+      "size": 3921,
+      "sha256": "c412d4f3f197fd473d194463ee7d4fbe33bf3ccd5d2246abb99f0c85f218b358"
+    },
+    {
+      "path": "banpick_illustrations/plague_doctor.png",
+      "size": 3056,
+      "sha256": "c4c714f9ca06dc68f705079ce06d1dd4cf75d194bc030a0cbd6faf8f1db4e684"
+    },
+    {
+      "path": "banpick_illustrations/poison_dart_hunter.png",
+      "size": 3308,
+      "sha256": "a759ea29fb5e42b79e2844abf0c3ef93b12d772ef8451c4defd5bf1c93d4342d"
+    },
+    {
+      "path": "banpick_illustrations/pole_warrior.png",
+      "size": 3371,
+      "sha256": "9a85aea0cfea5b64ceb9a7c5a1e4db3b00c1a8ef0a3aaf266f35cc63bc8a794b"
+    },
+    {
+      "path": "banpick_illustrations/priest.png",
+      "size": 3673,
+      "sha256": "5d0e965c78f26ef92d10367da0b51419040de075a200c8d572cab11da36e0875"
+    },
+    {
+      "path": "banpick_illustrations/prisoner.png",
+      "size": 3658,
+      "sha256": "b46627b9b99915015873101386e2e7c16a212459bd54bc60b52c3371386f22e4"
+    },
+    {
+      "path": "banpick_illustrations/pyromancer.png",
+      "size": 3490,
+      "sha256": "fb9d8dd17728006afd3f057df2f86dae22b7dcc965474a1eb5242944f891bdda"
+    },
+    {
+      "path": "banpick_illustrations/pythoness.png",
+      "size": 3401,
+      "sha256": "3d73dc909f6cbc96c17e989a9f2cc0d2b753ae935c1488a325a49f340d2e7fec"
+    },
+    {
+      "path": "banpick_illustrations/shadowmancer.png",
+      "size": 3038,
+      "sha256": "bdd3d0a1a34c55401f8d3360a1333203490f9401c11b3393b7616f02ce37018d"
+    },
+    {
+      "path": "banpick_illustrations/shield_bearer.png",
+      "size": 3859,
+      "sha256": "931cf7df132b779d04f45cb93fdf2ff8ac7f075ac5ef963e8fa84bc07e6d4729"
+    },
+    {
+      "path": "banpick_illustrations/siege_breaker.png",
+      "size": 4049,
+      "sha256": "62ded192bdbca7231b09031e08b85b8892f1fa149dca326743e46c70916debac"
+    },
+    {
+      "path": "banpick_illustrations/soldier.png",
+      "size": 3158,
+      "sha256": "1f8d6a2aa1e4a8c1e6a51ec047c1778091a1ab95d36557eb2478f6a21d882ff4"
+    },
+    {
+      "path": "banpick_illustrations/spirit_caller.png",
+      "size": 3789,
+      "sha256": "d76000ed756e59e8ca390adfd149bedb90c199ff8547ec019f42822305067ca1"
+    },
+    {
+      "path": "banpick_illustrations/swordman.png",
+      "size": 3541,
+      "sha256": "096c3a4aeee9f26bb9aeb7c428e9b05a47cdf6f25db073c20dadf8819c5e1286"
+    },
+    {
+      "path": "banpick_illustrations/taoist.png",
+      "size": 3564,
+      "sha256": "197f8102bbd22ea900b10f87a119d07776bfa7a0164caf31a69ba97b1b84eba0"
+    },
+    {
+      "path": "banpick_illustrations/vampire.png",
+      "size": 3474,
+      "sha256": "1e2a45f0596d326e5d71040efd957a431bb855c632e6141beaae4819c1ebe2a4"
+    },
+    {
+      "path": "banpick_illustrations/voodoo_shaman.png",
+      "size": 4027,
+      "sha256": "bb8609f74ccf54a3b0b055815773e7bbaabc8da8b43dd79248795da461ecb10b"
+    },
+    {
+      "path": "banpick_illustrations/werewolf.png",
+      "size": 4059,
+      "sha256": "edd92751ff852fad0ec8e85391fe8779e481b2802c392968a9d94c3b7c7ff21b"
+    },
+    {
+      "path": "banpick_illustrations/whip_master.png",
+      "size": 3394,
+      "sha256": "2d1a98951f6851a7b4c4023314603587030f2b4c7fe5a6191cea2bb605464dfb"
+    },
+    {
+      "path": "banpick_illustrations/white_mage.png",
+      "size": 3680,
+      "sha256": "b5e0347b560b5766ebc2810dc9988212a6349d0bfd76648c695e6b3fe6fc9740"
+    },
+    {
+      "path": "banpick_illustrations/wind_mage.png",
+      "size": 2781,
+      "sha256": "6bdd9fa0abbc737b798679e62fb043da6d31749ee6c951a91110d73fa99db459"
     },
     {
       "path": "champion/archer.data_champion",
@@ -1064,13 +1369,13 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 220160,
-      "sha256": "d37b354cbc78c3f4f702cf29be4655c5de29e966a76e23d3065c1b97caf5af1b"
+      "size": 244736,
+      "sha256": "9a05507555a243992a53b03c2f53236685f880e0e21110b932e06601a7a47486"
     },
     {
       "path": "mod.mod_info",
-      "size": 1366,
-      "sha256": "db1679533fef4257c4adf40613d386c019f0790b861ed36d36eba162d5b8beea"
+      "size": 928,
+      "sha256": "f52477b99c249c04279d7f8396e95c589584cfb9dc28035d212b57775ded5bac"
     },
     {
       "path": "mod.override_info",
@@ -1104,8 +1409,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 155217,
-      "sha256": "098be001f97b45d433a914edd0936aa86b4467ebcff8f7de11f06c6a41eb48a7"
+      "size": 156749,
+      "sha256": "1a68499922a5a55b20aeb78b5fc5d11fe1e86cc943d4bcee7074e94eb5a9a4e4"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1119,8 +1424,8 @@
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 327808,
-      "sha256": "244c961a2e23815f7ab5d3edafdbcd1272f1cbbbb4405fade4b632ef19d09f5a"
+      "size": 329436,
+      "sha256": "385d7646a04200e318d31f0e9f557908c88002c710dd7af541b291a863f218a5"
     },
     {
       "path": "qa/yone_visual_qa.md",
@@ -2288,6 +2593,11 @@
       "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a"
     },
     {
+      "path": "ui/bp_full_cards/catalog.txt",
+      "size": 666,
+      "sha256": "2faa1af8ee456546c01d13196e3e8d05e38d7b1ab4afce23a6b22bd243b480e2"
+    },
+    {
       "path": "ui/bp_pick_cards/blue_pick_slot.ui",
       "size": 13093,
       "sha256": "dd8523f5605c82f5080284892a9ffa342354a8d61e155d169b71e3a95d120b5f"
@@ -2667,5 +2977,11 @@
       "size": 7999,
       "sha256": "763ba133ae4fc39a10b8035f8f3635db24679ee9f72d2406189a9b79990b843c"
     }
-  ]
+  ],
+  "purpose": "0.12.21 BP-only native-assignment full-card repair candidate; selection/swap source owned by game; user performs live verification; actor assets, encyclopedia positions, skills and saves not installed by this patch",
+  "yone_run_patch": {
+    "source_manifest_sha256": "833d1b59085c8a488f7d38463ab1161f702ba4aee84602040a04f2b046cae8aa",
+    "scope": "eight run frames only; all other installed atlas pixels retained",
+    "live_verification": "not performed; user requested self-verification"
+  }
 }

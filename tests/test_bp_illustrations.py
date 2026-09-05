@@ -80,3 +80,49 @@ def test_runtime_never_reads_athlete_name_or_late_binds_illustration_source():
     assert '"{root}.swap"' in source  # guarded native fallback; no guessed swap permutation
     post_update = runtime.split("impl StableExtension for QualityBpExtension", 1)[1]
     assert post_update.index("bp_illustrations::sync") < post_update.index("BP_RUNTIME_SCAN_INTERVAL_MICROS")
+
+
+def test_rejected_native_portrait_classifier_cannot_ship():
+    runtime = (MOD / "src" / "stable_runtime.rs").read_text(encoding="utf-8")
+    assert "bp_native_presentation" not in runtime
+    assert not (MOD / "src" / "bp_native_presentation.rs").exists()
+    for path in (MOD / "banpick_illustrations").glob("*.png"):
+        with Image.open(path) as image:
+            assert image.size == (1024, 184), "Old one-region classifier experiment must not ship"
+    source = (MOD / "tools" / "build_lol_mod.py").read_text(encoding="utf-8")
+    method = source.split("def build_runtime_bp_illustrations()", 1)[1].split("def split_grid", 1)[0]
+    assert 'save_png(native_output' not in method
+    assert 'build_bp_full_cards(MOD_ROOT)' in method
+
+
+def test_full_card_catalog_and_crop_contract():
+    catalog = (MOD / "ui/bp_full_cards/catalog.txt").read_text().splitlines()
+    assert len(catalog) == len(set(catalog)) >= 61
+    assert set(catalog) == {p.stem for p in (MOD / "banpick_illustrations").glob("*.png")}
+    for path in (MOD / "champion").glob("*.data_champion"):
+        assert json.loads(path.read_text(encoding="utf8"))["id"] in catalog
+    for hero in catalog:
+        with Image.open(MOD / "banpick_illustrations" / f"{hero}.png") as atlas:
+            assert atlas.size == (1024, 184)
+            assert "srgb" in atlas.info
+            blue = atlas.crop((0, 6, 284, 178)).convert("RGBA")
+            red = atlas.crop((740, 6, 1024, 178)).convert("RGBA")
+            if (MOD / "BanPickIllust" / f"{hero}.png").exists():
+                assert blue.getchannel("A").getextrema() == (255, 255)
+                assert red.tobytes() == blue.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes()
+            else:
+                assert blue.crop((0, 0, 152, 172)).getchannel("A").getbbox() is None
+                assert red.crop((137, 0, 284, 172)).getchannel("A").getbbox() is None
+
+
+def test_full_card_runtime_owns_no_champion_assignment():
+    source = (MOD / "src/bp_full_cards.rs").read_text(encoding="utf8")
+    assert 'ui_node_rect(' not in source
+    assert 'ui_text(' not in source
+    assert 'source:' not in source
+    assert '.swap' not in source
+    assert 'champion_names()' in source
+    assert 'installed_catalog_ready()' in source
+    assert '0.27734375' in source  # exact card width / atlas width
+    assert '0.72265625' in source  # exact red card origin / atlas width
+    assert 'width: 284px; height: 172px' in source

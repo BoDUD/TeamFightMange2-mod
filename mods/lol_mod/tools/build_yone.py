@@ -1663,14 +1663,14 @@ def _load_native_v7_body_frames() -> tuple[
     # The legacy source is retained for provenance only. Its half-cycle mirror
     # is superseded for run by the user's explicitly authorized pixel repaint.
     # This is an isolated lower-body edit, never a global body/UI scale pass.
-    from yone_run_pixel_edit import apply_to_frames
-    run_edit = apply_to_frames(frames, audits, set().union(*weapon_role_colors.values()))
+    from yone_run_anatomy import apply_to_frames
+    run_edit = apply_to_frames(frames, audits)
     manifest_audit['run_pixel_edit'] = {
-        'route': 'user-authorized anatomical near/far leg pixel edit',
+        'route': 'hand-authored original-model leg pixels',
         'frames': run_edit,
         'live_battle_verified': False,
     }
-    manifest_audit['body_processing'] = 'run: explicit leg pixel edit; all other actions: exact source RGBA byte copy'
+    manifest_audit['body_processing'] = 'run: authored anatomical leg source byte copy; all other actions: exact original source RGBA byte copy'
     return frames, manifest_audit, audits
 
 

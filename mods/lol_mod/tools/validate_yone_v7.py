@@ -2245,17 +2245,8 @@ def validate_v7(
 
         packed_source = source
         if action == "run":
-            from yone_run_pixel_edit import repaint
-            anchors = (19,18,18,19,21,20,19,19)
-            weapon_colors = frozenset(
-                color for ramp in EXPECTED_WEAPON_PALETTE_ROLES.values()
-                for roles in ramp.values() for role in roles
-                for color in palette.exact_role(role)
-            )
-            packed_source, _, _ = repaint(
-                source, index, anchors[index], source.height-bottom_margin-1,
-                weapon_colors,
-            )
+            from yone_run_anatomy import load_frame
+            packed_source, _ = load_frame(source, index)
         if atlas is not None:
             atlas_frame = atlas.crop(_bbox_to_pillow(atlas_rect))
             if atlas_frame.tobytes() != packed_source.tobytes():

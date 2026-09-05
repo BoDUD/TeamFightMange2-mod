@@ -1,6 +1,6 @@
 [package]
 name = "lol_mod"
-version = "0.12.18"
+version = "0.12.21"
 edition = "2021"
 
 [lib]
@@ -9,3 +9,7 @@ path = "src/stable_runtime.rs"
 
 [dependencies]
 mod-api-stable = { path = "vendor/mod-api-stable" }
+
+[features]
+# Local, read-only UI contract probe. Never enabled by the release builder.
+qa-bp-ui = []
