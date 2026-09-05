@@ -367,16 +367,16 @@ def fit_actor(
 
 
 def run_body_geometry(sources: list[Image.Image]) -> tuple[float, list[int]]:
-    """One source-pixel scale and a fixed world-space sole for the full run.
+    """One source-pixel scale with the original per-frame sole anchors.
 
     The previous per-frame 30..36px target made the head pulse with the cape.
-    Frame heights differ, so equal bottom margins would also bob the actor.
-    Preserve the native rectangles while anchoring soles relative to center.
+    Keep the measured native bottom margins: a center-relative replacement
+    silently conflicts with the frame contract used by validation and packing.
     """
     rects = NATIVE_CONTRACT["run"]["rects"]
     subjects = [remove_small_border_fragments(hard_alpha(source)) for source in sources]
     sizes = [(b[2]-b[0], b[3]-b[1]) for b in map(alpha_bbox, subjects)]
-    bottoms = [h - (h // 2 + 12) for _, _, _, h in rects]
+    bottoms = BODY_BOTTOM_MARGINS["run"].copy()
     scale = min(min(36 / sh, w / sw, (h - bottom - 1) / sh)
                 for (_, _, w, h), (sw, sh), bottom in zip(rects, sizes, bottoms, strict=True))
     return scale, bottoms
@@ -930,7 +930,10 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
             visible_width = bbox[2] - bbox[0]
             visible_height = bbox[3] - bbox[1]
             ratio = visible_height / baseline_height
-            ratios.append(ratio)
+            # Run now has one shared source scale, not eight enlargement
+            # targets. Keep the legacy enlargement gate on unchanged actions.
+            if tag != "run":
+                ratios.append(ratio)
             action_records[tag].append(
                 {
                     "frame": index,
@@ -1038,6 +1041,7 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
             "actor_scale": {
                 "policy": "one uniform nearest-neighbor resize per frame; native width may cap the whole pose; no x-only compression, crop, or atlas spill",
                 "requested_scale_class": "approximately 12-15 percent larger",
+                "enlargement_measurement_scope": "non-run actions; run uses one source scale with exact native sole anchors",
                 "mean_height_scale_ratio": round(mean_ratio, 4),
                 "median_height_scale_ratio": round(median_ratio, 4),
                 "minimum_bottom_clearance": min_bottom,
@@ -1295,6 +1299,12 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         if actual_rects != spec["rects"]:
             raise ValueError(f"Xayah {tag} frame rectangles changed")
     sheet = Image.open(actor_sheet).convert("RGBA")
+    run_sources = split_grid(Image.open(RUN_SOURCE).convert("RGBA"), 4, 2)
+    run_scale, run_bottoms = run_body_geometry(run_sources)
+    expected_run = [fit_actor(source, (w, h), target_height=36,
+                             bottom_margin=bottom, fixed_scale=run_scale)
+                    for source, (_, _, w, h), bottom in
+                    zip(run_sources, NATIVE_CONTRACT["run"]["rects"], run_bottoms, strict=True)]
     visible_records: dict[str, list[dict[str, Any]]] = {}
     for tag, target_heights in BODY_TARGET_HEIGHTS.items():
         visible_records[tag] = []
@@ -1320,6 +1330,14 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
                 raise ValueError(f"Xayah {tag}[{index}] body frame is empty")
             visible_height = bbox[3] - bbox[1]
             bottom = rect["h"] - bbox[3]
+            if tag == "run":
+                # A shared source scale replaces the old per-frame height
+                # targets. Validate exact authored output, not the old stretch.
+                expected = expected_run[index]
+                if frame.tobytes() != expected.tobytes():
+                    raise ValueError(f"Xayah run[{index}] differs from shared-scale source")
+                expected_bbox = alpha_bbox(expected)
+                target_height = expected_bbox[3] - expected_bbox[1]
             native_width_limited = (
                 visible_height < target_height
                 and bbox[0] <= 1

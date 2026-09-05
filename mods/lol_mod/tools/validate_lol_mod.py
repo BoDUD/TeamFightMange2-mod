@@ -8275,7 +8275,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.20", "lol_mod version must be 0.12.20")
+    check(mod_info.get("version") == "0.12.21", "lol_mod version must be 0.12.21")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8295,9 +8295,8 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             token in description
             for token in (
                 "0.5.8", "stable ABI 8", "repair test", "stock 0.5.8 ChampionInfoUIRunner",
-                "imagegen anatomical trouser/boot redraws", "connected swords",
-                "native run boxes", "native flip_x", "no active E",
-                "data_champion", "BP/match music",
+                "hand-authored", "connected swords", "native run boxes",
+                "native flip_x", "Native champion assignment", "in-game verification",
             )
         ),
         "mod metadata must disclose the native encyclopedia resolver, anatomical run source, and active test scope",
@@ -9785,7 +9784,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.20", "lol_mod version must be 0.12.20")
+    check(mod_info.get("version") == "0.12.21", "lol_mod version must be 0.12.21")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

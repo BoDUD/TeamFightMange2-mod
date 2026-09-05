@@ -4,7 +4,7 @@
   "name": "League Champions & Rift Quality Pack test / \u82f1\u96c4\u4e0e\u5ce1\u8c37\u54c1\u8d28\u5347\u7ea7 test",
   "author": "BoDUD",
   "version": "0.12.21",
-  "description": "BP-only repair candidate for base 0.5.8 / stable ABI 8. Native champion assignment owns all side-card textures through selection and swaps. Three-region atlases provide full blue/red illustration cards plus a separate native preview; heroes without artwork retain pixel portraits on transparent cards. No size-based hero classification. Installed encyclopedia positions, Yone/Xayah actor assets, skills and saves are unchanged by this incremental update. In-game verification is explicitly delegated to the user; no live visual acceptance is claimed. Yone leg redraw remains open.",
+  "description": "0.12.21 repair test for base 0.5.8 / stable ABI 8. Native champion assignment owns full BP illustration cards through selection and swaps; native heroes retain pixel portraits. Encyclopedia positioning uses the stock 0.5.8 ChampionInfoUIRunner. Yone has eight hand-authored leg cels with original upper body and connected swords, native run boxes, timing and native flip_x. Xayah run packing uses one source scale and original foot anchors. This PR candidate still requires user in-game verification; no live visual acceptance is claimed. Saves are not modified.",
   "last_updated": "2026-09-05",
   "dependencies": [
     {

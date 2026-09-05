@@ -35,6 +35,7 @@ jobs:
         run: >-
           git diff --exit-code --
           mods/lol_mod/aseprite_resources
+          mods/lol_mod/banpick_illustrations
           mods/lol_mod/icons
           'mods/lol_mod/aseprite_resources/champions/kled#anim.fanim'
           'mods/lol_mod/aseprite_resources/champions/kled#sheet.png'

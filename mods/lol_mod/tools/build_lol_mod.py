@@ -4959,7 +4959,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.20 Yone leg-only pixel edit replaced by eight imagegen anatomical sources; original upper body, connected swords, action timing and native encyclopedia resolver positioning preserved; live gait acceptance pending",
+        "purpose": "0.12.21 native-owned BP full cards and eight hand-authored Yone run cels; original upper body, connected swords, action timing and native encyclopedia resolver positioning preserved; live visual acceptance pending",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,

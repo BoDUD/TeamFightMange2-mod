@@ -1,0 +1,948 @@
+{
+  "schema_version": 1,
+  "origin": "Native 0.5.8 compact BP actor crops; mod actors are not cached",
+  "base_ids": [
+    "android",
+    "archer",
+    "bard",
+    "barrier_magician",
+    "berserker",
+    "bomber",
+    "boomerang_hunter",
+    "cavalry_knight",
+    "chef",
+    "circus_blade",
+    "clown",
+    "dancer",
+    "dark_mage",
+    "demon",
+    "dokkaebi",
+    "druid",
+    "dual_blader",
+    "enchanter",
+    "executioner",
+    "exorcist",
+    "fighter",
+    "gambler",
+    "ghost",
+    "guardian_spirit",
+    "gunner",
+    "hammerer",
+    "hitman",
+    "hunter",
+    "ice_mage",
+    "illusionist",
+    "inquisitor",
+    "jiangshi",
+    "knight",
+    "lancer",
+    "lightning_mage",
+    "magic_knight",
+    "monk",
+    "necromancer",
+    "ninja",
+    "ogre",
+    "plague_doctor",
+    "poison_dart_hunter",
+    "pole_warrior",
+    "priest",
+    "prisoner",
+    "pyromancer",
+    "pythoness",
+    "shadowmancer",
+    "shield_bearer",
+    "siege_breaker",
+    "soldier",
+    "spirit_caller",
+    "swordman",
+    "taoist",
+    "vampire",
+    "voodoo_shaman",
+    "werewolf",
+    "whip_master",
+    "white_mage",
+    "wind_mage"
+  ],
+  "base_styles": {
+    "entries": {
+      "swordman": {
+        "face": {
+          "x": -1,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -11
+        }
+      },
+      "monk": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "pythoness": {
+        "face": {
+          "x": 0,
+          "y": -28
+        },
+        "center": {
+          "x": 0,
+          "y": -9
+        }
+      },
+      "priest": {
+        "face": {
+          "x": 0,
+          "y": -30
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "pyromancer": {
+        "face": {
+          "x": 0,
+          "y": -35
+        },
+        "center": {
+          "x": 0,
+          "y": -14
+        }
+      },
+      "ninja": {
+        "face": {
+          "x": 1,
+          "y": -26
+        },
+        "center": {
+          "x": 0,
+          "y": -8
+        }
+      },
+      "fighter": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "knight": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "archer": {
+        "face": {
+          "x": 0,
+          "y": -26
+        },
+        "center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "berserker": {
+        "face": {
+          "x": 3,
+          "y": -38
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "boomerang_hunter": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "dual_blader": {
+        "face": {
+          "x": 2,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "gambler": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "ice_mage": {
+        "face": {
+          "x": 0,
+          "y": -37
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "jiangshi": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "lancer": {
+        "face": {
+          "x": 3,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "soldier": {
+        "face": {
+          "x": 0,
+          "y": -24
+        },
+        "center": {
+          "x": 0,
+          "y": -9
+        }
+      },
+      "shield_bearer": {
+        "face": {
+          "x": 4,
+          "y": -30
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "werewolf": {
+        "face": {
+          "x": 26,
+          "y": -42
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "executioner": {
+        "face": {
+          "x": 5,
+          "y": -37
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "ogre": {
+        "face": {
+          "x": 7,
+          "y": -54
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -7
+        }
+      },
+      "magic_knight": {
+        "face": {
+          "x": 0,
+          "y": -33
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "bard": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "barrier_magician": {
+        "face": {
+          "x": 0,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "chef": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "clown": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "dancer": {
+        "face": {
+          "x": 2,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "dark_mage": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "sand_mage": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "alchemist": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "crossbowman": {
+        "face": {
+          "x": 0,
+          "y": -26
+        },
+        "center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "demon": {
+        "face": {
+          "x": 4,
+          "y": -26
+        },
+        "center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "exorcist": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "ghost": {
+        "face": {
+          "x": 0,
+          "y": -26
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "gunner": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "illusionist": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "lightning_mage": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "necromancer": {
+        "face": {
+          "x": 0,
+          "y": -44
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -9
+        }
+      },
+      "plague_doctor": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "poison_dart_hunter": {
+        "face": {
+          "x": 0,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "shadowmancer": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "taoist": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "vampire": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "hammerer": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "inquisitor": {
+        "face": {
+          "x": 0,
+          "y": -32
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "dokkaebi": {
+        "face": {
+          "x": 2,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "pole_warrior": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "whip_master": {
+        "face": {
+          "x": 1,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "cavalry_knight": {
+        "face": {
+          "x": 1,
+          "y": -44
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "siege_breaker": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "android": {
+        "face": {
+          "x": 0,
+          "y": -30
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "druid": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "prisoner": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "spirit_caller": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "bomber": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "voodoo_shaman": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "white_mage": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "wind_mage": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        },
+        "banpick_center": {
+          "x": 0,
+          "y": -9
+        }
+      },
+      "enchanter": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "hitman": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "hunter": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "circus_blade": {
+        "face": {
+          "x": 0,
+          "y": -34
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "guardian_spirit": {
+        "face": {
+          "x": 0,
+          "y": -36
+        },
+        "center": {
+          "x": 0,
+          "y": -12
+        }
+      },
+      "nightmare": {
+        "face": {
+          "x": 0,
+          "y": -30
+        },
+        "center": {
+          "x": 0,
+          "y": -10
+        }
+      }
+    }
+  },
+  "portraits": {
+    "[\"asset/base/aseprite_resources/champions/android\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/android.png",
+      "sha256": "aefdd7ca11501e6a58bf92b6786d5f2165a0982afb49007c351f3400ee594d56"
+    },
+    "[\"asset/base/aseprite_resources/champions/bard\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/bard.png",
+      "sha256": "7a30dde487a7ad7da814d69d3b776d5dfa03422cfe8f59cf91e093ece9091674"
+    },
+    "[\"asset/base/aseprite_resources/champions/bomber\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/bomber.png",
+      "sha256": "660023305a97d290db03964b9d309390fd2807d4b7c17e0fdefda30a53bf56e0"
+    },
+    "[\"asset/base/aseprite_resources/champions/chef\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/chef.png",
+      "sha256": "c4fdf90403e8ecd1587a0488c23c4634e18fc9954ab9a5ad7a925bba1a212ff6"
+    },
+    "[\"asset/base/aseprite_resources/champions/circus_blade\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/circus_blade.png",
+      "sha256": "b8920995689fe893774f4a5c139fbba018c3355601e55b46266f6f208f4cc58e"
+    },
+    "[\"asset/base/aseprite_resources/champions/clown\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/clown.png",
+      "sha256": "13fc1d8f965adec38de065da500ed053398a1ec5fb722c0bf31a0239d94c2836"
+    },
+    "[\"asset/base/aseprite_resources/champions/dark_mage\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/dark_mage.png",
+      "sha256": "e7e148d49351b8550bd6ef26a079d402f25bb875dbd0760eefa925ddd07f4b3f"
+    },
+    "[\"asset/base/aseprite_resources/champions/dokkaebi\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/dokkaebi.png",
+      "sha256": "a34884f434a95deb3658c936fdd0d5cc2ffcf8f20df1ec7e3f8c445da9eb5c6e"
+    },
+    "[\"asset/base/aseprite_resources/champions/druid\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/druid.png",
+      "sha256": "ba692823654e670fce73baa64e752e11d7ab098aa013fb2f9ed294dfe732a873"
+    },
+    "[\"asset/base/aseprite_resources/champions/enchanter\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/enchanter.png",
+      "sha256": "96cb77b256c50879fb61b7c1aed8172a7452bf4cd09268160b21371c2dc7b6b5"
+    },
+    "[\"asset/base/aseprite_resources/champions/executioner\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/executioner.png",
+      "sha256": "a4c989a0db6466fb79c2a8f4245594996cf56670cc776c5bc5ee6e8d847eeb09"
+    },
+    "[\"asset/base/aseprite_resources/champions/exorcist\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/exorcist.png",
+      "sha256": "a15ccc7a8dec4847ac063cb291c62d394266218b7c6e2b62465d7642778e15a7"
+    },
+    "[\"asset/base/aseprite_resources/champions/fighter\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/fighter.png",
+      "sha256": "7fc8c3b66430585dc2afd2a0393bd49aa91b0913d812264cdb9d0ace7e56d42c"
+    },
+    "[\"asset/base/aseprite_resources/champions/gambler\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/gambler.png",
+      "sha256": "17429c03f0609f5d5ddaba44b1f4b324fe9a58f6c31437fc991a736262ff729b"
+    },
+    "[\"asset/base/aseprite_resources/champions/ghost\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/ghost.png",
+      "sha256": "27fb21670acb2f44f4da9d3ed9897f473833e4582b8c42c634c381b194677ffa"
+    },
+    "[\"asset/base/aseprite_resources/champions/guardian_spirit\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/guardian_spirit.png",
+      "sha256": "a63d614eae665fdea6574a3fd170aa0d64a33e863431d66311cb9d0eb779269b"
+    },
+    "[\"asset/base/aseprite_resources/champions/gunner\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/gunner.png",
+      "sha256": "0f20355330090d95aa708f3b6681a475d12c514f7bbc72ad8e0b157dd485c886"
+    },
+    "[\"asset/base/aseprite_resources/champions/hammerer\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/hammerer.png",
+      "sha256": "fd0b12369524e906ce5696d51ed08afdb5ac37ca3e8045591417bf907f7648cc"
+    },
+    "[\"asset/base/aseprite_resources/champions/hitman\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/hitman.png",
+      "sha256": "687c3e727611e2142ebca3f36df8879f8e44ee635bf3e544e8fe2f1785e827cf"
+    },
+    "[\"asset/base/aseprite_resources/champions/hunter\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/hunter.png",
+      "sha256": "1f3c530caa7308c618e279cf9c5673b8996550cf9f431ae2378d2eff14ace7bf"
+    },
+    "[\"asset/base/aseprite_resources/champions/ice_mage\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/ice_mage.png",
+      "sha256": "8e3cccb1522943fd311bb6cd73dfe305cd0934f5f2969d40dbe38c143f96c8cf"
+    },
+    "[\"asset/base/aseprite_resources/champions/illusionist\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/illusionist.png",
+      "sha256": "77b4e4af046fb7399f6aa2fda83b0569aab3d1d983dcb3cf36452037f2cb4b86"
+    },
+    "[\"asset/base/aseprite_resources/champions/inquisitor\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/inquisitor.png",
+      "sha256": "38116b78bc8934e7864e3a830c7be198174aeb3683a56f603c8cae80528d384c"
+    },
+    "[\"asset/base/aseprite_resources/champions/jiangshi\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/jiangshi.png",
+      "sha256": "47b5e4a89e66f4c3bc2eaf49cdd3683c77fac75993d75321c8274b76b7f42e50"
+    },
+    "[\"asset/base/aseprite_resources/champions/knight\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/knight.png",
+      "sha256": "1b6c14eeed64e49e41cf7efa48ac23abde5cb46815b9dac27b41efe9082ce2a8"
+    },
+    "[\"asset/base/aseprite_resources/champions/lancer\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/lancer.png",
+      "sha256": "0e98fc12f522b9db5082a27ad7659dd8fdd029b85a8e96242f32332e6be8925d"
+    },
+    "[\"asset/base/aseprite_resources/champions/lightning_mage\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/lightning_mage.png",
+      "sha256": "8c79849735fcedba43e747d4da93013d005faec318ab98cdb08d77b936cf0981"
+    },
+    "[\"asset/base/aseprite_resources/champions/magic_knight\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/magic_knight.png",
+      "sha256": "370516cabb0c469240f73800083c20bd38dd0e876b5da47669c2b35e4daad65d"
+    },
+    "[\"asset/base/aseprite_resources/champions/monk\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/monk.png",
+      "sha256": "94647f4213ff8f8c60eb274fcd12a7113fff27ab942a4b655b45c72d9a306890"
+    },
+    "[\"asset/base/aseprite_resources/champions/necromancer\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/necromancer.png",
+      "sha256": "09fdad9cd3ab3f138823a44125a7231655e5803d801c423bc85d9688d00319c7"
+    },
+    "[\"asset/base/aseprite_resources/champions/ninja\", \"\", {\"x\": 0, \"y\": -8}]": {
+      "file": "portraits/ninja.png",
+      "sha256": "860e8fbea9789adc01017e47336a1cec502665e3bab053a9bcd4b5976e162532"
+    },
+    "[\"asset/base/aseprite_resources/champions/ogre\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/ogre.png",
+      "sha256": "8c6ed0ddba60c4cd578d26c86fc7b60157151d1eaff693b43e07edeffc5a3c02"
+    },
+    "[\"asset/base/aseprite_resources/champions/plague_doctor\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/plague_doctor.png",
+      "sha256": "eb5ea5e8c801c3cc4bcae8b5a1c74cda758112484047e58e68178d50e8d6a67c"
+    },
+    "[\"asset/base/aseprite_resources/champions/poison_dart_hunter\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/poison_dart_hunter.png",
+      "sha256": "7716c2f8423ad61f0ab16862fea7edc541c87ee1b17404e1604a91954b948c36"
+    },
+    "[\"asset/base/aseprite_resources/champions/pole_warrior\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/pole_warrior.png",
+      "sha256": "0cae6b2b43e0f77c7df4ff540dbc0246baadd00a7794aa66969ccd2c443ae60a"
+    },
+    "[\"asset/base/aseprite_resources/champions/priest\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/priest.png",
+      "sha256": "d0dde1873f49a11c82c94f4185908a70b3e74d16aed00e6e785663ff4ec564df"
+    },
+    "[\"asset/base/aseprite_resources/champions/prisoner\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/prisoner.png",
+      "sha256": "56dabea0fb6ecd6fcad7da64a3b302fb1020616cda0eb75889f8450dfec2c2d0"
+    },
+    "[\"asset/base/aseprite_resources/champions/pyromancer\", \"\", {\"x\": 0, \"y\": -14}]": {
+      "file": "portraits/pyromancer.png",
+      "sha256": "49685847daee68433167192e01b9f7b42fbbd91ca7a5b127945d43ee747a2adb"
+    },
+    "[\"asset/base/aseprite_resources/champions/pythoness\", \"\", {\"x\": 0, \"y\": -9}]": {
+      "file": "portraits/pythoness.png",
+      "sha256": "380eca3fca7215bc41442e503a1a0f49389febbb5e4bf864f597f81b9cda6767"
+    },
+    "[\"asset/base/aseprite_resources/champions/shadowmancer\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/shadowmancer.png",
+      "sha256": "f6cad2f4df18d9f4a253c283d446c8b4203710f2dc9442e78155faa74748d79a"
+    },
+    "[\"asset/base/aseprite_resources/champions/shield_bearer\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/shield_bearer.png",
+      "sha256": "7b6f1a15f1986175c8ec2e0283aa10dbb0cbd3a1ebeb9108990b62511e1c9dfb"
+    },
+    "[\"asset/base/aseprite_resources/champions/siege_breaker\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/siege_breaker.png",
+      "sha256": "da2e09c4db2f5107a39faec6f905c3f110688db4a06631ede3313dcb4d801a56"
+    },
+    "[\"asset/base/aseprite_resources/champions/soldier\", \"\", {\"x\": 0, \"y\": -9}]": {
+      "file": "portraits/soldier.png",
+      "sha256": "6614c6a917caecb02deb286c3ae464efe4f356155935e52c24be4bc0273e15b3"
+    },
+    "[\"asset/base/aseprite_resources/champions/spirit_caller\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/spirit_caller.png",
+      "sha256": "083ed2f80362e5972b11ead0464768a9d70ae9b979140701583fb1fe369cf063"
+    },
+    "[\"asset/base/aseprite_resources/champions/swordman\", \"\", {\"x\": 0, \"y\": -11}]": {
+      "file": "portraits/swordman.png",
+      "sha256": "96cdbae4ce24ea522a0771cc54044c0db165154647019acf1f4f4a40a21374f5"
+    },
+    "[\"asset/base/aseprite_resources/champions/taoist\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/taoist.png",
+      "sha256": "b52a3f223da672343bbdb84aabced6dd0b47f00b4966aaecaae8ae34f78b1dc2"
+    },
+    "[\"asset/base/aseprite_resources/champions/vampire\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/vampire.png",
+      "sha256": "59c02a1d774f0da6b126368949969b07559b8dc735b298b2ea3d3e79af25bdae"
+    },
+    "[\"asset/base/aseprite_resources/champions/voodoo_shaman\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/voodoo_shaman.png",
+      "sha256": "3cc6394b0f15ab6569ca16b36e7b2de9b5a4e360557ce253c51463e7ffd7c21e"
+    },
+    "[\"asset/base/aseprite_resources/champions/werewolf\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/werewolf.png",
+      "sha256": "226d28f171b87335f0a6d6bf97f6d6a34f36e9c5a60c214feaac0a00ae4e1228"
+    },
+    "[\"asset/base/aseprite_resources/champions/whip_master\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/whip_master.png",
+      "sha256": "5aac7e14120d3c1b6c3efcb5d2108ea185faf6ab569f3d6d4b41a789a5334170"
+    },
+    "[\"asset/base/aseprite_resources/champions/white_mage\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/white_mage.png",
+      "sha256": "4e45bcef1963e58790bc3dd655339d9bcbe4ec8bd16849cbbfd7a17932bab321"
+    },
+    "[\"asset/base/aseprite_resources/champions/wind_mage\", \"\", {\"x\": 0, \"y\": -12}]": {
+      "file": "portraits/wind_mage.png",
+      "sha256": "0c1283d80964d75a0b3de1a9255fc8fe2b2eb7a8a5459e108ddc2d69d0303ccd"
+    }
+  }
+}

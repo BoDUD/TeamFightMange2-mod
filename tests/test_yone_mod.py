@@ -1424,7 +1424,7 @@ def test_yone_actor_contract_and_portraits_remain_native_safe() -> None:
         alpha = rendered.getchannel("A")
         bbox = alpha.getbbox()
         assert bbox is not None
-        opaque_pixels = sum(1 for value in alpha.get_flattened_data() if value)
+        opaque_pixels = sum(1 for value in alpha.tobytes() if value)
         fate_sealed_metrics.append(
             (bbox[2] - bbox[0], bbox[3] - bbox[1], opaque_pixels)
         )
@@ -2444,14 +2444,14 @@ def _retired_v3_yone_w_release_docs_version_and_manifest_are_atomic() -> None:
 
 def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     mod_info = json.loads((MOD / "mod.mod_info").read_text(encoding="utf-8"))
-    assert mod_info["version"] == "0.12.20"
+    assert mod_info["version"] == "0.12.21"
     assert all(
         token in mod_info["description"]
         for token in (
-            "imagegen anatomical trouser/boot redraws",
-            "pure-data Q/W/R",
-            "no active E",
-            "no-op saved-season compatibility shims",
+            "hand-authored leg cels",
+            "connected swords",
+            "native run boxes",
+            "native flip_x",
         )
     )
     assert "E-only Soul Unbound" not in mod_info["description"]
@@ -2471,16 +2471,16 @@ def test_yone_v7_release_keeps_q_w_r_and_dual_sword_body_atomic() -> None:
     )
     assert "Soul Unbound" not in readme
 
-    assert 'version = "0.12.20"' in (MOD / "Cargo.toml").read_text(
+    assert 'version = "0.12.21"' in (MOD / "Cargo.toml").read_text(
         encoding="utf-8"
     )
-    assert 'version = "0.12.20"' in (MOD / "Cargo.lock").read_text(
+    assert 'version = "0.12.21"' in (MOD / "Cargo.lock").read_text(
         encoding="utf-8"
     )
     quality_scope = json.loads(
         (MOD / "qa/quality_upgrade_scope.json").read_text(encoding="utf-8")
     )
-    assert quality_scope["release"] == "0.12.20"
+    assert quality_scope["release"] == "0.12.21"
     pixel_contract = quality_scope["runtime_implemented"]["yone_official_009"][
         "dual_sword_pixel_contract"
     ]

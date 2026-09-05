@@ -157,8 +157,7 @@
             39,
             36
           ],
-          "original_floor": 35,
-          "packed_bytes_verified": true
+          "original_floor": 35
         },
         {
           "index": 1,
@@ -193,8 +192,7 @@
             38,
             37
           ],
-          "original_floor": 36,
-          "packed_bytes_verified": true
+          "original_floor": 36
         },
         {
           "index": 2,
@@ -229,8 +227,7 @@
             38,
             38
           ],
-          "original_floor": 37,
-          "packed_bytes_verified": true
+          "original_floor": 37
         },
         {
           "index": 3,
@@ -265,8 +262,7 @@
             38,
             37
           ],
-          "original_floor": 36,
-          "packed_bytes_verified": true
+          "original_floor": 36
         },
         {
           "index": 4,
@@ -301,8 +297,7 @@
             40,
             36
           ],
-          "original_floor": 35,
-          "packed_bytes_verified": true
+          "original_floor": 35
         },
         {
           "index": 5,
@@ -337,8 +332,7 @@
             38,
             37
           ],
-          "original_floor": 36,
-          "packed_bytes_verified": true
+          "original_floor": 36
         },
         {
           "index": 6,
@@ -373,8 +367,7 @@
             38,
             38
           ],
-          "original_floor": 37,
-          "packed_bytes_verified": true
+          "original_floor": 37
         },
         {
           "index": 7,
@@ -409,8 +402,7 @@
             38,
             37
           ],
-          "original_floor": 36,
-          "packed_bytes_verified": true
+          "original_floor": 36
         }
       ],
       "live_battle_verified": false
@@ -7645,7 +7637,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "c57e194aaa095e9af89cd2870cdf69ab4498a11b019464f2b21e5fb6528032c3",
+      "sha256": "c26bc718fc5445ba72ac4cf1ada6a40147f72171bc0fe3bc12f818f92c7dbc6f",
       "alpha_bbox": [
         49,
         1,
@@ -7669,7 +7661,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "c57e194aaa095e9af89cd2870cdf69ab4498a11b019464f2b21e5fb6528032c3",
+      "sha256": "c26bc718fc5445ba72ac4cf1ada6a40147f72171bc0fe3bc12f818f92c7dbc6f",
       "alpha_bbox": [
         49,
         1,

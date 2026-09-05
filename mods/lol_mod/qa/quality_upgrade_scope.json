@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "release": "0.12.20",
+  "release": "0.12.21",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
     "legacy_internal_extensions": "not_compiled",
-    "bp_layout_overrides": "full/grid overrides disabled; only two verified base-0.5.8 pick-card leaves gain fixed-source image children",
+    "bp_layout_overrides": "full/grid overrides disabled; native-owned three-region side-card atlases with a fixed-image fallback for incomplete packages",
     "inactive_until_matching_sdk": [
       "client portrait command rewriting",
       "client database mutation",
       "deterministic elemental dragon server rewriting"
     ],
-    "reason": "Game 0.5.8 is the active baseline and DLL uses stable ABI 8. Full BP layout and champion grid remain native. Two native-hash-verified side-card leaves contain fixed-source 284x172 images, with all original controls preserved. Runtime uses native pick markers, never athlete labels. Swap phase falls back to stock actors; live display acceptance is pending."
+    "reason": "Game 0.5.8 is the active baseline and DLL uses stable ABI 8. Full BP layout and champion grid remain native. The engine assigns side-card textures through picks and swaps. Nine authored illustrations fill 284x172 card regions; native heroes retain compact actors. Incomplete catalogs use the legacy marker-based fallback, never athlete-name inference. Live display acceptance is pending."
   },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {

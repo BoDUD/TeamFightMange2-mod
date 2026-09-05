@@ -7,6 +7,7 @@ whether the current image is an illustration or a pixel actor.
 from __future__ import annotations
 
 import io
+import hashlib
 import json
 from pathlib import Path
 import struct
@@ -21,8 +22,15 @@ RED_BOX = (740, 6, 1024, 178)
 
 
 class Assets:
-    def __init__(self, mod=MOD):
+    def __init__(self, mod=MOD, *, export_from_game=False):
         self.mod = mod
+        self.snapshot_root = mod / 'source/native/bp_full_cards'
+        self.snapshot = None
+        self.overrides = json.loads((mod / 'mod.override_info').read_text(encoding='utf8'))
+        snapshot = self.snapshot_root / 'manifest.json'
+        if snapshot.is_file() and not export_from_game:
+            self.snapshot = json.loads(snapshot.read_text(encoding='utf8'))
+            return
         bundle = next(p for p in (mod.parents[2] / 'bundle.game_data',
                                    mod.parents[1] / 'bundle.game_data') if p.is_file())
         self.bundle = bundle
@@ -35,7 +43,16 @@ class Assets:
                 n = u32()
                 self.index[key] = (f.tell(), n, kind)
                 f.seek(n, 1)
-        self.overrides = json.loads((mod / 'mod.override_info').read_text(encoding='utf8'))
+
+    def resolved(self, key):
+        seen = set()
+        while key not in seen:
+            seen.add(key)
+            override = self.overrides.get(key, {})
+            if override.get('type') != 'override':
+                return key
+            key = override['remapping']
+        raise ValueError(f'Cyclic asset remapping: {key}')
 
     def read(self, key, remap=True):
         override = self.overrides.get(key) if remap else None
@@ -47,6 +64,14 @@ class Assets:
             if len(matches) != 1:
                 raise ValueError(f'Ambiguous/missing asset: {key}: {matches}')
             return matches[0].read_bytes()
+        if self.snapshot is not None:
+            values = {
+                'asset/base/setting/champion_info': {name: {} for name in self.snapshot['base_ids']},
+                'asset/base/style/champion_view': self.snapshot['base_styles'],
+            }
+            if key not in values:
+                raise ValueError(f'Native asset not in portable BP source: {key}')
+            return json.dumps(values[key]).encode('utf8')
         offset, n, _ = self.index[key]
         with self.bundle.open('rb') as f:
             f.seek(offset)
@@ -65,6 +90,15 @@ class Assets:
 
 
 def actor_portrait(assets, sprite, prefix, center):
+    if assets.snapshot is not None and not assets.resolved(sprite + '#sheet').startswith('asset/lol_mod/'):
+        key = json.dumps([sprite, prefix, center], sort_keys=True)
+        record = assets.snapshot['portraits'].get(key)
+        if record is None:
+            raise ValueError(f'Native portrait contract changed; re-export BP source: {key}')
+        path = assets.snapshot_root / record['file']
+        if hashlib.sha256(path.read_bytes()).hexdigest() != record['sha256']:
+            raise ValueError(f'Native BP source checksum mismatch: {path.name}')
+        return Image.open(path).convert('RGBA')
     anim = assets.json(sprite + '#anim')
     frame = anim['anims'][prefix + 'idle']['frames'][0]['data']
     sheet = Image.open(io.BytesIO(assets.read(sprite + '#sheet'))).convert('RGBA')
@@ -102,8 +136,8 @@ def compose(actor, splash=None):
     return atlas
 
 
-def build(mod=MOD):
-    assets = Assets(mod)
+def roster_and_styles(assets):
+    mod = assets.mod
     info = assets.json('asset/base/setting/champion_info')
     styles = assets.json('asset/base/style/champion_view').get('entries', {})
     roster = {name: {'sprite': 'asset/base/aseprite_resources/champions/' + name,
@@ -111,6 +145,43 @@ def build(mod=MOD):
     for path in sorted((mod / 'champion').glob('*.data_champion')):
         row = json.loads(path.read_text(encoding='utf8'))
         roster[row['id']] = row
+    return roster, styles
+
+
+def export_native_sources(mod=MOD):
+    """Explicit one-time extraction; CI needs no local game installation.
+
+    Store only compact native portraits plus their placement contract, never
+    the full game bundle. Mod-owned actors are still rebuilt from their sources.
+    """
+    assets = Assets(mod, export_from_game=True)
+    roster, styles = roster_and_styles(assets)
+    root = assets.snapshot_root
+    (root/'portraits').mkdir(parents=True,exist_ok=True)
+    records = {}
+    for name,row in sorted(roster.items()):
+        sprite,prefix = row['sprite'],row.get('anim_prefix','')
+        if assets.resolved(sprite+'#sheet').startswith('asset/lol_mod/'):
+            continue
+        center = styles.get(name,{}).get('center',{})
+        actor = actor_portrait(assets,sprite,prefix,center)
+        file = f'portraits/{name}.png'
+        actor.save(root/file)
+        records[json.dumps([sprite,prefix,center],sort_keys=True)] = {
+            'file':file,'sha256':hashlib.sha256((root/file).read_bytes()).hexdigest()}
+    base_info = json.loads(assets.read('asset/base/setting/champion_info',remap=False))
+    base_styles = json.loads(assets.read('asset/base/style/champion_view',remap=False))
+    snapshot = dict(schema_version=1,
+        origin='Native 0.5.8 compact BP actor crops; mod actors are not cached',
+        base_ids=sorted(name for name,value in base_info.items() if isinstance(value,dict)),
+        base_styles=base_styles,portraits=records)
+    (root/'manifest.json').write_text(json.dumps(snapshot,indent=2)+'\n',encoding='utf8')
+    return records
+
+
+def build(mod=MOD):
+    assets = Assets(mod)
+    roster, styles = roster_and_styles(assets)
     outputs, records = [], []
     output_dir = mod / 'banpick_illustrations'
     output_dir.mkdir(parents=True, exist_ok=True)

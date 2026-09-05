@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.21 BP-only native-assignment full-card repair candidate; selection/swap source owned by game; user performs live verification; actor assets, encyclopedia positions, skills and saves not installed by this patch",
+  "purpose": "0.12.21 native-owned BP full cards and eight hand-authored Yone run cels; original upper body, connected swords, action timing and native encyclopedia resolver positioning preserved; live visual acceptance pending",
   "file_count": 532,
-  "total_size": 93376040,
+  "total_size": 93375312,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -86,7 +86,7 @@
     {
       "path": "aseprite_resources/champions/xayah#sheet.png",
       "size": 574038,
-      "sha256": "6d63078fa27095489121afd97a699f328003a26b3a8b137e3e1b66fc1642e463"
+      "sha256": "245c977f452a5c98f35c2d22bffdac0b30f21989c43d278e68be99a3a6eca4cb"
     },
     {
       "path": "aseprite_resources/champions/yone#anim.fanim",
@@ -835,308 +835,308 @@
     },
     {
       "path": "banpick_illustrations/android.png",
-      "size": 3403,
-      "sha256": "e8fef6e39c3ebe9e573bb882e3aceb360031295155d9ce6a4418ec5c2996590d"
+      "size": 3389,
+      "sha256": "71e5643cdda665563746170eebe05a7410886cb2cf8b6f1504373e4dee97d4c0"
     },
     {
       "path": "banpick_illustrations/archer.png",
-      "size": 326971,
-      "sha256": "adb2e60125ed6ae40251c0a2d5a8bc63b4dace489aff1df4277a2b562af7aa0a"
+      "size": 327018,
+      "sha256": "dabc5dd8a5cfac171b8014e1df3176f73b5cb6aabb083c730d8f5e3ff2a4313c"
     },
     {
       "path": "banpick_illustrations/bard.png",
-      "size": 3804,
-      "sha256": "dcc57c136fa0a20a2e3ed58c28afc0d8367805634fb1b453e72493845f3dbb81"
+      "size": 3794,
+      "sha256": "9773a0cbfeb4951764bfa57a35805e9307ff3c90bf58b16c3d9d57f124069fc2"
     },
     {
       "path": "banpick_illustrations/barrier_magician.png",
-      "size": 377206,
-      "sha256": "9dffd32bf78ac2c5c440fda15b357263095a76e5c793abcdfc74855916b89711"
+      "size": 377256,
+      "sha256": "8f7935f5476d70a1a1cbb9ffb915d4843dda9434dc49f6298bd7be205d0ef276"
     },
     {
       "path": "banpick_illustrations/berserker.png",
-      "size": 326843,
-      "sha256": "a2b27f544b5d1ad1e3eec7cd712d2aea3ffb861b94aab225221dcfbb35a4fd3d"
+      "size": 326906,
+      "sha256": "211fb1186d5989eb9c474b9667f98b51d56e64a8a4fd00089100584319f8407e"
     },
     {
       "path": "banpick_illustrations/bomber.png",
-      "size": 3513,
-      "sha256": "583019b3046e47e623b3ceba121eae26bd810d84f229afad50dc53ff40d02c30"
+      "size": 3500,
+      "sha256": "ad471f4bdb63c4233a4a53e71207edb1c08ed5458e420326fe8f7a11f7ba43e5"
     },
     {
       "path": "banpick_illustrations/boomerang_hunter.png",
-      "size": 344202,
-      "sha256": "d5060b5bd96897ce32a73b05b043c144c0dcfc4c671636cf4c45684f255e1c4f"
+      "size": 344307,
+      "sha256": "82847b4c6563878acac3e426d5f8bf477f5277432cc43d835c091fa2639c49da"
     },
     {
       "path": "banpick_illustrations/cavalry_knight.png",
-      "size": 322795,
-      "sha256": "06c3fc1990212d98cee927fc91bb357ea5b6e17bdf17193c721971ca5b9c6ce4"
+      "size": 322783,
+      "sha256": "ada63cf1ae197c3d5e251c7317fb46e99715b14eeb28fcea15e4f6c43bfe7b4f"
     },
     {
       "path": "banpick_illustrations/chef.png",
-      "size": 3324,
-      "sha256": "0deeab574cdfdef051461f8f9237d0c858567f78db3311d61579732473dcee46"
+      "size": 3314,
+      "sha256": "9801fcb179acd2af49cd9de57a7d8d11adb296aedcb672cd33c7499bfd3a0ddd"
     },
     {
       "path": "banpick_illustrations/circus_blade.png",
-      "size": 3530,
-      "sha256": "aed033fd7dd81bf1e50afeb488cbab9553d8e31b1534f56738d97c7503584870"
+      "size": 3518,
+      "sha256": "ad3df8bcaa807003dd9fb4affec4a96419d1cc04d8b90c960bc0d70bfd3689a6"
     },
     {
       "path": "banpick_illustrations/clown.png",
-      "size": 3852,
-      "sha256": "8af18990ceaf1fe648d17b6675e15dddbd21ce640737cfe3870e6c64758bb886"
+      "size": 3843,
+      "sha256": "56c7d0ad299a7b34bad1035a30ff31e6bd825e1220580e690887b6bbd167a0a9"
     },
     {
       "path": "banpick_illustrations/dancer.png",
-      "size": 359343,
-      "sha256": "507b52574a215f849319aaf9858284cc73825d8760f60d34da94c3e6f444f29f"
+      "size": 359423,
+      "sha256": "b1ac972ff8359871639a7c4431571ff590db9f2fd8f0c064a16497a498711f53"
     },
     {
       "path": "banpick_illustrations/dark_mage.png",
-      "size": 3265,
-      "sha256": "44bf08be3f1aa1a307d07e82843c0f7c5fe5f22b9e1e796e6bcb29a9ac9da1ca"
+      "size": 3242,
+      "sha256": "515055f3d2af818c08df2d513b72d88fcaea602cb54b0ff26436f6e567741f47"
     },
     {
       "path": "banpick_illustrations/demon.png",
-      "size": 340664,
-      "sha256": "f2ffb63b413c7d927207567315fb9742fe5a85157f20c5436fec727fb34c9a36"
+      "size": 340697,
+      "sha256": "baaafd0f66ab78d89de9c195eba09643c36e07ef3d82dd60fffea27c1549043a"
     },
     {
       "path": "banpick_illustrations/dokkaebi.png",
-      "size": 4988,
-      "sha256": "f78fa6d2653797ce5414eace60543596947d2a6341bb4e3ef9967b8ca3c472a1"
+      "size": 4973,
+      "sha256": "81d94a58e2c65971875dadcbbbd0ddca8781715a452958197df507db9b321b41"
     },
     {
       "path": "banpick_illustrations/druid.png",
-      "size": 4328,
-      "sha256": "0ebcf77938bd007a82fdbeb76e1efe2cdbb81a1d49ce262b2f9b12b6fd5c50d2"
+      "size": 4311,
+      "sha256": "1809d7c4b91d661373e9a70b35cdcf58d4e533a485a4c45f4e057d41ed758a68"
     },
     {
       "path": "banpick_illustrations/dual_blader.png",
-      "size": 346957,
-      "sha256": "0bab84ef45452bb311baa3677586d0982487cbb0bb1edc93fc3686fc267fa3a7"
+      "size": 347024,
+      "sha256": "184cffcfb23268dda2f9296ab40b4809ae74363d11155e11a91e43bc622e5e88"
     },
     {
       "path": "banpick_illustrations/enchanter.png",
-      "size": 4126,
-      "sha256": "93573baf93add736cee8084a24da49d1e12b316c74f4f6c1091f6b58bf85a14c"
+      "size": 4124,
+      "sha256": "fb356fd995d6b383ab5f14bc2914916da77673072ef61699a4b1b809ad949f9d"
     },
     {
       "path": "banpick_illustrations/executioner.png",
-      "size": 3249,
-      "sha256": "f20893e07423ca663ba37a917015bcc1bb67313b5f8c5dab6e930d4c55e43100"
+      "size": 3173,
+      "sha256": "edfe229e0b8c5f472a20e402f2d69c947df9ad8ec1c6532ccbe46f7949c5829c"
     },
     {
       "path": "banpick_illustrations/exorcist.png",
-      "size": 3124,
-      "sha256": "a91427a63fd59a91c34c4d4f54ff151f6c54d03f6592f470f311abb573022c9e"
+      "size": 3115,
+      "sha256": "29d846c9269b72d1b96f68ccd05c239058a532272e79d2826ee254417da4b6a5"
     },
     {
       "path": "banpick_illustrations/fighter.png",
-      "size": 2988,
-      "sha256": "9ea45b5e06fdbc08dabdcb1388babd7c3e421875b627b4966a9851b4a25f4f12"
+      "size": 2976,
+      "sha256": "2bda10bd7810aba7f91ffb066360e5683d13b2f0f515a8369f5a261260dddd78"
     },
     {
       "path": "banpick_illustrations/gambler.png",
-      "size": 3557,
-      "sha256": "59dca13c845b2b8d0508427046c2485995fb8d2bb96d2835afbfeb74f503228d"
+      "size": 3546,
+      "sha256": "debd6e33682f7551479c695fb094b50583021881783ad0eae55b6ec2e5d0cc10"
     },
     {
       "path": "banpick_illustrations/ghost.png",
-      "size": 2269,
-      "sha256": "858eda456d8d0ab5945ffa70bbd1bbfa340842c6518ad004df7809b42031791b"
+      "size": 2261,
+      "sha256": "db02533d0f8421f290224e6203e47b724cc2df4810bf12c7795cc2190e92c021"
     },
     {
       "path": "banpick_illustrations/guardian_spirit.png",
-      "size": 4521,
-      "sha256": "8d74a135fa59ed52986b15c64b4ab25e2c05ae1c50dff3418b23f3dee0da1dac"
+      "size": 4495,
+      "sha256": "402a332746e679bc9c49bc0bdf7d6cc39c8ba31ae87952a26cccc0b3bc46e5c9"
     },
     {
       "path": "banpick_illustrations/gunner.png",
-      "size": 3781,
-      "sha256": "0e9adc2f3a3848e8595717ac50783f8ce123d3f4472295665b7c35fbb5eb4a76"
+      "size": 3779,
+      "sha256": "ebe798374ed36b70f1cdbf8930c108176f21aa8b6b3b0cddb0cc0e95c0baaa48"
     },
     {
       "path": "banpick_illustrations/hammerer.png",
-      "size": 5136,
-      "sha256": "f34237a282100a970678216bdc54fd8b18c9b50c5ba038a4073ace0eafb8b0a7"
+      "size": 5126,
+      "sha256": "5efa71fdd881813fc38d4be2d90183c17cf27e88ff2c9e440cb681554ded8fe6"
     },
     {
       "path": "banpick_illustrations/hitman.png",
-      "size": 3185,
-      "sha256": "4a8571e675429ff7bf1b01a686a49cdc792af146b3c97a907d5d4e44821223e3"
+      "size": 3171,
+      "sha256": "2a7fd73f580d3e2f79a5f0a06bc634bd83a03e71b71b10fcff559d22dba0b122"
     },
     {
       "path": "banpick_illustrations/hunter.png",
-      "size": 3371,
-      "sha256": "a8a8bdd6ceaaf2245ff4b33e3e3f77fc9c580b07d5d0f13942cef74ef6646174"
+      "size": 3360,
+      "sha256": "c2870542f727671f5306b80882a0274bd349f28dbf64450278def63b01b14839"
     },
     {
       "path": "banpick_illustrations/ice_mage.png",
-      "size": 3617,
-      "sha256": "bc30d2dac00f8c4e6962d652d5642045d05c5c6d01653b80ac5fb403fbf107c0"
+      "size": 3619,
+      "sha256": "6f97d307c360ad90bd4504955c4e57577a3755e7924cf895cbdc5874cbf653fe"
     },
     {
       "path": "banpick_illustrations/illusionist.png",
-      "size": 3553,
-      "sha256": "49a13debb6a312640657332272e524849e043bc2a08d9a2c8a28419a5db57610"
+      "size": 3517,
+      "sha256": "d6fa9b4282f0ed6bd44d12b5591f845f356e32547e28342e4d3caa86f165e755"
     },
     {
       "path": "banpick_illustrations/inquisitor.png",
-      "size": 3312,
-      "sha256": "820d8724ea4ec3962f111d26bb216d4184015b60945ad2dacff2be3d59a76ba8"
+      "size": 3305,
+      "sha256": "a15c62453e16ddcd521fe58d6fcaa2e851fdb0a68faf6a78de6f201bdc472c74"
     },
     {
       "path": "banpick_illustrations/jiangshi.png",
-      "size": 3143,
-      "sha256": "a6a65e89014b56bf9ddd42691cce89a45c36c52c888282ad97b6ab04e63f193c"
+      "size": 3141,
+      "sha256": "41aaa7226007446c3b4f076ef42693d91370bedf1419fd5f2ede96999f0588fc"
     },
     {
       "path": "banpick_illustrations/knight.png",
-      "size": 4356,
-      "sha256": "103a7f24fd75cc8f610b400410cceb914d18e452d44ad354f3527978fc83c718"
+      "size": 4330,
+      "sha256": "c987a9d4023ee6e96ad95021b79e78fc76ea99a47eeb2e354fed745e297e0ca6"
     },
     {
       "path": "banpick_illustrations/lancer.png",
-      "size": 3709,
-      "sha256": "da4f6125e5a705dfd751712b0c425e5ebb89e10ef8bd0eeefb509c0ce6fae40a"
+      "size": 3711,
+      "sha256": "242f6f279cb6cfc5657af81dd72f4f4944827c12a4fc778391d922e3ef8ac049"
     },
     {
       "path": "banpick_illustrations/lightning_mage.png",
-      "size": 3631,
-      "sha256": "2ff92330935c5009f85483449f922497e56b706b16b713aa5f35935133d8fa1f"
+      "size": 3580,
+      "sha256": "13631511589bd2930f19b8f3dc804463dd2d9420bc2b0393cc29bebd0636691d"
     },
     {
       "path": "banpick_illustrations/lol_shen.png",
-      "size": 311230,
-      "sha256": "e364a054aaba20e660b4aea5a274497bc34f3efdfb36414096d996a05828555a"
+      "size": 311305,
+      "sha256": "dcea07b8b19fbb00791a764758572bfc84c4382566f53392e6a7cd3a49695468"
     },
     {
       "path": "banpick_illustrations/magic_knight.png",
-      "size": 3795,
-      "sha256": "0105fe32d862fc5d765651c976100ebd81675582bf475436261f761415d5f63e"
+      "size": 3726,
+      "sha256": "04c402ee4921156bbbde919dfb7fecd0250fecb09dcd7ca323ff0908cd0d580a"
     },
     {
       "path": "banpick_illustrations/monk.png",
-      "size": 3435,
-      "sha256": "34d3115e3fd36fe43a03f665e45e57209b756ec7d209164c2b5bd1070c0b05c9"
+      "size": 3420,
+      "sha256": "4d14b726b8db87c9185e5515d5156f9af1a838b1d5c30985c05eb5503c7347f2"
     },
     {
       "path": "banpick_illustrations/necromancer.png",
-      "size": 3441,
-      "sha256": "02637d446f58aadbdccc0ec0c4bd90f7df77abf8d41a722e47d2054882d4194e"
+      "size": 3399,
+      "sha256": "9df514a19470a5e7c65c7b7779708d85937eb0d345808c9c81899b4f7bb2c623"
     },
     {
       "path": "banpick_illustrations/ninja.png",
-      "size": 3338,
-      "sha256": "911a1f90429f58e77626b468d4a5cb2157c810e3cf5988bae0b0a245632d571a"
+      "size": 3340,
+      "sha256": "48aee3830a5872013120f6865ab1254bc584d28873eda7c4f96707b8daaad854"
     },
     {
       "path": "banpick_illustrations/ogre.png",
-      "size": 3921,
-      "sha256": "c412d4f3f197fd473d194463ee7d4fbe33bf3ccd5d2246abb99f0c85f218b358"
+      "size": 3804,
+      "sha256": "635e85d4da2a3309ff62c79a6ab4b2c63b0cad5456bf87f42e3058c5f6368102"
     },
     {
       "path": "banpick_illustrations/plague_doctor.png",
-      "size": 3056,
-      "sha256": "c4c714f9ca06dc68f705079ce06d1dd4cf75d194bc030a0cbd6faf8f1db4e684"
+      "size": 3050,
+      "sha256": "23905a68b7ee3aeb36cc3bb2de2a336c00829c9b2eb86a7999dc0d27e0738182"
     },
     {
       "path": "banpick_illustrations/poison_dart_hunter.png",
-      "size": 3308,
-      "sha256": "a759ea29fb5e42b79e2844abf0c3ef93b12d772ef8451c4defd5bf1c93d4342d"
+      "size": 3309,
+      "sha256": "1533e890820bbbe02f83117db469eba4f68badf380a7c561ff1a131ba63d1d06"
     },
     {
       "path": "banpick_illustrations/pole_warrior.png",
-      "size": 3371,
-      "sha256": "9a85aea0cfea5b64ceb9a7c5a1e4db3b00c1a8ef0a3aaf266f35cc63bc8a794b"
+      "size": 3354,
+      "sha256": "032797533edcbec3b4d944e2ef73d51f7262bdd7a0362ae811ad28a7d606ba3b"
     },
     {
       "path": "banpick_illustrations/priest.png",
-      "size": 3673,
-      "sha256": "5d0e965c78f26ef92d10367da0b51419040de075a200c8d572cab11da36e0875"
+      "size": 3671,
+      "sha256": "e53fdd43bbb3e9ed75a89f6ff6683c077fd89977b7dc33559fe0583fd17825b4"
     },
     {
       "path": "banpick_illustrations/prisoner.png",
-      "size": 3658,
-      "sha256": "b46627b9b99915015873101386e2e7c16a212459bd54bc60b52c3371386f22e4"
+      "size": 3632,
+      "sha256": "cee0a2b259d77d794b784336123572097add404446dabb39f02dfff7736d51b0"
     },
     {
       "path": "banpick_illustrations/pyromancer.png",
-      "size": 3490,
-      "sha256": "fb9d8dd17728006afd3f057df2f86dae22b7dcc965474a1eb5242944f891bdda"
+      "size": 3482,
+      "sha256": "273906fc276a3215e581e28f03f3fa6b68af42b2460789d8f62d64382fc309b5"
     },
     {
       "path": "banpick_illustrations/pythoness.png",
-      "size": 3401,
-      "sha256": "3d73dc909f6cbc96c17e989a9f2cc0d2b753ae935c1488a325a49f340d2e7fec"
+      "size": 3380,
+      "sha256": "4bbfe03e4e31afc7a0a8cc0c7c3af0ba074974764be6080e6fbc16921d59e8df"
     },
     {
       "path": "banpick_illustrations/shadowmancer.png",
-      "size": 3038,
-      "sha256": "bdd3d0a1a34c55401f8d3360a1333203490f9401c11b3393b7616f02ce37018d"
+      "size": 3026,
+      "sha256": "46363cff864a95321df9cb1c9c790c68d9b203361ce44462f4f5e321d44f0c5b"
     },
     {
       "path": "banpick_illustrations/shield_bearer.png",
-      "size": 3859,
-      "sha256": "931cf7df132b779d04f45cb93fdf2ff8ac7f075ac5ef963e8fa84bc07e6d4729"
+      "size": 3700,
+      "sha256": "7adaf83489f0a3e49afef47ae012ec75b481ded8e0b405e8316f14cd47c8ec8d"
     },
     {
       "path": "banpick_illustrations/siege_breaker.png",
-      "size": 4049,
-      "sha256": "62ded192bdbca7231b09031e08b85b8892f1fa149dca326743e46c70916debac"
+      "size": 3987,
+      "sha256": "b70d195855e5ddf4daeb3517e3a224e318494cd7d9759a06c771db740a72ac52"
     },
     {
       "path": "banpick_illustrations/soldier.png",
-      "size": 3158,
-      "sha256": "1f8d6a2aa1e4a8c1e6a51ec047c1778091a1ab95d36557eb2478f6a21d882ff4"
+      "size": 3169,
+      "sha256": "2e0b3310cc99dbaf922bac916b559274dcb0cf9d6ddcc5fe162d58e7110583ca"
     },
     {
       "path": "banpick_illustrations/spirit_caller.png",
-      "size": 3789,
-      "sha256": "d76000ed756e59e8ca390adfd149bedb90c199ff8547ec019f42822305067ca1"
+      "size": 3761,
+      "sha256": "25552c46db5e7c531fafc2adfc0779c5256d14bca97a97a73cb08e7021c1c8db"
     },
     {
       "path": "banpick_illustrations/swordman.png",
-      "size": 3541,
-      "sha256": "096c3a4aeee9f26bb9aeb7c428e9b05a47cdf6f25db073c20dadf8819c5e1286"
+      "size": 3537,
+      "sha256": "84f0ff20187c3a35a072bea25ff72ecf021d9dcf216393900d33b061eef19034"
     },
     {
       "path": "banpick_illustrations/taoist.png",
-      "size": 3564,
-      "sha256": "197f8102bbd22ea900b10f87a119d07776bfa7a0164caf31a69ba97b1b84eba0"
+      "size": 3569,
+      "sha256": "6cd8a9ee7fc61456e1126c9198a855c99aaaced43c1b5e8ef1ba9bf18ce1d88e"
     },
     {
       "path": "banpick_illustrations/vampire.png",
-      "size": 3474,
-      "sha256": "1e2a45f0596d326e5d71040efd957a431bb855c632e6141beaae4819c1ebe2a4"
+      "size": 3472,
+      "sha256": "e7d5ea298aa66981dd779f45083d2e356d7460409c10e13de7f4d1297227c3b5"
     },
     {
       "path": "banpick_illustrations/voodoo_shaman.png",
-      "size": 4027,
-      "sha256": "bb8609f74ccf54a3b0b055815773e7bbaabc8da8b43dd79248795da461ecb10b"
+      "size": 4017,
+      "sha256": "1122dd7cddff153804673e35abc0003d5f8c0746d5ed86ae21e45ebf6e1b38a0"
     },
     {
       "path": "banpick_illustrations/werewolf.png",
-      "size": 4059,
-      "sha256": "edd92751ff852fad0ec8e85391fe8779e481b2802c392968a9d94c3b7c7ff21b"
+      "size": 3900,
+      "sha256": "a2eb3fcce695180ab465009c8de8e58eb05ab402e2092827b52c615cac0547dd"
     },
     {
       "path": "banpick_illustrations/whip_master.png",
-      "size": 3394,
-      "sha256": "2d1a98951f6851a7b4c4023314603587030f2b4c7fe5a6191cea2bb605464dfb"
+      "size": 3392,
+      "sha256": "bad6d9606596b5b0e790e55cf8797d444f47d84c253e449b7bc7c23ba4b35055"
     },
     {
       "path": "banpick_illustrations/white_mage.png",
-      "size": 3680,
-      "sha256": "b5e0347b560b5766ebc2810dc9988212a6349d0bfd76648c695e6b3fe6fc9740"
+      "size": 3647,
+      "sha256": "6adf09ad18d5bf6190ddaa890e0a6341cdd8ab150212a4f8c02eab518868f952"
     },
     {
       "path": "banpick_illustrations/wind_mage.png",
-      "size": 2781,
-      "sha256": "6bdd9fa0abbc737b798679e62fb043da6d31749ee6c951a91110d73fa99db459"
+      "size": 2753,
+      "sha256": "71623abc8a88df2b5e2558e0840f30b87d9f1672144580125673de0555a02cd6"
     },
     {
       "path": "champion/archer.data_champion",
@@ -1325,8 +1325,8 @@
     },
     {
       "path": "mod.mod_info",
-      "size": 928,
-      "sha256": "f52477b99c249c04279d7f8396e95c589584cfb9dc28035d212b57775ded5bac"
+      "size": 910,
+      "sha256": "02a6412c3769d8ad37c969bc2eb7c69f117d63078333690a81a7fbaeb5c5fe05"
     },
     {
       "path": "mod.override_info",
@@ -2320,8 +2320,8 @@
     },
     {
       "path": "style/champion_view.champion_view",
-      "size": 1384,
-      "sha256": "556659e61adff64bedd88744ae0a1ca437d7f0e798eff17650340b7203a24722"
+      "size": 1452,
+      "sha256": "74892cfeb0cce11f252d42a63375229e6f915d54ab13ecd9a2aaaa91d24d242d"
     },
     {
       "path": "text/champion.i18n",
@@ -2346,42 +2346,42 @@
     {
       "path": "ui/banpick/champion_illustration/archer_blue.png",
       "size": 195642,
-      "sha256": "a5f4a595d962e275bfddeaf41d71cbf70bcff6c1d4fa23f36a93306d8775323e"
+      "sha256": "9d6e9e406a89b65c7eb177f48e116ffd05ff253611b3fbb4e613c08e5084cf6f"
     },
     {
       "path": "ui/banpick/champion_illustration/archer_red.png",
       "size": 195642,
-      "sha256": "412d30fd2d0734ba328d8bd84c8298697cfb73922cdf19e5b8734907153c1938"
+      "sha256": "e75de72d9ad5666ef7c5cb8761b7052122ff08960128d6b68f4c48d9b5998855"
     },
     {
       "path": "ui/banpick/champion_illustration/barrier_magician_blue.png",
       "size": 195642,
-      "sha256": "31d755d80452baecb39ea74b5c5a97f58be74b025a38cac47606a48fc91ae8e2"
+      "sha256": "5ad03e2720632025bae35097714d4323ba5367b4e3cee1eba44728ee12aead3f"
     },
     {
       "path": "ui/banpick/champion_illustration/barrier_magician_red.png",
       "size": 195642,
-      "sha256": "f4451fb2cf25dd33cc4e86d653d553342e8f6ab5e4975c8e1b8b6416b7e9f9b7"
+      "sha256": "8d41ecd993a8ce215bc847928d2340e391fa2372ae14d448dc5fef5ec844315e"
     },
     {
       "path": "ui/banpick/champion_illustration/berserker_blue.png",
       "size": 195642,
-      "sha256": "949ee9b2d50012899aeb0f00d223e6deb8b886fbba2146b8142adc61093a6039"
+      "sha256": "8befe617190a284766e9824f12090aa80b83d0d677ecd69ed03d07905e1ca8e2"
     },
     {
       "path": "ui/banpick/champion_illustration/berserker_red.png",
       "size": 195642,
-      "sha256": "a439bc398d1c4c1064d448c3012ea0b72ccc1e08f131c69d051b4f088e7076f0"
+      "sha256": "1582c9300619a1ffc75218e9a782822d6bcf4e8f3f038c4f7f66c2b16d5f10e1"
     },
     {
       "path": "ui/banpick/champion_illustration/boomerang_hunter_blue.png",
       "size": 195642,
-      "sha256": "a146d591c33fdc179a704e3cf431675ac818da5c8ec8ad1cae7cc4e4405de38f"
+      "sha256": "f1583ad640c9635d50f36c6df0b4a91818ae9d4212522383ebaa7bd2ce6caae4"
     },
     {
       "path": "ui/banpick/champion_illustration/boomerang_hunter_red.png",
       "size": 195642,
-      "sha256": "4375f313916714b523d8a385b4548a0f86bcab29b9fc54f28c0715ccf1891567"
+      "sha256": "b5be113c34a443884a1cd8e889c62d4c8dc056ca5a0e24786502129dcb76ae34"
     },
     {
       "path": "ui/banpick/champion_illustration/cavalry_knight_blue.png",
@@ -2426,12 +2426,12 @@
     {
       "path": "ui/banpick/champion_illustration/lol_shen_blue.png",
       "size": 195642,
-      "sha256": "4dc2a81471712993bc3a739a9e37749a6de37c9166a26cc7814aa9044e2acad6"
+      "sha256": "885c67e3f8d533c2ccc45918a81b1bbb99197fe9d472428a3101c4cf477c00d7"
     },
     {
       "path": "ui/banpick/champion_illustration/lol_shen_red.png",
       "size": 195642,
-      "sha256": "fc69b0afd2c82200f01cf1d260b75b178bda1dc1bc80c0d943c960856add67fb"
+      "sha256": "5740c9740e4061cb349e6193de407fa3e0cdde26e45af109fbcb6b6b8b2a29b9"
     },
     {
       "path": "ui/banpick/lol_bp_background.png",
@@ -2490,8 +2490,8 @@
     },
     {
       "path": "ui/bp_full_cards/catalog.txt",
-      "size": 666,
-      "sha256": "2faa1af8ee456546c01d13196e3e8d05e38d7b1ab4afce23a6b22bd243b480e2"
+      "size": 605,
+      "sha256": "352e34cfd18644b18a526f33f6b5d70551d3706d2c53e069019768330678b764"
     },
     {
       "path": "ui/bp_pick_cards/blue_pick_slot.ui",
@@ -2668,10 +2668,5 @@
       "size": 7999,
       "sha256": "763ba133ae4fc39a10b8035f8f3635db24679ee9f72d2406189a9b79990b843c"
     }
-  ],
-  "yone_run_patch": {
-    "source_manifest_sha256": "833d1b59085c8a488f7d38463ab1161f702ba4aee84602040a04f2b046cae8aa",
-    "scope": "eight run frames only; all other installed atlas pixels retained",
-    "live_verification": "not performed; user requested self-verification"
-  }
+  ]
 }
