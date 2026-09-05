@@ -39,3 +39,8 @@ full-suite collection. `validate_yone_v7.py` now loads the run verifier from
 its own file location and binds it to the requested mod root. A regression
 test removes both the tools path and previously imported module. The standalone
 portrait command passes all 13 tests; no asset pixels changed in this fix.
+
+Run 33971225833 also passed the standalone portrait step. Its full suite found
+one Windows locale dependency: the run-source protection test read UTF-8 Python
+source with the default system encoding. Source and JSON reads in that test
+now explicitly use UTF-8. No source-protection assertion or asset was changed.

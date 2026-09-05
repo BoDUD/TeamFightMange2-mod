@@ -12,7 +12,7 @@ edit=importlib.import_module('yone_run_anatomy')
 builder=importlib.import_module('build_yone')
 
 def test_packed_anatomy_is_exact_and_every_other_action_is_unchanged():
-    manifest=json.loads((MOD/'source/native/yone_v7/frames.json').read_text())
+    manifest=json.loads((MOD/'source/native/yone_v7/frames.json').read_text(encoding='utf-8'))
     sheet=Image.open(MOD/'aseprite_resources/champions/yone_v7#sheet.png').convert('RGBA')
     distinct=[]
     for row in manifest['frames']:
@@ -35,8 +35,8 @@ def test_packed_anatomy_is_exact_and_every_other_action_is_unchanged():
     assert len(distinct)==len(set(distinct))==8
 
 def test_build_does_not_use_rejected_scanline_patch_or_synthesize_new_legs():
-    source=(MOD/'tools/yone_run_anatomy.py').read_text()
-    build=(MOD/'tools/build_yone.py').read_text()
+    source=(MOD/'tools/yone_run_anatomy.py').read_text(encoding='utf-8')
+    build=(MOD/'tools/build_yone.py').read_text(encoding='utf-8')
     assert 'from yone_run_pixel_edit import' not in build
     for forbidden in ('.resize(','.transpose(','.putpixel(', 'NEAR =', 'FAR ='):
         assert forbidden not in source
