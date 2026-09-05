@@ -35,7 +35,7 @@ def native_geometry(rect, center, *, layout_factor=1.0, bottom=93.0):
 
 def actor_geometry(sheet, rect, center, *, fitted=False):
     geometry = native_geometry(rect, center, layout_factor=.75 if fitted else 1,
-                               bottom=76 if fitted else 93)
+                               bottom=88 if fitted else 93)
     frame = sheet.crop((rect["x"], rect["y"], rect["x"] + rect["w"], rect["y"] + rect["h"]))
     bbox = frame.getchannel("A").getbbox()
     assert bbox
@@ -77,6 +77,10 @@ def card_preview(sheet, geometry, label):
 def audit(output: Path | None = None):
     styles = json.loads((MOD / "style/champion_view.champion_view").read_text())["entries"]
     report = {"proof": "offline native UV/layout reproduction; live acceptance pending", "champions": {}}
+    reference_sheet = Image.open(ACTORS / "briar#sheet.png").convert("RGBA")
+    reference_rect = json.loads((ACTORS / "briar#anim.fanim").read_text())["anims"]["idle"]["frames"][0]["data"]
+    reference = actor_geometry(reference_sheet, reference_rect, styles["berserker"]["center"])
+    report["reference_native_head_y"] = reference["actor_bbox"][1]
     previews = []
     for champion, prefix in TARGETS.items():
         sheet = Image.open(ACTORS / f"{prefix}#sheet.png").convert("RGBA")
@@ -88,8 +92,12 @@ def audit(output: Path | None = None):
         assert before["source_pixels_clipped"] > 0, (champion, "must reproduce rejected 0.12.14")
         assert after["source_pixels_clipped"] == 0, (champion, after)
         assert 56 <= after["fullbody_height"] <= 60, (champion, after)
-        assert after["tier_clearance"] >= 4, (champion, after)
-        assert after["actor_bbox"][1] >= 6, (champion, after)
+        # Keep the same complete source and size, but match native head height.
+        # The native tier button may cover shoe pixels, as on stock champions;
+        # forcing ALL pixels above that button caused the rejected top pinning.
+        assert 18 <= after["actor_bbox"][1] <= 22, (champion, after)
+        assert abs(after["actor_bbox"][1] - report["reference_native_head_y"]) < 2, (champion, after)
+        assert after["actor_bbox"][3] <= 82, (champion, after)
         report["champions"][champion] = {"before": before, "after": after}
         if output:
             previews.extend((card_preview(sheet, before, f"{prefix} before"), card_preview(sheet, after, f"{prefix} after")))

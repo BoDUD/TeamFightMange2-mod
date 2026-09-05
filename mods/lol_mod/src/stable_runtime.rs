@@ -288,6 +288,8 @@ fn sync_bp_runtime_ui(client: &mut StableClient<'_>) {
 // 57 / 58.5 px full-body heights. The source cameras are independently
 // checked by qa_encyclopedia_geometry.py. Do not multiply the current rect:
 // this runs every frame, including after search/filter rebuilds.
+// 0.12.17: align the visible head with native Briar (~20.5px), rather than
+// pinning the whole body above the tier controls. Native control layering stays.
 fn fit_encyclopedia_native_layout(client: &mut StableClient<'_>) {
     if client.client_main_tab().as_deref() != Some("GameInfo") {
         return;
@@ -310,7 +312,7 @@ fn fit_encyclopedia_native_layout(client: &mut StableClient<'_>) {
             }
             let _ = client.ui_set_properties(
                 &icon,
-                &format!("width: {width}px; height: 69.75px; y: 76px;"),
+                &format!("width: {width}px; height: 69.75px; y: 88px;"),
             );
         }
         break;

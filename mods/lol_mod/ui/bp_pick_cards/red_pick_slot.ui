@@ -206,60 +206,6 @@ pick_slot:color_icon_button {
   }
 
   #done:empty {
-
-    #lol_bp_illustrations:empty {
-      width: 300px; height: 174px; ignore_event: true; visible: false;
-
-      #lol_shen:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/lol_shen_red";
-      }
-      #archer:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/archer_red";
-      }
-      #barrier_magician:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/barrier_magician_red";
-      }
-      #berserker:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/berserker_red";
-      }
-      #boomerang_hunter:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/boomerang_hunter_red";
-      }
-      #cavalry_knight:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/cavalry_knight_red";
-      }
-      #dancer:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/dancer_red";
-      }
-      #demon:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/demon_red";
-      }
-      #dual_blader:image {
-        x: 8px; y: 1px; width: 284px; height: 172px;
-        ignore_event: true; visible: false; sample_linear: true;
-        source: "asset/lol_mod/ui/banpick/champion_illustration/dual_blader_red";
-      }
-      #tint:color {
-        x: 145px; width: 147px; height: 174px;
-        ignore_event: true; color: #07080ba8;
-      }
-    }
     width: 100%;
     height: 174px;
 
@@ -406,6 +352,60 @@ pick_slot:color_icon_button {
         ignore_event: true;
       }
     }
+    #lol_bp_illustrations:empty {
+      width: 300px; height: 174px; ignore_event: true; visible: false;
+
+      #opaque_backing:color {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; color: #07080bff;
+      }
+      #lol_shen:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/lol_shen_red";
+      }
+      #archer:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/archer_red";
+      }
+      #barrier_magician:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/barrier_magician_red";
+      }
+      #berserker:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/berserker_red";
+      }
+      #boomerang_hunter:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/boomerang_hunter_red";
+      }
+      #cavalry_knight:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/cavalry_knight_red";
+      }
+      #dancer:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/dancer_red";
+      }
+      #demon:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/demon_red";
+      }
+      #dual_blader:image {
+        x: 8px; y: 1px; width: 284px; height: 172px;
+        ignore_event: true; visible: false; sample_linear: true;
+        source: "asset/lol_mod/ui/banpick/champion_illustration/dual_blader_red";
+      }
+    }
+
   }
 
   #player_tooltip:color {

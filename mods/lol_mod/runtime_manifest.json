@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.16 BP native pick-marker routing and fixed-source leaf cards; native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
+  "purpose": "0.12.17 illustration-only BP leaf cards; native encyclopedia resolver with lowered layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
   "file_count": 470,
-  "total_size": 90108060,
+  "total_size": 90108090,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -1016,12 +1016,12 @@
     {
       "path": "lol_mod.dll",
       "size": 220160,
-      "sha256": "cc541af6af0cddbd210e9609c11bffd0c803dde6252694e3176d3eb4df5445a2"
+      "sha256": "24b8795272777f1a10461f03df0f3de571aff402fe00098a15cce06c811c7b40"
     },
     {
       "path": "mod.mod_info",
-      "size": 1370,
-      "sha256": "7638fd47fbd4bcc8da667f5c411b086aff2848f03f687ebe57c28427d78df8b5"
+      "size": 1366,
+      "sha256": "62b8f0fb4c1103993b4d85f1c41e9c89800a6b5c7a20e2ccd65d9bc3fea47a85"
     },
     {
       "path": "mod.override_info",
@@ -2185,13 +2185,13 @@
     },
     {
       "path": "ui/bp_pick_cards/blue_pick_slot.ui",
-      "size": 13075,
-      "sha256": "6b7fc9335c246f36e75a83af4d0a855a02eba76c30452f0e3cc646d849e0726b"
+      "size": 13093,
+      "sha256": "dd8523f5605c82f5080284892a9ffa342354a8d61e155d169b71e3a95d120b5f"
     },
     {
       "path": "ui/bp_pick_cards/red_pick_slot.ui",
-      "size": 13179,
-      "sha256": "9cfeea61dd771b8c6cfdfdbf4eb96da8213a9f64ce4a025af0250ee618eb4408"
+      "size": 13195,
+      "sha256": "f4d6d265656140141ccadf0c4d1481d484a09fce2e77b4c1a0ce9a9bb49d30cd"
     },
     {
       "path": "ui/icons/morgard.svg",

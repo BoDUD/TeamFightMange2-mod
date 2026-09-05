@@ -8275,7 +8275,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.16", "lol_mod version must be 0.12.16")
+    check(mod_info.get("version") == "0.12.17", "lol_mod version must be 0.12.17")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -9783,7 +9783,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.16", "lol_mod version must be 0.12.16")
+    check(mod_info.get("version") == "0.12.17", "lol_mod version must be 0.12.17")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

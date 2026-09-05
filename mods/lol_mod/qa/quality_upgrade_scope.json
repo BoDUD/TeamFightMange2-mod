@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.12.16",
+  "release": "0.12.17",
   "runtime_compatibility": {
     "active_base_version": "0.5.8",
     "native_runtime": "stable_abi_level_8",
@@ -28,7 +28,7 @@
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
-      "implementation": "stable-ABI per-frame scan of native grid pick markers; select one fixed-source image in each done slot only after its 284x172 image rect exists, then hide that slot's actor",
+      "implementation": "stable-ABI native pick-marker routing; fixed-source fully opaque illustration is the final done-card child, covering native name/position/mastery/favourite portraits/divider; no additional dark tint. Native paths remain for non-mod and swap fallback.",
       "source_key": "native champion grid child ID plus locally visible blue/red one-based pick-number marker",
       "texture_uv": "native 284x172 runtime PNG",
       "card_size": "284x172",
@@ -40,7 +40,7 @@
       "static_splash_nodes": true,
       "diagnosis_2026_09_05": "0.12.15 bug: done.name contains athlete names, not champions, so all nine illustration routes fail. 0.12.16 removes this lookup and late-spawned zero-rect/source binding.",
       "swap_phase": "stock actor fallback; stable API does not expose the athlete/champion assignment permutation",
-      "live_status": "offline resolver and packaging tests only; target-visible draft and swap checks remain pending"
+      "live_status": "User screenshot confirms 0.12.16 draft illustrations restored. 0.12.17 removes visible card information overlays as requested; new appearance and swap checks pending."
     },
     "banpick_skin": {
       "imagegen_background": "ui/banpick/lol_bp_background.png",
@@ -315,7 +315,7 @@
       "native_dual_blader_animation_contract_preserved": true,
       "native_contract_preservation_boundary": "the official 13-tag/54-frame contract is preserved as an immutable atlas and animation prefix; five semantic tags and 13 physical frames are append-only V7 extensions",
       "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json",
-      "live_status": "0.12.16 BP candidate implements native pick-marker routing, fixed-source cards, layout-ready and native swap fallback. Encyclopedia 0.12.15 layout-only fit preserved; live result pending. Battle frames and accepted skills unchanged. Three Work ImageGen outputs retrieved but rejected for incomplete alternating gait; no replacement art installed."
+      "live_status": "User confirms 0.12.16 BP illustrations and encyclopedia legs now visible. 0.12.17 lowers only Yone/Xayah encyclopedia destination Y by 12px (same UV and size), and makes mod draft cards illustration-only. New placement/appearance pending live confirmation. No battle or skill changes; two further Work gait attempts still fail clear opposite support and are not installed."
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -438,7 +438,7 @@
         "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.16 targets base 0.5.8 / stable ABI 8. Encyclopedia native resolver and prior layout-only fitting remain candidates, not live-accepted fixes. Yone battle art and skills are unchanged in this patch; previous natural-gait acceptance is revoked. Work generated three candidate sheets but none shows a convincing alternating cycle, so all remain quarantined outside runtime assets. BP draft illustration routing has offline coverage; swap deliberately retains stock actors. Manual target-visible 0.5.8 verification remains required."
+      "live_status": "0.12.17 / base 0.5.8 / stable ABI 8: BP restoration and full-body source visibility confirmed by user screenshots; alignment and illustration-only appearance adjusted in response. Natural gait remains unresolved, with five Work attempts total and no new actor art installed. Swap still uses native actors. Current patch needs separate visual acceptance."
     }
   },
   "packaged_variants": {

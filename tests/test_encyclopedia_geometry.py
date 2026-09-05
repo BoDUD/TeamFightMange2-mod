@@ -9,14 +9,15 @@ qa = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(qa)
 
 
-def test_actual_uv_direction_and_full_body_above_controls():
+def test_actual_uv_direction_and_native_head_alignment():
     report = qa.audit()
     for champion, row in report["champions"].items():
         assert row["before"]["source_pixels_clipped"] > 0, champion
         assert row["after"]["source_pixels_clipped"] == 0, champion
-        assert row["after"]["tier_clearance"] >= 4, champion
         assert 56 <= row["after"]["fullbody_height"] <= 60, champion
-        assert row["after"]["actor_bbox"][1] >= 6, champion
+        assert 18 <= row["after"]["actor_bbox"][1] <= 22, champion
+        assert abs(row["after"]["actor_bbox"][1] - report["reference_native_head_y"]) < 2, champion
+        assert row["after"]["actor_bbox"][3] <= 82, champion
 
 
 def test_layout_fit_preserves_native_texture_and_never_shrinks_repeatedly():
@@ -25,7 +26,7 @@ def test_layout_fit_preserves_native_texture_and_never_shrinks_repeatedly():
     assert 'Some("GameInfo")' in body
     assert '("dual_blader", 63.75_f32)' in body
     assert '("dancer", 40.5_f32)' in body
-    assert 'height: 69.75px; y: 76px;' in body
+    assert 'height: 69.75px; y: 88px;' in body
     assert 'Some("image")' in body
     for forbidden in ("ui_set_champion_icon", "ui_set_visible", "ui_spawn", "source:", "draw_", "ui_node_rect"):
         assert forbidden not in body

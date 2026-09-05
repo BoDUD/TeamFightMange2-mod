@@ -22,22 +22,23 @@ OUTPUT = MOD / "ui" / "bp_pick_cards"
 
 def illustration_block(side: str) -> str:
     assert side in ("blue", "red")
-    # First child of #done: native position/name/proficiency UI draws AFTER it.
-    # No negative z (behind the card background), and no high-z global overlay.
+    # LAST child of #done: the opaque illustration covers the native name,
+    # position, mastery badge, favourite heroes and centre divider. Their
+    # native paths/visibility remain intact for non-mod cards and swap fallback.
+    # No negative z, global overlay, or left-side darkening tint.
     rows = ["\n    #lol_bp_illustrations:empty {",
-            "      width: 300px; height: 174px; ignore_event: true; visible: false;", ""]
+            "      width: 300px; height: 174px; ignore_event: true; visible: false;", "",
+            "      #opaque_backing:color {",
+            "        x: 8px; y: 1px; width: 284px; height: 172px;",
+            "        ignore_event: true; color: #07080bff;",
+            "      }"]
     for hero in HEROES:
         rows += [f"      #{hero}:image {{",
                  "        x: 8px; y: 1px; width: 284px; height: 172px;",
                  "        ignore_event: true; visible: false; sample_linear: true;",
                  f'        source: "asset/lol_mod/ui/banpick/champion_illustration/{hero}_{side}";',
                  "      }"]
-    x = 145 if side == "red" else 0
-    width = 147 if side == "red" else 158
-    rows += ["      #tint:color {",
-             f"        x: {x}px; width: {width}px; height: 174px;",
-             "        ignore_event: true; color: #07080ba8;",
-             "      }", "    }\n"]
+    rows += ["    }\n"]
     return "\n".join(rows)
 
 
@@ -52,9 +53,10 @@ def base_template(side: str) -> str:
 
 def build_template(side: str) -> str:
     base = base_template(side)
-    marker = "  #done:empty {\n"
+    # Verified boundary immediately after the done card's final native child.
+    marker = "\n  }\n\n  #player_tooltip:color {"
     assert base.count(marker) == 1
-    return base.replace(marker, marker + illustration_block(side), 1)
+    return base.replace(marker, illustration_block(side) + marker, 1)
 
 
 def build() -> list[Path]:

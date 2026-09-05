@@ -480,7 +480,7 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.16",
+        b"0.12.17",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
