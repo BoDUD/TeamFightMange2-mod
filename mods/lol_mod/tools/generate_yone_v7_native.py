@@ -172,11 +172,12 @@ RUN_STRIDE_PHASES: tuple[float, ...] = (
     0.0,
     0.65,
 )
-# The accepted source contains four grounded authored lower-body phases in
+# Historical compatibility route, NOT visually accepted locomotion. The source
+# contains four lower-body patches in
 # motion cells 9..12 (raw run frames 4..7). Use each complete patch once on the first
 # half-cycle and its exact whole-patch horizontal mirror on the second.
-# This alternates the visible/support leg without inventing stick legs or
-# deforming the model.  Pairing only equal native frame boxes keeps the paste
+# Mirroring alternates screen-side contact pixels, NOT anatomical leg identity.
+# The user's live feedback rejects the resulting gait. Equal native boxes keep the paste
 # integer-aligned: 0<->4, 1<->5, 2<->6, 3<->7.
 RUN_LOWER_BODY_DONORS: tuple[int, ...] = (4, 5, 6, 7, 4, 5, 6, 7)
 RUN_LOWER_BODY_MIRRORED: tuple[bool, ...] = (
@@ -1516,7 +1517,13 @@ def _run_ground_y(image: Image.Image, index: int) -> int:
 
 
 def run_foot_geometry(image: Image.Image, index: int) -> dict[str, Any]:
-    """Measure the final authored lower body without relying on paint colors."""
+    """Measure screen-space contact geometry, not anatomical leg identity.
+
+    The left/right split is by x relative to the pelvis. A leg crossing the
+    pelvis changes screen side without changing anatomical identity. Therefore
+    the legacy ``support_leg`` label cannot prove alternating left/right legs
+    or a coherent hip/knee/ankle chain. Keep it only for existing geometry QA.
+    """
 
     ground_y = _run_ground_y(image, index)
     pelvis_x = round(core_center_x(image))
@@ -1575,6 +1582,8 @@ def run_foot_geometry(image: Image.Image, index: int) -> dict[str, Any]:
             "foot_centers_x": [round(value, 3) for value in centres],
             "foot_separation_px": round(separation, 3),
             "support_leg": support_leg,
+            "support_screen_side": support_leg,
+            "anatomical_leg_identity_verified": False,
             "swing_clearance_px": abs(
                 contact_y["right"] - contact_y["left"]
             ),

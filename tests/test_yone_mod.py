@@ -96,6 +96,18 @@ def _load_yone_v7_generator():
         sys.path.pop(0)
 
 
+def test_run_screen_contact_does_not_claim_anatomical_leg_alternation():
+    generator = _load_yone_v7_generator()
+    frames = MOD / "source/native/yone_v7/frames"
+    for index in range(8):
+        with Image.open(frames / f"run_{index:02d}.png") as frame:
+            geometry = generator.run_foot_geometry(frame.convert("RGBA"), index)
+        assert geometry["support_screen_side"] in ("left", "right")
+        assert geometry["support_leg"] == geometry["support_screen_side"]
+        # Splitting pixels by x cannot establish which hip owns a foot.
+        assert geometry["anatomical_leg_identity_verified"] is False
+
+
 def _component_sizes_8(points: set[tuple[int, int]]) -> list[int]:
     remaining = set(points)
     sizes: list[int] = []
