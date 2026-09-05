@@ -53,6 +53,14 @@ def _function_body(source: str, name: str) -> str:
     raise AssertionError(f"unterminated Rust function: {name}")
 
 
+def test_validator_run_source_does_not_depend_on_test_import_order(monkeypatch):
+    tools_dir = str((MOD / "tools").resolve())
+    monkeypatch.setattr(sys, "path", [p for p in sys.path if str(Path(p).resolve()) != tools_dir])
+    monkeypatch.delitem(sys.modules, "yone_run_anatomy", raising=False)
+    validator = _load_validator()
+    assert validator.validate_v7(verify_runtime_atlas=True)["frame_count"] == 67
+
+
 def _f32_constant(source: str, name: str) -> float:
     match = re.search(
         rf"const {re.escape(name)}: f32 = (-?[0-9]+(?:\.[0-9]+)?);", source

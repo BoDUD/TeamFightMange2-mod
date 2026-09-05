@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import math
 import sys
@@ -2146,6 +2147,16 @@ def validate_v7(
             f"body frames, got {actual_count}"
         )
 
+    # This validator is also loaded directly by file path. Do not depend on
+    # unrelated tests having inserted tools/ into the process import path.
+    editor_spec = importlib.util.spec_from_file_location(
+        "_yone_run_validation_source", Path(__file__).with_name("yone_run_anatomy.py")
+    )
+    if editor_spec is None or editor_spec.loader is None:
+        _fail("Cannot load the authored Yone run validator")
+    run_editor = importlib.util.module_from_spec(editor_spec)
+    editor_spec.loader.exec_module(run_editor)
+    run_editor.ROOT = mod_root / "source/native/yone_run_handdrawn"
     seen_keys: set[tuple[str, int]] = set()
     seen_files: set[str] = set()
     reports: dict[str, Any] = {}
@@ -2245,8 +2256,7 @@ def validate_v7(
 
         packed_source = source
         if action == "run":
-            from yone_run_anatomy import load_frame
-            packed_source, _ = load_frame(source, index)
+            packed_source, _ = run_editor.load_frame(source, index)
         if atlas is not None:
             atlas_frame = atlas.crop(_bbox_to_pillow(atlas_rect))
             if atlas_frame.tobytes() != packed_source.tobytes():

@@ -32,3 +32,10 @@ redrawn in this follow-up. Generated manifests/reports were synchronized.
 
 No installed mod assets, DLL or saves were overwritten; no game was launched.
 This evidence is build/asset correctness, not user-visible live acceptance.
+
+Run 33970946053 then passed build, runtime closure and static validation, but
+the standalone portrait step exposed a sibling-import dependency masked by
+full-suite collection. `validate_yone_v7.py` now loads the run verifier from
+its own file location and binds it to the requested mod root. A regression
+test removes both the tools path and previously imported module. The standalone
+portrait command passes all 13 tests; no asset pixels changed in this fix.
