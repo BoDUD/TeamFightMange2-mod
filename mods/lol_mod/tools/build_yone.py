@@ -1660,6 +1660,17 @@ def _load_native_v7_body_frames() -> tuple[
         ),
         "body_processing": "none; exact final 1x RGBA byte copy",
     }
+    # The legacy source is retained for provenance only. Its half-cycle mirror
+    # is superseded for run by the user's explicitly authorized pixel repaint.
+    # This is an isolated lower-body edit, never a global body/UI scale pass.
+    from yone_run_pixel_edit import apply_to_frames
+    run_edit = apply_to_frames(frames, audits, set().union(*weapon_role_colors.values()))
+    manifest_audit['run_pixel_edit'] = {
+        'route': 'user-authorized anatomical near/far leg pixel edit',
+        'frames': run_edit,
+        'live_battle_verified': False,
+    }
+    manifest_audit['body_processing'] = 'run: explicit leg pixel edit; all other actions: exact source RGBA byte copy'
     return frames, manifest_audit, audits
 
 
@@ -2837,6 +2848,7 @@ def build_qa(
         identical = frame.tobytes() == source_frame.tobytes()
         native_body_identity[frame_name] = {
             "source_to_atlas_byte_identical": identical,
+            "identity_reference": "post-authorized-leg-edit" if tag == "run" else "original-native-source",
             "sha256": hashlib.sha256(frame.tobytes()).hexdigest(),
         }
         native_body_pixel_quality[frame_name] = native_pixel_quality(frame)
@@ -3078,7 +3090,8 @@ def build_qa(
         "- [x] `source/imagegen/yone_v4_action_contact.png`, `source/imagegen/yone_v4_idle_candidate_43x55.png`, and the old `source/native/yone_v4` route are retired body inputs and are never loaded by this builder.\n"
         "- [x] V5 body inputs `yone_v5_idle_source.png`, `yone_v5_idle_golden_43x55.png`, `yone_v5_motion_contact.png`, `yone_v5_attack_q_w_contact.png`, `yone_v5_q5_contact.png`, `yone_v5_ult_contact.png`, and the complete `source/native/yone_v5` route are retired and never loaded.\n"
         "- [x] The four hash-locked ImageGen contacts use isolated `5x4`, `6x4`, `3x2`, and `5x3` grids with explicit gutters; cell extraction cannot borrow a sword from an adjacent pose.\n"
-        "- [x] Every V7 pose is finalized at 1x size, palette-validated, and copied byte-for-byte; only source-to-native generation performs the controlled source resize and crop.\n"
+        "- [x] Original V7 frames remain immutable. Run alone receives the user-authorized final-resolution leg pixel edit; all other actions retain exact source bytes.\n"
+        "- [ ] Repainted run still needs target-visible live battle acceptance; source mirror QA is provenance only, not proof of the installed gait.\n"
         "- [x] The V7 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without post-scale face repaint.\n"
         "- [x] The body preview proves the exact idle[0] 2.2x NEAREST battle render and divider clearance; dedicated UI portraits own the right-side icon exclusion.\n"
         "- [x] Idle/run keep compact silver and red swords simultaneously visible; basic attacks switch between separate six-frame steel and Azakana tags.\n"

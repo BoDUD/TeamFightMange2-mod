@@ -2243,9 +2243,22 @@ def validate_v7(
         if action != "dead" and bottom_margin < 2:
             _fail(f"{label} has only {bottom_margin}px bottom safety margin")
 
+        packed_source = source
+        if action == "run":
+            from yone_run_pixel_edit import repaint
+            anchors = (19,18,18,19,21,20,19,19)
+            weapon_colors = frozenset(
+                color for ramp in EXPECTED_WEAPON_PALETTE_ROLES.values()
+                for roles in ramp.values() for role in roles
+                for color in palette.exact_role(role)
+            )
+            packed_source, _, _ = repaint(
+                source, index, anchors[index], source.height-bottom_margin-1,
+                weapon_colors,
+            )
         if atlas is not None:
             atlas_frame = atlas.crop(_bbox_to_pillow(atlas_rect))
-            if atlas_frame.tobytes() != source.tobytes():
+            if atlas_frame.tobytes() != packed_source.tobytes():
                 _fail(
                     f"{label} source->atlas bytes differ (resample/quantize/clip is forbidden)"
                 )
@@ -2255,6 +2268,9 @@ def validate_v7(
             "file": file_raw,
             "rect": list(atlas_rect),
             "source_to_atlas_byte_identical": atlas is not None,
+            "identity_reference": "post-authorized-leg-edit" if action == "run" else "original-native-source",
+            "packed_rgba_sha256": hashlib.sha256(packed_source.tobytes()).hexdigest(),
+            "packed_opaque_palette_colors": len({c for c in _pixels(packed_source) if c[3]}),
             "hard_alpha": True,
             "zero_resampling": True,
             "zero_quantize": True,

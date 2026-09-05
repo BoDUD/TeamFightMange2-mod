@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.17 illustration-only BP leaf cards; native encyclopedia resolver with lowered layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
+  "purpose": "0.12.18 user-authorized Yone leg-only pixel edit; original upper body, weapons, action timing and native encyclopedia resolver positioning preserved; live gait acceptance pending",
   "file_count": 470,
   "total_size": 90108090,
   "soft_budget": 100663296,
@@ -96,7 +96,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -106,7 +106,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1016,12 +1016,12 @@
     {
       "path": "lol_mod.dll",
       "size": 220160,
-      "sha256": "24b8795272777f1a10461f03df0f3de571aff402fe00098a15cce06c811c7b40"
+      "sha256": "d37b354cbc78c3f4f702cf29be4655c5de29e966a76e23d3065c1b97caf5af1b"
     },
     {
       "path": "mod.mod_info",
       "size": 1366,
-      "sha256": "62b8f0fb4c1103993b4d85f1c41e9c89800a6b5c7a20e2ccd65d9bc3fea47a85"
+      "sha256": "db1679533fef4257c4adf40613d386c019f0790b861ed36d36eba162d5b8beea"
     },
     {
       "path": "mod.override_info",

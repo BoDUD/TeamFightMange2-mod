@@ -8275,7 +8275,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.17", "lol_mod version must be 0.12.17")
+    check(mod_info.get("version") == "0.12.18", "lol_mod version must be 0.12.18")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -8458,7 +8458,9 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             and source_row.get("source") == expected_source
             and source_row.get("native_rect") == native_rect
             and source_row.get("source_size") == native_rect[2:]
-            and source_row.get("pack_transform") == "none"
+            and source_row.get("pack_transform") == (
+                "user-authorized final-scale leg pixel edit" if frame_name.startswith("run[") else "none"
+            )
             and source_row.get("hard_alpha") is True
             and int(source_row.get("opaque_palette_size", 99)) <= 48
             and source_row.get("bottom_margin") == report_row.get("bottom_margin")
@@ -8466,7 +8468,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
             in (None, report_row.get("face_visibility"))
             and pixel_row.get("hard_alpha") is True
             and pixel_row.get("opaque_palette_size")
-            == report_row.get("opaque_palette_colors"),
+            == report_row.get("packed_opaque_palette_colors", report_row.get("opaque_palette_colors")),
             f"Yone {frame_name} generated V7 source audit is stale: {source_row}",
         )
         if isinstance(expected_source, str):
@@ -8476,7 +8478,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
                 with Image.open(source_path).convert("RGBA") as source_image:
                     check(
                         identity_row.get("sha256")
-                        == hashlib.sha256(source_image.tobytes()).hexdigest(),
+                        == (report_row.get("packed_rgba_sha256") if frame_name.startswith("run[") else hashlib.sha256(source_image.tobytes()).hexdigest()),
                         f"Yone {frame_name} source identity hash is stale",
                     )
 
@@ -9783,7 +9785,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.17", "lol_mod version must be 0.12.17")
+    check(mod_info.get("version") == "0.12.18", "lol_mod version must be 0.12.18")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

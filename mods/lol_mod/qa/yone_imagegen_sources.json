@@ -120,7 +120,253 @@
     "body_preview_kind": "complete opaque 141x138 runtime-card proof",
     "body_preview_sha256": "cad9fbb2039a53047c5972c03abea8ca7ec114a618e8fb9fd6ae2a6c11a972a4",
     "contact_preview": "source/native/yone_v7/preview/yone_v7_native_contact.png",
-    "body_processing": "none; exact final 1x RGBA byte copy"
+    "body_processing": "run: explicit leg pixel edit; all other actions: exact source RGBA byte copy",
+    "run_pixel_edit": {
+      "route": "user-authorized anatomical near/far leg pixel edit",
+      "frames": [
+        {
+          "index": 0,
+          "pelvis_x": 19,
+          "floor_y": 35,
+          "roi": [
+            10,
+            26,
+            31,
+            36
+          ],
+          "feet": {
+            "far": {
+              "x": 16.0,
+              "y": 33,
+              "clearance": 2,
+              "pixel_count": 34
+            },
+            "near": {
+              "x": 24.0,
+              "y": 35,
+              "clearance": 0,
+              "pixel_count": 47
+            }
+          },
+          "support_anatomical_leg": "near",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "63b4f679b99c70867260a22efe283bcc53980ce8316677160b65d1aee67f24e6",
+          "edited_rgba_sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01"
+        },
+        {
+          "index": 1,
+          "pelvis_x": 18,
+          "floor_y": 36,
+          "roi": [
+            9,
+            27,
+            30,
+            37
+          ],
+          "feet": {
+            "far": {
+              "x": 16.0,
+              "y": 33,
+              "clearance": 3,
+              "pixel_count": 30
+            },
+            "near": {
+              "x": 21.0,
+              "y": 36,
+              "clearance": 0,
+              "pixel_count": 47
+            }
+          },
+          "support_anatomical_leg": "near",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "5c18bccbaf0ba57d197f3a722707c4f020ca6e73c36e4479dadaea39de2216a9",
+          "edited_rgba_sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd"
+        },
+        {
+          "index": 2,
+          "pelvis_x": 18,
+          "floor_y": 37,
+          "roi": [
+            9,
+            28,
+            30,
+            38
+          ],
+          "feet": {
+            "far": {
+              "x": 20.0,
+              "y": 35,
+              "clearance": 2,
+              "pixel_count": 34
+            },
+            "near": {
+              "x": 19.0,
+              "y": 37,
+              "clearance": 0,
+              "pixel_count": 47
+            }
+          },
+          "support_anatomical_leg": "near",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "ca197d0ba14697964a13b3dd85303519994026f8d69a145c822321bcb15c60ae",
+          "edited_rgba_sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e"
+        },
+        {
+          "index": 3,
+          "pelvis_x": 19,
+          "floor_y": 36,
+          "roi": [
+            10,
+            27,
+            31,
+            37
+          ],
+          "feet": {
+            "far": {
+              "x": 25.0,
+              "y": 35,
+              "clearance": 1,
+              "pixel_count": 38
+            },
+            "near": {
+              "x": 18.0,
+              "y": 36,
+              "clearance": 0,
+              "pixel_count": 47
+            }
+          },
+          "support_anatomical_leg": "near",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "c63f10d66435ea14511db78897b5a17f0f16aa576c0ed7baea985f70e22a4fdc",
+          "edited_rgba_sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb"
+        },
+        {
+          "index": 4,
+          "pelvis_x": 21,
+          "floor_y": 35,
+          "roi": [
+            12,
+            26,
+            33,
+            36
+          ],
+          "feet": {
+            "far": {
+              "x": 27.0,
+              "y": 35,
+              "clearance": 0,
+              "pixel_count": 42
+            },
+            "near": {
+              "x": 17.5,
+              "y": 33,
+              "clearance": 2,
+              "pixel_count": 38
+            }
+          },
+          "support_anatomical_leg": "far",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "e9a3bb775f034cb80ab6e34c318fec4b7bfee9a6934dd850469b9944c2a05ac7",
+          "edited_rgba_sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864"
+        },
+        {
+          "index": 5,
+          "pelvis_x": 20,
+          "floor_y": 36,
+          "roi": [
+            11,
+            27,
+            32,
+            37
+          ],
+          "feet": {
+            "far": {
+              "x": 24.0,
+              "y": 36,
+              "clearance": 0,
+              "pixel_count": 42
+            },
+            "near": {
+              "x": 17.5,
+              "y": 33,
+              "clearance": 3,
+              "pixel_count": 34
+            }
+          },
+          "support_anatomical_leg": "far",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "34c00653623a00aedbec54de71fc516c307a7d17feea8496537d2e93c37e4b89",
+          "edited_rgba_sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f"
+        },
+        {
+          "index": 6,
+          "pelvis_x": 19,
+          "floor_y": 37,
+          "roi": [
+            10,
+            28,
+            31,
+            38
+          ],
+          "feet": {
+            "far": {
+              "x": 21.0,
+              "y": 37,
+              "clearance": 0,
+              "pixel_count": 42
+            },
+            "near": {
+              "x": 21.0,
+              "y": 35,
+              "clearance": 2,
+              "pixel_count": 38
+            }
+          },
+          "support_anatomical_leg": "far",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "91a58b0211d0a5cd9bc2d544e4cabe5a2668bcbd91fd56d896d712e79f6e6a66",
+          "edited_rgba_sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0"
+        },
+        {
+          "index": 7,
+          "pelvis_x": 19,
+          "floor_y": 36,
+          "roi": [
+            10,
+            27,
+            31,
+            37
+          ],
+          "feet": {
+            "far": {
+              "x": 19.0,
+              "y": 36,
+              "clearance": 0,
+              "pixel_count": 42
+            },
+            "near": {
+              "x": 24.0,
+              "y": 35,
+              "clearance": 1,
+              "pixel_count": 43
+            }
+          },
+          "support_anatomical_leg": "far",
+          "outside_roi_unchanged": true,
+          "weapons_unchanged": true,
+          "base_rgba_sha256": "0db2cb43be4cd9088d40377610dcf55b77922e40e8f6520bd632ce005eaa9f01",
+          "edited_rgba_sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe"
+        }
+      ],
+      "live_battle_verified": false
+    }
   },
   "body_frames": {
     "skill2[0]": {
@@ -2361,16 +2607,16 @@
       ],
       "foot_zones": [
         [
-          13,
-          31,
-          7,
-          3
+          14,
+          32,
+          5,
+          2
         ],
         [
-          20,
-          33,
-          4,
-          3
+          22,
+          34,
+          5,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2427,7 +2673,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
       "sha256": "e887b37f01e049b0bd9feac20aaa2d9eecdb38f3af60367082602a393f7a85c1",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01"
     },
     "run[1]": {
       "source": "source/native/yone_v7/frames/run_01.png",
@@ -2472,16 +2719,16 @@
       ],
       "foot_zones": [
         [
-          11,
-          33,
-          8,
-          3
+          14,
+          32,
+          5,
+          2
         ],
         [
           19,
-          34,
-          3,
-          3
+          35,
+          5,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2538,7 +2785,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
       "sha256": "e8b13ffa3a44da50666a19b72315da0139621a8a6fa084bd15fc4a50db957ebf",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd"
     },
     "run[2]": {
       "source": "source/native/yone_v7/frames/run_02.png",
@@ -2583,16 +2831,16 @@
       ],
       "foot_zones": [
         [
-          7,
-          30,
-          12,
-          3
+          18,
+          34,
+          5,
+          2
         ],
         [
-          23,
-          35,
+          17,
+          36,
           5,
-          3
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2649,7 +2897,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 45,
       "sha256": "53bb23e40b977367abd9d34e6f83b228bded825d3f69175f70539d9462dcacc9",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e"
     },
     "run[3]": {
       "source": "source/native/yone_v7/frames/run_03.png",
@@ -2694,16 +2943,16 @@
       ],
       "foot_zones": [
         [
-          8,
-          30,
-          12,
-          3
+          23,
+          34,
+          5,
+          2
         ],
         [
-          21,
-          34,
-          7,
-          3
+          16,
+          35,
+          5,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2760,7 +3009,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
       "sha256": "38cc554fc127a9143b02e41116f3caea50e136ff7ee43c7c025fe923b23f41c6",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb"
     },
     "run[4]": {
       "source": "source/native/yone_v7/frames/run_04.png",
@@ -2805,16 +3055,16 @@
       ],
       "foot_zones": [
         [
-          17,
-          33,
+          25,
+          34,
           5,
-          3
+          2
         ],
         [
-          22,
-          29,
-          10,
-          3
+          15,
+          32,
+          6,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2871,7 +3121,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
       "sha256": "f6550f680bca8d95f85b04b9bf36292307c3b0a522303672e05c642a8cf32c3f",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864"
     },
     "run[5]": {
       "source": "source/native/yone_v7/frames/run_05.png",
@@ -2916,16 +3167,16 @@
       ],
       "foot_zones": [
         [
-          16,
-          34,
-          4,
-          3
+          22,
+          35,
+          5,
+          2
         ],
         [
-          21,
-          31,
-          10,
-          3
+          15,
+          32,
+          6,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -2982,7 +3233,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
       "sha256": "5ca9310d85e31d57f7a14b1d8b7c9ab13a7b17c3d01373b698a783c94ed87276",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f"
     },
     "run[6]": {
       "source": "source/native/yone_v7/frames/run_06.png",
@@ -3023,16 +3275,16 @@
       ],
       "foot_zones": [
         [
-          10,
-          35,
+          19,
+          36,
           5,
-          3
+          2
         ],
         [
-          20,
-          30,
-          11,
-          3
+          19,
+          34,
+          5,
+          2
         ]
       ],
       "face_visibility": "profile",
@@ -3089,7 +3341,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 46,
       "sha256": "08fcd392e582bd2eb6ad260f240b02e124e9be16b0b3c4c1bc5125c27a7b6881",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0"
     },
     "run[7]": {
       "source": "source/native/yone_v7/frames/run_07.png",
@@ -3134,16 +3387,16 @@
       ],
       "foot_zones": [
         [
-          11,
-          34,
-          7,
-          3
+          17,
+          35,
+          5,
+          2
         ],
         [
-          21,
-          30,
-          10,
-          3
+          22,
+          34,
+          5,
+          2
         ]
       ],
       "face_visibility": "front",
@@ -3200,7 +3453,8 @@
       "transparent_frame_edges": true,
       "opaque_palette_size": 47,
       "sha256": "a039d1eb0108f9777631267e96e1837808ffc6e7558e2312f510be6bea7e9224",
-      "pack_transform": "none"
+      "pack_transform": "user-authorized final-scale leg pixel edit",
+      "packed_rgba_sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe"
     },
     "skill2_attack[0]": {
       "source": "source/native/yone_v7/frames/skill2_attack_00.png",
@@ -7335,7 +7589,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c",
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0",
       "alpha_bbox": [
         49,
         1,
@@ -7359,7 +7613,7 @@
         88
       ],
       "size_bytes": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c",
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0",
       "alpha_bbox": [
         49,
         1,

@@ -1152,8 +1152,8 @@
           "bottom_clearance": 13,
           "hard_alpha": true,
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.482,
-          "color_edge24_ratio": 0.6589
+          "bbox_fill_ratio": 0.4534,
+          "color_edge24_ratio": 0.6582
         },
         {
           "frame": 1,
@@ -1176,8 +1176,8 @@
           "bottom_clearance": 14,
           "hard_alpha": true,
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.5104,
-          "color_edge24_ratio": 0.6408
+          "bbox_fill_ratio": 0.4687,
+          "color_edge24_ratio": 0.6633
         },
         {
           "frame": 2,
@@ -1200,8 +1200,8 @@
           "bottom_clearance": 15,
           "hard_alpha": true,
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.4981,
-          "color_edge24_ratio": 0.6721
+          "bbox_fill_ratio": 0.471,
+          "color_edge24_ratio": 0.655
         },
         {
           "frame": 3,
@@ -1224,8 +1224,8 @@
           "bottom_clearance": 14,
           "hard_alpha": true,
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4981,
-          "color_edge24_ratio": 0.6293
+          "bbox_fill_ratio": 0.4811,
+          "color_edge24_ratio": 0.6244
         },
         {
           "frame": 4,
@@ -1248,8 +1248,8 @@
           "bottom_clearance": 13,
           "hard_alpha": true,
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.4755,
-          "color_edge24_ratio": 0.6368
+          "bbox_fill_ratio": 0.4491,
+          "color_edge24_ratio": 0.624
         },
         {
           "frame": 5,
@@ -1272,8 +1272,8 @@
           "bottom_clearance": 14,
           "hard_alpha": true,
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.5166,
-          "color_edge24_ratio": 0.611
+          "bbox_fill_ratio": 0.478,
+          "color_edge24_ratio": 0.6083
         },
         {
           "frame": 6,
@@ -1296,8 +1296,8 @@
           "bottom_clearance": 15,
           "hard_alpha": true,
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4942,
-          "color_edge24_ratio": 0.637
+          "bbox_fill_ratio": 0.4471,
+          "color_edge24_ratio": 0.6334
         },
         {
           "frame": 7,
@@ -1320,8 +1320,8 @@
           "bottom_clearance": 14,
           "hard_alpha": true,
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.495,
-          "color_edge24_ratio": 0.6355
+          "bbox_fill_ratio": 0.4618,
+          "color_edge24_ratio": 0.6377
         }
       ],
       "attack": [
@@ -2797,7 +2797,253 @@
       "body_preview_kind": "complete opaque 141x138 runtime-card proof",
       "body_preview_sha256": "cad9fbb2039a53047c5972c03abea8ca7ec114a618e8fb9fd6ae2a6c11a972a4",
       "contact_preview": "source/native/yone_v7/preview/yone_v7_native_contact.png",
-      "body_processing": "none; exact final 1x RGBA byte copy"
+      "body_processing": "run: explicit leg pixel edit; all other actions: exact source RGBA byte copy",
+      "run_pixel_edit": {
+        "route": "user-authorized anatomical near/far leg pixel edit",
+        "frames": [
+          {
+            "index": 0,
+            "pelvis_x": 19,
+            "floor_y": 35,
+            "roi": [
+              10,
+              26,
+              31,
+              36
+            ],
+            "feet": {
+              "far": {
+                "x": 16.0,
+                "y": 33,
+                "clearance": 2,
+                "pixel_count": 34
+              },
+              "near": {
+                "x": 24.0,
+                "y": 35,
+                "clearance": 0,
+                "pixel_count": 47
+              }
+            },
+            "support_anatomical_leg": "near",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "63b4f679b99c70867260a22efe283bcc53980ce8316677160b65d1aee67f24e6",
+            "edited_rgba_sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01"
+          },
+          {
+            "index": 1,
+            "pelvis_x": 18,
+            "floor_y": 36,
+            "roi": [
+              9,
+              27,
+              30,
+              37
+            ],
+            "feet": {
+              "far": {
+                "x": 16.0,
+                "y": 33,
+                "clearance": 3,
+                "pixel_count": 30
+              },
+              "near": {
+                "x": 21.0,
+                "y": 36,
+                "clearance": 0,
+                "pixel_count": 47
+              }
+            },
+            "support_anatomical_leg": "near",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "5c18bccbaf0ba57d197f3a722707c4f020ca6e73c36e4479dadaea39de2216a9",
+            "edited_rgba_sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd"
+          },
+          {
+            "index": 2,
+            "pelvis_x": 18,
+            "floor_y": 37,
+            "roi": [
+              9,
+              28,
+              30,
+              38
+            ],
+            "feet": {
+              "far": {
+                "x": 20.0,
+                "y": 35,
+                "clearance": 2,
+                "pixel_count": 34
+              },
+              "near": {
+                "x": 19.0,
+                "y": 37,
+                "clearance": 0,
+                "pixel_count": 47
+              }
+            },
+            "support_anatomical_leg": "near",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "ca197d0ba14697964a13b3dd85303519994026f8d69a145c822321bcb15c60ae",
+            "edited_rgba_sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e"
+          },
+          {
+            "index": 3,
+            "pelvis_x": 19,
+            "floor_y": 36,
+            "roi": [
+              10,
+              27,
+              31,
+              37
+            ],
+            "feet": {
+              "far": {
+                "x": 25.0,
+                "y": 35,
+                "clearance": 1,
+                "pixel_count": 38
+              },
+              "near": {
+                "x": 18.0,
+                "y": 36,
+                "clearance": 0,
+                "pixel_count": 47
+              }
+            },
+            "support_anatomical_leg": "near",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "c63f10d66435ea14511db78897b5a17f0f16aa576c0ed7baea985f70e22a4fdc",
+            "edited_rgba_sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb"
+          },
+          {
+            "index": 4,
+            "pelvis_x": 21,
+            "floor_y": 35,
+            "roi": [
+              12,
+              26,
+              33,
+              36
+            ],
+            "feet": {
+              "far": {
+                "x": 27.0,
+                "y": 35,
+                "clearance": 0,
+                "pixel_count": 42
+              },
+              "near": {
+                "x": 17.5,
+                "y": 33,
+                "clearance": 2,
+                "pixel_count": 38
+              }
+            },
+            "support_anatomical_leg": "far",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "e9a3bb775f034cb80ab6e34c318fec4b7bfee9a6934dd850469b9944c2a05ac7",
+            "edited_rgba_sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864"
+          },
+          {
+            "index": 5,
+            "pelvis_x": 20,
+            "floor_y": 36,
+            "roi": [
+              11,
+              27,
+              32,
+              37
+            ],
+            "feet": {
+              "far": {
+                "x": 24.0,
+                "y": 36,
+                "clearance": 0,
+                "pixel_count": 42
+              },
+              "near": {
+                "x": 17.5,
+                "y": 33,
+                "clearance": 3,
+                "pixel_count": 34
+              }
+            },
+            "support_anatomical_leg": "far",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "34c00653623a00aedbec54de71fc516c307a7d17feea8496537d2e93c37e4b89",
+            "edited_rgba_sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f"
+          },
+          {
+            "index": 6,
+            "pelvis_x": 19,
+            "floor_y": 37,
+            "roi": [
+              10,
+              28,
+              31,
+              38
+            ],
+            "feet": {
+              "far": {
+                "x": 21.0,
+                "y": 37,
+                "clearance": 0,
+                "pixel_count": 42
+              },
+              "near": {
+                "x": 21.0,
+                "y": 35,
+                "clearance": 2,
+                "pixel_count": 38
+              }
+            },
+            "support_anatomical_leg": "far",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "91a58b0211d0a5cd9bc2d544e4cabe5a2668bcbd91fd56d896d712e79f6e6a66",
+            "edited_rgba_sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0"
+          },
+          {
+            "index": 7,
+            "pelvis_x": 19,
+            "floor_y": 36,
+            "roi": [
+              10,
+              27,
+              31,
+              37
+            ],
+            "feet": {
+              "far": {
+                "x": 19.0,
+                "y": 36,
+                "clearance": 0,
+                "pixel_count": 42
+              },
+              "near": {
+                "x": 24.0,
+                "y": 35,
+                "clearance": 1,
+                "pixel_count": 43
+              }
+            },
+            "support_anatomical_leg": "far",
+            "outside_roi_unchanged": true,
+            "weapons_unchanged": true,
+            "base_rgba_sha256": "0db2cb43be4cd9088d40377610dcf55b77922e40e8f6520bd632ce005eaa9f01",
+            "edited_rgba_sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe"
+          }
+        ],
+        "live_battle_verified": false
+      }
     },
     "body_frame_sources": {
       "skill2[0]": {
@@ -5038,16 +5284,16 @@
         ],
         "foot_zones": [
           [
-            13,
-            31,
-            7,
-            3
+            14,
+            32,
+            5,
+            2
           ],
           [
-            20,
-            33,
-            4,
-            3
+            22,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5104,7 +5350,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 45,
         "sha256": "e887b37f01e049b0bd9feac20aaa2d9eecdb38f3af60367082602a393f7a85c1",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01"
       },
       "run[1]": {
         "source": "source/native/yone_v7/frames/run_01.png",
@@ -5149,16 +5396,16 @@
         ],
         "foot_zones": [
           [
-            11,
-            33,
-            8,
-            3
+            14,
+            32,
+            5,
+            2
           ],
           [
             19,
-            34,
-            3,
-            3
+            35,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5215,7 +5462,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 45,
         "sha256": "e8b13ffa3a44da50666a19b72315da0139621a8a6fa084bd15fc4a50db957ebf",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd"
       },
       "run[2]": {
         "source": "source/native/yone_v7/frames/run_02.png",
@@ -5260,16 +5508,16 @@
         ],
         "foot_zones": [
           [
-            7,
-            30,
-            12,
-            3
+            18,
+            34,
+            5,
+            2
           ],
           [
-            23,
-            35,
+            17,
+            36,
             5,
-            3
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5326,7 +5574,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 45,
         "sha256": "53bb23e40b977367abd9d34e6f83b228bded825d3f69175f70539d9462dcacc9",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e"
       },
       "run[3]": {
         "source": "source/native/yone_v7/frames/run_03.png",
@@ -5371,16 +5620,16 @@
         ],
         "foot_zones": [
           [
-            8,
-            30,
-            12,
-            3
+            23,
+            34,
+            5,
+            2
           ],
           [
-            21,
-            34,
-            7,
-            3
+            16,
+            35,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5437,7 +5686,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 46,
         "sha256": "38cc554fc127a9143b02e41116f3caea50e136ff7ee43c7c025fe923b23f41c6",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb"
       },
       "run[4]": {
         "source": "source/native/yone_v7/frames/run_04.png",
@@ -5482,16 +5732,16 @@
         ],
         "foot_zones": [
           [
-            17,
-            33,
+            25,
+            34,
             5,
-            3
+            2
           ],
           [
-            22,
-            29,
-            10,
-            3
+            15,
+            32,
+            6,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5548,7 +5798,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 47,
         "sha256": "f6550f680bca8d95f85b04b9bf36292307c3b0a522303672e05c642a8cf32c3f",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864"
       },
       "run[5]": {
         "source": "source/native/yone_v7/frames/run_05.png",
@@ -5593,16 +5844,16 @@
         ],
         "foot_zones": [
           [
-            16,
-            34,
-            4,
-            3
+            22,
+            35,
+            5,
+            2
           ],
           [
-            21,
-            31,
-            10,
-            3
+            15,
+            32,
+            6,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5659,7 +5910,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 47,
         "sha256": "5ca9310d85e31d57f7a14b1d8b7c9ab13a7b17c3d01373b698a783c94ed87276",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f"
       },
       "run[6]": {
         "source": "source/native/yone_v7/frames/run_06.png",
@@ -5700,16 +5952,16 @@
         ],
         "foot_zones": [
           [
-            10,
-            35,
+            19,
+            36,
             5,
-            3
+            2
           ],
           [
-            20,
-            30,
-            11,
-            3
+            19,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "profile",
@@ -5766,7 +6018,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 46,
         "sha256": "08fcd392e582bd2eb6ad260f240b02e124e9be16b0b3c4c1bc5125c27a7b6881",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0"
       },
       "run[7]": {
         "source": "source/native/yone_v7/frames/run_07.png",
@@ -5811,16 +6064,16 @@
         ],
         "foot_zones": [
           [
-            11,
-            34,
-            7,
-            3
+            17,
+            35,
+            5,
+            2
           ],
           [
-            21,
-            30,
-            10,
-            3
+            22,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -5877,7 +6130,8 @@
         "transparent_frame_edges": true,
         "opaque_palette_size": 47,
         "sha256": "a039d1eb0108f9777631267e96e1837808ffc6e7558e2312f510be6bea7e9224",
-        "pack_transform": "none"
+        "pack_transform": "user-authorized final-scale leg pixel edit",
+        "packed_rgba_sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe"
       },
       "skill2_attack[0]": {
         "source": "source/native/yone_v7/frames/skill2_attack_00.png",
@@ -9602,270 +9856,337 @@
     "source_to_atlas_identity": {
       "idle[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "bdf548efefe207c3091ae5002e2ea4de8ef42bf33485f64a61c867152e59ccaf"
       },
       "idle[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "18d2f47f4fc4d0e4184bedfd9fb275df6abb5015984eae6a30cc9620fdfca528"
       },
       "idle[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "433b3e083f453aa81a99a286b6aefa9b7f0be03f6229fe11d7ddd5849cc18898"
       },
       "idle[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "18d2f47f4fc4d0e4184bedfd9fb275df6abb5015984eae6a30cc9620fdfca528"
       },
       "run[0]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "63b4f679b99c70867260a22efe283bcc53980ce8316677160b65d1aee67f24e6"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "bdc724ad87f5bf9e75ddf1d40a52aed65ab9a5e84104c8d02fb93dd7a38d8f01"
       },
       "run[1]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "5c18bccbaf0ba57d197f3a722707c4f020ca6e73c36e4479dadaea39de2216a9"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "a1d6d88306f78d0a03eca876679b9c093875b28b6c122e75db3fc521ef4c39bd"
       },
       "run[2]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "ca197d0ba14697964a13b3dd85303519994026f8d69a145c822321bcb15c60ae"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "2b08dd839ec9735cab9ead7fd971b3b45109df7b9b17118b738ceff4c32a921e"
       },
       "run[3]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "c63f10d66435ea14511db78897b5a17f0f16aa576c0ed7baea985f70e22a4fdc"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "237c49a3719506d14194cbe658ee0e52e3e467ab3a386a3cfb4e36bd131d9fbb"
       },
       "run[4]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "e9a3bb775f034cb80ab6e34c318fec4b7bfee9a6934dd850469b9944c2a05ac7"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "e5e1f8e10c11a21f9836119c037b7b87dcbd6d23dd9caf1ea9d160c591336864"
       },
       "run[5]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "34c00653623a00aedbec54de71fc516c307a7d17feea8496537d2e93c37e4b89"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "ad667da73bc028631ed93b932e792e048fd46121a697b7ce89a2e6bf3065102f"
       },
       "run[6]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "91a58b0211d0a5cd9bc2d544e4cabe5a2668bcbd91fd56d896d712e79f6e6a66"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "273955ae697acc54918e11b55ab684b4adba986618354440cdf5c82d3f2af7f0"
       },
       "run[7]": {
         "source_to_atlas_byte_identical": true,
-        "sha256": "0db2cb43be4cd9088d40377610dcf55b77922e40e8f6520bd632ce005eaa9f01"
+        "identity_reference": "post-authorized-leg-edit",
+        "sha256": "3707d1a8bcd3829008ed91cfdac2aae9b0c14cc908f8d3eb2ee5d0842e7cc5fe"
       },
       "attack[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "1c82219a072968ea581a3862a6d51ce030334d7d5f26191f0e88cb3ef60760b8"
       },
       "attack[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "4f96927eb408c434693779c63b77b7e1b89ef92d3d6c1f04bd8d238ab7b9c811"
       },
       "attack[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "9f7ab10eebf45f5b8240756f60b4483e38fb8e3177036e98d63eec442b1a7184"
       },
       "attack[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "bf7ec9bc05ec8a2d7533057e1d5f150404575b4f8059f13855707ea53daa25ce"
       },
       "attack[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "36ee2eb7b98ba21b704f1d6d551e07b9e3704eb6b640f7dae24c1f580c2ee3d6"
       },
       "attack[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "33ee7c07a35525072204bb95c55ed11ffb0d6ce171701dc16ab9b42c081e9211"
       },
       "attack_azakana[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "1c82219a072968ea581a3862a6d51ce030334d7d5f26191f0e88cb3ef60760b8"
       },
       "attack_azakana[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "4f96927eb408c434693779c63b77b7e1b89ef92d3d6c1f04bd8d238ab7b9c811"
       },
       "attack_azakana[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "63ec81ba9474a4ee70611bf2e19041070dc0cae0a1a0046662c0d6edbcd6ca34"
       },
       "attack_azakana[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "bf7ec9bc05ec8a2d7533057e1d5f150404575b4f8059f13855707ea53daa25ce"
       },
       "attack_azakana[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "b15c421699f27d0d0aa2a6825f3f668ff706bb6053feddc881095fd52b143689"
       },
       "attack_azakana[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "33ee7c07a35525072204bb95c55ed11ffb0d6ce171701dc16ab9b42c081e9211"
       },
       "hit[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "ea28046d2c7a90a820237a187ca921fb267f2d233771b3d7198e86ea14f76f6d"
       },
       "skill[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a0cf96d2d8818aba03dcff1bdaa416ed3a478673f144774f235a8dc1aeab2a22"
       },
       "skill[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a168985a659d8164b30667e25d46d29dd340dc0f08b7570555c05aa1bae405ba"
       },
       "skill[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "5e9beda4f87d6d8d864911dbd0ec377c1fed5269d5b863eb59062f0b3f8bfad8"
       },
       "skill[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a231646010955d43caa6ab9c116a7983a630ea4ef6335cdcf732927f440513c5"
       },
       "skill[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "59a7dc39858fab5f9820593671ead722b6ed45c6728797cce8f326528e9912e7"
       },
       "skill[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "5e4dec568f379aaf77f5e273fe019fe4e0cd8de5d3de88bf1934df20eb9943e1"
       },
       "skill[6]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "231ab3f5b4f4a4b20ece6c190cf79152138feea3fa1591f72394b26eba40185a"
       },
       "skill_q3[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "8a9dfb84c4ed4aadaf84858359ea06a7125c773475305f7cc8186562dd882065"
       },
       "skill_q3[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "39e8dc1367cd4bf1da31d0b0cdecaabe4c57c76a9333fbe85da92253000b299a"
       },
       "skill_q3[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "ca9a10aff5d27d5a3e3c5b34f57ea9437abb1944c2952011ab85a835728c92b8"
       },
       "skill_q3[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "46757724705fa0e899d35fc3e0eca04560b60d2acf5d834d264f97dd14b74797"
       },
       "skill_q3[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "c0f3ab2038eb6a22cf83316c0c4fe48ec11e2818bb21cfc12cbd37a4ca70ddca"
       },
       "skill_q3[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "2251c7fccaa102e2ab03de617f9b0d141737902235b2590a5f572a8f688678df"
       },
       "skill_q3[6]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a53a76ced75619f0776439eaec4be15245c5565b916fd932bc91b55777740033"
       },
       "skill2[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "3ebbc82fbc921d58d67f3eb5bd6fdfc634de31ad4ede48b1172917fcdf6a4c48"
       },
       "skill2_dash[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "84d07c695b3c6ac23ae4b93018caaa559bfe87a40f14dffcd7b66b7acbf9be62"
       },
       "skill2_attack[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "2e3131f589ba1dd89673a840e2e306ededbb821f080250b1f760b790510820b7"
       },
       "skill2_attack[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "c11e929c8cc1502037ece2389dafe68dc3c85fb2090c648168b6d6543127d310"
       },
       "skill2_attack[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "66a6b9990fb7812177da762b8eb1dcc4b0c05a2813ef172c155c2572329432be"
       },
       "skill2_attack[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "189ff4ede7b917af6717bae9d310a306fc3f68af697277fb484ca59c26a21e94"
       },
       "skill2_attack[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a3e8463c7777f79037c9638317f1377ba09475a3b9e45278ca089405d3115379"
       },
       "ult[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "76765a201f73dd125e8943d691dff6f5f983ab55090d58ec9a4a87fedba8b172"
       },
       "ult[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "d5a900eb0395144375c7867c727a8099b665271d1b6ef83ed3ff21573baab159"
       },
       "ult[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "c13751ac4f3b5a1c86eb17dca0f1421b252a6be52946350723bbb4499153fa87"
       },
       "ult[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "4333a55c95bc1f1543017757df78c5d8e9c5870a1a68ece994a1ae4f9408b88a"
       },
       "ult[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "773419d2bf93f68303b5a232c7d6946a2bbbcb9027e1da8b66bffbf3787d464a"
       },
       "ult[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "1b02064dd713051a36fe2fdfc38dd579bedb14da85674a155d13cedd3c2e2359"
       },
       "ult[6]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "7eef13c8d7745494f2412d9e465b917d817a29d6ff2c21bf9e4b704ea46e7dfb"
       },
       "ult[7]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "23e662d8a56789290c2a27a9ad558beaa165e9d5d7395db0594037515ed7b69e"
       },
       "ult[8]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "203f9c5a6f4b8cf82fb23fc6be6b43f37ad69e69e4774e244486cba763249e21"
       },
       "ult[9]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a62da92a1f975f42f5e48a2ea737cb28b40c27d0374145eb471ac014dd6ac369"
       },
       "ult[10]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "7d3f94bb8d5407c067afa7fced7b9fcfd60493978e1c3eb8721cfa352f594b5a"
       },
       "ult[11]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "9c1fddc32f7b9b06a160cbf5c31e7f7651bc918c56a5cbf1a46f5f9affb38a76"
       },
       "ult[12]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "c5018ce7f789e676b098c574e8d0c3d9ae5ce600978b2cf139ebb6409bb99c3f"
       },
       "dead[0]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "a565b34f4bdcb3e433d4dd1a2dc95898d5a030390c620e4a2a5ed479c2768570"
       },
       "dead[1]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "6b12269c88e3609eb6f2e089e808d907bb46a84eac612fe9ab03160723d6e7cd"
       },
       "dead[2]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "62fded5398ab435150faec14fd092d40c27a3e881f7325eff7092838781c0085"
       },
       "dead[3]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "bb98c0c5ead955a4f9c9e1b84410cfee99431fb94ba621111f3aa43f4fa95a42"
       },
       "dead[4]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "15bf5d9392a75a4330e35d643ed63f5e66126ca04f5f95b7ad3cc2b3c3c13867"
       },
       "dead[5]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "12cb3bce989033d442021960b7e7347bbcd844d064d04865b6df838a58e36daa"
       },
       "dead[6]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "eb935bf94afaabe1fb1ddf8393438d4694bfc7e9427a3056b64fd0f379c20e1b"
       },
       "dead[7]": {
         "source_to_atlas_byte_identical": true,
+        "identity_reference": "original-native-source",
         "sha256": "0d3f5002feb7264c18f45ed1b68c34f0bae3630ef8129b88debbc80ef91b1347"
       }
     },
@@ -9947,8 +10268,8 @@
             255
           ],
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.482,
-          "color_edge24_ratio": 0.6589,
+          "bbox_fill_ratio": 0.4534,
+          "color_edge24_ratio": 0.6582,
           "alpha_bbox": [
             1,
             1,
@@ -9963,8 +10284,8 @@
             255
           ],
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.5104,
-          "color_edge24_ratio": 0.6408,
+          "bbox_fill_ratio": 0.4687,
+          "color_edge24_ratio": 0.6633,
           "alpha_bbox": [
             1,
             2,
@@ -9979,8 +10300,8 @@
             255
           ],
           "opaque_palette_size": 45,
-          "bbox_fill_ratio": 0.4981,
-          "color_edge24_ratio": 0.6721,
+          "bbox_fill_ratio": 0.471,
+          "color_edge24_ratio": 0.655,
           "alpha_bbox": [
             1,
             3,
@@ -9995,8 +10316,8 @@
             255
           ],
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4981,
-          "color_edge24_ratio": 0.6293,
+          "bbox_fill_ratio": 0.4811,
+          "color_edge24_ratio": 0.6244,
           "alpha_bbox": [
             1,
             2,
@@ -10011,8 +10332,8 @@
             255
           ],
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.4755,
-          "color_edge24_ratio": 0.6368,
+          "bbox_fill_ratio": 0.4491,
+          "color_edge24_ratio": 0.624,
           "alpha_bbox": [
             1,
             1,
@@ -10027,8 +10348,8 @@
             255
           ],
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.5166,
-          "color_edge24_ratio": 0.611,
+          "bbox_fill_ratio": 0.478,
+          "color_edge24_ratio": 0.6083,
           "alpha_bbox": [
             1,
             2,
@@ -10043,8 +10364,8 @@
             255
           ],
           "opaque_palette_size": 46,
-          "bbox_fill_ratio": 0.4942,
-          "color_edge24_ratio": 0.637,
+          "bbox_fill_ratio": 0.4471,
+          "color_edge24_ratio": 0.6334,
           "alpha_bbox": [
             1,
             3,
@@ -10059,8 +10380,8 @@
             255
           ],
           "opaque_palette_size": 47,
-          "bbox_fill_ratio": 0.495,
-          "color_edge24_ratio": 0.6355,
+          "bbox_fill_ratio": 0.4618,
+          "color_edge24_ratio": 0.6377,
           "alpha_bbox": [
             1,
             2,
@@ -11212,16 +11533,16 @@
         ],
         "foot_zones": [
           [
-            13,
-            31,
-            7,
-            3
+            14,
+            32,
+            5,
+            2
           ],
           [
-            20,
-            33,
-            4,
-            3
+            22,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11254,16 +11575,16 @@
         ],
         "foot_zones": [
           [
-            11,
-            33,
-            8,
-            3
+            14,
+            32,
+            5,
+            2
           ],
           [
             19,
-            34,
-            3,
-            3
+            35,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11296,16 +11617,16 @@
         ],
         "foot_zones": [
           [
-            7,
-            30,
-            12,
-            3
+            18,
+            34,
+            5,
+            2
           ],
           [
-            23,
-            35,
+            17,
+            36,
             5,
-            3
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11338,16 +11659,16 @@
         ],
         "foot_zones": [
           [
-            8,
-            30,
-            12,
-            3
+            23,
+            34,
+            5,
+            2
           ],
           [
-            21,
-            34,
-            7,
-            3
+            16,
+            35,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11380,16 +11701,16 @@
         ],
         "foot_zones": [
           [
-            17,
-            33,
+            25,
+            34,
             5,
-            3
+            2
           ],
           [
-            22,
-            29,
-            10,
-            3
+            15,
+            32,
+            6,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11422,16 +11743,16 @@
         ],
         "foot_zones": [
           [
-            16,
-            34,
-            4,
-            3
+            22,
+            35,
+            5,
+            2
           ],
           [
-            21,
-            31,
-            10,
-            3
+            15,
+            32,
+            6,
+            2
           ]
         ],
         "face_visibility": "front",
@@ -11460,16 +11781,16 @@
         ],
         "foot_zones": [
           [
-            10,
-            35,
+            19,
+            36,
             5,
-            3
+            2
           ],
           [
-            20,
-            30,
-            11,
-            3
+            19,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "profile",
@@ -11502,16 +11823,16 @@
         ],
         "foot_zones": [
           [
-            11,
-            34,
-            7,
-            3
+            17,
+            35,
+            5,
+            2
           ],
           [
-            21,
-            30,
-            10,
-            3
+            22,
+            34,
+            5,
+            2
           ]
         ],
         "face_visibility": "front",

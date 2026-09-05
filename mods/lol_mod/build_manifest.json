@@ -90,7 +90,7 @@
     {
       "path": "aseprite_resources/champions/yone#sheet.png",
       "size": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
     },
     {
       "path": "aseprite_resources/champions/yone_v7#anim.fanim",
@@ -100,7 +100,7 @@
     {
       "path": "aseprite_resources/champions/yone_v7#sheet.png",
       "size": 1500490,
-      "sha256": "562035712a829be209ba9804ba5eefb4f981b09f27c66dcc751979a430dd703c"
+      "sha256": "c81f5332e3cc0c05ac793c678d276cdcb3b36450f66f83da708843d76cd7d1b0"
     },
     {
       "path": "aseprite_resources/effects/briar_bleed#anim.fanim",
@@ -1065,12 +1065,12 @@
     {
       "path": "lol_mod.dll",
       "size": 220160,
-      "sha256": "24b8795272777f1a10461f03df0f3de571aff402fe00098a15cce06c811c7b40"
+      "sha256": "d37b354cbc78c3f4f702cf29be4655c5de29e966a76e23d3065c1b97caf5af1b"
     },
     {
       "path": "mod.mod_info",
       "size": 1366,
-      "sha256": "62b8f0fb4c1103993b4d85f1c41e9c89800a6b5c7a20e2ccd65d9bc3fea47a85"
+      "sha256": "db1679533fef4257c4adf40613d386c019f0790b861ed36d36eba162d5b8beea"
     },
     {
       "path": "mod.override_info",
@@ -1104,8 +1104,8 @@
     },
     {
       "path": "qa/yone_imagegen_sources.json",
-      "size": 147288,
-      "sha256": "6d87868a36ef03b95e1d0def607a231f3b0e4f5741ad9c0fa0a44421889803eb"
+      "size": 155217,
+      "sha256": "098be001f97b45d433a914edd0936aa86b4467ebcff8f7de11f06c6a41eb48a7"
     },
     {
       "path": "qa/yone_official_audio_sources.json",
@@ -1119,13 +1119,13 @@
     },
     {
       "path": "qa/yone_visual_contract.json",
-      "size": 315607,
-      "sha256": "2938380bd6b2a191d47c21ae9fcfd4965c9becda01ab9158510a0b3051c92fe1"
+      "size": 327808,
+      "sha256": "244c961a2e23815f7ab5d3edafdbcd1272f1cbbbb4405fade4b632ef19d09f5a"
     },
     {
       "path": "qa/yone_visual_qa.md",
-      "size": 5213,
-      "sha256": "e3a298c44fa8841c4bd20c4e4da056abb4b110f87e0bdb83ee33b2c3fdcef0d6"
+      "size": 5343,
+      "sha256": "cdd79c6d5736237da33f9d51bf8e3649d75995faca80a2f02fdaafe301d03a80"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
