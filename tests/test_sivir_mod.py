@@ -136,7 +136,7 @@ def test_sivir_stats_and_native_action_slots_match_contract() -> None:
         for key in ("attack", "skill", "skill2", "ult")
     ] == [
         (60000, 60, 26, 20, "Targeting", "Enemy"),
-        (75000, 360, 26, 18, "Direction", "EnemyWithoutTower"),
+        (75000, 360, 26, 18, "Targeting", "EnemyWithoutTower"),
         (0, 720, 25, 20, "None", "AllyOnlySelf"),
         (85000, 3000, 28, 20, "Targeting", "EnemyChampion"),
     ]

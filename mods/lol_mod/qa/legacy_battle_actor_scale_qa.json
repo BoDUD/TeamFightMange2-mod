@@ -6,7 +6,7 @@
   "stability_contact": "qa/legacy_battle_actor_state_stability_contact.png",
   "stability_contact_sha256": "9bc4b310dd1a5a8262abd1ae29450269a6739e92a3205487efc9d6d8a602fcb0",
   "reference_scale_contact": "qa/legacy_battle_actor_reference_scale_contact.png",
-  "reference_scale_contact_sha256": "90ea95870a55bc07d4296e0476221352ea985618694a5063da5d3b638e0fae40",
+  "reference_scale_contact_sha256": "011a9a97a5bed7749b22d40f9f6300eb7f67b29db3d6b5b514cc52d73ebb67a5",
   "reference_idle_height_envelope_px": [
     36,
     46
@@ -76,21 +76,21 @@
             ],
             [
               1,
-              1,
+              2,
               38,
-              33
+              37
             ],
             [
               1,
-              1,
+              3,
               38,
-              33
+              38
             ],
             [
               1,
-              1,
+              2,
               38,
-              34
+              37
             ],
             [
               1,
@@ -100,79 +100,79 @@
             ],
             [
               1,
-              1,
+              2,
               38,
-              34
+              37
             ],
             [
               1,
-              1,
-              37,
-              33
+              3,
+              38,
+              38
             ],
             [
               1,
-              1,
+              2,
               38,
-              34
+              37
             ]
           ],
           "visible_width_range": [
-            36,
+            37,
             39
           ],
           "visible_height_range": [
-            32,
+            35,
             35
           ],
           "bottom_range": [
-            33,
-            36
+            36,
+            38
           ]
         },
         "attack": {
           "frame_count": 6,
           "alpha_bboxes": [
             [
+              6,
               1,
-              1,
-              44,
+              37,
               37
             ],
             [
-              4,
+              5,
               1,
-              48,
+              41,
               37
             ],
             [
-              11,
+              15,
               1,
-              58,
+              53,
               35
             ],
             [
-              9,
+              16,
               1,
-              58,
+              42,
               36
             ],
             [
-              2,
+              12,
               1,
-              59,
+              51,
               36
             ],
             [
-              4,
+              8,
               1,
-              50,
+              44,
               37
             ]
           ],
           "visible_width_range": [
-            43,
-            57
+            26,
+            39
           ],
           "visible_height_range": [
             34,
@@ -310,15 +310,15 @@
               39
             ],
             [
-              16,
-              12,
+              15,
+              1,
               41,
               36
             ],
             [
-              15,
-              14,
-              52,
+              3,
+              2,
+              58,
               40
             ],
             [
@@ -359,11 +359,11 @@
             ]
           ],
           "visible_width_range": [
-            25,
+            26,
             58
           ],
           "visible_height_range": [
-            24,
+            35,
             39
           ],
           "bottom_range": [
@@ -20668,8 +20668,8 @@
     "file_count": 21,
     "files": {
       "style/champion_view.champion_view": {
-        "before_sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
-        "after_sha256": "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
+        "before_sha256": "74892cfeb0cce11f252d42a63375229e6f915d54ab13ecd9a2aaaa91d24d242d",
+        "after_sha256": "74892cfeb0cce11f252d42a63375229e6f915d54ab13ecd9a2aaaa91d24d242d",
         "unchanged": true
       },
       "ui/champion_fullbody/lol_shen.png": {

@@ -248,7 +248,7 @@ if _custom_cursor != ACTOR_SHEET_SIZE[0]:
     )
 
 # The official thirteen tags above remain byte-for-byte contract-compatible.
-# These five semantic tags are an additive visual layer selected explicitly by
+# These six semantic tags are an additive visual layer selected explicitly by
 # CasterAnimation; aliases reuse native frames, while the two physical routes
 # occupy the non-overlapping V7 extension.
 CUSTOM_ACTION_CONTRACT: dict[str, dict[str, Any]] = {
@@ -275,6 +275,17 @@ CUSTOM_ACTION_CONTRACT: dict[str, dict[str, Any]] = {
         "rects": NATIVE_CONTRACT["skill2_attack"]["rects"],
         "alias_of": "skill2_attack",
     },
+    # Keep the immutable native `ult` tag at 13x0.05s. This data-selected
+    # timing alias reuses those exact pixels but holds the windup poses until
+    # the real tick-35 RushTime begins, then completes at the skill's tick 60.
+    "ult_fate_sealed": {
+        "durations": [
+            0.08, 0.08, 0.09, 0.09, 0.09, 0.075, 0.075,
+            0.08, 0.08, 0.08, 0.06, 0.06, 0.06,
+        ],
+        "rects": NATIVE_CONTRACT["ult"]["rects"],
+        "alias_of": "ult",
+    },
 }
 CUSTOM_PIXEL_ACTIONS = ("attack_azakana", "skill_q3")
 
@@ -284,7 +295,9 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
     # the same terrain/name-plate clearance used by Lucian and Orianna instead
     # of lowering Yone's longer generated legs into the foreground mask.
     "idle": [38, 37, 36, 37],
-    "run": [35, 32, 31, 32, 35, 33, 31, 33],
+    # One upright guard model at one height.  Locomotion is carried by the
+    # alternating legs, not by swapping between crouched/tall body classes.
+    "run": [35, 35, 35, 35, 35, 35, 35, 35],
     "attack": [36, 36, 34, 35, 35, 36],
     "attack_azakana": [36, 36, 34, 35, 35, 36],
     "hit": [37],
@@ -301,7 +314,7 @@ BODY_TARGET_HEIGHTS: dict[str, list[int]] = {
 # shorter than upright idle and must remain authored at their native 1x size.
 NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
     "idle": [36, 36, 36, 36],
-    "run": [31, 32, 32, 33, 32, 32, 32, 33],
+    "run": [35, 35, 35, 35, 35, 35, 35, 35],
     "attack": [35, 33, 33, 31, 33, 34],
     # The heavy Azakana sequence deliberately crouches/squashes while keeping
     # the same head/body pixel scale and native foot baseline.
@@ -316,12 +329,13 @@ NATIVE_MIN_VISIBLE_HEIGHTS: dict[str, list[int]] = {
 }
 
 BODY_BOTTOM_MARGINS: dict[str, list[int]] = {
-    # Bundle-derived official Dual Blader baselines for the common movement
-    # states. These are the frames used by battle, cards and face crops.
-    # idle[0] and the remaining native V6 frames preserve their source-authored
-    # bottom clearances exactly; the builder never derives them from a UI crop.
+    # The frame rectangles remain the immutable native Dual Blader contract.
+    # Run clearances keep the planted foot at the same +11.5px offset from
+    # each differently-sized native frame centre, matching the stable-pivot
+    # structure measured from the local Workshop Yone without copying pixels.
+    # Attack uses that same constant-centre pivot through its native rects.
     "idle": [15, 15, 14, 15],
-    "run": [13, 18, 20, 17, 13, 17, 20, 17],
+    "run": [13, 14, 15, 14, 13, 14, 15, 14],
     "attack": [14, 14, 12, 13, 13, 14],
     "attack_azakana": [14, 14, 12, 13, 13, 14],
     "hit": [15],
@@ -1646,6 +1660,17 @@ def _load_native_v7_body_frames() -> tuple[
         ),
         "body_processing": "none; exact final 1x RGBA byte copy",
     }
+    # The legacy source is retained for provenance only. Its half-cycle mirror
+    # is superseded for run by the user's explicitly authorized pixel repaint.
+    # This is an isolated lower-body edit, never a global body/UI scale pass.
+    from yone_run_anatomy import apply_to_frames
+    run_edit = apply_to_frames(frames, audits)
+    manifest_audit['run_pixel_edit'] = {
+        'route': 'hand-authored original-model leg pixels',
+        'frames': run_edit,
+        'live_battle_verified': False,
+    }
+    manifest_audit['body_processing'] = 'run: authored anatomical leg source byte copy; all other actions: exact original source RGBA byte copy'
     return frames, manifest_audit, audits
 
 
@@ -2350,7 +2375,6 @@ def build_effects(actor_sheet_path: Path) -> list[Path]:
     outputs += build_effect_sheet(
         "yone_q3_tornado", Q3_VFX_ALPHA, (5, 2),
         [
-            ("tornado", [0, 1, 2, 3, 4, None], (112, 72), 0.06),
             ("cue", [5, 6, 7, 8, 9, None], (56, 80), 0.055),
         ],
     )
@@ -2376,11 +2400,14 @@ def build_effects(actor_sheet_path: Path) -> list[Path]:
             # Fate Sealed reads as one forward lane followed by converging
             # steel/Azakana cuts and an upward pull.  The previous circular
             # vortex and cracked-ground explosion were visually misleading.
-            ("windup", [0, 1, 2, 3, None], (144, 48), 0.065),
-            ("arrival", [5, 6, 7, 8, 9, None], (128, 64), 0.065),
+            ("windup", [0, 1, 2, 3, 4, None], (144, 48), 0.115),
+            # Bottom-row project-owned energy cells were previously packed
+            # only into an unused native slot. Give the actual data skill a
+            # short caster launch and a longer target-following lift column.
+            ("launch", [10, 12, 13, 14, None], (112, 96), 0.055),
+            ("knockup", [10, 11, 12, 13, 14, None], (128, 96), 0.12),
             ("slash_blue", [5, 7, 9, None], (120, 56), 0.055),
             ("slash_red", [6, 8, 9, None], (120, 56), 0.055),
-            ("echo", [10, 11, 12, 13, 14, None], (120, 72), 0.065),
         ],
     )
     return outputs
@@ -2572,7 +2599,14 @@ def yone_ui_surface_quality(image: Image.Image) -> dict[str, Any]:
 
 
 def render_yone_v7_ui_card_preview(fullbody: Image.Image) -> Image.Image:
-    """Recreate the 141x138 card with the 85x93 texture pasted at native 1:1."""
+    """Prove the encyclopedia fullbody route at native 1:1.
+
+    The encyclopedia owns a centered 85x93 image node.  Older QA borrowed a
+    BP/card icon exclusion zone from a different UI surface; that incorrectly
+    forced Yone's encyclopedia art leftward and smaller.  Keep the historical
+    141x138 proof canvas for stable QA artifacts, but only validate the real
+    centered 85x93 encyclopedia placement here.
+    """
 
     if fullbody.size != (85, 93):
         raise ValueError(f"Yone V7 card source must be 85x93, got {fullbody.size}")
@@ -2588,13 +2622,8 @@ def render_yone_v7_ui_card_preview(fullbody: Image.Image) -> Image.Image:
     actor_mask = Image.new("L", preview.size, 0)
     actor_mask.paste(fullbody.getchannel("A"), (actor_x, 0))
     actor_bbox = actor_mask.getbbox()
-    if actor_bbox is None or actor_bbox[3] > 86:
+    if actor_bbox is None or actor_bbox[3] > 88:
         raise ValueError(f"Yone V7 UI card actor placement is unsafe: {actor_bbox}")
-    if actor_mask.crop((98, 70, 141, 96)).getbbox() is not None:
-        raise ValueError("Yone V7 UI card actor overlaps the right-side icon area")
-    draw.arc((99, 72, 112, 88), 290, 70, fill=(236, 238, 242, 255), width=2)
-    draw.rectangle((119, 76, 130, 87), outline=(217, 220, 228, 255), width=2)
-    draw.rectangle((122, 79, 127, 84), fill=(104, 110, 125, 255))
     # The localized champion name is drawn by the engine text layer.  Do not
     # bake an approximate host-font or hand-drawn CJK glyph into this texture
     # proof: doing so can falsely make a correct UI asset show the wrong name.
@@ -2613,12 +2642,23 @@ def build_splash_and_portraits() -> list[Path]:
     fullbody = render_source_direct_ui_subject(
         full_body,
         (85, 93),
-        max_subject=(66, 78),
-        bottom=86,
-        x_offset=-5,
+        max_subject=(74, 84),
+        bottom=88,
     )
     fullbody_path = FULLBODY_DIR / "dual_blader.png"
     save_png(fullbody_path, fullbody)
+
+    # Keep a final 64x64 Briar-class surface as offline encyclopedia size/leg QA
+    # evidence. The 0.5.8 runtime uses the engine resolver on the stock icon;
+    # this PNG is deliberately excluded from the installed closure.
+    encyclopedia = render_source_direct_ui_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+    )
+    encyclopedia_path = FULLBODY_DIR / "dual_blader_encyclopedia.png"
+    save_png(encyclopedia_path, encyclopedia)
 
     # Compact rows need the face, mask and shoulders, not a shrunken full body.
     compact_focus = crop_yone_v7_ui_focus(
@@ -2662,7 +2702,14 @@ def build_splash_and_portraits() -> list[Path]:
     # This is the actual destination route: the 85x93 texture is pasted 1:1
     # into the 141x138 card, with no second resize and no battle-atlas input.
     save_png(YONE_V7_UI_CARD_PREVIEW, render_yone_v7_ui_card_preview(fullbody))
-    return [splash_path, fullbody_path, compact_path, scoreboard_path, grid_path]
+    return [
+        splash_path,
+        fullbody_path,
+        encyclopedia_path,
+        compact_path,
+        scoreboard_path,
+        grid_path,
+    ]
 
 
 def image_record(path: Path) -> dict[str, Any]:
@@ -2679,26 +2726,18 @@ def image_record(path: Path) -> dict[str, Any]:
 
 
 RUNTIME_EFFECT_MAP = {
-    "lol_yone_attack_steel_swing": ["yone_attack", "steel_hit"],
-    "lol_yone_attack_azakana_swing": ["yone_attack", "azakana_hit"],
     "lol_yone_attack_steel_hit": ["yone_attack", "steel_hit"],
     "lol_yone_attack_azakana_hit": ["yone_attack", "azakana_hit"],
-    "lol_yone_q_blade": ["yone_q", "hit"],
-    "lol_yone_q3_blade": ["yone_q", "empowered_hit"],
-    "lol_yone_q_projectile": ["yone_q", "projectile"],
-    "lol_yone_q_empowered_projectile": ["yone_q3_tornado", "tornado"],
     "lol_yone_q_hit": ["yone_q", "hit"],
-    "lol_yone_q_empowered_hit": ["yone_q", "empowered_hit"],
     "lol_yone_q3_airborne_cue": ["yone_q3_tornado", "cue"],
-    "lol_yone_mortal_steel_stack_2": ["yone_q3_ready_wind", "loop"],
-    "lol_yone_w_crescent_cast": ["yone_w", "crescent"],
+    "lol_yone_w_sweep_projectile": ["yone_w", "crescent"],
     "lol_yone_w_hit": ["yone_w", "impact"],
     "lol_yone_w_shield": ["yone_w", "shield"],
     "lol_yone_r_windup": ["yone_r", "windup"],
-    "lol_yone_r_arrival": ["yone_r", "arrival"],
+    "lol_yone_r_launch": ["yone_r", "launch"],
+    "lol_yone_r_knockup": ["yone_r", "knockup"],
     "lol_yone_r_slash_blue": ["yone_r", "slash_blue"],
     "lol_yone_r_slash_red": ["yone_r", "slash_red"],
-    "lol_yone_r_echo": ["yone_r", "echo"],
 }
 
 
@@ -2809,6 +2848,7 @@ def build_qa(
         identical = frame.tobytes() == source_frame.tobytes()
         native_body_identity[frame_name] = {
             "source_to_atlas_byte_identical": identical,
+            "identity_reference": "post-authorized-leg-edit" if tag == "run" else "original-native-source",
             "sha256": hashlib.sha256(frame.tobytes()).hexdigest(),
         }
         native_body_pixel_quality[frame_name] = native_pixel_quality(frame)
@@ -2845,13 +2885,16 @@ def build_qa(
         label: yone_ui_surface_quality(image)
         for label, image in ui_images.items()
     }
+    ui_source_direct_quality["encyclopedia"] = yone_ui_surface_quality(
+        Image.open(FULLBODY_DIR / "dual_blader_encyclopedia.png").convert("RGBA")
+    )
     style = json.loads(
         (MOD_ROOT / "style/champion_view.champion_view").read_text(encoding="utf-8")
     )["entries"]["dual_blader"]
     live_idle_card = yone_live_idle_card_contract(
         sheet,
         anims,
-        center_y=style["center"]["y"],
+        center_y=style["banpick_center"]["y"],
     )
     live_run_profile = yone_live_run_profile_contract(sheet, anims)
     fullbody_card = yone_fullbody_card_contract(fullbody)
@@ -2908,29 +2951,30 @@ def build_qa(
                     "payload_tick": 13,
                 },
                 "skill": {
-                    "q12_animation_tag": "skill_q12",
-                    "q3_animation_tag": "skill_q3",
-                    "frame_count_each": 7,
+                    "animation_tag": "skill_q3",
+                    "frame_count": 7,
                     "animation_start_tick": 0,
-                    "payload_tick": 8,
+                    "action_duration_ticks": 20,
+                    "action_start_timing": 6,
+                    "effect_dispatch": "one penetrating 3600-speed, 25000-range RushTime; no Q stacks or second hitbox",
                 },
                 "skill2": {
                     "animation_tag": "skill_w_azakana",
                     "frame_count": 5,
                     "qa_contact_tag": "skill2_attack",
                     "animation_start_tick": 0,
-                    "payload_tick": 8,
+                    "effect_dispatch": "one top-level penetrating LinearProjectile; no Native callback",
                 }
             },
             "runtime_w_resolution": {
                 "action_duration_ticks": 30,
                 "cooldown_ticks": 480,
                 "movement": "none",
-                "shape": "one stationary caster-following crescent plus one stateless native 80-degree, 42000-range forward cone scan",
-                "damage": "35 + 45% Attack + 6% target maximum HP physical damage from the same cone snapshot",
-                "shield": "the same native cone snapshot grants one 90-tick 50 + 20% Attack shield after any enemy hit, then scales through every enemy champion hit up to the normal five-champion team limit",
-                "state": "no process-global W ledger; hit collection, damage, champion count, and shield tier resolve in one GameCtx callback",
-                "attack_speed_limitation": "Mod API 0.8 exposes neither aggregate attack speed nor per-skill dynamic cast/cooldown mutation, so the disclosed 30/480-tick values remain fixed",
+                "shape": "one penetrating 4500-speed, 35000-range Rect 40000x30000 LinearProjectile using the project-owned yone_w/crescent animation",
+                "damage": "80 + 80% Attack physical damage and 2000-speed/12-tick knockback once per struck target",
+                "shield": "each projectile hit runs the reference AroundCaster/AllyOnlySelf payload for one 180-tick 20 + 20% Attack shield",
+                "state": "pure data; no Native callback, process-global hit ledger, champion-count probe, shield tier, Q stack, or E return state",
+                "attack_speed_limitation": "the reference pure-data contract uses fixed 30/480-tick action and cooldown values",
             },
             "face_readability": {
                 "policy": "from-zero dual-sword V7 body model; all final 1x frames are generated once, palette-audited, then copied byte-for-byte with no pack-time resize or repaint",
@@ -2979,8 +3023,9 @@ def build_qa(
             },
             "large_vfx_policy": "Q3 tornado/knockup, compact W crescent/shield, and R feedback are isolated in dedicated sheets; no large effect replaces Yone's actor body.",
             "portrait_policy": {
-                "default_runtime": "four independent source-direct V7 UI textures; no battle-atlas portrait input",
+                "default_runtime": "five independent source-direct V7 UI textures plus the BP splash; no battle-atlas portrait input",
                 "fullbody": "85x93 exact champion_slot destination, <=70x82 subject, alpha bottom y<=86",
+                "encyclopedia": "stock 0.5.8 ChampionInfoUIRunner uses the yone_v7 sprite idle frame and champion_view camera; dedicated 64x64 image remains an excluded offline QA artifact",
                 "compact": "64x64 face focus, <=50x50 alpha bbox, >=6px border",
                 "scoreboard": "48x64 source-direct upper-body crop, <=40x54 subject, alpha bottom y<=60",
                 "grid": "90x122 full body, alpha ends at or before y=86, name band begins y=96",
@@ -3045,21 +3090,22 @@ def build_qa(
         "- [x] `source/imagegen/yone_v4_action_contact.png`, `source/imagegen/yone_v4_idle_candidate_43x55.png`, and the old `source/native/yone_v4` route are retired body inputs and are never loaded by this builder.\n"
         "- [x] V5 body inputs `yone_v5_idle_source.png`, `yone_v5_idle_golden_43x55.png`, `yone_v5_motion_contact.png`, `yone_v5_attack_q_w_contact.png`, `yone_v5_q5_contact.png`, `yone_v5_ult_contact.png`, and the complete `source/native/yone_v5` route are retired and never loaded.\n"
         "- [x] The four hash-locked ImageGen contacts use isolated `5x4`, `6x4`, `3x2`, and `5x3` grids with explicit gutters; cell extraction cannot borrow a sword from an adjacent pose.\n"
-        "- [x] Every V7 pose is finalized at 1x size, palette-validated, and copied byte-for-byte; only source-to-native generation performs the controlled source resize and crop.\n"
+        "- [x] Original V7 frames remain immutable. Run alone receives the user-authorized final-resolution leg pixel edit; all other actions retain exact source bytes.\n"
+        "- [ ] Repainted run still needs target-visible live battle acceptance; source mirror QA is provenance only, not proof of the installed gait.\n"
         "- [x] The V7 chibi face preserves true source-authored eye-outline cues, jaw and hair clusters without post-scale face repaint.\n"
         "- [x] The body preview proves the exact idle[0] 2.2x NEAREST battle render and divider clearance; dedicated UI portraits own the right-side icon exclusion.\n"
         "- [x] Idle/run keep compact silver and red swords simultaneously visible; basic attacks switch between separate six-frame steel and Azakana tags.\n"
         "- [x] The fixed palette declares six mutually exclusive roles: steel dark/mid/highlight and Azakana dark/red/highlight; body colors cannot satisfy any weapon role.\n"
         "- [x] Every frame records both hand anchors, both tips, both blade boxes, spans, connectedness, pixel counts, crop ratios, and source-tip survival; CI recomputes those 16 fields from the final PNG instead of trusting the manifest.\n"
         "- [x] Negative tests delete a blade, inject fake red pixels, disconnect a handle/tip, share hands/tips, shorten a blade, or move it to the crop edge, and each corruption is rejected.\n"
-        "- [x] CI enforces per-frame neutral dual-sword visibility plus active-blade reach for alternating steel/Azakana attacks, Q/Q3, W, and R; eight long caster-follow overlays extend active weapons without replacing the actor body.\n"
-        "- [x] Q1/Q2 use `skill_q12`, Q3 uses a separate lowered `skill_q3`, W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
+        "- [x] CI enforces per-frame neutral dual-sword visibility plus active-blade reach for alternating steel/Azakana attacks, the active single-stage Q, W, and R; visual effects never replace the actor body.\n"
+        "- [x] The current reference-grounded Q uses only the lowered `skill_q3` body route. `skill_q12` remains an inactive atlas ABI alias; W uses `skill_w_azakana`, and R retains thirteen dual-sword frames.\n"
         "- [x] Idle/run/attack/hit keep the official Dual Blader bottom clearances, and the card/BP center camera is raised to y=-16 so legs and weapons keep a visible gap above the black divider.\n"
-        "- [x] Q3 uses a dedicated horizontal tornado, a vertical blue-white airborne cue, and a small ready-wind state.\n"
-        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names plus two retired Shen dash names remain registered only as no-op saved-season compatibility aliases.\n"
-        "- [x] W has no process-global ledger: one native callback scans only its current `GameCtx`, resolves an 80-degree forward cone, damages that snapshot, counts champion hits, and emits one shield tier marker.\n"
-        "- [x] W keeps Yone planted, plays one full caster-following crescent, and uses five V7 Azakana-led sweep poses; no code-drawn body is added during packing.\n"
-        "- [x] Minions and monsters qualify for the base shield; every enemy champion hit increases its tier through the normal five-champion team limit.\n"
+        "- [x] The active Q uses one project-owned vertical blue-white airborne cue; no Q1/Q2 stack state or ready-wind buff remains in champion data.\n"
+        "- [x] Active champion data and release resources do not reference Soul Unbound. Exactly five retired Yone E names and four retired W names remain registered only as no-op saved-season compatibility aliases; no retired Shen dash native remains.\n"
+        "- [x] W is pure data: one penetrating 35000-range `Rect 40000x30000` blade projectile deals one hit and one knockback to each target; no native callback or process-global ledger runs.\n"
+        "- [x] W keeps Yone planted, uses five V7 Azakana-led sweep poses, and renders the projectile from the project-owned `yone_w/crescent` tag; no code-drawn body is added during packing.\n"
+        "- [x] Each W projectile hit grants the reference 180-tick `20 + 20% Attack` shield; there is no champion-count tier marker.\n"
         "- [x] W has no dash, spirit clone, anchor, tether, forced return, recall override, or teleport path.\n"
         "- [x] Compact portrait is face-focused with transparent safety margins.\n"
         "- [x] Fullbody/compact/scoreboard/grid UI art comes only from the high-resolution V7 UI source through magenta-key, one uniform LANCZOS shrink, hard alpha, and a 128-color finish; no battle frame is enlarged.\n"
@@ -3308,7 +3354,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
 
     native_core_bottoms = {
         "idle": [15, 15, 14, 15],
-        "run": [13, 18, 20, 17, 13, 17, 20, 17],
+        "run": [13, 14, 15, 14, 13, 14, 15, 14],
         "attack": [14, 14, 12, 13, 13, 14],
         "hit": [15],
     }
@@ -3381,6 +3427,8 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
             f"{annotation_count}/{GENERATED_BODY_FRAME_COUNT} frames"
         )
 
+    # Historical BP-stage model only; NOT an encyclopedia visibility proof.
+    # The actual stock encyclopedia UV math lives in qa_encyclopedia_geometry.
     # Replay the measured renderer route from the user's screenshots.  Every
     # idle rectangle is scaled uniformly by about 2.2x, then centered on the
     # tallest idle stage.  The rejected screenshot exactly matched idle[0], so proving
@@ -3390,7 +3438,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     )["entries"]["dual_blader"]
     expected_style = {
         "face": {"x": 2, "y": -32},
-        "center": {"x": 0, "y": -16},
+        "center": {"x": 0, "y": -3},
         "banpick_center": {"x": 0, "y": -16},
     }
     if style != expected_style:
@@ -3398,7 +3446,7 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     live_idle_card = yone_live_idle_card_contract(
         sheet,
         payload,
-        center_y=style["center"]["y"],
+        center_y=style["banpick_center"]["y"],
     )
     if set(live_idle_card["frames"]) != {
         "idle[0]",
@@ -3458,10 +3506,10 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     for effect, required_tags in {
         "yone_attack": ["steel_hit", "azakana_hit"],
         "yone_q": ["projectile", "hit", "empowered_hit"],
-        "yone_q3_tornado": ["tornado", "cue"],
+        "yone_q3_tornado": ["cue"],
         "yone_q3_ready_wind": ["pre", "loop", "remove"],
         "yone_w": ["crescent", "impact", "shield"],
-        "yone_r": ["windup", "arrival", "slash_blue", "slash_red", "echo"],
+        "yone_r": ["windup", "launch", "knockup", "slash_blue", "slash_red"],
     }.items():
         anims = json.loads((EFFECT_DIR / f"{effect}#anim.fanim").read_text(encoding="utf-8"))["anims"]
         if list(anims) != required_tags:
@@ -3480,12 +3528,57 @@ def validate_outputs(outputs: Iterable[Path]) -> None:
     fullbody_bbox = fullbody.getchannel("A").getbbox()
     if fullbody.size != (85, 93) or fullbody_bbox is None:
         raise ValueError("Yone source-direct fullbody portrait must be 85x93")
-    if (
-        fullbody_bbox[2] - fullbody_bbox[0] > 70
-        or fullbody_bbox[3] - fullbody_bbox[1] > 82
-        or fullbody_bbox[3] > 86
+    fullbody_width = fullbody_bbox[2] - fullbody_bbox[0]
+    fullbody_height = fullbody_bbox[3] - fullbody_bbox[1]
+    fullbody_opaque = sum(
+        1
+        for alpha in (
+            fullbody.getchannel("A").get_flattened_data()
+            if hasattr(fullbody.getchannel("A"), "get_flattened_data")
+            else fullbody.getchannel("A").getdata()
+        )
+        if alpha
+    )
+    if not (
+        70 <= fullbody_width <= 76
+        and 76 <= fullbody_height <= 84
+        and fullbody_bbox[3] == 88
+        and abs(fullbody_bbox[0] - (85 - fullbody_bbox[2])) <= 1
+        and fullbody_opaque >= 2300
     ):
-        raise ValueError(f"Yone fullbody subject exceeds its exact card slot: {fullbody_bbox}")
+        raise ValueError(
+            "Yone encyclopedia fullbody is too small, off-center, or clipped: "
+            f"bbox={fullbody_bbox}, opaque={fullbody_opaque}"
+        )
+    encyclopedia = Image.open(
+        FULLBODY_DIR / "dual_blader_encyclopedia.png"
+    ).convert("RGBA")
+    encyclopedia_bbox = encyclopedia.getchannel("A").getbbox()
+    if (
+        encyclopedia.size != (64, 64)
+        or encyclopedia_bbox is None
+        or not 28 <= encyclopedia_bbox[2] - encyclopedia_bbox[0] <= 54
+        or not 56 <= encyclopedia_bbox[3] - encyclopedia_bbox[1] <= 58
+        or encyclopedia_bbox[3] > 60
+        or encyclopedia_bbox[0] < 4
+        or 64 - encyclopedia_bbox[2] < 4
+        or encyclopedia_bbox[1] < 2
+        or 64 - encyclopedia_bbox[3] < 4
+    ):
+        raise ValueError(
+            "Yone offline encyclopedia target lost Briar-class 64x64 fit: "
+            f"bbox={encyclopedia_bbox}"
+        )
+    encyclopedia_quality = yone_ui_surface_quality(encyclopedia)
+    if (
+        not encyclopedia_quality["hard_alpha"]
+        or not encyclopedia_quality["transparent_rgb_clear"]
+        or encyclopedia_quality["opaque_palette_size"] < 32
+    ):
+        raise ValueError(
+            "Yone offline encyclopedia target lost source-direct quality: "
+            f"{encyclopedia_quality}"
+        )
     compact = Image.open(PORTRAIT_DIR / "dual_blader_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()
     if compact.size != (64, 64) or compact_bbox is None:

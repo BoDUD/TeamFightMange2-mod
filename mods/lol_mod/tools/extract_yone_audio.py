@@ -397,9 +397,9 @@ SOUNDS = (
         "1ebd2986a1a2b9d4a5e143b32a52ebe835bfb0d002b528409110261eec2986d5",
         2.780861678,
         "c1d15b423ace2991a5a1a5ef88a17a1565ce2ddb9714a0247f95de21b3265db9",
-        "TargetSfx on the terminal fixed-damage echo",
-        "second unused official base-skin R-cast variant, independently pinned and retained with its complete tail for the adapted terminal echo",
-        volume=0.55,
+        "TargetSfx on the tick-12 Fate Sealed pull/echo",
+        "second official base-skin R-cast variant, independently pinned and retained with its complete tail for the adapted pull echo",
+        volume=0.85,
     ),
 )
 
@@ -934,10 +934,10 @@ def main() -> int:
             "slash_volume": 0.55,
             "echo_media_id": 862_736_579,
             "echo_retains_complete_source": True,
-            "echo_volume": 0.55,
+            "echo_volume": 0.85,
             "reason": (
                 "Six rapid adapted R strikes need click-safe 0.20-second one-shots; the "
-                "terminal echo instead uses independent official media with its full decay."
+                "tick-12 pull echo instead uses independent official media with its full decay."
             ),
         },
         "native_audio_isolation": {

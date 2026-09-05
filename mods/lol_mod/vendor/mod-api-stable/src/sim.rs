@@ -214,6 +214,124 @@ impl<'a> StableSim<'a> {
         })
     }
 
+    // ---- ABI level 6 ----
+
+    /// Plays a named view effect at `input` (entity or position). `range`/`radius`/
+    /// `time` mirror `.data_champion` `ViewEffect`; 0 when unused.
+    pub fn play_view_effect(
+        &mut self,
+        name: &str,
+        caster_id: usize,
+        input: &crate::InputTargetV1,
+        range: u64,
+        radius: u64,
+        time: u64,
+    ) -> bool {
+        slot!(self.sim(), SimVtableV1, play_view_effect).map_or(false, |f| unsafe {
+            f(self.state(), name.as_ptr(), name.len(), caster_id, input, range, radius, time)
+        })
+    }
+
+    /// Plays a named sound at `input` (entity or position) inside the match.
+    pub fn play_sfx(&mut self, name: &str, caster_id: usize, input: &crate::InputTargetV1) -> bool {
+        slot!(self.sim(), SimVtableV1, play_sfx)
+            .map_or(false, |f| unsafe { f(self.state(), name.as_ptr(), name.len(), caster_id, input) })
+    }
+
+    /// Hides the entity for `ticks` (enemies lose vision and targeting).
+    pub fn entity_set_invisible(&mut self, entity_id: usize, ticks: usize) -> bool {
+        slot!(self.sim(), SimVtableV1, entity_set_invisible)
+            .map_or(false, |f| unsafe { f(self.state(), EntityHandleV1::from_id(entity_id), ticks) })
+    }
+
+    /// Banishes `target_id` for `ticks` (untargetable, invisible, input-locked);
+    /// empty effect names skip the visuals.
+    pub fn entity_banish(
+        &mut self,
+        caster_id: usize,
+        target_id: usize,
+        ticks: usize,
+        lock_effect_name: &str,
+        end_effect_name: &str,
+    ) -> bool {
+        slot!(self.sim(), SimVtableV1, entity_banish).map_or(false, |f| unsafe {
+            f(
+                self.state(),
+                caster_id,
+                EntityHandleV1::from_id(target_id),
+                ticks,
+                lock_effect_name.as_ptr(),
+                lock_effect_name.len(),
+                end_effect_name.as_ptr(),
+                end_effect_name.len(),
+            )
+        })
+    }
+
+    /// Knocks `target_id` away from `caster_id` for `ticks` at `speed`
+    /// (caster-relative). Respects cc_immune. `false` on hosts older than ABI level 7.
+    pub fn entity_knockback(&mut self, caster_id: usize, target_id: usize, speed: usize, ticks: usize) -> bool {
+        slot!(self.sim(), SimVtableV1, entity_knockback).map_or(false, |f| unsafe {
+            f(self.state(), caster_id, EntityHandleV1::from_id(target_id), speed, ticks)
+        })
+    }
+
+    /// Grabs `target_id` toward `caster_id` at `speed`; `ticks == 0` grabs until reached.
+    /// Respects cc_immune. `false` on hosts older than ABI level 7.
+    pub fn entity_grab(&mut self, caster_id: usize, target_id: usize, speed: usize, ticks: usize) -> bool {
+        slot!(self.sim(), SimVtableV1, entity_grab).map_or(false, |f| unsafe {
+            f(self.state(), caster_id, EntityHandleV1::from_id(target_id), speed, ticks)
+        })
+    }
+
+    /// Pulls `target_id` toward `caster_id` for `ticks` at `speed`. Respects cc_immune.
+    /// `false` on hosts older than ABI level 7.
+    pub fn entity_pull(&mut self, caster_id: usize, target_id: usize, speed: usize, ticks: usize) -> bool {
+        slot!(self.sim(), SimVtableV1, entity_pull).map_or(false, |f| unsafe {
+            f(self.state(), caster_id, EntityHandleV1::from_id(target_id), speed, ticks)
+        })
+    }
+
+    /// Stacks a named buff on the entity: same-name stat buffs count as stacks.
+    /// When `refresh` the existing stacks' remaining duration is rewritten to
+    /// `buff`'s, then one more copy is appended unless `max_stacks` (0 =
+    /// unlimited) is already reached. Returns the resulting stack count;
+    /// 0 on failure, on unnamed buffs, or on hosts older than ABI level 8.
+    pub fn entity_stack_buff(
+        &mut self,
+        entity_id: usize,
+        buff: &BuffV1,
+        max_stacks: usize,
+        refresh: bool,
+    ) -> usize {
+        slot!(self.sim(), SimVtableV1, entity_stack_buff).map_or(0, |f| unsafe {
+            f(self.state(), EntityHandleV1::from_id(entity_id), buff, max_stacks, refresh as u32)
+        })
+    }
+
+    /// Damage with an explicit type; `DamageTypeV1::Fixed` is true damage that
+    /// still earns statistics, kill credit and procs.
+    pub fn deal_damage_typed(
+        &mut self,
+        attacker: usize,
+        target: usize,
+        amount: usize,
+        damage_type: crate::DamageTypeV1,
+        attack_type: AttackTypeV1,
+    ) -> bool {
+        slot!(self.sim(), SimVtableV1, deal_damage_typed).map_or(false, |f| unsafe {
+            f(self.state(), attacker, target, amount, damage_type.code(), attack_type.code())
+        })
+    }
+
+    /// Where this simulation runs and which match/replay/set it belongs to.
+    /// `None` on hosts older than ABI level 6.
+    pub fn sim_origin(&self) -> Option<crate::SimOriginV1> {
+        let f = slot!(self.sim(), SimVtableV1, sim_origin)?;
+        let mut out = crate::SimOriginV1::default();
+        unsafe { f(self.state(), &mut out) }.then_some(out)
+    }
+
     /// Spawns a duration-limited combat unit that chases and attacks nearby
     /// enemies. Returns the new entity id.
     #[allow(clippy::too_many_arguments)]

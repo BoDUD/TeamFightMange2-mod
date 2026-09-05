@@ -194,7 +194,7 @@ def test_q_is_exactly_two_penetrating_feathers_and_second_is_delayed_six_ticks()
         q["range"],
         q["casting_type"],
         q["casting_target"],
-    ) == ("skill1", 360, 28, 8, 72000, "Direction", "EnemyWithoutTower")
+    ) == ("skill1", 360, 28, 8, 72000, "Targeting", "EnemyWithoutTower")
     projectiles = find_effect(q, "LinearProjectile", name="lol_xayah_q_feather")
     assert len(projectiles) == 2
     for projectile in projectiles:
@@ -399,6 +399,13 @@ def test_xayah_ai_e_gate_tracks_bounded_counts_and_blocks_only_empty_bladecaller
     assert "get_run_away_without_skill_input" not in runtime
     assert "registration.add_player_input_ai(XayahFeatherInputGate);" in runtime
 
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    stable_gate = stable_runtime.split(
+        "impl StablePlayerAi for XayahFeatherInputGate", 1
+    )[1].split("const URGOT_PASSIVE_COOLDOWN_TICKS", 1)[0]
+    assert "Some(InputV1::action(InputKindV1::Attack, base_input.target))" in stable_gate
+    assert "ctx.is_valid_input(&attack).then_some(attack)" not in stable_gate
+
     qa = load_json("qa/xayah_replacement_qa.json")
     assert qa["ground_feather_limit"] == {
         "visual_markers_shipped": True,
@@ -498,16 +505,44 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
         assert "lol_xayah" not in text[locale]["description"]
 
     style = load_json("style/champion_view.champion_view")["entries"]["dancer"]
-    assert style == {"face": {"x": 2, "y": -32}, "center": {"x": 0, "y": -12}}
+    assert style == {
+        "face": {"x": 2, "y": -32},
+        "center": {"x": 0, "y": 0},
+        "banpick_center": {"x": 0, "y": -16},
+    }
     assert style["face"] != style["center"]
 
-    champion_slot = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
-        encoding="utf-8"
-    )
-    assert "#lol_fullbody_xayah:image" in champion_slot
-    assert 'source: "asset/lol_mod/ui/champion_fullbody/dancer";' in champion_slot
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    bp_runtime = (MOD / "src/bp_illustrations.rs").read_text(encoding="utf-8")
+    for native_id in ("boomerang_hunter", "dancer", "dual_blader"):
+        assert f'"{native_id}"' in bp_runtime
+    assert "bp_champion_id_from_name" not in stable_runtime
+    for forbidden in (
+        "sync_encyclopedia",
+        "find_encyclopedia_container",
+        "ui_set_champion_icon",
+        "encyclopedia_native_icon",
+        "lol_fullbody_xayah",
+        "lol_fullbody_yone",
+    ):
+        assert forbidden not in stable_runtime
+    assert "draw_sprite" not in stable_runtime
+    assert "fn post_render" not in stable_runtime
+    assert "encyclopedia_render_proof" not in stable_runtime
 
     override = load_json("mod.override_info")
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    runtime_paths = {
+        row["path"] for row in load_json("runtime_manifest.json")["files"]
+    }
+    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
+    assert not any(
+        path.startswith("ui/layout/champion_info_component/")
+        for path in runtime_paths
+    )
+    assert load_json("champion/dancer.data_champion")["sprite"] == (
+        "asset/lol_mod/aseprite_resources/champions/xayah"
+    )
     assert override["asset/base/aseprite_resources/champions/dancer#sheet"]["remapping"] == (
         "asset/lol_mod/aseprite_resources/champions/xayah#sheet"
     )
@@ -647,7 +682,7 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
     assert "crop_top_half_tags" not in builder
     assert Image.open(MOD / "BanPickIllust/dancer.png").size == (1420, 860)
     portrait = Image.open(MOD / "ui/champion_fullbody/dancer.png").convert("RGBA")
-    assert portrait.size == (64, 64) and portrait.getchannel("A").getbbox() is not None
+    assert portrait.size == (85, 93) and portrait.getchannel("A").getbbox() is not None
     compact = Image.open(MOD / "ui/champion_portrait/dancer_compact.png").convert("RGBA")
     grid = Image.open(MOD / "ui/champion_portrait/dancer_grid.png").convert("RGBA")
     assert compact.size == (64, 64)
@@ -661,6 +696,32 @@ def test_xayah_imagegen_icons_vfx_splash_and_portrait_are_runtime_ready() -> Non
     assert grid_bbox is not None and grid_bbox[1] <= 8 and grid_bbox[3] <= 86
     assert compact.getchannel("A").getextrema() == (0, 255)
     assert grid.getchannel("A").getextrema() == (0, 255)
+
+
+def test_xayah_encyclopedia_fullbody_has_visible_balanced_hard_alpha_geometry() -> None:
+    portrait = Image.open(MOD / "ui/champion_fullbody/dancer.png").convert("RGBA")
+    alpha = portrait.getchannel("A")
+    histogram = alpha.histogram()
+    bbox = alpha.getbbox()
+
+    assert portrait.size == (85, 93)
+    assert bbox is not None
+    assert 44 <= bbox[2] - bbox[0] <= 54
+    assert 80 <= bbox[3] - bbox[1] <= 84
+    assert bbox[3] == 88
+    assert bbox[1] >= 4
+    assert abs(bbox[0] - (85 - bbox[2])) <= 1
+    assert sum(histogram[1:255]) == 0
+    assert 0.15 <= histogram[255] / (85 * 93) <= 0.40
+    pixels = (
+        portrait.get_flattened_data()
+        if hasattr(portrait, "get_flattened_data")
+        else portrait.getdata()
+    )
+    assert all(
+        alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+        for red, green, blue, alpha_value in pixels
+    )
     assert (MOD / "qa/xayah_portrait_surface_final.png").is_file()
 
     provenance = load_json("qa/xayah_imagegen_sources.json")

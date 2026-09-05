@@ -120,14 +120,45 @@ pub use values::{
     CHAMPION_BRIEF_TAG_CAP,
 };
 pub use wrapper::{LogLevel, StableHost, StableMod};
+pub use values::{SimOriginKindV1, SimOriginV1};
 
 /// Current ABI level of this crate. Bumped (+1) every time the host appends
 /// slots/fields/types to the contract. Level 1 is the initial contract.
-/// Level 2 appends shield/attack-speed/raw-damage sim slots, the item and
-/// passive `*_ex` callbacks, item build hooks, and champion lane priors.
-/// Level 3 appends the read-only `RecordKindV1::MatchReplay` table so mods
-/// can read match history without a classic-API dependency.
-/// Level 4 appends the `UiVtableV1` image-fill slots `set_team_logo` /
-/// `set_champion_icon`, exposing the game's own logo/icon resolution
-/// (save-embedded custom logos, champion face crops) to image nodes mods own.
-pub const ABI_LEVEL: u32 = 4;
+///
+/// Level 2 appends the Support item category and
+/// `ClientSceneKindV1::ChampionshipCelebration`, shield/attack-speed/raw-damage
+/// sim slots, item/passive `*_ex` callbacks, item-build hooks, and champion
+/// lane priors. Level 1 mods remain loadable through the size/code guards.
+///
+/// Levels 3 and 4 were handed out independently in the two lineages before they
+/// merged, so level 5 is the first level whose contract holds all of them:
+/// - `ClientSceneKindV1::AwardsCeremony` (beta lineage, was level 3)
+/// - the read-only `RecordKindV1::MatchReplay` table, letting mods read match
+///   history without a classic-API dependency (main lineage, was level 3)
+/// - the `UiVtableV1` image-fill slots `set_team_logo` / `set_champion_icon`,
+///   exposing the game's own logo/icon resolution (save-embedded custom logos,
+///   champion face crops) to image nodes mods own (main lineage, was level 4)
+///
+/// Mods built against level 3 or 4 of either lineage stay loadable: every entry
+/// above is appended, never renumbered, and the size/code guards cover the rest.
+///
+/// Level 6 appends the gaps modders reported once the classic SDK closed:
+/// `SimVtableV1` `play_view_effect` / `play_sfx` (VFX and sound at a position or
+/// entity), `entity_set_invisible` / `entity_banish` (the invisible and banish
+/// primitives `.data_champion` already had), `deal_damage_typed` (true damage
+/// through the real attack pipeline) and `sim_origin` (is this simulation the
+/// match on screen, a replay, or server pre-sim — with match/replay/set ids);
+/// `DataVtableV1` `native_effect_count` / `native_effect_name_at` (the names
+/// `queue_effect` and `Native { effect_ref }` accept).
+///
+/// Level 7 appends caster-relative displacement to `SimVtableV1`:
+/// `entity_knockback` (knock the target away from the caster), `entity_grab`
+/// (pull the target to the caster; `ticks == 0` = until reached) and
+/// `entity_pull` (drag the target toward the caster) — the `.data_champion`
+/// `Knockback` / `Grab` / `Pull` primitives, exposed to native mods.
+///
+/// Level 8 appends `SimVtableV1` `entity_stack_buff`: one call to grow a
+/// named-buff stack — counts same-name stat buffs, optionally refreshes their
+/// remaining duration, and appends one more copy under a `max_stacks` cap —
+/// replacing the read-remove-re-add loop stacking mods had to hand-roll.
+pub const ABI_LEVEL: u32 = 8;

@@ -326,6 +326,7 @@ def fit_actor(
     *,
     target_height: int,
     bottom_margin: int,
+    fixed_scale: float | None = None,
 ) -> Image.Image:
     """Uniformly fit one final-scale pose onto the native 007 body anchor.
 
@@ -345,7 +346,9 @@ def fit_actor(
     # scale QA instead of being horizontally compressed.
     max_width = max(1, frame_size[0])
     max_height = max(1, frame_size[1] - bottom_margin - 1)
-    scale = min(target_height / subject.height, max_width / subject.width, max_height / subject.height)
+    scale = fixed_scale if fixed_scale is not None else min(target_height / subject.height, max_width / subject.width, max_height / subject.height)
+    if round(subject.width * scale) > max_width or round(subject.height * scale) > max_height:
+        raise ValueError("Xayah pose exceeds the shared body scale contract; repaint the source instead of shrinking this frame")
     width = max(1, round(subject.width * scale))
     height = max(1, round(subject.height * scale))
     resized = subject.resize((width, height), Image.Resampling.NEAREST)
@@ -361,6 +364,22 @@ def fit_actor(
         )
     output.alpha_composite(resized, (x, y))
     return output
+
+
+def run_body_geometry(sources: list[Image.Image]) -> tuple[float, list[int]]:
+    """One source-pixel scale with the original per-frame sole anchors.
+
+    The previous per-frame 30..36px target made the head pulse with the cape.
+    Keep the measured native bottom margins: a center-relative replacement
+    silently conflicts with the frame contract used by validation and packing.
+    """
+    rects = NATIVE_CONTRACT["run"]["rects"]
+    subjects = [remove_small_border_fragments(hard_alpha(source)) for source in sources]
+    sizes = [(b[2]-b[0], b[3]-b[1]) for b in map(alpha_bbox, subjects)]
+    bottoms = BODY_BOTTOM_MARGINS["run"].copy()
+    scale = min(min(36 / sh, w / sw, (h - bottom - 1) / sh)
+                for (_, _, w, h), (sw, sh), bottom in zip(rects, sizes, bottoms, strict=True))
+    return scale, bottoms
 
 
 def fit_effect(source: Image.Image, frame_size: tuple[int, int], *, padding: int = 2) -> Image.Image:
@@ -426,11 +445,12 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         # independent xayah_q/xayah_e/xayah_r sheets.
         "ult": r_body_cells,
     }
+    run_scale, run_bottoms = run_body_geometry(run_cells)
     for tag in ("ult", "idle", "run", "hit", "attack", "skill1", "skill2"):
         sources = sequences[tag]
         rects = NATIVE_CONTRACT[tag]["rects"]
         heights = BODY_TARGET_HEIGHTS[tag]
-        bottoms = BODY_BOTTOM_MARGINS[tag]
+        bottoms = run_bottoms if tag == "run" else BODY_BOTTOM_MARGINS[tag]
         if not (len(sources) == len(rects) == len(heights) == len(bottoms)):
             raise ValueError(f"{tag}: {len(sources)} sources for {len(rects)} native frames")
         for rect, source, target_height, bottom_margin in zip(
@@ -441,6 +461,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
                 (rect[2], rect[3]),
                 target_height=target_height,
                 bottom_margin=bottom_margin,
+                fixed_scale=run_scale if tag == "run" else None,
             )
             _paste_unique(sheet, placements, rect, frame)
             representative.append(frame)
@@ -662,15 +683,30 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
         output.alpha_composite(subject, (x, y))
         return output
 
+    # Keep the historical 85x93 full-body render as offline comparison evidence.
+    # The 0.5.8 runtime uses the engine champion resolver on the stock icon node;
+    # it cannot safely bind a raw PNG source.
     portrait = render_subject(
         full_body,
-        (64, 64),
-        max_subject=(54, 56),
-        bottom=60,
+        (85, 93),
+        max_subject=(70, 84),
+        bottom=88,
         colors=96,
     )
     portrait_path = FULLBODY_DIR / "dancer.png"
     save_png(portrait_path, portrait)
+
+    # Keep a 64x64 Briar-class full-body target as offline size/leg QA evidence.
+    # Both full-body PNGs are excluded from the installed runtime closure.
+    encyclopedia = render_subject(
+        full_body,
+        (64, 64),
+        max_subject=(54, 58),
+        bottom=60,
+        colors=96,
+    )
+    encyclopedia_path = FULLBODY_DIR / "dancer_encyclopedia.png"
+    save_png(encyclopedia_path, encyclopedia)
 
     # Compact report/scoreboard/HUD portrait: preserve both visible eyes,
     # feather ears, shoulders, and the upper torso while giving the square
@@ -708,7 +744,7 @@ def build_splash_and_fullbody(_actor_sheet: Path) -> list[Path]:
     )
     grid_path = PORTRAIT_DIR / "dancer_grid.png"
     save_png(grid_path, grid)
-    return [splash_path, portrait_path, compact_path, grid_path]
+    return [splash_path, portrait_path, encyclopedia_path, compact_path, grid_path]
 
 
 AUDIO_SPECS: tuple[dict[str, Any], ...] = (
@@ -894,7 +930,10 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
             visible_width = bbox[2] - bbox[0]
             visible_height = bbox[3] - bbox[1]
             ratio = visible_height / baseline_height
-            ratios.append(ratio)
+            # Run now has one shared source scale, not eight enlargement
+            # targets. Keep the legacy enlargement gate on unchanged actions.
+            if tag != "run":
+                ratios.append(ratio)
             action_records[tag].append(
                 {
                     "frame": index,
@@ -924,22 +963,59 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
         raise ValueError(f"Xayah enlarged actor lost foot clearance: {min_bottom}px")
 
     portrait_specs = {
-        "encyclopedia": (FULLBODY_DIR / "dancer.png", [64, 64]),
+        "encyclopedia": (FULLBODY_DIR / "dancer.png", [85, 93]),
         "compact": (PORTRAIT_DIR / "dancer_compact.png", [64, 64]),
         "bp_grid": (PORTRAIT_DIR / "dancer_grid.png", [90, 122]),
     }
     portrait_records: dict[str, dict[str, Any]] = {}
     for surface, (path, expected_size) in portrait_specs.items():
         image = Image.open(path).convert("RGBA")
-        bbox = image.getchannel("A").getbbox()
+        alpha = image.getchannel("A")
+        alpha_histogram = alpha.histogram()
+        bbox = alpha.getbbox()
         if list(image.size) != expected_size or bbox is None:
             raise ValueError(f"Xayah {surface} portrait is invalid: size={image.size}, bbox={bbox}")
+        pixels = (
+            image.get_flattened_data()
+            if hasattr(image, "get_flattened_data")
+            else image.getdata()
+        )
+        partial_alpha_pixels = sum(alpha_histogram[1:255])
         portrait_records[surface] = {
             "path": path.relative_to(MOD_ROOT).as_posix(),
             "dimensions": list(image.size),
             "alpha_bbox": list(bbox),
-            "hard_alpha": image.getchannel("A").getextrema() == (0, 255),
+            "hard_alpha": partial_alpha_pixels == 0 and alpha_histogram[255] > 0,
+            "partial_alpha_pixels": partial_alpha_pixels,
+            "opaque_pixels": alpha_histogram[255],
+            "transparent_rgb_clean": all(
+                alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+                for red, green, blue, alpha_value in pixels
+            ),
         }
+    for surface, record in portrait_records.items():
+        if not record["hard_alpha"] or not record["transparent_rgb_clean"]:
+            raise ValueError(f"Xayah {surface} portrait lost clean hard-alpha output: {record}")
+
+    encyclopedia_record = portrait_records["encyclopedia"]
+    encyclopedia_bbox = encyclopedia_record["alpha_bbox"]
+    encyclopedia_width = encyclopedia_bbox[2] - encyclopedia_bbox[0]
+    encyclopedia_height = encyclopedia_bbox[3] - encyclopedia_bbox[1]
+    encyclopedia_left = encyclopedia_bbox[0]
+    encyclopedia_right = 85 - encyclopedia_bbox[2]
+    encyclopedia_coverage = encyclopedia_record["opaque_pixels"] / (85 * 93)
+    if (
+        not 44 <= encyclopedia_width <= 54
+        or not 80 <= encyclopedia_height <= 84
+        or encyclopedia_bbox[3] != 88
+        or encyclopedia_bbox[1] < 4
+        or abs(encyclopedia_left - encyclopedia_right) > 1
+        or not 0.15 <= encyclopedia_coverage <= 0.40
+    ):
+        raise ValueError(
+            "Xayah encyclopedia portrait lost its visible centered 85x93 geometry: "
+            f"bbox={encyclopedia_bbox}, opaque_coverage={encyclopedia_coverage:.4f}"
+        )
     if portrait_records["bp_grid"]["alpha_bbox"][3] > 86:
         raise ValueError("Xayah BP-grid portrait overlaps its bottom name band")
     compact_bbox = portrait_records["compact"]["alpha_bbox"]
@@ -965,6 +1041,7 @@ def build_ui_scale_qa(actor_sheet: Path, actor_anim: Path) -> list[Path]:
             "actor_scale": {
                 "policy": "one uniform nearest-neighbor resize per frame; native width may cap the whole pose; no x-only compression, crop, or atlas spill",
                 "requested_scale_class": "approximately 12-15 percent larger",
+                "enlargement_measurement_scope": "non-run actions; run uses one source scale with exact native sole anchors",
                 "mean_height_scale_ratio": round(mean_ratio, 4),
                 "median_height_scale_ratio": round(median_ratio, 4),
                 "minimum_bottom_clearance": min_bottom,
@@ -1222,6 +1299,12 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
         if actual_rects != spec["rects"]:
             raise ValueError(f"Xayah {tag} frame rectangles changed")
     sheet = Image.open(actor_sheet).convert("RGBA")
+    run_sources = split_grid(Image.open(RUN_SOURCE).convert("RGBA"), 4, 2)
+    run_scale, run_bottoms = run_body_geometry(run_sources)
+    expected_run = [fit_actor(source, (w, h), target_height=36,
+                             bottom_margin=bottom, fixed_scale=run_scale)
+                    for source, (_, _, w, h), bottom in
+                    zip(run_sources, NATIVE_CONTRACT["run"]["rects"], run_bottoms, strict=True)]
     visible_records: dict[str, list[dict[str, Any]]] = {}
     for tag, target_heights in BODY_TARGET_HEIGHTS.items():
         visible_records[tag] = []
@@ -1247,6 +1330,14 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
                 raise ValueError(f"Xayah {tag}[{index}] body frame is empty")
             visible_height = bbox[3] - bbox[1]
             bottom = rect["h"] - bbox[3]
+            if tag == "run":
+                # A shared source scale replaces the old per-frame height
+                # targets. Validate exact authored output, not the old stretch.
+                expected = expected_run[index]
+                if frame.tobytes() != expected.tobytes():
+                    raise ValueError(f"Xayah run[{index}] differs from shared-scale source")
+                expected_bbox = alpha_bbox(expected)
+                target_height = expected_bbox[3] - expected_bbox[1]
             native_width_limited = (
                 visible_height < target_height
                 and bbox[0] <= 1
@@ -1353,11 +1444,52 @@ def validate_outputs(actor_sheet: Path, actor_anim: Path, outputs: Iterable[Path
     if Image.open(SPLASH_DIR / "dancer.png").size != (1420, 860):
         raise ValueError("Xayah BP splash size changed")
     portrait = Image.open(FULLBODY_DIR / "dancer.png").convert("RGBA")
-    if portrait.size != (64, 64):
+    if portrait.size != (85, 93):
         raise ValueError("Xayah encyclopedia portrait size changed")
-    portrait_bbox = portrait.getchannel("A").point(lambda value: 255 if value >= 64 else 0).getbbox()
-    if portrait_bbox is None or portrait_bbox[3] != 60 or portrait_bbox[3] - portrait_bbox[1] > 56:
-        raise ValueError(f"Xayah full-body portrait lost its 4px bottom safety margin: {portrait_bbox}")
+    portrait_alpha = portrait.getchannel("A")
+    portrait_histogram = portrait_alpha.histogram()
+    portrait_bbox = portrait_alpha.getbbox()
+    portrait_pixels = (
+        portrait.get_flattened_data()
+        if hasattr(portrait, "get_flattened_data")
+        else portrait.getdata()
+    )
+    portrait_coverage = portrait_histogram[255] / (85 * 93)
+    if (
+        portrait_bbox is None
+        or not 44 <= portrait_bbox[2] - portrait_bbox[0] <= 54
+        or not 80 <= portrait_bbox[3] - portrait_bbox[1] <= 84
+        or portrait_bbox[3] != 88
+        or portrait_bbox[1] < 4
+        or abs(portrait_bbox[0] - (85 - portrait_bbox[2])) > 1
+        or sum(portrait_histogram[1:255]) != 0
+        or not 0.15 <= portrait_coverage <= 0.40
+        or not all(
+            alpha_value != 0 or (red, green, blue) == (0, 0, 0)
+            for red, green, blue, alpha_value in portrait_pixels
+        )
+    ):
+        raise ValueError(
+            "Xayah encyclopedia portrait lost visible centered hard-alpha geometry: "
+            f"bbox={portrait_bbox}, opaque_coverage={portrait_coverage:.4f}"
+        )
+    encyclopedia = Image.open(FULLBODY_DIR / "dancer_encyclopedia.png").convert("RGBA")
+    encyclopedia_bbox = encyclopedia.getchannel("A").getbbox()
+    if (
+        encyclopedia.size != (64, 64)
+        or encyclopedia_bbox is None
+        or not 28 <= encyclopedia_bbox[2] - encyclopedia_bbox[0] <= 54
+        or not 56 <= encyclopedia_bbox[3] - encyclopedia_bbox[1] <= 58
+        or encyclopedia_bbox[3] > 60
+        or encyclopedia_bbox[0] < 4
+        or 64 - encyclopedia_bbox[2] < 4
+        or encyclopedia_bbox[1] < 2
+        or 64 - encyclopedia_bbox[3] < 4
+    ):
+        raise ValueError(
+            "Xayah card-local encyclopedia texture lost Briar-class 64x64 fit: "
+            f"bbox={encyclopedia_bbox}"
+        )
     compact = Image.open(PORTRAIT_DIR / "dancer_compact.png").convert("RGBA")
     compact_bbox = compact.getchannel("A").getbbox()
     if (

@@ -193,9 +193,18 @@ PRESERVED_UI_SHA256 = {
 # portrait cameras, so both exact pre-resize style hashes are valid baselines.
 PRESERVED_UI_SHA256_ALTERNATES = {
     "style/champion_view.champion_view": {
+        # PR #12 adds only dancer.banpick_center=(0,-16). The five legacy
+        # actor cameras protected by this audit are unchanged.
+        "74892cfeb0cce11f252d42a63375229e6f915d54ab13ecd9a2aaaa91d24d242d",
         "66539e56d720673c0311d1dbdb19a0ed9d4db619a1fb0746b2c9a0eb43ea5309",
         # PR #11 integration with the final Yone V7 face/card cameras.
         "51007a9bcc9c184ff59445dca757be637347099e25bd6576f1910c91cd32950f",
+        # 0.12.15: only Yone/Xayah center UV cameras changed. The five legacy
+        # champions audited here and every face camera remain byte-identical.
+        "556659e61adff64bedd88744ae0a1ca437d7f0e798eff17650340b7203a24722",
+        # Retired 0.12.4 native-camera experiment; 0.12.5 restores compact
+        # face cameras and uses source-direct encyclopedia portraits instead.
+        "d9deb50d044fd1a29cdd77b0266f8dbce419503ee3ff0a0dabfc6408db981913",
     },
 }
 

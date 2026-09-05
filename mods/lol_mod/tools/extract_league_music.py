@@ -248,9 +248,11 @@ MAP11_MASTER_FRAME_COUNT = 13_230_000
 
 OUTPUT_SPECS = {
     "lol_banpick": {
-        "frame_count": 8_077_263,
-        "duration_seconds": 8_077_263 / 44_100,
-        "sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57",
+        "source_frame_count": 8_077_263,
+        "source_sha256": "be1d02b96702f7a375bc21e4dc5c5dc46408ebb4ba9a896469d68ddef5dc4d57",
+        "frame_count": 4_038_631,
+        "duration_seconds": 4_038_631 / 22_050,
+        "sha256": "cb7ab66a7601d80f40e3557bdb650bc5a57e1e1f9dafa5f5cfd8516a14b31bcd",
         "runtime_keys": (
             "asset/base/sound/bgm/banpick",
             "asset/base/sound/bgm/banpick2",
@@ -258,9 +260,11 @@ OUTPUT_SPECS = {
         ),
     },
     "lol_match": {
-        "frame_count": MAP11_MASTER_FRAME_COUNT,
-        "duration_seconds": MAP11_MASTER_FRAME_COUNT / 44_100,
-        "sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2",
+        "source_frame_count": MAP11_MASTER_FRAME_COUNT,
+        "source_sha256": "b72626393c9dee33cfc78c82a0aed1015dd669c7b582621ea1d9c3fd560148e2",
+        "frame_count": 6_615_000,
+        "duration_seconds": 300.0,
+        "sha256": "1ecf65b2a842b51dd6a139ce12a60e0bf32278493346da5cff5cb8da83054f80",
         "runtime_keys": (
             "asset/base/sound/bgm/match",
             "asset/base/sound/bgm/match2",
@@ -520,6 +524,39 @@ def mix_pcm16(
             reader.close()
 
 
+def downsample_runtime_pcm16(source: Path, destination: Path) -> None:
+    """Halve 44.1 kHz stereo PCM with a deterministic two-frame box filter."""
+
+    with wave.open(str(source), "rb") as reader:
+        params = (
+            reader.getnchannels(),
+            reader.getsampwidth(),
+            reader.getframerate(),
+            reader.getcomptype(),
+        )
+        if params != (2, 2, 44_100, "NONE"):
+            raise RuntimeError(f"Unexpected runtime-downsample source format: {params}")
+        samples = array.array("h", reader.readframes(reader.getnframes()))
+    if sys.byteorder != "little":
+        samples.byteswap()
+
+    complete_frames = (len(samples) // 2) & ~1
+    reduced = array.array("h")
+    for frame in range(0, complete_frames, 2):
+        left = frame * 2
+        right = left + 2
+        reduced.append(round((samples[left] + samples[right]) / 2))
+        reduced.append(round((samples[left + 1] + samples[right + 1]) / 2))
+    if sys.byteorder != "little":
+        reduced.byteswap()
+
+    with wave.open(str(destination), "wb") as writer:
+        writer.setnchannels(2)
+        writer.setsampwidth(2)
+        writer.setframerate(22_050)
+        writer.writeframes(reduced.tobytes())
+
+
 def verify_champselect_javascript(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     required = (
@@ -672,24 +709,42 @@ def build_music(
             ("lol_match", staged_match),
         ):
             destination = output_dir / f"{stem}.wav"
-            info = inspect_wav(staged)
             expected = OUTPUT_SPECS[stem]
-            if info["frame_count"] != expected["frame_count"]:
+            source_info = inspect_wav(staged)
+            if source_info["frame_count"] != expected["source_frame_count"]:
                 raise RuntimeError(
-                    f"{stem} frame count mismatch: expected "
-                    f"{expected['frame_count']}, got {info['frame_count']}."
+                    f"{stem} source frame count mismatch: expected "
+                    f"{expected['source_frame_count']}, got {source_info['frame_count']}."
                 )
-            if expected["sha256"] and info["sha256"] != expected["sha256"]:
+            if source_info["sha256"] != expected["source_sha256"]:
                 raise RuntimeError(
-                    f"{stem} deterministic hash mismatch: expected "
-                    f"{expected['sha256']}, got {info['sha256']}."
+                    f"{stem} source hash mismatch: expected "
+                    f"{expected['source_sha256']}, got {source_info['sha256']}."
                 )
-            staged.replace(destination)
+
+            optimized = temp / f"{stem}_runtime.wav"
+            downsample_runtime_pcm16(staged, optimized)
+            optimized_info = inspect_wav(optimized)
+            if optimized_info["frame_count"] != expected["frame_count"]:
+                raise RuntimeError(
+                    f"{stem} runtime frame count mismatch: expected "
+                    f"{expected['frame_count']}, got {optimized_info['frame_count']}."
+                )
+            if optimized_info["sha256"] != expected["sha256"]:
+                raise RuntimeError(
+                    f"{stem} runtime hash mismatch: expected "
+                    f"{expected['sha256']}, got {optimized_info['sha256']}."
+                )
+            optimized.replace(destination)
             info = inspect_wav(destination)
             outputs[stem] = {
                 "path": destination.relative_to(MOD_ROOT).as_posix(),
                 "runtime_gain_db": RUNTIME_GAIN_DB,
                 "runtime_keys": list(expected["runtime_keys"]),
+                "runtime_transform": (
+                    "adjacent-frame low-pass downsample from audited 44.1 kHz "
+                    "PCM16 to 22.05 kHz PCM16"
+                ),
                 **info,
             }
 
@@ -702,8 +757,9 @@ def build_music(
             "edit": (
                 "League Client draft layers are sample-aligned with their exact "
                 f"shipped weights, then both outputs receive a fixed {RUNTIME_GAIN_DB:.1f} "
-                "dB TFM2 playback gain; no EQ, compression, arbitrary timeline, "
-                "or unrelated source remix"
+                "dB TFM2 playback gain and a deterministic adjacent-frame "
+                "low-pass downsample to 22.05 kHz PCM16; no compression, arbitrary "
+                "timeline, or unrelated source remix"
             ),
         },
         "tools": {

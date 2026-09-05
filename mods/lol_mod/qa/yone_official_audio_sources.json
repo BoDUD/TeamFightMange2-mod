@@ -90,7 +90,7 @@
     },
     "mod_contract": "The first two distinct official cast variants and first two distinct common blade-hit variants are pinned to alternating swords so steel and Azakana always remain audibly different across deterministic rebuilds."
   },
-  "selection_policy": "Verified official base-skin one-shots only: two distinct basic-attack cast variants plus two distinct common blade-hit variants are assigned to steel and Azakana; normal Q cast/hit, empowered Q3 cast/hit, W cast/hit/shield, and R cast/dash/initial/residual stages retain their official events. The terminal R echo pins the unused second official base-skin R-cast variant as independent media and retains its complete tail. Continuous ambience, VO, skin variants, and material-specific attack surface layers are excluded.",
+  "selection_policy": "Verified official base-skin one-shots only: two distinct basic-attack cast variants plus two distinct common blade-hit variants are assigned to steel and Azakana; normal Q cast/hit, empowered Q3 cast/hit, W cast/hit/shield, and R cast/dash/initial/residual stages retain their official events. The tick-12 pull echo pins the second official base-skin R-cast variant as independent media and retains its complete tail. Continuous ambience, VO, skin variants, and material-specific attack surface layers are excluded.",
   "r_runtime_audio_contract": {
     "slash_target_frames": 8820,
     "slash_target_duration_seconds": 0.2,
@@ -99,8 +99,8 @@
     "slash_volume": 0.55,
     "echo_media_id": 862736579,
     "echo_retains_complete_source": true,
-    "echo_volume": 0.55,
-    "reason": "Six rapid adapted R strikes need click-safe 0.20-second one-shots; the terminal echo instead uses independent official media with its full decay."
+    "echo_volume": 0.85,
+    "reason": "Six rapid adapted R strikes need click-safe 0.20-second one-shots; the tick-12 pull echo instead uses independent official media with its full decay."
   },
   "native_audio_isolation": {
     "reason": "The same-ID native Dual Blader action layer can auto-dispatch its original attack/Q/W/R audio in addition to explicit Yone effects.",
@@ -970,14 +970,14 @@
       "media_id": 862736579,
       "source_wem_size_bytes": 22682,
       "source_wem_sha256": "1ebd2986a1a2b9d4a5e143b32a52ebe835bfb0d002b528409110261eec2986d5",
-      "selection_note": "second unused official base-skin R-cast variant, independently pinned and retained with its complete tail for the adapted terminal echo",
-      "dispatch_contract": "TargetSfx on the terminal fixed-damage echo",
+      "selection_note": "second official base-skin R-cast variant, independently pinned and retained with its complete tail for the adapted pull echo",
+      "dispatch_contract": "TargetSfx on the tick-12 Fate Sealed pull/echo",
       "sound_info": {
         "path": "sound/sfx/lol_yone_r_echo.sound_info",
         "size_bytes": 70,
-        "sha256": "a4700f8e4fb85a113586c87dfd4f61fc83d732c6cbc422b6704f3de810e172d6",
+        "sha256": "199a7e526782c9f5fad6dee53a283f961520112a428e8734fb3499736a1d8904",
         "clip": "lol_yone_r_echo_clip",
-        "volume": 0.55
+        "volume": 0.85
       },
       "source_decoded_wav": {
         "size_bytes": 245316,

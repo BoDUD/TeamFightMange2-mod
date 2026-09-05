@@ -1,0 +1,48 @@
+{
+  "description": "Eight individually authored native-resolution leg cels. Original navy cloth and brown leather palette; no limb transforms, copied rows, scaling, or geometric pose generator.",
+  "width": 19,
+  "height": 12,
+  "palette_roles": {".": "transparent", "k": "source_17", "d": "source_12", "m": "source_09", "h": "source_06", "b": "source_01", "t": "source_05", "r": "source_10"},
+  "frames": [
+    {"pose": "near forward contact, far toe-off", "feet": [[3,9,5,3],[12,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmddmmmdk....", "....kdtbkdmtbmdk...", "...kdmmkdmmhmdk....",
+      "...kdmdk.kmmhmdk...", "...kdmk...kmmddk...", "...kddk....kmmmk...", "...krbk.....krrk...",
+      "...rbtbk....rbtbk..", "...rbttbk...rbttbk.", "....rbbbk...rbbttbk", ".....rrk....rrrrrrk"
+    ]},
+    {"pose": "near support, far heel recovers", "feet": [[2,7,5,3],[10,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmddmmmdk....", "...kdtbdkdmttmk....", "..kdmmdk.kmdmmk....",
+      "..kdmmdk.kmmhmk....", "..kddmk..kmdmmk....", "..rbtbk...kmmmk....", "..rbttbk..krrrk....",
+      "...rbbk...rbtbk....", "....kk....rbttbk...", "..........rbbttbk..", "..........rrrrrrk.."
+    ]},
+    {"pose": "far knee passes beneath hips, near late support", "feet": [[6,6,5,3],[10,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmddmmmdk....", ".....kdtbdmttmk....", ".....kdmmdmmhmk....",
+      ".....kdmdkmmhmk....", ".....kdmdkmdmmk....", "......rbbkdmmmk....", "......rbttkrrrk....",
+      ".......rrkrbtbk....", "..........rbttbk...", "..........rbbttbk..", "..........rrrrrrk.."
+    ]},
+    {"pose": "near toe-off behind, far reaches forward", "feet": [[5,9,5,3],[12,8,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmddmmmdk....", ".....kdtbdmttmk....", ".....kdmmhmmmk.....",
+      ".....kdmmhmmddk....", ".....kdmhmmkdmmdk..", ".....kdmmmk.kdmmdk.", ".....kmmmk...kdddk.",
+      ".....rrrk....rbtbk.", ".....rbtbk...rbttbk", ".....rbttbk...rrrrk", "......rrrbk........"
+    ]},
+    {"pose": "near rear toe-off crosses foreground, far forward contact", "feet": [[3,9,6,3],[12,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmdmmmmdk....", ".....kdtbmmttmk....", ".....kmmhmmddmdk...",
+      "....kmmhmmmkdmmdk..", "....kmhmmmk.kdmmdk.", "...kmmmmdk...kdmmdk", "...kmmmdk....kdddk.",
+      "...krrrk.....rbtbk.", "...rbttbk....rbttbk", "....rbbttk...rbbtbk", ".....rrrrk...rrrrrk"
+    ]},
+    {"pose": "near heel recovers behind, far support", "feet": [[2,7,6,3],[10,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmdmmmmdk....", ".....kmtbmmttdk....", "....kmmhmmmddmk....",
+      "...kmmhmmmkddmk....", "...kmmmmdk.kdmk....", "..krmmmdk..kdmk....", "..rbtbbk...kddk....",
+      "..rbttbk...rbtbk...", "...rrrrk...rbttbk..", "...........rbbttbk.", "...........rrrrrrk."
+    ]},
+    {"pose": "near knee passes in foreground, far late support", "feet": [[10,7,5,3],[7,9,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmdmmmmdk....", ".....kdtbdmttmmk...", "......kdmdmmhmmk...",
+      "......kdmdmmhmmk...", "......kdmkmmmmdk...", "......kddkkmmmk....", ".......kdkrrbbk....",
+      ".......rdkrbttbk...", ".......rbtbkrrk....", ".......rbttbk......", ".......rrrrrrk....."
+    ]},
+    {"pose": "near reaches forward, far toe-off behind", "feet": [[5,9,5,3],[12,8,6,3]], "pixels": [
+      "....krbttrbtrdk....", "....kdmmddmmmdk....", ".....kdtbdmttmdk...", ".....kdmdmmhmmdk...",
+      ".....kdmk.kmmhmmk..", ".....kdmk..kmmmmdk.", ".....kddk...kmmmdk.", ".....krrk....krrrk.",
+      ".....rbtbk...rbttbk", ".....rbttbk..rbbtbk", "......rbbbk...rrrrk", ".......rrk........."
+    ]}
+  ]
+}

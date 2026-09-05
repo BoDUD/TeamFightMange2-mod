@@ -152,7 +152,7 @@
     "illustration_route": "post-render NinePatch replacement using the dancer-specific side-card geometry contract",
     "grid_safety": "The 54x94 center-grid actor is rejected by the side-card 81x125-141 contract and edge gate, then center-preservingly expanded to the dedicated 90x122 portrait so the texture is not horizontally squeezed.",
     "center_alignment": "The stable 81x141 side actor shares the standard 137x184 actor center, so candidate scoring locks the splash to the same card slot.",
-    "label_safety": "center.y=-12 keeps the rebuilt native-height full-body preview clear of the name band; face.y=-32 gives compact rows a head-focused crop without a second upward over-shift."
+    "label_safety": "face.y=-12 now matches center.y=-12 so the native encyclopedia actor runner keeps Xayah's full body above the name band; no separate recycled-row UI node is required."
   },
   "native_audio_isolation": {
     "events": [

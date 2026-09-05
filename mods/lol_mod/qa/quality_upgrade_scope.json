@@ -1,18 +1,17 @@
 {
   "schema_version": 1,
-  "release": "0.12.1",
+  "release": "0.12.21",
   "runtime_compatibility": {
-    "active_base_version": "0.5.7",
-    "native_runtime": "stable_abi_level_1",
+    "active_base_version": "0.5.8",
+    "native_runtime": "stable_abi_level_8",
     "legacy_internal_extensions": "not_compiled",
-    "bp_layout_overrides": "enabled_against_exact_base_0.5.1_native_layouts",
+    "bp_layout_overrides": "full/grid overrides disabled; native-owned three-region side-card atlases with a fixed-image fallback for incomplete packages",
     "inactive_until_matching_sdk": [
-      "dynamic Ban/Pick splash command rewriting",
       "client portrait command rewriting",
       "client database mutation",
       "deterministic elemental dragon server rewriting"
     ],
-    "reason": "Game 0.5.7 rejects classic Mod API DLLs built before 0.5.6. The production DLL now uses the official frozen stable ABI and does not compile any old client/server extension vtables. The four BP layout overrides remain historical 0.5.1-derived static assets; manual 0.5.7 UI verification is required."
+    "reason": "Game 0.5.8 is the active baseline and DLL uses stable ABI 8. Full BP layout and champion grid remain native. The engine assigns side-card textures through picks and swaps. Nine authored illustrations fill 284x172 card regions; native heroes retain compact actors. Incomplete catalogs use the legacy marker-based fallback, never athlete-name inference. Live display acceptance is pending."
   },
   "requested_scope": "Ban/pick splashes and component skin, in-game HUD skin, full-body encyclopedia art, League-style objectives, elemental dragons, neutral monsters, items, defensive towers, Nexus crystals, official-mask Rift landmarks, League music, and native multikill announcer replacement",
   "runtime_implemented": {
@@ -29,16 +28,19 @@
     ],
     "banpick_runtime_contract": {
       "reference": "local Ban/Pick View Plus 0.5.0 DLL",
-      "implementation": "post_render actor NinePatch replacement: remove the selected-card actor (including 120-140x140-190 transition poses), then append one illustration overlay",
-      "source_key": "suffix after /champions/ with terminal #sheet removed",
-      "texture_uv": "normalized 0,0,1,1",
+      "implementation": "stable-ABI native pick-marker routing; fixed-source fully opaque illustration is the final done-card child, covering native name/position/mastery/favourite portraits/divider; no additional dark tint. Native paths remain for non-mod and swap fallback.",
+      "source_key": "native champion grid child ID plus locally visible blue/red one-based pick-number marker",
+      "texture_uv": "native 284x172 runtime PNG",
       "card_size": "284x172",
-      "fixed_card_anchors": "blue x=15; default flipped red x=map_width-15; y=61+184*slot",
-      "transition_geometry_is_detection_only": true,
-      "transition_actor_sprite_removed": true,
+      "fixed_card_anchors": "x=8 and y=1 inside each current base-0.5.8 done slot; red images are pre-mirrored",
+      "transition_geometry_is_detection_only": false,
+      "transition_actor_sprite_removed": false,
       "one_overlay_per_side_slot": true,
-      "card_detection": "RenderState pass key blue_picks/red_picks + pick_slot_N; relative-UI and geometry fallback",
-      "static_splash_nodes": false
+      "card_detection": "strict zero-based pick_slot_N IDs matched to one-based grid markers; twelve slots per side, 256 grid children; filtered parent visibility ignored",
+      "static_splash_nodes": true,
+      "diagnosis_2026_09_05": "0.12.15 bug: done.name contains athlete names, not champions, so all nine illustration routes fail. 0.12.16 removes this lookup and late-spawned zero-rect/source binding.",
+      "swap_phase": "stock actor fallback; stable API does not expose the athlete/champion assignment permutation",
+      "live_status": "User screenshot confirms 0.12.16 draft illustrations restored. 0.12.17 removes visible card information overlays as requested; new appearance and swap checks pending."
     },
     "banpick_skin": {
       "imagegen_background": "ui/banpick/lol_bp_background.png",
@@ -57,7 +59,7 @@
       "native_layout_geometry_preserved": true,
       "noninteractive_decorative_node": true,
       "blue_red_card_palette_refined": true,
-      "page_local_controls_style": "style/bp_controls.style",
+      "page_local_controls_style": "not installed; native base-0.5.8 controls remain authoritative",
       "champion_list_stat_and_skill_panels_refined": true,
       "champion_card_actor_safe_area": {
         "canvas": "118x88 at y=4",
@@ -173,9 +175,9 @@
       "stable_id": "dual_blader",
       "native_force_pick_index": 16,
       "active_slots": [
-        "Q Mortal Steel Q1/Q2/Q3",
-        "W Spirit Cleave",
-        "R Fate Sealed: Sixfold Echo approximation"
+        "Q Mortal Steel: reference pure-data rush",
+        "W Spirit Cleave: reference wide blade projectile",
+        "R Fate Sealed: reference line dash, airborne and pull"
       ],
       "same_id_replacement": true,
       "battle_actor_route": "dual-sword-v7",
@@ -193,8 +195,8 @@
         "semantic_tags": {
           "steel_basic_attack": "attack_steel",
           "azakana_basic_attack": "attack_azakana",
-          "q1_q2": "skill_q12",
-          "q3": "skill_q3",
+          "inactive_q12_atlas_alias": "skill_q12 (retained only for atlas ABI)",
+          "active_q": "skill_q3",
           "w": "skill_w_azakana"
         }
       },
@@ -240,64 +242,65 @@
         "attack_animation_start_tick": 0,
         "attack_payload_tick": 13,
         "q_animation_start_tick": 0,
-        "q_payload_tick": 8,
+        "q_action_duration_ticks": 20,
+        "q_start_timing": 6,
         "w_animation_start_tick": 0,
-        "w_payload_tick": 8,
-        "cast_feedback": "caster animation, cast SFX and caster-follow visual are immediate; target hit, projectile, rush, buff and native settlement remain delayed"
+        "w_action_duration_ticks": 30,
+        "w_start_timing": 0,
+        "cast_feedback": "Q/W/R use the reference pure-data timing tree with project-owned body animation, VFX and SFX"
       },
-      "hit_gated_three_stage_q": true,
-      "q_named_stacks": [
-        "lol_yone_mortal_steel_stack_1",
-        "lol_yone_mortal_steel_stack_2"
-      ],
-      "q_hit_dedup_guards": [
-        "lol_yone_mortal_steel_stack_1",
-        "lol_yone_mortal_steel_stack_2"
-      ],
-      "empowered_q_dash_damage": false,
-      "q3_projectiles": 1,
-      "q3_airborne_ticks": 45,
+      "hit_gated_three_stage_q": false,
+      "q_named_stacks": [],
+      "q_hit_dedup_guards": [],
+      "q_pure_data_rush": {
+        "speed": 3600,
+        "tick": 20,
+        "range": 25000,
+        "penetrate": true,
+        "damage": "75 + 80% Attack per target",
+        "airborne_ticks": 45,
+        "heal": "5% Attack per target"
+      },
       "skill2_target": "EnemyWithoutTower",
-      "skill2_range": 42000,
+      "skill2_range": 35000,
       "skill2_runtime_body_tag": "skill_w_azakana",
       "skill2_runtime_body_frames": 5,
       "skill2_ai_gate": "removed_custom_gate_stock_engine_data_ai",
       "e_runtime_present": false,
-      "w_cone_single_pass": {
-        "native_effect": "lol_yone_w_cone_native",
-        "full_angle_degrees": 80,
-        "range": 42000,
-        "applied_target": "alive, targetable, non-allied, non-tower enemies in the current GameCtx",
+      "w_linear_projectile": {
+        "type": "LinearProjectile",
+        "speed": 4500,
+        "range": 35000,
+        "shape": "Rect 40000x30000",
+        "penetrate": true,
+        "applied_target": "EnemyWithoutTower",
         "applications_per_target": 1,
         "damage_type": "physical",
-        "damage": "35 + 45% Attack + 6% target maximum health",
-        "line_range_projectile_present": false,
-        "second_hitbox_or_champion_probe": false,
-        "process_global_ledger": false,
-        "resolution": "damage, any-enemy qualification, champion count and one shield marker are resolved inside the same GameCtx invocation"
+        "damage": "80 + 80% Attack",
+        "knockback": "speed 2000, tick 12",
+        "native_effect_present": false,
+        "process_global_ledger": false
       },
       "w_shield_settle": {
-        "applications_per_cast": 1,
-        "duration_ticks": 90,
-        "non_champion_enemy_tier": "50 + 20% Attack",
-        "first_champion_tier": "100 + 40% Attack",
-        "each_additional_champion": "25 + 10% Attack",
-        "champion_tiers": 5,
-        "marker_range": "lol_yone_w_shield_tier_0..5",
+        "applications_per_target_hit": 1,
+        "duration_ticks": 180,
+        "formula": "20 + 20% Attack",
+        "champion_tiers": 0,
+        "marker_range": null,
         "second_hitbox_or_champion_probe": false
       },
       "w_airborne_applications": 0,
       "w_attack_speed_scaled_timing": false,
-      "w_attack_speed_limit": "Mod API 0.8 exposes no W-only attack-speed-scaled action/cooldown expression; fixed 0.5-second cast and 8-second cooldown (30/480 ticks) are explicitly disclosed",
-      "r_physical_slashes": 6,
-      "r_final_fixed_echoes": 1,
+      "w_attack_speed_limit": "reference pure-data contract uses fixed 30-tick action and 480-tick cooldown",
+      "r_physical_damage_applications_per_target": 1,
+      "r_final_fixed_echoes": 0,
       "r_airborne_applications": 1,
       "native_state_isolated_by_game_context": true,
-      "native_state_isolation": "one native invocation scans only its supplied GameCtx and uses no static, OnceLock, Mutex, caster/player/team/position/tick matching, or process-global W registry",
+      "native_state_isolation": "active Q/W/R are pure data and create no process-global native state",
       "saved_season_compatibility": "retired Yone E and 0.10.4 rectangular-W begin/collect/settle native names resolve as no-op load compatibility only; embedded saved behavior trees are not migrated",
-      "new_save_required_for_current_w": "0.10.5",
-      "new_save_required_for_dual_sword_v7_animation_tree": "0.10.20",
-      "save_boundary": "a save first created on 0.10.5 or later can still validate the current W cone, damage and shield mechanics, but only a fresh 0.10.20 save embeds the tick-0 attack_steel, attack_azakana, skill_q12, skill_q3 and skill_w_azakana CasterAnimation routes",
+      "new_save_required_for_current_q_w_r": "0.12.10",
+      "new_save_required_for_dual_sword_v7_animation_tree": "0.12.10",
+      "save_boundary": "only a fresh 0.12.10 test save embeds the reference-grounded pure-data Q/W/R action tree; old saves retain their embedded historical tree but load retired names through no-op compatibility",
       "imagegen_actor_vfx_icons_bp_and_fullbody": true,
       "battle_face_readability": {
         "visible_body_frames_checked": 67,
@@ -311,7 +314,8 @@
       },
       "native_dual_blader_animation_contract_preserved": true,
       "native_contract_preservation_boundary": "the official 13-tag/54-frame contract is preserved as an immutable atlas and animation prefix; five semantic tags and 13 physical frames are append-only V7 extensions",
-      "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json"
+      "official_base_sfx_hash_manifest": "qa/yone_official_audio_sources.json",
+      "live_status": "0.12.20: rejected thin and widened scanline patches are no longer used. Eight imagegen anatomical leg layers are composed with the immutable original upper body and connected swords. Native frame boxes, duration and all other action pixels are unchanged. Offline source checks only; live gait acceptance pending. Encyclopedia remains locked. Xayah BP offset/action scale and swap-stage illustration fallback remain open."
     },
     "elemental_dragon": {
       "per_match_seeded_selection": [
@@ -391,7 +395,7 @@
       "match_bgm_override_keys": 6,
       "banpick_music_source": "League Client rcp-fe-lol-champ-select completed-picks=6 official layer stack",
       "match_music_source": "Summoner's Rift Map11 phase_01 base/master layer",
-      "pcm16_44100_stereo_and_no_clipping": true,
+      "pcm16_22050_stereo_and_no_clipping": true,
       "runtime_music_assets": [
         "sound/bgm/lol_banpick.wav",
         "sound/bgm/lol_match.wav"
@@ -411,28 +415,30 @@
       ]
     },
     "encyclopedia_fullbody_runtime": {
-      "yone_default_hook": "static portrait/fullbody assets only under the stable ABI; the classic YoneManagementCardExtension raw RenderCommand route is retained as migration history but is not compiled",
-      "yone_0_10_11_route": "failed: the static dual_blader.icon / dual_blader.lol_fullbody_yone path assumed cloned slot roots were renamed to champion ids; official ChampionInfoUIRunner keeps every root id as champion_slot, so the path could never resolve",
+      "current_0_12_14_route": "finished-mod parity: the stock base-0.5.8 ChampionInfoUIRunner owns every card icon and reads each replacement champion's data_champion sprite, idle frame and champion_view camera; no champion_slot override, custom overlay, resolver rebind, resize or native-icon visibility mutation enters the runtime package",
+      "runner_id_disassembly_correction": "0.5.7 ChampionInfoUIRunner::init_champion_list writes the champion id into each cloned card root; the earlier claim that every root remained champion_slot was incorrect",
+      "yone_default_hook": "none: the compiled stable-ABI extension does not touch the encyclopedia; the stock ChampionInfoUIRunner is the sole owner, matching the installed Silver and Touhou finished mods",
+      "yone_0_10_11_route": "failed in that release; its static path was not proven live, and later 0.5.7 disassembly established that cloned roots are in fact renamed to champion ids",
       "yone_0_10_12_route": "failed: the ChampionInfoUIRunner positive gate was not discoverable in the live management card, so no yone_management_card_replace telemetry was emitted and the native battle idle remained visible",
       "yone_0_10_13_route": "failed: the route treated the post-SetImageScale screenshot size of approximately 93-96x110-123 as RenderCommand geometry, while the actual champion_slot #icon NinePatch remains a logical 85x93, so the replacement gate never matched",
       "yone_0_10_14_route": "failed for the reported surface: it corrected only the 85x93 management-card route, while the user screenshot came from a different BP actor route later measured as UI NinePatch 95x88; the existing Yone portrait helper was still reachable only through the opt-in broad extension",
       "yone_0_10_15_route": "failed: bounded live telemetry proved the central BP actor command is UI NinePatch 95x88, while the release gate expected 84-96x108-130 and therefore never emitted yone_bp_grid_replace",
       "yone_0_10_16_route": "failed: it correctly matched the shared UI NinePatch at 95x88 but expanded every matching command to the portrait source canvas at 90x122 while preserving top y; the post-pick player-assignment page reused the same geometry, so Yone alone became enlarged and bottom-heavy",
-      "yone_texture": "source-direct high-resolution 85x93 full-body PNG rendered 1:1 inside the unchanged 85x93 logical management-card command",
+      "yone_texture": "the encyclopedia uses dual_blader's native yone_v7 sprite and idle frame through ChampionInfoUIRunner; dedicated full-body PNGs remain excluded QA artifacts",
       "bp_grid_texture": "the existing source-direct 90x122 dual_blader_grid PNG is sampled only through normalized UV 0,0,1,88/122 inside the measured Yone UI NinePatch source geometry 95x88 (92-98x86-90 rounding allowance); central-grid x/y/w/h remain unchanged and the transparent source tail is not added to the command layout",
       "shared_bp_surface_routing": "the root-level swap container identifies PlayerChampionAssignment; otherwise the visible champions viewport plus a command center inside x=335..1585 and y=145..522 identifies CentralBpGrid, while same-geometry commands outside that viewport are edge picked-side cards",
       "assignment_and_edge_baseline": "player-assignment and edge picked-side 95x88 commands use the same top-88-of-122 UV and preserve x/w/h, but move y upward by 9 logical pixels to restore bottom clearance; central-grid y is unchanged",
-      "surface_exclusion": "85x93 management, compact and scoreboard commands remain on their independent routes; the observed Game-pass battle actor is RenderCommand::Sprite and is trace-only; other champions fail the Yone actor-texture predicate",
-      "portrait_telemetry": "bounded rows include surface, UI root, swap/grid visibility, central-viewport result, source and output x/y/w/h, z and normalized UV so two reused 95x88 components do not collapse into one diagnostic signature",
+      "surface_exclusion": "the compiled 0.5.8 runtime contains no encyclopedia traversal, champion-icon resolver call, native-icon hide, raw RenderCommand portrait rewrite, raw ImageRunner source mutation, spawned child or post_render sprite; BP side illustrations remain a separate bounded stable-UI route",
+      "portrait_telemetry": "disabled because observing the native card does not require mutating it",
       "legacy_match_ui_database_render_and_server_work": "not compiled into the stable-ABI production DLL",
       "sdk_provenance": {
         "source": "game-bundled mod-sdk-stable vendored at vendor/mod-api-stable",
-        "base_version": "0.5.7",
-        "host_abi_level": 4,
-        "required_abi_level": 1,
+        "base_version": "0.5.8",
+        "host_abi_level": 8,
+        "required_abi_level": 8,
         "production_source": "src/stable_runtime.rs"
       },
-      "live_status": "0.12.1 fixes the 0.5.7 DLL load blocker through the stable ABI. Static Yone V7 UI assets remain packaged, but manual 0.5.7 management-card, BP and battle verification is required because raw render-command rewriting is outside the stable surface."
+      "live_status": "0.12.20 / base 0.5.8 / stable ABI 8: encyclopedia position confirmed and unchanged. Eight authored anatomical Yone run sources replace the rejected 0.12.18 and 0.12.19 scanline patches. Live visual acceptance pending. Swap, Xayah BP alignment, gait/scale and skill fidelity remain open; this isolated patch does not claim to fix them."
     }
   },
   "packaged_variants": {

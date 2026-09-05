@@ -5,7 +5,8 @@
   "actor_scale": {
     "policy": "one uniform nearest-neighbor resize per frame; native width may cap the whole pose; no x-only compression, crop, or atlas spill",
     "requested_scale_class": "approximately 12-15 percent larger",
-    "mean_height_scale_ratio": 1.1389,
+    "enlargement_measurement_scope": "non-run actions; run uses one source scale with exact native sole anchors",
+    "mean_height_scale_ratio": 1.142,
     "median_height_scale_ratio": 1.1471,
     "minimum_bottom_clearance": 4,
     "actions": {
@@ -115,22 +116,22 @@
             45
           ],
           "visible_bbox": [
-            0,
-            2,
-            25,
+            1,
+            6,
+            23,
             37
           ],
           "visible_size": [
-            25,
-            35
+            22,
+            31
           ],
           "baseline_height": 32,
           "target_height": 36,
-          "height_scale_ratio": 1.0938,
+          "height_scale_ratio": 0.9688,
           "bottom_clearance": 8,
-          "left_clearance": 0,
-          "right_clearance": 0,
-          "native_width_limited": false
+          "left_clearance": 1,
+          "right_clearance": 2,
+          "native_width_limited": true
         },
         {
           "frame": 1,
@@ -140,21 +141,21 @@
           ],
           "visible_bbox": [
             0,
-            1,
-            23,
+            3,
+            22,
             33
           ],
           "visible_size": [
-            23,
-            32
+            22,
+            30
           ],
           "baseline_height": 28,
           "target_height": 32,
-          "height_scale_ratio": 1.1429,
+          "height_scale_ratio": 1.0714,
           "bottom_clearance": 14,
           "left_clearance": 0,
-          "right_clearance": 0,
-          "native_width_limited": false
+          "right_clearance": 1,
+          "native_width_limited": true
         },
         {
           "frame": 2,
@@ -187,22 +188,22 @@
             47
           ],
           "visible_bbox": [
-            0,
             1,
-            23,
+            3,
+            22,
             33
           ],
           "visible_size": [
-            23,
-            32
+            21,
+            30
           ],
           "baseline_height": 28,
           "target_height": 32,
-          "height_scale_ratio": 1.1429,
+          "height_scale_ratio": 1.0714,
           "bottom_clearance": 14,
-          "left_clearance": 0,
-          "right_clearance": 0,
-          "native_width_limited": false
+          "left_clearance": 1,
+          "right_clearance": 1,
+          "native_width_limited": true
         },
         {
           "frame": 4,
@@ -211,22 +212,22 @@
             45
           ],
           "visible_bbox": [
-            0,
-            2,
-            25,
+            1,
+            5,
+            24,
             36
           ],
           "visible_size": [
-            25,
-            34
+            23,
+            31
           ],
           "baseline_height": 31,
           "target_height": 35,
-          "height_scale_ratio": 1.0968,
+          "height_scale_ratio": 1.0,
           "bottom_clearance": 9,
-          "left_clearance": 0,
-          "right_clearance": 0,
-          "native_width_limited": false
+          "left_clearance": 1,
+          "right_clearance": 1,
+          "native_width_limited": true
         },
         {
           "frame": 5,
@@ -235,22 +236,22 @@
             47
           ],
           "visible_bbox": [
-            0,
             1,
-            24,
+            5,
+            23,
             35
           ],
           "visible_size": [
-            24,
-            34
+            22,
+            30
           ],
           "baseline_height": 30,
           "target_height": 34,
-          "height_scale_ratio": 1.1333,
+          "height_scale_ratio": 1.0,
           "bottom_clearance": 12,
-          "left_clearance": 0,
-          "right_clearance": 1,
-          "native_width_limited": false
+          "left_clearance": 1,
+          "right_clearance": 2,
+          "native_width_limited": true
         },
         {
           "frame": 6,
@@ -260,21 +261,21 @@
           ],
           "visible_bbox": [
             2,
-            1,
-            25,
+            3,
+            24,
             33
           ],
           "visible_size": [
-            23,
-            32
+            22,
+            30
           ],
           "baseline_height": 28,
           "target_height": 32,
-          "height_scale_ratio": 1.1429,
+          "height_scale_ratio": 1.0714,
           "bottom_clearance": 16,
           "left_clearance": 2,
-          "right_clearance": 2,
-          "native_width_limited": false
+          "right_clearance": 3,
+          "native_width_limited": true
         },
         {
           "frame": 7,
@@ -283,22 +284,22 @@
             47
           ],
           "visible_bbox": [
-            0,
             1,
-            24,
+            4,
+            23,
             35
           ],
           "visible_size": [
-            24,
-            34
+            22,
+            31
           ],
           "baseline_height": 30,
           "target_height": 34,
-          "height_scale_ratio": 1.1333,
+          "height_scale_ratio": 1.0333,
           "bottom_clearance": 12,
-          "left_clearance": 0,
-          "right_clearance": 1,
-          "native_width_limited": false
+          "left_clearance": 1,
+          "right_clearance": 2,
+          "native_width_limited": true
         }
       ],
       "attack": [
@@ -778,16 +779,19 @@
     "encyclopedia": {
       "path": "ui/champion_fullbody/dancer.png",
       "dimensions": [
-        64,
-        64
+        85,
+        93
       ],
       "alpha_bbox": [
-        16,
+        19,
         4,
-        47,
-        60
+        66,
+        88
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 2573,
+      "transparent_rgb_clean": true
     },
     "compact": {
       "path": "ui/champion_portrait/dancer_compact.png",
@@ -801,7 +805,10 @@
         50,
         58
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 1399,
+      "transparent_rgb_clean": true
     },
     "bp_grid": {
       "path": "ui/champion_portrait/dancer_grid.png",
@@ -815,7 +822,10 @@
         68,
         86
       ],
-      "hard_alpha": true
+      "hard_alpha": true,
+      "partial_alpha_pixels": 0,
+      "opaque_pixels": 2477,
+      "transparent_rgb_clean": true
     }
   },
   "bp_geometry": {

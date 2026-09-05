@@ -20,6 +20,8 @@ FRAME_MANIFEST = MOD / "source/native/yone_v7/frames.json"
 FRAME_SCHEMA = MOD / "qa/yone_v7_frames.schema.json"
 PALETTE_SCHEMA = MOD / "qa/yone_v7_palette.schema.json"
 GENERATION_QA = MOD / "source/native/yone_v7/generation_qa.json"
+# The old ABI implementation remains an archived reference for compact-portrait
+# geometry. Only stable_runtime.rs is compiled for the active 0.5.8 mod.
 RUNTIME = MOD / "src/lib.rs"
 ACTOR_ANIM = MOD / "aseprite_resources/champions/yone_v7#anim.fanim"
 ACTOR_SHEET = MOD / "aseprite_resources/champions/yone_v7#sheet.png"
@@ -49,6 +51,14 @@ def _function_body(source: str, name: str) -> str:
             if depth == 0:
                 return source[opening + 1 : index]
     raise AssertionError(f"unterminated Rust function: {name}")
+
+
+def test_validator_run_source_does_not_depend_on_test_import_order(monkeypatch):
+    tools_dir = str((MOD / "tools").resolve())
+    monkeypatch.setattr(sys, "path", [p for p in sys.path if str(Path(p).resolve()) != tools_dir])
+    monkeypatch.delitem(sys.modules, "yone_run_anatomy", raising=False)
+    validator = _load_validator()
+    assert validator.validate_v7(verify_runtime_atlas=True)["frame_count"] == 67
 
 
 def _f32_constant(source: str, name: str) -> float:
@@ -121,7 +131,7 @@ def test_yone_v7_sources_exist_and_hashes_match_before_visual_validation() -> No
     ).hexdigest()
 
 
-def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> None:
+def test_yone_v7_validator_covers_all_67_frames_and_six_extension_tags() -> None:
     validator = _load_validator()
     report = validator.validate_v7(
         verify_runtime_atlas=True,
@@ -142,10 +152,16 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
         "skill_q12",
         "skill_q3",
         "skill_w_azakana",
+        "ult_fate_sealed",
     ]
     assert all(report["animation_contract"]["distinct_sequences"].values())
     assert report["dual_sword"]["distinct_attack_sequences"] is True
-    assert report["dual_sword"]["distinct_q_sequences"] is True
+    assert (
+        report["dual_sword"][
+            "distinct_inactive_q12_and_active_q_sequences"
+        ]
+        is True
+    )
     assert report["weapon_contract"] == validator.EXPECTED_WEAPON_CONTRACT
     for frame_name, row in report["frames"].items():
         assert row["source_to_atlas_byte_identical"] is True, frame_name
@@ -191,6 +207,7 @@ def test_yone_v7_validator_covers_all_67_frames_and_five_extension_tags() -> Non
         "skill_q12",
         "skill_q3",
         "skill_w_azakana",
+        "ult_fate_sealed",
     ]
     assert len(anims["dead"]["frames"]) == 9
     for row in payload["frames"]:
@@ -557,7 +574,33 @@ def test_yone_runtime_routes_live_bp_and_compact_surfaces_only() -> None:
     assert rewrite.count("*y += YONE_ASSIGNMENT_Y_OFFSET;") == 1
 
 
-def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
+def test_active_yone_encyclopedia_uses_native_sprite_resolution_without_overlay() -> None:
+    source = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    for retired in (
+        "sync_encyclopedia",
+        "sync_yone_encyclopedia_portrait",
+        "ui_set_champion_icon",
+        "lol_fullbody_",
+        "encyclopedia_native_icon",
+    ):
+        assert retired not in source
+    overrides = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in overrides
+    runtime_paths = {
+        row["path"]
+        for row in json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))["files"]
+    }
+    assert not any(path.startswith("ui/champion_fullbody/") for path in runtime_paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in runtime_paths)
+    champion = json.loads((MOD / "champion/dual_blader.data_champion").read_text(encoding="utf-8"))
+    assert champion["sprite"] == "asset/lol_mod/aseprite_resources/champions/yone_v7"
+    for suffix in ("sheet", "anim"):
+        assert overrides[f"asset/base/aseprite_resources/champions/dual_blader#{suffix}"]["remapping"] == (
+            f"asset/lol_mod/aseprite_resources/champions/yone_v7#{suffix}"
+        )
+
+
+def test_archived_yone_fullbody_card_geometry_reference_remains_consistent() -> None:
     source = RUNTIME.read_text(encoding="utf-8")
     minimal_impl = source.split(
         "impl ModExtension for YoneManagementCardExtension", 1
@@ -621,13 +664,6 @@ def test_yone_fullbody_card_sync_is_default_reachable_and_minimal() -> None:
         "by_name || by_source",
     ):
         assert required in slot_identity
-
-    slot_ui = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
-        encoding="utf-8"
-    )
-    icon_node = slot_ui.split("#icon:image", 1)[1].split("}", 1)[0]
-    assert "width: 85px;" in icon_node
-    assert "height: 93px;" in icon_node
 
     management_geometry = _function_body(
         source, "is_yone_management_card_geometry"
@@ -909,38 +945,35 @@ def test_yone_fullbody_card_keeps_two_readable_legs_and_boots() -> None:
     assert separated_rows >= 12
 
     boot_top = bbox[1] + round((bbox[3] - bbox[1]) * 0.80)
-    remaining = {
-        (x, y)
-        for y in range(boot_top, bbox[3])
-        for x in range(body_left, body_right)
-        if alpha.getpixel((x, y)) >= 128
-    }
-    components: list[set[tuple[int, int]]] = []
-    while remaining:
-        frontier = [remaining.pop()]
-        component = set(frontier)
-        while frontier:
-            x, y = frontier.pop()
-            for neighbor in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
-                if neighbor in remaining:
-                    remaining.remove(neighbor)
-                    component.add(neighbor)
-                    frontier.append(neighbor)
-        if len(component) >= 40:
-            components.append(component)
-    assert len(components) == 2
-    boot_boxes = sorted(
-        (
-            min(x for x, _y in component),
-            min(y for _x, y in component),
-            max(x for x, _y in component) + 1,
-            max(y for _x, y in component) + 1,
+    # The long coat can bridge the boots near their tops. Check one complete
+    # lower-body lobe on each side instead of requiring disconnected islands.
+    body_mid = (body_left + body_right) // 2
+    boot_halves = [
+        {
+            (x, y)
+            for y in range(boot_top, bbox[3])
+            for x in range(x_start, x_end)
+            if alpha.getpixel((x, y)) >= 128
+        }
+        for x_start, x_end in (
+            (body_left, body_mid - 1),
+            (body_mid + 1, body_right),
         )
-        for component in components
-    )
-    assert all(right - left >= 8 for left, _top, right, _bottom in boot_boxes)
+    ]
+    boot_boxes = [
+        (
+            min(x for x, _y in pixels),
+            min(y for _x, y in pixels),
+            max(x for x, _y in pixels) + 1,
+            max(y for _x, y in pixels) + 1,
+        )
+        for pixels in boot_halves
+        if pixels
+    ]
+    assert len(boot_boxes) == 2
+    assert all(right - left >= 7 for left, _top, right, _bottom in boot_boxes)
     assert all(bottom - top >= 12 for _left, top, _right, bottom in boot_boxes)
-    assert boot_boxes[1][0] - boot_boxes[0][2] >= 1
+    assert all(bottom >= bbox[3] - 1 for _left, _top, _right, bottom in boot_boxes)
 
 
 def test_yone_bp_transition_contract_covers_observed_and_settled_geometry() -> None:

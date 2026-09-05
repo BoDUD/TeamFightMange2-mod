@@ -120,7 +120,7 @@ def test_kled_replaces_official_006_once_and_exposes_only_q_e_r() -> None:
     ]
     assert all(champion.get("id") != "lol_kled" for _, champion in champions)
     assert not (MOD / "champion/lol_kled.data_champion").exists()
-    assert load_json("mod.mod_info")["version"] == "0.12.1"
+    assert load_json("mod.mod_info")["version"] == "0.12.21"
 
     kled = load_json("champion/cavalry_knight.data_champion")
     assert kled["id"] == "cavalry_knight"
@@ -209,7 +209,7 @@ def test_kled_q_is_one_nonpenetrating_beartrap_projectile_with_delayed_tether() 
         skill["start_timing"],
         skill["casting_type"],
         skill["casting_target"],
-    ) == ("skill1", 65000, 360, 36, 8, "Direction", "EnemyChampion")
+    ) == ("skill1", 65000, 360, 36, 8, "Targeting", "EnemyChampion")
     assert not find_effect(skill, "Rush")
     projectiles = find_effect(skill, "LinearProjectile", name="lol_kled_q_beartrap_projectile")
     assert len(projectiles) == 1
@@ -511,11 +511,14 @@ def test_kled_localization_compact_style_encyclopedia_and_bp_are_registered() ->
     builder = (MOD / "tools/build_lol_mod.py").read_text(encoding="utf-8")
     assert '"cavalry_knight": ACTOR_DIR / "kled#sheet.png"' in builder
 
-    champion_slot = (MOD / "ui/layout/champion_info_component/champion_slot.ui").read_text(
-        encoding="utf-8"
-    )
-    assert "#lol_fullbody_kled:image" in champion_slot
-    assert 'source: "asset/lol_mod/ui/champion_fullbody/cavalry_knight";' in champion_slot
+    overrides = load_json("mod.override_info")
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in overrides
+    manifest_paths = {row["path"] for row in load_json("runtime_manifest.json")["files"]}
+    assert not any(path.startswith("ui/champion_fullbody/") for path in manifest_paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in manifest_paths)
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    assert "sync_encyclopedia" not in stable_runtime
+    assert "lol_fullbody_" not in stable_runtime
 
     runtime = (MOD / "src/lib.rs").read_text(encoding="utf-8")
     assert '"asset/lol_mod/BanPickIllust/cavalry_knight"' in runtime

@@ -490,13 +490,14 @@ def test_urgot_visuals_are_wired_into_the_full_builder_and_every_ui_surface() ->
     for asset in ("demon_compact", "demon_scoreboard", "demon_grid"):
         assert f"asset/lol_mod/ui/champion_portrait/{asset}" in runtime
 
-    encyclopedia = (
-        MOD / "ui/layout/champion_info_component/champion_slot.ui"
-    ).read_text(encoding="utf-8")
-    assert "#lol_fullbody_urgot:image" in encyclopedia
-    assert 'source: "asset/lol_mod/ui/champion_fullbody/demon";' in encyclopedia
-
     overrides = load_json("mod.override_info")
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in overrides
+    manifest_paths = {row["path"] for row in load_json("runtime_manifest.json")["files"]}
+    assert not any(path.startswith("ui/champion_fullbody/") for path in manifest_paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in manifest_paths)
+    stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
+    assert "sync_encyclopedia" not in stable_runtime
+    assert "lol_fullbody_" not in stable_runtime
     assert overrides["asset/base/aseprite_resources/champions/demon#sheet"] == {
         "remapping": "asset/lol_mod/aseprite_resources/champions/demon#sheet",
         "type": "override",

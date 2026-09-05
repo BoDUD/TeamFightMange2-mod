@@ -219,8 +219,6 @@ def test_bp_0_5_1_qa_and_override_contract() -> None:
 
     for asset_key in (
         "asset/base/ui/layout/banpick/layout",
-        "asset/base/ui/layout/banpick/blue_pick_slot",
-        "asset/base/ui/layout/banpick/red_pick_slot",
         "asset/base/ui/layout/banpick/champion_slot",
     ):
         assert asset_key not in override
@@ -234,3 +232,117 @@ def test_quality_builder_rebuilds_bp_from_the_current_bundle() -> None:
     assert "bundle.game_data" in packer_source
     assert "restores_exact_native" in packer_source
     assert '"pack_quality_bp_skin.py"' in builder_source
+
+
+def test_bp_0_5_8_only_augments_verified_leaf_cards_not_full_layout_or_grid() -> None:
+    runtime = (MOD / "src" / "stable_runtime.rs").read_text(encoding="utf-8")
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+
+    for asset_key in (
+        "asset/base/ui/layout/banpick/layout",
+        "asset/base/ui/layout/banpick/champion_slot",
+    ):
+        assert asset_key not in override
+
+    for side in ("blue", "red"):
+        assert override[f"asset/base/ui/layout/banpick/{side}_pick_slot"] == {
+            "remapping": f"asset/lol_mod/ui/bp_pick_cards/{side}_pick_slot", "type": "override",
+        }
+
+    assert "sync_bp_runtime_ui(client);" in runtime
+    assert "client.ui_spawn_source(parent, source)" in runtime
+    assert "BP_RUNTIME_MAX_PICK_SLOTS" in runtime
+    assert "BP_RUNTIME_MAX_CHAMPION_CARDS" in runtime
+    for node in (
+        "lol_bp_runtime_background",
+        "lol_bp_runtime_header_chrome",
+        "lol_bp_runtime_bottom_chrome",
+        "lol_bp_runtime_filter_toolbar",
+        "lol_bp_runtime_champion_grid_frame",
+        "lol_bp_runtime_champion_card_frame",
+        "lol_bp_runtime_side_pick_frame",
+        "lol_bp_runtime_stat_frame",
+        "lol_bp_runtime_skill_frame",
+    ):
+        assert node in runtime
+
+    assert "bp_illustrations::sync(client, root);" in runtime
+    assert "bp_champion_id_from_name" not in runtime
+
+
+def test_runtime_bp_cards_are_exact_size_mirrored_and_in_active_manifest() -> None:
+    champion_ids = (
+        "lol_shen",
+        "archer",
+        "barrier_magician",
+        "berserker",
+        "boomerang_hunter",
+        "cavalry_knight",
+        "dancer",
+        "demon",
+        "dual_blader",
+    )
+    runtime_dir = MOD / "ui" / "banpick" / "champion_illustration"
+    for champion_id in champion_ids:
+        blue = Image.open(runtime_dir / f"{champion_id}_blue.png").convert("RGBA")
+        red = Image.open(runtime_dir / f"{champion_id}_red.png").convert("RGBA")
+        assert blue.size == red.size == (284, 172)
+        assert red.tobytes() == blue.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes()
+
+    manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
+    paths = {row["path"] for row in manifest["files"]}
+    for champion_id in champion_ids:
+        for side in ("blue", "red"):
+            assert f"ui/banpick/champion_illustration/{champion_id}_{side}.png" in paths
+        assert f"BanPickIllust/{champion_id}.png" not in paths
+    assert not any(path.startswith("ui/layout/banpick/") for path in paths)
+    assert "style/bp_controls.style" not in paths
+    assert manifest["within_soft_budget"] is True
+    assert manifest["total_size"] <= manifest["soft_budget"]
+
+
+def test_rift_towers_and_league_music_remain_in_the_active_runtime_closure() -> None:
+    override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
+    manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
+    paths = {row["path"] for row in manifest["files"]}
+    assert manifest["purpose"].startswith("0.12.21 ")
+    assert "native encyclopedia resolver" in manifest["purpose"]
+    assert "hand-authored Yone run cels" in manifest["purpose"]
+    assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override
+    assert not any(path.startswith("ui/champion_fullbody/") for path in paths)
+    assert not any(path.startswith("ui/layout/champion_info_component/") for path in paths)
+    assert "render-hook" not in manifest["purpose"]
+    assert any(path.startswith("champion/") for path in paths)
+    for champion_id in (
+        "lol_shen",
+        "archer",
+        "barrier_magician",
+        "berserker",
+        "boomerang_hunter",
+        "cavalry_knight",
+        "dancer",
+        "demon",
+        "dual_blader",
+    ):
+        assert f"champion/{champion_id}.data_champion" in paths
+
+    for path in (
+        "sound/bgm/lol_banpick.wav",
+        "sound/bgm/lol_match.wav",
+        "aseprite_resources/ingame/5v5/background_5v5.png",
+        "aseprite_resources/ingame/5v5/minimap_5v5_bg.png",
+        "aseprite_resources/ingame/blue_tower#sheet.png",
+        "aseprite_resources/ingame/red_tower#sheet.png",
+        "aseprite_resources/ingame/blue_nexus#sheet.png",
+        "aseprite_resources/ingame/red_nexus#sheet.png",
+    ):
+        assert path in paths
+
+    for asset_key in (
+        "asset/base/sound/bgm/banpick",
+        "asset/base/sound/bgm/match",
+        "asset/base/aseprite_resources/ingame/5v5/background_5v5",
+        "asset/base/aseprite_resources/ingame/blue_tower#sheet",
+        "asset/base/aseprite_resources/ingame/red_tower#sheet",
+    ):
+        assert override[asset_key]["type"] == "override"

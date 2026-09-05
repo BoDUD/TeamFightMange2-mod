@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / "mods" / "lol_mod"
-RUST_SOURCE = MOD / "src" / "lib.rs"
+RUST_SOURCE = MOD / "src" / "stable_runtime.rs"
 COMBAT_SLOTS = ("attack", "skill", "skill2", "ult")
 CHAMPION_IDS = tuple(
     sorted(
@@ -61,6 +61,8 @@ def indexed_bindings(
     champion: dict[str, Any], table: str, errors: list[str]
 ) -> dict[str, dict[str, Any]]:
     rows = champion.get(table)
+    if rows is None:
+        return {}
     if not isinstance(rows, list):
         errors.append(f"{champion['id']}: {table} must be a list")
         return {}
@@ -278,6 +280,11 @@ def validate_native_closure(
             flags=re.MULTILINE,
         )
     )
+    if "for retired_name in [" in rust_source:
+        retired_block = rust_source.split("for retired_name in [", 1)[1].split(
+            "] {", 1
+        )[0]
+        registrations.update(re.findall(r'"([^"]+)"', retired_block))
     missing = used - registrations
     if missing:
         errors.append(f"{champion_id}: Native refs missing Rust registration: {sorted(missing)}")
@@ -371,6 +378,9 @@ def test_all_registered_native_effects_are_referenced_by_combat_data() -> None:
             flags=re.MULTILINE,
         )
     )
+    retired_block = source.split("for retired_name in [", 1)[1].split("] {", 1)[0]
+    retired_loop = set(re.findall(r'"([^"]+)"', retired_block))
+    registrations.update(retired_loop)
     used: set[str] = set()
     for champion_id in CHAMPION_IDS:
         champion = load_json(MOD / "champion" / f"{champion_id}.data_champion")
@@ -385,7 +395,10 @@ def test_all_registered_native_effects_are_referenced_by_combat_data() -> None:
             source,
         )
     )
+    compatibility.update(retired_loop)
     assert compatibility == {
+        "lol_shen_shadow_dash_ai_hint_native",
+        "lol_shen_shadow_dash_taunt_native",
         "lol_yone_e_start_native",
         "lol_yone_e_begin_return_native",
         "lol_yone_e_damage_pre_native",
@@ -394,6 +407,7 @@ def test_all_registered_native_effects_are_referenced_by_combat_data() -> None:
         "lol_yone_w_begin_native",
         "lol_yone_w_collect_hit_native",
         "lol_yone_w_settle_native",
+        "lol_yone_w_cone_native",
     }
     assert registrations == used | compatibility, (
         f"Native effect registry/data mismatch: missing={sorted(used - registrations)}, "
@@ -415,7 +429,7 @@ def test_combat_runtime_avoids_unsafe_service_registry_and_panicking_unwrap() ->
     for label, pattern in forbidden.items():
         for match in re.finditer(pattern, source, flags=re.MULTILINE):
             line = source.count("\n", 0, match.start()) + 1
-            violations.append(f"{label} at src/lib.rs:{line}")
+            violations.append(f"{label} at src/stable_runtime.rs:{line}")
 
     assert not violations, (
         "combat runtime must use bounded in-process state and non-panicking access:\n- "
@@ -423,21 +437,41 @@ def test_combat_runtime_avoids_unsafe_service_registry_and_panicking_unwrap() ->
     )
 
 
-def test_stale_base_050_client_server_extensions_are_opt_in_only() -> None:
+def test_replaced_first_skills_follow_the_058_ai_target_contract() -> None:
+    """Base 0.5.8 first skills must provide the target shape their data route needs.
+
+    The four legacy replacements retain their proven entity-target route.
+    Reference-grounded Yone intentionally uses a Direction cast whose effect
+    supplies its own rush/projectile input and must not be rewritten to E-like
+    target selection.
+    """
+    expected_targets = {
+        "lol_shen": ("Targeting", "EnemyChampion"),
+        "boomerang_hunter": ("Targeting", "EnemyWithoutTower"),
+        "cavalry_knight": ("Targeting", "EnemyChampion"),
+        "dancer": ("Targeting", "EnemyWithoutTower"),
+        "dual_blader": ("Direction", "EnemyWithoutTower"),
+    }
+    for champion_id, (casting_type, expected_target) in expected_targets.items():
+        champion = load_json(MOD / "champion" / f"{champion_id}.data_champion")
+        first_skill = champion["skill"]
+        assert first_skill["casting_type"] == casting_type, champion_id
+        assert first_skill["casting_target"] == expected_target, champion_id
+
+
+def test_only_the_058_stable_runtime_is_compiled() -> None:
     source = RUST_SOURCE.read_text(encoding="utf-8")
-    guard = source.index("if std::env::var(LEGACY_BASE_050_INTERNAL_EXTENSIONS_ENV)")
-    registration_return = source.index("\n    registration\n}", guard)
-    guarded = source[guard:registration_return]
-    legacy_branch = guarded.split("} else {", 1)[0]
-    default_branch = guarded.split("} else {", 1)[1]
-    assert legacy_branch.count("registration.set_extension") == 1
-    assert "registration.set_extension(LolModExtension);" in legacy_branch
-    assert default_branch.count("registration.set_extension") == 1
-    assert "registration.set_extension(YoneManagementCardExtension);" in default_branch
-    assert guarded.count("registration.set_server_extension") == 1
-    assert "LolRenderOnlyExtension" not in source
-    assert source[registration_return:].count("registration.set_extension") == 0
-    assert source[registration_return:].count("registration.set_server_extension") == 0
+    cargo = (MOD / "Cargo.toml").read_text(encoding="utf-8")
+    assert 'path = "src/stable_runtime.rs"' in cargo
+    assert "registration.set_extension(QualityBpExtension::default());" in source
+    assert source.count("registration.set_extension(") == 1
+    assert "registration.set_server_extension(" not in source
+    assert "LolModExtension" not in source
+    assert "YoneManagementCardExtension" not in source
+    assert (
+        "declare_stable_mod!(init, requires = mod_api_stable::ABI_LEVEL);" in source
+    )
+    assert "YoneSpiritCleaveConeNativeEffect" not in source
 
 
 def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None:
@@ -446,16 +480,24 @@ def test_published_dll_matches_the_non_panicking_yone_runtime_contract() -> None
         b"tfm2_mod_entry_stable",
         b"tfm2_mod_required_abi_level",
         b"lol_mod stable ABI loaded on game",
-        b"0.12.1",
+        b"0.12.21",
         b"lol_yone_e_start_native",
         b"lol_yone_e_begin_return_native",
         b"lol_yone_e_damage_pre_native",
         b"lol_yone_e_damage_post_native",
         b"lol_yone_e_settle_native",
+        b"lol_shen_shadow_dash_ai_hint_native",
+        b"lol_shen_shadow_dash_taunt_native",
+        b"lol_bp_illustrations",
+        b"corrupt 5v5 pre-tick guard active",
     ):
         assert required in dll, f"rebuilt DLL is missing {required!r}"
     assert b"tfm2_mod_api_version" not in dll
     for retired in (
+        b"static card-local 64x64 full-body nodes",
+        b"lol_mod_encyclopedia_ui.tsv",
+        b"lol_fullbody_yone",
+        b"lol_fullbody_xayah",
         b"yone_soul_unbound_context",
         b"Yone E damage mark was just inserted",
         b"Xayah state was just inserted",

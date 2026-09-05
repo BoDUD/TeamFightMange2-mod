@@ -19,6 +19,8 @@ from build_kled import build_all as build_kled_assets
 from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
 from build_yone import build_all as build_yone_assets
+from build_bp_pick_cards import build as build_bp_pick_cards
+from build_bp_full_cards import build as build_bp_full_cards
 from qa_legacy_battle_actor_scale import (
     build_all as build_legacy_battle_actor_scale_qa,
 )
@@ -32,6 +34,7 @@ ICON_DIR = MOD_ROOT / "icons"
 UI_ASEPRITE_DIR = MOD_ROOT / "aseprite_resources" / "UI_aseprite"
 CHAMPION_FULLBODY_DIR = MOD_ROOT / "ui" / "champion_fullbody"
 CHAMPION_PORTRAIT_DIR = MOD_ROOT / "ui" / "champion_portrait"
+RUNTIME_BP_ILLUSTRATION_DIR = MOD_ROOT / "ui" / "banpick" / "champion_illustration"
 SETTING_DIR = MOD_ROOT / "setting"
 QA_DIR = MOD_ROOT / "qa"
 BASE_SOURCE = MOD_ROOT / "source" / "base"
@@ -52,12 +55,12 @@ ACTOR_SOURCE = SOURCE / "shen_actor_contact_alpha.png"
 RUN_SOURCE = SOURCE / "shen_run_contact_alpha.png"
 ICON_SOURCES = {
     "shen_skill.png": SOURCE / "shen_q_icon_source_alpha.png",
-    "shen_skill2.png": SOURCE / "shen_e_icon_source_alpha.png",
+    "shen_skill2.png": SOURCE / "shen_w_icon_source_alpha.png",
     "shen_ult.png": SOURCE / "shen_r_icon_source_alpha.png",
 }
 VFX_SOURCES = {
     "shen_q": (SOURCE / "shen_q_vfx_contact_alpha.png", 4, 2, (64, 64), (58, 48)),
-    "shen_e": (SOURCE / "shen_e_vfx_contact_alpha.png", 3, 2, (96, 64), (88, 40)),
+    "shen_w": (SOURCE / "shen_w_vfx_contact_alpha.png", 3, 2, (112, 64), (104, 56)),
     "shen_r": (SOURCE / "shen_r_vfx_contact_alpha.png", 4, 2, (112, 112), (100, 100)),
 }
 
@@ -184,6 +187,18 @@ CHAMPION_FULLBODY_SHEETS = {
     "dancer": ACTOR_DIR / "xayah#sheet.png",
     "dual_blader": ACTOR_DIR / "yone_v7#sheet.png",
 }
+RUNTIME_BP_CHAMPION_IDS = (
+    "lol_shen",
+    "archer",
+    "barrier_magician",
+    "berserker",
+    "boomerang_hunter",
+    "cavalry_knight",
+    "dancer",
+    "demon",
+    "dual_blader",
+)
+RUNTIME_BP_ILLUSTRATION_SIZE = (284, 172)
 BASE_SKILL_ICON_SOURCE = BASE_SOURCE / "skill_icon_base.png"
 BASE_CHAMPION_INFO_SOURCE = BASE_SOURCE / "champion_info_base.champion_info_sheet"
 ARCHER_SKILL_ICON_BOXES = {
@@ -262,6 +277,35 @@ def save_png(path: Path, image: Image.Image) -> None:
         + _png_chunk(b"IEND", b"")
     )
     path.write_bytes(encoded)
+
+
+def build_runtime_bp_illustrations() -> list[Path]:
+    """Downsample authored BP splashes to their exact on-screen card size.
+
+    Keep legacy fixed overlays as the incomplete-package fallback, then pack
+    native-owned three-region atlases for the full roster. Only their outer
+    284x172 regions are used by side cards; the middle is the native preview.
+    Flatten splash alpha so native player text cannot show through it.
+    """
+
+    RUNTIME_BP_ILLUSTRATION_DIR.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    for champion_id in RUNTIME_BP_CHAMPION_IDS:
+        source_path = MOD_ROOT / "BanPickIllust" / f"{champion_id}.png"
+        source = Image.open(source_path).convert("RGBA")
+        if source.size != (1420, 860):
+            raise ValueError(
+                f"{source_path.relative_to(MOD_ROOT)} must remain 1420x860, got {source.size}"
+            )
+        blue = source.resize(RUNTIME_BP_ILLUSTRATION_SIZE, Image.Resampling.LANCZOS)
+        blue = Image.alpha_composite(Image.new("RGBA", blue.size, "#07080bff"), blue)
+        red = blue.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        for side, image in (("blue", blue), ("red", red)):
+            output = RUNTIME_BP_ILLUSTRATION_DIR / f"{champion_id}_{side}.png"
+            save_png(output, image)
+            outputs.append(output)
+    native_outputs, _ = build_bp_full_cards(MOD_ROOT)
+    return outputs + native_outputs
 
 
 def split_grid(image: Image.Image, columns: int, rows: int) -> list[Image.Image]:
@@ -704,7 +748,7 @@ def build_actor() -> tuple[Path, Path, list[Image.Image]]:
         masked.alpha_composite(kept, (keep_box[0], keep_box[1]))
         masked = hard_alpha(masked)
         # Preserve Shen's detached spirit blade (roughly 2k+ source pixels),
-        # but discard smaller generated Q/E sparks that otherwise enlarge the
+        # but discard smaller generated cast sparks that otherwise enlarge the
         # crop and shrink only those actor poses during packing.
         masked = keep_alpha_components(masked, 2000)
         masked_subjects.append(masked.crop(alpha_bbox(masked)))
@@ -1598,8 +1642,7 @@ def build_vfx() -> list[Path]:
         source = Image.open(source_path).convert("RGBA")
         frames: list[Image.Image] = []
         for index, cell in enumerate(split_grid(source, columns, rows)):
-            visible_size = (80, 52) if name == "shen_e" and index >= 3 else max_visible
-            frame = fit_cell(cell, frame_size, visible_size)
+            frame = fit_cell(cell, frame_size, max_visible)
             if name == "shen_q":
                 # Twilight Assault must remain readable against the Rift's
                 # dark river and wall tiles.  The generated source contains a
@@ -1620,74 +1663,7 @@ def build_vfx() -> list[Path]:
                             max(blue, min(255, energy + 112)),
                             alpha,
                         )
-            if name == "shen_e" and index < 3:
-                # The dash wake is a cast/readability cue, not terrain shadow.
-                # Lift the formerly near-black first phase so even the first
-                # rendered tick is visibly cyan before the looping wake begins.
-                pixels = frame.load()
-                for y in range(frame.height):
-                    for x in range(frame.width):
-                        red, green, blue, alpha = pixels[x, y]
-                        if alpha == 0:
-                            continue
-                        energy = max(red, green, blue)
-                        pixels[x, y] = (
-                            max(red, min(144, max(28, round(energy * 0.46)))),
-                            max(green, min(255, max(150, energy + 110))),
-                            max(blue, min(255, max(210, energy + 150))),
-                            alpha,
-                        )
-            if name == "shen_e" and index >= 3:
-                # Shadow Dash itself stays cyan-violet, while its target-bound
-                # crowd-control read is deliberately red-magenta.  The color
-                # separation plus the larger foreground mask makes the full
-                # 90-tick taunt unmistakable in a crowded fight.
-                pixels = frame.load()
-                for y in range(frame.height):
-                    for x in range(frame.width):
-                        red, green, blue, alpha = pixels[x, y]
-                        if alpha == 0:
-                            continue
-                        if max(red, green, blue) >= 205 and max(red, green, blue) - min(red, green, blue) <= 70:
-                            pixels[x, y] = (255, max(155, min(225, green)), 255, alpha)
-                            continue
-                        energy = max(red, green, blue)
-                        pixels[x, y] = (
-                            max(red, min(255, energy + 72)),
-                            min(112, round(green * 0.38)),
-                            max(blue, min(255, round(energy * 0.90))),
-                            alpha,
-                        )
             frames.append(frame)
-        if name == "shen_e":
-            # The bottom row is impact/taunt feedback, not a second dash wake.
-            # Keep any unusually wide generated spark compact so the collision
-            # reads at the target instead of looking like another projectile.
-            for index in range(3, len(frames)):
-                frame = frames[index]
-                bbox = frame.getchannel("A").getbbox()
-                if bbox is None:
-                    continue
-                width = bbox[2] - bbox[0]
-                height = bbox[3] - bbox[1]
-                if width <= height * 2:
-                    continue
-                subject = frame.crop(bbox).resize(
-                    (height * 2, height), Image.Resampling.LANCZOS
-                )
-                compact = Image.new("RGBA", frame_size, (0, 0, 0, 0))
-                compact.alpha_composite(
-                    subject,
-                    ((frame_size[0] - subject.width) // 2, bbox[1]),
-                )
-                frames[index] = compact
-        if name == "shen_q":
-            # Projectile effects are looked up by name when their first frame
-            # is rendered.  The invisible endpoint helper still needs a valid
-            # view record, otherwise base 0.5.1 can unwrap a missing view and
-            # stall the whole simulation.  Reserve one truly transparent cell
-            # instead of relying on an unregistered "no-view" projectile.
-            frames.append(Image.new("RGBA", frame_size, (0, 0, 0, 0)))
         atlas = Image.new("RGBA", (frame_size[0] * len(frames), frame_size[1]), (0, 0, 0, 0))
         for index, frame in enumerate(frames):
             atlas.alpha_composite(frame, (index * frame_size[0], 0))
@@ -1695,29 +1671,9 @@ def build_vfx() -> list[Path]:
         anim = EFFECT_DIR / f"{name}#anim.fanim"
         save_png(sheet, atlas)
         if name == "shen_q":
-            anims = {
-                "anchor": effect_anim(64, 64, [len(frames) - 1], [0.01]),
-                # Skip the source's nearly empty opening cell in the moving
-                # recall.  Fade-only cells remain reserved for arrival/remove.
-                "recall": effect_anim(64, 64, [1, 2, 3, 4, 5, 4, 3, 2], [0.05] * 8),
-                "empowered_hit": effect_anim(64, 64, [3, 4, 5, 4], [0.05, 0.06, 0.08, 0.10]),
-                "recall_arrival": effect_anim(64, 64, [4, 5, 6, 7], [0.05, 0.06, 0.08, 0.10]),
-                "empower_pre": effect_anim(64, 64, [1, 2], [0.06, 0.08]),
-                "empower_loop": effect_anim(64, 64, [2, 3, 4, 3], [0.09, 0.09, 0.10, 0.09]),
-                "empower_remove": effect_anim(64, 64, [6, 7], [0.06, 0.10]),
-            }
-        elif name == "shen_e":
-            anims = {
-                "dash": effect_anim(96, 64, [0, 1, 2], [0.06, 0.06, 0.08]),
-                "dash_start": effect_anim(96, 64, [0, 1, 2], [0.05, 0.06, 0.08]),
-                "impact": effect_anim(96, 64, [3, 4, 5], [0.06, 0.08, 0.12]),
-                "trail_pre": effect_anim(96, 64, [0], [0.04]),
-                "trail_loop": effect_anim(96, 64, [1, 2], [0.05, 0.06]),
-                "trail_remove": effect_anim(96, 64, [2], [0.08]),
-                "taunt_pre": effect_anim(96, 64, [3], [0.05]),
-                "taunt_loop": effect_anim(96, 64, [4], [0.08]),
-                "taunt_remove": effect_anim(96, 64, [5], [0.12]),
-            }
+            anims = {"projectile": effect_anim(64, 64, list(range(8)), [0.06] * 8)}
+        elif name == "shen_w":
+            anims = {"field": effect_anim(112, 64, list(range(6)), [0.42] * 6)}
         else:
             anims = {
                 "guard": effect_anim(112, 112, [0, 1, 2, 3, 4], [0.08, 0.10, 0.14, 0.22, 0.26]),
@@ -2281,75 +2237,7 @@ def shen_timed_buff(name: str, tick: int, **stats: int) -> dict[str, object]:
     }
 
 
-SHEN_Q_MARKERS = tuple(
-    f"lol_shen_twilight_assault_charge_{charge}" for charge in (3, 2, 1)
-)
-SHEN_Q_ANCHOR_NAME = "lol_shen_twilight_assault_blade_anchor"
-SHEN_Q_EMPOWERED_WINDOW = "lol_shen_twilight_assault_empowered_window"
-SHEN_SHADOW_DASH_DISTANCE = 60000
-# Rush.range is the swept collision radius, not the distance travelled.  The
-# action's top-level range owns Shadow Dash's travel distance.
-SHEN_SHADOW_DASH_COLLISION_RADIUS = 10000
-SHEN_SHADOW_DASH_AI_HINT_NATIVE = "lol_shen_shadow_dash_ai_hint_native"
-SHEN_SHADOW_DASH_CAST_FLASH = "lol_shen_shadow_dash_cast_flash"
-
-
-def shen_attack_branch(
-    buff_name: str,
-) -> dict[str, object]:
-    consume_effects: list[dict[str, object]] = [
-        {"type": "Attack", "damage": 0, "attack_ratio": 100},
-        {"type": "ApAttack", "damage": 20, "attack_ratio": 20},
-        {
-            "type": "ViewEffect",
-            "name": "lol_shen_twilight_assault_empowered_hit",
-        },
-        {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
-        {"type": "RemoveCasterBuff", "name": buff_name},
-    ]
-    if buff_name == SHEN_Q_MARKERS[-1]:
-        # The separate presentation marker survives the first two empowered
-        # attacks and disappears with the final charge.
-        consume_effects.append(
-            {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW}
-        )
-    return {
-        "type": "Combine",
-        "effects": [
-            {"type": "Sfx", "name": "lol_shen_attack_cast"},
-            {
-                "type": "Delayed",
-                "tick": 10,
-                "effects": consume_effects,
-            },
-        ],
-    }
-
-
 def build_shen_attack() -> dict[str, object]:
-    normal_attack: dict[str, object] = {
-        "type": "Combine",
-        "effects": [
-            {"type": "Sfx", "name": "lol_shen_attack_cast"},
-            {
-                "type": "Delayed",
-                "tick": 10,
-                "effects": [
-                    {"type": "Attack", "damage": 0, "attack_ratio": 100},
-                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
-                ],
-            },
-        ],
-    }
-    branches = list(SHEN_Q_MARKERS)
-    effect = normal_attack
-    for buff_name in reversed(branches):
-        effect = {
-            "type": "SwitchByBuff",
-            "buff_name": buff_name,
-            "effect_buff": shen_attack_branch(buff_name),
-            "effect_none": effect,
-        }
     return {
         "action_name": "attack",
         "description": "#asset/base/text/champion?description.lol_shen.attack",
@@ -2361,76 +2249,16 @@ def build_shen_attack() -> dict[str, object]:
         "casting_type": "Targeting",
         "casting_target": "Enemy",
         "attack_type": "BaseAttack",
-        "effect": effect,
-    }
-
-
-def build_shen_q() -> dict[str, object]:
-    return {
-        "action_name": "skill",
-        "description": "#asset/base/text/champion?description.lol_shen.skill",
-        "duration": 28,
-        "cooltime": 360,
-        "start_timing": 8,
-        "cancelable": True,
-        "range": 55000,
-        "casting_type": "Direction",
-        "casting_target": "EnemyChampion",
-        "attack_type": "Skill",
-        "can_use_with_move": False,
         "effect": {
             "type": "Combine",
             "effects": [
-                {"type": "Sfx", "name": "lol_shen_q_cast"},
-                {"type": "CasterAnimation", "name": "skill", "tick": 28},
-                *(
-                    {"type": "RemoveCasterBuff", "name": name}
-                    for name in SHEN_Q_MARKERS
-                ),
-                {"type": "RemoveCasterBuff", "name": SHEN_Q_EMPOWERED_WINDOW},
+                {"type": "Sfx", "name": "lol_shen_attack_cast"},
                 {
-                    # BackToCaster requires a projectile endpoint.  This
-                    # transparent-view, no-damage anchor reaches the selected
-                    # direction first; its endpoint then becomes the spirit
-                    # blade's one and only visible return origin.
-                    "type": "LinearProjectile",
-                    "penetrate": False,
-                    "speed": 60000,
-                    "range": 55000,
-                    "name": SHEN_Q_ANCHOR_NAME,
-                    "shape": {"Circle": {"radius": 1000}},
-                    "applied_target": "EnemyChampion",
-                    "applied_effects": [],
-                    "end_effects": [
-                        {
-                            "type": "BackToCasterLinearProjectile",
-                            "penetrate": True,
-                            "speed": 12000,
-                            "range": 130000,
-                            "name": "lol_shen_twilight_assault_blade_recall",
-                            "shape": {"Circle": {"radius": 7500}},
-                            "applied_target": "EnemyChampion",
-                            "applied_effects": [],
-                            "end_effects": [
-                                {
-                                    "type": "ViewEffect",
-                                    "name": "lol_shen_twilight_assault_recall_arrival",
-                                },
-                                *(
-                                    {
-                                        "type": "AddCasterBuff",
-                                        "buff_state": shen_timed_buff(name, 480),
-                                    }
-                                    for name in SHEN_Q_MARKERS
-                                ),
-                                {
-                                    "type": "AddCasterBuff",
-                                    "buff_state": shen_timed_buff(
-                                        SHEN_Q_EMPOWERED_WINDOW, 480
-                                    ),
-                                },
-                            ],
-                        }
+                    "type": "Delayed",
+                    "tick": 10,
+                    "effects": [
+                        {"type": "Attack", "damage": 0, "attack_ratio": 100},
+                        {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
                     ],
                 },
             ],
@@ -2438,69 +2266,139 @@ def build_shen_q() -> dict[str, object]:
     }
 
 
-def build_shen_e() -> dict[str, object]:
+def build_shen_q() -> dict[str, object]:
     return {
-        "action_name": "skill2",
-        "description": "#asset/base/text/champion?description.lol_shen.skill2",
-        "duration": 30,
-        "cooltime": 720,
-        "start_timing": 4,
-        "cancelable": False,
-        "range": SHEN_SHADOW_DASH_DISTANCE,
-        "casting_type": "Direction",
+        "action_name": "skill",
+        "description": "#asset/base/text/champion?description.lol_shen.skill",
+        "duration": 36,
+        "cooltime": 360,
+        "start_timing": 14,
+        "cancelable": True,
+        "range": 60000,
+        # Refined AI inherited by game 0.5.8 requires a concrete first-skill target.
+        # The selected champion still supplies the direction for the same
+        # penetrating line projectile; only the unsafe targetless cast is gone.
+        "casting_type": "Targeting",
         "casting_target": "EnemyChampion",
         "attack_type": "Skill",
-        "can_use_with_move": False,
         "effect": {
             "type": "Combine",
             "effects": [
-                {"type": "Sfx", "name": "lol_shen_attack_cast"},
-                {"type": "CasterAnimation", "name": "run", "tick": 30},
+                {"type": "Sfx", "name": "lol_shen_q_cast"},
                 {
-                    "type": "CasterViewEffect",
-                    "name": SHEN_SHADOW_DASH_CAST_FLASH,
-                },
-                {
-                    "type": "AddCasterBuff",
-                    "buff_state": shen_timed_buff("lol_shen_shadow_dash_trail_window", 30),
-                },
-                {
-                    # RushEffect does not propagate expected_cc_time from its
-                    # collision payload.  Rust registers this no-op effect so
-                    # the root Combine exposes Shadow Dash's 90-tick taunt to
-                    # the stock AI without applying CC before a real hit.
-                    "type": "Native",
-                    "effect_ref": SHEN_SHADOW_DASH_AI_HINT_NATIVE,
-                },
-                {
-                    "type": "Rush",
-                    "speed": 4000,
-                    "move_speed_ratio": 100,
-                    "range": SHEN_SHADOW_DASH_COLLISION_RADIUS,
-                    "casting_target": "EnemyChampion",
+                    "type": "LinearProjectile",
                     "penetrate": True,
+                    "speed": 4200,
+                    "range": 60000,
+                    "name": "lol_shen_twilight_assault_projectile",
+                    "shape": {"Circle": {"radius": 8000}},
+                    "applied_target": "EnemyWithoutTower",
                     "applied_effects": [
                         {
                             "casting_type": "Targeting",
                             "effect": {
                                 "type": "Combine",
                                 "effects": [
-                                    {"type": "Attack", "damage": 60, "attack_ratio": 0},
-                                    {
-                                        "type": "Native",
-                                        "effect_ref": "lol_shen_shadow_dash_taunt_native",
-                                    },
+                                    {"type": "ApAttack", "damage": 40, "attack_ratio": 60},
                                     {
                                         "type": "AddBuff",
                                         "buff_state": shen_timed_buff(
-                                            "lol_shen_shadow_dash_taunted", 90
+                                            "lol_shen_twilight_assault_slow",
+                                            90,
+                                            move_speed_mult=-25,
                                         ),
                                     },
-                                    {"type": "ViewEffect", "name": "lol_shen_shadow_dash_impact"},
-                                    {"type": "TargetSfx", "name": "lol_shen_attack_hit"},
+                                    {
+                                        "type": "AddCasterBuff",
+                                        "buff_state": shen_timed_buff(
+                                            "lol_shen_twilight_assault_guard", 120
+                                        ),
+                                    },
+                                    {
+                                        "type": "WithSelf",
+                                        "effects": [
+                                            {
+                                                "type": "Shield",
+                                                "amount": 120,
+                                                "attack_ratio": 0,
+                                                "ap_ratio": 0,
+                                                "tick": 120,
+                                            }
+                                        ],
+                                    },
                                 ],
                             },
+                        },
+                    ],
+                    "end_effects": [],
+                },
+            ],
+        },
+    }
+
+
+def build_shen_w() -> dict[str, object]:
+    return {
+        "action_name": "skill2",
+        "description": "#asset/base/text/champion?description.lol_shen.skill2",
+        "duration": 30,
+        "cooltime": 480,
+        "start_timing": 10,
+        "cancelable": False,
+        "range": 0,
+        "casting_type": "None",
+        "casting_target": "AllyOnlySelf",
+        "attack_type": "Skill",
+        "effect": {
+            "type": "Combine",
+            "effects": [
+                {"type": "Sfx", "name": "lol_shen_w_cast"},
+                {
+                    "type": "CasterViewEffect",
+                    "name": "lol_shen_spirit_refuge_visual",
+                },
+                {
+                    "type": "RangeEffect",
+                    "shape": {"Circle": {"radius": 35000}},
+                    "target": "AllyChampion",
+                    "apply_type": "AroundCaster",
+                    "effects": [
+                        {
+                            "type": "Shield",
+                            "amount": 150,
+                            "attack_ratio": 0,
+                            "ap_ratio": 40,
+                            "tick": 150,
+                        },
+                        {
+                            "type": "AddBuff",
+                            "buff_state": shen_timed_buff(
+                                "lol_shen_spirit_refuge_shield_window", 150
+                            ),
+                        },
+                    ],
+                },
+                {
+                    "type": "RangeEffect",
+                    "shape": {"Circle": {"radius": 35000}},
+                    "target": "EnemyChampion",
+                    "apply_type": "AroundCaster",
+                    "effects": [
+                        {
+                            "type": "AddBuff",
+                            "buff_state": shen_timed_buff(
+                                "lol_shen_spirit_refuge_as_slow",
+                                120,
+                                attack_speed_mult=-30,
+                            ),
                         }
+                    ],
+                },
+                {
+                    "type": "Delayed",
+                    "tick": 12,
+                    "effects": [
+                        {"type": "Sfx", "name": "lol_shen_w_block"},
                     ],
                 },
             ],
@@ -2576,6 +2474,21 @@ def build_shen_ult() -> dict[str, object]:
                             "type": "CasterViewEffect",
                             "name": "lol_shen_stand_united_arrival_visual",
                         },
+                        {
+                            "type": "RangeEffect",
+                            "shape": {"Circle": {"radius": 35000}},
+                            "target": "EnemyChampion",
+                            "apply_type": "AroundCaster",
+                            "effects": [
+                                {"type": "Taunt", "duration": 45},
+                                {
+                                    "type": "AddBuff",
+                                    "buff_state": shen_timed_buff(
+                                        "lol_shen_stand_united_arrival_cc", 45
+                                    ),
+                                },
+                            ],
+                        },
                     ],
                 },
             ],
@@ -2623,105 +2536,45 @@ def build_shen_data() -> Path:
         },
         "attack": build_shen_attack(),
         "skill": build_shen_q(),
-        "skill2": build_shen_e(),
+        "skill2": build_shen_w(),
         "ult": build_shen_ult(),
         "view_projectiles": [
             {
                 "type": "Animated",
-                "name": SHEN_Q_ANCHOR_NAME,
+                "name": "lol_shen_twilight_assault_projectile",
                 "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "anchor",
-                "z": 0,
-                "repeat": True,
-            },
-            {
-                "type": "Animated",
-                "name": "lol_shen_twilight_assault_blade_recall",
-                "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-                "tag": "recall",
-                "z": 3,
+                "tag": "projectile",
+                "z": 2,
                 "repeat": True,
             },
         ],
         "view_effects": [
-        {
-            "type": "Animation",
-            "name": "lol_shen_twilight_assault_empowered_hit",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "empowered_hit",
-            "z": 2,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_twilight_assault_recall_arrival",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "tag": "recall_arrival",
-            "z": 2,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": SHEN_SHADOW_DASH_CAST_FLASH,
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-            "tag": "dash_start",
-            "z": 3,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_shadow_dash_impact",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-            "tag": "impact",
-            "z": 2,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_stand_united_guard_visual",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
-            "tag": "guard",
-            "z": 1,
-            "is_follow": True,
-        },
-        {
-            "type": "Animation",
-            "name": "lol_shen_stand_united_arrival_visual",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
-            "tag": "arrival",
-            "z": 1,
-            "is_follow": False,
-        },
+            {
+                "type": "Animation",
+                "name": "lol_shen_spirit_refuge_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_w",
+                "tag": "field",
+                "z": -1,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_stand_united_guard_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+                "tag": "guard",
+                "z": 1,
+                "is_follow": True,
+            },
+            {
+                "type": "Animation",
+                "name": "lol_shen_stand_united_arrival_visual",
+                "anim": "asset/lol_mod/aseprite_resources/effects/shen_r",
+                "tag": "arrival",
+                "z": 1,
+                "is_follow": False,
+            },
         ],
-        "view_buffs": [
-        {
-            "type": "ThreePhase",
-            "name": SHEN_Q_EMPOWERED_WINDOW,
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_q",
-            "pre_tag": "empower_pre",
-            "loop_tag": "empower_loop",
-            "remove_tag": "empower_remove",
-            "z": 3,
-        },
-        {
-            "type": "ThreePhase",
-            "name": "lol_shen_shadow_dash_trail_window",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-            "pre_tag": "trail_pre",
-            "loop_tag": "trail_loop",
-            "remove_tag": "trail_remove",
-            "z": 3,
-        },
-        {
-            "type": "ThreePhase",
-            "name": "lol_shen_shadow_dash_taunted",
-            "anim": "asset/lol_mod/aseprite_resources/effects/shen_e",
-            "pre_tag": "taunt_pre",
-            "loop_tag": "taunt_loop",
-            "remove_tag": "taunt_remove",
-            "z": 3,
-        },
-        ],
+        "view_buffs": [],
     }
     write_json(path, champion)
     return path
@@ -3944,7 +3797,8 @@ def build_sivir_data() -> Path:
             "cancelable": False,
             "range": 75000,
             "growth_range": 0,
-            "casting_type": "Direction",
+            # Refined plan_legacy requires a concrete first-skill target.
+            "casting_type": "Targeting",
             "casting_target": "EnemyWithoutTower",
             "attack_type": "Skill",
             "can_use_with_move": False,
@@ -4161,7 +4015,7 @@ def build_qa_contacts(actor_frames: list[Image.Image], icons: list[Path]) -> lis
 
     icon_contact = Image.new("RGBA", (3 * 192, 208), (20, 18, 28, 255))
     draw = ImageDraw.Draw(icon_contact)
-    for index, (path, label) in enumerate(zip(icons, ["Q", "E", "R"], strict=True)):
+    for index, (path, label) in enumerate(zip(icons, ["Q", "W", "R"], strict=True)):
         icon = Image.open(path).convert("RGBA").resize((192, 192), Image.Resampling.NEAREST)
         icon_contact.alpha_composite(icon, (index * 192, 0))
         draw.text((index * 192 + 8, 192), label, fill=(255, 255, 255, 255))
@@ -4952,6 +4806,7 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
         MOD_ROOT / "icons",
         MOD_ROOT / "aseprite_resources",
         MOD_ROOT / "BanPickIllust",
+        MOD_ROOT / "banpick_illustrations",
         MOD_ROOT / "ui",
         MOD_ROOT / "style",
         MOD_ROOT / "text",
@@ -4995,6 +4850,9 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
             "qa/yone_skill_contract_qa.md",
             "sound/sfx/yone_native_silence.sound_info",
             "sound/sfx/yone_native_silence_clip.wav",
+            "ui/banpick/champion_illustration/dual_blader_blue.png",
+            "ui/banpick/champion_illustration/dual_blader_red.png",
+            "banpick_illustrations/dual_blader.png",
         }
     )
     yone_audio_audit = json.loads(
@@ -5036,6 +4894,80 @@ def build_manifest(yone_outputs: list[Path]) -> Path:
         ],
     }
     path = MOD_ROOT / "build_manifest.json"
+    write_json(path, payload)
+    return path
+
+
+RUNTIME_EXCLUDED_PREFIXES = (
+    # QA evidence is committed and release-audited, but the game never reads
+    # it. Keeping it out of the active mod avoids needless directory scans.
+    "qa/",
+    # Full-resolution authored BP splashes are build/QA inputs. The active
+    # stable UI route uses exact-size copies in ui/banpick/champion_illustration.
+    "BanPickIllust/",
+    # Compact/grid/scoreboard replacements belong to the retired classic
+    # render-command route.
+    "ui/champion_portrait/",
+    # Authored full-body PNGs and experimental encyclopedia templates stay
+    # QA-only. Finished mods on 0.5.8 use the stock ChampionInfoUIRunner with
+    # each champion's sprite/idle frame and champion_view camera.
+    "ui/champion_fullbody/",
+    "ui/layout/champion_info_component/",
+    # These exact base-0.5.1 templates once crashed the draft scene when used
+    # as full overrides. Base 0.5.8 receives additive stable-ABI decorations
+    # instead, so the historical layout baselines stay out of the game folder.
+    "ui/layout/banpick/",
+)
+
+RUNTIME_EXCLUDED_PATHS = {
+    # Historical visual evidence for data-only skills; no active champion,
+    # override or stable callback references these sheets/audio events.
+    "aseprite_resources/effects/urgot_w_cannon#anim.fanim",
+    "aseprite_resources/effects/urgot_w_cannon#sheet.png",
+    "style/bp_controls.style",
+}
+
+RUNTIME_INCLUDED_PATHS: set[str] = set()
+
+RUNTIME_SOFT_BUDGET_BYTES = 96 * 1024 * 1024
+RUNTIME_HARD_BUDGET_BYTES = 128 * 1024 * 1024
+
+
+def build_runtime_manifest(build_manifest_path: Path) -> Path:
+    """Publish only files that the active stable-ABI mod can reach."""
+
+    build_payload = json.loads(build_manifest_path.read_text(encoding="utf-8"))
+    runtime_rows = [
+        row
+        for row in build_payload.get("files", [])
+        if row.get("path") in RUNTIME_INCLUDED_PATHS
+        or (
+            row.get("path") not in RUNTIME_EXCLUDED_PATHS
+            and not any(
+                str(row.get("path", "")).startswith(prefix)
+                for prefix in RUNTIME_EXCLUDED_PREFIXES
+            )
+        )
+    ]
+    total_bytes = sum(int(row["size"]) for row in runtime_rows)
+    if total_bytes > RUNTIME_HARD_BUDGET_BYTES:
+        raise RuntimeError(
+            f"Runtime package is {total_bytes / (1024 * 1024):.1f} MiB, "
+            f"above the {RUNTIME_HARD_BUDGET_BYTES / (1024 * 1024):.0f} MiB hard cap"
+        )
+
+    payload = {
+        "schema_version": 1,
+        "generator": "mods/lol_mod/tools/build_lol_mod.py",
+        "purpose": "0.12.21 native-owned BP full cards and eight hand-authored Yone run cels; original upper body, connected swords, action timing and native encyclopedia resolver positioning preserved; live visual acceptance pending",
+        "file_count": len(runtime_rows),
+        "total_size": total_bytes,
+        "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,
+        "hard_budget": RUNTIME_HARD_BUDGET_BYTES,
+        "within_soft_budget": total_bytes <= RUNTIME_SOFT_BUDGET_BYTES,
+        "files": runtime_rows,
+    }
+    path = MOD_ROOT / "runtime_manifest.json"
     write_json(path, payload)
     return path
 
@@ -5116,9 +5048,12 @@ def main() -> int:
     urgot_outputs = build_urgot_assets()
     yone_outputs = build_yone_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
+    runtime_bp_illustrations = build_runtime_bp_illustrations()
+    bp_pick_cards = build_bp_pick_cards()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
     manifest = None if args.skip_manifest else build_manifest(yone_outputs)
+    runtime_manifest = None if manifest is None else build_runtime_manifest(manifest)
     for path in [
         actor_sheet,
         actor_anim,
@@ -5157,9 +5092,12 @@ def main() -> int:
         *urgot_outputs,
         *yone_outputs,
         *champion_fullbody_portraits,
+        *runtime_bp_illustrations,
+        *bp_pick_cards,
         *orianna_briar_hd_surface_qa,
         *legacy_battle_actor_scale_qa,
         *([manifest] if manifest else []),
+        *([runtime_manifest] if runtime_manifest else []),
     ]:
         print(path.relative_to(MOD_ROOT))
     return 0

@@ -753,7 +753,7 @@
     {
       "path": "aseprite_resources/champions/xayah#sheet.png",
       "size_bytes": 574038,
-      "sha256": "6d63078fa27095489121afd97a699f328003a26b3a8b137e3e1b66fc1642e463"
+      "sha256": "245c977f452a5c98f35c2d22bffdac0b30f21989c43d278e68be99a3a6eca4cb"
     },
     {
       "path": "aseprite_resources/champions/xayah#anim.fanim",
@@ -832,8 +832,13 @@
     },
     {
       "path": "ui/champion_fullbody/dancer.png",
+      "size_bytes": 31781,
+      "sha256": "aaccf807d104275ec23a6d63bd616282dd7146f0e9f55e34cdc97562a7fc3ae9"
+    },
+    {
+      "path": "ui/champion_fullbody/dancer_encyclopedia.png",
       "size_bytes": 16516,
-      "sha256": "4215c1ff3f50622a3af6c45b4d764e43916f0a8acbb7195578b36f1ae860a738"
+      "sha256": "1b253e2b3c403843397a49c5e8b51d672af5d1b4e238c13729f6e1a355faa261"
     },
     {
       "path": "ui/champion_portrait/dancer_compact.png",

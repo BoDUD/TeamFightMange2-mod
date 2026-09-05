@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import math
 import sys
@@ -61,6 +62,28 @@ EXPECTED_SOURCE_HASHES = {
     "w": "2ff4d7ec7284071f66296acb1982b1a282a01f1d15237412db4f31b5d366b57b",
     "ult": "c820d8fcf6cf56e82f4eaa896d2f71bb602a2914f53313fc0db03b88748ad4a4",
 }
+EXPECTED_RUN_FRAME_NAMES = tuple(f"run_{index:02d}.png" for index in range(8))
+EXPECTED_RUN_LOWER_BODY_DONORS = [4, 5, 6, 7, 4, 5, 6, 7]
+EXPECTED_RUN_LOWER_BODY_MIRRORED = [
+    False,
+    False,
+    False,
+    False,
+    True,
+    True,
+    True,
+    True,
+]
+EXPECTED_RUN_SUPPORT_LEGS = [
+    "right",
+    "right",
+    "right",
+    "right",
+    "left",
+    "left",
+    "left",
+    "left",
+]
 SOURCE_PATHS = {
     "motion": MOD_ROOT / "source/imagegen/yone_v7_motion_contact.png",
     "attack_q": MOD_ROOT / "source/imagegen/yone_v7_attack_q_contact.png",
@@ -141,6 +164,7 @@ V7_EXTENSION_TAGS = (
     "skill_q12",
     "skill_q3",
     "skill_w_azakana",
+    "ult_fate_sealed",
 )
 EXPECTED_TAG_ORDER = NATIVE_TAG_PREFIX + V7_EXTENSION_TAGS
 EXPECTED_WEAPON_CONTRACT = {
@@ -285,6 +309,80 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         _fail("V7 source-to-native route must declare LANCZOS resampling")
     if payload.get("opaque_palette_size") not in range(1, MAX_OPAQUE_PALETTE_COLORS + 1):
         _fail("generation_qa.json opaque_palette_size is outside 1..48")
+    run_contract = payload.get("motion_attack_contract", {}).get("run", {})
+    expected_mask_identity = {"steel": True, "azakana": True}
+    if (
+        run_contract.get("pose_sources")
+        != [["motion", index] for index in range(5, 13)]
+        or run_contract.get("weapon_render_route")
+        != "authored_transformed_mask_only"
+        or run_contract.get("authored_weapon_mask_identity")
+        != expected_mask_identity
+        or run_contract.get("authored_alpha_mask_unchanged") is not True
+        or run_contract.get("leg_edit_route")
+        != "authored_lower_body_half_cycle_mirror"
+        or run_contract.get("lower_body_donor_indices")
+        != EXPECTED_RUN_LOWER_BODY_DONORS
+        or run_contract.get("lower_body_mirrored")
+        != EXPECTED_RUN_LOWER_BODY_MIRRORED
+        or run_contract.get("outside_lower_body_roi_rgba_unchanged") is not True
+        or run_contract.get(
+            "authored_weapon_pixels_unchanged_after_lower_body_edit"
+        )
+        is not True
+        or run_contract.get("source_pixel_only") is not True
+        or run_contract.get("new_rgba_pixel_count") != 0
+        or run_contract.get("half_cycle_pair_mirror_match")
+        != [True, True, True, True]
+        or run_contract.get("support_leg_sequence")
+        != EXPECTED_RUN_SUPPORT_LEGS
+        or run_contract.get("ground_anchor_range_px") != 0.0
+        or "no drawn leg" not in str(run_contract.get("source", ""))
+        or "hand-to-tip redraw" not in str(run_contract.get("source", ""))
+        or "afterimage" not in str(run_contract.get("source", ""))
+    ):
+        _fail(
+            "V7 run must preserve authored upper-body/weapon pixels and use the "
+            "accepted source-pixel half-cycle lower-body mirror"
+        )
+    run_rows = sorted(
+        (
+            row
+            for row in payload.get("frames", [])
+            if isinstance(row, dict) and row.get("action") == "run"
+        ),
+        key=lambda row: int(row.get("index", -1)),
+    )
+    if (
+        [(row.get("source"), row.get("cell")) for row in run_rows]
+        != [("motion", index) for index in range(5, 13)]
+        or [row.get("lower_body_donor_index") for row in run_rows]
+        != EXPECTED_RUN_LOWER_BODY_DONORS
+        or [row.get("lower_body_mirrored") for row in run_rows]
+        != EXPECTED_RUN_LOWER_BODY_MIRRORED
+        or any(
+            row.get("weapon_render_route") != "authored_transformed_mask_only"
+            or row.get("authored_weapon_mask_identity") != expected_mask_identity
+            or row.get("authored_alpha_mask_unchanged") is not True
+            or row.get("leg_edit_route")
+            != "authored_lower_body_half_cycle_mirror"
+            or row.get("outside_lower_body_roi_rgba_unchanged") is not True
+            or row.get(
+                "authored_weapon_pixels_unchanged_after_lower_body_edit"
+            )
+            is not True
+            or row.get("source_pixel_only") is not True
+            or row.get("new_rgba_pixel_count") != 0
+            or len(row.get("foot_zones", [])) != 2
+            for row in run_rows
+        )
+        or [row.get("support_leg") for row in run_rows]
+        != EXPECTED_RUN_SUPPORT_LEGS
+    ):
+        _fail(
+            "V7 run frame audit lost source identity, weapon preservation, or "
+            "source-pixel half-cycle mirror metadata"
+        )
     actual_hashes: dict[str, str] = {}
     for label, canonical_path in SOURCE_PATHS.items():
         path = mod_root / canonical_path.relative_to(MOD_ROOT)
@@ -293,11 +391,33 @@ def _validate_generation_qa(mod_root: Path) -> dict[str, Any]:
         actual_hashes[label] = _sha256(path)
     if actual_hashes != EXPECTED_SOURCE_HASHES:
         _fail(f"hash-locked V7 source changed: {actual_hashes}")
+    run_frame_root = (
+        mod_root / "source" / "native" / "yone_v7" / "frames"
+    )
+    actual_run_frame_hashes = {
+        name: _sha256(run_frame_root / name)
+        for name in EXPECTED_RUN_FRAME_NAMES
+    }
+    if len(set(actual_run_frame_hashes.values())) != len(EXPECTED_RUN_FRAME_NAMES):
+        _fail("Yone run cycle must retain eight distinct final PNG files")
     return {
         "schema_version": EXPECTED_SCHEMA_VERSION,
         "source_hashes": actual_hashes,
         "source_to_native_resampling": "LANCZOS",
         "opaque_palette_size": payload["opaque_palette_size"],
+        "run_weapon_render_route": "authored_transformed_mask_only",
+        "run_authored_weapon_mask_identity": expected_mask_identity,
+        "run_authored_alpha_mask_unchanged": True,
+        "run_leg_edit_route": "authored_lower_body_half_cycle_mirror",
+        "run_lower_body_donor_indices": EXPECTED_RUN_LOWER_BODY_DONORS,
+        "run_lower_body_mirrored": EXPECTED_RUN_LOWER_BODY_MIRRORED,
+        "run_source_pixel_only": True,
+        "run_new_rgba_pixel_count": 0,
+        "run_half_cycle_pair_mirror_match": [True, True, True, True],
+        "run_support_leg_sequence": EXPECTED_RUN_SUPPORT_LEGS,
+        # Deliberately reported but not pinned: review the rendered run before
+        # promoting these content hashes into a release lock.
+        "run_frame_hashes": actual_run_frame_hashes,
         "quality_failures": [],
     }
 
@@ -478,7 +598,7 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
     if tag_order != EXPECTED_TAG_ORDER:
         _fail(
             "Yone V7 tag order must retain the immutable 13-tag native prefix "
-            f"then the five dual-sword extensions: {tag_order!r}"
+            f"then the six dual-sword extensions: {tag_order!r}"
         )
 
     rects = {tag: _frame_rects(anims[tag], tag=tag) for tag in EXPECTED_TAG_ORDER}
@@ -488,6 +608,7 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
         "skill_q12": 7,
         "skill_q3": 7,
         "skill_w_azakana": 5,
+        "ult_fate_sealed": 13,
     }
     for tag, count in expected_counts.items():
         if len(rects[tag]) != count:
@@ -497,10 +618,21 @@ def _validate_animation_contract(anim_payload: dict[str, Any]) -> dict[str, Any]
         "attack_steel": "attack",
         "skill_q12": "skill",
         "skill_w_azakana": "skill2_attack",
+        "ult_fate_sealed": "ult",
     }
     for alias, native in aliases.items():
         if rects[alias] != rects[native]:
             _fail(f"Yone V7 {alias} must alias immutable native tag {native}")
+
+    fate_sealed_durations = [
+        frame.get("duration")
+        for frame in anims["ult_fate_sealed"].get("frames", [])
+        if isinstance(frame, dict)
+    ]
+    if not math.isclose(sum(fate_sealed_durations), 1.0, abs_tol=1e-6):
+        _fail("Yone ult_fate_sealed must span exactly the skill's 60 ticks")
+    if not math.isclose(sum(fate_sealed_durations[:7]), 0.58, abs_tol=1e-6):
+        _fail("Yone ult_fate_sealed windup must meet the tick-35 launch boundary")
 
     distinct = {
         "attack_steel_vs_azakana": rects["attack_steel"] != rects["attack_azakana"],
@@ -681,6 +813,247 @@ def _largest_connected_component(
     xs = [point[0] for point in largest]
     ys = [point[1] for point in largest]
     return len(largest), (min(xs), min(ys), max(xs) + 1, max(ys) + 1)
+
+
+def _connected_component_sizes_8(
+    points: set[tuple[int, int]],
+) -> list[int]:
+    """Return exact 8-connected component sizes for native hard-alpha pixels."""
+
+    remaining = set(points)
+    sizes: list[int] = []
+    while remaining:
+        start = remaining.pop()
+        component = {start}
+        queue: deque[tuple[int, int]] = deque([start])
+        while queue:
+            x, y = queue.popleft()
+            for delta_y in (-1, 0, 1):
+                for delta_x in (-1, 0, 1):
+                    if delta_x == 0 and delta_y == 0:
+                        continue
+                    neighbor = (x + delta_x, y + delta_y)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        component.add(neighbor)
+                        queue.append(neighbor)
+        sizes.append(len(component))
+    return sorted(sizes, reverse=True)
+
+
+def _validate_run_png_gait(
+    sources: dict[tuple[str, int], Image.Image],
+    palette: Palette,
+    rows_by_key: dict[tuple[str, int], dict[str, Any]],
+) -> dict[str, Any]:
+    """Independently prove the run mirror and both swords from final PNGs.
+
+    This intentionally does not import the generator or trust its gait audit.
+    The lower-body comparison searches only a narrow native-centre anchor
+    window, then requires exact mirrored RGBA equality below the retained seam.
+    """
+
+    run_frames = [sources.get(("run", index)) for index in range(8)]
+    run_rows = [rows_by_key.get(("run", index)) for index in range(8)]
+    if any(frame is None for frame in run_frames) or any(
+        row is None for row in run_rows
+    ):
+        _fail("final PNG gait validation requires all eight run frames")
+    frames = [frame for frame in run_frames if frame is not None]
+    rows = [row for row in run_rows if row is not None]
+
+    weapon_colors: dict[str, frozenset[tuple[int, int, int, int]]] = {}
+    weapon_components: list[dict[str, Any]] = []
+    for weapon, ramp in EXPECTED_WEAPON_PALETTE_ROLES.items():
+        roles = [role for role_names in ramp.values() for role in role_names]
+        colors = frozenset(
+            color for role in roles for color in palette.exact_role(role)
+        )
+        if len(colors) != len(roles):
+            _fail(f"run PNG gait validation is missing {weapon} palette roles")
+        weapon_colors[weapon] = colors
+    all_weapon_colors = frozenset().union(*weapon_colors.values())
+
+    for index, frame in enumerate(frames):
+        frame_report: dict[str, Any] = {"index": index}
+        for weapon in ("steel", "azakana"):
+            points = {
+                (x, y)
+                for y in range(frame.height)
+                for x in range(frame.width)
+                if frame.getpixel((x, y)) in weapon_colors[weapon]
+            }
+            sizes = _connected_component_sizes_8(points)
+            if len(sizes) != 1:
+                _fail(
+                    f"run[{index}] final PNG {weapon} must be exactly one "
+                    f"8-connected component, got {sizes}"
+                )
+            frame_report[f"{weapon}_component_sizes"] = sizes
+        weapon_components.append(frame_report)
+
+    pair_reports: list[dict[str, Any]] = []
+    for source_index in range(4):
+        mirrored_index = source_index + 4
+        source = frames[source_index]
+        mirrored = frames[mirrored_index]
+        if source.size != mirrored.size:
+            _fail(
+                f"run[{source_index}] and run[{mirrored_index}] must retain "
+                "equal native boxes for integer-aligned mirroring"
+            )
+        source_ground = source.height - int(rows[source_index]["bottom_margin"]) - 1
+        mirrored_ground = (
+            mirrored.height - int(rows[mirrored_index]["bottom_margin"]) - 1
+        )
+        source_center = (source.width - 1) // 2
+        mirrored_center = (mirrored.width - 1) // 2
+        candidates: list[dict[str, int]] = []
+        for source_pelvis in range(source_center - 4, source_center + 5):
+            for mirrored_pelvis in range(
+                mirrored_center - 4, mirrored_center + 5
+            ):
+                checked = 0
+                mismatches = 0
+                for source_y in range(source_ground - 8, source_ground + 1):
+                    for source_x in range(
+                        max(1, source_pelvis - 11),
+                        min(source.width - 1, source_pelvis + 12),
+                    ):
+                        target_x = mirrored_pelvis - (source_x - source_pelvis)
+                        target_y = mirrored_ground - (source_ground - source_y)
+                        if not (
+                            1 <= target_x < mirrored.width - 1
+                            and 1 <= target_y < mirrored.height - 1
+                        ):
+                            continue
+                        source_color = source.getpixel((source_x, source_y))
+                        target_color = mirrored.getpixel((target_x, target_y))
+                        # Each half keeps its own authored swords. Ignore only
+                        # coordinates occupied by an exclusive blade color;
+                        # every remaining body/transparent pixel must match.
+                        if (
+                            source_color in all_weapon_colors
+                            or target_color in all_weapon_colors
+                        ):
+                            continue
+                        if source_color[3] or target_color[3]:
+                            checked += 1
+                            mismatches += source_color != target_color
+                candidates.append(
+                    {
+                        "source_pelvis": source_pelvis,
+                        "mirrored_pelvis": mirrored_pelvis,
+                        "checked_pixels": checked,
+                        "mismatches": mismatches,
+                    }
+                )
+        best = min(
+            candidates,
+            key=lambda row: (
+                row["mismatches"],
+                -row["checked_pixels"],
+                abs(row["source_pelvis"] - source_center)
+                + abs(row["mirrored_pelvis"] - mirrored_center),
+            ),
+        )
+        if best["mismatches"] != 0 or best["checked_pixels"] < 64:
+            _fail(
+                f"run[{source_index}] -> run[{mirrored_index}] final PNG "
+                f"lower body is not an exact half-cycle mirror: {best}"
+            )
+        pair_reports.append(
+            {
+                "source_index": source_index,
+                "mirrored_index": mirrored_index,
+                "match": True,
+                **best,
+            }
+        )
+
+    # Mirroring alone can also pass for a static or floating lower body.  Derive
+    # contact from the final non-weapon pixels at the native ground line and
+    # require both legs to retain authored density and four changing phases.
+    pelvis_by_index = {
+        index: report[field]
+        for report in pair_reports
+        for index, field in (
+            (report["source_index"], "source_pelvis"),
+            (report["mirrored_index"], "mirrored_pelvis"),
+        )
+    }
+    lower_body_reports: list[dict[str, Any]] = []
+    lower_body_signatures: list[tuple[Any, ...]] = []
+    observed_support_legs: list[str] = []
+    for index, frame in enumerate(frames):
+        pelvis = pelvis_by_index[index]
+        ground = frame.height - int(rows[index]["bottom_margin"]) - 1
+        body_points = {
+            (x, y): frame.getpixel((x, y))
+            for y in range(ground - 8, ground + 1)
+            for x in range(max(1, pelvis - 11), min(frame.width - 1, pelvis + 12))
+            if frame.getpixel((x, y))[3]
+            and frame.getpixel((x, y)) not in all_weapon_colors
+        }
+        side_points = {
+            "left": [point for point in body_points if point[0] < pelvis],
+            "right": [point for point in body_points if point[0] > pelvis],
+        }
+        if any(len(points) < 24 for points in side_points.values()):
+            _fail(f"run[{index}] final PNG lost one leg's lower-body pixel density")
+        clearance = {
+            side: ground - max(y for _x, y in points)
+            for side, points in side_points.items()
+        }
+        support = min(clearance, key=clearance.get)
+        if clearance[support] != 0:
+            _fail(f"run[{index}] final PNG has ungrounded support: {clearance}")
+        other = "left" if support == "right" else "right"
+        if clearance[other] <= clearance[support]:
+            _fail(f"run[{index}] final PNG lost its distinct swing leg: {clearance}")
+        observed_support_legs.append(support)
+        lower_body_signatures.append(
+            tuple(sorted((x - pelvis, y - ground, color) for (x, y), color in body_points.items()))
+        )
+        lower_body_reports.append(
+            {
+                "index": index,
+                "leg_pixel_counts": {side: len(points) for side, points in side_points.items()},
+                "ground_clearance_px": clearance,
+                "support_leg": support,
+            }
+        )
+    if observed_support_legs != EXPECTED_RUN_SUPPORT_LEGS:
+        _fail(f"final PNG run support must alternate evenly across both halves: {observed_support_legs}")
+    half_cycle_pose_counts = [
+        len(set(lower_body_signatures[start:start + 4])) for start in (0, 4)
+    ]
+    if half_cycle_pose_counts != [4, 4]:
+        _fail(f"final PNG run lower body is static within a half cycle: {half_cycle_pose_counts}")
+
+    frame_hashes = {
+        EXPECTED_RUN_FRAME_NAMES[index]: hashlib.sha256(
+            frames[index].tobytes()
+        ).hexdigest()
+        for index in range(8)
+    }
+    if len(set(frame_hashes.values())) != 8:
+        _fail("final PNG run cycle must retain eight distinct pixel payloads")
+    return {
+        "source": "final native PNG pixels; generator audit not consulted",
+        "weapon_single_component": True,
+        "weapon_components": weapon_components,
+        "half_cycle_pair_mirror_match": [
+            report["match"] for report in pair_reports
+        ],
+        "pair_reports": pair_reports,
+        "support_leg_sequence": observed_support_legs,
+        "lower_body_reports": lower_body_reports,
+        "lower_body_unique_poses_per_half": half_cycle_pose_counts,
+        # Content hashes remain observational until visual review approves a
+        # new release lock.
+        "unlocked_frame_pixel_hashes": frame_hashes,
+    }
 
 
 def validate_frame_annotations(
@@ -1163,14 +1536,22 @@ def _validate_dual_sword_cues(
                 }
                 if not points:
                     _fail(f"{label} has no exclusive {weapon} pixels")
+                # The fixed native run rectangles are only 39-41px wide. The
+                # intact authored dual-sword poses retain one transparent
+                # border pixel; requiring two would force the rejected shorter
+                # synthetic hand-to-tip redraw. Other actions keep 2px.
+                edge_margin = 1 if action == "run" else 2
                 unsafe = sorted(
                     (x, y)
                     for x, y in points
-                    if x < 2 or y < 2 or x >= image.width - 2 or y >= image.height - 2
+                    if x < edge_margin
+                    or y < edge_margin
+                    or x >= image.width - edge_margin
+                    or y >= image.height - edge_margin
                 )
                 if unsafe:
                     _fail(
-                        f"{label} {weapon} violates 2px edge margin at {unsafe[:4]}"
+                        f"{label} {weapon} violates {edge_margin}px edge margin at {unsafe[:4]}"
                     )
                 all_points[weapon] = points
 
@@ -1316,7 +1697,8 @@ def _validate_dual_sword_cues(
     active_semantics = {
         "steel_basic_attack": ["attack"],
         "azakana_basic_attack": ["attack_azakana"],
-        "steel_q": ["skill", "skill_q3"],
+        "steel_inactive_q12_atlas_alias": ["skill"],
+        "steel_q": ["skill_q3"],
         "azakana_w": ["skill2", "skill2_attack"],
         "dual_r": ["ult"],
     }
@@ -1351,7 +1733,7 @@ def _validate_dual_sword_cues(
     if sequence_digests["attack"] == sequence_digests["attack_azakana"]:
         _fail("steel and Azakana basic attacks resolve to identical source pixels")
     if sequence_digests["skill"] == sequence_digests["skill_q3"]:
-        _fail("Q1/Q2 and Q3 resolve to identical source pixels")
+        _fail("inactive Q12 atlas alias and active Q resolve to identical source pixels")
 
     return {
         "actions": action_reports,
@@ -1365,7 +1747,7 @@ def _validate_dual_sword_cues(
         "minimum_tip_separation_px": 3,
         "sequence_sha256": sequence_digests,
         "distinct_attack_sequences": True,
-        "distinct_q_sequences": True,
+        "distinct_inactive_q12_and_active_q_sequences": True,
     }
 
 
@@ -1405,68 +1787,89 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         "steel": (
             attack_effect.get("effect_none"),
             "attack_steel",
-            "lol_yone_attack_steel_swing",
             "attack_azakana",
-            "lol_yone_attack_azakana_swing",
         ),
         "azakana": (
             attack_effect.get("effect_buff"),
             "attack_azakana",
-            "lol_yone_attack_azakana_swing",
             "attack_steel",
-            "lol_yone_attack_steel_swing",
         ),
     }
     attack_report: dict[str, Any] = {}
-    for weapon, (branch, animation, overlay, forbidden_animation, forbidden_overlay) in (
-        attack_branches.items()
-    ):
+    for weapon, (branch, animation, forbidden_animation) in attack_branches.items():
         animations = type_names(branch, "CasterAnimation")
         overlays = type_names(branch, "CasterViewEffect")
         if animations[animation] != 1 or animations[forbidden_animation]:
             _fail(
                 f"Yone {weapon} basic-attack branch must use only {animation!r}"
             )
-        if overlays[overlay] != 1 or overlays[forbidden_overlay]:
-            _fail(
-                f"Yone {weapon} basic-attack branch must use caster overlay {overlay!r}"
-            )
-        attack_report[weapon] = {"animation": animation, "caster_overlay": overlay}
+        if overlays:
+            _fail(f"Yone {weapon} basic-attack branch must not duplicate its actor blade with a caster overlay")
+        attack_report[weapon] = {"animation": animation, "caster_overlay": None}
 
     skill = champion.get("skill")
     q_effect = skill.get("effect") if isinstance(skill, dict) else None
     q_animations = type_names(q_effect, "CasterAnimation")
     q_overlays = type_names(q_effect, "CasterViewEffect")
-    expected_q_animations = Counter({"skill_q12": 2, "skill_q3": 1})
-    expected_q_overlays = Counter({"lol_yone_q_blade": 2, "lol_yone_q3_blade": 1})
+    expected_q_animations = Counter({"skill_q3": 1})
+    expected_q_overlays: Counter[str] = Counter({"lol_yone_q3_airborne_cue": 1})
     if q_animations != expected_q_animations or q_overlays != expected_q_overlays:
         _fail(
-            "Yone Q must stay steel-active: two Q1/Q2 caster routes and one Q3 route"
+            "Yone Q must use one steel-active skill_q3 body route and one airborne cue"
         )
 
     skill2 = champion.get("skill2")
     w_effect = skill2.get("effect") if isinstance(skill2, dict) else None
     w_animations = type_names(w_effect, "CasterAnimation")
     w_overlays = type_names(w_effect, "CasterViewEffect")
+    w_projectiles = type_names(w_effect, "LinearProjectile")
     if w_animations != Counter({"skill_w_azakana": 1}):
         _fail("Yone W must use the Azakana-active skill_w_azakana animation")
-    if w_overlays["lol_yone_w_crescent_cast"] != 1:
-        _fail("Yone W must cast exactly one caster-following Azakana crescent")
+    if w_overlays or w_projectiles != Counter({"lol_yone_w_sweep_projectile": 1}):
+        _fail("Yone W must use exactly one pure-data Azakana blade projectile")
 
     ultimate = champion.get("ult")
     r_effect = ultimate.get("effect") if isinstance(ultimate, dict) else None
     r_animations = type_names(r_effect, "CasterAnimation")
     r_caster_overlays = type_names(r_effect, "CasterViewEffect")
     r_target_overlays = type_names(r_effect, "ViewEffect")
-    if r_animations != Counter({"ult": 1}):
-        _fail("Yone R must use the dual-sword ult animation route")
-    if r_caster_overlays["lol_yone_r_windup"] != 1:
-        _fail("Yone R must begin with one caster-following dual-sword windup")
+    if r_animations != Counter({"ult_fate_sealed": 1}):
+        _fail("Yone R must use the tick-35-aligned Fate Sealed animation route")
+    if r_caster_overlays != Counter(
+        {"lol_yone_r_windup": 1, "lol_yone_r_launch": 1}
+    ):
+        _fail("Yone R must expose one visible windup and one tick-35 launch cue")
     if (
         r_target_overlays["lol_yone_r_slash_blue"] < 1
         or r_target_overlays["lol_yone_r_slash_red"] < 1
+        or r_target_overlays["lol_yone_r_knockup"] < 1
     ):
-        _fail("Yone R must emit both steel-blue and Azakana-red slash overlays")
+        _fail("Yone R must emit steel/red slashes plus a vertical knockup cue")
+
+    delayed_nodes = [
+        node for node in walk(r_effect) if node.get("type") == "Delayed"
+    ]
+    tick_35 = [node for node in delayed_nodes if node.get("tick") == 35]
+    if len(tick_35) != 1 or type_names(
+        tick_35[0].get("effects"), "CasterViewEffect"
+    ) != Counter({"lol_yone_r_launch": 1}):
+        _fail("Yone R launch cue must start inside the real tick-35 RushTime block")
+    hit_combinations = [
+        node
+        for node in walk(r_effect)
+        if node.get("type") == "Combine"
+        and isinstance(node.get("effects"), list)
+        and any(
+            isinstance(effect, dict)
+            and effect.get("type") == "Airborne"
+            and effect.get("duration") == 45
+            for effect in node["effects"]
+        )
+    ]
+    if len(hit_combinations) != 1 or type_names(
+        hit_combinations[0].get("effects"), "ViewEffect"
+    )["lol_yone_r_knockup"] != 1:
+        _fail("Yone R vertical knockup cue must share the Airborne-45 hit block")
 
     raw_view_effects = champion.get("view_effects")
     if not isinstance(raw_view_effects, list):
@@ -1479,37 +1882,29 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         if name in view_effects:
             _fail(f"Yone view effect is duplicated: {name}")
         view_effects[name] = effect
+    if "lol_yone_r_arrival" in view_effects:
+        _fail("Yone R arrival may remain as audio only, not as an early mixed-color view")
 
     overlay_contract = {
-        "lol_yone_attack_steel_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "steel_hit",
-            3,
-        ),
-        "lol_yone_attack_azakana_swing": (
-            "asset/lol_mod/aseprite_resources/effects/yone_attack",
-            "azakana_hit",
-            3,
-        ),
-        "lol_yone_q_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "hit",
-            3,
-        ),
-        "lol_yone_q3_blade": (
-            "asset/lol_mod/aseprite_resources/effects/yone_q",
-            "empowered_hit",
-            3,
-        ),
-        "lol_yone_w_crescent_cast": (
-            "asset/lol_mod/aseprite_resources/effects/yone_w",
-            "crescent",
-            3,
+        "lol_yone_q3_airborne_cue": (
+            "asset/lol_mod/aseprite_resources/effects/yone_q3_tornado",
+            "cue",
+            2,
         ),
         "lol_yone_r_windup": (
             "asset/lol_mod/aseprite_resources/effects/yone_r",
             "windup",
-            1,
+            3,
+        ),
+        "lol_yone_r_launch": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "launch",
+            3,
+        ),
+        "lol_yone_r_knockup": (
+            "asset/lol_mod/aseprite_resources/effects/yone_r",
+            "knockup",
+            3,
         ),
         "lol_yone_r_slash_blue": (
             "asset/lol_mod/aseprite_resources/effects/yone_r",
@@ -1554,6 +1949,57 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
             "assets_present": True,
         }
 
+    r_effect_anim_path = (
+        mod_root / "aseprite_resources/effects/yone_r#anim.fanim"
+    )
+    r_effect_sheet_path = (
+        mod_root / "aseprite_resources/effects/yone_r#sheet.png"
+    )
+    r_effect_anims = _read_json(r_effect_anim_path).get("anims")
+    expected_r_effect_tags = (
+        "windup",
+        "launch",
+        "knockup",
+        "slash_blue",
+        "slash_red",
+    )
+    if not isinstance(r_effect_anims, dict) or tuple(r_effect_anims) != expected_r_effect_tags:
+        _fail(
+            "Yone R effect atlas must contain only staged windup/launch/knockup/"
+            "blue/red tags"
+        )
+    with Image.open(r_effect_sheet_path) as r_effect_sheet:
+        if r_effect_sheet.size != (864, 352):
+            _fail(
+                "Yone R effect sheet must exclude the obsolete arrival row: "
+                f"{r_effect_sheet.size}"
+            )
+
+    raw_view_projectiles = champion.get("view_projectiles")
+    if not isinstance(raw_view_projectiles, list):
+        _fail("Yone champion data has no view_projectiles list")
+    w_projectile_view = next(
+        (
+            row
+            for row in raw_view_projectiles
+            if isinstance(row, dict)
+            and row.get("name") == "lol_yone_w_sweep_projectile"
+        ),
+        None,
+    )
+    expected_w_projectile_view = {
+        "type": "Animated",
+        "name": "lol_yone_w_sweep_projectile",
+        "anim": "asset/lol_mod/aseprite_resources/effects/yone_w",
+        "tag": "crescent",
+        "z": 3,
+        "repeat": True,
+    }
+    if w_projectile_view != expected_w_projectile_view:
+        _fail(
+            "Yone W projectile view must use the project-owned crescent contract"
+        )
+
     return {
         "basic_attack": attack_report,
         "q": {
@@ -1564,12 +2010,14 @@ def _validate_runtime_weapon_routes(mod_root: Path) -> dict[str, Any]:
         "w": {
             "active_weapon": "azakana",
             "animation": "skill_w_azakana",
-            "caster_overlay": "lol_yone_w_crescent_cast",
+            "projectile": "lol_yone_w_sweep_projectile",
         },
         "r": {
             "active_weapon": "dual",
-            "animation": "ult",
+            "animation": "ult_fate_sealed",
             "caster_windup": "lol_yone_r_windup",
+            "caster_launch": "lol_yone_r_launch",
+            "target_knockup": "lol_yone_r_knockup",
             "steel_overlay": "lol_yone_r_slash_blue",
             "azakana_overlay": "lol_yone_r_slash_red",
         },
@@ -1642,6 +2090,55 @@ def validate_v7(
                 f"V7 actor atlas must be RGBA {EXPECTED_ATLAS_SIZE}, got "
                 f"{atlas.format} {atlas.mode} {atlas.size}"
             )
+        fate_frames = anim_payload["anims"]["ult_fate_sealed"]["frames"]
+        fate_metrics: list[tuple[int, int, int]] = []
+        for index, frame in enumerate(fate_frames):
+            data = frame["data"]
+            rendered = atlas.crop(
+                (
+                    data["x"],
+                    data["y"],
+                    data["x"] + data["w"],
+                    data["y"] + data["h"],
+                )
+            )
+            alpha = rendered.getchannel("A")
+            bbox = alpha.getbbox()
+            if bbox is None:
+                _fail(f"Yone ult_fate_sealed[{index}] is transparent")
+            opaque_pixels = sum(1 for value in _pixels(alpha) if value)
+            fate_metrics.append(
+                (bbox[2] - bbox[0], bbox[3] - bbox[1], opaque_pixels)
+            )
+        if any(height < 34 for _width, height, _opaque in fate_metrics):
+            _fail("Yone ult_fate_sealed contains a shrunken pre-launch silhouette")
+        if any(opaque < 560 for _width, _height, opaque in fate_metrics):
+            _fail("Yone ult_fate_sealed contains a low-area pre-launch silhouette")
+        fate_heights = [height for _width, height, _opaque in fate_metrics]
+        if max(
+            abs(fate_heights[index] - fate_heights[index - 1])
+            for index in range(len(fate_heights))
+        ) > 4:
+            _fail("Yone ult_fate_sealed actor scale jumps between adjacent frames")
+        if not (
+            fate_metrics[5][0] >= 24
+            and fate_metrics[5][1] >= 34
+            and fate_metrics[5][2] >= 560
+            and fate_metrics[6][0] >= 50
+            and fate_metrics[6][1] >= 37
+            and fate_metrics[6][2] >= 850
+        ):
+            _fail("Yone ult_fate_sealed launch frames lost their full-body scale")
+        animation_contract["fate_sealed_scale"] = {
+            "bbox_heights": fate_heights,
+            "minimum_opaque_pixels": min(
+                opaque for _width, _height, opaque in fate_metrics
+            ),
+            "maximum_adjacent_height_delta": max(
+                abs(fate_heights[index] - fate_heights[index - 1])
+                for index in range(len(fate_heights))
+            ),
+        }
     rows = payload.get("frames")
     if not isinstance(rows, list) or len(rows) != EXPECTED_BODY_FRAME_COUNT:
         actual_count = len(rows) if isinstance(rows, list) else None
@@ -1650,6 +2147,16 @@ def validate_v7(
             f"body frames, got {actual_count}"
         )
 
+    # This validator is also loaded directly by file path. Do not depend on
+    # unrelated tests having inserted tools/ into the process import path.
+    editor_spec = importlib.util.spec_from_file_location(
+        "_yone_run_validation_source", Path(__file__).with_name("yone_run_anatomy.py")
+    )
+    if editor_spec is None or editor_spec.loader is None:
+        _fail("Cannot load the authored Yone run validator")
+    run_editor = importlib.util.module_from_spec(editor_spec)
+    editor_spec.loader.exec_module(run_editor)
+    run_editor.ROOT = mod_root / "source/native/yone_run_handdrawn"
     seen_keys: set[tuple[str, int]] = set()
     seen_files: set[str] = set()
     reports: dict[str, Any] = {}
@@ -1747,9 +2254,12 @@ def validate_v7(
         if action != "dead" and bottom_margin < 2:
             _fail(f"{label} has only {bottom_margin}px bottom safety margin")
 
+        packed_source = source
+        if action == "run":
+            packed_source, _ = run_editor.load_frame(source, index)
         if atlas is not None:
             atlas_frame = atlas.crop(_bbox_to_pillow(atlas_rect))
-            if atlas_frame.tobytes() != source.tobytes():
+            if atlas_frame.tobytes() != packed_source.tobytes():
                 _fail(
                     f"{label} source->atlas bytes differ (resample/quantize/clip is forbidden)"
                 )
@@ -1759,6 +2269,9 @@ def validate_v7(
             "file": file_raw,
             "rect": list(atlas_rect),
             "source_to_atlas_byte_identical": atlas is not None,
+            "identity_reference": "post-authorized-leg-edit" if action == "run" else "original-native-source",
+            "packed_rgba_sha256": hashlib.sha256(packed_source.tobytes()).hexdigest(),
+            "packed_opaque_palette_colors": len({c for c in _pixels(packed_source) if c[3]}),
             "hard_alpha": True,
             "zero_resampling": True,
             "zero_quantize": True,
@@ -1791,6 +2304,7 @@ def validate_v7(
         palette,
     )
     generation_report = _validate_generation_qa(mod_root)
+    run_png_gait_report = _validate_run_png_gait(sources, palette, rows_by_key)
     dual_sword_report = _validate_dual_sword_cues(sources, palette, rows_by_key)
     runtime_weapon_report = _validate_runtime_weapon_routes(mod_root)
     if verify_retired_paths:
@@ -1818,6 +2332,7 @@ def validate_v7(
         "frames": reports,
         "body_preview": preview_report,
         "generation_qa": generation_report,
+        "run_png_gait": run_png_gait_report,
         "animation_contract": animation_contract,
         "weapon_contract": payload["weapon_contract"],
         "dual_sword": dual_sword_report,

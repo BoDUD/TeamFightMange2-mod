@@ -41,8 +41,8 @@ function Assert-StableSdkParity {
     $baseVersionPath = Join-Path $externalRoot "base_version.txt"
     if (Test-Path -LiteralPath $baseVersionPath -PathType Leaf) {
         $baseVersion = (Get-Content -LiteralPath $baseVersionPath -Raw -Encoding UTF8).Trim()
-        if ([version]$baseVersion -lt [version]"0.5.7") {
-            throw "Teamfight Manager 2 stable SDK 0.5.7 or newer is required; found $baseVersion"
+        if ([version]$baseVersion -lt [version]"0.5.8") {
+            throw "Teamfight Manager 2 stable SDK 0.5.8 or newer is required; found $baseVersion"
         }
     }
 
@@ -52,16 +52,39 @@ function Assert-StableSdkParity {
     $externalFiles = Get-ChildItem -LiteralPath $externalApi -File -Recurse | ForEach-Object {
         $_.FullName.Substring($externalApi.Length).TrimStart('\', '/') -replace '\\', '/'
     } | Sort-Object
-    if (($vendorFiles -join "`n") -ne ($externalFiles -join "`n")) {
-        throw "Vendored stable API file set differs from the supplied SDK"
-    }
-    foreach ($relative in $vendorFiles) {
-        $vendorFile = Join-Path $VendoredApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        $externalFile = Join-Path $externalApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if ((Get-Sha256Hex -Path $vendorFile) -ne (Get-Sha256Hex -Path $externalFile)) {
-            throw "Vendored stable API differs from the supplied SDK: $relative"
+    $exactFileSet = ($vendorFiles -join "`n") -eq ($externalFiles -join "`n")
+    if ($exactFileSet) {
+        foreach ($relative in $vendorFiles) {
+            $vendorFile = Join-Path $VendoredApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            $externalFile = Join-Path $externalApi ($relative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+            if ((Get-Sha256Hex -Path $vendorFile) -ne (Get-Sha256Hex -Path $externalFile)) {
+                throw "Vendored stable API differs from the supplied SDK: $relative"
+            }
         }
+        return
     }
+
+    # A newer game may ship additional append-only ABI slots and files.  Keep
+    # this mod compiled against its declared required ABI so one DLL remains
+    # loadable on its base 0.5.8 baseline and later hosts.  The newer SDK publishes the
+    # exact frozen contract for every supported older level; matching that
+    # contract is the authoritative compatibility check.
+    $vendorLib = Join-Path $VendoredApi "src\lib.rs"
+    $vendorLibText = Get-Content -LiteralPath $vendorLib -Raw -Encoding UTF8
+    $abiMatch = [regex]::Match($vendorLibText, 'pub const ABI_LEVEL:\s*u32\s*=\s*(\d+);')
+    if (-not $abiMatch.Success) {
+        throw "Vendored stable API does not declare ABI_LEVEL"
+    }
+    $vendorAbi = [int]$abiMatch.Groups[1].Value
+    $vendorContract = Join-Path $VendoredApi "contract\abi_v1.txt"
+    $externalFrozenContract = Join-Path $externalApi "contract\frozen\abi_level_$vendorAbi.txt"
+    if (-not (Test-Path -LiteralPath $externalFrozenContract -PathType Leaf)) {
+        throw "Supplied SDK does not publish the vendored ABI level $vendorAbi frozen contract"
+    }
+    if ((Get-Sha256Hex -Path $vendorContract) -ne (Get-Sha256Hex -Path $externalFrozenContract)) {
+        throw "Vendored ABI level $vendorAbi differs from the supplied SDK frozen contract"
+    }
+    Write-Host "Verified vendored ABI level $vendorAbi against the supplied newer SDK frozen contract"
 }
 
 $modRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
@@ -108,8 +131,8 @@ print(required())
 '@ | python -
 $probeExitCode = $LASTEXITCODE
 Remove-Item Env:LOL_MOD_DLL_TO_VERIFY -ErrorAction SilentlyContinue
-if ($probeExitCode -ne 0 -or $exported.Trim() -ne "1") {
-    throw "Built DLL did not export the baseline Teamfight Manager 2 stable ABI entry points"
+if ($probeExitCode -ne 0 -or $exported.Trim() -ne "8") {
+    throw "Built DLL did not export the required Teamfight Manager 2 stable ABI level 8 entry points"
 }
 
-Write-Output "Build successful: $OutDll (stable ABI, requires level 1)"
+Write-Output "Build successful: $OutDll (stable ABI, requires level 8)"

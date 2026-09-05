@@ -35,23 +35,9 @@ if ([System.IO.Path]::GetFileName($targetMod) -ne "lol_mod") {
     throw "Refusing to replace an unexpected target: $targetMod"
 }
 
-$runtimeEntries = @(
-    "mod.mod_info",
-    "mod.override_info",
-    "champion",
-    "icons",
-    "aseprite_resources",
-    "BanPickIllust",
-    "ui",
-    "style",
-    "text",
-    "sound",
-    "lol_mod.dll"
-)
-
-$manifestPath = Join-Path $sourceMod "build_manifest.json"
+$manifestPath = Join-Path $sourceMod "runtime_manifest.json"
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
-    throw "Missing source build manifest: $manifestPath"
+    throw "Missing source runtime manifest: $manifestPath"
 }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
 foreach ($row in $manifest.files) {
@@ -85,8 +71,8 @@ public static class LolModApiVersionProbe
 Add-Type -TypeDefinition $probeSource
 $requiredAbiLevel = [LolModApiVersionProbe]::GetRequiredAbiLevel()
 $nullHostResult = [LolModApiVersionProbe]::StableEntry([System.IntPtr]::Zero)
-if ($requiredAbiLevel -ne 1 -or $nullHostResult -ne [System.IntPtr]::Zero) {
-    throw "Source lol_mod.dll must export the baseline Teamfight Manager 2 stable ABI entry points"
+if ($requiredAbiLevel -ne 8 -or $nullHostResult -ne [System.IntPtr]::Zero) {
+    throw "Source lol_mod.dll must export the Teamfight Manager 2 stable ABI level 8 entry points"
 }
 
 New-Item -ItemType Directory -Force -Path $modsRoot | Out-Null
@@ -99,27 +85,16 @@ if (Test-Path -LiteralPath $targetMod) {
 }
 New-Item -ItemType Directory -Force -Path $targetMod | Out-Null
 
-foreach ($entry in $runtimeEntries) {
-    $source = Join-Path $sourceMod $entry
-    if (-not (Test-Path -LiteralPath $source)) {
-        throw "Missing runtime entry: $source"
-    }
-    Copy-Item -LiteralPath $source -Destination $targetMod -Recurse -Force
-}
-
-# A release may deliberately publish a small provenance file outside the
-# standard runtime directories (for example the pinned Xayah ImageGen/audio
-# audits). Copy any such manifest-owned file to its exact relative path rather
-# than widening the install to the entire development-only qa directory.
+# Copy each manifest-owned file from the exact stable-ABI runtime closure.
+# Development QA, source art and retired classic-render assets must never
+# leak into the active game mod.
 foreach ($row in $manifest.files) {
     $relative = $row.path -replace '/', [System.IO.Path]::DirectorySeparatorChar
     $source = Join-Path $sourceMod $relative
     $installed = Join-Path $targetMod $relative
-    if (-not (Test-Path -LiteralPath $installed -PathType Leaf)) {
-        $installedParent = Split-Path -Parent $installed
-        New-Item -ItemType Directory -Force -Path $installedParent | Out-Null
-        Copy-Item -LiteralPath $source -Destination $installed -Force
-    }
+    $installedParent = Split-Path -Parent $installed
+    New-Item -ItemType Directory -Force -Path $installedParent | Out-Null
+    Copy-Item -LiteralPath $source -Destination $installed -Force
 }
 
 foreach ($row in $manifest.files) {
