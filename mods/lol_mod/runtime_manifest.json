@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generator": "mods/lol_mod/tools/build_lol_mod.py",
-  "purpose": "0.12.15 native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
-  "file_count": 468,
-  "total_size": 90075374,
+  "purpose": "0.12.16 BP native pick-marker routing and fixed-source leaf cards; native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
+  "file_count": 470,
+  "total_size": 90108060,
   "soft_budget": 100663296,
   "hard_budget": 134217728,
   "within_soft_budget": true,
@@ -1015,18 +1015,18 @@
     },
     {
       "path": "lol_mod.dll",
-      "size": 214016,
-      "sha256": "550417ed2984a9215a8704319f361ca7698df2c99bce64d74f18518621bbe7ba"
+      "size": 220160,
+      "sha256": "cc541af6af0cddbd210e9609c11bffd0c803dde6252694e3176d3eb4df5445a2"
     },
     {
       "path": "mod.mod_info",
       "size": 1370,
-      "sha256": "9dd7764ff75d48b3cfac7e258ee7d305776321d874c3df19038388a06d45a495"
+      "sha256": "7638fd47fbd4bcc8da667f5c411b086aff2848f03f687ebe57c28427d78df8b5"
     },
     {
       "path": "mod.override_info",
-      "size": 51171,
-      "sha256": "811297d603bbdbe415d28a580dd0bd100688c8297b768626ca76f8a9e41c07f0"
+      "size": 51459,
+      "sha256": "9df231770d86171ed15ea1f1b48cee6adbc1e416056aeb1594d87222d8d2b256"
     },
     {
       "path": "sound/bgm/lol_banpick.wav",
@@ -2182,6 +2182,16 @@
       "path": "ui/banpick/lol_bp_timer_plate.png",
       "size": 4457,
       "sha256": "64b7fd0e1ce19060bd228d541ab4c0a549534cd966596b28ac1b29529cc31f2a"
+    },
+    {
+      "path": "ui/bp_pick_cards/blue_pick_slot.ui",
+      "size": 13075,
+      "sha256": "6b7fc9335c246f36e75a83af4d0a855a02eba76c30452f0e3cc646d849e0726b"
+    },
+    {
+      "path": "ui/bp_pick_cards/red_pick_slot.ui",
+      "size": 13179,
+      "sha256": "9cfeea61dd771b8c6cfdfdbf4eb96da8213a9f64ce4a025af0250ee618eb4408"
     },
     {
       "path": "ui/icons/morgard.svg",

@@ -219,8 +219,6 @@ def test_bp_0_5_1_qa_and_override_contract() -> None:
 
     for asset_key in (
         "asset/base/ui/layout/banpick/layout",
-        "asset/base/ui/layout/banpick/blue_pick_slot",
-        "asset/base/ui/layout/banpick/red_pick_slot",
         "asset/base/ui/layout/banpick/champion_slot",
     ):
         assert asset_key not in override
@@ -236,17 +234,20 @@ def test_quality_builder_rebuilds_bp_from_the_current_bundle() -> None:
     assert '"pack_quality_bp_skin.py"' in builder_source
 
 
-def test_bp_0_5_7_uses_additive_stable_ui_instead_of_legacy_layout_override() -> None:
+def test_bp_0_5_8_only_augments_verified_leaf_cards_not_full_layout_or_grid() -> None:
     runtime = (MOD / "src" / "stable_runtime.rs").read_text(encoding="utf-8")
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
 
     for asset_key in (
         "asset/base/ui/layout/banpick/layout",
-        "asset/base/ui/layout/banpick/blue_pick_slot",
-        "asset/base/ui/layout/banpick/red_pick_slot",
         "asset/base/ui/layout/banpick/champion_slot",
     ):
         assert asset_key not in override
+
+    for side in ("blue", "red"):
+        assert override[f"asset/base/ui/layout/banpick/{side}_pick_slot"] == {
+            "remapping": f"asset/lol_mod/ui/bp_pick_cards/{side}_pick_slot", "type": "override",
+        }
 
     assert "sync_bp_runtime_ui(client);" in runtime
     assert "client.ui_spawn_source(parent, source)" in runtime
@@ -260,11 +261,13 @@ def test_bp_0_5_7_uses_additive_stable_ui_instead_of_legacy_layout_override() ->
         "lol_bp_runtime_champion_grid_frame",
         "lol_bp_runtime_champion_card_frame",
         "lol_bp_runtime_side_pick_frame",
-        "lol_bp_runtime_illustration",
         "lol_bp_runtime_stat_frame",
         "lol_bp_runtime_skill_frame",
     ):
         assert node in runtime
+
+    assert "bp_illustrations::sync(client, root);" in runtime
+    assert "bp_champion_id_from_name" not in runtime
 
 
 def test_runtime_bp_cards_are_exact_size_mirrored_and_in_active_manifest() -> None:
@@ -302,7 +305,7 @@ def test_rift_towers_and_league_music_remain_in_the_active_runtime_closure() -> 
     override = json.loads((MOD / "mod.override_info").read_text(encoding="utf-8"))
     manifest = json.loads((MOD / "runtime_manifest.json").read_text(encoding="utf-8"))
     paths = {row["path"] for row in manifest["files"]}
-    assert manifest["purpose"].startswith("0.12.15 ")
+    assert manifest["purpose"].startswith("0.12.16 ")
     assert "native encyclopedia resolver" in manifest["purpose"]
     assert "authored mirrored Yone run" in manifest["purpose"]
     assert "asset/base/ui/layout/champion_info_component/champion_slot" not in override

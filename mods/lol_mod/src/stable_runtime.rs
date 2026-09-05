@@ -7,6 +7,8 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 
+mod bp_illustrations;
+
 use mod_api_stable::{
     declare_stable_mod, AttackTypeV1, BuffV1, InputKindV1, InputTargetKindV1, InputTargetV1,
     InputV1, LaneV1, LogLevel, StableAiContext, StableAiInit, StableClient, StableEffectType,
@@ -135,29 +137,15 @@ fn join_ui_path(parent: &str, child: &str) -> String {
     }
 }
 
-fn bp_champion_id_from_name(name: &str) -> Option<&'static str> {
-    match name.trim() {
-        "lol_shen" | "Shen" | "慎" | "シェン" | "쉔" => Some("lol_shen"),
-        "archer" | "Lucian" | "卢锡安" | "路西恩" | "ルシアン" | "루시안" => {
-            Some("archer")
-        }
-        "barrier_magician" | "Orianna" | "奥利安娜" | "奧利安娜" | "オリアナ" | "오리아나" => {
-            Some("barrier_magician")
-        }
-        "berserker" | "Briar" | "贝蕾亚" | "貝蕾亞" | "ブライアー" | "브라이어" => {
-            Some("berserker")
-        }
-        "boomerang_hunter" | "Sivir" | "希维尔" | "希維爾" | "シヴィア" | "시비르" => {
-            Some("boomerang_hunter")
-        }
-        "cavalry_knight" | "Kled" | "克烈" | "クレッド" | "클레드" => {
-            Some("cavalry_knight")
-        }
-        "dancer" | "Xayah" | "霞" | "剎雅" | "ザヤ" | "자야" => Some("dancer"),
-        "demon" | "Urgot" | "厄加特" | "アーゴット" | "우르곳" => Some("demon"),
-        "dual_blader" | "Yone" | "永恩" | "犽凝" | "ヨネ" | "요네" => Some("dual_blader"),
-        _ => None,
+impl bp_illustrations::Ui for StableClient<'_> {
+    fn children(&self, path: &str) -> Vec<String> { self.ui_child_names(path) }
+    fn visible(&self, path: &str) -> Option<bool> { self.ui_visible(path) }
+    fn text(&self, path: &str) -> Option<String> { self.ui_text(path) }
+    fn image_size(&self, path: &str) -> Option<(f32, f32)> {
+        if self.ui_runner_name(path).as_deref() != Some("image") { return None; }
+        self.ui_node_rect(path).map(|(_, _, w, h)| (w, h))
     }
+    fn show(&mut self, path: &str, visible: bool) -> bool { self.ui_set_visible(path, visible) }
 }
 
 fn ensure_ui_child(client: &mut StableClient<'_>, parent: &str, child: &str, source: &str) -> bool {
@@ -258,7 +246,7 @@ fn decorate_bp_champion_cards(client: &mut StableClient<'_>, root: &str) {
     }
 }
 
-fn sync_bp_pick_container(client: &mut StableClient<'_>, root: &str, side: &str) {
+fn decorate_bp_pick_container(client: &mut StableClient<'_>, root: &str, side: &str) {
     let container = join_ui_path(root, &format!("{side}_picks"));
     for child in client
         .ui_child_names(&container)
@@ -273,45 +261,6 @@ fn sync_bp_pick_container(client: &mut StableClient<'_>, root: &str, side: &str)
             r#"lol_bp_runtime_side_pick_frame:image { ignore_event: true; width: 100%; height: 100%; z: 90; source: "asset/lol_mod/ui/banpick/lol_bp_side_pick_frame"; }"#,
         );
 
-        let done = join_ui_path(&slot, "done");
-        if !client.ui_exists(&done) {
-            continue;
-        }
-        ensure_ui_child(
-            client,
-            &done,
-            "lol_bp_runtime_illustration",
-            r#"lol_bp_runtime_illustration:image { ignore_event: true; x: 8px; y: 1px; width: 284px; height: 172px; visible: false; sample_linear: true; z: -20; }"#,
-        );
-        let tint_source = if side == "red" {
-            r#"lol_bp_runtime_illustration_tint:color { ignore_event: true; x: 145px; width: 147px; height: 174px; visible: false; color: #07080ba8; z: -10; }"#
-        } else {
-            r#"lol_bp_runtime_illustration_tint:color { ignore_event: true; width: 158px; height: 174px; visible: false; color: #07080ba8; z: -10; }"#
-        };
-        ensure_ui_child(
-            client,
-            &done,
-            "lol_bp_runtime_illustration_tint",
-            tint_source,
-        );
-
-        let name = client.ui_text(&join_ui_path(&done, "name"));
-        let illustration = join_ui_path(&done, "lol_bp_runtime_illustration");
-        let tint = join_ui_path(&done, "lol_bp_runtime_illustration_tint");
-        let champion = join_ui_path(&done, "champion");
-        if let Some(champion_id) = name.as_deref().and_then(bp_champion_id_from_name) {
-            let source = format!(
-                "source: \"asset/lol_mod/ui/banpick/champion_illustration/{champion_id}_{side}\"; sample_linear: true;"
-            );
-            client.ui_set_properties(&illustration, &source);
-            client.ui_set_visible(&illustration, true);
-            client.ui_set_visible(&tint, true);
-            client.ui_set_visible(&champion, false);
-        } else if client.ui_visible(&illustration) == Some(true) {
-            client.ui_set_visible(&illustration, false);
-            client.ui_set_visible(&tint, false);
-            client.ui_set_visible(&champion, true);
-        }
     }
 }
 
@@ -324,8 +273,8 @@ fn sync_bp_runtime_ui(client: &mut StableClient<'_>) {
         }
         decorate_bp_shell(client, root);
         decorate_bp_champion_cards(client, root);
-        sync_bp_pick_container(client, root, "blue");
-        sync_bp_pick_container(client, root, "red");
+        decorate_bp_pick_container(client, root, "blue");
+        decorate_bp_pick_container(client, root, "red");
     }
 }
 
@@ -371,6 +320,15 @@ fn fit_encyclopedia_native_layout(client: &mut StableClient<'_>) {
 impl StableExtension for QualityBpExtension {
     fn post_update(&self, client: &mut StableClient<'_>, dt_micros: u64) {
         fit_encyclopedia_native_layout(client);
+        // Identity/visibility must update every frame, not on the chrome's
+        // 250 ms timer: unpick, swap, and scene changes must clear old art.
+        for root in BP_RUNTIME_ROOT_PATHS {
+            if client.ui_exists(&join_ui_path(root, "blue_picks"))
+                && client.ui_exists(&join_ui_path(root, "red_picks"))
+            {
+                bp_illustrations::sync(client, root);
+            }
+        }
         let previous = self.elapsed_micros.fetch_add(dt_micros, Ordering::Relaxed);
         if previous.saturating_add(dt_micros) < BP_RUNTIME_SCAN_INTERVAL_MICROS {
             return;

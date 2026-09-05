@@ -19,6 +19,7 @@ from build_kled import build_all as build_kled_assets
 from build_urgot import build_all as build_urgot_assets
 from build_xayah import build_all as build_xayah_assets
 from build_yone import build_all as build_yone_assets
+from build_bp_pick_cards import build as build_bp_pick_cards
 from qa_legacy_battle_actor_scale import (
     build_all as build_legacy_battle_actor_scale_qa,
 )
@@ -4953,7 +4954,7 @@ def build_runtime_manifest(build_manifest_path: Path) -> Path:
     payload = {
         "schema_version": 1,
         "generator": "mods/lol_mod/tools/build_lol_mod.py",
-        "purpose": "0.12.15 native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
+        "purpose": "0.12.16 BP native pick-marker routing and fixed-source leaf cards; native encyclopedia resolver with layout-only fit; authored mirrored Yone run unchanged and not visually accepted",
         "file_count": len(runtime_rows),
         "total_size": total_bytes,
         "soft_budget": RUNTIME_SOFT_BUDGET_BYTES,
@@ -5043,6 +5044,7 @@ def main() -> int:
     yone_outputs = build_yone_assets()
     champion_fullbody_portraits = build_champion_fullbody_portraits()
     runtime_bp_illustrations = build_runtime_bp_illustrations()
+    bp_pick_cards = build_bp_pick_cards()
     orianna_briar_hd_surface_qa = build_orianna_briar_hd_surface_qa()
     legacy_battle_actor_scale_qa = build_legacy_battle_actor_scale_qa()
     manifest = None if args.skip_manifest else build_manifest(yone_outputs)
@@ -5086,6 +5088,7 @@ def main() -> int:
         *yone_outputs,
         *champion_fullbody_portraits,
         *runtime_bp_illustrations,
+        *bp_pick_cards,
         *orianna_briar_hd_surface_qa,
         *legacy_battle_actor_scale_qa,
         *([manifest] if manifest else []),

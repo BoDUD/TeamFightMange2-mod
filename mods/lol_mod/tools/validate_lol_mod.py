@@ -6647,9 +6647,20 @@ def validate_quality_map_and_bp_skin(override: dict[str, Any]) -> None:
         )
 
     for source_key in LEGACY_BASE_050_BP_OVERRIDES:
+        leaf_side = next((side for side in ("blue", "red")
+                          if source_key == f"asset/base/ui/layout/banpick/{side}_pick_slot"), None)
+        if leaf_side is not None:
+            check(
+                override.get(source_key) == {
+                    "remapping": f"asset/lol_mod/ui/bp_pick_cards/{leaf_side}_pick_slot",
+                    "type": "override",
+                },
+                f"BP leaf must use the verified base-0.5.8 template: {source_key}",
+            )
+            continue
         check(
             source_key not in override,
-            f"legacy base-0.5.0 BP override must be absent on base 0.5.1: {source_key}",
+            f"legacy full/grid BP override must be absent on base 0.5.8: {source_key}",
         )
 
 
@@ -8264,7 +8275,7 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "Yone actor sheet override is missing",
     )
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.15", "lol_mod version must be 0.12.15")
+    check(mod_info.get("version") == "0.12.16", "lol_mod version must be 0.12.16")
     check(
         mod_info.get("dependencies") == [{"mod_id": "base", "version": ">=0.5.8"}],
         "lol_mod must declare base >=0.5.8",
@@ -9342,19 +9353,17 @@ def validate_yone(champion: dict[str, Any], override: dict[str, Any]) -> None:
         "retired raw render-command portrait rewrites must stay out of the compiled runtime",
     )
 
-    bp_alias = ""
-    if "fn bp_champion_id_from_name" in rust:
-        bp_alias = rust.split("fn bp_champion_id_from_name", 1)[1].split(
-            "fn ensure_ui_child", 1
-        )[0]
+    bp_source = (MOD_ROOT / "src" / "bp_illustrations.rs").read_text(encoding="utf-8")
     check(
-        '"dual_blader" | "Yone"' in bp_alias
-        and 'Some("dual_blader")' in bp_alias,
-        "Yone BP illustration alias route is missing",
+        '"dual_blader"' in bp_source and '"{root}.champions.contents"' in bp_source
+        and "bp_champion_id_from_name" not in rust,
+        "BP must resolve native champion IDs from pick markers, not athlete names",
     )
     check(
-        "champion_illustration/{champion_id}_{side}" in rust
-        and "client.ui_set_visible(&illustration, true)" in rust,
+        "bp_illustrations::sync(client, root);" in rust
+        and 'ui.show(&actor, false)' in bp_source
+        and all((MOD_ROOT / "ui" / "bp_pick_cards" / f"{side}_pick_slot.ui").is_file()
+                for side in ("blue", "red")),
         "Yone BP splash must remain available through the stable BP illustration route",
     )
 
@@ -9774,7 +9783,7 @@ def main() -> int:
     yone = load_json("champion/dual_blader.data_champion")
     override = load_json("mod.override_info")
     mod_info = load_json("mod.mod_info")
-    check(mod_info.get("version") == "0.12.15", "lol_mod version must be 0.12.15")
+    check(mod_info.get("version") == "0.12.16", "lol_mod version must be 0.12.16")
     validate_objective_killfeed_names(override)
     discovered_overrides, total_overrides = validate_override_asset_discoverability(override)
     validate_quality_nexus_assets(override)

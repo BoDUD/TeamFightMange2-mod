@@ -509,9 +509,10 @@ def test_xayah_localization_style_encyclopedia_and_audio_isolation_are_registere
     assert style["face"] != style["center"]
 
     stable_runtime = (MOD / "src/stable_runtime.rs").read_text(encoding="utf-8")
-    assert '"boomerang_hunter" | "Sivir"' in stable_runtime
-    assert '"dancer" | "Xayah"' in stable_runtime
-    assert '"dual_blader" | "Yone"' in stable_runtime
+    bp_runtime = (MOD / "src/bp_illustrations.rs").read_text(encoding="utf-8")
+    for native_id in ("boomerang_hunter", "dancer", "dual_blader"):
+        assert f'"{native_id}"' in bp_runtime
+    assert "bp_champion_id_from_name" not in stable_runtime
     for forbidden in (
         "sync_encyclopedia",
         "find_encyclopedia_container",
